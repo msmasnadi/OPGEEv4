@@ -1,0 +1,23 @@
+include README.rst
+include LICENSE.txt
+include setup.py
+include ez_setup.py
+
+# Source code
+include opgee/*.py
+graft opgee/built_ins
+
+# Assorted data files
+graft opgee/etc
+
+# Documentation source as well as generated html
+graft docs/source
+include docs/[mM]ake*
+
+# anaconda environment definitions
+graft envs
+
+# Test code
+graft tests
+
+global-exclude .DS_Store .gitignore *.pyc

@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema' elementFormDefault='qualified'>
+	
+	<xs:element name='Model'>
+		<xs:complexType>
+			<xs:choice maxOccurs="2">
+				<xs:element minOccurs='0' maxOccurs='1' ref="Analysis"/>
+				<xs:element minOccurs='0' maxOccurs='1' ref='TechnologyDatabase'/>
+			</xs:choice>
+		</xs:complexType>
+    </xs:element>
+	
+    <xs:element name='FunctionalUnit' type='xs:NCName'/>
+    <xs:element name='EnergyBasis' type='xs:NCName'/>
+	
+	<xs:element name='Analysis'>
+        <xs:complexType>
+			<xs:choice maxOccurs='unbounded'>
+                <xs:element minOccurs='1' maxOccurs='1' ref='FunctionalUnit'/>
+                <xs:element minOccurs='1' maxOccurs='1' ref='EnergyBasis'/>
+                <xs:element minOccurs='0' maxOccurs='unbounded' ref='Field'/>
+                <xs:element ref='Variables'/>
+            </xs:choice>
+            <xs:attribute name='name' use='required' type='xs:NCName'/>
+        </xs:complexType>
+	</xs:element>
+	
+    <xs:element name='Variables'>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs='unbounded' ref='A'/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+	
+	<xs:element name='Field'>
+        <xs:complexType>
+            <xs:choice maxOccurs='unbounded'>
+                <xs:element maxOccurs='unbounded' ref='A'/>
+                <xs:element minOccurs='1' maxOccurs='unbounded' ref='Process'/>
+            </xs:choice>
+            <xs:attribute name='is_offshore' use='required' type='xs:NCName'/>
+            <xs:attribute name='location' use='required' type='xs:NCName'/>
+            <xs:attribute name='name' use='required' type='xs:NCName'/>
+        </xs:complexType>
+    </xs:element>
+	
+    <xs:element name='A'>
+        <xs:complexType>
+            <xs:simpleContent>
+                <xs:extension base='xs:NMTOKEN'>
+                    <xs:attribute name='name' use='required' type='xs:NCName'/>
+                    <xs:attribute name='type' type='xs:NCName'/>
+                    <xs:attribute name='unit'/>
+                    <xs:attribute name='desc'/>
+                </xs:extension>
+            </xs:simpleContent>
+        </xs:complexType>
+	</xs:element>
+	
+	<!-- use type forward reference to define recursive structure -->
+	<xs:element name="Process" type="ProcessType"></xs:element>
+	
+	<xs:complexType name="ProcessType">
+		<xs:choice maxOccurs="unbounded">
+			<xs:element name="Process" type="ProcessType"/>
+			<xs:element minOccurs='0' maxOccurs='unbounded' ref='A'/>
+			<xs:element minOccurs='0' maxOccurs='unbounded' ref='Technology'/>	
+			<xs:element minOccurs='0' maxOccurs='unbounded' ref='Option'/>
+			<xs:element minOccurs='0' maxOccurs='unbounded' ref='Stream'/>			
+		</xs:choice>
+		<xs:attribute name='class' type='xs:NCName'/>
+		<xs:attribute name='name' type='xs:NCName'/>
+	</xs:complexType>
+	
+    <xs:element name='Option'>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs='unbounded' ref='Technology'/>
+            </xs:sequence>
+            <xs:attribute name='default' use='required' type='xs:NCName'/>
+            <xs:attribute name='name' use='required' type='xs:NCName'/>
+            <xs:attribute name='selected' use='required' type='xs:NCName'/>
+        </xs:complexType>
+	</xs:element>
+	
+	<xs:element name='Temperature'>
+        <xs:complexType>
+            <xs:simpleContent>
+                <xs:extension base='xs:decimal'>
+                    <xs:attribute name='unit' use='required'/>
+                </xs:extension>
+            </xs:simpleContent>
+        </xs:complexType>
+	</xs:element>	
+	
+	<xs:element name='Pressure'>
+        <xs:complexType>
+            <xs:simpleContent>
+                <xs:extension base='xs:decimal'>
+                    <xs:attribute name='unit' use='required'/>
+                </xs:extension>
+            </xs:simpleContent>
+        </xs:complexType>
+    </xs:element>	
+	
+    <xs:element name='Stream'>
+        <xs:complexType>
+            <xs:choice maxOccurs="unbounded">
+                <xs:element ref='Temperature'/>
+                <xs:element ref='Pressure'/>
+                <xs:element ref='Component'/>
+                <xs:element ref='Source'/>
+                <xs:element ref='Destination'/>
+            </xs:choice>
+            <xs:attribute name='name' use='required'/>
+            <xs:attribute name='number' use='required' type='xs:integer'/>
+        </xs:complexType>
+	</xs:element>
+	
+    <xs:element name='Phase' type='xs:NCName'/>
+	
+	<xs:element name='Rate'>
+        <xs:complexType>
+            <xs:simpleContent>
+                <xs:extension base='xs:decimal'>
+                    <xs:attribute name='unit' use='required'/>
+                </xs:extension>
+            </xs:simpleContent>
+        </xs:complexType>
+    </xs:element>	
+	
+	<xs:element name='Component'>
+        <xs:complexType>
+            <xs:choice maxOccurs="unbounded">
+                <xs:element minOccurs="1" ref='Phase'/>
+                <xs:element minOccurs="1" ref='Rate'/>
+			</xs:choice>
+			<xs:attribute name='name' use='required'/>
+        </xs:complexType>
+	</xs:element>
+	
+    <xs:element name='Source'>
+        <xs:complexType>
+            <xs:attribute name='name' use='required' type='xs:NCName'/>
+        </xs:complexType>
+    </xs:element>
+	
+	<xs:element name='Destination'>
+        <xs:complexType>
+            <xs:attribute name='fraction' type='xs:decimal'/>
+            <xs:attribute name='name' use='required' type='xs:NCName'/>
+        </xs:complexType>
+    </xs:element>
+	
+	<xs:element name='Technology'>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs='0' maxOccurs='unbounded' ref='A'/>
+            </xs:sequence>
+            <xs:attribute name='class' use='required' type='xs:NCName'/>
+            <xs:attribute name='name' type='xs:NCName'/>			
+        </xs:complexType>
+	</xs:element>
+	
+	<xs:element name='TechnologyDatabase'>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs='0' maxOccurs='unbounded' ref='Technology'/>
+			</xs:sequence>
+		</xs:complexType>		
+	</xs:element>
+	
+</xs:schema>

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Attributes definitions and the deterministic default values -->
+<Attributes>
+  <Field>
+    <Group name="Production_methods">
+      <A name="downhole_pump" type="binary" desc="Downhold pump">1</A>
+      <A name="water_reinjection" type="binary" desc="Water reinjection">1</A>
+      <A name="natural_gas_reinjection" desc="Natural gas reinjection">1</A>
+      <A name="water_flooding" type="binary" desc="Water flooding">0</A>
+      <A name="gas_lifting" type="binary" desc="Gas lifting">0</A>
+      <A name="gas_flooding" type="binary" desc="Gas flooding">0</A>
+      <A name="steam_flooding" type="binary" desc="Steam flooding">0</A>
+      <A name="oil_sands_mine_int" type="binary" desc="Oil sands mine (integrated with upgrader)">0</A>
+      <A name="oil_sands_mine_non_int" type="binary" desc="Oil sands mine (non-integrated with upgrader)">0</A>
+    </Group>
+    <Group name="Field_properties">
+      <A name="country" desc="Field location (country)">Generic</A>
+      <A name="name" desc="Field name">Generic</A>
+      <A name="age" unit="y" desc="Field age"/>
+      <A name="depth" unit="ft" desc="Field depth">8285</A>
+      <A name="oil_prod" unit="bbl/d" desc="Oil production volume">2098</A>
+      <A name="num_prod_wells" desc="Number of producing wells">1158</A>
+      <A name="num_water_inj_wells" desc="Number of water injecting wells">34436</A>
+      <A name="well_diam" unit="in" desc="Well diameter">2.8</A>
+      <A name="prod_index" unit="bbl/psi-d" desc="Productivity index">17.0</A>
+      <A name="res_press" unit="psia" desc="Average reservoir pressure">1061.2</A>
+      <A name="res_temp" unit="degF" desc="Average reservoir temperature">158.8</A>
+      <A name="offshore" type="binary" desc="Offshore?">0</A>
+    </Group>
+    <Group name="Fluid_properties">
+      <A name="API_grav" desc="API gravity of produced crude" unit="deg. API">47</A>
+      <A name="Gas_comp_N2" unit="mol%">2.0</A>
+      <A name="Gas_comp_CO2" unit="mol%">6.0</A>
+      <A name="Gas_comp_C1" unit="mol%">84.0</A>
+      <A name="Gas_comp_C2" unit="mol%">4.0</A>
+      <A name="Gas_comp_C3" unit="mol%">2.0</A>
+      <A name="Gas_comp_C4" unit="mol%">1.0</A>
+      <A name="Gas_comp_H2S" unit="mol%">1.0</A>
+    </Group>
+    <Group name="Production_practices">
+      <Options name="flood_gases">
+        <Option number="1">Natural gas</Option>
+        <Option number="2">Nitrogen (N2)</Option>
+        <Option number="3">Carbon dioxide (CO2)</Option>
+      </Options>
+      <Options name="liquids_unloading">
+        <Option number="1">plunger</Option>
+        <Option number="2">no plunger</Option>
+        <Option number="3">none</Option>
+      </Options>
+      <Options name="source_CO2">
+        <Option number="1">natural subsurface reservoir</Option>
+        <Option number="2">anthropogenic</Option>
+      </Options>
+      <A name="GOR" desc="Gas-to-oil ratio" unit="scf/bbl oil">1205.4</A>
+      <A name="WOR" desc="Water-to-oil ratio" unit="bbl water/bbl">27.7</A>
+      <A name="WIR" desc="Water injection ratio" unit="bbl water/bbl">17.0</A>
+      <A name="GLIR" desc="Gas lifting injection ratio" unit="scf/bbl liquid">1500.0</A>
+      <A name="GFIR" desc="Gas flooding injection ratio" unit="scf/bbl oil">22611.0</A>
+      <A name="flood_gas_type" desc="Flood gas" options="flood_gases">1</A>
+      <A name="liquids_unloading" options="liquids_unloading">3</A>
+      <A name="perc_CO2_breakthrough" desc="Fraction of CO2 breaking through to producers" unit="%">59</A>
+      <A name="source_CO2" desc="" options="source_CO2">1</A>
+      <A name="perc_sequestration_credit" desc="Percentage of sequestration credit assigned to the oilfield" unit="%">0</A>
+      <A name="SOR" desc="Steam-to-oil ratio" unit="bbl steam/bbl oil">0</A>
+      <A name="fraction_elec_onsite" desc="Fraction of required electricity generated onsite">0.0</A>
+      <A name="fraction_remaining_gas_inj" desc="Fraction of remaining gas reinjected">0.5</A>
+      <A name="fraction_water_reinjected" desc="Fraction of water produced that is reinjected">1.0</A>
+      <A name="fraction_steam_cogen" desc="Fraction of steam generation via co-generation">0.0</A>
+      <A name="fraction_steam_solar" desc="Fraction of steam generation via solar thermal">0.0</A>
+    </Group>
+    <Group name="Processing_practices">
+      <Options name="upgrader_type">
+        <Option number="0">None</Option>
+        <Option number="1">Delayed coking</Option>
+        <Option number="2">Hydroconversion</Option>
+        <Option number="3">Combined hydroconversion and fluid coking</Option>
+      </Options>
+      <Options name="gas_processing_path">
+        <Option number="1">None</Option>
+        <Option number="2">Minimal: Dehydrator</Option>
+        <Option number="3">Acid Gas: Dehydrator + Amine Process</Option>
+        <Option number="4">Wet Gas: Dehydrator + Demethanizer</Option>
+        <Option number="5">Acid Wet Gas: Dehydrator + Amine Process + Demethanizer</Option>
+        <Option number="6">Sour gas reinjection: Dehydration then direct injection of sour CO2-rich stream</Option>
+        <Option number="7">CO2-EOR Membrane: Dehydrator + Compressor + Membrane + Amine Process + Demethanizer</Option>
+        <Option number="8">CO2-EOR Ryan Holmes: Dehydrator + Ryan Holmes Process (Demethanizer Included)</Option>
+      </Options>      
+      <A name="heater_treater" type="binary" desc="Heater/treater"></A>
+      <A name="stabilizer_column" type="binary" desc="Stabilizer column"></A>
+      <A name="upgrader_type" desc="Upgrader type" options="upgrader_type">0</A>
+      <A name="gas_processing_path" desc="Associated gas processing path" options="gas_processing_path">5</A>
+      <A name="FOR" unit='scf/bbl' desc="Ratio of flaring to oil production">141.3</A>
+      <A name="VOR" unit='scf/bbl' desc="Ratio of venting to oil production">5.0</A>
+      <A name="fraction_diluent" desc="Volume fraction of diluent in diluted crude">5.0</A>
+    </Group>
+    
+    <Group name="LandUse_impacts">
+      <!-- RP added these; the spreadsheet uses 3 separate binary vars instead -->
+      <Options name="ecosystem_C_richness">
+        <Option number="1">Low carbon richness (semi-arid grasslands)</Option>        
+        <Option number="2">Moderate carbon richness (mixed)</Option>        
+        <Option number="3">High carbon richness (forested)</Option>        
+      </Options>
+      <Options name="field_development_intensity">
+        <Option number="1">Low intensity development and low oxidation</Option>        
+        <Option number="2">Moderate intensity development and moderate oxidation</Option>        
+        <Option number="3">High intensity development and high oxidation</Option>        
+      </Options>
+      <A name="ecosystem_richness" options="ecosystem_C_richness" desc="Ecosystem carbon richness">2</A>
+      <A name="field_development_intensity" options="field_development_intensity" desc="Field development intensity">2</A>
+    </Group>
+    <Group name="Transport_and_storage">
+    </Group>
+    <Group name="Small_source_emissions">
+    </Group>
+  </Field>
+  
+  <Process class="">
+    <Group name="">
+    </Group>
+  </Process>
+  
+  <Technology class="">
+    <Group name="">
+    </Group>
+  </Technology>
+</Attributes>
