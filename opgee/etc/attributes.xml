@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Attributes definitions and the deterministic default values -->
+<!-- This file defines attributes of standard OPGEE classes / XML elements, including
+     name, short description, unit (if any) and deterministic default values. It is used
+     to support parsing the XML model definition and to used by the Smart Default system
+     to fill in unspecified attributes. It can also eventually support a GUI, e.g., in
+     creating pulldown menus of options for categorical parameters and radio buttons for 
+     binary ones. 
+     -->
 <Attributes>
   <Field>
     <Group name="Production_methods">
@@ -111,8 +117,21 @@
       <A name="field_development_intensity" options="field_development_intensity" desc="Field development intensity">2</A>
     </Group>
     <Group name="Transport_and_storage">
+      <A name="Fraction_oil_transport_tanker" desc="Fraction  of oil transported by ocean tanker">1</A>
+      <A name="Fraction_oil_transport_barge" desc="Fraction of oil transported by barge">0</A>
+      <A name="Fraction_oil_transport_pipeline" desc="Fraction of oil transported by pipeline">1</A>
+      <A name="Fraction_oil_transport_rail" desc="Fraction of oil transported by rail">0</A>
+      <A name="Fraction_oil_transport_truck" desc="Fraction of oil transported by truck">0</A>
+      
+      <A name="Oil_transport_distance_tanker" unit="mi" desc="Ocean tanker transport distance (one way)">8000</A>
+      <A name="Oil_transport_distance_barge" unit="mi" desc="Barge transport distance (one way)">500</A>
+      <A name="Oil_transport_distance_pipeline" unit="mi" desc="Pipeline transport distance (one way)">1000</A>
+      <A name="Oil_transport_distance_rail" unit="mi" desc="Rail transport distance (one way)">800</A>
+      <A name="Oil_transport_distance_truck" unit="mi" desc="Truck transport distance (one way)">100</A>
+      <A name="ocean_tanker_size" unit="tons" desc="Ocean tanker size, if applicable">250000</A>
     </Group>
     <Group name="Small_source_emissions">
+      <A name="small_sources_adder" unit="g CO2eq/MJ" desc="Small source emissions adder">0.5</A>
     </Group>
   </Field>
   

@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Working draft of XML file format -->
 
-<!-- This file contains OPGEEv4 defaults. This includes the full description of all fields and 
-     technologies currently in OPGEEv3. When creating a new model, the user will be able to start
-     with this and add/delete/alter elements. Also should be able to save the modified version as
-     a site- or user-level default for  further work.
-     
-     Useful to have a technology database as in GCAM, providing defaults for all technologies and
-     therefore reducing redundancy in expressing specific instances of these technologies. This does
-     mean that if the global technology is updated, unspecified parameters may take on different values.
-     Seems more a feature than a bug, though.
+<!-- This file contains the standard OPGEEv4 LCA model. The metadata describintg fields, options,
+     and default values is found in attributes.xml. When creating a new model, the user can start
+     with the standard model and add/delete/alter elements in a separate file, or simply save copy
+     and modify this file. We also (will) support site- and user-specific XML template files that
+     define custom starting points.
      -->
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
        xsi:noNamespaceSchemaLocation="file:///Users/rjp/repos/opgee/opgee/etc/opgee.xsd">
