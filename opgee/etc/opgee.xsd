@@ -39,8 +39,6 @@
                 <xs:element maxOccurs='unbounded' ref='A'/>
                 <xs:element minOccurs='1' maxOccurs='unbounded' ref='Process'/>
             </xs:choice>
-            <xs:attribute name='is_offshore' use='required' type='xs:NCName'/>
-            <xs:attribute name='location' use='required' type='xs:NCName'/>
             <xs:attribute name='name' use='required' type='xs:NCName'/>
         </xs:complexType>
     </xs:element>

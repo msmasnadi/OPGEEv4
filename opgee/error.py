@@ -8,6 +8,16 @@
 class OpgeeException(Exception):
     pass
 
+
+class AbstractMethodError(OpgeeException):
+    def __init__(self, cls, method):
+        self.cls = cls
+        self.method = method
+
+    def __str__(self):
+        return f"Abstract method {self.method} was called. Subclass {cls} must implement this method."
+
+
 class FileMissingError(OpgeeException):
     """
     Indicate that a required file was not found or not readable.

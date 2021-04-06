@@ -19,10 +19,30 @@ def main():
     _logger.debug("testing")
 
     attributes = Attributes()
+    field_attr = attributes.class_attrs('Field')
+    print(field_attr.attribute('downhole_pump'))
+    print(field_attr.attribute('ecosystem_richness'))
+    print(field_attr.option('ecosystem_C_richness'))
 
     stream = resourceStream('etc/opgee.xml', stream_type='bytes', decode=None)
-    m = ModelFile(stream, schemaPath='etc/opgee.xsd')
+    m = ModelFile(stream)
+    m.model.run()
 
-    pass
+def test_pint():
+    from pint import UnitRegistry, Quantity
 
+    ureg = UnitRegistry()
+    ureg.load_definitions(resourceStream('etc/opgee_units.txt'))
+
+    # c = Quantity(10, ureg.degC)
+    # k = Quantity(111, ureg.degK)
+    # x = c.to(ureg.degK) + k
+    # print(x)
+
+    g = Quantity(10, ureg.psig)
+    a = Quantity(21, ureg.psia)
+    x = g.to(ureg.psia) + a
+    print(x)
+
+#test_pint()
 main()

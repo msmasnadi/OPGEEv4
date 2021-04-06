@@ -6,7 +6,7 @@
 '''
 from pint import UnitRegistry, Quantity
 import sys
-from .error import OpgeeException
+from .error import OpgeeException, AbstractMethodError
 from .log import getLogger
 from .XMLFile import XMLFile
 from .utils import coercible, resourceStream
@@ -20,18 +20,8 @@ _logger = getLogger(__name__)
 #
 # Or one at a time:
 # ureg.define('dog_year = 52 * day = dy')
-Ureg = UnitRegistry()
-
-# Other notes:
-# "psi" is defined, but neither "psig" nor "psia" are defined. (N psia = N psig + 1 atmosphere)
-# - Is PSIG used anywhere in the model? We might just define "psia = psi", "scf/bbl liquid"
-Ureg.define('psia = psia')
-Ureg.define('scf = ft**3')
-Ureg.define("bbl_oil = 42 * gal = _ = bbl_steam = bbl_water = bbl_liquid")
-Ureg.define("degAPI = dimensionless") # ratio of density of oil to density of water
-Ureg.define("mol% = dimensionless")
-Ureg.define("pct = dimensionless")
-Ureg.define("gCO2eq = grams")
+ureg = UnitRegistry()
+ureg.load_definitions(resourceStream('etc/opgee_units.txt'))
 
 #
 # TBD: Each class should also know how to emit its equivalent XML.
@@ -93,12 +83,12 @@ def subelt_value(elt, tag, coerce=None, with_unit=True, required=True):
     if with_unit:
         if unit is None:
             raise OpgeeException(f"subelt_value: unit is missing from element {subelt}")
-        return Quantity(value, Ureg[unit])
+        return Quantity(value, ureg[unit])
     else:
         return value
 
 def elt_name(elt):
-    return elt.attrib['name']
+    return elt.attrib.get('name')
 
 def instantiate_subelts(elt, tag, cls):
     objs = [cls.from_xml(e) for e in elt.findall(tag)]
@@ -164,6 +154,15 @@ class ClassAttributes(OpgeeObject):
             opt_elts = options_elt.findall('Option')
             option_dict[opts_name] = [(e.attrib['number'], e.text) for e in opt_elts]  # TBD: store number as int?
 
+    def group(self, name=None):
+        return self.group_dict[name] if name else self.group_dict.keys()
+
+    def option(self, name=None):
+        return self.option_dict[name] if name else self.option_dict.keys()
+
+    def attribute(self, name=None):
+        return self.attr_dict[name] if name else self.attr_dict.keys()
+
 
 class Attributes(OpgeeObject):
     """
@@ -177,16 +176,29 @@ class Attributes(OpgeeObject):
         attr_xml = XMLFile(stream, schemaPath='etc/attributes.xsd')
         root = attr_xml.tree.getroot()
 
+        # TBD: merge user's definitions into standard ones
         # user_attr_file = getParam("OPGEE.UserAttributesFile")
         # if user_attr_file:
         #     user_attr_xml = XMLFile(user_attr_file, schemaPath='etc/attributes.xsd')
         #     user_root = user_attr_xml.tree.getroot()
         #
-        #     # TBD: merge user's definitions into standard ones
 
         class_attrs = [ClassAttributes(elt) for elt in root]
         d = {obj.class_name : obj for obj in class_attrs}
         self.classes = d
+
+    def class_attrs(self, classname, raise_error=True):
+        """
+        Return the ClassAttributes instance for the named class. If not found: if
+        `raise_error` is True, a KeyError will be raised; if `raise_error` is False,
+        None will be returned.
+
+        :param classname: (str) the name of the class to find attributes for
+        :param raise_error: (bool) whether failure to find class should raise an error
+        :raises: KeyError if `raise_error` is True and classname is not in the dict.
+        :return: (ClassAttributes) the instance defining attributes for classname.
+        """
+        return self.classes[classname] if raise_error else self.classes.get(classname)
 
 
 class XmlInstantiable(OpgeeObject):
@@ -205,7 +217,7 @@ class XmlInstantiable(OpgeeObject):
 
     @classmethod
     def from_xml(cls, elt):
-        raise OpgeeException(f'Called abstract method XmlInstantiable.from_xml() -- {cls} is missing this required method.')
+        raise AbstractMethodError(cls, 'XmlInstantiable.from_xml')
 
     def __str__(self):
         type_str = type(self).__name__
@@ -229,16 +241,29 @@ class A(XmlInstantiable):
             value = coercible(value, atype)
 
         if unit and unit not in _undefined_units:
-            if unit not in Ureg:
+            if unit not in ureg:
                 _logger.warn(f"Unit '{unit}' is not in the UnitRegistry")
                 _undefined_units[unit] = 1
                 unit = 'dimensionless'
 
-        self.value = Quantity(value, Ureg[unit]) if unit else value
+        self.value = Quantity(value, ureg[unit]) if unit else value
 
         self.option_set = option_set        # the name of the option set, if any
         self.unit = unit
         self.atype = atype
+
+    def __str__(self):
+        type_str = type(self).__name__
+
+        attrs = f"name='{self.name}' type='{self.atype}' value='{self.value}'"
+
+        if self.unit:
+            attrs += f"unit = '{self.unit}'"
+
+        if self.option_set:
+            attrs += f" options='{self.option_set}'"
+
+        return f"<{type_str} {attrs}>"
 
     @classmethod
     def from_xml(cls, elt):
@@ -317,22 +342,22 @@ class Container(XmlInstantiable):
     """
     def __init__(self, name):
         super().__init__(name)
-        self.children = []
         self.emissions = None       # TBD: Multiple Streams?
 
-    def set_children(self, children):
-        self.children = children
-
     # default is no-op
-    def run(self, **kwargs):
-        pass
+    def run(self, level, **kwargs):
+        raise AbstractMethodError(type(self), 'Container.run')
+
+    def children(self):
+        raise AbstractMethodError(type(self), 'Container.children')
 
     # Subclass should call this before or after local processing
-    def run_children(self, **kwargs):
+    def run_children(self, level, **kwargs):
         if self.is_enabled():
-            for child in self.children:
-                child.run_children()    # depth first
-                child.run(**kwargs)     # run self after running children
+            level += 1
+            for child in self.children():
+                child.run_children(level, **kwargs)  # depth first
+                child.run(level, **kwargs)           # run self after running children
 
     def compute_ins_outs(self):
         """
@@ -355,8 +380,13 @@ class Container(XmlInstantiable):
 
 
 class Process(Container):
-    def __init__(self, name):
+    def __init__(self, name, subprocs=None, techs=None):
         super().__init__(name)
+        self.subprocs = subprocs
+        self.techs = techs
+
+    def children(self):
+        return self.subprocs + self.techs
 
     @classmethod
     def from_xml(cls, elt):
@@ -377,22 +407,28 @@ class Process(Container):
 
         # TBD: lookup the classname (maybe it has to be class="pkg.classname" ?
         # process_subclass = lookup classname or Process
-        obj = Process(name, procs=procs, techs=techs)
+        obj = Process(name, subprocs=procs, techs=techs)
         return obj
 
-    def run(self, **kwargs):
+    def run(self, level, **kwargs):
         """
         Run all sub-processes, passing variables, settings, and streams for the parent field.
 
         :param kwargs: (dict) keyword arguments
         :return:
         """
-        pass
+        print(level * '  ' + f"Running {type(self)} name='{self.name}'")
 
 
 class Technology(Container):
-    def __init__(self, name):
+    def __init__(self, name, classname):
         super().__init__(name)
+
+        # TBD: just a placeholder until we have subclasses of Technology
+        self.classname = classname
+
+    def children(self):
+        return []
 
     @classmethod
     def from_xml(cls, elt):
@@ -402,6 +438,8 @@ class Technology(Container):
         :param elt: (etree.Element) representing a <Technology> element
         :return: (Technology) instance populated from XML
         """
+        name = elt_name(elt)
+        classname = elt.attrib['class']
 
         # TBD: fill in Smart Defaults here, or assume they've been filled already?
         attrs = instantiate_subelts(elt, 'A', A)
@@ -409,28 +447,31 @@ class Technology(Container):
         # TBD: lookup the classname (maybe it has to be class="pkg.classname" ?
         # tech_subclass = lookup classname or Technology
 
-        obj = Technology()
+        obj = Technology(name, classname)
         return obj
 
-    def run(self, **kwargs):
+    def run(self, level, **kwargs):
         """
         Run all sub-processes, passing variables, settings, and streams for the parent field.
 
         :param kwargs: (dict) keyword arguments
         :return:
         """
-        pass
+        print(level * '  ' + f"Running {type(self)} name='{self.name}'")
 
 
 class Field(Container):
 
-    def __init__(self, name, location=None, is_offshore=None, procs=None, techs=None):
+    def __init__(self, name, attrs=None, procs=None, techs=None):
         super().__init__(name)
 
-        self.location = location  # store lat/long?
         self.streams  = None  # streams to or from the environment
+        self.attrs = attrs
         self.procs = procs
         self.techs = techs
+
+    def children(self):
+        return self.procs + self.techs
 
     @classmethod
     def from_xml(cls, elt):
@@ -442,26 +483,23 @@ class Field(Container):
         """
         name = elt_name(elt)
 
-        location = subelt_value(elt, 'location')
-        is_offshore = subelt_value(elt, 'is_offshore', coerce=int)
-
         procs = instantiate_subelts(elt, 'Process', Process)
         techs = instantiate_subelts(elt, 'Technology', Technology)
 
         # TBD: fill in Smart Defaults here, or assume they've been filled already?
         attrs = instantiate_subelts(elt, 'A', A)
 
-        obj = Field(name, location=location, is_offshore=is_offshore, procs=procs, techs=techs)
+        obj = Field(name, attrs=attrs, procs=procs, techs=techs)
         return obj
 
-    def run(self, **kwargs):
+    def run(self, level, **kwargs):
         """
         Run all stages
 
         :param kwargs:
         :return:
         """
-        pass
+        print(level * '  ' + f"Running {type(self)} name='{self.name}'")
 
 
 class Analysis(Container):
@@ -475,7 +513,10 @@ class Analysis(Container):
         self.variables = variables   # dict of standard variables
         self.settings  = settings    # user-controlled settings
         self.streams   = streams     # define these here to avoid passing separately?
-        self.fields    = fields
+        self.fields     = fields
+
+    def children(self):
+        return self.fields
 
     @classmethod
     def from_xml(cls, elt):
@@ -493,14 +534,14 @@ class Analysis(Container):
         obj = Analysis(name, functional_unit=fn_unit, energy_basis=en_basis, fields=fields)
         return obj
 
-    def run(self, **kwargs):
+    def run(self, level, **kwargs):
         """
         Run all fields, passing variables and settings.
 
         :param kwargs:
         :return:
         """
-        pass
+        print(level * '  ' + f"Running {type(self)} name='{self.name}'")
 
 
 class Model(Container):
@@ -509,6 +550,9 @@ class Model(Container):
     def __init__(self, name, analysis):
         super().__init__(name)
         self.analysis = analysis
+
+    def children(self):
+        return [self.analysis]      # TBD: might have a list of analyses if it's useful
 
     @classmethod
     def from_xml(cls, elt):
@@ -525,6 +569,18 @@ class Model(Container):
 
         obj = Model(elt_name(elt), analyses[0])
         return obj
+
+    def run(self, **kwargs):
+        """
+        Run all fields, passing variables and settings.
+
+        :param kwargs:
+        :return:
+        """
+        print(f"Running {type(self)} name='{self.name}'")
+        level = 0
+        self.run_children(level+1, **kwargs)
+
 
 # TBD: grab a path like OPGEE.UserClassPath, which defaults to OPGEE.ClassPath
 # TBD: split these and load all *.py files in each directory (if a directory;

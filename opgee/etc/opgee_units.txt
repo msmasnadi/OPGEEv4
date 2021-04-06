@@ -1,0 +1,34 @@
+#
+# Pint unit definitions for OPGEE
+#
+
+# We might want to define "@group OPGEE" so we can redefine bbl.
+# @group OPGEE
+#     barrel = 42 * gallon = bbl = oil_bbl
+# @end
+
+# From pint's internal file default_en.txt
+# kelvin = [temperature]; offset: 0 = K = degK = °K = degree_Kelvin = degreeK
+# degree_Celsius = kelvin; offset: 273.15 = °C = celsius = degC = degreeC
+# pound_force_per_square_inch = force_pound / inch ** 2 = psi
+
+psi_absolute = pound_force_per_square_inch; offset: 0 = psi_abs = psia
+psi_gauge = psi_absolute; offset: -14.7 = psig
+
+# decide what to do here
+scf = ft**3
+
+bbl_oil = 42 * gal = _ = bbl_steam = bbl_liquid
+
+barrel_H2O = 42 * gal * water = bbl_water = bbl_H2O
+
+# percent = [fraction]; offset: 0 = %
+
+# ratio of density of oil to density of water
+degAPI = [fraction]; offset: 0 = API_gravity
+
+mol% = dimensionless
+
+# Not sure this is at all helpful
+CO2eq = []
+gCO2eq = grams * CO2eq

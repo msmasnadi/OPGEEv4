@@ -21,7 +21,9 @@
 			<A name="v2" unit="zzz">434</A>
 		</Variables>
 
-		<Field name="US_FW" location="Generic" is_offshore="False">
+		<Field name="US_FW">
+			<A name="location">USA</A>
+			<A name="is_offshore">0</A>
 			<A name="age">86</A>
 			<A name="depth">4936</A>
 			<A name="oil_prod">101295</A>
