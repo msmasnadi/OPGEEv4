@@ -4,20 +4,39 @@
 .. Copyright (c) 2021 Richard Plevin and Stanford University
    See the https://opensource.org/licenses/MIT for license details.
 '''
+from pint import UnitRegistry, Quantity
 import sys
 from .error import OpgeeException
 from .log import getLogger
 from .XMLFile import XMLFile
-from .utils import coercible
+from .utils import coercible, resourceStream
+from .stream_component import get_component_matrix, Phases
 
 _logger = getLogger(__name__)
 
+# Note that we probably will define some of our own units:
+# From a file:
+# ureg.load_definitions('/your/path/to/my_def.txt')
+#
+# Or one at a time:
+# ureg.define('dog_year = 52 * day = dy')
+Ureg = UnitRegistry()
+
+# Other notes:
+# "psi" is defined, but neither "psig" nor "psia" are defined. (N psia = N psig + 1 atmosphere)
+# - Is PSIG used anywhere in the model? We might just define "psia = psi", "scf/bbl liquid"
+Ureg.define('psia = psia')
+Ureg.define('scf = ft**3')
+Ureg.define("bbl_oil = 42 * gal = _ = bbl_steam = bbl_water = bbl_liquid")
+Ureg.define("degAPI = dimensionless") # ratio of density of oil to density of water
+Ureg.define("mol% = dimensionless")
+Ureg.define("pct = dimensionless")
+Ureg.define("gCO2eq = grams")
+
 #
 # TBD: Each class should also know how to emit its equivalent XML.
-# TBD: We should be able to drive this off attribute metadata as well.
 #
 
-# TBD: This works for core classes, but not for plugin-defined Process and Technology classes
 def class_from_str(classname, module_name=__name__):
     m = sys.modules[module_name]   # get the module object
 
@@ -39,62 +58,6 @@ def xml_instantiable_classes(module_name): # e.g., 'opgee.core'
                isinstance(obj, type) and issubclass(obj, XmlInstantiable) \
                and name != 'XmlInstantiable']
     return classes
-
-#
-# TBD: Make this a @classmethod to allow it to be overridden?
-#
-def from_xml(elt):
-    """
-    Instantiate a class from an XML node. The class should have the class
-    attribute "_attributes_", defining how to create a class from the XML node
-    of the same name.
-
-    :param elt: (lxml Element) the one to instantiate from.
-    :return: (OpgeeObject subclass) an object of the designated class
-    """
-    tag = elt.tag
-
-    # Process and Technology specify the subclass to instantiate in the "class" attribute.
-    # If the subclass isn't specified, instantiate the generic class.
-    classname = elt.attrib.get('class', tag) if tag in ('Process', 'Technology') else tag
-
-    cls = class_from_str(classname)
-
-    if not issubclass(cls, XmlInstantiable):
-        raise OpgeeException(f"Class {classname} is not instantiable from XML")
-
-    name = elt.attrib.get('name', '')
-
-    obj = cls(name)
-    a_dict, c_dict  = obj.cache_xml_attr_dicts('both')
-
-    a_nodes = elt.find('A') or []
-
-    for node in a_nodes:
-        name = node.attrib.get('name')
-        attr_def = a_dict[name]
-
-        # attempt to convert the value to the required type
-        # deprecated? might *only* get values from text
-        value = attr_def.atype(elt.text) if attr_def.fromText else elt.attrib.get(name, '')
-
-        # Set the named attribute of the instantiated object to the given value
-        setattr(obj, name, value)
-
-    for child_tag, attr_def in c_dict.items():
-        xpath = '|'.join(child_tag) if isinstance(child_tag, (list, tuple)) else child_tag
-
-        child_elts = elt.xpath(xpath)
-
-        # instantiate the children recursively
-        children = [from_xml(obj, elt) for elt in child_elts]
-
-        # Set the named attribute of obj to the list of instantiated children
-        attr_def = c_dict[child_tag]
-        setattr(obj, attr_def.name, children)
-
-    return obj
-
 
 def subelt_value(elt, tag, coerce=None, with_unit=True, required=True):
     """
@@ -130,7 +93,7 @@ def subelt_value(elt, tag, coerce=None, with_unit=True, required=True):
     if with_unit:
         if unit is None:
             raise OpgeeException(f"subelt_value: unit is missing from element {subelt}")
-        return Value(value, unit)
+        return Quantity(value, Ureg[unit])
     else:
         return value
 
@@ -153,33 +116,77 @@ def superclass(cls):
     return mro[1] if len(mro) > 1 else None
 
 
-# def reqd_attr(elt, name, atype=str):
-#     value = elt.attrib.get(name)
-#     if value is None:
-#         raise OpgeeException(f"Required attribute '{name}' is missing from {elt}")
-#
-#     try:
-#         value = atype(value)
-#         return value
-#     except:
-#         raise OpgeeException(f"Failed to convert value '{value}' to type {atype} for attribute {name} of {elt}")
-
-
 # Top of hierarchy, because this is often useful...
 class OpgeeObject():
     pass
 
 
-class Value(OpgeeObject):
+class ClassAttributes(OpgeeObject):
     """
-    Simple struct to combine a value and unit
+    Support for parsing attributes.xml
     """
-    __slots__ = ['value', 'unit']
-
-    def __init__(self, value, unit):
+    def __init__(self, elt):
         super().__init__()
-        self.value = value
-        self.unit = unit
+
+        class_attr = elt.attrib.get('class')
+        self.class_name = class_attr or elt.tag
+        self.element_name = elt.tag
+
+        self.group_dict = {}    # key is group name; value is list of attribute names in group
+        self.option_dict = {}   # key is name of <Options> group; value is dict of opt_num : opt_desc
+        self.attr_dict = {}     # key is attribute name; value is instance of class 'A'
+
+        group_elts = elt.findall('Group')   # so far, only in Field elements, but this may change
+        group_dict = self.group_dict
+        attr_dict  = self.attr_dict
+        option_dict = self.option_dict
+
+        # add attributes to the attr_dict from a list of XML <A> elements
+        def _add_attrs(a_elts):
+            for elt in a_elts:
+                attr_dict[elt_name(elt)] = A.from_xml(elt)
+
+        # add attributes defined within <Group> elements
+        for group_elt in group_elts:
+            group_name = elt_name(group_elt)
+            elts = group_elt.findall('A')
+            _add_attrs(elts)
+            group_dict[group_name] = [elt_name(e) for e in elts]
+
+        # add top-level attributes
+        elts = elt.findall('A')
+        _add_attrs(elts)
+
+        # add all <Option> elements beneath elt (may be within <Group> or not)
+        options_elts = elt.xpath('.//Options')
+        for options_elt in options_elts:
+            opts_name = elt_name(options_elt)
+            opt_elts = options_elt.findall('Option')
+            option_dict[opts_name] = [(e.attrib['number'], e.text) for e in opt_elts]  # TBD: store number as int?
+
+
+class Attributes(OpgeeObject):
+    """
+    Parse and provide access to attributes.xml metadata file.
+    """
+    def __init__(self):
+        super().__init__()
+        self.classes = None  # will be dict: key is class name: Field, Process's or Technology's class; value is ClassAttributes instance
+
+        stream = resourceStream('etc/attributes.xml', stream_type='bytes', decode=None)
+        attr_xml = XMLFile(stream, schemaPath='etc/attributes.xsd')
+        root = attr_xml.tree.getroot()
+
+        # user_attr_file = getParam("OPGEE.UserAttributesFile")
+        # if user_attr_file:
+        #     user_attr_xml = XMLFile(user_attr_file, schemaPath='etc/attributes.xsd')
+        #     user_root = user_attr_xml.tree.getroot()
+        #
+        #     # TBD: merge user's definitions into standard ones
+
+        class_attrs = [ClassAttributes(elt) for elt in root]
+        d = {obj.class_name : obj for obj in class_attrs}
+        self.classes = d
 
 
 class XmlInstantiable(OpgeeObject):
@@ -201,7 +208,8 @@ class XmlInstantiable(OpgeeObject):
         raise OpgeeException(f'Called abstract method XmlInstantiable.from_xml() -- {cls} is missing this required method.')
 
     def __str__(self):
-        return f'<{type(self)} name="{self.name}">'
+        type_str = type(self).__name__
+        return f'<{type_str} name="{self.name}">'
 
     def is_enabled(self):
         return self.enabled
@@ -209,16 +217,28 @@ class XmlInstantiable(OpgeeObject):
     def set_enabled(self, value):
         self.enabled = value
 
+# to avoid redundant reporting
+_undefined_units = {}
 
 # The <A> element
 class A(XmlInstantiable):
-    def __init__(self, name, value=None, atype=None, unit=None):
+    def __init__(self, name, value=None, atype=None, option_set=None, unit=None):
         super().__init__(name)
 
         if atype is not None:
             value = coercible(value, atype)
 
-        self.value = Value(value, unit)
+        if unit and unit not in _undefined_units:
+            if unit not in Ureg:
+                _logger.warn(f"Unit '{unit}' is not in the UnitRegistry")
+                _undefined_units[unit] = 1
+                unit = 'dimensionless'
+
+        self.value = Quantity(value, Ureg[unit]) if unit else value
+
+        self.option_set = option_set        # the name of the option set, if any
+        self.unit = unit
+        self.atype = atype
 
     @classmethod
     def from_xml(cls, elt):
@@ -228,16 +248,23 @@ class A(XmlInstantiable):
         :param elt: (etree.Element) representing an <A> element
         :return: (A) instance of class A
         """
-        attr = elt.attrib
+        a = elt.attrib
 
-        obj = A(attr['name'], value=elt.text, atype=attr.get('type'), unit=attr.get('unit'))
+        if elt.text is None:
+            from lxml import etree
+            elt_xml = etree.tostring(elt).decode()
+            raise OpgeeException(f"Empty <A> elements are not allowed: {elt_xml}")
+
+        obj = A(a['name'], value=elt.text, atype=a.get('type'), unit=a.get('unit'),
+                option_set=a.get('options'))
+
         return obj
 
 #
 # Can streams have emissions (e.g., leakage) or is that attributed to a process?
 #
 class Stream(XmlInstantiable):
-    def __init__(self, name, number, temp=None, pressure=None, src=None, dst=None, components=None):
+    def __init__(self, name, number, temp=None, pressure=None, src=None, dst=None):
         super().__init__(name)
 
         self.number = number
@@ -245,7 +272,7 @@ class Stream(XmlInstantiable):
         self.pressure = pressure
         self.src = src
         self.dst = dst
-        self.components = components
+        self.comp_mat = get_component_matrix()
 
     @classmethod
     def from_xml(cls, elt):
@@ -255,10 +282,9 @@ class Stream(XmlInstantiable):
         :param elt: (etree.Element) representing a <Stream> element
         :return: (Stream) instance of class Stream
         """
-        attr = elt.attrib
-
-        name   = attr['name']
-        number = attr['number']
+        a = elt.attrib
+        name   = a['name']
+        number = a['number']
 
         temp = subelt_value(elt, 'Temperature', coerce=float)
         pres = subelt_value(elt, 'Pressure',    coerce=float)
@@ -266,27 +292,21 @@ class Stream(XmlInstantiable):
         src = elt_name(elt.find('Source'))
         dst = elt_name(elt.find('Destination'))
 
-        cmps = instantiate_subelts(elt, 'Component', StreamComponent)
+        obj = Stream(name, number, temp=temp, pressure=pres, src=src, dst=dst)
+        comp_mat = obj.comp_mat
 
-        obj = Stream(name, number, temp=temp, pressure=pres, src=src, dst=dst, components=cmps)
-        return obj
+        # Set the stream component info
+        comp_elts = elt.findall('Component')
+        for comp_elt in comp_elts:
+            comp_name = elt_name(comp_elt)
+            rate = subelt_value(elt, 'Rate', coerce=float)
+            phase = subelt_value(elt, 'Phase', with_unit=False)
 
+            if phase not in Phases:
+                raise OpgeeException(f"Phase '{phase}' is not known. Must be one of {Phases}")
 
-class StreamComponent(XmlInstantiable):
-    def __init__(self, name, phase=None, unit=None, rate=None):
-        super().__init__(name)
+            comp_mat.set_component(comp_name, phase, rate)
 
-        self.phase = phase
-        self.unit  = unit
-        self.rate  = rate
-
-    @classmethod
-    def from_xml(cls, elt):
-        name = elt_name(elt)
-        rate  = subelt_value(elt, 'Rate', coerce=float)
-        phase = subelt_value(elt, 'Phase', with_unit=False)
-
-        obj = StreamComponent(name, phase=phase, rate=rate)
         return obj
 
 
@@ -298,7 +318,7 @@ class Container(XmlInstantiable):
     def __init__(self, name):
         super().__init__(name)
         self.children = []
-        self.emissions = None       # TBD: what to store here?
+        self.emissions = None       # TBD: Multiple Streams?
 
     def set_children(self, children):
         self.children = children
@@ -334,88 +354,31 @@ class Container(XmlInstantiable):
         pass
 
 
-class Analysis(Container):
-    def __init__(self, name, functional_unit=None, energy_basis=None):
+class Process(Container):
+    def __init__(self, name):
         super().__init__(name)
-
-        # Global settings
-        self.functional_unit = functional_unit
-        self.energy_basis = energy_basis
-
-        self.variables = None   # dict of standard variables
-        self.settings  = None   # user-controlled settings
-        self.streams   = None   # define these here to avoid passing separately?
-
-        # Attr('variables', childTag='Variable'),
-        # Attr('settings', childTag='Setting'),
-        # Attr('children', childTag='Field'),
-        # Attr('streams', childTag='Stream'),     # or are these just tracked in Analysis, since streams point to their ins/outs
-
 
     @classmethod
     def from_xml(cls, elt):
         """
         Instantiate an instance from an XML element
 
-        :param elt: (etree.Element) representing a <Stream> element
-        :return: (Stream) instance of class Stream
+        :param elt: (etree.Element) representing a <Process> element
+        :return: (Process) instance populated from XML
         """
         name = elt_name(elt)
-        fn_unit  = subelt_value(elt, 'FunctionalUnit', with_unit=False)
-        en_basis = subelt_value(elt, 'EnergyBasis', with_unit=False)
+        classname = elt.attrib.get('class') or 'Process'    # TBD: allow use without class=""?
 
-        obj = Analysis(name, functional_unit=fn_unit, energy_basis=en_basis)
+        procs = instantiate_subelts(elt, 'Process', Process)
+        techs = instantiate_subelts(elt, 'Technology', Technology)
+
+        # TBD: fill in Smart Defaults here, or assume they've been filled already?
+        attrs = instantiate_subelts(elt, 'A', A)
+
+        # TBD: lookup the classname (maybe it has to be class="pkg.classname" ?
+        # process_subclass = lookup classname or Process
+        obj = Process(name, procs=procs, techs=techs)
         return obj
-
-    def run(self, **kwargs):
-        """
-        Run all fields, passing variables and settings.
-
-        :param kwargs:
-        :return:
-        """
-        pass
-
-
-class Field(Container):
-    __attr_dict__  = {}
-    __child_dict__ = {}
-    __attributes__ = [
-        Attr('location'),
-        Attr('age', atype=int, unit="y"),
-        Attr('depth', unit="ft"),
-        Attr('children', childTag='Process'),
-        Attr('streams', childTag='Stream'),     # or are these just tracked in Analysis, since streams point to their ins/outs
-    ]
-
-    def __init__(self, name):
-        super().__init__(name)
-
-        self.location = None  # some indication of location. Lat/Long?
-        self.country  = None  # where located
-        self.streams  = None  # streams to or from the environment
-
-    def run(self, **kwargs):
-        """
-        Run all stages
-
-        :param kwargs:
-        :return:
-        """
-        pass
-
-
-class Process(Container):
-    __attr_dict__  = {}
-    __child_dict__ = {}
-    __attributes__ = [
-        Attr('type'),
-        Attr('children', childTag=['Process', 'Technology']),
-    ]
-
-    def __init__(self, name):
-        super().__init__(name)
-
 
     def run(self, **kwargs):
         """
@@ -428,14 +391,26 @@ class Process(Container):
 
 
 class Technology(Container):
-    __attr_dict__  = {}
-    __child_dict__ = {}
-    __attributes__ = [
-        Attr('type'),
-    ]
-
     def __init__(self, name):
         super().__init__(name)
+
+    @classmethod
+    def from_xml(cls, elt):
+        """
+        Instantiate an instance from an XML element
+
+        :param elt: (etree.Element) representing a <Technology> element
+        :return: (Technology) instance populated from XML
+        """
+
+        # TBD: fill in Smart Defaults here, or assume they've been filled already?
+        attrs = instantiate_subelts(elt, 'A', A)
+
+        # TBD: lookup the classname (maybe it has to be class="pkg.classname" ?
+        # tech_subclass = lookup classname or Technology
+
+        obj = Technology()
+        return obj
 
     def run(self, **kwargs):
         """
@@ -447,16 +422,109 @@ class Technology(Container):
         pass
 
 
-class Model(Container):
-    __attr_dict__  = {}
-    __child_dict__ = {}
-    __attributes__ = [
-        Attr('children', childTag='Analysis')
-    ]
+class Field(Container):
 
-    def __init__(self, name):
+    def __init__(self, name, location=None, is_offshore=None, procs=None, techs=None):
         super().__init__(name)
 
+        self.location = location  # store lat/long?
+        self.streams  = None  # streams to or from the environment
+        self.procs = procs
+        self.techs = techs
+
+    @classmethod
+    def from_xml(cls, elt):
+        """
+        Instantiate an instance from an XML element
+
+        :param elt: (etree.Element) representing a <Field> element
+        :return: (Field) instance populated from XML
+        """
+        name = elt_name(elt)
+
+        location = subelt_value(elt, 'location')
+        is_offshore = subelt_value(elt, 'is_offshore', coerce=int)
+
+        procs = instantiate_subelts(elt, 'Process', Process)
+        techs = instantiate_subelts(elt, 'Technology', Technology)
+
+        # TBD: fill in Smart Defaults here, or assume they've been filled already?
+        attrs = instantiate_subelts(elt, 'A', A)
+
+        obj = Field(name, location=location, is_offshore=is_offshore, procs=procs, techs=techs)
+        return obj
+
+    def run(self, **kwargs):
+        """
+        Run all stages
+
+        :param kwargs:
+        :return:
+        """
+        pass
+
+
+class Analysis(Container):
+    def __init__(self, name, functional_unit=None, energy_basis=None,
+                 variables=None, settings=None, streams=None, fields=None):
+        super().__init__(name)
+
+        # Global settings
+        self.functional_unit = functional_unit
+        self.energy_basis = energy_basis
+        self.variables = variables   # dict of standard variables
+        self.settings  = settings    # user-controlled settings
+        self.streams   = streams     # define these here to avoid passing separately?
+        self.fields    = fields
+
+    @classmethod
+    def from_xml(cls, elt):
+        """
+        Instantiate an instance from an XML element
+
+        :param elt: (etree.Element) representing a <Analysis> element
+        :return: (Analysis) instance populated from XML
+        """
+        name = elt_name(elt)
+        fn_unit  = subelt_value(elt, 'FunctionalUnit', with_unit=False)
+        en_basis = subelt_value(elt, 'EnergyBasis', with_unit=False)
+        fields = instantiate_subelts(elt, 'Field', Field)
+
+        obj = Analysis(name, functional_unit=fn_unit, energy_basis=en_basis, fields=fields)
+        return obj
+
+    def run(self, **kwargs):
+        """
+        Run all fields, passing variables and settings.
+
+        :param kwargs:
+        :return:
+        """
+        pass
+
+
+class Model(Container):
+    # __attributes__ = [Attr('children', childTag='Analysis')]
+
+    def __init__(self, name, analysis):
+        super().__init__(name)
+        self.analysis = analysis
+
+    @classmethod
+    def from_xml(cls, elt):
+        """
+        Instantiate an instance from an XML element
+
+        :param elt: (etree.Element) representing a <Model> element
+        :return: (Model) instance populated from XML
+        """
+        analyses = instantiate_subelts(elt, 'Analysis', Analysis)
+        count = len(analyses)
+        if count != 1:
+            raise OpgeeException(f"Expected on <Analysis> element; got {count}")
+
+        obj = Model(elt_name(elt), analyses[0])
+        return obj
 
 # TBD: grab a path like OPGEE.UserClassPath, which defaults to OPGEE.ClassPath
 # TBD: split these and load all *.py files in each directory (if a directory;
@@ -469,16 +537,10 @@ class ModelFile(XMLFile):
     Represents the overall parameters.xml file.
     """
     def __init__(self, filename):
+        # We expect a single 'Analysis' element below Model
+        _logger.debug("Loading model file: %s", filename)
+
         super().__init__(filename, schemaPath='etc/opgee.xsd')
 
-        root = self.tree.getroot()
-
-        # We expect a single 'Analysis' element below Model
-
-        _logger.debug("Loaded model file: %s", filename)
-
-def create_model(xml_path):
-    m = XMLFile(xml_path, schemaPath='etc/opgee.xsd')
-    root = m.tree.getroot()   # the outermost <Model> element
-    model = from_xml(None, root)
-
+        self.root = self.tree.getroot()
+        self.model = Model.from_xml(self.root)

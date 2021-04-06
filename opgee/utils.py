@@ -220,21 +220,37 @@ def systemOpenFile(path):
 # the stack, based on value of n.
 getFuncName = lambda n=0: sys._getframe(n + 1).f_code.co_name
 
-def coercible(value, type, raiseError=True):
+def coercible(value, pytype, raiseError=True):
     """
     Attempt to coerce a value to `type` and raise an error on failure.
 
     :param value: any value coercible to `type`
-    :param type: any Python type
-    :return: (`type`) the coerced value, if it's coercible, otherwise
+    :param pytype: any Python type or its string equivalent
+    :return: (`pytype`) the coerced value, if it's coercible, otherwise
        None if raiseError is False
     :raises OpgeeException: if not coercible and raiseError is True
     """
+    # pseudo-type
+    def binary(value):
+        return 1 if getBooleanXML(value) else 0
+
+    if type(pytype) == str:
+        if pytype == 'float':
+            pytype = float
+        elif pytype == 'int':
+            pytype = int
+        elif pytype == 'str':
+            pytype = str
+        elif pytype == 'binary':
+            pytype = binary
+        else:
+            raise OpgeeException(f"coercible: '{pytype}' is not a recognized type string")
+
     try:
-        value = type(value)
+        value = pytype(value)
     except (TypeError, ValueError) as e:
         if raiseError:
-            raise OpgeeException("%s: %r is not coercible to %s" % (getFuncName(1), value, type.__name__))
+            raise OpgeeException("%s: %r is not coercible to %s" % (getFuncName(1), value, pytype))
         else:
             return None
 

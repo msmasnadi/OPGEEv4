@@ -22,15 +22,15 @@
 		</Variables>
 
 		<Field name="US_FW" location="Generic" is_offshore="False">
-			<A name="age" unit="y" desc='Field age'>86</A>
-			<A name="depth" unit="ft" desc='Field depth'>4936</A>
-			<A name="oil_prod" unit="xxx" desc='Oil production volume'>101295</A>
-			<A name="num_prod_wells" desc='Number of producing wells'>41539</A>
-			<A name="num_water_inj_wells" desc='Number of water injecting wells'>34426</A>
-			<A name="well_diam" unit="inch" desc='Well diameter'>3.01</A>
-			<A name="prod_index" unit='bbl/d' desc='Productivity index'>37.53</A>
-			<A name="res_press" unit="psia" desc='Average reservoir pressure'>887.31</A>
-			<A name="res_temp" unit="degF" desc='Average reservoir temperature'>70.84</A>
+			<A name="age">86</A>
+			<A name="depth">4936</A>
+			<A name="oil_prod">101295</A>
+			<A name="num_prod_wells">41539</A>
+			<A name="num_water_inj_wells">34426</A>
+			<A name="well_diam" >3.01</A>
+			<A name="prod_index">37.53</A>
+			<A name="res_press">887.31</A>
+			<A name="res_temp">70.84</A>
 			
 			<Process name="Exploration_and_development">
 				<Process class="Exploration">

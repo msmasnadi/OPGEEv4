@@ -7,11 +7,30 @@
      binary ones. 
      -->
 <Attributes>
+  
+  <Technology class="MyTech">
+    <Options name="ecosystem_C_richness">
+      <Option number="1">Low carbon richness (semi-arid grasslands)</Option>        
+      <Option number="2">Moderate carbon richness (mixed)</Option>        
+      <Option number="3">High carbon richness (forested)</Option>        
+    </Options>
+    <A name="bar" type="binary" desc="xxx">1</A>    
+  </Technology>
+  
+  <Process class="MyProc">
+    <Options name="ecosystem_C_richness">
+      <Option number="1">Low carbon richness (semi-arid grasslands)</Option>        
+      <Option number="2">Moderate carbon richness (mixed)</Option>        
+      <Option number="3">High carbon richness (forested)</Option>        
+    </Options>
+    <A name="foooo" type="float" unit="bbl/d" desc="yyy">112</A>
+  </Process>
+  
   <Field>
     <Group name="Production_methods">
       <A name="downhole_pump" type="binary" desc="Downhold pump">1</A>
       <A name="water_reinjection" type="binary" desc="Water reinjection">1</A>
-      <A name="natural_gas_reinjection" desc="Natural gas reinjection">1</A>
+      <A name="natural_gas_reinjection" type='binary' desc="Natural gas reinjection">1</A>
       <A name="water_flooding" type="binary" desc="Water flooding">0</A>
       <A name="gas_lifting" type="binary" desc="Gas lifting">0</A>
       <A name="gas_flooding" type="binary" desc="Gas flooding">0</A>
@@ -20,28 +39,28 @@
       <A name="oil_sands_mine_non_int" type="binary" desc="Oil sands mine (non-integrated with upgrader)">0</A>
     </Group>
     <Group name="Field_properties">
-      <A name="country" desc="Field location (country)">Generic</A>
-      <A name="name" desc="Field name">Generic</A>
-      <A name="age" unit="y" desc="Field age"/>
-      <A name="depth" unit="ft" desc="Field depth">8285</A>
-      <A name="oil_prod" unit="bbl/d" desc="Oil production volume">2098</A>
-      <A name="num_prod_wells" desc="Number of producing wells">1158</A>
-      <A name="num_water_inj_wells" desc="Number of water injecting wells">34436</A>
-      <A name="well_diam" unit="in" desc="Well diameter">2.8</A>
-      <A name="prod_index" unit="bbl/psi-d" desc="Productivity index">17.0</A>
-      <A name="res_press" unit="psia" desc="Average reservoir pressure">1061.2</A>
-      <A name="res_temp" unit="degF" desc="Average reservoir temperature">158.8</A>
+      <A name="country" desc="Field location (country)" type='str'>Generic</A>
+      <A name="name" desc="Field name" type='str'>Generic</A>
+      <A name="age" unit="yr" desc="Field age" type='float'>38</A>
+      <A name="depth" unit="ft" desc="Field depth" type='float'>8285</A>
+      <A name="oil_prod" unit="bbl/d" desc="Oil production volume" type='float'>2098</A>
+      <A name="num_prod_wells" desc="Number of producing wells" type='int'>1158</A>
+      <A name="num_water_inj_wells" desc="Number of water injecting wells" type='int'>34436</A>
+      <A name="well_diam" unit="in" desc="Well diameter" type='float'>2.8</A>
+      <A name="prod_index" unit="bbl/psi(d)" desc="Productivity index">17.0</A>
+      <A name="res_press" unit="psia" desc="Average reservoir pressure" type="float">1061.2</A>
+      <A name="res_temp" unit="degF" desc="Average reservoir temperature" type="float">158.8</A>
       <A name="offshore" type="binary" desc="Offshore?">0</A>
     </Group>
     <Group name="Fluid_properties">
-      <A name="API_grav" desc="API gravity of produced crude" unit="deg. API">47</A>
-      <A name="Gas_comp_N2" unit="mol%">2.0</A>
-      <A name="Gas_comp_CO2" unit="mol%">6.0</A>
-      <A name="Gas_comp_C1" unit="mol%">84.0</A>
-      <A name="Gas_comp_C2" unit="mol%">4.0</A>
-      <A name="Gas_comp_C3" unit="mol%">2.0</A>
-      <A name="Gas_comp_C4" unit="mol%">1.0</A>
-      <A name="Gas_comp_H2S" unit="mol%">1.0</A>
+      <A name="API_grav" desc="API gravity of produced crude" unit="degAPI" type="float">47</A>
+      <A name="Gas_comp_N2" unit="mol%" type="float">2.0</A>
+      <A name="Gas_comp_CO2" unit="mol%" type="float">6.0</A>
+      <A name="Gas_comp_C1" unit="mol%" type="float">84.0</A>
+      <A name="Gas_comp_C2" unit="mol%" type="float">4.0</A>
+      <A name="Gas_comp_C3" unit="mol%" type="float">2.0</A>
+      <A name="Gas_comp_C4" unit="mol%" type="float">1.0</A>
+      <A name="Gas_comp_H2S" unit="mol%" type="float">1.0</A>
     </Group>
     <Group name="Production_practices">
       <Options name="flood_gases">
@@ -58,22 +77,22 @@
         <Option number="1">natural subsurface reservoir</Option>
         <Option number="2">anthropogenic</Option>
       </Options>
-      <A name="GOR" desc="Gas-to-oil ratio" unit="scf/bbl oil">1205.4</A>
-      <A name="WOR" desc="Water-to-oil ratio" unit="bbl water/bbl">27.7</A>
-      <A name="WIR" desc="Water injection ratio" unit="bbl water/bbl">17.0</A>
-      <A name="GLIR" desc="Gas lifting injection ratio" unit="scf/bbl liquid">1500.0</A>
-      <A name="GFIR" desc="Gas flooding injection ratio" unit="scf/bbl oil">22611.0</A>
-      <A name="flood_gas_type" desc="Flood gas" options="flood_gases">1</A>
-      <A name="liquids_unloading" options="liquids_unloading">3</A>
-      <A name="perc_CO2_breakthrough" desc="Fraction of CO2 breaking through to producers" unit="%">59</A>
-      <A name="source_CO2" desc="" options="source_CO2">1</A>
-      <A name="perc_sequestration_credit" desc="Percentage of sequestration credit assigned to the oilfield" unit="%">0</A>
-      <A name="SOR" desc="Steam-to-oil ratio" unit="bbl steam/bbl oil">0</A>
-      <A name="fraction_elec_onsite" desc="Fraction of required electricity generated onsite">0.0</A>
-      <A name="fraction_remaining_gas_inj" desc="Fraction of remaining gas reinjected">0.5</A>
-      <A name="fraction_water_reinjected" desc="Fraction of water produced that is reinjected">1.0</A>
-      <A name="fraction_steam_cogen" desc="Fraction of steam generation via co-generation">0.0</A>
-      <A name="fraction_steam_solar" desc="Fraction of steam generation via solar thermal">0.0</A>
+      <A name="GOR" desc="Gas-to-oil ratio" unit="scf/bbl_oil" type="float">1205.4</A>
+      <A name="WOR" desc="Water-to-oil ratio" unit="bbl_water/bbl" type="float">27.7</A>
+      <A name="WIR" desc="Water injection ratio" unit="bbl_water/bbl" type="float">17.0</A>
+      <A name="GLIR" desc="Gas lifting injection ratio" unit="scf/bbl_liquid" type="float">1500.0</A>
+      <A name="GFIR" desc="Gas flooding injection ratio" unit="scf/bbl_oil" type="float">22611.0</A>
+      <A name="flood_gas_type" desc="Flood gas" options="flood_gases" type="int">1</A>
+      <A name="liquids_unloading" options="liquids_unloading" type="int">3</A>
+      <A name="perc_CO2_breakthrough" desc="Fraction of CO2 breaking through to producers" unit="pct" type="float">59</A>
+      <A name="source_CO2" desc="" options="source_CO2" type="int">1</A>
+      <A name="perc_sequestration_credit" desc="Percentage of sequestration credit assigned to the oilfield" unit="pct" type="float">0</A>
+      <A name="SOR" desc="Steam-to-oil ratio" unit="bbl_steam/bbl_oil" type="float">0</A>
+      <A name="fraction_elec_onsite" desc="Fraction of required electricity generated onsite" type="float">0.0</A>
+      <A name="fraction_remaining_gas_inj" desc="Fraction of remaining gas reinjected" type="float">0.5</A>
+      <A name="fraction_water_reinjected" desc="Fraction of water produced that is reinjected" type="float">1.0</A>
+      <A name="fraction_steam_cogen" desc="Fraction of steam generation via co-generation" type="float">0.0</A>
+      <A name="fraction_steam_solar" desc="Fraction of steam generation via solar thermal" type="float">0.0</A>
     </Group>
     <Group name="Processing_practices">
       <Options name="upgrader_type">
@@ -92,13 +111,13 @@
         <Option number="7">CO2-EOR Membrane: Dehydrator + Compressor + Membrane + Amine Process + Demethanizer</Option>
         <Option number="8">CO2-EOR Ryan Holmes: Dehydrator + Ryan Holmes Process (Demethanizer Included)</Option>
       </Options>      
-      <A name="heater_treater" type="binary" desc="Heater/treater"></A>
-      <A name="stabilizer_column" type="binary" desc="Stabilizer column"></A>
-      <A name="upgrader_type" desc="Upgrader type" options="upgrader_type">0</A>
-      <A name="gas_processing_path" desc="Associated gas processing path" options="gas_processing_path">5</A>
-      <A name="FOR" unit='scf/bbl' desc="Ratio of flaring to oil production">141.3</A>
-      <A name="VOR" unit='scf/bbl' desc="Ratio of venting to oil production">5.0</A>
-      <A name="fraction_diluent" desc="Volume fraction of diluent in diluted crude">5.0</A>
+      <A name="heater_treater" type="binary" desc="Heater/treater">0</A>
+      <A name="stabilizer_column" type="binary" desc="Stabilizer column">0</A>
+      <A name="upgrader_type" desc="Upgrader type" options="upgrader_type" type="int">0</A>
+      <A name="gas_processing_path" desc="Associated gas processing path" options="gas_processing_path" type="int">5</A>
+      <A name="FOR" unit='scf/bbl' desc="Ratio of flaring to oil production" type="float">141.3</A>
+      <A name="VOR" unit='scf/bbl' desc="Ratio of venting to oil production" type="float">5.0</A>
+      <A name="fraction_diluent" desc="Volume fraction of diluent in diluted crude" type="float">5.0</A>
     </Group>
     
     <Group name="LandUse_impacts">
@@ -113,35 +132,34 @@
         <Option number="2">Moderate intensity development and moderate oxidation</Option>        
         <Option number="3">High intensity development and high oxidation</Option>        
       </Options>
-      <A name="ecosystem_richness" options="ecosystem_C_richness" desc="Ecosystem carbon richness">2</A>
-      <A name="field_development_intensity" options="field_development_intensity" desc="Field development intensity">2</A>
+      <A name="ecosystem_richness" options="ecosystem_C_richness" desc="Ecosystem carbon richness" type="int">2</A>
+      <A name="field_development_intensity" options="field_development_intensity" desc="Field development intensity" type="int">2</A>
     </Group>
     <Group name="Transport_and_storage">
-      <A name="Fraction_oil_transport_tanker" desc="Fraction  of oil transported by ocean tanker">1</A>
-      <A name="Fraction_oil_transport_barge" desc="Fraction of oil transported by barge">0</A>
-      <A name="Fraction_oil_transport_pipeline" desc="Fraction of oil transported by pipeline">1</A>
-      <A name="Fraction_oil_transport_rail" desc="Fraction of oil transported by rail">0</A>
-      <A name="Fraction_oil_transport_truck" desc="Fraction of oil transported by truck">0</A>
+      <A name="Fraction_oil_transport_tanker" desc="Fraction  of oil transported by ocean tanker" type="float">1</A>
+      <A name="Fraction_oil_transport_barge" desc="Fraction of oil transported by barge" type="float">0</A>
+      <A name="Fraction_oil_transport_pipeline" desc="Fraction of oil transported by pipeline" type="float">1</A>
+      <A name="Fraction_oil_transport_rail" desc="Fraction of oil transported by rail" type="float">0</A>
+      <A name="Fraction_oil_transport_truck" desc="Fraction of oil transported by truck" type="float">0</A>
       
-      <A name="Oil_transport_distance_tanker" unit="mi" desc="Ocean tanker transport distance (one way)">8000</A>
-      <A name="Oil_transport_distance_barge" unit="mi" desc="Barge transport distance (one way)">500</A>
-      <A name="Oil_transport_distance_pipeline" unit="mi" desc="Pipeline transport distance (one way)">1000</A>
-      <A name="Oil_transport_distance_rail" unit="mi" desc="Rail transport distance (one way)">800</A>
-      <A name="Oil_transport_distance_truck" unit="mi" desc="Truck transport distance (one way)">100</A>
-      <A name="ocean_tanker_size" unit="tons" desc="Ocean tanker size, if applicable">250000</A>
+      <A name="Oil_transport_distance_tanker" unit="mi" desc="Ocean tanker transport distance (one way)" type="float">8000</A>
+      <A name="Oil_transport_distance_barge" unit="mi" desc="Barge transport distance (one way)" type="float">500</A>
+      <A name="Oil_transport_distance_pipeline" unit="mi" desc="Pipeline transport distance (one way)" type="float">1000</A>
+      <A name="Oil_transport_distance_rail" unit="mi" desc="Rail transport distance (one way)" type="float">800</A>
+      <A name="Oil_transport_distance_truck" unit="mi" desc="Truck transport distance (one way)" type="float">100</A>
+      <A name="ocean_tanker_size" unit="tons" desc="Ocean tanker size, if applicable" type="float">250000</A>
     </Group>
     <Group name="Small_source_emissions">
-      <A name="small_sources_adder" unit="g CO2eq/MJ" desc="Small source emissions adder">0.5</A>
+      <A name="small_sources_adder" unit="gCO2eq/MJ" desc="Small source emissions adder" type="float">0.5</A>
     </Group>
   </Field>
   
   <Process class="">
-    <Group name="">
-    </Group>
+    <A name="foo" type="binary" desc="yyy">1</A>
+    <A name="bar" type="float" unit="in" desc="xxx">123</A>
   </Process>
   
   <Technology class="">
-    <Group name="">
-    </Group>
+    <A name="baz" type="int" unit="d" desc="xxx">1</A>
   </Technology>
 </Attributes>

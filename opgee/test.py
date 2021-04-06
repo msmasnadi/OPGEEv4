@@ -1,23 +1,28 @@
 from opgee.XMLFile import XMLFile
-from opgee.core import from_xml
+from opgee.core import Attributes, ModelFile
 from opgee.utils import resourceStream
+from opgee.config import getParam
+from opgee.log import getLogger
+
+_logger = getLogger(__name__)
+
+def init_logging():
+    from opgee.log import configureLogs, setLogLevels
+
+    level = getParam('OPGEE.LogLevel')
+    setLogLevels(level)
+    configureLogs(force=True)
+
 
 def main():
+    init_logging()
+    _logger.debug("testing")
+
+    attributes = Attributes()
+
     stream = resourceStream('etc/opgee.xml', stream_type='bytes', decode=None)
-    m = XMLFile(stream, schemaPath='etc/opgee.xsd')
-    root = m.tree.getroot()
+    m = ModelFile(stream, schemaPath='etc/opgee.xsd')
 
-    analysis = root.find('Analysis')
-    attrs = analysis.findall('A')
-
-    if len(attrs):
-        attr = attrs[0]
-
-        from opgee.core import A
-        obj = A.from_xml(analysis, attr)
-
-        model = from_xml(None, root)
-        print(model)
-
+    pass
 
 main()

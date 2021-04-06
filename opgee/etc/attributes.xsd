@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema' elementFormDefault='qualified'>
+    <xs:element name='Attributes'>
+        <xs:complexType>
+            <xs:choice maxOccurs='unbounded'>
+                <xs:element minOccurs="1" maxOccurs="1" ref='Field'/>
+                <xs:element ref='Process'/>
+                <xs:element ref='Technology'/>
+            </xs:choice>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name='Field'>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs='unbounded' ref='Group'/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name='Group'>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs='0' maxOccurs='unbounded' ref='Options'/>
+                <xs:element minOccurs='1' maxOccurs='unbounded' ref='A'/>
+            </xs:sequence>
+            <xs:attribute name='name' use='required' type='xs:NCName'/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name='Process'>
+        <xs:complexType>
+            <xs:choice maxOccurs='unbounded'>
+                <xs:element minOccurs='0' maxOccurs='unbounded' ref='Options'/>
+                <xs:element minOccurs='1' maxOccurs='unbounded' ref='A'/>
+            </xs:choice>
+            <xs:attribute name='class' use='required'/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name='Technology'>
+        <xs:complexType>
+            <xs:choice maxOccurs='unbounded'>
+                <xs:element minOccurs='0' maxOccurs='unbounded' ref='Options'/>
+                <xs:element minOccurs='1' maxOccurs='unbounded' ref='A'/>
+            </xs:choice>
+            <xs:attribute name='class' use='required'/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name='Options'>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs='unbounded' ref='Option'/>
+            </xs:sequence>
+            <xs:attribute name='name' use='required' type='xs:NCName'/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name='Option'>
+        <xs:complexType mixed='true'>
+            <xs:attribute name='number' use='required' type='xs:integer'/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name='A'>
+        <xs:complexType mixed='true'>
+            <xs:attribute name='desc'/>
+            <xs:attribute name='name' use='required' type='xs:NCName'/>
+            <xs:attribute name='options' type='xs:NCName'/>
+            <xs:attribute name='type' type='xs:NCName'/>
+            <xs:attribute name='unit'/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
