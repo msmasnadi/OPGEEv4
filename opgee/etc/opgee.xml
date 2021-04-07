@@ -8,7 +8,7 @@
      define custom starting points.
      -->
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-       xsi:noNamespaceSchemaLocation="file:///Users/rjp/repos/opgee/opgee/etc/opgee.xsd">
+       xsi:noNamespaceSchemaLocation="opgee.xsd">
 	<Analysis name="default">
 		<!-- Global parameters -->
 		<FunctionalUnit>oil</FunctionalUnit>
@@ -63,24 +63,12 @@
 							<Stream name="oil in reservoir" number="1">
 								<Temperature unit="degF">70.8</Temperature>
 								<Pressure unit="psia">887.3</Pressure>
+								
+								<!-- N.B. Needs to follow choices of Option above -->
 								<Source name="t1"/>
-								<!-- N.B. Needs to follow choice of Option above -->
-								<Destination name="d1"/>
-								
-								<Component name="crude oil">
-									<Phase>liquid</Phase>
-									<Rate unit="tonne/d">14555.9</Rate>
-								</Component>
-								
-								<Component name="test">
-									<Rate unit="tonne/d">14555.9</Rate>
-									<Phase>liquid</Phase>
-								</Component>
-								
-								<Component name="Water">
-									<Phase>liquid</Phase>									
-									<Rate unit="tonne/d">2037.8</Rate>
-								</Component>
+								<Destination name="d1"/>								
+								<Component name="oil" phase="liquid" unit="tonne/d">14555.9</Component>								
+								<Component name="H2O" phase="liquid" unit="tonne/d">2037.8</Component>
 							</Stream>
 						</Process>
 					</Process>

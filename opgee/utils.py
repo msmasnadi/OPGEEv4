@@ -22,6 +22,14 @@ from .log import getLogger
 
 _logger = getLogger(__name__)
 
+def ipython_info():
+    ip = False
+    if 'ipykernel' in sys.modules:
+        ip = 'notebook'
+    elif 'IPython' in sys.modules:
+        ip = 'terminal'
+    return ip
+
 #
 # Custom argparse "action" to parse comma-delimited strings to lists
 #

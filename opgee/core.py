@@ -58,15 +58,15 @@ def subelt_value(elt, tag, coerce=None, with_unit=True, required=True):
 
     :param elt: (etree.Element) the parent element
     :param tag: (str) the tag of the subelement
-    :param coerce (type) a type to coerce the value
-    :param with_unit (bool) if True, return a Value instance with value and unit.
+    :param coerce: (type) a type to coerce the value
+    :param with_unit: (bool) if True, return a Value instance with value and unit.
     :param required: (bool) whether to raise an error if element is not found,
-       or if found and `with_unit` is True, there is no unit attribute.
+           or if found and `with_unit` is True, there is no unit attribute.
     :return: (str) the value found in the subelement, converted by `coerce` if
-       `coerce` is not None, or if `with_unit` is True, an instance of Value.
+           `coerce` is not None, or if `with_unit` is True, an instance of Value.
     :raises: OpgeeException if `required` is True and the subelement isn't found,
-       or if multiple subelements with `tag` are found, or if a required element
-       is missing a unit attribute and `with_unit` is True.
+           or if multiple subelements with `tag` are found, or if a required element
+           is missing a unit attribute and `with_unit` is True.
     """
     subs = elt.findall(tag)
     count = len(subs)
@@ -205,10 +205,12 @@ class XmlInstantiable(OpgeeObject):
     """
     This is the superclass for all classes that are instantiable from XML. The requirements of
     such classes are:
+
     1. They subclass from XmlInstantiable or its subclasses
-    2. They define __init__(self, name, **kwargs) and call super().__init__(name)
+    2. They define ``__init__(self, name, **kwargs)`` and call ``super().__init__(name)``
     3. They define @classmethod from_xml(cls, element) to create an instance from XML.
     4. Subclasses of Technology also implement a run() method to perform the required operation.
+
     """
     def __init__(self, name):
         super().__init__()
@@ -232,6 +234,19 @@ class XmlInstantiable(OpgeeObject):
 # to avoid redundant reporting
 _undefined_units = {}
 
+def validate_unit(unit):
+    if not unit:
+        return None
+
+    if unit in ureg:
+        return ureg[unit]
+
+    if unit not in _undefined_units:
+        _logger.warn(f"Unit '{unit}' is not in the UnitRegistry")
+        _undefined_units[unit] = 1
+
+    return None
+
 # The <A> element
 class A(XmlInstantiable):
     def __init__(self, name, value=None, atype=None, option_set=None, unit=None):
@@ -240,13 +255,8 @@ class A(XmlInstantiable):
         if atype is not None:
             value = coercible(value, atype)
 
-        if unit and unit not in _undefined_units:
-            if unit not in ureg:
-                _logger.warn(f"Unit '{unit}' is not in the UnitRegistry")
-                _undefined_units[unit] = 1
-                unit = 'dimensionless'
-
-        self.value = Quantity(value, ureg[unit]) if unit else value
+        unit_obj = validate_unit(unit)
+        self.value = Quantity(value, unit_obj) if unit_obj else value
 
         self.option_set = option_set        # the name of the option set, if any
         self.unit = unit
@@ -297,7 +307,18 @@ class Stream(XmlInstantiable):
         self.pressure = pressure
         self.src = src
         self.dst = dst
-        self.comp_mat = get_component_matrix()
+        self.components = get_component_matrix()
+
+    def component(self, name, phase=None):
+        """
+        Return one or all of the values for stream component `name`.
+
+        :param name: (str) The name of a stream component
+        :param phase: (str; one of {'solid', 'liquid', 'gas')
+        :return:
+        """
+        return self.components.loc[name] if phase is None \
+            else self.components.loc[name, phase]
 
     @classmethod
     def from_xml(cls, elt):
@@ -318,19 +339,22 @@ class Stream(XmlInstantiable):
         dst = elt_name(elt.find('Destination'))
 
         obj = Stream(name, number, temp=temp, pressure=pres, src=src, dst=dst)
-        comp_mat = obj.comp_mat
+        comps = obj.components
 
         # Set the stream component info
         comp_elts = elt.findall('Component')
         for comp_elt in comp_elts:
+            a = comp_elt.attrib
             comp_name = elt_name(comp_elt)
-            rate = subelt_value(elt, 'Rate', coerce=float)
-            phase = subelt_value(elt, 'Phase', with_unit=False)
+            rate  = coercible(comp_elt.text, float)
+            phase = a['phase']  # required by XML schema to be one of the 3 legal values
+            unit  = a['unit']   # required by XML schema
 
-            if phase not in Phases:
-                raise OpgeeException(f"Phase '{phase}' is not known. Must be one of {Phases}")
+            if comp_name not in comps.index:
+                raise OpgeeException(f"Unrecognized stream component name '{comp_name}'.")
 
-            comp_mat.set_component(comp_name, phase, rate)
+            # TBD: integrate units via pint and pint_pandas
+            comps.loc[comp_name, phase] = rate
 
         return obj
 
@@ -427,6 +451,7 @@ class Technology(Container):
         # TBD: just a placeholder until we have subclasses of Technology
         self.classname = classname
 
+    # Technology is nominally a container, but it has no children
     def children(self):
         return []
 
