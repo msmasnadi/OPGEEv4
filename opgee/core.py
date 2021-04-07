@@ -408,8 +408,8 @@ class Stream(XmlInstantiable):
         temp = subelt_value(elt, 'Temperature', coerce=float)
         pres = subelt_value(elt, 'Pressure',    coerce=float)
 
-        src = elt_name(elt.find('Source'))
-        dst = elt_name(elt.find('Destination'))
+        src  = a['src']
+        dst  = a['dst']
 
         obj = Stream(name, number, temp=temp, pressure=pres, src=src, dst=dst)
         comps = obj.components
