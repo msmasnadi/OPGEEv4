@@ -2,7 +2,7 @@
 <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema' elementFormDefault='qualified'>
 	
 	<!-- Attribute types -->
-	<xs:simpleType name="PhaseOfMatter">
+	<xs:simpleType name="PhaseType">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="gas"/>
 			<xs:enumeration value="liquid"/>
@@ -10,6 +10,20 @@
         </xs:restriction>
 	</xs:simpleType>
 	
+	<xs:simpleType name="FunctionalUnitType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="gas"/>
+			<xs:enumeration value="oil"/>
+        </xs:restriction>
+	</xs:simpleType>
+	
+	<xs:simpleType name="EnergyBasisType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="LHV"/>
+			<xs:enumeration value="HHV"/>
+        </xs:restriction>
+	</xs:simpleType>
+			
 	<xs:element name='Model'>
 		<xs:complexType>
 			<xs:choice maxOccurs="2">
@@ -18,10 +32,23 @@
 			</xs:choice>
 		</xs:complexType>
     </xs:element>
+		
+	<xs:element name='FunctionalUnit'>
+        <xs:complexType>
+            <xs:simpleContent>
+                <xs:extension base='FunctionalUnitType'/>
+            </xs:simpleContent>
+        </xs:complexType>
+	</xs:element>	
 	
-    <xs:element name='FunctionalUnit' type='xs:NCName'/>
-    <xs:element name='EnergyBasis' type='xs:NCName'/>
-	
+	<xs:element name='EnergyBasis'>
+        <xs:complexType>
+            <xs:simpleContent>
+                <xs:extension base='EnergyBasisType'/>
+            </xs:simpleContent>
+        </xs:complexType>
+	</xs:element>	
+
 	<xs:element name='Analysis'>
         <xs:complexType>
 			<xs:choice maxOccurs='unbounded'>
@@ -46,7 +73,8 @@
         <xs:complexType>
             <xs:choice maxOccurs='unbounded'>
                 <xs:element maxOccurs='unbounded' ref='A'/>
-                <xs:element minOccurs='1' maxOccurs='unbounded' ref='Process'/>
+				<xs:element minOccurs='1' maxOccurs='unbounded' ref='Process'/>
+				<xs:element minOccurs='1' maxOccurs='unbounded' ref='Stream'/>
             </xs:choice>
             <xs:attribute name='name' use='required' type='xs:NCName'/>
         </xs:complexType>
@@ -74,7 +102,6 @@
 			<xs:element minOccurs='0' maxOccurs='unbounded' ref='A'/>
 			<xs:element minOccurs='0' maxOccurs='unbounded' ref='Technology'/>	
 			<xs:element minOccurs='0' maxOccurs='unbounded' ref='Option'/>
-			<xs:element minOccurs='0' maxOccurs='unbounded' ref='Stream'/>			
 		</xs:choice>
 		<xs:attribute name='class' type='xs:NCName'/>
 		<xs:attribute name='name' type='xs:NCName'/>
@@ -114,14 +141,14 @@
     <xs:element name='Stream'>
         <xs:complexType>
             <xs:choice maxOccurs="unbounded">
-                <xs:element ref='Temperature'/>
-                <xs:element ref='Pressure'/>
-                <xs:element ref='Component'/>
-                <xs:element ref='Source'/>
-                <xs:element ref='Destination'/>
+                <xs:element minOccurs="1" maxOccurs="1" ref='Temperature'/>
+                <xs:element minOccurs="1" maxOccurs="1" ref='Pressure'/>
+                <xs:element minOccurs="1" maxOccurs="unbounded" ref='Component'/>
             </xs:choice>
             <xs:attribute name='name' use='required'/>
             <xs:attribute name='number' use='required' type='xs:integer'/>
+            <xs:attribute name='src' use='required'/>
+            <xs:attribute name='dst' use='required'/>
         </xs:complexType>
 	</xs:element>
 	
@@ -129,8 +156,8 @@
         <xs:complexType>
             <xs:simpleContent>
                 <xs:extension base='xs:decimal'>
-					<xs:attribute name='name' use='required' type='xs:NCName'/>
-					<xs:attribute name='phase' use='required' type="PhaseOfMatter"/>			
+					<xs:attribute name='name' use='required'/>
+					<xs:attribute name='phase' use='required' type="PhaseType"/>			
                     <xs:attribute name='unit' use='required'/>
                 </xs:extension>
             </xs:simpleContent>
@@ -139,14 +166,14 @@
 		
     <xs:element name='Source'>
         <xs:complexType>
-            <xs:attribute name='name' use='required' type='xs:NCName'/>
+            <xs:attribute name='name' use='required'/>
         </xs:complexType>
     </xs:element>
 	
 	<xs:element name='Destination'>
         <xs:complexType>
             <xs:attribute name='fraction' type='xs:decimal'/>
-            <xs:attribute name='name' use='required' type='xs:NCName'/>
+            <xs:attribute name='name' use='required'/>
         </xs:complexType>
     </xs:element>
 	
@@ -155,8 +182,8 @@
             <xs:sequence>
                 <xs:element minOccurs='0' maxOccurs='unbounded' ref='A'/>
             </xs:sequence>
-            <xs:attribute name='class' use='required' type='xs:NCName'/>
-            <xs:attribute name='name' type='xs:NCName'/>			
+            <xs:attribute name='class' use='required'/>
+            <xs:attribute name='name'/>			
         </xs:complexType>
 	</xs:element>
 	

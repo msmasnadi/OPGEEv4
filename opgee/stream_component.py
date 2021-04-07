@@ -16,7 +16,7 @@ _hydrocarbons = [f'C{n+1}' for n in range(60)]
 
 _gases = ['N2', 'O2', 'CO2', 'H2O', 'CH4', 'C2H6', 'C3H8', 'C4H10', 'H2', 'H2S', 'SO2', 'Air']
 
-_other = ['Oil', 'Na+', 'Cl-', 'Si-']
+_other = ['oil', 'Na+', 'Cl-', 'Si-']
 
 # All possible stream components
 Components = _gases + _other # + _hydrocarbons
@@ -39,9 +39,9 @@ def extend_components(names):
     :raises: OpgeeException if any of the names were previously defined stream components.
     """
     # ensure no duplicate names
-    bad = [name for name in names if ComponentDict.get(name) is not None]
+    bad = set(names).intersection(set(Components))
     if bad:
-        raise OpgeeException(f"extend_components: proposed extensions already defined: {bad}")
+        raise OpgeeException(f"extend_components: these proposed extensions are already defined: {bad}")
 
     _logger.info(f"Extended stream components to include {names}")
 

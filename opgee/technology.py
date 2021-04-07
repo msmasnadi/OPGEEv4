@@ -3,12 +3,18 @@ from .log import getLogger
 
 _logger = getLogger(__name__)
 
+# Techs used in test XML file
+class t1(Technology):
+    def run(self, level, **kwargs):
+        self.print_running_msg(level)
 
-class SurveyVehicle(Technology):
-    pass
+class t2(Technology):
+    def run(self, level, **kwargs):
+        self.print_running_msg(level)
 
-class Exploration(Technology):
-    pass
+class t3(Technology):
+    def run(self, level, **kwargs):
+        self.print_running_msg(level)
 
 class SurveyVehicle(Technology):
     pass
@@ -16,61 +22,5 @@ class SurveyVehicle(Technology):
 class Drilling(Technology):
     pass
 
-class FieldDevelopment(Technology):
-    pass
-
 class LandUse(Technology):
     pass
-
-class Fracking(Technology):
-    pass
-
-class FluidProduction(Technology):
-    pass
-
-class FluidInjection(Technology):
-    pass
-
-class BitumenMining(Technology):
-    pass
-
-class Maintenance(Technology):
-    pass
-
-class CrudeSeparationAndHandling(Technology):
-    pass
-
-class CrudeStorage(Technology):
-    pass
-
-class BitumenUpgradingOrDistilation(Technology):
-    pass
-
-class WasteTreatmentAndDisposal(Technology):
-    pass
-
-class CrudeTransport(Technology):
-    pass
-
-# Junk in test XML file
-class xyz(Technology):
-    pass
-
-class asdf(Technology):
-    pass
-
-class t1(Technology):
-    pass
-
-class t2(Technology):
-    pass
-
-class t3(Technology):
-    pass
-
-class p1_1(Technology):
-    pass
-
-class p1(Technology):
-    pass
-

@@ -1,14 +1,13 @@
-from opgee.XMLFile import XMLFile
-from opgee.core import Attributes, ModelFile
-from opgee.utils import resourceStream
 from opgee.config import getParam
-from opgee.log import getLogger
+from opgee.core import Attributes, ModelFile
+from opgee.log import getLogger, configureLogs, setLogLevels
+from opgee.utils import resourceStream
+import opgee.technology  # load pre-defined Technology subclasses
+import opgee.process     # load pre-defined Process subclasses
 
 _logger = getLogger(__name__)
 
 def init_logging():
-    from opgee.log import configureLogs, setLogLevels
-
     level = getParam('OPGEE.LogLevel')
     setLogLevels(level)
     configureLogs(force=True)
@@ -24,9 +23,19 @@ def main():
     print(field_attr.attribute('ecosystem_richness'))
     print(field_attr.option('ecosystem_C_richness'))
 
-    stream = resourceStream('etc/opgee.xml', stream_type='bytes', decode=None)
-    m = ModelFile(stream)
-    m.model.run()
+    s = resourceStream('etc/opgee.xml', stream_type='bytes', decode=None)
+    mf = ModelFile('[opgee package]/etc/opgee.xml', stream=s)
+    model = mf.model
+    model.run()
+
+    from opgee.graph import write_model_diagram, write_class_diagram
+    write_model_diagram(model, "/tmp/model_diagram.png")
+    write_class_diagram("/tmp/class_diagram.png")
+
+    # Show streams
+    for field in model.analysis.fields:
+        for s in field.streams:
+            print(f"\nStream {s.number} ({s.name}), src='{s.src}', dst='{s.dst}'\n{s.components}")
 
 def test_pint():
     from pint import UnitRegistry, Quantity

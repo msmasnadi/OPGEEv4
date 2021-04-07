@@ -12,7 +12,7 @@ def add_subclasses(graph, cls):
         add_subclasses(graph, sub)
 
 def write_class_diagram(pathname):
-    graph = pydot.Dot('my_graph', graph_type='graph', bgcolor='white')
+    graph = pydot.Dot('classes', graph_type='graph', bgcolor='white')
     add_subclasses(graph, OpgeeObject)
     graph.write_png(pathname)
 
@@ -22,5 +22,30 @@ def write_class_diagram(pathname):
         png = graph.create_png()
         display(Image(png))
 
-if __name__ == '__main__':
-    write_class_diagram("/tmp/class_diagram.png")
+def write_model_diagram(model, pathname):
+    """
+    Create a network graph from an OPGEE Model.
+
+    :param model: (Model) a populated Model instance
+    :param pathname: (str) the pathname of the PNG file to create
+    :return: None
+    """
+    def name_of(obj):
+        class_name = obj.__class__.__name__
+        obj_name = obj.name
+        return f"{class_name}({obj_name})" if obj_name else class_name
+
+    def add_tree(graph, obj):
+        name = name_of(obj)
+        print(f"Adding node '{name}'")
+        graph.add_node(pydot.Node(name, shape='box'))
+
+        for child in obj.children():
+            add_tree(graph, child)
+            print(f"Adding edge('{name}', '{name_of(child)}')")
+            graph.add_edge(pydot.Edge(name, name_of(child), color='black'))
+
+    graph = pydot.Dot('model', graph_type='graph', bgcolor='white')
+    add_tree(graph, model.analysis)
+    print(f"Writing {pathname}")
+    graph.write_png(pathname)
