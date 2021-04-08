@@ -402,19 +402,18 @@ class Stream(XmlInstantiable):
         :return: (Stream) instance of class Stream
         """
         a = elt.attrib
-        name   = a['name']
+        name = a['name']
+        src  = a['src']
+        dst  = a['dst']
         number = coercible(a['number'], int)
 
         temp = subelt_value(elt, 'Temperature', coerce=float)
         pres = subelt_value(elt, 'Pressure',    coerce=float)
 
-        src  = a['src']
-        dst  = a['dst']
-
         obj = Stream(name, number, temp=temp, pressure=pres, src=src, dst=dst)
-        comps = obj.components
+        comps = obj.components # allocated empty; filled in below
 
-        # Set the stream component info
+        # Set up the stream component info
         comp_elts = elt.findall('Component')
         for comp_elt in comp_elts:
             a = comp_elt.attrib
