@@ -1,0 +1,400 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Model>
+  <Analysis>
+    <Field name="Generic">
+      <A desc="Downhole pump" name="downhole_pump">1</A>
+      <A desc="Water reinjection" name="water_reinjection">1</A>
+      <A desc="Natural gas reinjection" name="natural_gas_reinjection">1</A>
+      <A desc="Water flooding" name="water_flooding">0</A>
+      <A desc="Gas lifting" name="gas_lifting">0</A>
+      <A desc="Gas flooding" name="gas_flooding">0</A>
+      <A desc="Steam flooding" name="steam_flooding">0</A>
+      <A desc="Oil sands mine (integrated with upgrader)" name="oil_sands_mine_int">0</A>
+      <A desc="Oil sands mine (non-integrated with upgrader)" name="oil_sands_mine_non_int">0</A>
+      <A desc="Field location (Country)" name="country">Generic</A>
+      <A desc="Field age" name="age" unit="yr">38</A>
+      <A desc="Field depth" name="depth" unit="ft">7240</A>
+      <A desc="Oil production volume" name="oil_prod" unit="bbl/d">2098</A>
+      <A desc="Number of producing wells" name="num_prod_wells">18</A>
+      <A desc="Number of water injecting wells" name="num_water_inj_wells">7</A>
+      <A desc="Production tubing diameter" name="well_diam" unit="in">2.78</A>
+      <A desc="Productivity index" name="prod_index" unit="bbl/psi-d">17</A>
+      <A desc="Reservoir pressure" name="res_press" unit="psi">1556.6</A>
+      <A desc="Reservoir temperature" name="res_temp" unit="deg_F">200</A>
+      <A desc="Offshore?" name="offshore" unit="binary">0</A>
+      <A desc="API gravity" name="API_grav" unit="deg_API">32.8</A>
+      <A desc="N2" name="gas_comp_N2" unit="mol%">2</A>
+      <A desc="CO2" name="gas_comp_CO2" unit="mol%">6</A>
+      <A desc="C1" name="gas_comp_C1" unit="mol%">84</A>
+      <A desc="C2" name="gas_comp_C2" unit="mol%">4</A>
+      <A desc="C3" name="gas_comp_C3" unit="mol%">2</A>
+      <A desc="C4+" name="gas_comp_C4" unit="mol%">1</A>
+      <A desc="H2S" name="gas_comp_H2S" unit="mol%">1</A>
+      <A desc="Gas-to-oil ratio (GOR)" name="GOR" unit="scf/bbl oil">2429.3</A>
+      <A desc="Water-to-oil ratio (WOR)" name="WOR" unit="bbl water/bbl oil">6</A>
+      <A desc="Water injection ratio" name="WIR" unit="bbl water/bbl oil">7</A>
+      <A desc="Gas lifting injection ratio" name="GLIR" unit="scf/bbl liquid">1500</A>
+      <A desc="Gas flooding injection ratio" name="GFIR" unit="scf/bbl oil">1362</A>
+      <A desc="Flood gas" name="flood_gas_type">1</A>
+      <A desc="Fraction of CO2 breaking through to producers" name="perc_CO2_breakthrough" unit="%">59</A>
+      <A desc="Source of makeup CO2" name="source_CO2">1</A>
+      <A desc="Percentage of sequestration credit assigned to the oilfield" name="perc_sequestration_credit" unit="%">0</A>
+      <A desc="Steam-to-oil ratio (SOR)" name="SOR" unit="bbl steam/bbl oil">3</A>
+      <A desc="Fraction of required electricity generated onsite" name="fraction_elec_onsite">0</A>
+      <A desc="Fraction of remaining natural gas reinjected" name="fraction_remaining_gas_inj">0</A>
+      <A desc="Fraction of produced water reinjected" name="fraction_water_reinjected">1</A>
+      <A desc="Fraction of steam generation via cogeneration" name="fraction_steam_cogen">0</A>
+      <A desc="Fraction of steam generation via solar thermal" name="fraction_steam_solar">0</A>
+      <A desc="Heater/treater" name="heater_treater">0</A>
+      <A desc="Stabilizer column" name="stabilizer_column">1</A>
+      <A desc="Upgrader type" name="upgrader_type">0</A>
+      <A desc="Associated Gas Processing Path" name="gas_processing_path">5</A>
+      <A desc="Flaring-to-oil ratio" name="FOR" unit="scf/bbl oil">143</A>
+      <A desc="Venting-to-oil ratio (purposeful)" name="VOR" unit="scf/bbl oil">5</A>
+      <A desc="Volume fraction of diluent" name="fraction_diluent">0</A>
+      <A desc="Low ecosystem carbon richness" name="low_carbon_richness">0</A>
+      <A desc="Moderate ecosystem carbon richness" name="med_carbon_richness">1</A>
+      <A desc="High ecosystem carbon richness" name="high_carbon_richness">0</A>
+      <A desc="Low development intensity" name="low_development _intensity">0</A>
+      <A desc="Moderate development intensity" name="med_development _intensity">1</A>
+      <A desc="High development intensity" name="high_development _intensity">0</A>
+      <A desc="Oil transport Ocean tanker fraction" name="fraction_oil_transport_ocean">1</A>
+      <A desc="Oil transport Barge fraction" name="fraction_oil_transport_barge">0</A>
+      <A desc="Oil transport Pipeline fraction" name="fraction_oil_transport_pipeline">1</A>
+      <A desc="Oil transport Rail fraction" name="fraction_oil_transport_rail">0</A>
+      <A desc="Oil transport Truck fraction" name="fraction_oil_transport_truck">0</A>
+      <A desc="Oil transport Ocean tanker distance" name="oil_transport_distance_tanker" unit="mi">5082</A>
+      <A desc="Oil transport Barge distance" name="oil_transport_distance_barge" unit="mi">500</A>
+      <A desc="Oil transport Pipeline distance" name="oil_transport_distance_pipeline" unit="mi">750</A>
+      <A desc="Oil transport Rail distance" name="oil_transport_distance_rail" unit="mi">800</A>
+      <A desc="Oil transport Truck distance" name="oil_transport_distance_truck" unit="mi">100</A>
+      <A desc="Ocean tanker size" name="ocean_tanker_size" unit="ton">250000</A>
+      <A desc="Small sources emissions" name="small_sources_adder" unit="g CO2eq/MJ">0.5</A>
+    </Field>
+    <Field name="Hassi R'Mel">
+      <A desc="Downhole pump" name="downhole_pump">1</A>
+      <A desc="Water reinjection" name="water_reinjection">0</A>
+      <A desc="Natural gas reinjection" name="natural_gas_reinjection">1</A>
+      <A desc="Water flooding" name="water_flooding">0</A>
+      <A desc="Gas lifting" name="gas_lifting">0</A>
+      <A desc="Gas flooding" name="gas_flooding">0</A>
+      <A desc="Steam flooding" name="steam_flooding">0</A>
+      <A desc="Oil sands mine (integrated with upgrader)" name="oil_sands_mine_int">0</A>
+      <A desc="Oil sands mine (non-integrated with upgrader)" name="oil_sands_mine_non_int">0</A>
+      <A desc="Field location (Country)" name="country">Algeria</A>
+      <A desc="Field age" name="age" unit="yr">48</A>
+      <A desc="Field depth" name="depth" unit="ft">7309</A>
+      <A desc="Oil production volume" name="oil_prod" unit="bbl/d">180000</A>
+      <A desc="Number of producing wells" name="num_prod_wells">160</A>
+      <A desc="Reservoir pressure" name="res_press" unit="psi">5874</A>
+      <A desc="API gravity" name="API_grav" unit="deg_API">66.64</A>
+      <A desc="Gas-to-oil ratio (GOR)" name="GOR" unit="scf/bbl oil">30503</A>
+      <A desc="Low ecosystem carbon richness" name="low_carbon_richness">1</A>
+      <A desc="Moderate ecosystem carbon richness" name="med_carbon_richness">0</A>
+      <A desc="High ecosystem carbon richness" name="high_carbon_richness">0</A>
+      <A desc="Low development intensity" name="low_development _intensity">0</A>
+      <A desc="Moderate development intensity" name="med_development _intensity">0</A>
+      <A desc="High development intensity" name="high_development _intensity">1</A>
+      <A desc="Oil transport Ocean tanker fraction" name="fraction_oil_transport_ocean">1</A>
+      <A desc="Oil transport Barge fraction" name="fraction_oil_transport_barge">0</A>
+      <A desc="Oil transport Pipeline fraction" name="fraction_oil_transport_pipeline">1</A>
+      <A desc="Oil transport Rail fraction" name="fraction_oil_transport_rail">0</A>
+      <A desc="Oil transport Ocean tanker distance" name="oil_transport_distance_tanker" unit="mi">5762.42</A>
+      <A desc="Oil transport Barge distance" name="oil_transport_distance_barge" unit="mi">0</A>
+      <A desc="Oil transport Pipeline distance" name="oil_transport_distance_pipeline" unit="mi">315</A>
+      <A desc="Oil transport Rail distance" name="oil_transport_distance_rail" unit="mi">0</A>
+    </Field>
+    <Field name="Girassol">
+      <A desc="Downhole pump" name="downhole_pump">0</A>
+      <A desc="Water reinjection" name="water_reinjection">1</A>
+      <A desc="Natural gas reinjection" name="natural_gas_reinjection">1</A>
+      <A desc="Water flooding" name="water_flooding">0</A>
+      <A desc="Gas lifting" name="gas_lifting">1</A>
+      <A desc="Gas flooding" name="gas_flooding">0</A>
+      <A desc="Steam flooding" name="steam_flooding">0</A>
+      <A desc="Oil sands mine (integrated with upgrader)" name="oil_sands_mine_int">0</A>
+      <A desc="Oil sands mine (non-integrated with upgrader)" name="oil_sands_mine_non_int">0</A>
+      <A desc="Field location (Country)" name="country">Angola</A>
+      <A desc="Field age" name="age" unit="yr">12</A>
+      <A desc="Field depth" name="depth" unit="ft">3937</A>
+      <A desc="Oil production volume" name="oil_prod" unit="bbl/d">175000</A>
+      <A desc="Number of producing wells" name="num_prod_wells">24</A>
+      <A desc="Number of water injecting wells" name="num_water_inj_wells">20</A>
+      <A desc="Production tubing diameter" name="well_diam" unit="in">8</A>
+      <A desc="Productivity index" name="prod_index" unit="bbl/psi-d">90.9</A>
+      <A desc="Reservoir pressure" name="res_press" unit="psi">3655</A>
+      <A desc="API gravity" name="API_grav" unit="deg_API">32</A>
+      <A desc="Gas-to-oil ratio (GOR)" name="GOR" unit="scf/bbl oil">584.29</A>
+      <A desc="Water-to-oil ratio (WOR)" name="WOR" unit="bbl water/bbl oil">0.5</A>
+      <A desc="Water injection ratio" name="WIR" unit="bbl water/bbl oil">1.5</A>
+      <A desc="Gas lifting injection ratio" name="GLIR" unit="scf/bbl liquid">30.26</A>
+      <A desc="Fraction of required electricity generated onsite" name="fraction_elec_onsite">1</A>
+      <A desc="Fraction of produced water reinjected" name="fraction_water_reinjected">1</A>
+      <A desc="Low ecosystem carbon richness" name="low_carbon_richness">1</A>
+      <A desc="Moderate ecosystem carbon richness" name="med_carbon_richness">0</A>
+      <A desc="High ecosystem carbon richness" name="high_carbon_richness">0</A>
+      <A desc="Low development intensity" name="low_development _intensity">1</A>
+      <A desc="Moderate development intensity" name="med_development _intensity">0</A>
+      <A desc="High development intensity" name="high_development _intensity">0</A>
+      <A desc="Oil transport Ocean tanker fraction" name="fraction_oil_transport_ocean">1</A>
+      <A desc="Oil transport Barge fraction" name="fraction_oil_transport_barge">0</A>
+      <A desc="Oil transport Pipeline fraction" name="fraction_oil_transport_pipeline">0</A>
+      <A desc="Oil transport Rail fraction" name="fraction_oil_transport_rail">0</A>
+      <A desc="Oil transport Ocean tanker distance" name="oil_transport_distance_tanker" unit="mi">7984</A>
+      <A desc="Oil transport Barge distance" name="oil_transport_distance_barge" unit="mi">0</A>
+      <A desc="Oil transport Pipeline distance" name="oil_transport_distance_pipeline" unit="mi">0</A>
+      <A desc="Oil transport Rail distance" name="oil_transport_distance_rail" unit="mi">0</A>
+    </Field>
+    <Field name="Kuito">
+      <A desc="Downhole pump" name="downhole_pump">0</A>
+      <A desc="Water reinjection" name="water_reinjection">1</A>
+      <A desc="Water flooding" name="water_flooding">0</A>
+      <A desc="Gas lifting" name="gas_lifting">1</A>
+      <A desc="Gas flooding" name="gas_flooding">0</A>
+      <A desc="Steam flooding" name="steam_flooding">0</A>
+      <A desc="Oil sands mine (integrated with upgrader)" name="oil_sands_mine_int">0</A>
+      <A desc="Oil sands mine (non-integrated with upgrader)" name="oil_sands_mine_non_int">0</A>
+      <A desc="Field location (Country)" name="country">Angola</A>
+      <A desc="Field age" name="age" unit="yr">17</A>
+      <A desc="Oil production volume" name="oil_prod" unit="bbl/d">25019.48</A>
+      <A desc="Number of producing wells" name="num_prod_wells">24</A>
+      <A desc="Number of water injecting wells" name="num_water_inj_wells">9</A>
+      <A desc="Production tubing diameter" name="well_diam" unit="in">6</A>
+      <A desc="Offshore?" name="offshore" unit="binary">1</A>
+      <A desc="API gravity" name="API_grav" unit="deg_API">22.05</A>
+      <A desc="Gas-to-oil ratio (GOR)" name="GOR" unit="scf/bbl oil">600</A>
+      <A desc="Water injection ratio" name="WIR" unit="bbl water/bbl oil">2.72</A>
+      <A desc="Gas lifting injection ratio" name="GLIR" unit="scf/bbl liquid">1800</A>
+      <A desc="Fraction of remaining natural gas reinjected" name="fraction_remaining_gas_inj">-1</A>
+      <A desc="Flaring-to-oil ratio" name="FOR" unit="scf/bbl oil">176.1</A>
+      <A desc="Oil transport Ocean tanker fraction" name="fraction_oil_transport_ocean">1</A>
+      <A desc="Oil transport Barge fraction" name="fraction_oil_transport_barge">0</A>
+      <A desc="Oil transport Pipeline fraction" name="fraction_oil_transport_pipeline">0</A>
+      <A desc="Oil transport Rail fraction" name="fraction_oil_transport_rail">0</A>
+      <A desc="Oil transport Truck fraction" name="fraction_oil_transport_truck">0</A>
+      <A desc="Oil transport Ocean tanker distance" name="oil_transport_distance_tanker" unit="mi">7984</A>
+      <A desc="Oil transport Barge distance" name="oil_transport_distance_barge" unit="mi">0</A>
+      <A desc="Oil transport Pipeline distance" name="oil_transport_distance_pipeline" unit="mi">0</A>
+      <A desc="Oil transport Rail distance" name="oil_transport_distance_rail" unit="mi">0</A>
+      <A desc="Oil transport Truck distance" name="oil_transport_distance_truck" unit="mi">0</A>
+    </Field>
+    <Field name="Takula">
+      <A desc="Downhole pump" name="downhole_pump">1</A>
+      <A desc="Water reinjection" name="water_reinjection">1</A>
+      <A desc="Natural gas reinjection" name="natural_gas_reinjection">0</A>
+      <A desc="Water flooding" name="water_flooding">0</A>
+      <A desc="Gas lifting" name="gas_lifting">0</A>
+      <A desc="Gas flooding" name="gas_flooding">0</A>
+      <A desc="Steam flooding" name="steam_flooding">0</A>
+      <A desc="Oil sands mine (integrated with upgrader)" name="oil_sands_mine_int">0</A>
+      <A desc="Oil sands mine (non-integrated with upgrader)" name="oil_sands_mine_non_int">0</A>
+      <A desc="Field location (Country)" name="country">Angola</A>
+      <A desc="Field age" name="age" unit="yr">35</A>
+      <A desc="Field depth" name="depth" unit="ft">3200</A>
+      <A desc="Oil production volume" name="oil_prod" unit="bbl/d">105000</A>
+      <A desc="Number of producing wells" name="num_prod_wells">69</A>
+      <A desc="Number of water injecting wells" name="num_water_inj_wells">21</A>
+      <A desc="Reservoir pressure" name="res_press" unit="psi">1300</A>
+      <A desc="API gravity" name="API_grav" unit="deg_API">32</A>
+      <A desc="Water-to-oil ratio (WOR)" name="WOR" unit="bbl water/bbl oil">4</A>
+      <A desc="Water injection ratio" name="WIR" unit="bbl water/bbl oil">4.67</A>
+      <A desc="Low ecosystem carbon richness" name="low_carbon_richness">1</A>
+      <A desc="Moderate ecosystem carbon richness" name="med_carbon_richness">0</A>
+      <A desc="High ecosystem carbon richness" name="high_carbon_richness">0</A>
+      <A desc="Low development intensity" name="low_development _intensity">0</A>
+      <A desc="Moderate development intensity" name="med_development _intensity">1</A>
+      <A desc="High development intensity" name="high_development _intensity">0</A>
+      <A desc="Oil transport Ocean tanker fraction" name="fraction_oil_transport_ocean">1</A>
+      <A desc="Oil transport Barge fraction" name="fraction_oil_transport_barge">0</A>
+      <A desc="Oil transport Pipeline fraction" name="fraction_oil_transport_pipeline">1</A>
+      <A desc="Oil transport Rail fraction" name="fraction_oil_transport_rail">0</A>
+      <A desc="Oil transport Ocean tanker distance" name="oil_transport_distance_tanker" unit="mi">7696.26</A>
+      <A desc="Oil transport Barge distance" name="oil_transport_distance_barge" unit="mi">0</A>
+      <A desc="Oil transport Pipeline distance" name="oil_transport_distance_pipeline" unit="mi">24</A>
+      <A desc="Oil transport Rail distance" name="oil_transport_distance_rail" unit="mi">0</A>
+    </Field>
+    <Field name="Cossack">
+      <A desc="Downhole pump" name="downhole_pump">0</A>
+      <A desc="Water reinjection" name="water_reinjection">0</A>
+      <A desc="Natural gas reinjection" name="natural_gas_reinjection">0</A>
+      <A desc="Water flooding" name="water_flooding">0</A>
+      <A desc="Gas lifting" name="gas_lifting">1</A>
+      <A desc="Gas flooding" name="gas_flooding">0</A>
+      <A desc="Steam flooding" name="steam_flooding">0</A>
+      <A desc="Oil sands mine (integrated with upgrader)" name="oil_sands_mine_int">0</A>
+      <A desc="Oil sands mine (non-integrated with upgrader)" name="oil_sands_mine_non_int">0</A>
+      <A desc="Field location (Country)" name="country">Australia</A>
+      <A desc="Field age" name="age" unit="yr">27</A>
+      <A desc="Field depth" name="depth" unit="ft">9719</A>
+      <A desc="Oil production volume" name="oil_prod" unit="bbl/d">60000</A>
+      <A desc="Number of producing wells" name="num_prod_wells">12</A>
+      <A desc="Number of water injecting wells" name="num_water_inj_wells">0</A>
+      <A desc="Production tubing diameter" name="well_diam" unit="in">5</A>
+      <A desc="Productivity index" name="prod_index" unit="bbl/psi-d">50</A>
+      <A desc="Reservoir pressure" name="res_press" unit="psi">4000</A>
+      <A desc="API gravity" name="API_grav" unit="deg_API">47.3</A>
+      <A desc="Gas-to-oil ratio (GOR)" name="GOR" unit="scf/bbl oil">2000</A>
+      <A desc="Water-to-oil ratio (WOR)" name="WOR" unit="bbl water/bbl oil">0.18</A>
+      <A desc="Water injection ratio" name="WIR" unit="bbl water/bbl oil">0</A>
+      <A desc="Gas lifting injection ratio" name="GLIR" unit="scf/bbl liquid">666</A>
+      <A desc="Low ecosystem carbon richness" name="low_carbon_richness">1</A>
+      <A desc="Moderate ecosystem carbon richness" name="med_carbon_richness">0</A>
+      <A desc="High ecosystem carbon richness" name="high_carbon_richness">0</A>
+      <A desc="Low development intensity" name="low_development _intensity">1</A>
+      <A desc="Moderate development intensity" name="med_development _intensity">0</A>
+      <A desc="High development intensity" name="high_development _intensity">0</A>
+      <A desc="Oil transport Ocean tanker fraction" name="fraction_oil_transport_ocean">1</A>
+      <A desc="Oil transport Barge fraction" name="fraction_oil_transport_barge">0</A>
+      <A desc="Oil transport Pipeline fraction" name="fraction_oil_transport_pipeline">1</A>
+      <A desc="Oil transport Rail fraction" name="fraction_oil_transport_rail">0</A>
+      <A desc="Oil transport Ocean tanker distance" name="oil_transport_distance_tanker" unit="mi">13605.06</A>
+      <A desc="Oil transport Barge distance" name="oil_transport_distance_barge" unit="mi">0</A>
+      <A desc="Oil transport Pipeline distance" name="oil_transport_distance_pipeline" unit="mi">80</A>
+      <A desc="Oil transport Rail distance" name="oil_transport_distance_rail" unit="mi">0</A>
+    </Field>
+    <Field name="Azeri">
+      <A desc="Downhole pump" name="downhole_pump">1</A>
+      <A desc="Water reinjection" name="water_reinjection">1</A>
+      <A desc="Natural gas reinjection" name="natural_gas_reinjection">0</A>
+      <A desc="Water flooding" name="water_flooding">0</A>
+      <A desc="Gas lifting" name="gas_lifting">0</A>
+      <A desc="Gas flooding" name="gas_flooding">0</A>
+      <A desc="Steam flooding" name="steam_flooding">0</A>
+      <A desc="Oil sands mine (integrated with upgrader)" name="oil_sands_mine_int">0</A>
+      <A desc="Oil sands mine (non-integrated with upgrader)" name="oil_sands_mine_non_int">0</A>
+      <A desc="Field location (Country)" name="country">Azerbaijan</A>
+      <A desc="Field age" name="age" unit="yr">17</A>
+      <A desc="Field depth" name="depth" unit="ft">9075</A>
+      <A desc="Oil production volume" name="oil_prod" unit="bbl/d">655700</A>
+      <A desc="Number of producing wells" name="num_prod_wells">77</A>
+      <A desc="Number of water injecting wells" name="num_water_inj_wells">30</A>
+      <A desc="API gravity" name="API_grav" unit="deg_API">35</A>
+      <A desc="Gas-to-oil ratio (GOR)" name="GOR" unit="scf/bbl oil">1299</A>
+      <A desc="Low ecosystem carbon richness" name="low_carbon_richness">1</A>
+      <A desc="Moderate ecosystem carbon richness" name="med_carbon_richness">0</A>
+      <A desc="High ecosystem carbon richness" name="high_carbon_richness">0</A>
+      <A desc="Low development intensity" name="low_development _intensity">1</A>
+      <A desc="Moderate development intensity" name="med_development _intensity">0</A>
+      <A desc="High development intensity" name="high_development _intensity">0</A>
+      <A desc="Oil transport Ocean tanker fraction" name="fraction_oil_transport_ocean">1</A>
+      <A desc="Oil transport Barge fraction" name="fraction_oil_transport_barge">0</A>
+      <A desc="Oil transport Pipeline fraction" name="fraction_oil_transport_pipeline">1</A>
+      <A desc="Oil transport Rail fraction" name="fraction_oil_transport_rail">0</A>
+      <A desc="Oil transport Ocean tanker distance" name="oil_transport_distance_tanker" unit="mi">8252</A>
+      <A desc="Oil transport Barge distance" name="oil_transport_distance_barge" unit="mi">0</A>
+      <A desc="Oil transport Pipeline distance" name="oil_transport_distance_pipeline" unit="mi">518</A>
+      <A desc="Oil transport Rail distance" name="oil_transport_distance_rail" unit="mi">0</A>
+    </Field>
+    <Field name="Frade">
+      <A desc="Downhole pump" name="downhole_pump">0</A>
+      <A desc="Water reinjection" name="water_reinjection">1</A>
+      <A desc="Natural gas reinjection" name="natural_gas_reinjection">0</A>
+      <A desc="Water flooding" name="water_flooding">0</A>
+      <A desc="Gas lifting" name="gas_lifting">1</A>
+      <A desc="Gas flooding" name="gas_flooding">0</A>
+      <A desc="Steam flooding" name="steam_flooding">0</A>
+      <A desc="Oil sands mine (integrated with upgrader)" name="oil_sands_mine_int">0</A>
+      <A desc="Oil sands mine (non-integrated with upgrader)" name="oil_sands_mine_non_int">0</A>
+      <A desc="Field location (Country)" name="country">Brazil</A>
+      <A desc="Field age" name="age" unit="yr">4</A>
+      <A desc="Field depth" name="depth" unit="ft">6730</A>
+      <A desc="Oil production volume" name="oil_prod" unit="bbl/d">16912</A>
+      <A desc="Number of producing wells" name="num_prod_wells">12</A>
+      <A desc="Number of water injecting wells" name="num_water_inj_wells">7</A>
+      <A desc="Reservoir pressure" name="res_press" unit="psi">2900</A>
+      <A desc="API gravity" name="API_grav" unit="deg_API">19</A>
+      <A desc="Gas-to-oil ratio (GOR)" name="GOR" unit="scf/bbl oil">370</A>
+      <A desc="Water-to-oil ratio (WOR)" name="WOR" unit="bbl water/bbl oil">1.3</A>
+      <A desc="Water injection ratio" name="WIR" unit="bbl water/bbl oil">1.3</A>
+      <A desc="Gas lifting injection ratio" name="GLIR" unit="scf/bbl liquid">580</A>
+      <A desc="Fraction of required electricity generated onsite" name="fraction_elec_onsite">1</A>
+      <A desc="Fraction of produced water reinjected" name="fraction_water_reinjected">1</A>
+      <A desc="Low ecosystem carbon richness" name="low_carbon_richness">1</A>
+      <A desc="Moderate ecosystem carbon richness" name="med_carbon_richness">0</A>
+      <A desc="High ecosystem carbon richness" name="high_carbon_richness">0</A>
+      <A desc="Low development intensity" name="low_development _intensity">1</A>
+      <A desc="Moderate development intensity" name="med_development _intensity">0</A>
+      <A desc="High development intensity" name="high_development _intensity">0</A>
+      <A desc="Oil transport Ocean tanker fraction" name="fraction_oil_transport_ocean">1</A>
+      <A desc="Oil transport Barge fraction" name="fraction_oil_transport_barge">0</A>
+      <A desc="Oil transport Pipeline fraction" name="fraction_oil_transport_pipeline">0</A>
+      <A desc="Oil transport Rail fraction" name="fraction_oil_transport_rail">0</A>
+      <A desc="Oil transport Ocean tanker distance" name="oil_transport_distance_tanker" unit="mi">6200</A>
+      <A desc="Oil transport Barge distance" name="oil_transport_distance_barge" unit="mi">0</A>
+      <A desc="Oil transport Pipeline distance" name="oil_transport_distance_pipeline" unit="mi">0</A>
+      <A desc="Oil transport Rail distance" name="oil_transport_distance_rail" unit="mi">0</A>
+    </Field>
+    <Field name="Lula">
+      <A desc="Downhole pump" name="downhole_pump">1</A>
+      <A desc="Water reinjection" name="water_reinjection">1</A>
+      <A desc="Natural gas reinjection" name="natural_gas_reinjection">0</A>
+      <A desc="Water flooding" name="water_flooding">0</A>
+      <A desc="Gas lifting" name="gas_lifting">0</A>
+      <A desc="Gas flooding" name="gas_flooding">1</A>
+      <A desc="Steam flooding" name="steam_flooding">0</A>
+      <A desc="Oil sands mine (integrated with upgrader)" name="oil_sands_mine_int">0</A>
+      <A desc="Oil sands mine (non-integrated with upgrader)" name="oil_sands_mine_non_int">0</A>
+      <A desc="Field location (Country)" name="country">Brazil</A>
+      <A desc="Field age" name="age" unit="yr">11</A>
+      <A desc="Field depth" name="depth" unit="ft">19737</A>
+      <A desc="Oil production volume" name="oil_prod" unit="bbl/d">1050000</A>
+      <A desc="Number of producing wells" name="num_prod_wells">6</A>
+      <A desc="Number of water injecting wells" name="num_water_inj_wells">1</A>
+      <A desc="Reservoir pressure" name="res_press" unit="psi">8000</A>
+      <A desc="Reservoir temperature" name="res_temp" unit="deg_F">380.04</A>
+      <A desc="Offshore?" name="offshore" unit="binary">1</A>
+      <A desc="API gravity" name="API_grav" unit="deg_API">28.8</A>
+      <A desc="CO2" name="gas_comp_CO2" unit="mol%">11</A>
+      <A desc="Gas-to-oil ratio (GOR)" name="GOR" unit="scf/bbl oil">1419</A>
+      <A desc="Water-to-oil ratio (WOR)" name="WOR" unit="bbl water/bbl oil">0.1</A>
+      <A desc="Water injection ratio" name="WIR" unit="bbl water/bbl oil">0.5</A>
+      <A desc="Gas lifting injection ratio" name="GLIR" unit="scf/bbl liquid">0</A>
+      <A desc="Gas flooding injection ratio" name="GFIR" unit="scf/bbl oil">175</A>
+      <A desc="Flood gas" name="flood_gas_type">3</A>
+      <A desc="Fraction of CO2 breaking through to producers" name="perc_CO2_breakthrough" unit="%">0</A>
+      <A desc="Fraction of required electricity generated onsite" name="fraction_elec_onsite">1</A>
+      <A desc="Fraction of remaining natural gas reinjected" name="fraction_remaining_gas_inj">0</A>
+      <A desc="Fraction of produced water reinjected" name="fraction_water_reinjected">1</A>
+      <A desc="Associated Gas Processing Path" name="gas_processing_path">7</A>
+      <A desc="Flaring-to-oil ratio" name="FOR" unit="scf/bbl oil">38.92</A>
+    </Field>
+    <Field name="Midale (Southeast Saskatchewan)">
+      <A desc="Downhole pump" name="downhole_pump">0</A>
+      <A desc="Water reinjection" name="water_reinjection">1</A>
+      <A desc="Natural gas reinjection" name="natural_gas_reinjection">1</A>
+      <A desc="Water flooding" name="water_flooding">0</A>
+      <A desc="Gas lifting" name="gas_lifting">0</A>
+      <A desc="Gas flooding" name="gas_flooding">0</A>
+      <A desc="Steam flooding" name="steam_flooding">0</A>
+      <A desc="Oil sands mine (integrated with upgrader)" name="oil_sands_mine_int">0</A>
+      <A desc="Oil sands mine (non-integrated with upgrader)" name="oil_sands_mine_non_int">0</A>
+      <A desc="Field location (Country)" name="country">Canada</A>
+      <A desc="Field age" name="age" unit="yr">60</A>
+      <A desc="Field depth" name="depth" unit="ft">4600</A>
+      <A desc="Oil production volume" name="oil_prod" unit="bbl/d">5000</A>
+      <A desc="Number of producing wells" name="num_prod_wells">953</A>
+      <A desc="Number of water injecting wells" name="num_water_inj_wells">83</A>
+      <A desc="Reservoir pressure" name="res_press" unit="psi">2600</A>
+      <A desc="API gravity" name="API_grav" unit="deg_API">28.7</A>
+      <A desc="Gas-to-oil ratio (GOR)" name="GOR" unit="scf/bbl oil">2000</A>
+      <A desc="Water-to-oil ratio (WOR)" name="WOR" unit="bbl water/bbl oil">11.5</A>
+      <A desc="Water injection ratio" name="WIR" unit="bbl water/bbl oil">12.5</A>
+      <A desc="Fraction of remaining natural gas reinjected" name="fraction_remaining_gas_inj">0.15</A>
+      <A desc="Fraction of produced water reinjected" name="fraction_water_reinjected">1</A>
+      <A desc="Low ecosystem carbon richness" name="low_carbon_richness">0</A>
+      <A desc="Moderate ecosystem carbon richness" name="med_carbon_richness">1</A>
+      <A desc="High ecosystem carbon richness" name="high_carbon_richness">0</A>
+      <A desc="Low development intensity" name="low_development _intensity">0</A>
+      <A desc="Moderate development intensity" name="med_development _intensity">0</A>
+      <A desc="High development intensity" name="high_development _intensity">1</A>
+      <A desc="Oil transport Ocean tanker fraction" name="fraction_oil_transport_ocean">0</A>
+      <A desc="Oil transport Barge fraction" name="fraction_oil_transport_barge">0</A>
+      <A desc="Oil transport Pipeline fraction" name="fraction_oil_transport_pipeline">1</A>
+      <A desc="Oil transport Rail fraction" name="fraction_oil_transport_rail">0</A>
+      <A desc="Oil transport Ocean tanker distance" name="oil_transport_distance_tanker" unit="mi">0</A>
+      <A desc="Oil transport Barge distance" name="oil_transport_distance_barge" unit="mi">0</A>
+      <A desc="Oil transport Pipeline distance" name="oil_transport_distance_pipeline" unit="mi">2000</A>
+      <A desc="Oil transport Rail distance" name="oil_transport_distance_rail" unit="mi">0</A>
+    </Field>
+  </Analysis>
+</Model>
