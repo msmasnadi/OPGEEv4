@@ -58,45 +58,39 @@ def _subclass_dict(superclass):
     d = {cls.__name__ : cls for cls in superclass.__subclasses__()}
     return d
 
-# Cache subclasses of Process and Technology after first call
-_Process_subclasses = None
-_Technology_subclasses = None
+#
+# Cache of known subclasses of Process and Technology
+#
+_Subclass_dict = None
 
-def _process_subclasses(reload=False):
-    global _Process_subclasses
-    if reload or _Process_subclasses is None:
-        _Process_subclasses = _subclass_dict(Process)
+def get_subclass(cls, subclass_name, reload=False):
+    """
+    Return the class for `subclass_name`, which must be a known subclass of `cls`.
 
-    return _Process_subclasses
+    :param cls: (type) the class (Technology or Process) for which we're finding a subclass.
+    :param subclass_name: (str) the name of the subclass
+    :param reload: (bool) if True, reload the cache of subclasses of `cls`.
+    :return: (type) the class object
+    :raises: OpgeeException if `cls` is not Technology or Process or if the subclass is not known.
+    """
+    global _Subclass_dict
 
-def _technology_subclasses(reload=False):
-    global _Technology_subclasses
-    if reload or _Technology_subclasses is None:
-        _Technology_subclasses = _subclass_dict(Technology)
+    if reload or _Subclass_dict is None:
+        _Subclass_dict = {
+            Process    : _subclass_dict(Process),
+            Technology : _subclass_dict(Technology)
+        }
 
-    return _Technology_subclasses
+    valid = _Subclass_dict.keys()
+    if cls not in valid:
+        valid = list(valid) # expand iterator
+        raise OpgeeException(f"lookup_subclass: cls {cls} must be one of {valid}")
 
-def process_subclass(classname, reload=False):
-    d = _process_subclasses(reload=reload)
+    d = _Subclass_dict[cls]
     try:
-        return d[classname]
+        return d[subclass_name]
     except KeyError:
-        raise OpgeeException(f"Class {classname} is not a defined subclass of Process")
-
-def technology_subclass(classname, reload=False):
-    d = _technology_subclasses(reload=reload)
-    try:
-        return d[classname]
-    except KeyError:
-        raise OpgeeException(f"Class {classname} is not a defined subclass of Technology")
-
-# (Deprecated) Return a list of XmlInstantiable subclasses in a named module
-# def xml_instantiable_classes(module_name): # e.g., 'opgee.core'
-#     m = sys.modules[module_name]
-#     classes = [obj for (name, obj) in m.__dict__.items() if \
-#                isinstance(obj, type) and issubclass(obj, XmlInstantiable) \
-#                and name != 'XmlInstantiable']
-#     return classes
+        raise OpgeeException(f"Class {subclass_name} is not a known subclass of {cls}")
 
 def subelt_value(elt, tag, coerce=None, with_unit=True, required=True):
     """
@@ -139,29 +133,29 @@ def subelt_value(elt, tag, coerce=None, with_unit=True, required=True):
 def elt_name(elt):
     return elt.attrib.get('name')
 
-def instantiate_subelts(elt, tag, cls):
+def instantiate_subelts(elt, cls):
     """
     Return a list of instances of `cls` (or of its indicated subclass in the case of
     Process or Technology).
 
     :param elt: (lxml.etree.Element) the parent element
-    :param tag: (str) the name of the subelements to find
     :param cls: (type) the class to instantiate. If cls is Process or Technology,
         the class will be that indicated instead in the element's "class" attribute.
     :return: (list) instantiated objects
     """
+    tag = cls.__name__      # class name matches element name
     objs = [cls.from_xml(e) for e in elt.findall(tag)]
     return objs
 
 
-# Top of hierarchy, because this is often useful...
+# Top of hierarchy, because it's useful to know which classes are "ours"
 class OpgeeObject():
     pass
 
 
 class ClassAttributes(OpgeeObject):
     """
-    Support for parsing attributes.xml
+    Support for parsing attributes.xml metadata
     """
     def __init__(self, elt):
         super().__init__()
@@ -499,18 +493,16 @@ class Process(Container):
         name = elt_name(elt)
 
         classname = elt.attrib.get('class')
-        if classname:
-            print(f"found <Process class={classname}>")
-        cls = Process if classname is None else process_subclass(classname)
+        cls = Process if classname is None else get_subclass(Process, classname)
 
         if cls is None:
             print(f"cls for {classname} is None")
 
-        procs = instantiate_subelts(elt, 'Process', Process)
-        techs = instantiate_subelts(elt, 'Technology', Technology)
+        procs = instantiate_subelts(elt, Process)
+        techs = instantiate_subelts(elt, Technology)
 
         # TBD: fill in Smart Defaults here, or assume they've been filled already?
-        attrs = instantiate_subelts(elt, 'A', A)
+        attrs = instantiate_subelts(elt, A)
 
         obj = cls(name, attrs=attrs, subprocs=procs, techs=techs)
         return obj
@@ -546,10 +538,10 @@ class Technology(Container):
         """
         name = elt_name(elt)
         classname = elt.attrib['class']         # required
-        cls = technology_subclass(classname)
+        cls = get_subclass(Technology, classname)
 
         # TBD: fill in Smart Defaults here, or assume they've been filled already?
-        attrs = instantiate_subelts(elt, 'A', A)
+        attrs = instantiate_subelts(elt, A)
 
         obj = cls(name, attrs=attrs)
         return obj
@@ -588,11 +580,11 @@ class Field(Container):
         name = elt_name(elt)
 
         # TBD: fill in Smart Defaults here, or assume they've been filled already?
-        attrs = instantiate_subelts(elt, 'A', A)
+        attrs = instantiate_subelts(elt, A)
 
-        procs   = instantiate_subelts(elt, 'Process', Process)
-        techs   = instantiate_subelts(elt, 'Technology', Technology)
-        streams = instantiate_subelts(elt, 'Stream', Stream)
+        procs   = instantiate_subelts(elt, Process)
+        techs   = instantiate_subelts(elt, Technology)
+        streams = instantiate_subelts(elt, Stream)
 
         obj = Field(name, attrs=attrs, procs=procs, techs=techs, streams=streams)
         return obj
@@ -634,7 +626,7 @@ class Analysis(Container):
         name = elt_name(elt)
         fn_unit  = subelt_value(elt, 'FunctionalUnit', with_unit=False) # schema requires one of {'oil', 'gas'}
         en_basis = subelt_value(elt, 'EnergyBasis', with_unit=False)    # schema requires one of {'LHV', 'HHV'}
-        fields = instantiate_subelts(elt, 'Field', Field)
+        fields = instantiate_subelts(elt, Field)
 
         obj = Analysis(name, functional_unit=fn_unit, energy_basis=en_basis, fields=fields)
         return obj
@@ -667,7 +659,7 @@ class Model(Container):
         :param elt: (etree.Element) representing a <Model> element
         :return: (Model) instance populated from XML
         """
-        analyses = instantiate_subelts(elt, 'Analysis', Analysis)
+        analyses = instantiate_subelts(elt, Analysis)
         count = len(analyses)
         if count != 1:
             raise OpgeeException(f"Expected on <Analysis> element; got {count}")

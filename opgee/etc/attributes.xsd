@@ -31,7 +31,8 @@
                 <xs:element minOccurs='0' maxOccurs='unbounded' ref='Options'/>
                 <xs:element minOccurs='1' maxOccurs='unbounded' ref='A'/>
             </xs:choice>
-            <xs:attribute name='class' use='required'/>
+            <xs:attribute name='class'/>
+            <xs:attribute name='name'/>
         </xs:complexType>
     </xs:element>
     <xs:element name='Technology'>

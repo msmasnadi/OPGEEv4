@@ -180,13 +180,13 @@
     <A name="well_complexity" type="int" options="well_complexity" desc="Well complexity">2</A>
     <A name="well_size" desc="Hole size" type="int" options="well_size">2</A>
     
-    <A name="fraction_wells_horizontal" type="float" description="Horizontal well?">0</A>    
+    <A name="fraction_wells_horizontal" type="float" desc="Horizontal well?">0</A>    
     <A name="length_lateral" unit="ft" type="float" desc="Length of lateral">5000</A>
     <A name="well_productivity_crude_oil" options="field_productivity_category" type="int">2</A>
     <A name="well_productivity_natural_gas" options="field_productivity_category" type="int">2</A>
         
     <A name="fraction_wells_fractured" desc="Fraction of wells fractured" type="float">0</A>
-    <A name="volume_per_well_fractured" desc="Fracturing fluid injection volume" type="float" unit="million gallons">3</A>
+    <A name="volume_per_well_fractured" desc="Fracturing fluid injection volume" type="float" unit="Mgal">3</A>
     <A name="pressure_gradient_fracturing" desc="Fracturing pressure gradient (rock strength)" unit="psi/ft">0.7</A>
     <A name="timeframe_land_use" desc="Timeframe of land use analysis" options="timeframe_land_use">1</A>
     <A name="flaring_fracturing_flowback" desc="Fracturing flowback flared?" type="binary">0</A>
