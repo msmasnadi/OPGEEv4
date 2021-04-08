@@ -8,7 +8,7 @@
      define custom starting points.
      -->
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-       xsi:noNamespaceSchemaLocation="file:///Users/rjp/repos/opgee/opgee/etc/opgee.xsd">
+       xsi:noNamespaceSchemaLocation="opgee.xsd">
 	<Analysis name="default">
 		<!-- Global parameters -->
 		<FunctionalUnit>oil</FunctionalUnit>
@@ -33,6 +33,13 @@
 			<A name="prod_index">37.53</A>
 			<A name="res_press">887.31</A>
 			<A name="res_temp">70.84</A>
+			<Stream number="1" name="oil in reservoir" src="t1" dst="t2">
+				<Temperature unit="degF">70.8</Temperature>
+				<Pressure unit="psia">887.3</Pressure>
+				<!-- N.B. Needs to follow choices of Option above -->
+				<Component name="oil" phase="liquid" unit="tonne/d">14555.9</Component>
+				<Component name="H2O" phase="liquid" unit="tonne/d">2037.8</Component>
+			</Stream>
 			
 			<Process name="Exploration_and_development">
 				<Process class="Exploration">
@@ -47,8 +54,8 @@
 						<A name="distance" unit="mi">2342</A>
 					</Technology>
 										
-					<Process class="p1">
-						<Process class="p1_1">
+					<Process name="p1">
+						<Process name="p1_1">
 							<Option name="o1" default="t1" selected="t2">
 								<Technology class="t1">
 									<A name="x">1.5</A>
@@ -60,37 +67,17 @@
 									<A name="z">3</A>
 								</Technology>
 							</Option>
-							<Stream name="oil in reservoir" number="1">
-								<Temperature unit="degF">70.8</Temperature>
-								<Pressure unit="psia">887.3</Pressure>
-								<Source name="t1"/>
-								<!-- N.B. Needs to follow choice of Option above -->
-								<Destination name="d1"/>
-								
-								<Component name="crude oil">
-									<Phase>liquid</Phase>
-									<Rate unit="tonne/d">14555.9</Rate>
-								</Component>
-								
-								<Component name="test">
-									<Rate unit="tonne/d">14555.9</Rate>
-									<Phase>liquid</Phase>
-								</Component>
-								
-								<Component name="Water">
-									<Phase>liquid</Phase>									
-									<Rate unit="tonne/d">2037.8</Rate>
-								</Component>
-							</Stream>
 						</Process>
 					</Process>
 				</Process>
 				<Process class="FieldDevelopment">
-					<Technology class="Drilling"> 
-						<!-- Where do we express that productivity must be in {low, medium, high}? -->
-						<A name="productivity">medium</A>
-						<A name="total_wells">2500</A>
-					</Technology>
+					<Process name="Drilling"> 
+						<Technology class="Drilling">
+							<!-- Where do we express that productivity must be in {low, medium, high}? -->
+							<A name="productivity">medium</A>
+							<A name="total_wells">2500</A>
+						</Technology>
+					</Process>
 					<Technology class="LandUse"/>
 				</Process>
 				<Process class="Fracking"/>

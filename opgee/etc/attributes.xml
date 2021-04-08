@@ -6,26 +6,7 @@
      creating pulldown menus of options for categorical parameters and radio buttons for 
      binary ones. 
      -->
-<Attributes>
-  
-  <Technology class="MyTech">
-    <Options name="ecosystem_C_richness">
-      <Option number="1">Low carbon richness (semi-arid grasslands)</Option>        
-      <Option number="2">Moderate carbon richness (mixed)</Option>        
-      <Option number="3">High carbon richness (forested)</Option>        
-    </Options>
-    <A name="bar" type="binary" desc="xxx">1</A>    
-  </Technology>
-  
-  <Process class="MyProc">
-    <Options name="ecosystem_C_richness">
-      <Option number="1">Low carbon richness (semi-arid grasslands)</Option>        
-      <Option number="2">Moderate carbon richness (mixed)</Option>        
-      <Option number="3">High carbon richness (forested)</Option>        
-    </Options>
-    <A name="foooo" type="float" unit="bbl/d" desc="yyy">112</A>
-  </Process>
-  
+<Attributes> 
   <Field>
     <Group name="Production_methods">
       <A name="downhole_pump" type="binary" desc="Downhold pump">1</A>
@@ -154,12 +135,101 @@
     </Group>
   </Field>
   
-  <Process class="">
-    <A name="foo" type="binary" desc="yyy">1</A>
-    <A name="bar" type="float" unit="in" desc="xxx">123</A>
+  <!-- Exploration and development -->
+  <Process name="Exploration">
+    <A name="distance_survey" type="float" desc="Distance of travel for survey" unit="mi">10000</A>
+    <A name="weight_land_survey" type="float" desc="Weight of land survey vehicle" unit="tons">25</A>
+    <A name="weight_ocean_survey" type="float" desc="Weight of ocean survey vehicle" unit="tons">100</A>
+    <A name="number_wells_dry" type="int" desc="Number of dry wells drilled per field found">1</A>
+    <A name="number_wells_exploratory" type="int" desc="Number of exploratory/scientific wells drilled after field discovery">3</A>
   </Process>
   
-  <Technology class="">
+  <!-- Drilling and development -->
+  <Technology class="Drilling">
+    <Options name="rig_efficiency">
+      <!-- Allow options to be named "low", "med", "high" rather than requiring a number? -->
+      <Option number="1" >Low: Mud pump 60%, Rotary Table 40%</Option>
+      <Option number="2" >Med: Mud pump 65%, Rotary Table 45%</Option>
+      <Option number="3">High: Mud pump 70%, Rotary Table 50%</Option>
+    </Options>
+    
+    <Options name="well_complexity">
+      <Option number="1">Simple = Surface casing plus production casing</Option>
+      <Option number="2">Moderate = Surface, intermediate, production</Option>
+      <Option number="3">Complex = Surface, Intermediate 1, Intermediate 2, Production</Option>
+    </Options>
+    
+    <Options name="well_size">
+      <Option number="1">Small</Option>
+      <Option number="2">Medium</Option>
+      <Option number="3">Large</Option>
+    </Options>
+    
+    <Options name="field_productivity_category">
+      <Option number="1">Low: USA</Option>
+      <Option number="2">Med: Global average</Option>
+      <Option number="3">High: OPEC</Option>
+    </Options>
+    
+    <Options name="timeframe_land_use">
+      <Option number="1">30 years</Option>
+      <Option number="2">150 years</Option>
+    </Options>
+    
+    <A name="eta_rig" type="int" options="rig_efficiency" desc="Rig efficiency">2</A>
+    <A name="well_complexity" type="int" options="well_complexity" desc="Well complexity">2</A>
+    <A name="well_size" desc="Hole size" type="int" options="well_size">2</A>
+    
+    <A name="fraction_wells_horizontal" type="float" description="Horizontal well?">0</A>    
+    <A name="length_lateral" unit="ft" type="float" desc="Length of lateral">5000</A>
+    <A name="well_productivity_crude_oil" options="field_productivity_category" type="int">2</A>
+    <A name="well_productivity_natural_gas" options="field_productivity_category" type="int">2</A>
+        
+    <A name="fraction_wells_fractured" desc="Fraction of wells fractured" type="float">0</A>
+    <A name="volume_per_well_fractured" desc="Fracturing fluid injection volume" type="float" unit="million gallons">3</A>
+    <A name="pressure_gradient_fracturing" desc="Fracturing pressure gradient (rock strength)" unit="psi/ft">0.7</A>
+    <A name="timeframe_land_use" desc="Timeframe of land use analysis" options="timeframe_land_use">1</A>
+    <A name="flaring_fracturing_flowback" desc="Fracturing flowback flared?" type="binary">0</A>
+    <A name="REC_fracturing_flowback" desc="Fracturing flowback captured with reduced emissons completions?" type="binary">1</A>
+    <A name="number_well_workovers" desc="Workovers needed over lifetime of well" type="float">4</A>
+  </Technology>
+  
+  <!-- Production -->
+  <Technology class="FluidProduction">    
     <A name="baz" type="int" unit="d" desc="xxx">1</A>
   </Technology>
+  
+  <Technology class="FluidInjection">
+    <A name="baz" type="int" unit="d" desc="xxx">1</A>
+  </Technology>
+  
+  <Technology class="BitumenMining">
+    <A name="baz" type="int" unit="d" desc="xxx">1</A>
+  </Technology>
+  
+  <Technology class="MaintenanceAndWorkovers">
+    <A name="baz" type="int" unit="d" desc="xxx">1</A>
+  </Technology>  
+  
+  <!-- Surface processing-->
+  <Technology class="CrudeSeparationAndHandling">
+    <A name="baz" type="int" unit="d" desc="xxx">1</A>
+  </Technology>  
+  
+  <Technology class="CrudeStorage">
+    <A name="baz" type="int" unit="d" desc="xxx">1</A>
+  </Technology>  
+  
+  <Technology class="BitumentUpgradingOrDilution">
+    <A name="baz" type="int" unit="d" desc="xxx">1</A>
+  </Technology>  
+  
+  <Technology class="WasteTreatmentAndDisposal">
+    <A name="baz" type="int" unit="d" desc="xxx">1</A>
+  </Technology>  
+  
+  <!-- Transport -->
+  <Technology class="CrudeTransport">
+    <A name="baz" type="int" unit="d" desc="xxx">1</A>
+  </Technology>  
 </Attributes>
