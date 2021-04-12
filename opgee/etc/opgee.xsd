@@ -104,7 +104,6 @@
 			<xs:element minOccurs='0' maxOccurs='unbounded' ref='Process'/>	
 			<xs:element minOccurs='0' maxOccurs='unbounded' ref='Option'/>
 		</xs:choice>
-		<xs:attribute name='class' type='xs:NCName'/>
 		<xs:attribute name='name' type='xs:NCName'/>
 	</xs:complexType>
 	

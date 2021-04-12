@@ -3,20 +3,12 @@ from .log import getLogger
 
 _logger = getLogger(__name__)
 
-# Processes used in test XML file
-class t1(Process):
+class Environment(Process):
+    """
+    Pseudo-process that serves as the destination for all unbound output streams.
+    """
     def run(self, level, **kwargs):
-        self.print_running_msg(level)
-
-
-class t2(Process):
-    def run(self, level, **kwargs):
-        self.print_running_msg(level)
-
-
-class t3(Process):
-    def run(self, level, **kwargs):
-        self.print_running_msg(level)
+        pass
 
 
 class Drilling(Process):
@@ -37,6 +29,10 @@ class Fracking(Process):
 class SurveyVehicle(Process):
     def run(self, level, **kwargs):
         self.print_running_msg(level)
+
+    def __str__(self):
+        type_attr = self.attr_dict['type']
+        return f'<SurveyVehicle type="{type_attr.value}">'
 
 
 class ReservoirWellInterface(Process):

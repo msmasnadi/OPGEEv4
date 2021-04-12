@@ -1,8 +1,9 @@
 from opgee.config import getParam
-from opgee.core import Attributes, ModelFile
+from opgee.model import ModelFile
 from opgee.log import getLogger, configureLogs, setLogLevels
 from opgee.utils import resourceStream
-import opgee.processes     # load pre-defined Process subclasses
+
+import opgee.processes     # load pre-defined Process subclasses so the classes can be found by name
 
 _logger = getLogger(__name__)
 
@@ -16,15 +17,10 @@ def main():
     init_logging()
     _logger.debug("testing")
 
-    attributes = Attributes()
-    field_attr = attributes.class_attrs('Field')
-    print(field_attr.attribute('downhole_pump'))
-    print(field_attr.attribute('ecosystem_richness'))
-    print(field_attr.option('ecosystem_C_richness'))
-
     s = resourceStream('etc/opgee.xml', stream_type='bytes', decode=None)
     mf = ModelFile('[opgee package]/etc/opgee.xml', stream=s)
     model = mf.model
+    model.validate()
     model.run()
 
     from opgee.graph import write_model_diagram, write_class_diagram

@@ -8,7 +8,6 @@ from pint import UnitRegistry, Quantity
 import sys
 from .error import OpgeeException, AbstractMethodError
 from .log import getLogger
-from .XMLFile import XMLFile
 from .utils import coercible, resourceStream
 from .stream_component import get_component_matrix
 
@@ -133,113 +132,28 @@ def subelt_value(elt, tag, coerce=None, with_unit=True, required=True):
 def elt_name(elt):
     return elt.attrib.get('name')
 
-def instantiate_subelts(elt, cls):
+def instantiate_subelts(elt, cls, as_dict=False):
     """
     Return a list of instances of `cls` (or of its indicated subclass of Process).
 
     :param elt: (lxml.etree.Element) the parent element
     :param cls: (type) the class to instantiate. If cls is Process, the class will
         be that indicated instead in the element's "class" attribute.
+    :param as_dict: (bool) if True, return a dictionary of subelements, keyed by name
     :return: (list) instantiated objects
     """
     tag = cls.__name__      # class name matches element name
     objs = [cls.from_xml(e) for e in elt.findall(tag)]
-    return objs
 
+    if as_dict:
+        d = {obj.name : obj for obj in objs}
+        return d
+    else:
+        return objs
 
 # Top of hierarchy, because it's useful to know which classes are "ours"
 class OpgeeObject():
     pass
-
-
-class ClassAttributes(OpgeeObject):
-    """
-    Support for parsing attributes.xml metadata
-    """
-    def __init__(self, elt):
-        super().__init__()
-
-        class_attr = elt.attrib.get('class')
-        self.class_name = class_attr or elt.tag
-        self.element_name = elt.tag
-
-        self.group_dict = {}    # key is group name; value is list of attribute names in group
-        self.option_dict = {}   # key is name of <Options> group; value is dict of opt_num : opt_desc
-        self.attr_dict = {}     # key is attribute name; value is instance of class 'A'
-
-        group_elts = elt.findall('Group')   # so far, only in Field elements, but this may change
-        group_dict = self.group_dict
-        attr_dict  = self.attr_dict
-        option_dict = self.option_dict
-
-        # add attributes to the attr_dict from a list of XML <A> elements
-        def _add_attrs(a_elts):
-            for elt in a_elts:
-                attr_dict[elt_name(elt)] = A.from_xml(elt)
-
-        # add attributes defined within <Group> elements
-        for group_elt in group_elts:
-            group_name = elt_name(group_elt)
-            elts = group_elt.findall('A')
-            _add_attrs(elts)
-            group_dict[group_name] = [elt_name(e) for e in elts]
-
-        # add top-level attributes
-        elts = elt.findall('A')
-        _add_attrs(elts)
-
-        # add all <Option> elements beneath elt (may be within <Group> or not)
-        options_elts = elt.xpath('.//Options')
-        for options_elt in options_elts:
-            opts_name = elt_name(options_elt)
-            opt_elts = options_elt.findall('Option')
-            option_dict[opts_name] = [(e.attrib['number'], e.text) for e in opt_elts]  # TBD: store number as int?
-
-    def group(self, name=None):
-        return self.group_dict[name] if name else self.group_dict.keys()
-
-    def option(self, name=None):
-        return self.option_dict[name] if name else self.option_dict.keys()
-
-    def attribute(self, name=None):
-        return self.attr_dict[name] if name else self.attr_dict.keys()
-
-
-class Attributes(OpgeeObject):
-    """
-    Parse and provide access to attributes.xml metadata file.
-    """
-    def __init__(self):
-        super().__init__()
-        self.classes = None  # will be dict: key is class name: Field, Aggregator, or Process's class; value is ClassAttributes instance
-
-        stream = resourceStream('etc/attributes.xml', stream_type='bytes', decode=None)
-        attr_xml = XMLFile(stream, schemaPath='etc/attributes.xsd')
-        root = attr_xml.tree.getroot()
-
-        # TBD: merge user's definitions into standard ones
-        # user_attr_file = getParam("OPGEE.UserAttributesFile")
-        # if user_attr_file:
-        #     user_attr_xml = XMLFile(user_attr_file, schemaPath='etc/attributes.xsd')
-        #     user_root = user_attr_xml.tree.getroot()
-        #
-
-        class_attrs = [ClassAttributes(elt) for elt in root]
-        d = {obj.class_name : obj for obj in class_attrs}
-        self.classes = d
-
-    def class_attrs(self, classname, raise_error=True):
-        """
-        Return the ClassAttributes instance for the named class. If not found: if
-        `raise_error` is True, a KeyError will be raised; if `raise_error` is False,
-        None will be returned.
-
-        :param classname: (str) the name of the class to find attributes for
-        :param raise_error: (bool) whether failure to find class should raise an error
-        :raises: KeyError if `raise_error` is True and classname is not in the dict.
-        :return: (ClassAttributes) the instance defining attributes for classname.
-        """
-        return self.classes[classname] if raise_error else self.classes.get(classname)
 
 
 class XmlInstantiable(OpgeeObject):
@@ -264,7 +178,8 @@ class XmlInstantiable(OpgeeObject):
 
     def __str__(self):
         type_str = type(self).__name__
-        return f'<{type_str} name="{self.name}">'
+        name_str = f' name="{self.name}"' if self.name else ''
+        return f'<{type_str}{name_str}>'
 
     def is_enabled(self):
         return self.enabled
@@ -429,9 +344,9 @@ class Process(XmlInstantiable):
     The "leaf" node in the container/process hierarchy. Actual runnable Processes are
     subclasses of Process, defined either in processes.py or in the user's specified files.
     """
-    def __init__(self, name, attrs=None):
+    def __init__(self, name, attr_dict=None):
         super().__init__(name)
-        self.attrs = attrs
+        self.attr_dict = attr_dict or {}
 
     def run(self, level, **kwargs):
         raise AbstractMethodError(type(self), 'Process.run')
@@ -461,9 +376,9 @@ class Process(XmlInstantiable):
         cls = get_subclass(Process, classname)
 
         # TBD: fill in Smart Defaults here, or assume they've been filled already?
-        attrs = instantiate_subelts(elt, A)
+        attr_dict = instantiate_subelts(elt, A, as_dict=True)
 
-        obj = cls(name, attrs=attrs)
+        obj = cls(name, attr_dict=attr_dict)
         return obj
 
 
@@ -576,6 +491,25 @@ class Field(Container):
         obj = Field(name, attrs=attrs, aggs=aggs, procs=procs, streams=streams)
         return obj
 
+    def collect_processes(self):
+        """
+        Recursively descend the Field's Aggregators to create a list of all
+        processes defined for this field.
+
+        :return: (list(Process)) the processes defined for this field
+        """
+        processes = []
+
+        def _collect(node):
+            for child in node.children():
+                if isinstance(child, Process):
+                    processes.append(child)
+                else:
+                    _collect(child)
+
+        _collect(self)
+        return processes
+
     def run(self, level, **kwargs):
         """
         Run all stages
@@ -627,61 +561,3 @@ class Analysis(Container):
         :return:
         """
         self.print_running_msg(level)
-
-
-class Model(Container):
-    # __attributes__ = [Attr('children', childTag='Analysis')]
-
-    def __init__(self, name, analysis):
-        super().__init__(name)
-        self.analysis = analysis
-
-    def children(self):
-        return [self.analysis]      # TBD: might have a list of analyses if it's useful
-
-    @classmethod
-    def from_xml(cls, elt):
-        """
-        Instantiate an instance from an XML element
-
-        :param elt: (etree.Element) representing a <Model> element
-        :return: (Model) instance populated from XML
-        """
-        analyses = instantiate_subelts(elt, Analysis)
-        count = len(analyses)
-        if count != 1:
-            raise OpgeeException(f"Expected on <Analysis> element; got {count}")
-
-        obj = Model(elt_name(elt), analyses[0])
-        return obj
-
-    def run(self, **kwargs):
-        """
-        Run all fields, passing variables and settings.
-
-        :param kwargs:
-        :return:
-        """
-        print(f"Running {type(self)} name='{self.name}'")
-        level = 0
-        self.run_children(level+1, **kwargs)
-
-
-# TBD: grab a path like OPGEE.UserClassPath, which defaults to OPGEE.ClassPath
-# TBD: split these and load all *.py files in each directory (if a directory;
-# TBD: allow specify specific files in path as well)
-# TBD: import these into this module so they're found by class_from_str()?
-# TBD: Alternatively, create dict of base classname and actual module it's in
-# TBD: by looping over sys.modules[name]
-class ModelFile(XMLFile):
-    """
-    Represents the overall parameters.xml file.
-    """
-    def __init__(self, filename, stream=None):
-        # We expect a single 'Analysis' element below Model
-        _logger.debug("Loading model file: %s", filename)
-
-        super().__init__(stream or filename, schemaPath='etc/opgee.xsd')
-
-        self.root = self.tree.getroot()
-        self.model = Model.from_xml(self.root)
