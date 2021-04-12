@@ -33,16 +33,38 @@
 			<A name="prod_index">37.53</A>
 			<A name="res_press">887.31</A>
 			<A name="res_temp">70.84</A>
-			<Stream number="1" name="oil in reservoir" src="t1" dst="t2">
+			
+			<!-- Where should Streams be defined? At the field level? Within the Process
+			     that consumes them? (That should be unique, right?) Is there any need to
+			     specify the source or destination then?
+			     -->
+			<Stream number="1" name="oil in reservoir" src="_" dst="ReservoirWellInterface">
 				<Temperature unit="degF">70.8</Temperature>
 				<Pressure unit="psia">887.3</Pressure>
-				<!-- N.B. Needs to follow choices of Option above -->
 				<Component name="oil" phase="liquid" unit="tonne/d">14555.9</Component>
 				<Component name="H2O" phase="liquid" unit="tonne/d">2037.8</Component>
 			</Stream>
 			
+			<Stream number="100" name="water in reservoir" src="_" dst="ReservoirWellInterface">
+				<Temperature unit="degF">70.8</Temperature>
+				<Pressure unit="psia">887.3</Pressure>
+				<Component name="H2O" phase="liquid" unit="tonne/d">255636.1</Component>
+			</Stream>
+			
+			<Stream number="25" name="gas from reservoir" src="_" dst="ReservoirWellInterface">
+				<Temperature unit="degF">70.8</Temperature>
+				<Pressure unit="psia">887.3</Pressure>
+				<Component name="N2" phase="gas" unit="tonne/d">519.9</Component>
+				<Component name="CO2" phase="gas" unit="tonne/d">8858.8</Component>
+				<Component name="CH4" phase="gas" unit="tonne/d">22288.1</Component>
+				<Component name="C2H6" phase="gas" unit="tonne/d">4495.1</Component>
+				<Component name="C3H8" phase="gas" unit="tonne/d">4399.9</Component>
+				<Component name="C4H10" phase="gas" unit="tonne/d">284.4</Component>
+				<Component name="H2S" phase="gas" unit="tonne/d">1.5</Component>
+			</Stream>
+			
 			<Aggregator name="Exploration_and_development">
-				<Aggregator class="Exploration">
+				<Aggregator name="Exploration">
 					<Process class="SurveyVehicle">
 						<A name="type">ship</A>
 						<A name="vehicle_weight" unit="tons">124</A>
@@ -53,26 +75,9 @@
 						<A name="vehicle_weight" unit="tons">123</A>
 						<A name="distance" unit="mi">2342</A>
 					</Process>
-										
-					<Aggregator name="p1">
-						<Aggregator name="p1_1">
-							<Option name="o1" default="t1" selected="t2">
-								<Process class="t1">
-									<A name="x">1.5</A>
-								</Process>
-								<Process class="t2">
-									<A name="y">2.6</A>
-								</Process>
-								<Process class="t3">
-									<A name="z">3</A>
-								</Process>
-							</Option>
-						</Aggregator>
-					</Aggregator>
 				</Aggregator>
-				<Aggregator class="FieldDevelopment">
+				<Aggregator name="FieldDevelopment">
 					<Process class="Drilling">
-						<!-- Where do we express that productivity must be in {low, medium, high}? -->
 						<A name="productivity">medium</A>
 						<A name="total_wells">2500</A>
 					</Process>
