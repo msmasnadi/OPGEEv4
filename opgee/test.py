@@ -2,8 +2,7 @@ from opgee.config import getParam
 from opgee.core import Attributes, ModelFile
 from opgee.log import getLogger, configureLogs, setLogLevels
 from opgee.utils import resourceStream
-import opgee.technology  # load pre-defined Technology subclasses
-import opgee.process     # load pre-defined Process subclasses
+import opgee.processes     # load pre-defined Process subclasses
 
 _logger = getLogger(__name__)
 

@@ -10,7 +10,7 @@ from .error import OpgeeException, AbstractMethodError
 from .log import getLogger
 from .XMLFile import XMLFile
 from .utils import coercible, resourceStream
-from .stream_component import get_component_matrix, Phases
+from .stream_component import get_component_matrix
 
 _logger = getLogger(__name__)
 
@@ -59,7 +59,7 @@ def _subclass_dict(superclass):
     return d
 
 #
-# Cache of known subclasses of Process and Technology
+# Cache of known subclasses of Aggregator and Process
 #
 _Subclass_dict = None
 
@@ -67,18 +67,18 @@ def get_subclass(cls, subclass_name, reload=False):
     """
     Return the class for `subclass_name`, which must be a known subclass of `cls`.
 
-    :param cls: (type) the class (Technology or Process) for which we're finding a subclass.
+    :param cls: (type) the class (Process or Aggregator) for which we're finding a subclass.
     :param subclass_name: (str) the name of the subclass
     :param reload: (bool) if True, reload the cache of subclasses of `cls`.
     :return: (type) the class object
-    :raises: OpgeeException if `cls` is not Technology or Process or if the subclass is not known.
+    :raises: OpgeeException if `cls` is not Process or Aggregator or if the subclass is not known.
     """
     global _Subclass_dict
 
     if reload or _Subclass_dict is None:
         _Subclass_dict = {
-            Process    : _subclass_dict(Process),
-            Technology : _subclass_dict(Technology)
+            Aggregator : _subclass_dict(Aggregator),
+            Process    : _subclass_dict(Process)
         }
 
     valid = _Subclass_dict.keys()
@@ -135,12 +135,11 @@ def elt_name(elt):
 
 def instantiate_subelts(elt, cls):
     """
-    Return a list of instances of `cls` (or of its indicated subclass in the case of
-    Process or Technology).
+    Return a list of instances of `cls` (or of its indicated subclass of Process).
 
     :param elt: (lxml.etree.Element) the parent element
-    :param cls: (type) the class to instantiate. If cls is Process or Technology,
-        the class will be that indicated instead in the element's "class" attribute.
+    :param cls: (type) the class to instantiate. If cls is Process, the class will
+        be that indicated instead in the element's "class" attribute.
     :return: (list) instantiated objects
     """
     tag = cls.__name__      # class name matches element name
@@ -212,7 +211,7 @@ class Attributes(OpgeeObject):
     """
     def __init__(self):
         super().__init__()
-        self.classes = None  # will be dict: key is class name: Field, Process's or Technology's class; value is ClassAttributes instance
+        self.classes = None  # will be dict: key is class name: Field, Aggregator, or Process's class; value is ClassAttributes instance
 
         stream = resourceStream('etc/attributes.xml', stream_type='bytes', decode=None)
         attr_xml = XMLFile(stream, schemaPath='etc/attributes.xsd')
@@ -251,7 +250,7 @@ class XmlInstantiable(OpgeeObject):
     1. They subclass from XmlInstantiable or its subclasses
     2. They define ``__init__(self, name, **kwargs)`` and call ``super().__init__(name)``
     3. They define @classmethod from_xml(cls, element) to create an instance from XML.
-    4. Subclasses of Technology also implement a run() method to perform the required operation.
+    4. Subclasses of Container and Process implement run(self) to perform any required operations.
 
     """
     def __init__(self, name):
@@ -273,7 +272,7 @@ class XmlInstantiable(OpgeeObject):
     def set_enabled(self, value):
         self.enabled = value
 
-# to avoid redundant reporting
+# to avoid redundantly reporting bad units
 _undefined_units = {}
 
 def validate_unit(unit):
@@ -425,24 +424,69 @@ class Stream(XmlInstantiable):
         return obj
 
 
-class Container(XmlInstantiable):
+class Process(XmlInstantiable):
     """
-    Generic hierarchical node element, has a name and contains subclasses of
-    itself, recursively. Subclasses add attributes to those defined in superclass.
+    The "leaf" node in the container/process hierarchy. Actual runnable Processes are
+    subclasses of Process, defined either in processes.py or in the user's specified files.
     """
-    def __init__(self, name):
+    def __init__(self, name, attrs=None):
         super().__init__(name)
-        self.emissions = None       # TBD: decide whether to cache or compute on the fly
+        self.attrs = attrs
 
-    # default is no-op
     def run(self, level, **kwargs):
-        raise AbstractMethodError(type(self), 'Container.run')
+        raise AbstractMethodError(type(self), 'Process.run')
+
+    #
+    # The next two methods are provided to allow Aggregator to call children() and
+    # run_children() without type checking. For Processes, these are just no-ops.
+    def children(self):
+        return []
+
+    def run_children(self, level, **kwargs):
+        pass
 
     def print_running_msg(self, level):
         print(level * '  ' + f"Running {type(self)} name='{self.name}'")
 
+    @classmethod
+    def from_xml(cls, elt):
+        """
+        Instantiate an instance from an XML element
+
+        :param elt: (etree.Element) representing a <Process> element
+        :return: (Process) instance populated from XML
+        """
+        name = elt_name(elt)
+        classname = elt.attrib['class']  # required by opgee.xsd schema
+        cls = get_subclass(Process, classname)
+
+        # TBD: fill in Smart Defaults here, or assume they've been filled already?
+        attrs = instantiate_subelts(elt, A)
+
+        obj = cls(name, attrs=attrs)
+        return obj
+
+
+class Container(XmlInstantiable):
+    """
+    Generic hierarchical node element, has a name and contains other Containers and/or
+    Processes (and subclasses thereof).
+    """
+    def __init__(self, name, attrs=None, aggs=None, procs=None):
+        super().__init__(name)
+        self.emissions = None       # TBD: decide whether to cache or compute on the fly
+        self.attrs = attrs          # TBD: are any attributes necessary for containers?
+        self.aggs  = aggs or []
+        self.procs = procs or []
+
+    def run(self, level, **kwargs):
+        raise AbstractMethodError(type(self), 'Container.run')
+
     def children(self):
-        raise AbstractMethodError(type(self), 'Container.children')
+        return self.aggs + self.procs
+
+    def print_running_msg(self, level):
+        print(level * '  ' + f"Running {type(self)} name='{self.name}'")
 
     # Subclass should call this before or after local processing
     def run_children(self, level, **kwargs):
@@ -472,83 +516,32 @@ class Container(XmlInstantiable):
         pass
 
 
-class Process(Container):
-    def __init__(self, name, attrs=None, subprocs=None, techs=None):
-        super().__init__(name)
-        self.attrs = attrs
-        self.subprocs = subprocs
-        self.techs = techs
-
-    def children(self):
-        return self.subprocs + self.techs
+class Aggregator(Container):
+    def __init__(self, name, attrs=None, aggs=None, procs=None):
+        super().__init__(name, attrs=attrs, aggs=aggs, procs=procs)
 
     @classmethod
     def from_xml(cls, elt):
         """
         Instantiate an instance from an XML element
 
-        :param elt: (etree.Element) representing a <Process> element
-        :return: (Process) instance populated from XML
+        :param elt: (etree.Element) representing a <Aggregator> element
+        :return: (Aggregator) instance populated from XML
         """
         name = elt_name(elt)
 
-        classname = elt.attrib.get('class')
-        cls = Process if classname is None else get_subclass(Process, classname)
-
-        if cls is None:
-            print(f"cls for {classname} is None")
-
+        aggs  = instantiate_subelts(elt, Aggregator)
         procs = instantiate_subelts(elt, Process)
-        techs = instantiate_subelts(elt, Technology)
 
         # TBD: fill in Smart Defaults here, or assume they've been filled already?
         attrs = instantiate_subelts(elt, A)
 
-        obj = cls(name, attrs=attrs, subprocs=procs, techs=techs)
+        obj = cls(name, attrs=attrs, aggs=aggs, procs=procs)
         return obj
 
     def run(self, level, **kwargs):
         """
-        Run all sub-processes, passing variables, settings, and streams for the parent field.
-
-        :param kwargs: (dict) keyword arguments
-        :return:
-        """
-        self.print_running_msg(level)
-
-
-class Technology(Container):
-    def __init__(self, name, attrs=None):
-        super().__init__(name)
-        self.attrs = attrs
-
-    # TBD: consider using multiple inheritance and a parent class 'Runnable' that both
-    # TBD: Technology and Process inherit from.
-    def children(self):
-        # Although Technology is nominally a container, it has no children.
-        return []
-
-    @classmethod
-    def from_xml(cls, elt):
-        """
-        Instantiate an instance from an XML element
-
-        :param elt: (etree.Element) representing a <Technology> element
-        :return: (Technology) instance populated from XML
-        """
-        name = elt_name(elt)
-        classname = elt.attrib['class']         # required
-        cls = get_subclass(Technology, classname)
-
-        # TBD: fill in Smart Defaults here, or assume they've been filled already?
-        attrs = instantiate_subelts(elt, A)
-
-        obj = cls(name, attrs=attrs)
-        return obj
-
-    def run(self, level, **kwargs):
-        """
-        Run all sub-processes, passing variables, settings, and streams for the parent field.
+        Run all sub-aggregates, passing variables, settings, and streams for the parent field.
 
         :param kwargs: (dict) keyword arguments
         :return:
@@ -557,17 +550,11 @@ class Technology(Container):
 
 
 class Field(Container):
+    # TBD: can a field have any Processes that are not within Aggregator nodes?
+    def __init__(self, name, attrs=None, aggs=None, procs=None, streams=None):
+        super().__init__(name, attrs=attrs, aggs=aggs, procs=procs)
 
-    def __init__(self, name, attrs=None, procs=None, techs=None, streams=None):
-        super().__init__(name)
-
-        self.streams = streams
-        self.attrs = attrs
-        self.procs = procs
-        self.techs = techs
-
-    def children(self):
-        return self.procs + self.techs
+        self.streams = streams or []
 
     @classmethod
     def from_xml(cls, elt):
@@ -582,11 +569,11 @@ class Field(Container):
         # TBD: fill in Smart Defaults here, or assume they've been filled already?
         attrs = instantiate_subelts(elt, A)
 
+        aggs    = instantiate_subelts(elt, Aggregator)
         procs   = instantiate_subelts(elt, Process)
-        techs   = instantiate_subelts(elt, Technology)
         streams = instantiate_subelts(elt, Stream)
 
-        obj = Field(name, attrs=attrs, procs=procs, techs=techs, streams=streams)
+        obj = Field(name, attrs=attrs, aggs=aggs, procs=procs, streams=streams)
         return obj
 
     def run(self, level, **kwargs):
@@ -628,6 +615,7 @@ class Analysis(Container):
         en_basis = subelt_value(elt, 'EnergyBasis', with_unit=False)    # schema requires one of {'LHV', 'HHV'}
         fields = instantiate_subelts(elt, Field)
 
+        # TBD: variables and settings
         obj = Analysis(name, functional_unit=fn_unit, energy_basis=en_basis, fields=fields)
         return obj
 

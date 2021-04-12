@@ -15,7 +15,7 @@ class AbstractMethodError(OpgeeException):
         self.method = method
 
     def __str__(self):
-        return f"Abstract method {self.method} was called. Subclass {cls} must implement this method."
+        return f"Abstract method {self.method} was called. Subclass {self.cls} must implement this method."
 
 
 class FileMissingError(OpgeeException):

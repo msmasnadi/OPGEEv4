@@ -33,7 +33,7 @@ def import_fields(csv_path, xml_path, count=0, from_package=False):
     :param csv_path: (str or Path) the CSV file to read
     :param xml_path: (str or Path) the XML file to create
     :param count: (int) if count > 0, import only the first `count` fields
-    :param from_package: (bool) if True, treat `csv_path` as relative to the
+    :param from_package: (bool) if True, treat `streams_csv_path` as relative to the
        opgee package and load the file from the internal package resource.
     :return:
     """

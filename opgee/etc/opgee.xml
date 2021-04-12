@@ -41,62 +41,65 @@
 				<Component name="H2O" phase="liquid" unit="tonne/d">2037.8</Component>
 			</Stream>
 			
-			<Process name="Exploration_and_development">
-				<Process class="Exploration">
-					<Technology class="SurveyVehicle">
+			<Aggregator name="Exploration_and_development">
+				<Aggregator class="Exploration">
+					<Process class="SurveyVehicle">
 						<A name="type">ship</A>
 						<A name="vehicle_weight" unit="tons">124</A>
 						<A name="distance" unit="mi">2342</A>
-					</Technology>
-					<Technology class="SurveyVehicle">
+					</Process>
+					<Process class="SurveyVehicle">
 						<A name="type">truck</A>
 						<A name="vehicle_weight" unit="tons">123</A>
 						<A name="distance" unit="mi">2342</A>
-					</Technology>
+					</Process>
 										
-					<Process name="p1">
-						<Process name="p1_1">
+					<Aggregator name="p1">
+						<Aggregator name="p1_1">
 							<Option name="o1" default="t1" selected="t2">
-								<Technology class="t1">
+								<Process class="t1">
 									<A name="x">1.5</A>
-								</Technology>
-								<Technology class="t2">
+								</Process>
+								<Process class="t2">
 									<A name="y">2.6</A>
-								</Technology>
-								<Technology class="t3">
+								</Process>
+								<Process class="t3">
 									<A name="z">3</A>
-								</Technology>
+								</Process>
 							</Option>
-						</Process>
+						</Aggregator>
+					</Aggregator>
+				</Aggregator>
+				<Aggregator class="FieldDevelopment">
+					<Process class="Drilling">
+						<!-- Where do we express that productivity must be in {low, medium, high}? -->
+						<A name="productivity">medium</A>
+						<A name="total_wells">2500</A>
 					</Process>
-				</Process>
-				<Process class="FieldDevelopment">
-					<Process name="Drilling"> 
-						<Technology class="Drilling">
-							<!-- Where do we express that productivity must be in {low, medium, high}? -->
-							<A name="productivity">medium</A>
-							<A name="total_wells">2500</A>
-						</Technology>
+					
+					<Process class="ReservoirWellInterface">
+						<A name="x">0</A>
 					</Process>
-					<Technology class="LandUse"/>
-				</Process>
+					
+					<Process class="LandUse"/>
+				</Aggregator>
 				<Process class="Fracking"/>
-			</Process>
-			<Process name="Production_Stage">
+			</Aggregator>
+			<Aggregator name="Production_Stage">
 				<Process class="FluidProduction"/>
 				<Process class="FluidInjection"/>
 				<Process class="BitumenMining"/>
 				<Process class="Maintenance"/>
-			</Process>
-			<Process name="SurfaceProcessing_Stage">
+			</Aggregator>
+			<Aggregator name="SurfaceProcessing_Stage">
 				<Process class="CrudeSeparationAndHandling"/>
 				<Process class="CrudeStorage"/>
 				<Process class="BitumenUpgradingOrDistilation"/>
 				<Process class="WasteTreatmentAndDisposal"/>
-			</Process>
-			<Process name="Transport_Stage">
+			</Aggregator>
+			<Aggregator name="Transport_Stage">
 				<Process class="CrudeTransport"/>
-			</Process>
+			</Aggregator>
 		</Field>
 	</Analysis>
 </Model>
