@@ -6,7 +6,7 @@
 '''
 from pint import UnitRegistry, Quantity
 import sys
-from .error import OpgeeException, AbstractMethodError
+from .error import OpgeeException, AbstractMethodError, AbstractInstantiationError
 from .log import getLogger
 from .utils import coercible, resourceStream
 from .stream_component import get_component_matrix
@@ -156,6 +156,53 @@ class OpgeeObject():
     pass
 
 
+class Resource(OpgeeObject):
+    """
+    Resource is an abstract superclass with subclasses Reservoir and Environment. Like Processes,
+    Resources can be connected to Streams, however Resources are passive; they have no "run"
+    function. All Streams connected to a given Resource are inputs in the case of Environment, or
+    outputs in the case of Reservoirs.
+    """
+    def __init__(self, name):
+        if type(self) == Resource:
+            raise AbstractInstantiationError(type(self))
+
+        super().__init__()
+        self.name = name
+        self._streams = []
+
+    def add_stream(self, stream):
+        """
+        Add a stream to a Resources stream list.
+
+        :param stream: (Stream) the stream to add
+        :return: None
+        """
+        self._streams.append(stream)
+
+    def streams(self):
+        return self._streams
+
+
+class Reservoir(Resource):
+    """
+    Reservoir represents natural resources such as oil and gas reservoirs, and water sources.
+    """
+    def __init__(self, name):
+        super().__init__(name)
+
+
+class Environment(Resource):
+    """
+    Represents the environment, which in OPGEE is just a sink for emissions. The Environment
+    has only inputs (no outputs) and can be the destination (but not source) of streams. This
+    restriction would need to change if air-capture of CO2 were introduced into the model.
+    Each Analysis object holds a single Environment instance.
+    """
+    def __init__(self):
+        super().__init__('Environment')
+
+
 class XmlInstantiable(OpgeeObject):
     """
     This is the superclass for all classes that are instantiable from XML. The requirements of
@@ -171,6 +218,7 @@ class XmlInstantiable(OpgeeObject):
         super().__init__()
         self.name = name
         self.enabled = True
+        self.parent = None
 
     @classmethod
     def from_xml(cls, elt):
@@ -186,6 +234,40 @@ class XmlInstantiable(OpgeeObject):
 
     def set_enabled(self, value):
         self.enabled = value
+
+    def adopt(self, objs):
+        """
+        Set the `parent` of each object to self. This is used to create back pointers
+        up the hieararchy so Processes and Streams can find their Field and Analysis
+        containers.
+
+        :param objs: (None or list of XmlInstantiable)
+        :return: (list) If objs is None, returns and empty list, otherwise returns
+           the original objs list.
+        """
+        objs = [] if objs is None else objs
+
+        for obj in objs:
+            obj.parent = self
+
+        return objs
+
+    def find_parent(self, cls):
+        """
+        Ascend the parent links until an object of class `cls` is found, or
+        an object with a parent that is None.
+
+        :param cls: (type) the class of the parent sought
+        :return: (XmlInstantiable or None) the desired parent instance or None
+        """
+        if type(self) == cls:
+            return self
+
+        if self.parent is None:
+            return None
+
+        return self.parent.find_parent(cls) # recursively ascend the graph
+
 
 # to avoid redundantly reporting bad units
 _undefined_units = {}
@@ -344,9 +426,12 @@ class Process(XmlInstantiable):
     The "leaf" node in the container/process hierarchy. Actual runnable Processes are
     subclasses of Process, defined either in processes.py or in the user's specified files.
     """
-    def __init__(self, name, attr_dict=None):
-        super().__init__(name)
+    def __init__(self, name, inputs=None, outputs=None, attr_dict=None):
+        super().__init__(name or self.__class__.__name__)
         self.attr_dict = attr_dict or {}
+
+        self.inputs  = inputs or []     # ids (name or number) of input streams
+        self.outputs = outputs or []    # ids (name or number) of output streams
 
     def run(self, level, **kwargs):
         raise AbstractMethodError(type(self), 'Process.run')
@@ -391,8 +476,8 @@ class Container(XmlInstantiable):
         super().__init__(name)
         self.emissions = None       # TBD: decide whether to cache or compute on the fly
         self.attrs = attrs          # TBD: are any attributes necessary for containers?
-        self.aggs  = aggs or []
-        self.procs = procs or []
+        self.aggs  = self.adopt(aggs)
+        self.procs = self.adopt(procs)
 
     def run(self, level, **kwargs):
         raise AbstractMethodError(type(self), 'Container.run')
@@ -470,6 +555,10 @@ class Field(Container):
         super().__init__(name, attrs=attrs, aggs=aggs, procs=procs)
 
         self.streams = streams or []
+        self.environment = Environment()    # TBD: Environment per Field or per Analysis?
+        self.reservoir = Reservoir("Oil")   # TBD: how much flexibility is needed here?
+
+        # Set back pointers to this instance of Field
 
     @classmethod
     def from_xml(cls, elt):
@@ -531,7 +620,7 @@ class Analysis(Container):
         self.variables = variables   # dict of standard variables
         self.settings  = settings    # user-controlled settings
         self.streams   = streams     # define these here to avoid passing separately?
-        self.fields     = fields
+        self.fields    = self.adopt(fields)
 
     def children(self):
         return self.fields

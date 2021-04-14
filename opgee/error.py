@@ -18,6 +18,14 @@ class AbstractMethodError(OpgeeException):
         return f"Abstract method {self.method} was called. Subclass {self.cls} must implement this method."
 
 
+class AbstractInstantiationError(OpgeeException):
+    def __init__(self, cls):
+        self.cls = cls
+
+    def __str__(self):
+        return f"Abstract {self.cls} was instantiated."
+
+
 class FileMissingError(OpgeeException):
     """
     Indicate that a required file was not found or not readable.
