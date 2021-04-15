@@ -433,12 +433,40 @@ class Process(XmlInstantiable):
         self.inputs  = inputs or []     # ids (name or number) of input streams
         self.outputs = outputs or []    # ids (name or number) of output streams
 
+    def run_internal(self, level, **kwargs):
+        """
+        This method implements the behavior required of the Process subclass, when
+        the Process is enabled. If it is disabled, the run() method calls bypass()
+        instead. **Subclasses of Process must implement this method.**
+
+        :param level: (int) nesting level; used to indent diagnostic output
+        :param kwargs: (dict) arbitrary keyword args passed down from the Analysis object.
+        :return: None
+        """
+        raise AbstractMethodError(type(self), 'Process.run_internal')
+
     def run(self, level, **kwargs):
-        raise AbstractMethodError(type(self), 'Process.run')
+        """
+        If the Process is enabled, calls self.run_internal() else call self.bypass().
+
+        :param level: (int) nesting level; used to indent diagnostic output
+        :param kwargs: (dict) arbitrary keyword args passed down from the Analysis object.
+        :return: None
+        """
+        if not self.enabled:
+            self.bypass()
+        else:
+            self.run_internal(level, **kwargs)
+
+    # TBD: Can we create a generic method for passing inputs to outputs when disabled?
+    # TBD: If not, this will become an abstract method.
+    def bypass(self):
+        pass
 
     #
     # The next two methods are provided to allow Aggregator to call children() and
     # run_children() without type checking. For Processes, these are just no-ops.
+    #
     def children(self):
         return []
 
@@ -479,8 +507,12 @@ class Container(XmlInstantiable):
         self.aggs  = self.adopt(aggs)
         self.procs = self.adopt(procs)
 
-    def run(self, level, **kwargs):
-        raise AbstractMethodError(type(self), 'Container.run')
+    def run(self, level=0, **kwargs):
+        # raise AbstractMethodError(type(self), 'Container.run')
+        if self.is_enabled():
+            self.print_running_msg(level)
+            self.run_children(level, **kwargs)
+            self.summarize()
 
     def children(self):
         return self.aggs + self.procs
@@ -488,13 +520,16 @@ class Container(XmlInstantiable):
     def print_running_msg(self, level):
         print(level * '  ' + f"Running {type(self)} name='{self.name}'")
 
-    # Subclass should call this before or after local processing
-    def run_children(self, level, **kwargs):
-        if self.is_enabled():
-            level += 1
-            for child in self.children():
-                child.run_children(level, **kwargs)  # depth first
-                child.run(level, **kwargs)           # run self after running children
+    def run_children(self, level=0, **kwargs):
+        level += 1
+        for child in self.children():
+            child.run(level=level, **kwargs)
+
+        # TBD: else self.bypass()?
+
+    def summarize(self):
+        # Do something at the container level after running all children
+        pass
 
     def compute_ins_outs(self):
         """
@@ -538,15 +573,6 @@ class Aggregator(Container):
 
         obj = cls(name, attrs=attrs, aggs=aggs, procs=procs)
         return obj
-
-    def run(self, level, **kwargs):
-        """
-        Run all sub-aggregates, passing variables, settings, and streams for the parent field.
-
-        :param kwargs: (dict) keyword arguments
-        :return:
-        """
-        self.print_running_msg(level)
 
 
 class Field(Container):
@@ -599,15 +625,6 @@ class Field(Container):
         _collect(self)
         return processes
 
-    def run(self, level, **kwargs):
-        """
-        Run all stages
-
-        :param kwargs:
-        :return:
-        """
-        self.print_running_msg(level)
-
 
 class Analysis(Container):
     def __init__(self, name, functional_unit=None, energy_basis=None,
@@ -641,12 +658,3 @@ class Analysis(Container):
         # TBD: variables and settings
         obj = Analysis(name, functional_unit=fn_unit, energy_basis=en_basis, fields=fields)
         return obj
-
-    def run(self, level, **kwargs):
-        """
-        Run all fields, passing variables and settings.
-
-        :param kwargs:
-        :return:
-        """
-        self.print_running_msg(level)

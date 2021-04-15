@@ -73,17 +73,6 @@ class Model(Container):
         obj = Model(elt_name(elt), analyses[0])
         return obj
 
-    def run(self, **kwargs):
-        """
-        Run all fields, passing variables and settings.
-
-        :param kwargs:
-        :return:
-        """
-        print(f"Running {type(self)} name='{self.name}'")
-        level = 0
-        self.run_children(level+1, **kwargs)
-
 
 # TBD: grab a path like OPGEE.UserClassPath, which defaults to OPGEE.ClassPath
 # TBD: split these and load all *.py files in each directory (if a directory;
