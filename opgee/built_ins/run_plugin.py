@@ -1,91 +1,115 @@
-#!/usr/bin/env python
 """
-.. Support for running a sequence of operations for a GCAM project
-   that is described in an XML file.
+.. OPGEE "run" sub-command
 
-.. codeauthor:: Rich Plevin <rich@plevin.com>
-
-.. Copyright (c) 2015 Richard Plevin
+.. Copyright (c) 2021 Richard Plevin and Stanford University
    See the https://opensource.org/licenses/MIT for license details.
 """
 from ..subcommand import SubcommandABC, clean_help
+from ..log import getLogger
 
+_logger = getLogger(__name__)
 
 class RunCommand(SubcommandABC):
-    def __init__(self, subparsers, name='run', help='Run the steps for a project defined in a project.xml file'):
+    def __init__(self, subparsers, name='run', help='Run the specified portion of an OPGEE LCA model'):
         kwargs = {'help' : help}
         super(RunCommand, self).__init__(name, subparsers, kwargs)
 
     def addArgs(self, parser):
+        from ..utils import ParseCommaList
 
-        parser.add_argument('-a', '--allGroups', action='store_true',
-                            help=clean_help('''Run all scenarios for all defined groups.'''))
+        parser.add_argument('-a', '--analyses', action=ParseCommaList,
+                            help=clean_help('''Run only the specified analysis or analyses. Argument may be a 
+                            comma-delimited list of Analysis names.'''))
 
-        parser.add_argument('-D', '--distribute', action="store_true",
-                            help=clean_help('''Run the given scenarios by queueing them independently. If one of
-                            the scenarios is a baseline, it is queued first and the remaining scenarios
-                            are queued as dependent on the completion of the baseline job.'''))
+        parser.add_argument('-f', '--fields', action=ParseCommaList,
+                            help=clean_help('''Run only the specified field or fields. Argument may be a 
+                            comma-delimited list of Field names. To specify a field within a specific Analysis,
+                            use the syntax "analysis_name.field_name". Otherwise the field will be run for each
+                            Analysis the field name occurs within (respecting the --analyses flag).'''))
 
-        parser.add_argument('-f', '--projectFile',
-                            help=clean_help('''The XML file describing the project. If set, command-line
-                            argument takes precedence. Otherwise, value is taken from config file
-                            variable GCAM.ProjectXmlFile, if defined, otherwise the default
-                            is './project.xml'.'''))
+        parser.add_argument('-m', '--model_file',
+                            help=clean_help('''An XML model definition file to load. If --no_default_model is *not* specified,
+                            (i.e., the default model is loaded), the XML file specified here will be merged with the default
+                            model.'''))
 
-        parser.add_argument('-g', '--group',
-                            help=clean_help('''The name of the scenario group to process. If not specified,
-                            the group with attribute default="1" is processed.'''))
+        parser.add_argument('-n', '--no_default_model', action='store_true',
+                            help=clean_help('''Don't load the built-in opgee.xml model definition.'''))
 
-        parser.add_argument('-G', '--listGroups', action='store_true',
-                            help=clean_help('''List the scenario groups defined in the project file and exit.'''))
-
-        parser.add_argument('-k', '--skipStep', dest='skipSteps', action='append',
-                            help=clean_help('''Steps to skip. These must be names of steps defined in the
-                            project.xml file. Multiple steps can be given in a single (comma-delimited)
-                            argument, or the -k flag can be repeated to indicate additional steps.
-                            By default, all steps are run.'''))
-
-        parser.add_argument('-K', '--skipScenario', dest='skipScenarios', action='append',
-                            help=clean_help('''Scenarios to skip. Multiple scenarios can be given in a single
-                            (comma-delimited) argument, or the -K flag can be repeated to indicate
-                            additional scenarios. By default, all scenarios are run.'''))
-
-        parser.add_argument('-l', '--listSteps', action='store_true',
-                            help=clean_help('''List the steps defined for the given project and exit.
-                            Dynamic variables (created at run-time) are not displayed.'''))
-
-        parser.add_argument('-L', '--listScenarios', action='store_true',
-                            help=clean_help('''List the scenarios defined for the given project and exit.
-                            Dynamic variables (created at run-time) are not displayed.'''))
-
-        parser.add_argument('-n', '--noRun', action='store_true',
-                            help=clean_help('''Display the commands that would be run, but don't run them.'''))
-
-        parser.add_argument('-q', '--noQuit', action='store_true',
-                            help=clean_help('''Don't quit if an error occurs when processing a scenario, just
-                            move on to processing the next scenario, if any.'''))
-
-        parser.add_argument('-s', '--step', dest='steps', action='append',
-                            help=clean_help('''The steps to run. These must be names of steps defined in the
-                            project.xml file. Multiple steps can be given in a single (comma-delimited)
-                            argument, or the -s flag can be repeated to indicate additional steps.
-                            By default, all steps are run.'''))
-
-        parser.add_argument('-S', '--scenario', dest='scenarios', action='append',
-                            help=clean_help('''Which of the scenarios defined for the given project should
-                            be run. Multiple scenarios can be given in a single (comma-delimited)
-                            argument, or the -S flag can be repeated to indicate additional scenarios.
-                            By default, all active scenarios are run.'''))
-
-        parser.add_argument('--vars', action='store_true', help=clean_help('''List variables and their values'''))
-
-        parser.add_argument('-x', '--sandboxDir',
-                            help=clean_help('''The directory in which to create the run-time sandbox workspace.
-                            Defaults to value of {GCAM.SandboxProjectDir}/{scenarioGroup}.'''))
-
-        return parser   # for auto-doc generation
-
+        return parser
 
     def run(self, args, tool):
-        from ..project import projectMain
-        projectMain(args, tool)
+        from ..error import CommandlineError
+        from ..model import ModelFile
+        from ..utils import resourceStream
+        import opgee.processes
+
+        use_default_model = not args.no_default_model
+        model_file = args.model_file
+        field_names = args.fields
+        analysis_names = args.analyses
+
+        if not (use_default_model or model_file):
+            raise CommandlineError("No model to run: the --model_file option was not used and --no_default_model was specified.")
+
+        builtin_model = user_model = None
+
+        if use_default_model:
+            s = resourceStream('etc/opgee.xml', stream_type='bytes', decode=None)
+            mf = ModelFile('[opgee]/etc/opgee.xml', stream=s)
+            builtin_model = mf.model
+
+        if model_file:
+            mf = ModelFile(model_file, stream=s)
+            user_model = mf.model
+
+        # TBD: write this, probably in model.py
+        def merge_models(model1, model2):
+            # if one or the other is None, return the other
+            if not (model1 and model2):
+                return model1 or model2 or None
+            # TBD: do the actual merge
+
+        model = merge_models(builtin_model, user_model)
+        model.validate()
+
+        if not (field_names or analysis_names):
+            # run the whole model
+            model.run()
+        else:
+            all_analyses = model.children()
+            if analysis_names:
+                selected_analyses = [ana for ana in all_analyses if ana.name in analysis_names]
+                if not selected_analyses:
+                    raise CommandlineError(f"Specified analyses ({analysis_names}) were not found in model")
+            else:
+                selected_analyses = all_analyses
+
+            if field_names:
+                specific_field_tuples = [name.split('.') for name in field_names if '.' in name] # tuples of (analysis, field)
+                nonspecific_field_names = [name for name in field_names if '.' not in name]
+
+                selected_fields = []
+                for analysis in selected_analyses:
+                    found = [field for name, field in analysis.field_dict.items() if name in nonspecific_field_names]
+                    selected_fields.extend(found)
+
+                for analysis_name, field_name in specific_field_tuples:
+                    analyses = [ana for ana in all_analyses if ana.name == analysis_name]
+
+                    if not analyses:
+                        raise CommandlineError(f"Analysis '{analysis_name}' was not found in model.")
+
+                    if len(analyses) > 1:
+                        raise CommandlineError(f"Found multiple analyses with name '{analysis_name}'")
+
+                    field = analysis.field_dict.get(field_name)
+                    if field is None:
+                        raise CommandlineError(f"Field '{field_name}' was not found in analysis '{analysis_name}'")
+
+                    selected_fields.append(field)
+
+                if not selected_fields:
+                    raise CommandlineError("The model contains no fields matching command line arguments.")
+
+                for field in selected_fields:
+                    field.run()

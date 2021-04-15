@@ -15,22 +15,25 @@ def init_logging():
 
 def main():
     init_logging()
-    _logger.debug("testing")
 
     s = resourceStream('etc/opgee.xml', stream_type='bytes', decode=None)
     mf = ModelFile('[opgee package]/etc/opgee.xml', stream=s)
     model = mf.model
     model.validate()
-    model.run()
 
-    from opgee.graph import write_model_diagram, write_class_diagram
-    write_model_diagram(model, "/tmp/model_diagram.png")
-    write_class_diagram("/tmp/class_diagram.png")
+    run_all = False
+    if run_all:
+        model.run()
+    else:
+        field_name = 'test'
+        field = model.analysis.field_dict[field_name]
+        field.run()
 
-    # Show streams
-    for field in model.analysis.fields:
-        for s in field.streams:
-            print(f"\nStream {s.number} ({s.name}), src='{s.src}', dst='{s.dst}'\n{s.components}")
+    show_streams = False
+    if show_streams:
+        for field in model.analysis.children():
+            for s in field.streams:
+                print(f"\nStream {s.number} ({s.name}), src='{s.src}', dst='{s.dst}'\n{s.components}")
 
 def test_pint():
     from pint import UnitRegistry, Quantity

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Working draft of XML file format -->
-<!-- This file contains the standard OPGEEv4 LCA model. The metadata describintg fields, options,
+<!-- This file contains the standard OPGEEv4 LCA model. The metadata describing fields, options,
      and default values is found in attributes.xml. When creating a new model, the user can start
      with the standard model and add/delete/alter elements in a separate file, or simply save copy
      and modify this file. We also (will) support site- and user-specific XML template files that
@@ -17,6 +17,25 @@
 			<A name="v1" type="float" unit="kWh/day">123.5</A>
 			<A name="v2" unit="zzz">434</A>
 		</Variables>
+		<Field name="test">
+			<A name="location">USA</A>
+			<A name="is_offshore">0</A>
+			<A name="age">86</A>
+			<A name="depth">4936</A>
+			<A name="oil_prod">101295</A>
+			<A name="num_prod_wells">41539</A>
+			<A name="num_water_inj_wells">34426</A>
+			<A name="well_diam">3.01</A>
+			<A name="prod_index">37.53</A>
+			<A name="res_press">887.31</A>
+			<A name="res_temp">70.84</A>
+			<Aggregator name="Exploration">
+				<Process class="Exploration" name="Exploration"/>
+			</Aggregator>
+			<Aggregator name="Surface_processing">
+				<Process class="CrudeOilDewatering" name="Crude oil dewatering"/>
+			</Aggregator>
+		</Field>
 		<Field name="US_FW">
 			<A name="location">USA</A>
 			<A name="is_offshore">0</A>
@@ -93,7 +112,10 @@
 				<Process class="CO2ReinjectionCompressor" name="CO2 Reinjection Compressor"/>
 				<Process class="SourGasReinjectionCompressor" name="Sour Gas Reinjection Compressor"/>
 				<Process class="GasFloodingCompressor" name="Gas Flooding Compressor"/>
-				<!-- SteamInjection ?-->
+				<Process class="HCGasInjectionWells" name="HC Gas Injection Wells"/>
+				<Process class="CO2InjectionWells" name="CO2 Injection Wells"/>
+				<Process class="GasFloodWells" name="Gas Flood Wells"/>				
+				<Process class="SteamInjectionWells" name="Steam injection wells"/>
 				<Process class="Flaring" name="Flaring"/>
 			</Aggregator>
 			<Aggregator name="Surface_processing">
@@ -150,11 +172,7 @@
 				<Process class="FluidProduction"/>
 				<Process class="FluidInjection"/>
 				<Process class="BitumenMining" name="Bitumen mining" enabled="false"/>
-				<Process class="HCGasInjectionWells" name="HC Gas Injection Wells"/>
-				<Process class="CO2InjectionWells" name="CO2 Injection Wells"/>
 				<Process class="SourGasInjectionWells" name="Sour Gas Injection Wells"/>
-				<Process class="SteamInjectionWells" name="Steam injection wells"/>
-				<Process class="GasFloodWells" name="Gas Flood Wells"/>
 				<Process class="GasTransmissionCompressors" name="Gas transmission compressors"/>
 				<Process class="GasPartitionA" name="Gas Partition A"/>
 				<Process class="GasPartitionB" name="Gas Partition B"/>

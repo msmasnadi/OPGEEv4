@@ -14,11 +14,6 @@ class FluidInjection(Process):
         self.print_running_msg(level)
 
 
-class BitumenMining(Process):
-    def run(self, level, **kwargs):
-        self.print_running_msg(level)
-
-
 class Maintenance(Process):
     def run(self, level, **kwargs):
         self.print_running_msg(level)
@@ -60,23 +55,7 @@ class PostStorageCompressor(Process):
     def run(self, level, **kwargs):
         self.print_running_msg(level)
 
-class HCGasInjectionWells(Process):
-    def run(self, level, **kwargs):
-        self.print_running_msg(level)
-
-class CO2InjectionWells(Process):
-    def run(self, level, **kwargs):
-        self.print_running_msg(level)
-
 class SourGasInjectionWells(Process):
-    def run(self, level, **kwargs):
-        self.print_running_msg(level)
-
-class SteamInjectionWells(Process):
-    def run(self, level, **kwargs):
-        self.print_running_msg(level)
-
-class GasFloodWells(Process):
     def run(self, level, **kwargs):
         self.print_running_msg(level)
 

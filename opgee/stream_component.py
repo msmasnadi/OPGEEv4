@@ -4,7 +4,6 @@
 .. Copyright (c) 2021 Richard Plevin and Adam Brandt
    See the https://opensource.org/licenses/MIT for license details.
 '''
-import numpy as np
 import pandas as pd
 from .error import OpgeeException
 from .log import getLogger

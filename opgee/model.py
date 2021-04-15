@@ -38,17 +38,18 @@ class Model(Container):
         # print(field_attrs.option('ecosystem_C_richness'))
 
         # Collect all processes defined for each field
-        for field in self.analysis.fields:
-            procs = field.collect_processes()
-            print(f"Processes for field {field.name}")
-            for proc in procs:
-                print(f"  {proc}")
+        if False:
+            for field in self.analysis.children():
+                procs = field.collect_processes()
+                print(f"Processes for field {field.name}")
+                for proc in procs:
+                    print(f"  {proc}")
 
-            print(f"\nStreams for field {field.name}")
-            for stream in field.streams:
-                print(f"  {stream}")
+                print(f"\nStreams for field {field.name}")
+                for stream in field.streams:
+                    print(f"  {stream}")
 
-        print("")
+            print("")
 
     def read_stream_table(self):
         import pandas as pd

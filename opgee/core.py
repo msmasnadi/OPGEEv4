@@ -236,22 +236,24 @@ class XmlInstantiable(OpgeeObject):
     def set_enabled(self, value):
         self.enabled = getBooleanXML(value)
 
-    def adopt(self, objs):
+    def adopt(self, objs, asDict=False):
         """
         Set the `parent` of each object to self. This is used to create back pointers
         up the hieararchy so Processes and Streams can find their Field and Analysis
-        containers.
+        containers. Return the objects either as a list or dict.
 
         :param objs: (None or list of XmlInstantiable)
-        :return: (list) If objs is None, returns and empty list, otherwise returns
-           the original objs list.
+        :param asDict: (bool) if True, return a dict of objects keyed by their name,
+            otherwise return a list of the objects.
+        :return: (list) If objs is None, return an empty list or dict (per `asDict`),
+            otherwise return the objs either in a list or dict.
         """
         objs = [] if objs is None else objs
 
         for obj in objs:
             obj.parent = self
 
-        return objs
+        return {obj.name : obj for obj in objs} if asDict else objs
 
     def find_parent(self, cls):
         """
@@ -518,11 +520,19 @@ class Container(XmlInstantiable):
         self.aggs  = self.adopt(aggs)
         self.procs = self.adopt(procs)
 
-    def run(self, level=0, **kwargs):
-        # raise AbstractMethodError(type(self), 'Container.run')
+    def run(self, names=None, level=0, **kwargs):
+        """
+        Run all children of this Container if `names` is None, otherwise run only the
+        children whose names are in in `names`.
+
+        :param names: (None, or list of str) the names of children to run
+        :param level: (int) hierarchical level (for display purposes)
+        :param kwargs: (dict) arbitrary keyword args to pass through
+        :return: None
+        """
         if self.is_enabled():
             self.print_running_msg(level)
-            self.run_children(level, **kwargs)
+            self.run_children(level=level, names=names, **kwargs)
             self.summarize()
 
     def children(self):
@@ -531,10 +541,11 @@ class Container(XmlInstantiable):
     def print_running_msg(self, level):
         print(level * '  ' + f"Running {type(self)} name='{self.name}'")
 
-    def run_children(self, level=0, **kwargs):
+    def run_children(self, names=None, level=0, **kwargs):
         level += 1
         for child in self.children():
-            child.run(level=level, **kwargs)
+            if names is None or child.name in names:
+                child.run(level=level, **kwargs)
 
         # TBD: else self.bypass()?
 
@@ -655,10 +666,10 @@ class Analysis(Container):
         self.variables = variables   # dict of standard variables
         self.settings  = settings    # user-controlled settings
         self.streams   = streams     # define these here to avoid passing separately?
-        self.fields    = self.adopt(fields)
+        self.field_dict = self.adopt(fields, asDict=True)
 
     def children(self):
-        return self.fields
+        return self.field_dict.values()     # N.B. returns an iterator
 
     @classmethod
     def from_xml(cls, elt):
