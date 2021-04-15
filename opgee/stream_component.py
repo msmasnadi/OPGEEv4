@@ -14,17 +14,18 @@ _logger = getLogger(__name__)
 # HCs with 1-60 carbon atoms, i.e., C1, C2, ..., C60
 _hydrocarbons = [f'C{n+1}' for n in range(60)]
 
-_gases = ['N2', 'O2', 'CO2', 'H2O', 'CH4', 'C2H6', 'C3H8', 'C4H10', 'H2', 'H2S', 'SO2', 'Air']
-
-_other = ['oil', 'Na+', 'Cl-', 'Si-']
+_solids  = ['PC']   # petcoke
+_liquids = ['oil']
+_gases   = ['N2', 'O2', 'CO2', 'H2O', 'CH4', 'C2H6', 'C3H8', 'C4H10', 'H2', 'H2S', 'SO2', 'Air']
+_other   = ['Na+', 'Cl-', 'Si-']
 
 # All possible stream components
-Components = _gases + _other # + _hydrocarbons
+Components = _solids + _liquids + _gases + _other # or use C1-C60 (_hydrocarbons)?
 
 # constants to use instead of strings
-PHASE_SOLID = 'solid'
+PHASE_SOLID  = 'solid'
 PHASE_LIQUID = 'liquid'
-PHASE_GAS = 'gas'
+PHASE_GAS    = 'gas'
 
 # Phases of matter
 Phases = [PHASE_SOLID, PHASE_LIQUID, PHASE_GAS]

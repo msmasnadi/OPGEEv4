@@ -190,7 +190,7 @@ def getBooleanXML(value):
     false = ["false", "no", "0"]
     true  = ["true", "yes", "1"]
 
-    val = str(value).strip()
+    val = str(value).strip().lower()
     if val not in true + false:
         raise OpgeeException("Can't convert '%s' to boolean; must be in {false,no,0,true,yes,1} (case sensitive)." % value)
 
@@ -360,37 +360,38 @@ def mkdirs(newdir, mode=0o770):
         if e.errno != EEXIST:
             raise
 
-def loadModuleFromPath(modulePath, raiseOnError=True):
+def loadModuleFromPath(module_path, raiseError=True):
     """
     Load a module from a '.py' or '.pyc' file from a path that ends in the
     module name, i.e., from "foo/bar/Baz.py", the module name is 'Baz'.
 
-    :param modulePath: (str) the pathname of a python module (.py or .pyc)
-    :param raiseOnError: (bool) if True, raise an error if the module cannot
+    :param module_path: (str) the pathname of a python module (.py or .pyc)
+    :param raiseError: (bool) if True, raise an error if the module cannot
        be loaded
     :return: (module) a reference to the loaded module, if loaded, else None.
     :raises: OpgeeException
     """
-    # imp is deprecated in Python3; use importlib instead
-    from imp import load_source  # lazy import to speed startup
+    import importlib.util
 
     # Extract the module name from the module path
-    modulePath = unixPath(modulePath)
-    base       = os.path.basename(modulePath)
-    moduleName = base.split('.')[0]
+    module_path = unixPath(module_path)
+    base        = os.path.basename(module_path)
+    module_name = base.split('.')[0]
 
-    _logger.debug('loading module %s' % modulePath)
+    _logger.debug('loading module %s' % module_path)
 
     # Load the compiled code if it's a '.pyc', otherwise load the source code
     module = None
-    try:
-        module = load_source(moduleName, modulePath)
-    except Exception as e:
-        errorString = "Can't load module %s from path %s: %s" % (moduleName, modulePath, e)
-        if raiseOnError:
-            raise OpgeeException(errorString)
 
-        _logger.error(errorString)
+    try:
+        spec = importlib.util.spec_from_file_location(module_name, module_path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+    except Exception as e:
+        errorString = f"Can't load module '{module_name} from path '{module_path}': {e}"
+        if raiseError:
+            raise OpgeeException(errorString)
 
     return module
 

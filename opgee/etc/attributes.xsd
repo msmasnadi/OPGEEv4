@@ -5,7 +5,7 @@
             <xs:choice maxOccurs='unbounded'>
                 <xs:element minOccurs="1" maxOccurs="1" ref='Field'/>
                 <xs:element ref='Process'/>
-                <xs:element ref='Technology'/>
+                <xs:element ref='Aggregator'/>
             </xs:choice>
         </xs:complexType>
     </xs:element>
@@ -25,16 +25,17 @@
             <xs:attribute name='name' use='required' type='xs:NCName'/>
         </xs:complexType>
     </xs:element>
-    <xs:element name='Process'>
+    <xs:element name='Aggregator'>
         <xs:complexType>
             <xs:choice maxOccurs='unbounded'>
                 <xs:element minOccurs='0' maxOccurs='unbounded' ref='Options'/>
                 <xs:element minOccurs='1' maxOccurs='unbounded' ref='A'/>
             </xs:choice>
-            <xs:attribute name='class' use='required'/>
+            <xs:attribute name='class'/>
+            <xs:attribute name='name'/>
         </xs:complexType>
     </xs:element>
-    <xs:element name='Technology'>
+    <xs:element name='Process'>
         <xs:complexType>
             <xs:choice maxOccurs='unbounded'>
                 <xs:element minOccurs='0' maxOccurs='unbounded' ref='Options'/>

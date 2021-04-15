@@ -6,7 +6,8 @@
      creating pulldown menus of options for categorical parameters and radio buttons for 
      binary ones. 
      -->
-<Attributes> 
+<Attributes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+            xsi:noNamespaceSchemaLocation="attributes.xsd"> 
   <Field>
     <Group name="Production_methods">
       <A name="downhole_pump" type="binary" desc="Downhold pump">1</A>
@@ -136,16 +137,16 @@
   </Field>
   
   <!-- Exploration and development -->
-  <Process name="Exploration">
+  <Aggregator name="Exploration">
     <A name="distance_survey" type="float" desc="Distance of travel for survey" unit="mi">10000</A>
     <A name="weight_land_survey" type="float" desc="Weight of land survey vehicle" unit="tons">25</A>
     <A name="weight_ocean_survey" type="float" desc="Weight of ocean survey vehicle" unit="tons">100</A>
     <A name="number_wells_dry" type="int" desc="Number of dry wells drilled per field found">1</A>
     <A name="number_wells_exploratory" type="int" desc="Number of exploratory/scientific wells drilled after field discovery">3</A>
-  </Process>
+  </Aggregator>
   
   <!-- Drilling and development -->
-  <Technology class="Drilling">
+  <Process class="Drilling">
     <Options name="rig_efficiency">
       <!-- Allow options to be named "low", "med", "high" rather than requiring a number? -->
       <Option number="1" >Low: Mud pump 60%, Rotary Table 40%</Option>
@@ -180,56 +181,56 @@
     <A name="well_complexity" type="int" options="well_complexity" desc="Well complexity">2</A>
     <A name="well_size" desc="Hole size" type="int" options="well_size">2</A>
     
-    <A name="fraction_wells_horizontal" type="float" description="Horizontal well?">0</A>    
+    <A name="fraction_wells_horizontal" type="float" desc="Horizontal well?">0</A>    
     <A name="length_lateral" unit="ft" type="float" desc="Length of lateral">5000</A>
     <A name="well_productivity_crude_oil" options="field_productivity_category" type="int">2</A>
     <A name="well_productivity_natural_gas" options="field_productivity_category" type="int">2</A>
         
     <A name="fraction_wells_fractured" desc="Fraction of wells fractured" type="float">0</A>
-    <A name="volume_per_well_fractured" desc="Fracturing fluid injection volume" type="float" unit="million gallons">3</A>
+    <A name="volume_per_well_fractured" desc="Fracturing fluid injection volume" type="float" unit="Mgal’’">3</A>
     <A name="pressure_gradient_fracturing" desc="Fracturing pressure gradient (rock strength)" unit="psi/ft">0.7</A>
     <A name="timeframe_land_use" desc="Timeframe of land use analysis" options="timeframe_land_use">1</A>
     <A name="flaring_fracturing_flowback" desc="Fracturing flowback flared?" type="binary">0</A>
     <A name="REC_fracturing_flowback" desc="Fracturing flowback captured with reduced emissons completions?" type="binary">1</A>
     <A name="number_well_workovers" desc="Workovers needed over lifetime of well" type="float">4</A>
-  </Technology>
+  </Process>
   
   <!-- Production -->
-  <Technology class="FluidProduction">    
+  <Process class="FluidProduction">    
     <A name="baz" type="int" unit="d" desc="xxx">1</A>
-  </Technology>
+  </Process>
   
-  <Technology class="FluidInjection">
+  <Process class="FluidInjection">
     <A name="baz" type="int" unit="d" desc="xxx">1</A>
-  </Technology>
+  </Process>
   
-  <Technology class="BitumenMining">
+  <Process class="BitumenMining">
     <A name="baz" type="int" unit="d" desc="xxx">1</A>
-  </Technology>
+  </Process>
   
-  <Technology class="MaintenanceAndWorkovers">
+  <Process class="MaintenanceAndWorkovers">
     <A name="baz" type="int" unit="d" desc="xxx">1</A>
-  </Technology>  
+  </Process>  
   
   <!-- Surface processing-->
-  <Technology class="CrudeSeparationAndHandling">
+  <Process class="CrudeSeparationAndHandling">
     <A name="baz" type="int" unit="d" desc="xxx">1</A>
-  </Technology>  
+  </Process>  
   
-  <Technology class="CrudeStorage">
+  <Process class="CrudeStorage">
     <A name="baz" type="int" unit="d" desc="xxx">1</A>
-  </Technology>  
+  </Process>  
   
-  <Technology class="BitumentUpgradingOrDilution">
+  <Process class="BitumentUpgradingOrDilution">
     <A name="baz" type="int" unit="d" desc="xxx">1</A>
-  </Technology>  
+  </Process>  
   
-  <Technology class="WasteTreatmentAndDisposal">
+  <Process class="WasteTreatmentAndDisposal">
     <A name="baz" type="int" unit="d" desc="xxx">1</A>
-  </Technology>  
+  </Process>  
   
   <!-- Transport -->
-  <Technology class="CrudeTransport">
+  <Process class="CrudeTransport">
     <A name="baz" type="int" unit="d" desc="xxx">1</A>
-  </Technology>  
+  </Process>  
 </Attributes>

@@ -28,7 +28,7 @@
 		<xs:complexType>
 			<xs:choice maxOccurs="2">
 				<xs:element minOccurs='0' maxOccurs='1' ref="Analysis"/>
-				<xs:element minOccurs='0' maxOccurs='1' ref='TechnologyDatabase'/>
+				<xs:element minOccurs='0' maxOccurs='1' ref='ProcessDatabase'/>
 			</xs:choice>
 		</xs:complexType>
     </xs:element>
@@ -73,17 +73,20 @@
         <xs:complexType>
             <xs:choice maxOccurs='unbounded'>
                 <xs:element maxOccurs='unbounded' ref='A'/>
+				<xs:element minOccurs='1' maxOccurs='unbounded' ref='Aggregator'/>
 				<xs:element minOccurs='1' maxOccurs='unbounded' ref='Process'/>
 				<xs:element minOccurs='1' maxOccurs='unbounded' ref='Stream'/>
             </xs:choice>
-            <xs:attribute name='name' use='required' type='xs:NCName'/>
+			<xs:attribute name='name' use='required' type='xs:NCName'/>
+			<xs:attribute name='enabled' default='1' type='xs:boolean'/>
+			<xs:attribute name='extend' default='0' type='xs:boolean'/>
         </xs:complexType>
     </xs:element>
 	
     <xs:element name='A'>
         <xs:complexType>
             <xs:simpleContent>
-                <xs:extension base='xs:NMTOKEN'>
+                <xs:extension base='xs:string'>
                     <xs:attribute name='name' use='required' type='xs:NCName'/>
                     <xs:attribute name='type' type='xs:NCName'/>
                     <xs:attribute name='unit'/>
@@ -94,23 +97,23 @@
 	</xs:element>
 	
 	<!-- use type forward reference to define recursive structure -->
-	<xs:element name="Process" type="ProcessType"></xs:element>
+	<xs:element name="Aggregator" type="AggregatorType"/>
 	
-	<xs:complexType name="ProcessType">
+	<xs:complexType name="AggregatorType">
 		<xs:choice maxOccurs="unbounded">
-			<xs:element name="Process" type="ProcessType"/>
+			<xs:element name="Aggregator" type="AggregatorType"/>
 			<xs:element minOccurs='0' maxOccurs='unbounded' ref='A'/>
-			<xs:element minOccurs='0' maxOccurs='unbounded' ref='Technology'/>	
+			<xs:element minOccurs='0' maxOccurs='unbounded' ref='Process'/>	
 			<xs:element minOccurs='0' maxOccurs='unbounded' ref='Option'/>
 		</xs:choice>
-		<xs:attribute name='class' type='xs:NCName'/>
 		<xs:attribute name='name' type='xs:NCName'/>
+		<xs:attribute name='enabled' default='1' type='xs:boolean'/>
 	</xs:complexType>
 	
     <xs:element name='Option'>
         <xs:complexType>
             <xs:sequence>
-                <xs:element maxOccurs='unbounded' ref='Technology'/>
+                <xs:element maxOccurs='unbounded' ref='Process'/>
             </xs:sequence>
             <xs:attribute name='default' use='required' type='xs:NCName'/>
             <xs:attribute name='name' use='required' type='xs:NCName'/>
@@ -177,20 +180,22 @@
         </xs:complexType>
     </xs:element>
 	
-	<xs:element name='Technology'>
+	<xs:element name='Process'>
         <xs:complexType>
             <xs:sequence>
                 <xs:element minOccurs='0' maxOccurs='unbounded' ref='A'/>
             </xs:sequence>
             <xs:attribute name='class' use='required'/>
-            <xs:attribute name='name'/>			
+			<xs:attribute name='name'/>
+			<xs:attribute name='enabled' default='1' type='xs:boolean'/>
+			<xs:attribute name='extend' default='0' type='xs:boolean'/>			
         </xs:complexType>
 	</xs:element>
 	
-	<xs:element name='TechnologyDatabase'>
+	<xs:element name='ProcessDatabase'>
         <xs:complexType>
             <xs:sequence>
-                <xs:element minOccurs='0' maxOccurs='unbounded' ref='Technology'/>
+                <xs:element minOccurs='0' maxOccurs='unbounded' ref='Process'/>
 			</xs:sequence>
 		</xs:complexType>		
 	</xs:element>

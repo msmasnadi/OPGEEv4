@@ -1,0 +1,301 @@
+number,name
+1,Crude oil in reservoir
+2,Bitumen in mine
+3,Crude oil at well bottom
+4,Crude oil at wellhead
+5,Bitumen from mine to upgrader
+6,Bitumen from mine to dilution
+7,Crude oil after separator
+8,Crude oil to stabilizer
+9,Crude oil to storage
+10,Stabilized crude to storage
+11,Upgraded crude to storage
+12,Diluted bitumen to storage
+13,Crude oil to transport
+14,Transported crude oil at refinery
+15,Petcoke export from upgrader
+16,NGL/diluent to dilution
+17,LPG to blend with crude oil
+18,LPG to direct sales exports
+19,Crude oil to upgrader
+20,Crude oil to dilution
+21,Reserved-21
+22,Reserved-22
+23,Reserved-23
+24,Reserved-24
+25,Gas in reservoir
+26,Gas at well bottom
+27,Gas at wellhead
+28,Gas after separator
+29,Gas to flare
+30,Post-flare gas to vent
+31,Post-vent gas to gathering
+32,Stabilizer gas to gathering
+33,VRU gas to gathering
+34,Gathered gas to dehydrator
+35,Dehydrated gas to CO2 EOR processing
+36,Dehydrated gas to AGR
+37,Gas to demethnizer
+38,Demethanizer light product
+39,Demethanizer  heavy product
+40,Lifting gas to compressor
+41,"Gas to consumption, sales, reinjection"
+42,Lifting gas to wellbore
+43,Gas to reinjection and export
+44,Gas consumed
+45,Gas exported
+46,Gas to reinjection
+47,Gas to reinjection wells
+48,HC gas to reservoir
+49,Gas to distribution
+50,Gas to storage compressor
+51,Gas to storage well
+52,Gas to storage reservoir
+53,Gas to storage separator
+54,Gas to storage boosting compressor
+55,Gas to distribution (from storage)
+56,Gas to metering and regulation
+57,Gas to distribution piping
+58,Gas to customer meter
+59,Gas to end use appliance or equipment
+60,End use consumed gas
+61,Gas to pre-membrane chiller
+62,Gas to pre-membrane compressor
+63,Gas to CO2 separation membrane
+64,Hydrocarbon rich gas to AGR
+65,CO2 rich stream from membrane
+66,Gas to Ryan-Holmes process
+67,Light HC stream from Ryan-Holmes
+68,Heavy HC stream from Ryan-Holmes
+69,CO2 stream from Ryan-Holmes
+70,Gas to sour gas reinjection compressor
+71,Sour gas to injection wells
+72,Sour gas to reservoir
+73,Tail gas CO2 to reinjection
+74,Total CO2 to reinjection compressor
+75,CO2 to injection wells
+76,CO2 to reservoir
+77,CO2 from offsite for gas flooding
+78,Hydrocarbons from offsite for gas flooding
+79,N2 from offiste for gas flooding
+80,Gas to gas flooding injection wells
+81,Storage vapors to flare
+82,Strorage vapors to VRU
+83,Process gas export from upgrader
+84,Mine offgas to flare
+85,Gas to liquefaction
+86,Natural gas to transport
+87,Natural gas from transport
+88,LNG gas from regasification
+89,Ethane to petrochemicals
+90,Claus unit throughput
+91,Recycled CO2 from CO2 flooding
+92,Flood Gas to reservoir
+93,Reserved-93
+94,Reserved-94
+95,Reserved-95
+96,Reserved-96
+97,Reserved-97
+98,Reserved-98
+99,Reserved-99
+100,Water in reservoir
+101,Water at well bottom
+102,Water at wellhead
+103,Water after separator
+104,Makeup water to treatment
+105,Treated makeup water to steam injection
+106,Treated makeup water to reinjection well
+107,Makeup water treatment waste
+108,steam injection wells
+109,waste water from blowdown
+110,Steam injection into reservoir
+111,Treated produced water to steam
+112,Water from produced water treatment to surface disposal
+113,Water from produced water treatment to reinjection
+114,Produced water to sub-surface dispoal
+115,Water from crude oil dewatering to produced water treatment
+116,Water to water flooding injection wells
+117,Gas to storage separator
+118,blowdown recycled to treatement
+119,Reserved-119
+120,Reserved-120
+121,Reserved-121
+122,Reserved-122
+123,Reserved-123
+124,Reserved-124
+125,Reserved-125
+126,Reserved-126
+127,Reserved-127
+128,Reserved-128
+129,Reserved-129
+130,Reserved-130
+131,Reserved-131
+132,Reserved-132
+133,Reserved-133
+134,Reserved-134
+135,Reserved-135
+136,Reserved-136
+137,Reserved-137
+138,Reserved-138
+139,Reserved-139
+140,Reserved-140
+141,Reserved-141
+142,Reserved-142
+143,Reserved-143
+144,Reserved-144
+145,Reserved-145
+146,Reserved-146
+147,Reserved-147
+148,Reserved-148
+149,Reserved-149
+150,Fuel gas - Downhole pump
+151,Fuel gas - Dehydrator
+152,Fuel gas - AGR
+153,Fuel gas - Demethanizer
+154,Fuel gas - Lifting gas compressor
+155,Fuel gas - Gas reinjection compressor
+156,Fuel gas - Pre-membrane compressor
+157,Fuel gas - Ryan-homes
+158,Fuel gas - Sour gas reinjection
+159,Fuel gas - CO2 reinjection compressor
+160,Fuel gas - Dewatering
+161,Fuel gas - Stabilizer
+162,Fuel gas - Steam generation
+163,Fuel gas - Water reinjection
+164,Fuel gas - Heavy oil upgrading
+165,Fuel gas - Gas flooding compressor
+166,Fuel gas - VRU compressor
+167,Fuel gas - Mining
+168,Fuel gas - Crude oil transport
+169,Fuel gas - Transmission compressor
+170,Fuel gas - Storage compressor
+171,Fuel gas - Post-storage compressor
+172,Fuel gas - Liquefaction
+173,Fuel gas - Regasification
+174,Fuel gas - Onsite electricity generation
+175,Electricity - Downhole pump
+176,Electricity - Dehydrator
+177,Electricity - AGR
+178,Electricity - Lifting gas compressor
+179,Electricity - Reinjection compressor
+180,Electricity - Pre-membrane chiller
+181,Electricity - Pre-membrane compressor
+182,Electricity - Sour gas reinjection compressor
+183,Electricity - CO2 reinjection compressor
+184,Electricity - Crude oil dewatering
+185,Electricity - Crude oil stabilization
+186,Electricity - Produced water treatment
+187,Electricity - Steam generation
+188,Electricity - Makeup water treatment
+189,Electricity - Water reinjection
+190,Electricity - Heavy oil upgrading
+191,Electricity - Gas flooding compressor
+192,Electricity - VRU compressor
+193,Electricity - Mining
+194,Electricity - Crude oil transport
+195,Electricity - Transmission compressor
+196,Electricity - Storage compressor
+197,Electricity - Post-storage compressor
+198,Electricity cogenerated with steam
+199,Electricity exports
+200,Electricity - Demethanizer
+201,Reserved-201
+202,Reserved-202
+203,Reserved-203
+204,Reserved-204
+205,Reserved-205
+206,Reserved-206
+207,Reserved-207
+208,Reserved-208
+209,Reserved-209
+210,Petroleumn coke to stockpile/sequester
+211,Petroleum coke to market
+212,Reserved-212
+213,Reserved-213
+214,Reserved-214
+215,Reserved-215
+216,Reserved-216
+217,Reserved-217
+218,Reserved-218
+219,Reserved-219
+220,Reserved-220
+221,Reserved-221
+222,Reserved-222
+223,Reserved-223
+224,Reserved-224
+225,Net imports for fuel gas
+226,Net electricity imports
+227,NGL imports for diluent
+228,Reserved-228
+229,Reserved-229
+230,Reserved-230
+231,Reserved-231
+232,Reserved-232
+233,Reserved-233
+234,Reserved-234
+235,Reserved-235
+236,Reserved-236
+237,Reserved-237
+238,Reserved-238
+239,Reserved-239
+240,Reserved-240
+241,Reserved-241
+242,Reserved-242
+243,Reserved-243
+244,Reserved-244
+245,Reserved-245
+246,Reserved-246
+247,Reserved-247
+248,Reserved-248
+249,Reserved-249
+250,Fugitives - Wellhead
+251,Fugitives - Separator
+252,Purposeful venting
+253,Fugitives - Misc.
+254,Fugitives - Gathering
+255,Venting - Dehydrator
+256,Venting - AGR
+257,Fugitives - Demethanizer
+258,Fugitives - Lifting gas compressor
+259,Fugitives - HC reinjection compressor
+260,Fugitives - HC reinjection wells
+261,Fugitives - Transmission compressor
+262,Fugitives - Storage compressor
+263,Fugitives - Storage wells
+264,Fugitives - Storage separator
+265,Fugitives - Post-storage compressor
+266,Fugitives - Distribution step down
+267,Fugitives - Metering and regulation
+268,Fugitives - Distribution piping
+269,Fugitives - Customer meter
+270,Fugitives - End use appliances and equip.
+271,Fugitives - Pre-membrane chiller
+272,Fugitives - Pre-membrane compressor
+273,Fugitives - Ryan-Holmes process
+274,Fugitives - Sour gas compressor
+275,Fugitives - Sour gas injection wells
+276,Fugitives - CO2 reinjection compressor
+277,Fugitives - CO2 reinjection wells
+278,Fugitives - Gas flooding compressor
+279,Vents - HC tanks
+280,Fugitives - VRU compressor
+281,Mine face fugitives
+282,Liquefaction flaring and fugitives
+283,Fugitives - Completions
+284,Fugitives - Workovers
+285,Fugitives - Stabilizer
+286,Claus unit exhaust
+287,On-site meter
+288,On-site dehydrator
+289,On-site reciprocating compressor
+290,On-site heater
+291,On-site header
+292,Chemical injection pumps
+293,Pneumatic controllers
+294,Liquids unloadings
+295,On-site tanks - leaks
+296,On-site tanks - vents
+297,HC Gas flood well fugitives
+298,Reserved-298
+299,Reserved-299
+300,Reserved-300
