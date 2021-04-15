@@ -60,86 +60,106 @@
 				<Component name="C4H10" phase="gas" unit="tonne/d">284.4</Component>
 				<Component name="H2S" phase="gas" unit="tonne/d">1.5</Component>
 			</Stream>
-			<Aggregator name="Exploration_and_development">
+			<Aggregator name="Exploration">
 				<Process class="Exploration" name="Exploration"/>
-				<Process class="SurveyVehicle">
-					<A name="type">ship</A>
-					<A name="vehicle_weight" unit="tons">124</A>
-					<A name="distance" unit="mi">2342</A>
-				</Process>
-				<Process class="SurveyVehicle">
-					<A name="type">truck</A>
-					<A name="vehicle_weight" unit="tons">123</A>
-					<A name="distance" unit="mi">2342</A>
-				</Process>
 			</Aggregator>
-			<Aggregator name="FieldDevelopment">
+			<Aggregator name="DrillingAndDevelopment">
 				<Process class="DrillingAndDevelopment" name="Drilling &amp; development">
 					<A name="productivity">medium</A>
 					<A name="total_wells">2500</A>
 				</Process>
-				<Process class="ReservoirWellInterface" name="Reservoir-well interface">
-					<A name="x">0</A>
-				</Process>
-				<Process class="WellAndDownholePump" name="Well and downhole pump"/>
 				<Process class="LandUse"/>
 				<Process class="Fracking"/>
 			</Aggregator>
-			<Aggregator name="ToBeClassified">
-				<Process class="FluidProduction"/>
-				<Process class="FluidInjection"/>
-				<Process class="BitumenMining" name="Bitumen mining" enabled='false'/>
-				<Process class="Maintenance"/>
+			<Process class="SurveyVehicle">
+				<A name="type">ship</A>
+				<A name="vehicle_weight" unit="tons">124</A>
+				<A name="distance" unit="mi">2342</A>
+			</Process>
+			<Process class="SurveyVehicle">
+				<A name="type">truck</A>
+				<A name="vehicle_weight" unit="tons">123</A>
+				<A name="distance" unit="mi">2342</A>
+			</Process>
+			<Aggregator name="Production_and_extraction">
+				<Process class="ReservoirWellInterface" name="Reservoir-well interface">
+					<A name="x">0</A>
+				</Process>
+				<Process class="DownholePump" name="Downhole pump (lifting)"/>
+				<Process class="CrudeOilStorage" name="Crude Oil Storage"/>
+				<Process class="GasLiftingCompressor" name="Gas Lifting Compressor"/>
+				<Process class="WaterInjection" name="Water Injection"/>
+				<Process class="GasReinjectionCompressor" name="Gas Reinjection Compressor"/>
+				<Process class="CO2ReinjectionCompressor" name="CO2 Reinjection Compressor"/>
+				<Process class="SourGasReinjectionCompressor" name="Sour Gas Reinjection Compressor"/>
+				<Process class="GasFloodingCompressor" name="Gas Flooding Compressor"/>
+				<!-- SteamInjection ?-->
+				<Process class="Flaring" name="Flaring"/>
+			</Aggregator>
+			<Aggregator name="Surface_processing">
 				<Process class="Separation" name="Separation"/>
+				<Process class="ProducedWaterTreatment" name="Produced Water Treatment"/>
+				<Process class="MakeupWaterTreatment" name="Makeup Water Treatment"/>
+				<Process class="SteamGeneration" name="Steam Generation"/>
 				<Process class="CrudeOilDewatering" name="Crude oil dewatering"/>
 				<Process class="CrudeOilStabilization" name="Crude oil stabilization"/>
 				<Process class="HeavyOilUpgrading" name="Heavy Oil Upgrading"/>
 				<Process class="HeavyOilDilution" name="Heavy Oil Dilution"/>
-				<Process class="CrudeOilStorage" name="Crude Oil Storage"/>
-				<Process class="SteamGeneration" name="Steam Generation"/>
-				<Process class="ProducedWaterTreatment" name="Produced Water Treatment"/>
-				<Process class="MakeupWaterTreatment" name="Makeup Water Treatment"/>
-				<Process class="WaterInjection" name="Water Injection"/>
-				<Process class="Flaring" name="Flaring"/>
-				<Process class="Venting" name="Venting"/>
 				<Process class="GasGathering" name="Gas Gathering"/>
 				<Process class="GasDehydration" name="Gas dehydration"/>
 				<Process class="AcidGasRemoval" name="Acid Gas Removal"/>
 				<Process class="Demethanizer" name="Demethanizer"/>
 				<Process class="Chiller" name="Chiller"/>
+				<Process class="PreMembraneCompressor" name="Pre-membrane Compressor"/>
 				<Process class="CO2Membrane" name="CO2 Membrane"/>
-				<Process class="Ryan_Holmes" name="Ryan-Holmes"/>
-				<Process class="GasReinjectionCompressor" name="Gas Reinjection Compressor"/>
-				<Process class="GasLiftingCompressor" name="Gas Lifting Compressor"/>
-				<Process class="GasFloodingCompressor" name="Gas Flooding Compressor"/>
-				<Process class="CO2ReinjectionCompressor" name="CO2 Reinjection Compressor"/>
-				<Process class="SourGasReinjectionCompressor" name="Sour Gas Reinjection Compressor"/>
+				<Process class="RyanHolmes" name="Ryan-Holmes"/>
 				<Process class="VRUCompressor" name="VRU Compressor"/>
-				<Process class="Pre_MembraneCompressor" name="Pre-membrane Compressor"/>
+				<Process class="Venting" name="Venting"/>
+			</Aggregator>
+			<Aggregator name="Liquefied_natural_gas">
 				<Process class="LNGLiquefaction" name="LNG Liquefaction"/>
 				<Process class="LNGTransport" name="LNG transport"/>
 				<Process class="LNGRegasification" name="LNG regasification"/>
+			</Aggregator>
+			<Aggregator name="Maintenance">
+				<Process class="Maintenance" name="Maintenance"/>
+			</Aggregator>
+			<Aggregator name="Waste_disposal">
+				<Process class="WasteDisposal" name="Waste Disposal"/>
+			</Aggregator>
+			<Aggregator name="Transport_and_storage">
+				<Process class="CrudeOilTransport" name="Crude Oil Transport"/>
+				<Process class="DiluentTransport" name="Diluent Transport"/>
+				<!-- GasTransmission? -->
 				<Process class="StorageCompressor" name="Storage Compressor"/>
-				<Process class="Post_StorageCompressor" name="Post-Storage Compressor"/>
+				<Process class="PostStorageCompressor" name="Post-Storage Compressor"/>
+				<Process class="GasStorageWells" name="Gas storage wells"/>
+				<Process class="StorageSeparator" name="Storage separator"/>
+				<!-- energy summary calls the following 'Petcoke handling and storage' -->
+				<Process class="PetcokeTransport" name="Petcoke transport"/>
+			</Aggregator>
+			<Aggregator name="Other">
+			</Aggregator>
+			<Aggregator name="Gas_distribution">
+				<Process class="GasDistribution" name="Gas distribution"/>
+			</Aggregator>
+			<Aggregator name="Fuel_consumed_for_electricity_production">
+				<Process class="ElectricityGenAndImports" name="Electricity Gen and Imports"/>
+			</Aggregator>
+			<Aggregator name="ToBeClassified">
+				<Process class="FluidProduction"/>
+				<Process class="FluidInjection"/>
+				<Process class="BitumenMining" name="Bitumen mining" enabled="false"/>
 				<Process class="HCGasInjectionWells" name="HC Gas Injection Wells"/>
 				<Process class="CO2InjectionWells" name="CO2 Injection Wells"/>
 				<Process class="SourGasInjectionWells" name="Sour Gas Injection Wells"/>
 				<Process class="SteamInjectionWells" name="Steam injection wells"/>
 				<Process class="GasFloodWells" name="Gas Flood Wells"/>
-				<Process class="GasStorageWells" name="Gas storage wells"/>
-				<Process class="StorageSeparator" name="Storage separator"/>
 				<Process class="GasTransmissionCompressors" name="Gas transmission compressors"/>
 				<Process class="GasPartitionA" name="Gas Partition A"/>
 				<Process class="GasPartitionB" name="Gas Partition B"/>
 				<Process class="FuelGasConsumed" name="Fuel Gas Consumed"/>
 				<Process class="FuelGasImports" name="Fuel Gas Imports"/>
-				<Process class="Maintenance" name="Maintenance"/>
-				<Process class="WasteDisposal" name="Waste Disposal"/>
-				<Process class="CrudeOilTransport" name="Crude Oil Transport"/>
-				<Process class="DiluentTransport" name="Diluent Transport"/>
-				<Process class="PetcokeTransport" name="Petcoke transport"/>
-				<Process class="GasDistribution" name="Gas distribution"/>
-				<Process class="ElectricityGenAndImports" name="Electricity Gen and Imports"/>
 				<Process class="NGLOrDiluentProdAndImports" name="NGL or Diluent Prod and Imports"/>
 			</Aggregator>
 		</Field>

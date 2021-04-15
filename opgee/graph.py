@@ -1,10 +1,13 @@
 import pydot
-from .core import OpgeeObject
+from .core import OpgeeObject, Process
 from .utils import ipython_info
 
 def add_subclasses(graph, cls):
     name = cls.__name__
     graph.add_node(pydot.Node(name, shape='box'))
+
+    if cls == Process:
+        return
 
     subs = cls.__subclasses__()
     for sub in subs:
