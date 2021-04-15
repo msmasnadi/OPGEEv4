@@ -91,7 +91,7 @@ def get_subclass(cls, subclass_name, reload=False):
     except KeyError:
         raise OpgeeException(f"Class {subclass_name} is not a known subclass of {cls}")
 
-def subelt_value(elt, tag, coerce=None, with_unit=True, required=True):
+def subelt_text(elt, tag, coerce=None, with_unit=True, required=True):
     """
     Get the value from the text of the named subelement of `elt`. If `required`
     is True and the element is not found, raise an error. If not found and `required`
@@ -398,8 +398,8 @@ class Stream(XmlInstantiable):
         dst  = a['dst']
         number = coercible(a['number'], int)
 
-        temp = subelt_value(elt, 'Temperature', coerce=float)
-        pres = subelt_value(elt, 'Pressure',    coerce=float)
+        temp = subelt_text(elt, 'Temperature', coerce=float)
+        pres = subelt_text(elt, 'Pressure', coerce=float)
 
         obj = Stream(name, number, temp=temp, pressure=pres, src=src, dst=dst)
         comps = obj.components # allocated empty; filled in below
@@ -433,6 +433,10 @@ class Process(XmlInstantiable):
 
         self.inputs  = inputs or []     # ids (name or number) of input streams
         self.outputs = outputs or []    # ids (name or number) of output streams
+        self.extend = False
+
+    def set_extend(self, extend):
+        self.extend = extend
 
     def run_internal(self, level, **kwargs):
         """
@@ -486,8 +490,9 @@ class Process(XmlInstantiable):
         :return: (Process) instance populated from XML
         """
         name = elt_name(elt)
-        classname = elt.attrib['class']  # required by opgee.xsd schema
+        attrib = elt.attrib
 
+        classname = attrib['class']  # required by opgee.xsd schema
         cls = get_subclass(Process, classname)
 
         # TBD: fill in Smart Defaults here, or assume they've been filled already?
@@ -495,8 +500,8 @@ class Process(XmlInstantiable):
 
         obj = cls(name, attr_dict=attr_dict)
 
-        enabled = elt.attrib.get('enabled', '1')
-        obj.set_enabled(enabled)
+        obj.set_enabled(getBooleanXML(attrib.get('enabled', '1')))
+        obj.set_extend(getBooleanXML(attrib.get('extend', '0')))
 
         return obj
 
@@ -589,8 +594,10 @@ class Field(Container):
         self.streams = streams or []
         self.environment = Environment()    # TBD: Environment per Field or per Analysis?
         self.reservoir = Reservoir("Oil")   # TBD: how much flexibility is needed here?
+        self.extend = False
 
-        # Set back pointers to this instance of Field
+    def set_extend(self, extend):
+        self.extend = extend
 
     @classmethod
     def from_xml(cls, elt):
@@ -610,6 +617,11 @@ class Field(Container):
         streams = instantiate_subelts(elt, Stream)
 
         obj = Field(name, attrs=attrs, aggs=aggs, procs=procs, streams=streams)
+
+        attrib = elt.attrib
+        obj.set_enabled(getBooleanXML(attrib.get('enabled', '1')))
+        obj.set_extend(getBooleanXML(attrib.get('extend', '0')))
+
         return obj
 
     def collect_processes(self):
@@ -657,8 +669,8 @@ class Analysis(Container):
         :return: (Analysis) instance populated from XML
         """
         name = elt_name(elt)
-        fn_unit  = subelt_value(elt, 'FunctionalUnit', with_unit=False) # schema requires one of {'oil', 'gas'}
-        en_basis = subelt_value(elt, 'EnergyBasis', with_unit=False)    # schema requires one of {'LHV', 'HHV'}
+        fn_unit  = subelt_text(elt, 'FunctionalUnit', with_unit=False) # schema requires one of {'oil', 'gas'}
+        en_basis = subelt_text(elt, 'EnergyBasis', with_unit=False)    # schema requires one of {'LHV', 'HHV'}
         fields = instantiate_subelts(elt, Field)
 
         # TBD: variables and settings

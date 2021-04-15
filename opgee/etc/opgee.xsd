@@ -78,7 +78,8 @@
 				<xs:element minOccurs='1' maxOccurs='unbounded' ref='Stream'/>
             </xs:choice>
 			<xs:attribute name='name' use='required' type='xs:NCName'/>
-			<xs:attribute name='enabled' default='1'/>			
+			<xs:attribute name='enabled' default='1' type='xs:boolean'/>
+			<xs:attribute name='extend' default='0' type='xs:boolean'/>
         </xs:complexType>
     </xs:element>
 	
@@ -106,7 +107,7 @@
 			<xs:element minOccurs='0' maxOccurs='unbounded' ref='Option'/>
 		</xs:choice>
 		<xs:attribute name='name' type='xs:NCName'/>
-		<xs:attribute name='enabled' default='1'/>
+		<xs:attribute name='enabled' default='1' type='xs:boolean'/>
 	</xs:complexType>
 	
     <xs:element name='Option'>
@@ -186,7 +187,8 @@
             </xs:sequence>
             <xs:attribute name='class' use='required'/>
 			<xs:attribute name='name'/>
-			<xs:attribute name='enabled' default='1'/>
+			<xs:attribute name='enabled' default='1' type='xs:boolean'/>
+			<xs:attribute name='extend' default='0' type='xs:boolean'/>			
         </xs:complexType>
 	</xs:element>
 	
