@@ -88,7 +88,7 @@
 			<Aggregator name="ToBeClassified">
 				<Process class="FluidProduction"/>
 				<Process class="FluidInjection"/>
-				<Process class="BitumenMining" name="Bitumen mining"/>
+				<Process class="BitumenMining" name="Bitumen mining" enabled='0'/>
 				<Process class="Maintenance"/>
 				<Process class="Separation" name="Separation"/>
 				<Process class="CrudeOilDewatering" name="Crude oil dewatering"/>

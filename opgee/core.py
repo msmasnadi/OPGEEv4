@@ -8,7 +8,7 @@ from pint import UnitRegistry, Quantity
 import sys
 from .error import OpgeeException, AbstractMethodError, AbstractInstantiationError
 from .log import getLogger
-from .utils import coercible, resourceStream
+from .utils import coercible, resourceStream, getBooleanXML
 from .stream_component import get_component_matrix
 
 _logger = getLogger(__name__)
@@ -227,13 +227,14 @@ class XmlInstantiable(OpgeeObject):
     def __str__(self):
         type_str = type(self).__name__
         name_str = f' name="{self.name}"' if self.name else ''
-        return f'<{type_str}{name_str}>'
+        enabled_str = '' if self.enabled else f' enabled="0"'
+        return f'<{type_str}{name_str}{enabled_str}>'
 
     def is_enabled(self):
         return self.enabled
 
     def set_enabled(self, value):
-        self.enabled = value
+        self.enabled = getBooleanXML(value)
 
     def adopt(self, objs):
         """
@@ -486,12 +487,17 @@ class Process(XmlInstantiable):
         """
         name = elt_name(elt)
         classname = elt.attrib['class']  # required by opgee.xsd schema
+
         cls = get_subclass(Process, classname)
 
         # TBD: fill in Smart Defaults here, or assume they've been filled already?
         attr_dict = instantiate_subelts(elt, A, as_dict=True)
 
         obj = cls(name, attr_dict=attr_dict)
+
+        enabled = elt.attrib.get('enabled', '1')
+        obj.set_enabled(enabled)
+
         return obj
 
 
