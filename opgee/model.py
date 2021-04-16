@@ -30,15 +30,15 @@ class Model(Container):
     def validate(self):
 
         # TBD: validate all attributes of classes Field, Process, etc.
-        attributes = Attributes()
-        field_attrs = attributes.class_attrs('Field')
-
+        # attributes = Attributes()
+        # field_attrs = attributes.class_attrs('Field')
         # print(field_attrs.attribute('downhole_pump'))
         # print(field_attrs.attribute('ecosystem_richness'))
         # print(field_attrs.option('ecosystem_C_richness'))
 
-        # Collect all processes defined for each field
-        if False:
+        show_streams = False
+
+        if show_streams:
             for field in self.analysis.children():
                 procs = field.collect_processes()
                 print(f"Processes for field {field.name}")
@@ -46,10 +46,13 @@ class Model(Container):
                     print(f"  {proc}")
 
                 print(f"\nStreams for field {field.name}")
-                for stream in field.streams:
+                for stream in field.streams():
                     print(f"  {stream}")
 
             print("")
+
+    def report(self):
+        pass
 
     def read_stream_table(self):
         import pandas as pd

@@ -67,7 +67,9 @@ class RunCommand(SubcommandABC):
             # if one or the other is None, return the other
             if not (model1 and model2):
                 return model1 or model2 or None
+
             # TBD: do the actual merge
+            return None
 
         model = merge_models(builtin_model, user_model)
         model.validate()
@@ -113,3 +115,4 @@ class RunCommand(SubcommandABC):
 
                 for field in selected_fields:
                     field.run()
+                    field.report()

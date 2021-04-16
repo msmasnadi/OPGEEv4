@@ -32,8 +32,8 @@ def main():
     show_streams = False
     if show_streams:
         for field in model.analysis.children():
-            for s in field.streams:
-                print(f"\nStream {s.number} ({s.name}), src='{s.src}', dst='{s.dst}'\n{s.components}")
+            for s in field.streams():
+                print(f"\n<Stream '{s.name}>'\n{s.components}")
 
 def test_pint():
     from pint import UnitRegistry, Quantity

@@ -15,7 +15,7 @@ _hydrocarbons = [f'C{n+1}' for n in range(60)]
 
 _solids  = ['PC']   # petcoke
 _liquids = ['oil']
-_gases   = ['N2', 'O2', 'CO2', 'H2O', 'CH4', 'C2H6', 'C3H8', 'C4H10', 'H2', 'H2S', 'SO2', 'Air']
+_gases   = ['N2', 'O2', 'CO2', 'H2O', 'CH4', 'C2H6', 'C3H8', 'C4H10', 'H2', 'H2S', 'SO2', 'air']
 _other   = ['Na+', 'Cl-', 'Si-']
 
 # All possible stream components
@@ -47,7 +47,7 @@ def extend_components(names):
 
     Components.extend(names)
 
-def get_component_matrix():
+def create_component_matrix():
     """
     Create a pandas DataFrame to hold the 3 phases of the known Components.
 

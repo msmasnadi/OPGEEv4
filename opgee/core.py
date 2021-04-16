@@ -9,7 +9,7 @@ import sys
 from .error import OpgeeException, AbstractMethodError, AbstractInstantiationError
 from .log import getLogger
 from .utils import coercible, resourceStream, getBooleanXML
-from .stream_component import get_component_matrix
+from .stream_component import create_component_matrix
 
 _logger = getLogger(__name__)
 
@@ -151,56 +151,29 @@ def instantiate_subelts(elt, cls, as_dict=False):
     else:
         return objs
 
+def dict_from_list(objs):
+    """
+    Create a dictionary of XMLInstantiable objects by their name attribute, but
+    raise an error if any name is repeated.
+
+    :param objs: (list of XMLInstantiable instances) the object to create dict from.
+    :return: (dict) objects keyed by name
+    :raises: OpgeeException if a any name is repeated
+    """
+    d = dict()
+    for obj in objs:
+        name = obj.name
+        if d.get(name):
+            classname = obj.__class__.__name__
+            raise OpgeeException(f"{classname} instances must have unique names: {name} is not unique.")
+
+        d[name] = obj
+
+    return d
+
 # Top of hierarchy, because it's useful to know which classes are "ours"
 class OpgeeObject():
     pass
-
-
-class Resource(OpgeeObject):
-    """
-    Resource is an abstract superclass with subclasses Reservoir and Environment. Like Processes,
-    Resources can be connected to Streams, however Resources are passive; they have no "run"
-    function. All Streams connected to a given Resource are inputs in the case of Environment, or
-    outputs in the case of Reservoirs.
-    """
-    def __init__(self, name):
-        if type(self) == Resource:
-            raise AbstractInstantiationError(type(self))
-
-        super().__init__()
-        self.name = name
-        self._streams = []
-
-    def add_stream(self, stream):
-        """
-        Add a stream to a Resources stream list.
-
-        :param stream: (Stream) the stream to add
-        :return: None
-        """
-        self._streams.append(stream)
-
-    def streams(self):
-        return self._streams
-
-
-class Reservoir(Resource):
-    """
-    Reservoir represents natural resources such as oil and gas reservoirs, and water sources.
-    """
-    def __init__(self, name):
-        super().__init__(name)
-
-
-class Environment(Resource):
-    """
-    Represents the environment, which in OPGEE is just a sink for emissions. The Environment
-    has only inputs (no outputs) and can be the destination (but not source) of streams. This
-    restriction would need to change if air-capture of CO2 were introduced into the model.
-    Each Analysis object holds a single Environment instance.
-    """
-    def __init__(self):
-        super().__init__('Environment')
 
 
 class XmlInstantiable(OpgeeObject):
@@ -340,51 +313,82 @@ class A(XmlInstantiable):
 # Can streams have emissions (e.g., leakage) or is that attributed to a process?
 #
 class Stream(XmlInstantiable):
-    __instances__ = {}      # track all instances in dict keyed by stream number
-
-    def __init__(self, name, number, temp=None, pressure=None, src=None, dst=None):
+    def __init__(self, name, number=0, temperature=None, pressure=None, src_name=None, dst_name=None, comp_matrix=None):
         super().__init__(name)
 
-        prior = self.__instances__.get(number)
-        if prior:
-            raise OpgeeException(f"Redefinition of stream number {number}, previously defined as {prior}")
-
-        self.__instances__[number] = self       # store in instance dictionary
-
+        self.components = create_component_matrix() if comp_matrix is None else comp_matrix
         self.number = number
-        self.temperature = temp
+        self.temperature = temperature
         self.pressure = pressure
-        self.src = src
-        self.dst = dst
-        self.components = get_component_matrix()
+        self.src_name = src_name
+        self.dst_name = dst_name
+
+        self.src_proc = None        # set in Field.connect_processes()
+        self.dst_proc = None
 
     def __str__(self):
-        return f"<Stream name='{self.name}' number={self.number} src='{self.src}' dst='{self.dst}'>"
+        number_str = f" number={self.number}" if self.number else ''
+        return f"<Stream '{self.name}'{number_str}>"
 
-    def component(self, name, phase=None):
+    def component_phases(self, name):
         """
-        Return one or all of the values for stream component `name`.
+        Return the flow rates for all phases of stream component `name`.
 
         :param name: (str) The name of a stream component
-        :param phase: (str; one of {'solid', 'liquid', 'gas')
-        :return:
+        :return: (pandas.Series) the flow rates for the three phases of component `name`
         """
-        return self.components.loc[name] if phase is None \
-            else self.components.loc[name, phase]
+        return self.components.loc[name]
+
+    def flow_rate(self, name, phase):
+        """
+        Set the value of the stream component `name` for `phase` to `rate`.
+
+        :param name: (str) the name of a stream component
+        :param phase: (str) the name of a phase of matter ('gas', 'liquid' or 'solid')
+        :return: (float) the flow rate for the given stream component
+        """
+        rate = self.components.loc[name, phase]
+        return rate
+
+    def set_flow_rate(self, name, phase, rate):
+        """
+        Set the value of the stream component `name` for `phase` to `rate`.
+
+        :param name: (str) the name of a stream component
+        :param phase: (str) the name of a phase of matter ('gas', 'liquid' or 'solid')
+        :param rate: (float) the flow rate for the given stream component
+        :return: None
+        """
+        self.components.loc[name, phase] = rate
+
+    def set_temperature_and_pressure(self, t, p):
+        self.temperature = t
+        self.pressure = p
 
     @classmethod
-    def instances(cls):
-        return cls.__instances__.values()
-
-    @classmethod
-    def find(cls, number):
+    def combine(cls, streams):
         """
-        Return the Stream instance with the given number, or None if not found.
+        Thermodynamically combine multiple streams' components into a new
+        anonymous Stream. This is used on input streams since it makes no
+        sense for output streams.
 
-        :param number: (int) the stream number
-        :return: (Stream) the corresponding instance
+        :param streams: (list of Streams) the Streams to combine
+        :return: (Stream) if len(streams) > 1, returns a new Stream. If
+           len(streams) == 1, the original stream is returned.
         """
-        return cls.__instances__.get(number)
+        from statistics import mean
+
+        if len(streams) == 1:   # corner case
+            return streams[0]
+
+        matrices = [stream.components for stream in streams]
+
+        # TBD: for now, we naively sum the components, and average the temp and pressure
+        comp_matrix = sum(matrices)
+        temperature = mean([stream.temperature for stream in streams])
+        pressure    = mean([stream.pressure for stream in streams])
+        stream = Stream('-', temperature=temperature, pressure=pressure, comp_matrix=comp_matrix)
+        return stream
 
     @classmethod
     def from_xml(cls, elt):
@@ -395,16 +399,17 @@ class Stream(XmlInstantiable):
         :return: (Stream) instance of class Stream
         """
         a = elt.attrib
-        name = a['name']
         src  = a['src']
         dst  = a['dst']
-        number = coercible(a['number'], int)
+        name = a.get('name') or f"{src} => {dst}"
 
-        temp = subelt_text(elt, 'Temperature', coerce=float)
-        pres = subelt_text(elt, 'Pressure', coerce=float)
+        # The following are optional
+        number = coercible(a['number'], int, raiseError=False) # optional and eventually deprecated
+        temp = subelt_text(elt, 'Temperature', coerce=float, required=False)
+        pres = subelt_text(elt, 'Pressure', coerce=float, required=False)
 
-        obj = Stream(name, number, temp=temp, pressure=pres, src=src, dst=dst)
-        comps = obj.components # allocated empty; filled in below
+        obj = Stream(name, number=number, temperature=temp, pressure=pres, src_name=src, dst_name=dst)
+        comp_df = obj.components # this is an empty DataFrame; it is filled in below or at runtime
 
         # Set up the stream component info
         comp_elts = elt.findall('Component')
@@ -415,11 +420,11 @@ class Stream(XmlInstantiable):
             phase = a['phase']  # required by XML schema to be one of the 3 legal values
             unit  = a['unit']   # required by XML schema (TBD: use this)
 
-            if comp_name not in comps.index:
+            if comp_name not in comp_df.index:
                 raise OpgeeException(f"Unrecognized stream component name '{comp_name}'.")
 
             # TBD: integrate units via pint and pint_pandas
-            comps.loc[comp_name, phase] = rate
+            comp_df.loc[comp_name, phase] = rate
 
         return obj
 
@@ -429,13 +434,90 @@ class Process(XmlInstantiable):
     The "leaf" node in the container/process hierarchy. Actual runnable Processes are
     subclasses of Process, defined either in processes.py or in the user's specified files.
     """
-    def __init__(self, name, inputs=None, outputs=None, attr_dict=None):
-        super().__init__(name or self.__class__.__name__)
+    def __init__(self, name, desc=None, consumes=None, produces=None, attr_dict=None):
+        name = name or self.__class__.__name__
+        super().__init__(name)
+
+        self.desc = desc or name
         self.attr_dict = attr_dict or {}
 
-        self.inputs  = inputs or []     # ids (name or number) of input streams
-        self.outputs = outputs or []    # ids (name or number) of output streams
+        self.produces = set(produces) if produces else {}
+        self.consumes = set(consumes) if consumes else {}
+
         self.extend = False
+        self.field = None               # the Field we're part of, set on first lookup
+
+        self.inputs  = []              # Stream instances, set in Field.connect_processes()
+        self.outputs = []              # ditto
+
+    def get_field(self):
+        """
+        Find and cache the Field instance that contains this Process
+
+        :return: (Field) the enclosing Field instance
+        """
+        if not self.field:
+            self.field = self.find_parent(Field)
+
+        return self.field
+
+    def find_stream(self, name, raiseError=False):
+        """
+        Convenience function to find a named stream from a Process instance by calling
+        find_stream() on the enclosing Field instance.
+
+        :param name: (str) the name of the Stream to find
+        :param raiseError: (bool) whether to raise an error if the Stream is not found.
+        :return: (Stream or None) the requested stream, or None if not found and `raiseError` is False.
+        :raises: OpgeeException if `name` is not found and `raiseError` is True
+        """
+        field = self.get_field()
+        return field.find_stream(name, raiseError=raiseError)
+
+    def find_input_streams(self, stream_type, combine=False, raiseError=True):
+        """
+        Find the input streams connected to an upstream Process that handles the indicated
+        `stream_type`, e.g., 'crude oil', 'raw water' and so on.
+
+        :param direction: (str) 'input' or 'output'
+        :param stream_type: (str) the generic type of stream a process can handle.
+        :param combine: (bool) whether to (thermodynamically) combine multiple Streams into a single one
+        :param raiseError: (bool) whether to raise an error if no handlers of `stream_type` are found.
+        :return: (Stream or list of Streams) if `combine` is True, a single, combined stream is returned,
+           otherwise a list of Streams.
+        :raises: OpgeeException if no processes handling `stream_type` are found and `raiseError` is True
+        """
+        streams = [stream for stream in self.inputs if stream.dst_proc.handles(stream_type)]
+        if not streams and raiseError:
+            raise OpgeeException(f"{self}: no input streams connect to processes handling '{stream_type}'")
+
+        return Stream.combine(streams) if combine else streams
+
+    def handles(self, stream_type):
+        return stream_type in self.consumes
+
+    def find_output_streams(self, stream_type, raiseError=True):
+        """
+        Find the output streams connected to a downstream Process that handles the indicated
+        `stream_type`, e.g., 'crude oil', 'raw water' and so on.
+
+        :param direction: (str) 'input' or 'output'
+        :param stream_type: (str) the generic type of stream a process can handle.
+        :param raiseError: (bool) whether to raise an error if no handlers of `stream_type` are found.
+        :return: (list of Streams)
+        :raises: OpgeeException if no processes handling `stream_type` are found and `raiseError` is True
+        """
+        streams = [stream for stream in self.outputs if stream.dst_proc.handles(stream_type)]
+        if not streams and raiseError:
+            raise OpgeeException(f"{self}: no output streams connect to processes handling '{stream_type}'")
+
+        return streams
+
+    def add_output_stream(self, stream):
+        self.outputs.append(stream)
+
+    def add_input_stream(self, stream):
+        self.inputs.append(stream)
 
     def set_extend(self, extend):
         self.extend = extend
@@ -492,20 +574,45 @@ class Process(XmlInstantiable):
         :return: (Process) instance populated from XML
         """
         name = elt_name(elt)
-        attrib = elt.attrib
+        a = elt.attrib
+        desc = a.get('desc')
 
-        classname = attrib['class']  # required by opgee.xsd schema
-        cls = get_subclass(Process, classname)
+        classname = a['class']  # required by XML schema
+        subclass = get_subclass(Process, classname)
 
         # TBD: fill in Smart Defaults here, or assume they've been filled already?
         attr_dict = instantiate_subelts(elt, A, as_dict=True)
 
-        obj = cls(name, attr_dict=attr_dict)
+        produces = [node.text for node in elt.findall('Produces')]
+        consumes = [node.text for node in elt.findall('Consumes')]
 
-        obj.set_enabled(getBooleanXML(attrib.get('enabled', '1')))
-        obj.set_extend(getBooleanXML(attrib.get('extend', '0')))
+        obj = subclass(name, desc=desc, attr_dict=attr_dict, produces=produces, consumes=consumes)
+
+        obj.set_enabled(getBooleanXML(a.get('enabled', '1')))
+        obj.set_extend(getBooleanXML(a.get('extend', '0')))
 
         return obj
+
+class Reservoir(Process):
+    """
+    Reservoir represents natural resources such as oil and gas reservoirs, and water sources.
+    Each Field object holds a single Reservoir instance.
+    """
+    def run(self, level, **kwargs):
+        self.print_running_msg(level)
+
+class Environment(Process):
+    """
+    Represents the environment, which in OPGEE is just a sink for emissions. The Environment
+    has only inputs (no outputs) and can be the destination (but not source) of streams. This
+    restriction might change if air-capture of CO2 were introduced into the model. Each Analysis
+    object holds a single Environment instance.
+    """
+    def __init__(self):
+        super().__init__('Environment', desc='The Environment')
+
+    def run(self, level, **kwargs):
+        self.print_running_msg(level)
 
 
 class Container(XmlInstantiable):
@@ -596,19 +703,83 @@ class Aggregator(Container):
         obj = cls(name, attrs=attrs, aggs=aggs, procs=procs)
         return obj
 
-
 class Field(Container):
     # TBD: can a field have any Processes that are not within Aggregator nodes?
     def __init__(self, name, attrs=None, aggs=None, procs=None, streams=None):
+        # Note that procs are just the Processes defined at the top-level of the field
         super().__init__(name, attrs=attrs, aggs=aggs, procs=procs)
 
-        self.streams = streams or []
-        self.environment = Environment()    # TBD: Environment per Field or per Analysis?
-        self.reservoir = Reservoir("Oil")   # TBD: how much flexibility is needed here?
+        self.stream_dict  = dict_from_list(streams)
+
+        all_procs = self.collect_processes()
+        self.process_dict = dict_from_list(all_procs)
+
+        self.environment = Environment()    # TBD: is Environment per Field or per Analysis?
+        self.reservoir = self.process_dict['Reservoir']
         self.extend = False
+
+        self._connect_processes()
+
+    def _connect_processes(self):
+        """
+        Connect streams and processes to one another.
+
+        :return: none
+        """
+        for stream in self.streams():
+            stream.src_proc = self.find_process(stream.src_name)
+            stream.dst_proc = self.find_process(stream.dst_name)
+
+            stream.src_proc.add_output_stream(stream)
+            stream.dst_proc.add_input_stream(stream)
+
+    def streams(self):
+        return self.stream_dict.values()    # N.B. returns an iterator
+
+    def processes(self):
+        return self.process_dict.values()   # N.B. returns an iterator
+
+    def find_stream(self, name, raiseError=True):
+        """
+        Find the Stream with `name` in this Field. If not found: if
+        `raiseError` is True, an error is raised, else None is returned.
+
+        :param name: (str) the name of the Stream to find
+        :param raiseError: (bool) whether to raise an error if the Steam is not found.
+        :return: (Stream or None) the requested Stream, or None if not found and `raiseError` is False.
+        :raises: OpgeeException if `name` is not found and `raiseError` is True
+        """
+        stream = self.stream_dict.get(name)
+
+        if stream is None and raiseError:
+            raise OpgeeException(f"Stream named '{name}' was not found in field '{self.name}'")
+
+        return stream
+
+    def find_process(self, name, raiseError=True):
+        """
+        Find the Process of class `name` in this Field. If not found: if
+        `raiseError` is True, an error is raised, else None is returned.
+
+        :param name: (str) the name of the subclass of Process to find
+        :param raiseError: (bool) whether to raise an error if the Process is not found.
+        :return: (Process or None) the requested Process, or None if not found and `raiseError` is False.
+        :raises: OpgeeException if `name` is not found and `raiseError` is True
+        """
+        process = self.process_dict.get(name)
+
+        if process is None and raiseError:
+            raise OpgeeException(f"Process named '{name}' was not found in field '{self.name}'")
+
+        return process
 
     def set_extend(self, extend):
         self.extend = extend
+
+    def report(self):
+        print(f"\n*** Streams for field {self.name}")
+        for stream in self.streams():
+            print(f"{stream}\n{stream.components}\n")
 
     @classmethod
     def from_xml(cls, elt):
