@@ -14,16 +14,17 @@ from opgee.version import VERSION
 from setuptools import setup
 
 requirements = [
-    'ipython>=6.5',
-    # 'tornado>=5.1', # may not be needed
-    'future>=0.16.0',
-    'lxml>=4.2.5',
-    'numpy>=1.15.2',
-    'pandas>=0.23.3',
-    # 'seaborn>=0.9.0',
-    'semver>=2.8.1',
-    'sphinx-argparse>=0.2.1',
-    # 'scipy>=1.1.0',
+    'ipython>=7.2',
+    'future>=0.18.0',
+    'lxml>=4.6.0',
+    'numpy>=1.19.0',
+    'pandas>=1.2.0',
+    'pint>=0.17',
+    'pydot>=1.4.0',
+    'semver>=2.8.0',
+    'sphinx>=3.5.0'
+    'sphinx-argparse>=0.2.0',
+    'sphinx-rtd-theme>=0.4.0',
 ]
 
 long_description = '''
@@ -60,7 +61,7 @@ setup(
     # extras_require=extras_requirements,
 
     url='https://github.com/rjplevin/opgee',
-    download_url='https://github.com/rjplevin/opgee/opgee.git',
+    download_url='https://github.com/arbrandt/OPGEEv4.git',
     license='MIT License',
     author='Richard Plevin',
     author_email='rich@plevin.com',
