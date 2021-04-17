@@ -251,7 +251,7 @@ class Opgee(object):
         """
         assert args or argList, "Opgee.run() requires either args or argList"
 
-        checkWindowsSymlinks()
+        # checkWindowsSymlinks() # not needed for opgee
 
         if argList is not None:         # might be called with empty list of subcmd args
             # called recursively
