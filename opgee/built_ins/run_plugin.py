@@ -40,7 +40,7 @@ class RunCommand(SubcommandABC):
     def run(self, args, tool):
         from ..error import CommandlineError
         from ..model import ModelFile
-        from ..utils import resourceStream
+        from ..pkg_utils import resourceStream
         import opgee.processes
 
         use_default_model = not args.no_default_model

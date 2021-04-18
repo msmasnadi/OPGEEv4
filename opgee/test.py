@@ -1,7 +1,7 @@
 from opgee.config import getParam
 from opgee.model import ModelFile
 from opgee.log import getLogger, configureLogs, setLogLevels
-from opgee.utils import resourceStream
+from opgee.pkg_utils import resourceStream
 
 import opgee.processes     # load pre-defined Process subclasses so the classes can be found by name
 

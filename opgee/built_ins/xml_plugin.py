@@ -14,7 +14,7 @@ _logger = getLogger(__name__)
 
 def read_fields(csv_path, from_package=False):
     import pandas as pd
-    from ..utils import resourceStream
+    from ..pkg_utils import resourceStream
 
     stream = resourceStream(csv_path) if from_package else csv_path
     df = pd.read_csv(stream, index_col=2)

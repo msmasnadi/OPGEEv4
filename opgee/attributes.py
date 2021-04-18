@@ -5,8 +5,9 @@
    See the https://opensource.org/licenses/MIT for license details.
 """
 from .core import OpgeeObject, A, elt_name
-from .utils import resourceStream
+from .error import OpgeeException
 from .log import getLogger
+from .pkg_utils import resourceStream
 from .XMLFile import XMLFile
 
 _logger = getLogger(__name__)
@@ -87,15 +88,19 @@ class Attributes(OpgeeObject):
         d = {obj.class_name : obj for obj in class_attrs}
         self.classes = d
 
-    def class_attrs(self, classname, raise_error=True):
+    def class_attrs(self, classname, raiseError=True):
         """
         Return the ClassAttributes instance for the named class. If not found: if
         `raise_error` is True, a KeyError will be raised; if `raise_error` is False,
         None will be returned.
 
         :param classname: (str) the name of the class to find attributes for
-        :param raise_error: (bool) whether failure to find class should raise an error
-        :raises: KeyError if `raise_error` is True and classname is not in the dict.
+        :param raiseError: (bool) whether failure to find class should raise an error
         :return: (ClassAttributes) the instance defining attributes for classname.
+        :raises: OpgeeError if `raiseError` is True and classname is not in the dict.
         """
-        return self.classes[classname] if raise_error else self.classes.get(classname)
+        attrs = self.classes.get(classname)
+        if attrs is None and raiseError:
+            raise OpgeeException(f"class_attrs: classname {classname} is unknown.")
+
+        return attrs

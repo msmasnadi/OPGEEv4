@@ -52,7 +52,7 @@ class GraphCommand(SubcommandABC):
         from ..error import CommandlineError
         from ..graph import write_model_diagram, write_class_diagram, write_process_diagram
         from ..model import ModelFile
-        from ..utils import resourceStream
+        from ..pkg_utils import resourceStream
         import opgee.processes
 
         # TBD allow user to select which model file to graph

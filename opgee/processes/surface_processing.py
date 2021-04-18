@@ -1,6 +1,6 @@
-from ..core import Process, Stream
 from ..log import getLogger
-from ..stream_component import PHASE_LIQUID
+from ..process import Process
+from ..stream import PHASE_LIQUID
 
 _logger = getLogger(__name__)
 
