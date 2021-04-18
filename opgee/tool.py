@@ -317,19 +317,7 @@ def _showVersion(argv):
         sys.exit(0)
 
 def _main(argv=None):
-    from .config import userConfigPath
-
-    configPath = userConfigPath()
-    if not os.path.lexists(configPath) or os.stat(configPath).st_size == 0:
-        argSet = set(argv or sys.argv)
-        options = {'init', '-h', '--help', '--version'}
-        if argSet.intersection(options):
-            # create empty config file just so we can run the "init" sub-command, or help/version options
-            open(configPath, 'w').close()
-        else:
-            raise CommandlineError(f'\n***\n*** Missing or empty opgee configuration file {configPath}.\n***\n')
-
-    getConfig()
+    getConfig(createDefault=True)
 
     _showVersion(argv)
     configureLogs()

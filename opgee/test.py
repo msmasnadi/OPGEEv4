@@ -1,4 +1,4 @@
-from opgee.config import getParam
+from opgee.config import getParam, getConfig
 from opgee.model import ModelFile
 from opgee.log import getLogger, configureLogs, setLogLevels
 from opgee.pkg_utils import resourceStream
@@ -14,6 +14,7 @@ def init_logging():
 
 
 def main():
+    getConfig(createDefault=True)
     init_logging()
 
     s = resourceStream('etc/opgee.xml', stream_type='bytes', decode=None)
