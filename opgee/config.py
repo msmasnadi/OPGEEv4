@@ -39,14 +39,22 @@ def unixPath(path, rmFinalSlash=False, abspath=False):
            be removed, if present.
     :return: (str) the modified pathname
     """
+    from pathlib import Path
+
+    # convert, if needed, to use pathlib
+    path = Path(path)
+
     if abspath:
-        path = os.path.abspath(path)
+        # Path.resolve() is supposed to do this, but it fails
+        # path = path.resolve(path)
+        path = Path(os.path.abspath(str(path)))
 
     if PlatformName == 'Windows':
-        path = path.replace('\\', '/')
+        path = path.as_posix()
 
-    if rmFinalSlash and len(path) and path[-1] == '/':
-        path = path[0:-1]
+    if rmFinalSlash and len(path) and path.endswith('/'):
+        path_str = str(path)
+        path = Path(path_str[:-1])
 
     return path
 
