@@ -217,7 +217,7 @@ class Process(XmlInstantiable):
         pass
 
     def print_running_msg(self):
-        print(f"Running {type(self)} name='{self.name}'")
+        _logger.info(f"Running {type(self)} name='{self.name}'")
 
     @classmethod
     def from_xml(cls, elt):

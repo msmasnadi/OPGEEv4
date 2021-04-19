@@ -29,10 +29,7 @@
 			<A name="prod_index">37.53</A>
 			<A name="res_press">887.31</A>
 			<A name="res_temp">70.84</A>
-			<Process class="Reservoir" desc="Oil reservoir">
-				<Produces>crude oil</Produces>
-			</Process>
-			
+		
 			<Aggregator name="Preparatory_steps">
 				<Process class="Exploration"/>
 				<Process class="DrillingAndDevelopment" desc="Drilling &amp; development">
@@ -41,27 +38,50 @@
 				</Process>
 			</Aggregator>
 			<Aggregator name="Surface_processing">
+				<Process class="Reservoir" desc="Oil reservoir">
+					<Produces>crude oil</Produces>
+					<Produces>untreated water</Produces>														
+				</Process>
+				
+				<Process class="ReservoirWellInterface">
+					<Produces>crude oil</Produces>					
+					<Produces>untreated water</Produces>										
+				</Process>
+								
+				<Process class="DownholePump">
+					<Produces>crude oil</Produces>					
+					<Produces>untreated water</Produces>					
+				</Process>
+				
+				<Process class="Separation">
+					<Consumes>crude oil</Consumes>
+					<Produces>untreated water</Produces>					
+				</Process>
+								
 				<Process class="CrudeOilDewatering" desc="Crude oil dewatering">
 					<Consumes>crude oil</Consumes>
 					<Produces>untreated water</Produces>
 					<Produces>dewatered crude oil</Produces>
 				</Process>
+				<Process class="CrudeOilStabilization" desc="Crude oil stabilization">
+					<Consumes>dewatered crude oil</Consumes>
+					<Produces>stablized crude oil</Produces>					
+				</Process>							
 				<Process class="ProducedWaterTreatment" desc="Produced water treatment">
 					<Consumes>untreated water</Consumes>
 					<Produces>treated water</Produces>
 				</Process>				
-				<Process class="CrudeOilStabilization" desc="Crude oil stabilization">
-					<Consumes>dewatered crude oil</Consumes>
-					<Produces>stablized crude oil</Produces>					
-				</Process>
 			</Aggregator>
-			<Stream number="7" name="crude oil after separator" src="Reservoir" dst="CrudeOilDewatering">
+			<Stream number="1" name="oil in reservoir" src="Reservoir" dst="ReservoirWellInterface"/>
+			<Stream number="3" name="crude oil at wellbottom" src="ReservoirWellInterface" dst="DownholePump"/>
+			<Stream number="4" name="crude oil at wellhead" src="DownholePump" dst="Separation"/>
+			<Stream number="7" name="crude oil after separator" src="Separation" dst="CrudeOilDewatering">
 				<Temperature unit="degF">90.0</Temperature>
 				<Pressure unit="psia">100.0</Pressure>
 				<Component name="oil" phase="liquid" unit="tonne/d">14555.9</Component>
 				<Component name="H2O" phase="liquid" unit="tonne/d">2037.8</Component>
-			</Stream>
-			<Stream number="160" name="Fuel gas - dewatering" src="Reservoir" dst="CrudeOilDewatering">
+			</Stream>			
+			<Stream number="160" name="Fuel gas - dewatering" src="Separation" dst="CrudeOilDewatering">
 				<Temperature unit="degF">90.0</Temperature>
 				<Pressure unit="psia">150.0</Pressure>
 				<Component name="N2" phase="gas" unit="tonne/d">0.8</Component>
