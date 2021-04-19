@@ -1,5 +1,8 @@
 from .core import Container, elt_name, subelt_text, instantiate_subelts
 from .field import Field
+from .log import getLogger
+
+_logger = getLogger(__name__)
 
 class Analysis(Container):
     def __init__(self, name, functional_unit=None, energy_basis=None,
@@ -33,3 +36,5 @@ class Analysis(Container):
         # TBD: variables and settings
         obj = Analysis(name, functional_unit=fn_unit, energy_basis=en_basis, fields=fields)
         return obj
+
+

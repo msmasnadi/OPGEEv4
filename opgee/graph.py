@@ -1,5 +1,6 @@
 import pydot
-from .core import OpgeeObject, Process
+from .core import OpgeeObject
+from .process import Process
 from .log import getLogger
 
 _logger = getLogger(__name__)

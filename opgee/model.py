@@ -10,8 +10,8 @@ from .config import getParam
 from .error import OpgeeException
 from .field import Field
 from .log import getLogger
-from .pkg_utils import resourceStream
 from .stream import Stream
+from .tables import TableManager
 from .utils import loadModuleFromPath, splitAndStrip
 from .XMLFile import XMLFile
 
@@ -58,7 +58,7 @@ class Model(Container):
         self.analysis = analysis
         analysis.parent = self
 
-        self.stream_table = self.read_stream_table()
+        self.table_mgr = TableManager()
 
     def children(self):
         return [self.analysis]      # TBD: might have a list of analyses if it's useful
@@ -76,9 +76,8 @@ class Model(Container):
 
         if show_streams:
             for field in self.analysis.children():
-                procs = field.collect_processes()
                 print(f"Processes for field {field.name}")
-                for proc in procs:
+                for proc in field.processes():
                     print(f"  {proc}")
 
                 print(f"\nStreams for field {field.name}")
@@ -89,13 +88,6 @@ class Model(Container):
 
     def report(self):
         pass
-
-    def read_stream_table(self):
-        import pandas as pd
-
-        s = resourceStream('etc/streams.csv')
-        df = pd.read_csv(s, index_col='number')
-        return df
 
     @classmethod
     def from_xml(cls, elt):

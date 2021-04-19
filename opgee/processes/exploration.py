@@ -4,12 +4,12 @@ from ..log import getLogger
 _logger = getLogger(__name__)
 
 class Exploration(Process):
-    def run(self, level, **kwargs):
-        self.print_running_msg(level)
+    def run(self, **kwargs):
+        self.print_running_msg()
 
 class SurveyVehicle(Process):
-    def run(self, level, **kwargs):
-        self.print_running_msg(level)
+    def run(self, **kwargs):
+        self.print_running_msg()
 
     def __str__(self):
         type_attr = self.attr_dict['type']

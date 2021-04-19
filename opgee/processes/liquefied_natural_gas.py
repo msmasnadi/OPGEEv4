@@ -5,15 +5,15 @@ _logger = getLogger(__name__)
 
 
 class LNGLiquefaction(Process):
-    def run(self, level, **kwargs):
-        self.print_running_msg(level)
+    def run(self, **kwargs):
+        self.print_running_msg()
 
 
 class LNGTransport(Process):
-    def run(self, level, **kwargs):
-        self.print_running_msg(level)
+    def run(self, **kwargs):
+        self.print_running_msg()
 
 
 class LNGRegasification(Process):
-    def run(self, level, **kwargs):
-        self.print_running_msg(level)
+    def run(self, **kwargs):
+        self.print_running_msg()

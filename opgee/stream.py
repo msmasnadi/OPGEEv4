@@ -64,6 +64,7 @@ class Stream(XmlInstantiable):
 
         cls._components.extend(names)
 
+    @classmethod
     def create_component_matrix(cls):
         """
         Create a pandas DataFrame to hold the 3 phases of the known Components.
@@ -84,6 +85,8 @@ class Stream(XmlInstantiable):
 
         self.src_proc = None        # set in Field.connect_processes()
         self.dst_proc = None
+
+        self.has_exogenous_data = False
 
     def __str__(self):
         number_str = f" number={self.number}" if self.number else ''
@@ -172,6 +175,8 @@ class Stream(XmlInstantiable):
 
         # Set up the stream component info
         comp_elts = elt.findall('Component')
+        obj.has_exogenous_data = len(comp_elts) > 0
+
         for comp_elt in comp_elts:
             a = comp_elt.attrib
             comp_name = elt_name(comp_elt)
@@ -186,3 +191,34 @@ class Stream(XmlInstantiable):
             comp_df.loc[comp_name, phase] = rate
 
         return obj
+
+# Deprecated? May be useful for Environment. Or not.
+class SignalingStream(Stream):
+    """
+    Augments Stream to have a dirty bit and a read method that returns a copy of the
+    stream contents and resets the stream to zeros, clearing the dirty bit. The main
+    use is for the Environment() process to collect emissions from all Processes, but
+    incrementally after each upstream process runs.
+    """
+    def __init__(self, name, number=0, temperature=None, pressure=None,
+                 src_name=None, dst_name=None, comp_matrix=None):
+
+        super().init(name, number=number, temperature=temperature, pressure=pressure,
+                     src_name=src_name, dst_name=dst_name, comp_matrix=comp_matrix)
+
+        self.dirty = False
+
+    def get_data(self):
+        if not self.dirty:
+            return None
+
+        comps = self.components
+        copy = comps.copy()
+        comps.loc[:, :] = 0.0
+        self.dirty = False
+
+        return copy
+
+    def set_flow_rate(self, name, phase, rate):
+        super().set_flow_rate(name, phase, rate)
+        self.dirty = True

@@ -1,8 +1,13 @@
+import networkx as nx
+
 from .core import Container, A, elt_name, instantiate_subelts, dict_from_list
 from .error import OpgeeException
+from .log import getLogger
 from .process import Process, Environment, Reservoir, Aggregator
 from .stream import Stream
 from .utils import getBooleanXML
+
+_logger = getLogger(__name__)
 
 class Field(Container):
     # TBD: can a field have any Processes that are not within Aggregator nodes?
@@ -14,26 +19,79 @@ class Field(Container):
         self.stream_dict  = dict_from_list(streams)
 
         all_procs = self.collect_processes()
-        self.process_dict = process_dict = dict_from_list(all_procs)
+        self.process_dict = dict_from_list(all_procs)
 
         self.environment = Environment()    # TBD: is Environment per Field or per Analysis?
         self.reservoir   = Reservoir(name)  # TBD: One per field?
         self.extend = False
 
-        self._connect_processes()
+        # we use networkx to reason about the directed graph of Processes (nodes)
+        # and Streams (edges).
+        self.graph = g = self._connect_processes()
+
+        self.is_dag = nx.is_directed_acyclic_graph(g)
+        self.run_order = nx.topological_sort(g) if self.is_dag else []
+        if self.run_order is None:
+            _logger.warn(f"Field '{name}' has cycles, which aren't supported yet")
+
+    def run(self, **kwargs):
+        """
+        Run all Processes defined for this Field, in the order computed from the graph
+        characteristics. Container if `names` is None, otherwise run only the
+        children whose names are in in `names`.
+
+        :param names: (None, or list of str) the names of children to run
+        :param kwargs: (dict) arbitrary keyword args to pass through
+        :return: None
+        """
+        def _impute_upstream(proc):
+            # recurse upstream, calling impute()
+            if proc:
+                proc.impute()
+                for s in proc.inputs:
+                    _impute_upstream(s.src_proc)
+
+        if self.is_enabled():
+            _logger.debug(f"Running field '{self}'")
+
+            start_streams = self.find_start_streams()
+            for s in start_streams:
+                src_proc = s.src_proc
+                if src_proc:
+                    _impute_upstream(src_proc)
+
+            for proc in self.run_order:
+                proc.run(**kwargs)
+
+            self.summarize()
 
     def _connect_processes(self):
         """
         Connect streams and processes to one another.
 
-        :return: none
+        :return: (networkx.DiGraph) a directed graph representing the processes and streams.
         """
-        for stream in self.streams():
-            stream.src_proc = self.find_process(stream.src_name)
-            stream.dst_proc = self.find_process(stream.dst_name)
+        g = nx.DiGraph()
 
-            stream.src_proc.add_output_stream(stream)
-            stream.dst_proc.add_input_stream(stream)
+        # first add all defined Processes since some (Exploration, Development & Drilling)
+        # have no streams associated with them, but we still need to run the processes.
+        for p in self.processes():
+            g.add_node(p)
+
+        for s in self.streams():
+            s.src_proc = src = self.find_process(s.src_name)
+            s.dst_proc = dst = self.find_process(s.dst_name)
+
+            src.add_output_stream(s)
+            dst.add_input_stream(s)
+
+            g.add_edge(src, dst, stream=s)
+
+        return g
+
+    def _clear_visited(self):
+        for proc in self.processes():
+            proc.clear_visit_count()
 
     def streams(self):
         return self.stream_dict.values()    # N.B. returns an iterator
@@ -47,7 +105,7 @@ class Field(Container):
         `raiseError` is True, an error is raised, else None is returned.
 
         :param name: (str) the name of the Stream to find
-        :param raiseError: (bool) whether to raise an error if the Steam is not found.
+        :param raiseError: (bool) whether to raise an error if the Stream is not found.
         :return: (Stream or None) the requested Stream, or None if not found and `raiseError` is False.
         :raises: OpgeeException if `name` is not found and `raiseError` is True
         """
@@ -74,6 +132,10 @@ class Field(Container):
             raise OpgeeException(f"Process named '{name}' was not found in field '{self.name}'")
 
         return process
+
+    def find_start_streams(self):
+        streams = [s for s in self.streams() if s.has_exogenous_data]
+        return streams
 
     def set_extend(self, extend):
         self.extend = extend
@@ -115,15 +177,13 @@ class Field(Container):
 
         :return: (list(Process)) the processes defined for this field
         """
-        processes = []
-
-        def _collect(node):
-            for child in node.children():
+        def _collect(process_list, obj):
+            for child in obj.children():
                 if isinstance(child, Process):
-                    processes.append(child)
+                    process_list.append(child)
                 else:
-                    _collect(child)
+                    _collect(process_list, child)
 
-        _collect(self)
+        processes = []
+        _collect(processes, self)
         return processes
-

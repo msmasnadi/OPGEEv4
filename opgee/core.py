@@ -5,7 +5,6 @@
    See the https://opensource.org/licenses/MIT for license details.
 '''
 from pint import UnitRegistry, Quantity
-import sys
 from .error import OpgeeException, AbstractMethodError, AbstractInstantiationError
 from .log import getLogger
 from .pkg_utils import resourceStream
@@ -279,32 +278,30 @@ class Container(XmlInstantiable):
         self.aggs  = self.adopt(aggs)
         self.procs = self.adopt(procs)
 
-    def run(self, names=None, level=0, **kwargs):
+    def run(self, names=None, **kwargs):
         """
         Run all children of this Container if `names` is None, otherwise run only the
         children whose names are in in `names`.
 
         :param names: (None, or list of str) the names of children to run
-        :param level: (int) hierarchical level (for display purposes)
         :param kwargs: (dict) arbitrary keyword args to pass through
         :return: None
         """
         if self.is_enabled():
-            self.print_running_msg(level)
-            self.run_children(level=level, names=names, **kwargs)
+            self.print_running_msg()
+            self.run_children(names=names, **kwargs)
             self.summarize()
 
     def children(self):
         return self.aggs + self.procs
 
-    def print_running_msg(self, level):
-        print(level * '  ' + f"Running {type(self)} name='{self.name}'")
+    def print_running_msg(self):
+        print(f"Running {type(self)} name='{self.name}'")
 
-    def run_children(self, names=None, level=0, **kwargs):
-        level += 1
+    def run_children(self, names=None, **kwargs):
         for child in self.children():
             if names is None or child.name in names:
-                child.run(level=level, **kwargs)
+                child.run(**kwargs)
 
         # TBD: else self.bypass()?
 

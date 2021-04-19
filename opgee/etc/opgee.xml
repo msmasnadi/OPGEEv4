@@ -33,8 +33,12 @@
 				<Produces>crude oil</Produces>
 			</Process>
 			
-			<Aggregator name="Exploration">
+			<Aggregator name="Preparatory_steps">
 				<Process class="Exploration"/>
+				<Process class="DrillingAndDevelopment" desc="Drilling &amp; development">
+					<A name="productivity">medium</A>
+					<A name="total_wells">2500</A>
+				</Process>
 			</Aggregator>
 			<Aggregator name="Surface_processing">
 				<Process class="CrudeOilDewatering" desc="Crude oil dewatering">

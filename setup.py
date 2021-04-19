@@ -17,6 +17,7 @@ requirements = [
     'ipython>=7.2',
     'future>=0.18.0',
     'lxml>=4.6.0',
+    'networkx>=2.5.0',
     'numpy>=1.19.0',
     'pandas>=1.2.0',
     'pint>=0.17',

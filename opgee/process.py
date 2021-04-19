@@ -6,8 +6,11 @@
 '''
 from .core import A, Container, XmlInstantiable, elt_name, instantiate_subelts
 from .error import OpgeeException, AbstractMethodError
+from .log import getLogger
 from .stream import Stream
 from .utils import getBooleanXML
+
+_logger = getLogger(__name__)
 
 def _subclass_dict(superclass):
     """
@@ -69,10 +72,12 @@ class Process(XmlInstantiable):
         self.consumes = set(consumes) if consumes else {}
 
         self.extend = False
-        self.field = None               # the Field we're part of, set on first lookup
+        self.field = None              # the Field we're part of, set on first lookup
 
         self.inputs  = []              # Stream instances, set in Field.connect_processes()
         self.outputs = []              # ditto
+
+        self.visit_count = 0           # increment the Process has been run
 
     def get_field(self):
         """
@@ -84,6 +89,23 @@ class Process(XmlInstantiable):
             self.field = self.find_parent('Field')
 
         return self.field
+
+    def visit(self):
+        self.visit_count += 1
+
+    def visited(self):
+        return self.visit_count
+
+    def clear_visit_count(self):
+        self.visit_count = 0
+
+    def get_environment(self):
+        field = self.get_field()
+        return field.environment
+
+    def get_reservoir(self):
+        field = self.get_field()
+        return field.reservoir
 
     def find_stream(self, name, raiseError=False):
         """
@@ -146,35 +168,43 @@ class Process(XmlInstantiable):
     def set_extend(self, extend):
         self.extend = extend
 
-    def run_internal(self, level, **kwargs):
+    def run_internal(self, **kwargs):
         """
         This method implements the behavior required of the Process subclass, when
         the Process is enabled. If it is disabled, the run() method calls bypass()
         instead. **Subclasses of Process must implement this method.**
 
-        :param level: (int) nesting level; used to indent diagnostic output
         :param kwargs: (dict) arbitrary keyword args passed down from the Analysis object.
         :return: None
         """
         raise AbstractMethodError(type(self), 'Process.run_internal')
 
-    def run(self, level, **kwargs):
+    def run(self, **kwargs):
         """
         If the Process is enabled, calls self.run_internal() else call self.bypass().
 
-        :param level: (int) nesting level; used to indent diagnostic output
         :param kwargs: (dict) arbitrary keyword args passed down from the Analysis object.
         :return: None
         """
         if not self.enabled:
             self.bypass()
         else:
-            self.run_internal(level, **kwargs)
+            self.run_internal(**kwargs)
 
     # TBD: Can we create a generic method for passing inputs to outputs when disabled?
     # TBD: If not, this will become an abstract method.
     def bypass(self):
         pass
+
+    def impute(self):
+        """
+        Called for Process instances upstream of Stream with exogenous input data, allowing
+        those nodes to impute their own inputs from the output Stream.
+
+        :return: none
+        """
+        pass
+
 
     #
     # The next two methods are provided to allow Aggregator to call children() and
@@ -183,11 +213,11 @@ class Process(XmlInstantiable):
     def children(self):
         return []
 
-    def run_children(self, level, **kwargs):
+    def run_children(self, **kwargs):
         pass
 
-    def print_running_msg(self, level):
-        print(level * '  ' + f"Running {type(self)} name='{self.name}'")
+    def print_running_msg(self):
+        print(f"Running {type(self)} name='{self.name}'")
 
     @classmethod
     def from_xml(cls, elt):
@@ -222,8 +252,8 @@ class Reservoir(Process):
     Reservoir represents natural resources such as oil and gas reservoirs, and water sources.
     Each Field object holds a single Reservoir instance.
     """
-    def run(self, level, **kwargs):
-        self.print_running_msg(level)
+    def run(self, **kwargs):
+        self.print_running_msg()
 
 class Environment(Process):
     """
@@ -235,9 +265,18 @@ class Environment(Process):
     def __init__(self):
         super().__init__('Environment', desc='The Environment')
 
-    def run(self, level, **kwargs):
-        self.print_running_msg(level)
+        self.emissions = Stream.create_component_matrix()     # stores cumulative emissions
 
+    def run(self, **kwargs):
+        self.print_running_msg()
+
+        for stream in self.inputs:
+            comp_data = stream.get_data()
+            if comp_data is not None:
+                self.emissions += comp_data
+
+    def report(self):
+        print(f"Cumulative emissions to Environment:\n{self.emissions}")
 
 class Aggregator(Container):
     def __init__(self, name, attrs=None, aggs=None, procs=None):
