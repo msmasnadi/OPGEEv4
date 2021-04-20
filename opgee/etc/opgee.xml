@@ -29,15 +29,14 @@
 			<A name="prod_index">37.53</A>
 			<A name="res_press">887.31</A>
 			<A name="res_temp">70.84</A>
-		
-			<Aggregator name="Preparatory_steps">
-				<Process class="Exploration"/>
-				<Process class="DrillingAndDevelopment" desc="Drilling &amp; development">
-					<A name="productivity">medium</A>
-					<A name="total_wells">2500</A>
-				</Process>
-			</Aggregator>
-			<Aggregator name="Surface_processing">
+			
+			<Process class="Exploration"/>
+			<Process class="DrillingAndDevelopment" desc="Drilling &amp; development">
+				<A name="productivity">medium</A>
+				<A name="total_wells">2500</A>
+			</Process>
+			
+			<Aggregator name="Production_and_extraction">
 				<Process class="Reservoir" desc="Oil reservoir">
 					<Produces>crude oil</Produces>
 					<Produces>untreated water</Produces>														
@@ -70,7 +69,13 @@
 				<Process class="ProducedWaterTreatment" desc="Produced water treatment">
 					<Consumes>untreated water</Consumes>
 					<Produces>treated water</Produces>
-				</Process>				
+				</Process>
+			</Aggregator>
+			<Aggregator name="Transport_and_storage">
+				<Process class="CrudeOilTransport">
+					<Consumes>crude oil</Consumes>
+					<Produces>crude oil</Produces>					
+				</Process>
 			</Aggregator>
 			<Stream number="1" name="oil in reservoir" src="Reservoir" dst="ReservoirWellInterface"/>
 			<Stream number="3" name="crude oil at wellbottom" src="ReservoirWellInterface" dst="DownholePump"/>

@@ -2,13 +2,15 @@
 # so we identify the basenames of the files here and then extract them into a structure.
 import os
 import pandas as pd
-from ..error import OpgeeException
-from ..pkg_utils import resourceStream
+from opgee.error import OpgeeException
+from opgee.pkg_utils import resourceStream
 
 class TableManager(object):
 
     # List of tuples of CSV file basename and args to index_col keyword.
-    basenames = [('dummy', False)]
+    basenames = [('dummy', False),
+                 ('GWP', False),
+                 ('bitument-mining-energy-intensity', 0)]
 
     def __init__(self):
         self.table_dict = table_dict = {}

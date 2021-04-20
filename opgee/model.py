@@ -11,7 +11,7 @@ from .error import OpgeeException
 from .field import Field
 from .log import getLogger
 from .stream import Stream
-from .tables import TableManager
+from .table_manager import TableManager
 from .utils import loadModuleFromPath, splitAndStrip
 from .XMLFile import XMLFile
 
@@ -58,7 +58,11 @@ class Model(Container):
         self.analysis = analysis
         analysis.parent = self
 
-        self.table_mgr = TableManager()
+        self.table_mgr = tbl_mgr = TableManager()
+
+        df = tbl_mgr.get_table('GWP')
+        self.gwp20  = df.query('Years ==  20').set_index('Gas', drop=True).drop('Years', axis='columns')
+        self.gwp100 = df.query('Years == 100').set_index('Gas', drop=True).drop('Years', axis='columns')
 
     def children(self):
         return [self.analysis]      # TBD: might have a list of analyses if it's useful
