@@ -10,7 +10,7 @@ class TableManager(object):
     # List of tuples of CSV file basename and args to index_col keyword.
     basenames = [('dummy', False),
                  ('GWP', False),
-                 ('bitument-mining-energy-intensity', 0)]
+                 ('bitumen-mining-energy-intensity', 0)]
 
     def __init__(self):
         self.table_dict = table_dict = {}
