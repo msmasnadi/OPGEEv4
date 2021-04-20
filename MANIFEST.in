@@ -4,7 +4,8 @@ include setup.py
 include ez_setup.py
 
 # Source code
-include opgee/*.py
+recursive-include opgee *.py
+
 graft opgee/built_ins
 
 # Assorted data files
@@ -15,7 +16,7 @@ graft docs/source
 include docs/[mM]ake*
 
 # anaconda environment definitions
-graft envs
+# graft envs
 
 # Test code
 graft tests

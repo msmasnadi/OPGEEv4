@@ -8,10 +8,10 @@
 import os
 import platform
 import re
-from pkg_resources import resource_string
 import configparser
 
 from .error import ConfigFileError, OpgeeException
+from .pkg_utils import getResource
 
 DEFAULT_SECTION = 'DEFAULT'
 USR_CONFIG_FILE = 'opgee.cfg'
@@ -27,9 +27,22 @@ _ProjectSection = DEFAULT_SECTION
 _PathMap = None
 _PathPattern = None     # compiled regex matching any mapped paths
 
+_DEFAULT_CONFIG = """# Default configuration file
+#
+[DEFAULT]
+OPGEE.DefaultProject = my_project
+OPGEE.LogLevel = INFO
+OPGEE.LogConsole = True
+OPGEE.ShowStackTrace = True
+
+[my_project]
+# OPGEE.ClassPath = %(Home)s/my_directory/my_opgee_procs.py
+OPGEE.StreamComponents = foo, bar , baz
+"""
+
 # The unixPath and pathjoin funcs are here rather than in utils.py
 # since this functionality is needed here and this avoids import loops.
-def unixPath(path, rmFinalSlash=False, abspath=False):
+def unixPath(path, abspath=False):
     """
     Convert a path to use Unix-style slashes, optionally
     removing the final slash, if present.
@@ -39,14 +52,17 @@ def unixPath(path, rmFinalSlash=False, abspath=False):
            be removed, if present.
     :return: (str) the modified pathname
     """
+
+    # Use str values, not Paths
+    path = str(path)
+
     if abspath:
+        # Path.resolve() is supposed to do this, but it fails
         path = os.path.abspath(path)
 
     if PlatformName == 'Windows':
-        path = path.replace('\\', '/')
-
-    if rmFinalSlash and len(path) and path[-1] == '/':
-        path = path[0:-1]
+        from pathlib import Path
+        path = str(Path(path).as_posix())
 
     return path
 
@@ -65,7 +81,7 @@ def pathjoin(*elements, **kwargs):
     if kwargs.get('realpath'):
         path = os.path.realpath(path)
 
-    return unixPath(path, rmFinalSlash=True)
+    return unixPath(path)
 
 def savePathMap(mapString):
     """
@@ -138,7 +154,23 @@ def setSection(section):
 def configLoaded():
     return bool(_ConfigParser)
 
-def getConfig(reload=False, allowMissing=False):
+def ensure_default_config():
+    '''
+    Check that config file exists or create default one.
+    '''
+    configPath = userConfigPath()
+
+    if not os.path.lexists(configPath) or os.stat(configPath).st_size == 0:
+        try:
+            with open(configPath, 'w') as f:
+                f.write(_DEFAULT_CONFIG)
+
+        except Exception as e:
+            raise OpgeeException(f'\n***\n*** Failed to write default opgee configuration file {configPath}: {e}.\n***\n')
+
+
+
+def getConfig(reload=False, allowMissing=False, createDefault=False):
     """
     Return the configuration object. If one has been created already via
     `readConfigFiles`, it is returned; otherwise a new one is created
@@ -146,12 +178,18 @@ def getConfig(reload=False, allowMissing=False):
     need to use this object directly since the single instance is stored
     internally and referenced by the other API functions.
 
-    :param: reload (bool) if True, instantiate a new global ConfigParser.
-    :param: allowMissing (bool) if True, a missing config file is not
+    :param reload: (bool) if True, instantiate a new global ConfigParser.
+    :param allowMissing: (bool) if True, a missing config file is not
        treated as an error. This is used only when generating documentation,
        e.g., on readthedocs.org.
+    :param createDefault: (bool) Check that the config file exists, and if not,
+       write the default config file. Optional so we don't have to check the file
+       on every call.
     :return: a `ConfigParser` instance.
     """
+    if createDefault:
+        ensure_default_config()
+
     if reload:
         global _ConfigParser
         _ConfigParser = None
@@ -161,14 +199,13 @@ def getConfig(reload=False, allowMissing=False):
 
 def _readConfigResourceFile(filename, package='opgee', raiseError=True):
     try:
-        data = resource_string(package, filename)
+        data = getResource(filename, decode='utf-8')
     except IOError:
         if raiseError:
             raise
         else:
             return None
 
-    data = data.decode('utf-8')
     _ConfigParser.read_string(data, source=filename)
     return data
 

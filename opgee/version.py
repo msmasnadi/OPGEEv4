@@ -1,1 +1,1 @@
-VERSION="4.0a"
+VERSION="4.0a0"

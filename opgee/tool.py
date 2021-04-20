@@ -216,7 +216,7 @@ class Opgee(object):
 
         pluginClass = getModObj(mod, 'PluginClass') or getModObj(mod, 'Plugin')
         if not pluginClass:
-            raise OpgeeException('Neither PluginClass nor class Plugin are defined in %s' % path)
+            raise OpgeeException(f'Neither PluginClass nor class Plugin are defined in {path}')
 
         self.instantiatePlugin(pluginClass)
 
@@ -251,7 +251,7 @@ class Opgee(object):
         """
         assert args or argList, "Opgee.run() requires either args or argList"
 
-        checkWindowsSymlinks()
+        # checkWindowsSymlinks() # not needed for opgee
 
         if argList is not None:         # might be called with empty list of subcmd args
             # called recursively
@@ -317,19 +317,7 @@ def _showVersion(argv):
         sys.exit(0)
 
 def _main(argv=None):
-    from .config import userConfigPath
-
-    configPath = userConfigPath()
-    if not os.path.lexists(configPath) or os.stat(configPath).st_size == 0:
-        argSet = set(argv or sys.argv)
-        options = {'init', '-h', '--help', '--version'}
-        if argSet.intersection(options):
-            # create empty config file just so we can run the "init" sub-command, or help/version options
-            open(configPath, 'w').close()
-        else:
-            raise CommandlineError('\n***\n*** Missing or empty opgee configuration file %s. Run "gt init" to create it.\n***\n' % configPath)
-
-    getConfig()
+    getConfig(createDefault=True)
 
     _showVersion(argv)
     configureLogs()
@@ -352,7 +340,7 @@ def _main(argv=None):
     # Set specified config vars
     for arg in ns.configVars:
         if not '=' in arg:
-            raise CommandlineError('+s requires an argument of the form variable=value, got "%s"' % arg)
+            raise CommandlineError(f'+s requires an argument of the form variable=value, got "{arg}"')
 
         name, value = arg.split('=')
         setParam(name, value)
@@ -389,14 +377,14 @@ def main(argv=None, raiseError=False):
             raise
 
         _logger = getLogger(__name__)
-        _logger.error("%s: %s" % (PROGRAM, e))
+        _logger.error(f"{PROGRAM}: {e}")
         return e.signum
 
     except Exception as e:
         if raiseError:
             raise
 
-        print("%s failed: %s" % (PROGRAM, e))
+        print("{PROGRAM} failed: {e}")
 
         if not getSection() or getParamAsBoolean('OPGEE.ShowStackTrace'):
             import traceback

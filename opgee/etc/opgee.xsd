@@ -143,13 +143,13 @@
 	
     <xs:element name='Stream'>
         <xs:complexType>
-            <xs:choice maxOccurs="unbounded">
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
                 <xs:element minOccurs="1" maxOccurs="1" ref='Temperature'/>
                 <xs:element minOccurs="1" maxOccurs="1" ref='Pressure'/>
                 <xs:element minOccurs="1" maxOccurs="unbounded" ref='Component'/>
             </xs:choice>
-            <xs:attribute name='name' use='required'/>
-            <xs:attribute name='number' use='required' type='xs:integer'/>
+            <xs:attribute name='name'/>                      <!-- allow this for now, but will be computed -->
+            <xs:attribute name='number' type='xs:integer'/>  <!-- allow this for now, but probably will be deprecated -->
             <xs:attribute name='src' use='required'/>
             <xs:attribute name='dst' use='required'/>
         </xs:complexType>
@@ -166,27 +166,35 @@
             </xs:simpleContent>
         </xs:complexType>
 	</xs:element>
-		
-    <xs:element name='Source'>
+
+	<xs:element name='Produces'>
         <xs:complexType>
-            <xs:attribute name='name' use='required'/>
+            <xs:simpleContent>
+                <xs:extension base='xs:string'>
+                </xs:extension>
+            </xs:simpleContent>
         </xs:complexType>
-    </xs:element>
+	</xs:element>	
 	
-	<xs:element name='Destination'>
+	<xs:element name='Consumes'>
         <xs:complexType>
-            <xs:attribute name='fraction' type='xs:decimal'/>
-            <xs:attribute name='name' use='required'/>
+            <xs:simpleContent>
+                <xs:extension base='xs:string'>
+                </xs:extension>
+            </xs:simpleContent>
         </xs:complexType>
-    </xs:element>
+	</xs:element>	
 	
 	<xs:element name='Process'>
         <xs:complexType>
-            <xs:sequence>
-                <xs:element minOccurs='0' maxOccurs='unbounded' ref='A'/>
-            </xs:sequence>
+			<xs:choice maxOccurs="unbounded">
+				<xs:element minOccurs='0' ref='A'/>
+				<xs:element minOccurs='0' ref='Produces'/>
+				<xs:element minOccurs='0' ref='Consumes'/>
+            </xs:choice>
             <xs:attribute name='class' use='required'/>
-			<xs:attribute name='name'/>
+			<xs:attribute name='name' type='xs:NCName'/>
+			<xs:attribute name='desc' type='xs:string'/>
 			<xs:attribute name='enabled' default='1' type='xs:boolean'/>
 			<xs:attribute name='extend' default='0' type='xs:boolean'/>			
         </xs:complexType>

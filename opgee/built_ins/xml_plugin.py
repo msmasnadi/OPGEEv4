@@ -14,7 +14,7 @@ _logger = getLogger(__name__)
 
 def read_fields(csv_path, from_package=False):
     import pandas as pd
-    from ..utils import resourceStream
+    from ..pkg_utils import resourceStream
 
     stream = resourceStream(csv_path) if from_package else csv_path
     df = pd.read_csv(stream, index_col=2)
@@ -92,7 +92,7 @@ class XmlCommand(SubcommandABC):
 
     def __init__(self, subparsers):
         kwargs = {'help' : '''Convert various CSV files to their corresponding XML representation.'''}
-        super(XmlCommand, self).__init__('xml', subparsers, kwargs, group='project')
+        super().__init__('xml', subparsers, kwargs, group='project')
 
     def addArgs(self, parser):
         parser.add_argument('-n', '--count', type=int, default=0,

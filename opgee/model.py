@@ -4,15 +4,51 @@
 .. Copyright (c) 2021 Richard Plevin and Stanford University
    See the https://opensource.org/licenses/MIT for license details.
 """
-from .core import Analysis, Container, instantiate_subelts, elt_name
+from .analysis import Analysis
+from .core import Container, instantiate_subelts, elt_name, subelt_text
 from .config import getParam
-from .attributes import Attributes
 from .error import OpgeeException
+from .field import Field
 from .log import getLogger
-from .utils import resourceStream, loadModuleFromPath
+from .stream import Stream
+from .table_manager import TableManager
+from .utils import loadModuleFromPath, splitAndStrip
 from .XMLFile import XMLFile
 
 _logger = getLogger(__name__)
+
+class Analysis(Container):
+    def __init__(self, name, functional_unit=None, energy_basis=None,
+                 variables=None, settings=None, streams=None, fields=None):
+        super().__init__(name)
+
+        # Global settings
+        self.functional_unit = functional_unit
+        self.energy_basis = energy_basis
+        self.variables = variables   # dict of standard variables
+        self.settings  = settings    # user-controlled settings
+        self.streams   = streams     # define these here to avoid passing separately?
+        self.field_dict = self.adopt(fields, asDict=True)
+
+    def children(self):
+        return self.field_dict.values()     # N.B. returns an iterator
+
+    @classmethod
+    def from_xml(cls, elt):
+        """
+        Instantiate an instance from an XML element
+
+        :param elt: (etree.Element) representing a <Analysis> element
+        :return: (Analysis) instance populated from XML
+        """
+        name = elt_name(elt)
+        fn_unit  = subelt_text(elt, 'FunctionalUnit', with_unit=False) # schema requires one of {'oil', 'gas'}
+        en_basis = subelt_text(elt, 'EnergyBasis', with_unit=False)    # schema requires one of {'LHV', 'HHV'}
+        fields = instantiate_subelts(elt, Field)
+
+        # TBD: variables and settings
+        obj = Analysis(name, functional_unit=fn_unit, energy_basis=en_basis, fields=fields)
+        return obj
 
 
 class Model(Container):
@@ -22,7 +58,11 @@ class Model(Container):
         self.analysis = analysis
         analysis.parent = self
 
-        self.stream_table = self.read_stream_table()
+        self.table_mgr = tbl_mgr = TableManager()
+
+        df = tbl_mgr.get_table('GWP')
+        self.gwp20  = df.query('Years ==  20').set_index('Gas', drop=True).drop('Years', axis='columns')
+        self.gwp100 = df.query('Years == 100').set_index('Gas', drop=True).drop('Years', axis='columns')
 
     def children(self):
         return [self.analysis]      # TBD: might have a list of analyses if it's useful
@@ -30,32 +70,28 @@ class Model(Container):
     def validate(self):
 
         # TBD: validate all attributes of classes Field, Process, etc.
-        attributes = Attributes()
-        field_attrs = attributes.class_attrs('Field')
-
+        # attributes = Attributes()
+        # field_attrs = attributes.class_attrs('Field')
         # print(field_attrs.attribute('downhole_pump'))
         # print(field_attrs.attribute('ecosystem_richness'))
         # print(field_attrs.option('ecosystem_C_richness'))
 
-        # Collect all processes defined for each field
-        for field in self.analysis.fields:
-            procs = field.collect_processes()
-            print(f"Processes for field {field.name}")
-            for proc in procs:
-                print(f"  {proc}")
+        show_streams = False
 
-            print(f"\nStreams for field {field.name}")
-            for stream in field.streams:
-                print(f"  {stream}")
+        if show_streams:
+            for field in self.analysis.children():
+                print(f"Processes for field {field.name}")
+                for proc in field.processes():
+                    print(f"  {proc}")
 
-        print("")
+                print(f"\nStreams for field {field.name}")
+                for stream in field.streams():
+                    print(f"  {stream}")
 
-    def read_stream_table(self):
-        import pandas as pd
+            print("")
 
-        s = resourceStream('etc/streams.csv')
-        df = pd.read_csv(s, index_col='number')
-        return df
+    def report(self):
+        pass
 
     @classmethod
     def from_xml(cls, elt):
@@ -87,6 +123,11 @@ class ModelFile(XMLFile):
     def __init__(self, filename, stream=None):
         import os
         from pathlib import Path
+
+        extra_components = getParam('OPGEE.StreamComponents')
+        if extra_components:
+            names = splitAndStrip(extra_components, ',')
+            Stream.extend_components(names)
 
         # We expect a single 'Analysis' element below Model
         _logger.debug("Loading model file: %s", filename)
