@@ -1,0 +1,18 @@
+﻿"# g/mmbtu of fuel burned, LHV",,,,,,
+Fuel,Application,VOC,CO,CH4,N2O,CO2
+Natural Gas,Utility/ Industrial Boiler (>100 mmbtu/hr input),2.54,22.21,1.06,0.75,59366.9495
+Natural Gas,Small Industrial Boiler (10-100 mmbtu/hr input),2.54,24.97,1.06,0.35,59362.61236
+Natural Gas,Large Gas Turbine,1.056,41.286,1.056,0.102,59341.60907
+Natural Gas,CC Gas Turbine,0.267,14.533,1.142,0.119,59385.87204
+Natural Gas,Small Turbine,1.056,41.286,1.056,0.102,59341.60907
+Natural Gas,Stationary Reciprocating Engine,133.316,705.993,392.354,0.111,56808.78966
+Diesel Fuel,Industrial Boiler,0.8,20.867,0.198,0.918,78163.22398
+Diesel Fuel,Commercial Boiler,1.201,25.115,0.763,0.918,78153.74501
+Diesel Fuel,Stationary Reciprocating Engine,2.027,657.005,4.221,0.6,77148.69115
+Diesel Fuel,Turbine,0.258,1.56,3.024,0.603,78187.48128
+Crude,Industrial Boiler,0.819999993,23.73999977,0.360000014,2,75867.96729
+Residual oil,Industrial Boiler,0.905,36.017,3.231,1.712,85012.92681
+Pet. Coke,Industrial Boiler,0.471544931,23.95480938,1.246,0.857,106933.4716
+Coal,Industrial Boiler,0.471544931,23.95480938,1.246,0.857,100001.6065
+Upgrader process gas,Stationary reciprocating engine,133.316,705.993,392.354,0.111,56808.78966
+NGL,Diluent combustion,2.5,26,49,1.100000024,64819.98401

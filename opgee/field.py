@@ -11,10 +11,10 @@ _logger = getLogger(__name__)
 
 class Field(Container):
     # TBD: can a field have any Processes that are not within Aggregator nodes?
-    def __init__(self, name, attrs=None, aggs=None, procs=None, streams=None):
+    def __init__(self, name, attr_dict=None, aggs=None, procs=None, streams=None):
 
         # Note that `procs` are just those Processes defined at the top-level of the field
-        super().__init__(name, attrs=attrs, aggs=aggs, procs=procs)
+        super().__init__(name, attr_dict=attr_dict, aggs=aggs, procs=procs)
 
         self.stream_dict  = dict_from_list(streams)
 
@@ -34,6 +34,9 @@ class Field(Container):
         if self.run_order is None:
             _logger.warn(f"Field '{name}' has cycles, which aren't supported yet")
 
+    def __str__(self):
+        return f"<Field name='{self.name}'>"
+
     def run(self, **kwargs):
         """
         Run all Processes defined for this Field, in the order computed from the graph
@@ -52,7 +55,7 @@ class Field(Container):
                     _impute_upstream(s.src_proc)
 
         if self.is_enabled():
-            _logger.debug(f"Running field '{self}'")
+            _logger.debug(f"Running '{self}'")
 
             start_streams = self.find_start_streams()
             for s in start_streams:
@@ -157,13 +160,13 @@ class Field(Container):
         name = elt_name(elt)
 
         # TBD: fill in Smart Defaults here, or assume they've been filled already?
-        attrs = instantiate_subelts(elt, A)
+        attr_dict = instantiate_subelts(elt, A, as_dict=True)
 
         aggs    = instantiate_subelts(elt, Aggregator)
         procs   = instantiate_subelts(elt, Process)
         streams = instantiate_subelts(elt, Stream)
 
-        obj = Field(name, attrs=attrs, aggs=aggs, procs=procs, streams=streams)
+        obj = Field(name, attr_dict=attr_dict, aggs=aggs, procs=procs, streams=streams)
 
         attrib = elt.attrib
         obj.set_enabled(getBooleanXML(attrib.get('enabled', '1')))

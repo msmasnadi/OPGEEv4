@@ -5,7 +5,8 @@
    See the https://opensource.org/licenses/MIT for license details.
 """
 from .analysis import Analysis
-from .core import Container, instantiate_subelts, elt_name, subelt_text
+from .attributes import AttributeDefs
+from .core import Container, instantiate_subelts, elt_name, subelt_text, ureg
 from .config import getParam
 from .error import OpgeeException
 from .field import Field
@@ -19,15 +20,12 @@ _logger = getLogger(__name__)
 
 class Analysis(Container):
     def __init__(self, name, functional_unit=None, energy_basis=None,
-                 variables=None, settings=None, streams=None, fields=None):
-        super().__init__(name)
+                 fields=None, attr_dict=None):
+        super().__init__(name, attr_dict=attr_dict)
 
         # Global settings
         self.functional_unit = functional_unit
         self.energy_basis = energy_basis
-        self.variables = variables   # dict of standard variables
-        self.settings  = settings    # user-controlled settings
-        self.streams   = streams     # define these here to avoid passing separately?
         self.field_dict = self.adopt(fields, asDict=True)
 
     def children(self):
@@ -52,17 +50,99 @@ class Analysis(Container):
 
 
 class Model(Container):
-    def __init__(self, name, analysis):
+    def __init__(self, name, analysis, attr_dict=None):
         super().__init__(name)
+
+        # Load global attribute definitions from attributes.xml
+        self.attr_defs = AttributeDefs()
 
         self.analysis = analysis
         analysis.parent = self
+        self.attr_dict = attr_dict or {}
 
         self.table_mgr = tbl_mgr = TableManager()
 
+        # load all the GWP options
         df = tbl_mgr.get_table('GWP')
         self.gwp20  = df.query('Years ==  20').set_index('Gas', drop=True).drop('Years', axis='columns')
         self.gwp100 = df.query('Years == 100').set_index('Gas', drop=True).drop('Years', axis='columns')
+
+        # This will be set to a pandas.Series holding the current values in use, indexed by gas name
+        self.gwp = None
+
+        # Use the GWP years and version specified in XML
+        gwp_years   = self.attr('GWP_years')
+        gwp_version = self.attr('GWP_version')
+        self.use_GWP(gwp_years, gwp_version)
+
+        # TBD: convert to dict mapping names to unitful values
+        df = tbl_mgr.get_table('constants')
+        self.constants = {name : ureg.Quantity(row.value, row.unit) for name, row in df.iterrows()}
+
+        # TBD: Compute CO2-eq values for tables of emission factors, using global settings for GWP
+        # (i.e., which time horizon and GWP version, currently one of 'AR4', 'AR5', or 'AR5_CCF')
+        pass
+
+    def use_GWP(self, gwp_years, gwp_version):
+        """
+        Set which GWP values to use for this model. Initially set from the XML model definition,
+        but this function allows this choice to be changed after the model is loaded, e.g., by
+        choosing different values in a GUI and rerunning the emissions summary.
+
+        :param gwp_years: (int) the GWP time horizon; currently must 20 or 100.
+        :param gwp_version: (str) the GWP version to use; must be one of 'AR4', 'AR5', 'AR5_CCF'
+        :return: none
+        """
+        # TBD: validate these against options in attributes.xml rather than hardcoding here
+        valid_years = (20, 100)
+        valid_versions = ('AR4', 'AR5', 'AR5_CCF')
+
+        gwp_years = int(gwp_years)
+        if gwp_years not in valid_years:
+            raise OpgeeException(f"GWP years must be one of {valid_years}; value given was {gwp_years}")
+
+        if gwp_version not in valid_versions:
+            raise OpgeeException(f"GWP version must be one of {valid_versions}; value given was {gwp_version}")
+
+        df = self.gwp20 if gwp_years == 20 else self.gwp100
+        self.gwp = df[gwp_version]
+
+    def GWP(self, gas):
+        """
+        Return the GWP for the given gas, using the model's settings for GWP time horizon and
+        the version of GWPs to use.
+
+        :param gas: (str) a gas for which a GWP has been defined. Current list is
+        CO2, CO, CH4, N2O, and VOC.
+
+        :return: (int) GWP value
+        """
+        return self.gwp[gas]
+
+    def const(self, name):
+        """
+        Return the value of a constant declared in tables/constants.csv
+
+        :param name: (str) name of constant
+        :return: (float with unit) value of constant
+        """
+        try:
+            return self.constants[name]
+        except KeyError:
+            raise OpgeeException(f"No known constant with name '{name}'")
+
+    def attr_def(self, classname, name, raiseError=True):
+        """
+        Return the definition of an attribute `name` defined for class `classname`.
+
+        :param classname: (str) the name of a class associated with the attribute
+        :param name: (str) the name of an attribute
+        :param raiseError: (bool) whether to raise an error if the attribute or
+           classname are not known.
+        :return: the value of the attribute
+        :raises: OpgeeException if the attribute or classname are unknown.
+        """
+        self.attr_defs.attr_def(classname, name, raiseError=raiseError)
 
     def children(self):
         return [self.analysis]      # TBD: might have a list of analyses if it's useful
@@ -70,7 +150,7 @@ class Model(Container):
     def validate(self):
 
         # TBD: validate all attributes of classes Field, Process, etc.
-        # attributes = Attributes()
+        # attributes = AttributeDefs()
         # field_attrs = attributes.class_attrs('Field')
         # print(field_attrs.attribute('downhole_pump'))
         # print(field_attrs.attribute('ecosystem_richness'))
@@ -101,12 +181,15 @@ class Model(Container):
         :param elt: (etree.Element) representing a <Model> element
         :return: (Model) instance populated from XML
         """
+        from .core import A
+
         analyses = instantiate_subelts(elt, Analysis)
         count = len(analyses)
         if count != 1:
             raise OpgeeException(f"Expected on <Analysis> element; got {count}")
 
-        obj = Model(elt_name(elt), analyses[0])
+        attr_dict = instantiate_subelts(elt, A, as_dict=True)
+        obj = Model(elt_name(elt), analyses[0], attr_dict=attr_dict)
         return obj
 
 

@@ -7,16 +7,15 @@
      define custom starting points.
      -->
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="opgee.xsd">
+	<!-- these might belong in Analysis, or the two levels (Model, Analysis) might collapse into one -->
+	<A name="GWP_years">100</A>
+    <A name="GWP_version">AR5</A>	
+	
 	<Analysis name="default">
 		<!-- Global parameters -->
 		<FunctionalUnit>oil</FunctionalUnit>
 		<EnergyBasis>LHV</EnergyBasis>
-		<!-- Are variables different than parameters? -->
-		<!-- Are variables all global to the Analysis, or stored per element, e.g., Field, or both? -->
-		<Variables>
-			<A name="v1" type="float" unit="kWh/day">123.5</A>
-			<A name="v2" unit="zzz">434</A>
-		</Variables>
+
 		<Field name="test">
 			<A name="location">USA</A>
 			<A name="is_offshore">0</A>
@@ -150,13 +149,13 @@
 			</Aggregator>
 			<Process class="SurveyVehicle" name="SurveyShip">
 				<A name="type">ship</A>
-				<A name="vehicle_weight" unit="tons">124</A>
-				<A name="distance" unit="mi">2342</A>
+				<A name="vehicle_weight">124</A>
+				<A name="distance">2342</A>
 			</Process>
 			<Process class="SurveyVehicle" name="SurveyTruck">
 				<A name="type">truck</A>
-				<A name="vehicle_weight" unit="tons">123</A>
-				<A name="distance" unit="mi">2342</A>
+				<A name="vehicle_weight">123</A>
+				<A name="distance">2342</A>
 			</Process>
 			<Aggregator name="Production_and_extraction">
 				<Process class="ReservoirWellInterface" desc="Reservoir-well interface">

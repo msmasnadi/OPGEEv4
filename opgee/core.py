@@ -19,7 +19,7 @@ _logger = getLogger(__name__)
 # Or one at a time:
 # ureg.define('dog_year = 52 * day = dy')
 ureg = UnitRegistry()
-ureg.load_definitions(resourceStream('etc/opgee_units.txt'))
+ureg.load_definitions(resourceStream('etc/units.txt'))
 
 def superclass(cls):
     """
@@ -189,10 +189,10 @@ class XmlInstantiable(OpgeeObject):
         Ascend the parent links until an object of class `cls` is found, or
         an object with a parent that is None.
 
-        :param cls: (type or str, i.e., name of type) the class of the parent sought
+        :param cls: (type or str name of type) the class of the parent sought
         :return: (XmlInstantiable or None) the desired parent instance or None
         """
-        if type(self) == cls or str(type(self)) == cls:
+        if type(self) == cls or self.__class__.__name__ == cls:
             return self
 
         if self.parent is None:
@@ -218,6 +218,7 @@ def validate_unit(unit):
     return None
 
 # The <A> element
+# TBD: some of this doesn't belong here; it's actually in <Attr> (definitions)
 class A(XmlInstantiable):
     def __init__(self, name, value=None, atype=None, option_set=None, unit=None):
         super().__init__(name)
@@ -271,12 +272,19 @@ class Container(XmlInstantiable):
     Generic hierarchical node element, has a name and contains other Containers and/or
     Processes (and subclasses thereof).
     """
-    def __init__(self, name, attrs=None, aggs=None, procs=None):
+    def __init__(self, name, attr_dict=None, aggs=None, procs=None):
         super().__init__(name)
         self.emissions = None       # TBD: decide whether to cache or compute on the fly
-        self.attrs = attrs          # TBD: are any attributes necessary for containers?
+        self.attr_dict = attr_dict or {}
         self.aggs  = self.adopt(aggs)
         self.procs = self.adopt(procs)
+
+    def attr(self, attr_name, default=None, raiseError=False):
+        obj = self.attr_dict.get(attr_name)
+        if obj is None and raiseError:
+            raise OpgeeException(f"Attribute '{attr_name}' not found in {self}")
+
+        return obj.value or default
 
     def run(self, names=None, **kwargs):
         """
