@@ -1,4 +1,5 @@
-from .core import Container, elt_name, subelt_text, instantiate_subelts
+from .core import elt_name, subelt_text, instantiate_subelts
+from .container import Container
 from .field import Field
 from .log import getLogger
 

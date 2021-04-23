@@ -4,8 +4,11 @@
 .. Copyright (c) 2021 Richard Plevin and Adam Brandt
    See the https://opensource.org/licenses/MIT for license details.
 '''
-from .core import A, Container, XmlInstantiable, elt_name, instantiate_subelts
+from .core import A, XmlInstantiable, elt_name, instantiate_subelts
+from .container import Container
 from .error import OpgeeException, AbstractMethodError
+from .emissions import Emissions
+from .energy import Energy
 from .log import getLogger
 from .stream import Stream
 from .utils import getBooleanXML
@@ -80,6 +83,72 @@ class Process(XmlInstantiable):
         self.outputs = []              # ditto
 
         self.visit_count = 0           # increment the Process has been run
+
+        self.energy = Energy()
+        self.emissions = Emissions()
+
+    #
+    # Pass-through convenience methods for energy and emissions
+    #
+    def add_emission_rate(self, gas, rate):
+        """
+        Add to the stored rate of emissions for a single gas.
+
+        :param gas: (str) one of the defined emissions (values of Emissions.emissions)
+        :param rate: (float) the increment in rate in the Process' flow units (e.g., mmbtu (LHV) of fuel burned)
+        :return: none
+        """
+        self.emissions.add_rate(gas, rate)
+
+    def add_emission_rates(self, **kwargs):
+        """
+        Add emissions to those already stored, for of one or more gases, given as
+        keyword arguments, e.g., add_rates(CO2=100, CH4=30, N2O=6).
+
+        :param kwargs: (dict) the keyword arguments
+        :return: none
+        """
+        self.emissions.add_rates(**kwargs)
+
+    def get_emission_rates(self):
+        """
+        Return the emission rates, and optionally, the calculated GHG value.
+        Uses the current choice of GWP values in the Model containing this process.
+
+        :return: ((pandas.Series, float)) a tuple containing the emissions Series
+            and the GHG value computed using the model's current GWP settings.
+        """
+        model = self.model()
+        return self.emissions.rates(gwp=model.gwp)
+
+    def add_energy_rate(self, carrier, rate):
+        """
+        Set the rate of energy use for a single carrier.
+
+        :param carrier: (str) one of the defined energy carriers (values of Energy.carriers)
+        :param rate: (float) the rate of use (e.g., mmbtu/day (LHV) for all but electricity,
+            which is in units of kWh/day.
+        :return: none
+        """
+        self.energy.add_rate(carrier, rate)
+
+    def add_energy_rates(self, dictionary):
+        """
+        Add to the energy use rate for one or more carriers.
+
+        :param dictionary: (dict) the carriers and rates
+        :return: none
+        """
+        self.energy.add_rates(dictionary)
+
+    def get_energy_rates(self):
+        """
+        Return the energy consumption rates.
+        """
+        return self.energy.rates()
+    #
+    # end of pass through energy and emissions methods
+    #
 
     @property
     def model(self):

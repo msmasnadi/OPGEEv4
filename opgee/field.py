@@ -1,6 +1,7 @@
 import networkx as nx
 
-from .core import Container, A, elt_name, instantiate_subelts, dict_from_list
+from .container import Container
+from .core import A, elt_name, instantiate_subelts, dict_from_list
 from .error import OpgeeException
 from .log import getLogger
 from .process import Process, Environment, Reservoir, Aggregator
@@ -66,8 +67,6 @@ class Field(Container):
 
             for proc in self.run_order:
                 proc.run(**kwargs)
-
-            self.summarize()
 
     def _connect_processes(self):
         """

@@ -70,3 +70,27 @@ class Energy(OpgeeObject):
         """
         for carrier, rate in dictionary.items():
             self.set_rate(carrier, rate)
+
+    def add_rate(self, carrier, rate):
+        """
+        Add to the rate of energy use for a single carrier.
+
+        :param carrier: (str) one of the defined energy carriers (values of Energy.carriers)
+        :param rate: (float) the increment in rate of use (e.g., mmbtu/day (LHV) for all but
+            electricity, which is in units of kWh/day.
+        :return: none
+        """
+        if carrier not in self._carrier_set:
+            raise OpgeeException(f"Energy.set_rate: Unrecognized carrier '{carrier}'")
+
+        self.data[carrier] += rate
+
+    def add_rates(self, dictionary):
+        """
+        Add to the energy use rate for one or more carriers.
+
+        :param dictionary: (dict) the carriers and rates
+        :return: none
+        """
+        for carrier, rate in dictionary.items():
+            self.add_rate(carrier, rate)

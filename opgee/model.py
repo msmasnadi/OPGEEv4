@@ -6,7 +6,8 @@
 """
 from .analysis import Analysis
 from .attributes import AttributeDefs
-from .core import Container, instantiate_subelts, elt_name, subelt_text, ureg
+from .container import Container
+from .core import instantiate_subelts, elt_name, subelt_text, ureg
 from .config import getParam
 from .emissions import Emissions
 from .error import OpgeeException
