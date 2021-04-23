@@ -17,8 +17,21 @@
       <Option number="2">AR5</Option>
       <Option number="3">AR5_CCF</Option>
     </Options>
+    <Options name="functional_unit">
+      <Option number="1">oil</Option>
+      <Option number="2">gas</Option>
+    </Options>
+    <Options name="energy_basis">
+      <Option number="1">LHV</Option>
+      <Option number="2">HHV</Option>
+    </Options>
+    
     <Attr name="GWP_years" options="GWP_time_horizon" type="int" unit="years">100</Attr>
     <Attr name="GWP_version" options="GWP_version" type="str">AR5</Attr>
+    <Attr name="functional_unit" options="function_unit" type="str">oil</Attr>
+    <Attr name="energy_basis" options="energy_basis" type="str">LHV</Attr>
+
+    
   </Class>
   <Class name="Field">
     <!-- Production methods -->

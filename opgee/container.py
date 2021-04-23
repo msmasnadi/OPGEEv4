@@ -48,8 +48,23 @@ class Container(XmlInstantiable):
             self.print_running_msg()
             self.run_children(names=names, **kwargs)
 
-    def children(self):
-        return self.aggs + self.procs
+    def _children(self):
+        """
+        Return a list of all children. External callers should use children() instead,
+        as it respects the self.is_enabled() setting.
+        """
+        objs = self.aggs + self.procs
+        return objs
+
+    def children(self, include_disabled=False):
+        """
+        Ignore disabled nodes unless `included_disabled` is True
+
+        :param include_disabled: (bool) whether to include disabled nodes.
+        :return: (list of Containers and/or Processes)
+        """
+        objs = self._children()
+        return [obj for obj in objs if (include_disabled or obj.is_enabled())]
 
     def print_running_msg(self):
         _logger.info(f"Running {type(self)} name='{self.name}'")

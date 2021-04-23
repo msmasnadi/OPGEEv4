@@ -20,37 +20,6 @@ from .XMLFile import XMLFile
 
 _logger = getLogger(__name__)
 
-class Analysis(Container):
-    def __init__(self, name, functional_unit=None, energy_basis=None,
-                 fields=None, attr_dict=None):
-        super().__init__(name, attr_dict=attr_dict)
-
-        # Global settings
-        self.functional_unit = functional_unit
-        self.energy_basis = energy_basis
-        self.field_dict = self.adopt(fields, asDict=True)
-
-    def children(self):
-        return self.field_dict.values()     # N.B. returns an iterator
-
-    @classmethod
-    def from_xml(cls, elt):
-        """
-        Instantiate an instance from an XML element
-
-        :param elt: (etree.Element) representing a <Analysis> element
-        :return: (Analysis) instance populated from XML
-        """
-        name = elt_name(elt)
-        fn_unit  = subelt_text(elt, 'FunctionalUnit', with_unit=False) # schema requires one of {'oil', 'gas'}
-        en_basis = subelt_text(elt, 'EnergyBasis', with_unit=False)    # schema requires one of {'LHV', 'HHV'}
-        fields = instantiate_subelts(elt, Field)
-
-        # TBD: variables and settings
-        obj = Analysis(name, functional_unit=fn_unit, energy_basis=en_basis, fields=fields)
-        return obj
-
-
 class Model(Container):
     def __init__(self, name, analysis, attr_dict=None):
         super().__init__(name)
@@ -81,9 +50,20 @@ class Model(Container):
         df = tbl_mgr.get_table('constants')
         self.constants = {name : ureg.Quantity(row.value, row.unit) for name, row in df.iterrows()}
 
-        # TBD: Compute CO2-eq values for tables of emission factors, using global settings for GWP
-        # (i.e., which time horizon and GWP version, currently one of 'AR4', 'AR5', or 'AR5_CCF')
-        pass
+    # TBD: how to pass args like fields to process?
+    # TBD: also need to clear all prior data to avoid collecting stale data?
+    def run(self):
+        """
+        Run all Analyses and collect emissions and energy use for all Containers and Processes.
+
+        :return: None
+        """
+        for child in self.children():
+            child.run() # TBD: args?
+
+        # calculate and store results internally
+        self.get_energy_rates()
+        self.get_emission_rates()
 
     def use_GWP(self, gwp_years, gwp_version):
         """
@@ -147,8 +127,20 @@ class Model(Container):
         """
         self.attr_defs.attr_def(classname, name, raiseError=raiseError)
 
-    def children(self):
-        return [self.analysis]      # TBD: might have a list of analyses if it's useful
+    def _children(self, include_disabled=False):
+        """
+        Return a list of all children. External callers should use children() instead,
+        as it respects the self.is_enabled() setting.
+        """
+        return [self.analysis]
+
+    def summarize(self):
+        """
+        Return a summary of energy use and emissions, by Model, Field, Aggregator, and Process.
+
+        :return: TBD: Unclear what the best structure for this is; it depends how it will be used.
+        """
+        pass
 
     def validate(self):
 

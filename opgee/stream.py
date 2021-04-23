@@ -89,7 +89,7 @@ class Stream(XmlInstantiable):
         self.has_exogenous_data = False
 
     def __str__(self):
-        number_str = f" number={self.number}" if self.number else ''
+        number_str = f" #{self.number}" if self.number else ''
         return f"<Stream '{self.name}'{number_str}>"
 
     def component_phases(self, name):
