@@ -5,7 +5,7 @@ import pkg_resources as pkg
 
 from .config import getConfigDict, getParam, stringTrue
 from .log import getLogger
-from .error import XmlFormatError, OpgeeException
+from .error import XmlFormatError
 
 _logger = getLogger(__name__)
 

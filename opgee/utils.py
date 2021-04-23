@@ -7,16 +7,16 @@
    See the https://opensource.org/licenses/MIT for license details.
 '''
 import argparse
-import io
 import os
 import re
 import subprocess
 import sys
 from contextlib import contextmanager
 
-from .config import getParam, getParamAsBoolean, pathjoin, unixPath
+from .config import pathjoin, unixPath
 from .error import OpgeeException
 from .log import getLogger
+
 _logger = getLogger(__name__)
 
 def ipython_info():

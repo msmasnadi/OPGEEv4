@@ -8,6 +8,7 @@ from .analysis import Analysis
 from .attributes import AttributeDefs
 from .core import Container, instantiate_subelts, elt_name, subelt_text, ureg
 from .config import getParam
+from .emissions import Emissions
 from .error import OpgeeException
 from .field import Field
 from .log import getLogger
@@ -105,7 +106,8 @@ class Model(Container):
             raise OpgeeException(f"GWP version must be one of {valid_versions}; value given was {gwp_version}")
 
         df = self.gwp20 if gwp_years == 20 else self.gwp100
-        self.gwp = df[gwp_version]
+        gwp = df[gwp_version]
+        self.gwp = gwp.reindex(index=Emissions.emissions)  # keep them in the same order for consistency
 
     def GWP(self, gas):
         """
