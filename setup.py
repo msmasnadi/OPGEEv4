@@ -22,6 +22,7 @@ requirements = [
     'pandas>=1.2.0',
     'pint>=0.17',
     'pydot>=1.4.0',
+    'pytest>=6.1.1',
     'semver>=2.8.0',
     'sphinx>=3.5.0'
     'sphinx-argparse>=0.2.0',

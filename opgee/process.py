@@ -65,6 +65,8 @@ class Process(XmlInstantiable):
         name = name or self.__class__.__name__
         super().__init__(name)
 
+        self._model = None      # @property "model" caches model here after first lookup
+
         self.desc = desc or name
         self.attr_dict = attr_dict or {}
 
@@ -78,6 +80,20 @@ class Process(XmlInstantiable):
         self.outputs = []              # ditto
 
         self.visit_count = 0           # increment the Process has been run
+
+    @property
+    def model(self):
+        if not self._model:
+            self._model = self.find_parent('Model')
+
+        return self._model
+
+    def attr(self, attr_name, default=None, raiseError=False):
+        obj = self.attr_dict.get(attr_name)
+        if obj is None and raiseError:
+            raise OpgeeException(f"Attribute '{attr_name}' not found in {self}")
+
+        return obj.value or default
 
     def get_field(self):
         """
@@ -205,7 +221,6 @@ class Process(XmlInstantiable):
         """
         pass
 
-
     #
     # The next two methods are provided to allow Aggregator to call children() and
     # run_children() without type checking. For Processes, these are just no-ops.
@@ -279,8 +294,8 @@ class Environment(Process):
         print(f"Cumulative emissions to Environment:\n{self.emissions}")
 
 class Aggregator(Container):
-    def __init__(self, name, attrs=None, aggs=None, procs=None):
-        super().__init__(name, attrs=attrs, aggs=aggs, procs=procs)
+    def __init__(self, name, attr_dict=None, aggs=None, procs=None):
+        super().__init__(name, attr_dict=attr_dict, aggs=aggs, procs=procs)
 
     @classmethod
     def from_xml(cls, elt):
@@ -296,7 +311,7 @@ class Aggregator(Container):
         procs = instantiate_subelts(elt, Process)
 
         # TBD: fill in Smart Defaults here, or assume they've been filled already?
-        attrs = instantiate_subelts(elt, A)
+        attr_dict = instantiate_subelts(elt, A, as_dict=True)
 
-        obj = cls(name, attrs=attrs, aggs=aggs, procs=procs)
+        obj = cls(name, attr_dict=attr_dict, aggs=aggs, procs=procs)
         return obj

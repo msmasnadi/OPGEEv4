@@ -26,7 +26,8 @@
 			
 	<xs:element name='Model'>
 		<xs:complexType>
-			<xs:choice maxOccurs="2">
+			<xs:choice maxOccurs="unbounded">
+				<xs:element minOccurs='0' maxOccurs='unbounded' ref="A"/>
 				<xs:element minOccurs='0' maxOccurs='1' ref="Analysis"/>
 				<xs:element minOccurs='0' maxOccurs='1' ref='ProcessDatabase'/>
 			</xs:choice>
@@ -55,19 +56,10 @@
                 <xs:element minOccurs='1' maxOccurs='1' ref='FunctionalUnit'/>
                 <xs:element minOccurs='1' maxOccurs='1' ref='EnergyBasis'/>
                 <xs:element minOccurs='0' maxOccurs='unbounded' ref='Field'/>
-                <xs:element ref='Variables'/>
             </xs:choice>
             <xs:attribute name='name' use='required' type='xs:NCName'/>
         </xs:complexType>
 	</xs:element>
-	
-    <xs:element name='Variables'>
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element maxOccurs='unbounded' ref='A'/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
 	
 	<xs:element name='Field'>
         <xs:complexType>
