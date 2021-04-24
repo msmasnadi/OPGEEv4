@@ -14,19 +14,37 @@ from .utils import coercible
 
 _logger = getLogger(__name__)
 
+class Options(XmlInstantiable):
+    def __init__(self, name, default, options):
+        super().__init__(name)
+        self.default = default
+        self.options = options
+
+    @classmethod
+    def from_xml(cls, elt):
+        option_elts = elt.findall('Option')
+        options = [(elt.text, elt.attrib.get('desc')) for elt in option_elts]
+        obj = Options(elt_name(elt), elt.attrib.get('default'), options)
+        return obj
+
 class Attr(XmlInstantiable):
     def __init__(self, name, value=None, atype=None, option_set=None, unit=None):
         super().__init__(name)
-
-        if atype is not None:
-            value = coercible(value, atype)
-
-        unit_obj = validate_unit(unit)
-        self.value = value if unit_obj is None else Quantity(value, unit_obj)
-
+        self.default = None
         self.option_set = option_set        # the name of the option set, if any
         self.unit = unit
         self.atype = atype
+
+        if value is not None:               # if value is None, we set default later
+            self.set_default(value)
+
+    def set_default(self, value):
+        if self.atype is not None:
+            value = coercible(value, self.atype)
+
+        unit_obj = validate_unit(self.unit)
+
+        self.default = value if unit_obj is None else Quantity(value, unit_obj)
 
     def __str__(self):
         type_str = type(self).__name__
@@ -51,11 +69,7 @@ class Attr(XmlInstantiable):
         """
         a = elt.attrib
 
-        if elt.text is None:
-            from lxml import etree
-            elt_xml = etree.tostring(elt).decode()
-            raise OpgeeException(f"Empty <A> elements are not allowed: {elt_xml}")
-
+        # if elt.text is None, we supply the default later in __init__()
         obj = Attr(a['name'], value=elt.text, atype=a.get('type'), unit=a.get('unit'),
                    option_set=a.get('options'))
         return obj
@@ -70,6 +84,13 @@ class Class(XmlInstantiable):
         self.attr_dict = attr_dict
         self.option_dict = option_dict
 
+        # TBD: set defaults for anything not previously set
+        for attr in attr_dict.values():
+            set_name = attr.option_set
+            if attr.default is None and set_name:
+                option_set = option_dict[set_name]
+                attr.set_default(option_set.default) # handles type coercion
+
     @classmethod
     def from_xml(cls, elt):
         """
@@ -81,13 +102,8 @@ class Class(XmlInstantiable):
         # add attributes to attr_dict from <Attr> elements
         attr_dict = instantiate_subelts(elt, Attr, as_dict=True)
 
-        # Add all <Option> elements beneath elt to option_dict. Key is name
-        # of <Options> set; value is dict of (opt_num, opt_desc)
-        option_dict = {}
-        for options_elt in elt.findall('Options'):
-            opts_name = elt_name(options_elt)
-            opt_elts = options_elt.findall('Option')
-            option_dict[opts_name] = [(e.attrib['number'], e.text) for e in opt_elts]  # TBD: store number as int?
+        # Add all <Option> elements beneath elt to option_dict.
+        option_dict = instantiate_subelts(elt, Options, as_dict=True)
 
         obj = cls(elt_name(elt), attr_dict, option_dict)
         return obj

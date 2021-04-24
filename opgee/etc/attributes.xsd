@@ -22,11 +22,12 @@
                 <xs:element maxOccurs='unbounded' ref='Option'/>
             </xs:sequence>
             <xs:attribute name='name' use='required' type='xs:NCName'/>
+            <xs:attribute name='default' use='required' type='xs:string'/>
         </xs:complexType>
     </xs:element>
     <xs:element name='Option'>
         <xs:complexType mixed='true'>
-            <xs:attribute name='number' use='required' type='xs:integer'/>
+            <xs:attribute name='desc' type='xs:string'/>
         </xs:complexType>
     </xs:element>
     <xs:element name='Attr'>
