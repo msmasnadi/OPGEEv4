@@ -7,5 +7,14 @@ other modules of the opgee package.
 API
 ---
 
+.. automodule:: opgee.table_manager
+   :members:
+
 .. automodule:: opgee.utils
+   :members:
+
+.. automodule:: opgee.xml_utils
+   :members:
+
+.. automodule:: opgee.XMLFile
    :members:

@@ -10,9 +10,15 @@ from .core import OpgeeObject
 from .error import OpgeeException
 
 class Emissions(OpgeeObject):
+    """
+    Emissions is an object wrapper around a pandas.Series holding emission flow
+    rates for a pre-defined set of substances, defined in ``Emissions.emissions``.
+    """
 
-    # GHG is the CO2-eq computed using user's choice of GWP values
-    # Note that Model uses this to set order of GWP values.
+    #: `Emissions.emissions` defines the set of substances tracked by this class.
+    #: In addition, the `Model` class computes CO2-equivalent GHG emission using its
+    #: current settings for GWP values. The GHG value is cached in the `Emissions`
+    #: instance.
     emissions = ['VOC', 'CO', 'CH4', 'N2O', 'CO2']
 
     # for faster test for inclusion in this list

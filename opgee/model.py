@@ -95,9 +95,7 @@ class Model(Container):
         Return the GWP for the given gas, using the model's settings for GWP time horizon and
         the version of GWPs to use.
 
-        :param gas: (str) a gas for which a GWP has been defined. Current list is
-        CO2, CO, CH4, N2O, and VOC.
-
+        :param gas: (str) a gas for which a GWP has been defined. Current list is CO2, CO, CH4, N2O, and VOC.
         :return: (int) GWP value
         """
         return self.gwp[gas]

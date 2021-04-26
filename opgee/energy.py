@@ -21,10 +21,13 @@ EN_ELECTRICITY = 'Electricity'
 class Energy(OpgeeObject):
     """
     Energy is an object wrapper around a pandas.Series holding energy consumption
-    rates for a pre-defined set of energy carriers, defined in Energy.carriers.
-    Note that when used in the code, the defined variables (e.g., EN_NATURAL_GAS,
-    EN_DIESEL, etc.) should be used to avoid dependencies on the specific strings.
+    rates for a pre-defined set of energy carriers, defined in ``Energy.carriers``.
     """
+
+    #: `carriers` defines the energy carriers tracked by this class.
+    #: Note that when used in the code, the defined variables (EN_NATURAL_GAS,
+    #: EN_UPG_PROC_GAS, EN_NGL, EN_CRUDE_OIL, EN_DIESEL, EN_RESID, EN_PETCOKE,
+    #: EN_ELECTRICITY) should be used to avoid dependencies on the specific strings.
     carriers = [EN_NATURAL_GAS, EN_UPG_PROC_GAS, EN_NGL, EN_CRUDE_OIL,
                 EN_DIESEL, EN_RESID, EN_PETCOKE, EN_ELECTRICITY]
 
@@ -45,6 +48,11 @@ class Energy(OpgeeObject):
         self.data = self.create_energy_series()
 
     def rates(self):
+        """
+        Return the energy use data.
+
+        :return: (pandas.Series) energy use data.
+        """
         return self.data
 
     def set_rate(self, carrier, rate):

@@ -61,9 +61,15 @@ def _get_subclass(cls, subclass_name, reload=False):
 
 class Process(XmlInstantiable):
     """
-    The "leaf" node in the container/process hierarchy. Actual runnable Processes are
-    subclasses of Process, defined either in processes.py or in the user's specified files.
+    The "leaf" node in the container/process hierarchy. `Process` is an abstract superclass:
+    actual runnable `Process` instances must be of subclasses of `Process`, defined either
+    in opgee/processes/*.py or in the user's files, provided in the configuration file in
+    the variable `OPGEE.ClassPath`.
+
+    Each Process subclass must implement the ``run_internal`` and ``bypass`` methods, described
+    below.
     """
+
     def __init__(self, name, desc=None, consumes=None, produces=None, attr_dict=None):
         name = name or self.__class__.__name__
         super().__init__(name)
@@ -152,6 +158,11 @@ class Process(XmlInstantiable):
 
     @property
     def model(self):
+        """
+        Return the `Model` this `Process` belongs to.
+
+        :return: (Model) the enclosing `Model` instance.
+        """
         if not self._model:
             self._model = self.find_parent('Model')
 
@@ -266,7 +277,7 @@ class Process(XmlInstantiable):
 
     def run(self, **kwargs):
         """
-        If the Process is enabled, calls self.run_internal() else call self.bypass().
+        If the Process is enabled, call `self.run_internal()` else call `self.bypass()`.
 
         :param kwargs: (dict) arbitrary keyword args passed down from the Analysis object.
         :return: None
@@ -279,6 +290,12 @@ class Process(XmlInstantiable):
     # TBD: Can we create a generic method for passing inputs to outputs when disabled?
     # TBD: If not, this will become an abstract method.
     def bypass(self):
+        """
+        This method is called if a `Process` is disabled, allowing it to pass data from
+        all input streams to output streams, effectively bypassing the disabled element.
+
+        :return: none
+        """
         pass
 
     def impute(self):
