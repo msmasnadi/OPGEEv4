@@ -13,3 +13,39 @@ API
 
 .. automodule:: opgee.core
    :members:
+
+.. automodule:: opgee.attributes
+   :members:
+
+.. automodule:: opgee.container
+   :members:
+
+.. automodule:: opgee.emissions
+   :members:
+
+.. automodule:: opgee.energy
+   :members:
+
+.. automodule:: opgee.field
+   :members:
+
+.. automodule:: opgee.graph
+   :members:
+
+.. automodule:: opgee.model
+   :members:
+
+.. automodule:: opgee.process
+   :members:
+
+.. automodule:: opgee.stream
+   :members:
+
+.. automodule:: opgee.table_manager
+   :members:
+
+.. automodule:: opgee.xml_utils
+   :members:
+
+.. automodule:: opgee.XMLFile
+   :members:

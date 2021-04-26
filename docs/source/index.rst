@@ -3,12 +3,26 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to OPGEE's documentation!
-=================================
+OPGEE documentation
+=======================
 
+Introduction
+---------------
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 1
+
+   intro
+   install
+   config
+   tutorial
+
+The ``opg`` script
+------------------------------
+
+  .. toctree::
+   :maxdepth: 1
+
+   opg
 
 Application Programming Interface (API)
 ----------------------------------------
