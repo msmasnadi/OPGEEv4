@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-OPGEE documentation
+OPGEE Documentation
 =======================
 
 Introduction
@@ -16,13 +16,22 @@ Introduction
    config
    tutorial
 
-The ``opg`` script
+The ``opg`` Script
 ------------------------------
 
   .. toctree::
    :maxdepth: 1
 
    opg
+
+XML File Format
+--------------------
+
+  .. toctree::
+   :maxdepth: 1
+
+   opgee-xml
+
 
 Application Programming Interface (API)
 ----------------------------------------

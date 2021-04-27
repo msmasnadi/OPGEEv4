@@ -68,3 +68,9 @@ This module contains core classes of the opgee package.
 
 .. automodule:: opgee.stream
    :members:
+
+``opgee.table_manager``
+-------------------------
+
+.. automodule:: opgee.table_manager
+   :members:

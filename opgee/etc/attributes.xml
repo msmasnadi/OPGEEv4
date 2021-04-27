@@ -3,8 +3,8 @@
      name, short description, unit (if any) and deterministic default values. It is used
      to support parsing the XML model definition and to used by the Smart Default system
      to fill in unspecified attributes. It can also eventually support a GUI, e.g., in
-     creating pulldown menus of options for categorical parameters and radio buttons for 
-     binary ones. 
+     creating pulldown menus of options for categorical parameters and radio buttons for
+     binary ones.
      -->
 <Attributes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="attributes.xsd">
   <Class name="Model">
@@ -25,12 +25,12 @@
       <Option>LHV</Option>
       <Option>HHV</Option>
     </Options>
-    
+
     <Attr name="GWP_years" options="GWP_time_horizon" type="int" unit="years"/>
     <Attr name="GWP_version" options="GWP_version" type="str"/>
     <Attr name="functional_unit" options="functional_unit" type="str"/>
     <Attr name="energy_basis" options="energy_basis" type="str"/>
-    
+
   </Class>
   <Class name="Field">
     <!-- Production methods -->
@@ -121,7 +121,6 @@
     <Attr name="VOR" unit="scf/bbl" desc="Ratio of venting to oil production" type="float">5.0</Attr>
     <Attr name="fraction_diluent" desc="Volume fraction of diluent in diluted crude" type="float">5.0</Attr>
     <!-- LandUse impacts -->
-    <!-- RP added these; the spreadsheet uses 3 separate binary vars instead -->
     <Options name="ecosystem_C_richness" default="Moderate">
       <Option desc="Low carbon richness (semi-arid grasslands)">Low</Option>
       <Option desc="Moderate carbon richness (mixed)">Moderate</Option>

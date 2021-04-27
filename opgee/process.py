@@ -61,10 +61,10 @@ def _get_subclass(cls, subclass_name, reload=False):
 
 class Process(XmlInstantiable):
     """
-    The "leaf" node in the container/process hierarchy. `Process` is an abstract superclass:
-    actual runnable `Process` instances must be of subclasses of `Process`, defined either
-    in opgee/processes/*.py or in the user's files, provided in the configuration file in
-    the variable `OPGEE.ClassPath`.
+    The "leaf" node in the container/process hierarchy. Process is an abstract superclass:
+    actual runnable Process instances must be of subclasses of Process, defined either
+    in opgee/processes/\*.py or in the user's files, provided in the configuration file in
+    the variable ``OPGEE.ClassPath``.
 
     Each Process subclass must implement the ``run_internal`` and ``bypass`` methods, described
     below.
