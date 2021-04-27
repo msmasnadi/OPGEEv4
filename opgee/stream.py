@@ -21,6 +21,12 @@ PHASE_GAS = 'gas'
 # Can streams have emissions (e.g., leakage) or is that attributed to a process?
 #
 class Stream(XmlInstantiable):
+    """
+    The `Stream` class holds values for pre-defined substances in any of three phases of matter
+    (solid, liquid, or gas). The default set of substances is defined by ``Stream.components``
+    but can be extended by the user to include other substances, by setting the configuration
+    file variable `OPGEE.StreamComponents`.
+    """
 
     # HCs with 1-60 carbon atoms, i.e., C1, C2, ..., C60
     # _hydrocarbons = [f'C{n + 1}' for n in range(60)]
@@ -31,8 +37,8 @@ class Stream(XmlInstantiable):
     _gases = ['N2', 'O2', 'CO2', 'H2O', 'CH4', 'C2H6', 'C3H8', 'C4H10', 'H2', 'H2S', 'SO2', 'air']
     _other = ['Na+', 'Cl-', 'Si-']
 
-    # All possible stream components
-    _components = _solids + _liquids + _gases + _other  # or use C1-C60 (_hydrocarbons)?
+    #: The stream components tracked by OPGEE.
+    components = _solids + _liquids + _gases + _other  # or use C1-C60 (_hydrocarbons)?
 
     # Remember extensions to avoid applying any redundantly.
     # Value is a dict keyed by set(added_component_names).
@@ -62,7 +68,7 @@ class Stream(XmlInstantiable):
 
         _logger.info(f"Extended stream components to include {names}")
 
-        cls._components.extend(names)
+        cls.components.extend(names)
 
     @classmethod
     def create_component_matrix(cls):
@@ -71,7 +77,7 @@ class Stream(XmlInstantiable):
 
         :return: (pandas.DataFrame) Zero-filled stream DataFrame
         """
-        return pd.DataFrame(data=0.0, index=cls._components, columns=cls._phases)
+        return pd.DataFrame(data=0.0, index=cls.components, columns=cls._phases)
 
     def __init__(self, name, number=0, temperature=None, pressure=None, src_name=None, dst_name=None, comp_matrix=None):
         super().__init__(name)
@@ -89,7 +95,7 @@ class Stream(XmlInstantiable):
         self.has_exogenous_data = False
 
     def __str__(self):
-        number_str = f" number={self.number}" if self.number else ''
+        number_str = f" #{self.number}" if self.number else ''
         return f"<Stream '{self.name}'{number_str}>"
 
     def component_phases(self, name):

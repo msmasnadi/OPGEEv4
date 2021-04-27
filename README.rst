@@ -21,9 +21,6 @@ Who do I talk to?
 
 To Do
 ===========
-* Create virtual environment for OPGEE
-* Create requirements files for setup and readthedocs
-* Create automated test suite
 * Setup code coverage testing
 * Remove unneeded functionality that was imported from pygcam
 * Develop simple GUI using dash

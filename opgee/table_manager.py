@@ -2,12 +2,13 @@
 # so we identify the basenames of the files here and then extract them into a structure.
 import os
 import pandas as pd
+from opgee.core import OpgeeObject
 from opgee.error import OpgeeException
 from opgee.pkg_utils import resourceStream
 
 class TableDef(object):
     """
-    Holds definition of tables, allowing for optional arguments with defaults.
+    Holds meta-data for built-in tables (CSV files loaded into `pandas.DataFrames`).
     """
     def __init__(self, basename, index_col=None, skiprows=0, units=None):
         self.basename = basename
@@ -15,17 +16,14 @@ class TableDef(object):
         self.skiprows = skiprows
         self.units = units
 
-class TableManager(object):
+class TableManager(OpgeeObject):
+    """
+    The TableManager loads built-in CSV files into DataFrames and stores them in a dictionary keyed by the root name
+    of the table. When adding CSV files to the opgee “tables” directory, a corresponding entry must be added in the
+    TableManager class variable ``TableManager.table_defs``, which holds instances of `TableDef` class.
 
-    # List of tuples of CSV file basename and args to index_col keyword.
-    # - First item is basename of table in the "tables" directory.
-    # - Second item is passed to pandas.read_csv's index_col arg, so anything
-    #   legal there is fine here, e.g., a single str or int, an iterable of str
-    #   or int (for multi-column index), False (create simple integer index),
-    #   or None (default; uses 1st col as index.)
-    # - Third item is optional; if given, it's the number of rows to skip,
-    #   allowing for comments.
-
+    Users can add external tables using the ``add_table`` method.
+    """
     table_defs = [
         TableDef('constants', index_col='name'),
         TableDef('GWP', index_col=False),
@@ -57,14 +55,16 @@ class TableManager(object):
         except KeyError:
             raise OpgeeException(f"Failed to find table named {name}.")
 
-    def add_table(self, pathname, index_col=None):
+    def add_table(self, pathname, index_col=None, skiprows=0): #  , units=None):
         """
         Add a CSV file external to OPGEE to the TableManager.
 
         :param pathname: (str) the pathname of a CSV file
-        :param index_col: (str, int, iterable of str or int, False, or None) see doc for pandas.read_csv()
+        :param index_col: (str, int, iterable of str or int, False, or None) see doc
+            for `pandas.read_csv()`
+        :param skiprows: (int) the number of rows to skip before the table begins.
         :return: none
         """
-        df = pd.read_csv(pathname, index_col=index_col)
+        df = pd.read_csv(pathname, index_col=index_col, skiprows=skiprows)
         name = os.path.splitext(os.path.basename(pathname))[0]
         self.table_dict[name] = df

@@ -14,19 +14,37 @@ from .utils import coercible
 
 _logger = getLogger(__name__)
 
-class Attr(XmlInstantiable):
+class Options(XmlInstantiable):
+    def __init__(self, name, default, options):
+        super().__init__(name)
+        self.default = default
+        self.options = options
+
+    @classmethod
+    def from_xml(cls, elt):
+        option_elts = elt.findall('Option')
+        options = [(elt.text, elt.attrib.get('desc')) for elt in option_elts]
+        obj = Options(elt_name(elt), elt.attrib.get('default'), options)
+        return obj
+
+class AttrDef(XmlInstantiable):
     def __init__(self, name, value=None, atype=None, option_set=None, unit=None):
         super().__init__(name)
-
-        if atype is not None:
-            value = coercible(value, atype)
-
-        unit_obj = validate_unit(unit)
-        self.value = value if unit_obj is None else Quantity(value, unit_obj)
-
+        self.default = None
         self.option_set = option_set        # the name of the option set, if any
         self.unit = unit
         self.atype = atype
+
+        if value is not None:               # if value is None, we set default later
+            self.set_default(value)
+
+    def set_default(self, value):
+        if self.atype is not None:
+            value = coercible(value, self.atype)
+
+        unit_obj = validate_unit(self.unit)
+
+        self.default = value if unit_obj is None else Quantity(value, unit_obj)
 
     def __str__(self):
         type_str = type(self).__name__
@@ -46,22 +64,18 @@ class Attr(XmlInstantiable):
         """
         Instantiate an instance from an XML element
 
-        :param elt: (etree.Element) representing an <Attr> element
-        :return: (Attr) instance of class Attr
+        :param elt: (etree.Element) representing an <AttrDef> element
+        :return: (AttrDef) instance of class AttrDef
         """
         a = elt.attrib
 
-        if elt.text is None:
-            from lxml import etree
-            elt_xml = etree.tostring(elt).decode()
-            raise OpgeeException(f"Empty <A> elements are not allowed: {elt_xml}")
-
-        obj = Attr(a['name'], value=elt.text, atype=a.get('type'), unit=a.get('unit'),
+        # if elt.text is None, we supply the default later in __init__()
+        obj = AttrDef(a['name'], value=elt.text, atype=a.get('type'), unit=a.get('unit'),
                    option_set=a.get('options'))
         return obj
 
 
-class Class(XmlInstantiable):
+class ClassAttrs(XmlInstantiable):
     """
     Support for parsing attributes.xml metadata
     """
@@ -70,24 +84,26 @@ class Class(XmlInstantiable):
         self.attr_dict = attr_dict
         self.option_dict = option_dict
 
+        # TBD: set defaults for anything not previously set
+        for attr in attr_dict.values():
+            set_name = attr.option_set
+            if attr.default is None and set_name:
+                option_set = option_dict[set_name]
+                attr.set_default(option_set.default) # handles type coercion
+
     @classmethod
     def from_xml(cls, elt):
         """
         Instantiate an instance from an XML element
 
-        :param elt: (etree.Element) representing an <Class> element
-        :return: (Class) instance of class Class
+        :param elt: (etree.Element) representing an <ClassAttrs> element
+        :return: (ClassAttrs) instance of class ClassAttrs
         """
-        # add attributes to attr_dict from <Attr> elements
-        attr_dict = instantiate_subelts(elt, Attr, as_dict=True)
+        # add attributes to attr_dict from <AttrDef> elements
+        attr_dict = instantiate_subelts(elt, AttrDef, as_dict=True)
 
-        # Add all <Option> elements beneath elt to option_dict. Key is name
-        # of <Options> set; value is dict of (opt_num, opt_desc)
-        option_dict = {}
-        for options_elt in elt.findall('Options'):
-            opts_name = elt_name(options_elt)
-            opt_elts = options_elt.findall('Option')
-            option_dict[opts_name] = [(e.attrib['number'], e.text) for e in opt_elts]  # TBD: store number as int?
+        # Add all <Option> elements beneath elt to option_dict.
+        option_dict = instantiate_subelts(elt, Options, as_dict=True)
 
         obj = cls(elt_name(elt), attr_dict, option_dict)
         return obj
@@ -120,7 +136,7 @@ class Class(XmlInstantiable):
         return self._lookup(self.attr_dict, 'definition', name, raiseError=raiseError)
 
 
-class AttributeDefs(OpgeeObject):
+class AttrDefs(OpgeeObject):
     """
     Parse and provide access to attributes.xml metadata file.
     """
@@ -128,7 +144,7 @@ class AttributeDefs(OpgeeObject):
         super().__init__()
 
         # Will be dict: key is class name: Model, Analysis, Field, Aggregator, or Process's class.
-        # Value is ClassAttributeDefs instance.
+        # Value is a ClassAttrs instance.
         self.classes = None
 
         stream = resourceStream('etc/attributes.xml', stream_type='bytes', decode=None)
@@ -142,17 +158,17 @@ class AttributeDefs(OpgeeObject):
         #     user_root = user_attr_xml.tree.getroot()
         #
 
-        self.classes = instantiate_subelts(root, Class, as_dict=True)
+        self.classes = instantiate_subelts(root, ClassAttrs, as_dict=True)
 
     def class_attrs(self, classname, raiseError=True):
         """
-        Return the ClassAttributeDefs instance for the named class. If not found: if
+        Return the ClassAttrs instance for the named class. If not found: if
         `raise_error` is True, a KeyError will be raised; if `raise_error` is False,
         None will be returned.
 
         :param classname: (str) the name of the class to find attributes for
         :param raiseError: (bool) whether failure to find class should raise an error
-        :return: (ClassAttributeDefs) the instance defining attributes for classname.
+        :return: (ClassAttrs) the instance defining attributes for classname.
         :raises: OpgeeError if `raiseError` is True and classname is not in the dict.
         """
         attrs = self.classes.get(classname)

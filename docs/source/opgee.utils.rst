@@ -9,3 +9,9 @@ API
 
 .. automodule:: opgee.utils
    :members:
+
+.. automodule:: opgee.xml_utils
+   :members:
+
+.. automodule:: opgee.XMLFile
+   :members:

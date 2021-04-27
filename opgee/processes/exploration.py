@@ -1,3 +1,4 @@
+from ..error import AbstractMethodError
 from ..process import Process
 from ..log import getLogger
 
@@ -11,10 +12,16 @@ class Exploration(Process):
         dens = m.const('amb-air-density')
         pres = m.const('amb-pressure')
 
-class SurveyVehicle(Process):
+class SurveyTruck(Process):
     def run(self, **kwargs):
         self.print_running_msg()
 
     def __str__(self):
-        type_attr = self.attr_dict['type']
-        return f'<SurveyVehicle type="{type_attr.value}">'
+        return f'<SurveyTruck>'
+
+class SurveyShip(Process):
+    def run(self, **kwargs):
+        self.print_running_msg()
+
+    def __str__(self):
+        return f'<SurveyShip>'

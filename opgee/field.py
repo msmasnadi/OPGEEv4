@@ -1,6 +1,7 @@
 import networkx as nx
 
-from .core import Container, A, elt_name, instantiate_subelts, dict_from_list
+from .container import Container
+from .core import A, elt_name, instantiate_subelts, dict_from_list
 from .error import OpgeeException
 from .log import getLogger
 from .process import Process, Environment, Reservoir, Aggregator
@@ -10,6 +11,13 @@ from .utils import getBooleanXML
 _logger = getLogger(__name__)
 
 class Field(Container):
+    """
+    A `Field` contains all the `Process` instances associated with a single oil or
+    gas field, and the `Stream` instances that connect them. It also holds instances
+    of `Reservoir` and `Environment`, which are sources and sinks, respectively, in
+    the process structure.
+    """
+
     # TBD: can a field have any Processes that are not within Aggregator nodes?
     def __init__(self, name, attr_dict=None, aggs=None, procs=None, streams=None):
 
@@ -67,8 +75,6 @@ class Field(Container):
             for proc in self.run_order:
                 proc.run(**kwargs)
 
-            self.summarize()
-
     def _connect_processes(self):
         """
         Connect streams and processes to one another.
@@ -98,10 +104,20 @@ class Field(Container):
             proc.clear_visit_count()
 
     def streams(self):
-        return self.stream_dict.values()    # N.B. returns an iterator
+        """
+        Gets all `Stream` instances for this `Field`.
+
+        :return: (iterator of `Stream` instances) streams in this `Field`
+        """
+        return self.stream_dict.values()
 
     def processes(self):
-        return self.process_dict.values()   # N.B. returns an iterator
+        """
+        Gets all instances of subclasses of `Process` for this `Field`.
+
+        :return: (iterator of `Process` (subclasses) instances) in this `Field`
+        """
+        return self.process_dict.values()
 
     def find_stream(self, name, raiseError=True):
         """

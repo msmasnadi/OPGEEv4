@@ -5,12 +5,12 @@
    See the https://opensource.org/licenses/MIT for license details.
 """
 from .analysis import Analysis
-from .attributes import AttributeDefs
-from .core import Container, instantiate_subelts, elt_name, subelt_text, ureg
+from .attributes import AttrDefs
+from .container import Container
+from .core import instantiate_subelts, elt_name, ureg
 from .config import getParam
 from .emissions import Emissions
 from .error import OpgeeException
-from .field import Field
 from .log import getLogger
 from .stream import Stream
 from .table_manager import TableManager
@@ -19,43 +19,12 @@ from .XMLFile import XMLFile
 
 _logger = getLogger(__name__)
 
-class Analysis(Container):
-    def __init__(self, name, functional_unit=None, energy_basis=None,
-                 fields=None, attr_dict=None):
-        super().__init__(name, attr_dict=attr_dict)
-
-        # Global settings
-        self.functional_unit = functional_unit
-        self.energy_basis = energy_basis
-        self.field_dict = self.adopt(fields, asDict=True)
-
-    def children(self):
-        return self.field_dict.values()     # N.B. returns an iterator
-
-    @classmethod
-    def from_xml(cls, elt):
-        """
-        Instantiate an instance from an XML element
-
-        :param elt: (etree.Element) representing a <Analysis> element
-        :return: (Analysis) instance populated from XML
-        """
-        name = elt_name(elt)
-        fn_unit  = subelt_text(elt, 'FunctionalUnit', with_unit=False) # schema requires one of {'oil', 'gas'}
-        en_basis = subelt_text(elt, 'EnergyBasis', with_unit=False)    # schema requires one of {'LHV', 'HHV'}
-        fields = instantiate_subelts(elt, Field)
-
-        # TBD: variables and settings
-        obj = Analysis(name, functional_unit=fn_unit, energy_basis=en_basis, fields=fields)
-        return obj
-
-
 class Model(Container):
     def __init__(self, name, analysis, attr_dict=None):
         super().__init__(name)
 
         # Load global attribute definitions from attributes.xml
-        self.attr_defs = AttributeDefs()
+        self.attr_defs = AttrDefs()
 
         self.analysis = analysis
         analysis.parent = self
@@ -80,9 +49,20 @@ class Model(Container):
         df = tbl_mgr.get_table('constants')
         self.constants = {name : ureg.Quantity(row.value, row.unit) for name, row in df.iterrows()}
 
-        # TBD: Compute CO2-eq values for tables of emission factors, using global settings for GWP
-        # (i.e., which time horizon and GWP version, currently one of 'AR4', 'AR5', or 'AR5_CCF')
-        pass
+    # TBD: how to pass args like fields to process?
+    # TBD: also need to clear all prior data to avoid collecting stale data?
+    def run(self):
+        """
+        Run all Analyses and collect emissions and energy use for all Containers and Processes.
+
+        :return: None
+        """
+        for child in self.children():
+            child.run() # TBD: args?
+
+        # calculate and store results internally
+        self.get_energy_rates()
+        self.get_emission_rates()
 
     def use_GWP(self, gwp_years, gwp_version):
         """
@@ -114,9 +94,7 @@ class Model(Container):
         Return the GWP for the given gas, using the model's settings for GWP time horizon and
         the version of GWPs to use.
 
-        :param gas: (str) a gas for which a GWP has been defined. Current list is
-        CO2, CO, CH4, N2O, and VOC.
-
+        :param gas: (str) a gas for which a GWP has been defined. Current list is CO2, CO, CH4, N2O, and VOC.
         :return: (int) GWP value
         """
         return self.gwp[gas]
@@ -146,8 +124,20 @@ class Model(Container):
         """
         self.attr_defs.attr_def(classname, name, raiseError=raiseError)
 
-    def children(self):
-        return [self.analysis]      # TBD: might have a list of analyses if it's useful
+    def _children(self, include_disabled=False):
+        """
+        Return a list of all children. External callers should use children() instead,
+        as it respects the self.is_enabled() setting.
+        """
+        return [self.analysis]
+
+    def summarize(self):
+        """
+        Return a summary of energy use and emissions, by Model, Field, Aggregator, and Process.
+
+        :return: TBD: Unclear what the best structure for this is; it depends how it will be used.
+        """
+        pass
 
     def validate(self):
 

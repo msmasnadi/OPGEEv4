@@ -3,214 +3,229 @@
      name, short description, unit (if any) and deterministic default values. It is used
      to support parsing the XML model definition and to used by the Smart Default system
      to fill in unspecified attributes. It can also eventually support a GUI, e.g., in
-     creating pulldown menus of options for categorical parameters and radio buttons for 
-     binary ones. 
+     creating pulldown menus of options for categorical parameters and radio buttons for
+     binary ones.
      -->
-<Attributes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="attributes.xsd">
-  <Class name="Model">
-    <Options name="GWP_time_horizon">
-      <Option number="1">20</Option>
-      <Option number="2">100</Option>
+<AttrDefs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="attributes.xsd">
+  <ClassAttrs name="Model">
+    <Options name="GWP_time_horizon" default="100">
+      <Option>20</Option>
+      <Option>100</Option>
     </Options>
-    <Options name="GWP_version">
-      <Option number="1">AR4</Option>
-      <Option number="2">AR5</Option>
-      <Option number="3">AR5_CCF</Option>
+    <Options name="GWP_version" default="AR5">
+      <Option>AR4</Option>
+      <Option>AR5</Option>
+      <Option>AR5_CCF</Option>
     </Options>
-    <Attr name="GWP_years" options="GWP_time_horizon" type="int" unit="years">100</Attr>
-    <Attr name="GWP_version" options="GWP_version" type="str">AR5</Attr>
-  </Class>
-  <Class name="Field">
+    <Options name="functional_unit" default="oil">
+      <Option>oil</Option>
+      <Option>gas</Option>
+    </Options>
+    <Options name="energy_basis" default="LHV">
+      <Option>LHV</Option>
+      <Option>HHV</Option>
+    </Options>
+
+    <AttrDef name="GWP_years" options="GWP_time_horizon" type="int" unit="years"/>
+    <AttrDef name="GWP_version" options="GWP_version" type="str"/>
+    <AttrDef name="functional_unit" options="functional_unit" type="str"/>
+    <AttrDef name="energy_basis" options="energy_basis" type="str"/>
+
+  </ClassAttrs>
+  <ClassAttrs name="Field">
     <!-- Production methods -->
-    <Attr name="downhole_pump" type="binary" desc="Downhole pump">1</Attr>
-    <Attr name="water_reinjection" type="binary" desc="Water reinjection">1</Attr>
-    <Attr name="natural_gas_reinjection" type="binary" desc="Natural gas reinjection">1</Attr>
-    <Attr name="water_flooding" type="binary" desc="Water flooding">0</Attr>
-    <Attr name="gas_lifting" type="binary" desc="Gas lifting">0</Attr>
-    <Attr name="gas_flooding" type="binary" desc="Gas flooding">0</Attr>
-    <Attr name="steam_flooding" type="binary" desc="Steam flooding">0</Attr>
-    <Attr name="oil_sands_mine_int" type="binary" desc="Oil sands mine (integrated with upgrader)">0</Attr>
-    <Attr name="oil_sands_mine_non_int" type="binary" desc="Oil sands mine (non-integrated with upgrader)">0</Attr>
+    <AttrDef name="downhole_pump" type="binary" desc="Downhole pump">1</AttrDef>
+    <AttrDef name="water_reinjection" type="binary" desc="Water reinjection">1</AttrDef>
+    <AttrDef name="natural_gas_reinjection" type="binary" desc="Natural gas reinjection">1</AttrDef>
+    <AttrDef name="water_flooding" type="binary" desc="Water flooding">0</AttrDef>
+    <AttrDef name="gas_lifting" type="binary" desc="Gas lifting">0</AttrDef>
+    <AttrDef name="gas_flooding" type="binary" desc="Gas flooding">0</AttrDef>
+    <AttrDef name="steam_flooding" type="binary" desc="Steam flooding">0</AttrDef>
+    <AttrDef name="oil_sands_mine_int" type="binary" desc="Oil sands mine (integrated with upgrader)">0</AttrDef>
+    <AttrDef name="oil_sands_mine_non_int" type="binary" desc="Oil sands mine (non-integrated with upgrader)">0</AttrDef>
     <!-- Field properties -->
-    <Attr name="country" desc="Field location (country)" type="str">Generic</Attr>
-    <Attr name="name" desc="Field name" type="str">Generic</Attr>
-    <Attr name="age" unit="yr" desc="Field age" type="float">38</Attr>
-    <Attr name="depth" unit="ft" desc="Field depth" type="float">8285</Attr>
-    <Attr name="oil_prod" unit="bbl/d" desc="Oil production volume" type="float">2098</Attr>
-    <Attr name="num_prod_wells" desc="Number of producing wells" type="int">1158</Attr>
-    <Attr name="num_water_inj_wells" desc="Number of water injecting wells" type="int">34436</Attr>
-    <Attr name="well_diam" unit="in" desc="Well diameter" type="float">2.8</Attr>
-    <Attr name="prod_index" unit="bbl/psi(d)" desc="Productivity index">17.0</Attr>
-    <Attr name="res_press" unit="psia" desc="Average reservoir pressure" type="float">1061.2</Attr>
-    <Attr name="res_temp" unit="degF" desc="Average reservoir temperature" type="float">158.8</Attr>
-    <Attr name="offshore" type="binary" desc="Offshore?">0</Attr>
+    <AttrDef name="country" desc="Field location (country)" type="str">Generic</AttrDef>
+    <AttrDef name="name" desc="Field name" type="str">Generic</AttrDef>
+    <AttrDef name="age" unit="yr" desc="Field age" type="float">38</AttrDef>
+    <AttrDef name="depth" unit="ft" desc="Field depth" type="float">8285</AttrDef>
+    <AttrDef name="oil_prod" unit="bbl/d" desc="Oil production volume" type="float">2098</AttrDef>
+    <AttrDef name="num_prod_wells" desc="Number of producing wells" type="int">1158</AttrDef>
+    <AttrDef name="num_water_inj_wells" desc="Number of water injecting wells" type="int">34436</AttrDef>
+    <AttrDef name="well_diam" unit="in" desc="Well diameter" type="float">2.8</AttrDef>
+    <AttrDef name="prod_index" unit="bbl/psi(d)" desc="Productivity index">17.0</AttrDef>
+    <AttrDef name="res_press" unit="psia" desc="Average reservoir pressure" type="float">1061.2</AttrDef>
+    <AttrDef name="res_temp" unit="degF" desc="Average reservoir temperature" type="float">158.8</AttrDef>
+    <AttrDef name="offshore" type="binary" desc="Offshore?">0</AttrDef>
     <!-- Fluid properties -->
-    <Attr name="API_grav" desc="API gravity of produced crude" unit="degAPI" type="float">47</Attr>
-    <Attr name="Gas_comp_N2" unit="mol%" type="float">2.0</Attr>
-    <Attr name="Gas_comp_CO2" unit="mol%" type="float">6.0</Attr>
-    <Attr name="Gas_comp_C1" unit="mol%" type="float">84.0</Attr>
-    <Attr name="Gas_comp_C2" unit="mol%" type="float">4.0</Attr>
-    <Attr name="Gas_comp_C3" unit="mol%" type="float">2.0</Attr>
-    <Attr name="Gas_comp_C4" unit="mol%" type="float">1.0</Attr>
-    <Attr name="Gas_comp_H2S" unit="mol%" type="float">1.0</Attr>
+    <AttrDef name="API_grav" desc="API gravity of produced crude" unit="degAPI" type="float">47</AttrDef>
+    <AttrDef name="Gas_comp_N2" unit="mol%" type="float">2.0</AttrDef>
+    <AttrDef name="Gas_comp_CO2" unit="mol%" type="float">6.0</AttrDef>
+    <AttrDef name="Gas_comp_C1" unit="mol%" type="float">84.0</AttrDef>
+    <AttrDef name="Gas_comp_C2" unit="mol%" type="float">4.0</AttrDef>
+    <AttrDef name="Gas_comp_C3" unit="mol%" type="float">2.0</AttrDef>
+    <AttrDef name="Gas_comp_C4" unit="mol%" type="float">1.0</AttrDef>
+    <AttrDef name="Gas_comp_H2S" unit="mol%" type="float">1.0</AttrDef>
     <!-- Production practices -->
-    <Options name="flood_gases">
-      <Option number="1">Natural gas</Option>
-      <Option number="2">Nitrogen (N2)</Option>
-      <Option number="3">Carbon dioxide (CO2)</Option>
+    <Options name="flood_gases" default="NG">
+      <Option desc="Natural gas">NG</Option>
+      <Option desc="Nitrogen">N2</Option>
+      <Option desc="Carbon dioxide">CO2</Option>
     </Options>
-    <Options name="liquids_unloading">
-      <Option number="1">plunger</Option>
-      <Option number="2">no plunger</Option>
-      <Option number="3">none</Option>
+    <Options name="liquids_unloading" default="none">
+      <Option>plunger</Option>
+      <Option>no plunger</Option>
+      <Option>none</Option>
     </Options>
-    <Options name="source_CO2">
-      <Option number="1">natural subsurface reservoir</Option>
-      <Option number="2">anthropogenic</Option>
+    <Options name="source_CO2" default="reservoir">
+      <Option desc="natural subsurface reservoir">reservoir</Option>
+      <Option>anthropogenic</Option>
     </Options>
-    <Attr name="GOR" desc="Gas-to-oil ratio" unit="scf/bbl_oil" type="float">1205.4</Attr>
-    <Attr name="WOR" desc="Water-to-oil ratio" unit="bbl_water/bbl" type="float">27.7</Attr>
-    <Attr name="WIR" desc="Water injection ratio" unit="bbl_water/bbl" type="float">17.0</Attr>
-    <Attr name="GLIR" desc="Gas lifting injection ratio" unit="scf/bbl_liquid" type="float">1500.0</Attr>
-    <Attr name="GFIR" desc="Gas flooding injection ratio" unit="scf/bbl_oil" type="float">22611.0</Attr>
-    <Attr name="flood_gas_type" desc="Flood gas" options="flood_gases" type="int">1</Attr>
-    <Attr name="liquids_unloading" options="liquids_unloading" type="int">3</Attr>
-    <Attr name="perc_CO2_breakthrough" desc="Fraction of CO2 breaking through to producers" unit="pct" type="float">59</Attr>
-    <Attr name="source_CO2" desc="" options="source_CO2" type="int">1</Attr>
-    <Attr name="perc_sequestration_credit" desc="Percentage of sequestration credit assigned to the oilfield" unit="pct" type="float">0</Attr>
-    <Attr name="SOR" desc="Steam-to-oil ratio" unit="bbl_steam/bbl_oil" type="float">0</Attr>
-    <Attr name="fraction_elec_onsite" desc="Fraction of required electricity generated onsite" type="float">0.0</Attr>
-    <Attr name="fraction_remaining_gas_inj" desc="Fraction of remaining gas reinjected" type="float">0.5</Attr>
-    <Attr name="fraction_water_reinjected" desc="Fraction of water produced that is reinjected" type="float">1.0</Attr>
-    <Attr name="fraction_steam_cogen" desc="Fraction of steam generation via co-generation" type="float">0.0</Attr>
-    <Attr name="fraction_steam_solar" desc="Fraction of steam generation via solar thermal" type="float">0.0</Attr>
+    <AttrDef name="GOR" desc="Gas-to-oil ratio" unit="scf/bbl_oil" type="float">1205.4</AttrDef>
+    <AttrDef name="WOR" desc="Water-to-oil ratio" unit="bbl_water/bbl" type="float">27.7</AttrDef>
+    <AttrDef name="WIR" desc="Water injection ratio" unit="bbl_water/bbl" type="float">17.0</AttrDef>
+    <AttrDef name="GLIR" desc="Gas lifting injection ratio" unit="scf/bbl_liquid" type="float">1500.0</AttrDef>
+    <AttrDef name="GFIR" desc="Gas flooding injection ratio" unit="scf/bbl_oil" type="float">22611.0</AttrDef>
+    <AttrDef name="flood_gas_type" desc="Flood gas" options="flood_gases" type="str"/>
+    <AttrDef name="liquids_unloading" options="liquids_unloading" type="str"/>
+    <AttrDef name="perc_CO2_breakthrough" desc="Fraction of CO2 breaking through to producers" unit="pct" type="float">59</AttrDef>
+    <AttrDef name="source_CO2" desc="" options="source_CO2" type="str"/>
+    <AttrDef name="perc_sequestration_credit" desc="Percentage of sequestration credit assigned to the oilfield" unit="pct" type="float">0</AttrDef>
+    <AttrDef name="SOR" desc="Steam-to-oil ratio" unit="bbl_steam/bbl_oil" type="float">0</AttrDef>
+    <AttrDef name="fraction_elec_onsite" desc="Fraction of required electricity generated onsite" type="float">0.0</AttrDef>
+    <AttrDef name="fraction_remaining_gas_inj" desc="Fraction of remaining gas reinjected" type="float">0.5</AttrDef>
+    <AttrDef name="fraction_water_reinjected" desc="Fraction of water produced that is reinjected" type="float">1.0</AttrDef>
+    <AttrDef name="fraction_steam_cogen" desc="Fraction of steam generation via co-generation" type="float">0.0</AttrDef>
+    <AttrDef name="fraction_steam_solar" desc="Fraction of steam generation via solar thermal" type="float">0.0</AttrDef>
     <!-- Processing practices -->
-    <Options name="upgrader_type">
-      <Option number="0">None</Option>
-      <Option number="1">Delayed coking</Option>
-      <Option number="2">Hydroconversion</Option>
-      <Option number="3">Combined hydroconversion and fluid coking</Option>
+    <Options name="upgrader_type" default="None">
+      <Option>None</Option>
+      <Option>Delayed coking</Option>
+      <Option>Hydroconversion</Option>
+      <Option desc="Combined hydroconversion and fluid coking">Combined</Option>
     </Options>
-    <Options name="gas_processing_path">
-      <Option number="1">None</Option>
-      <Option number="2">Minimal: Dehydrator</Option>
-      <Option number="3">Acid Gas: Dehydrator + Amine Process</Option>
-      <Option number="4">Wet Gas: Dehydrator + Demethanizer</Option>
-      <Option number="5">Acid Wet Gas: Dehydrator + Amine Process + Demethanizer</Option>
-      <Option number="6">Sour gas reinjection: Dehydration then direct injection of sour CO2-rich stream</Option>
-      <Option number="7">CO2-EOR Membrane: Dehydrator + Compressor + Membrane + Amine Process + Demethanizer</Option>
-      <Option number="8">CO2-EOR Ryan Holmes: Dehydrator + Ryan Holmes Process (Demethanizer Included)</Option>
+    <Options name="gas_processing_path" default="Acid wet gas">
+      <Option>None</Option>
+      <Option desc="Dehydrator">Minimal</Option>
+      <Option desc="Dehydrator + Amine Process">Acid Gas</Option>
+      <Option desc="Dehydrator + Demethanizer">Wet Gas</Option>
+      <Option desc="Dehydrator + Amine Process + Demethanizer">Acid Wet Gas</Option>
+      <Option desc="Dehydration then direct injection of sour CO2-rich stream">Sour gas reinjection</Option>
+      <Option desc="Dehydrator + Compressor + Membrane + Amine Process + Demethanizer">CO2-EOR Membrane</Option>
+      <Option desc="Dehydrator + Ryan Holmes Process (Demethanizer Included)">CO2-EOR Ryan Holmes</Option>
     </Options>
-    <Attr name="heater_treater" type="binary" desc="Heater/treater">0</Attr>
-    <Attr name="stabilizer_column" type="binary" desc="Stabilizer column">0</Attr>
-    <Attr name="upgrader_type" desc="Upgrader type" options="upgrader_type" type="int">0</Attr>
-    <Attr name="gas_processing_path" desc="Associated gas processing path" options="gas_processing_path" type="int">5</Attr>
-    <Attr name="FOR" unit="scf/bbl" desc="Ratio of flaring to oil production" type="float">141.3</Attr>
-    <Attr name="VOR" unit="scf/bbl" desc="Ratio of venting to oil production" type="float">5.0</Attr>
-    <Attr name="fraction_diluent" desc="Volume fraction of diluent in diluted crude" type="float">5.0</Attr>
+    <AttrDef name="heater_treater" type="binary" desc="Heater/treater">0</AttrDef>
+    <AttrDef name="stabilizer_column" type="binary" desc="Stabilizer column">0</AttrDef>
+    <AttrDef name="upgrader_type" desc="Upgrader type" options="upgrader_type" type="str"/>
+    <AttrDef name="gas_processing_path" desc="Associated gas processing path" options="gas_processing_path" type="str"/>
+    <AttrDef name="FOR" unit="scf/bbl" desc="Ratio of flaring to oil production" type="float">141.3</AttrDef>
+    <AttrDef name="VOR" unit="scf/bbl" desc="Ratio of venting to oil production" type="float">5.0</AttrDef>
+    <AttrDef name="fraction_diluent" desc="Volume fraction of diluent in diluted crude" type="float">5.0</AttrDef>
     <!-- LandUse impacts -->
-    <!-- RP added these; the spreadsheet uses 3 separate binary vars instead -->
-    <Options name="ecosystem_C_richness">
-      <Option number="1">Low carbon richness (semi-arid grasslands)</Option>
-      <Option number="2">Moderate carbon richness (mixed)</Option>
-      <Option number="3">High carbon richness (forested)</Option>
+    <Options name="ecosystem_C_richness" default="Moderate">
+      <Option desc="Low carbon richness (semi-arid grasslands)">Low</Option>
+      <Option desc="Moderate carbon richness (mixed)">Moderate</Option>
+      <Option desc="High carbon richness (forested)">High</Option>
     </Options>
-    <Options name="field_development_intensity">
-      <Option number="1">Low intensity development and low oxidation</Option>
-      <Option number="2">Moderate intensity development and moderate oxidation</Option>
-      <Option number="3">High intensity development and high oxidation</Option>
+    <Options name="field_development_intensity" default="Moderate">
+      <Option desc="Low intensity development and low oxidation">Low</Option>
+      <Option desc="Moderate intensity development and moderate oxidation">Moderate</Option>
+      <Option desc="High intensity development and high oxidation">High</Option>
     </Options>
-    <Attr name="ecosystem_richness" options="ecosystem_C_richness" desc="Ecosystem carbon richness" type="int">2</Attr>
-    <Attr name="field_development_intensity" options="field_development_intensity" desc="Field development intensity" type="int">2</Attr>
+    <AttrDef name="ecosystem_richness" options="ecosystem_C_richness" desc="Ecosystem carbon richness" type="str"/>
+    <AttrDef name="field_development_intensity" options="field_development_intensity" desc="Field development intensity" type="str"/>
     <!-- name="Transport_and_storage -->
-    <Attr name="Fraction_oil_transport_tanker" desc="Fraction  of oil transported by ocean tanker" type="float">1</Attr>
-    <Attr name="Fraction_oil_transport_barge" desc="Fraction of oil transported by barge" type="float">0</Attr>
-    <Attr name="Fraction_oil_transport_pipeline" desc="Fraction of oil transported by pipeline" type="float">1</Attr>
-    <Attr name="Fraction_oil_transport_rail" desc="Fraction of oil transported by rail" type="float">0</Attr>
-    <Attr name="Fraction_oil_transport_truck" desc="Fraction of oil transported by truck" type="float">0</Attr>
-    <Attr name="Oil_transport_distance_tanker" unit="mi" desc="Ocean tanker transport distance (one way)" type="float">8000</Attr>
-    <Attr name="Oil_transport_distance_barge" unit="mi" desc="Barge transport distance (one way)" type="float">500</Attr>
-    <Attr name="Oil_transport_distance_pipeline" unit="mi" desc="Pipeline transport distance (one way)" type="float">1000</Attr>
-    <Attr name="Oil_transport_distance_rail" unit="mi" desc="Rail transport distance (one way)" type="float">800</Attr>
-    <Attr name="Oil_transport_distance_truck" unit="mi" desc="Truck transport distance (one way)" type="float">100</Attr>
-    <Attr name="ocean_tanker_size" unit="tons" desc="Ocean tanker size, if applicable" type="float">250000</Attr>
-    <Attr name="small_sources_adder" unit="gCO2eq/MJ" desc="Small source emissions adder" type="float">0.5</Attr>
-  </Class>
-  <Class name="Exploration">
-    <Attr name="distance_survey" type="float" desc="Distance of travel for survey" unit="mi">10000</Attr>
-    <Attr name="weight_land_survey" type="float" desc="Weight of land survey vehicle" unit="tons">25</Attr>
-    <Attr name="weight_ocean_survey" type="float" desc="Weight of ocean survey vehicle" unit="tons">100</Attr>
-    <Attr name="number_wells_dry" type="int" desc="Number of dry wells drilled per field found">1</Attr>
-    <Attr name="number_wells_exploratory" type="int" desc="Number of exploratory/scientific wells drilled after field discovery">3</Attr>
-  </Class>
-  <Class name="Drilling">
-    <Options name="rig_efficiency">
-      <!-- Allow options to be named "low", "med", "high" rather than requiring a number? -->
-      <Option number="1">Low: Mud pump 60%, Rotary Table 40%</Option>
-      <Option number="2">Med: Mud pump 65%, Rotary Table 45%</Option>
-      <Option number="3">High: Mud pump 70%, Rotary Table 50%</Option>
+    <AttrDef name="Fraction_oil_transport_tanker" desc="Fraction  of oil transported by ocean tanker" type="float">1</AttrDef>
+    <AttrDef name="Fraction_oil_transport_barge" desc="Fraction of oil transported by barge" type="float">0</AttrDef>
+    <AttrDef name="Fraction_oil_transport_pipeline" desc="Fraction of oil transported by pipeline" type="float">1</AttrDef>
+    <AttrDef name="Fraction_oil_transport_rail" desc="Fraction of oil transported by rail" type="float">0</AttrDef>
+    <AttrDef name="Fraction_oil_transport_truck" desc="Fraction of oil transported by truck" type="float">0</AttrDef>
+    <AttrDef name="Oil_transport_distance_tanker" unit="mi" desc="Ocean tanker transport distance (one way)" type="float">8000</AttrDef>
+    <AttrDef name="Oil_transport_distance_barge" unit="mi" desc="Barge transport distance (one way)" type="float">500</AttrDef>
+    <AttrDef name="Oil_transport_distance_pipeline" unit="mi" desc="Pipeline transport distance (one way)" type="float">1000</AttrDef>
+    <AttrDef name="Oil_transport_distance_rail" unit="mi" desc="Rail transport distance (one way)" type="float">800</AttrDef>
+    <AttrDef name="Oil_transport_distance_truck" unit="mi" desc="Truck transport distance (one way)" type="float">100</AttrDef>
+    <AttrDef name="ocean_tanker_size" unit="tons" desc="Ocean tanker size, if applicable" type="float">250000</AttrDef>
+    <AttrDef name="small_sources_adder" unit="gCO2eq/MJ" desc="Small source emissions adder" type="float">0.5</AttrDef>
+  </ClassAttrs>
+  <ClassAttrs name="SurveyTruck">
+    <AttrDef name="distance" type="float" desc="Distance of travel for survey" unit="mi">10000</AttrDef>
+    <AttrDef name="weight" type="float" desc="Weight of land survey vehicle" unit="tons">25</AttrDef>
+  </ClassAttrs>
+  <ClassAttrs name="SurveyShip">
+    <AttrDef name="distance" type="float" desc="Distance of travel for survey" unit="mi">10000</AttrDef>
+    <AttrDef name="weight" type="float" desc="Weight of ocean survey vehicle" unit="tons">100</AttrDef>
+  </ClassAttrs>
+  <ClassAttrs name="Exploration">
+    <AttrDef name="number_wells_dry" type="int" desc="Number of dry wells drilled per field found">1</AttrDef>
+    <AttrDef name="number_wells_exploratory" type="int" desc="Number of exploratory/scientific wells drilled after field discovery">3</AttrDef>
+  </ClassAttrs>
+  <ClassAttrs name="Drilling">
+    <Options name="rig_efficiency" default="Medium">
+      <Option desc="Mud pump 60%, Rotary Table 40%">Low</Option>
+      <Option desc="Mud pump 65%, Rotary Table 45%">Medium</Option>
+      <Option desc="Mud pump 70%, Rotary Table 50%">High</Option>
     </Options>
-    <Options name="well_complexity">
-      <Option number="1">Simple = Surface casing plus production casing</Option>
-      <Option number="2">Moderate = Surface, intermediate, production</Option>
-      <Option number="3">Complex = Surface, Intermediate 1, Intermediate 2, Production</Option>
+    <Options name="well_complexity" default="Moderate">
+      <Option desc="Surface casing plus production casing">Simple</Option>
+      <Option desc="Surface, intermediate, production">Moderate</Option>
+      <Option desc="Surface, Intermediate 1, Intermediate 2, Production">Complex</Option>
     </Options>
-    <Options name="well_size">
-      <Option number="1">Small</Option>
-      <Option number="2">Medium</Option>
-      <Option number="3">Large</Option>
+    <Options name="well_size" default="Medium">
+      <Option>Small</Option>
+      <Option>Medium</Option>
+      <Option>Large</Option>
     </Options>
-    <Options name="field_productivity_category">
-      <Option number="1">Low: USA</Option>
-      <Option number="2">Med: Global average</Option>
-      <Option number="3">High: OPEC</Option>
+    <Options name="field_productivity_category" default="Medium">
+      <Option desc="USA">Low</Option>
+      <Option desc="Global average">Medium</Option>
+      <Option desc="OPEC">High</Option>
     </Options>
-    <Options name="timeframe_land_use">
-      <Option number="1">30 years</Option>
-      <Option number="2">150 years</Option>
+    <Options name="timeframe_land_use" default="30">
+      <Option>30</Option>
+      <Option>150</Option>
     </Options>
-    <Attr name="eta_rig" type="int" options="rig_efficiency" desc="Rig efficiency">2</Attr>
-    <Attr name="well_complexity" type="int" options="well_complexity" desc="Well complexity">2</Attr>
-    <Attr name="well_size" desc="Hole size" type="int" options="well_size">2</Attr>
-    <Attr name="fraction_wells_horizontal" type="float" desc="Horizontal well?">0</Attr>
-    <Attr name="length_lateral" unit="ft" type="float" desc="Length of lateral">5000</Attr>
-    <Attr name="well_productivity_crude_oil" options="field_productivity_category" type="int">2</Attr>
-    <Attr name="well_productivity_natural_gas" options="field_productivity_category" type="int">2</Attr>
-    <Attr name="fraction_wells_fractured" desc="Fraction of wells fractured" type="float">0</Attr>
-    <Attr name="volume_per_well_fractured" desc="Fracturing fluid injection volume" type="float" unit="Mgal’’">3</Attr>
-    <Attr name="pressure_gradient_fracturing" desc="Fracturing pressure gradient (rock strength)" unit="psi/ft">0.7</Attr>
-    <Attr name="timeframe_land_use" desc="Timeframe of land use analysis" options="timeframe_land_use">1</Attr>
-    <Attr name="flaring_fracturing_flowback" desc="Fracturing flowback flared?" type="binary">0</Attr>
-    <Attr name="REC_fracturing_flowback" desc="Fracturing flowback captured with reduced emissons completions?" type="binary">1</Attr>
-    <Attr name="number_well_workovers" desc="Workovers needed over lifetime of well" type="float">4</Attr>
-  </Class>
-  <Class name="FluidProduction">
-    <Attr name="baz" type="int" unit="d" desc="xxx">1</Attr>
-  </Class>
-  <Class name="FluidInjection">
-    <Attr name="baz" type="int" unit="d" desc="xxx">1</Attr>
-  </Class>
-  <Class name="BitumenMining">
-    <Attr name="baz" type="int" unit="d" desc="xxx">1</Attr>
-  </Class>
-  <Class name="MaintenanceAndWorkovers">
-    <Attr name="baz" type="int" unit="d" desc="xxx">1</Attr>
-  </Class>
+    <AttrDef name="eta_rig" type="str" options="rig_efficiency" desc="Rig efficiency"/>
+    <AttrDef name="well_complexity" options="well_complexity" desc="Well complexity" type="str"/>
+    <AttrDef name="well_size" desc="Hole size" type="str" options="well_size"/>
+    <AttrDef name="fraction_wells_horizontal" type="float" desc="Horizontal well?">0</AttrDef>
+    <AttrDef name="length_lateral" unit="ft" type="float" desc="Length of lateral">5000</AttrDef>
+    <AttrDef name="well_productivity_crude_oil" options="field_productivity_category" type="str"/>
+    <AttrDef name="well_productivity_natural_gas" options="field_productivity_category" type="str"/>
+    <AttrDef name="fraction_wells_fractured" desc="Fraction of wells fractured" type="float">0</AttrDef>
+    <AttrDef name="volume_per_well_fractured" desc="Fracturing fluid injection volume" type="float" unit="Mgal’’">3</AttrDef>
+    <AttrDef name="pressure_gradient_fracturing" desc="Fracturing pressure gradient (rock strength)" unit="psi/ft">0.7</AttrDef>
+    <AttrDef name="timeframe_land_use" desc="Timeframe of land use analysis" unit="years" options="timeframe_land_use">1</AttrDef>
+    <AttrDef name="flaring_fracturing_flowback" desc="Fracturing flowback flared?" type="binary">0</AttrDef>
+    <AttrDef name="REC_fracturing_flowback" desc="Fracturing flowback captured with reduced emissons completions?" type="binary">1</AttrDef>
+    <AttrDef name="number_well_workovers" desc="Workovers needed over lifetime of well" type="float">4</AttrDef>
+  </ClassAttrs>
+  <ClassAttrs name="FluidProduction">
+    <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
+  </ClassAttrs>
+  <ClassAttrs name="FluidInjection">
+    <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
+  </ClassAttrs>
+  <ClassAttrs name="BitumenMining">
+    <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
+  </ClassAttrs>
+  <ClassAttrs name="MaintenanceAndWorkovers">
+    <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
+  </ClassAttrs>
   <!-- Surface processing-->
-  <Class name="CrudeSeparationAndHandling">
-    <Attr name="baz" type="int" unit="d" desc="xxx">1</Attr>
-  </Class>
-  <Class name="CrudeStorage">
-    <Attr name="baz" type="int" unit="d" desc="xxx">1</Attr>
-  </Class>
-  <Class name="BitumentUpgradingOrDilution">
-    <Attr name="baz" type="int" unit="d" desc="xxx">1</Attr>
-  </Class>
-  <Class name="WasteTreatmentAndDisposal">
-    <Attr name="baz" type="int" unit="d" desc="xxx">1</Attr>
-  </Class>
+  <ClassAttrs name="CrudeSeparationAndHandling">
+    <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
+  </ClassAttrs>
+  <ClassAttrs name="CrudeStorage">
+    <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
+  </ClassAttrs>
+  <ClassAttrs name="BitumentUpgradingOrDilution">
+    <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
+  </ClassAttrs>
+  <ClassAttrs name="WasteTreatmentAndDisposal">
+    <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
+  </ClassAttrs>
   <!-- Transport -->
-  <Class name="CrudeTransport">
-    <Attr name="baz" type="int" unit="d" desc="xxx">1</Attr>
-  </Class>
-</Attributes>
+  <ClassAttrs name="CrudeTransport">
+    <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
+  </ClassAttrs>
+</AttrDefs>
