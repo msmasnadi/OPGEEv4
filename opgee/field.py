@@ -103,6 +103,13 @@ class Field(Container):
         for proc in self.processes():
             proc.clear_visit_count()
 
+    def attr(self, attr_name, default=None, raiseError=False):
+        obj = self.attr_dict.get(attr_name)
+        if obj is None and raiseError:
+            raise OpgeeException(f"Attribute '{attr_name}' not found in {self}")
+
+        return obj.value or default
+
     def streams(self):
         """
         Gets all `Stream` instances for this `Field`.
