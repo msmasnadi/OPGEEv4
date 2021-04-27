@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema' elementFormDefault='qualified'>
-    <xs:element name='Attributes'>
+    <xs:element name='AttrDefs'>
         <xs:complexType>
             <xs:sequence>
-                <xs:element ref='Class' maxOccurs='unbounded'/>
+                <xs:element ref='ClassAttrs' maxOccurs='unbounded'/>
             </xs:sequence>
         </xs:complexType>
 	</xs:element>
-    <xs:element name='Class'>
+    <xs:element name='ClassAttrs'>
         <xs:complexType>
             <xs:choice maxOccurs='unbounded'>
                 <xs:element minOccurs='0' ref='Options'/>
-                <xs:element minOccurs='0' ref='Attr'/>
+                <xs:element minOccurs='0' ref='AttrDef'/>
 			</xs:choice>
-            <xs:attribute name='name' use='required' type='xs:NCName'/>			
+            <xs:attribute name='name' use='required' type='xs:NCName'/>
         </xs:complexType>
     </xs:element>
     <xs:element name='Options'>
@@ -30,7 +30,7 @@
             <xs:attribute name='desc' type='xs:string'/>
         </xs:complexType>
     </xs:element>
-    <xs:element name='Attr'>
+    <xs:element name='AttrDef'>
         <xs:complexType mixed='true'>
             <xs:attribute name='desc'/>
             <xs:attribute name='name' use='required' type='xs:NCName'/>

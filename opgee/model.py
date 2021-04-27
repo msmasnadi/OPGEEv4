@@ -5,13 +5,12 @@
    See the https://opensource.org/licenses/MIT for license details.
 """
 from .analysis import Analysis
-from .attributes import AttributeDefs
+from .attributes import AttrDefs
 from .container import Container
-from .core import instantiate_subelts, elt_name, subelt_text, ureg
+from .core import instantiate_subelts, elt_name, ureg
 from .config import getParam
 from .emissions import Emissions
 from .error import OpgeeException
-from .field import Field
 from .log import getLogger
 from .stream import Stream
 from .table_manager import TableManager
@@ -25,7 +24,7 @@ class Model(Container):
         super().__init__(name)
 
         # Load global attribute definitions from attributes.xml
-        self.attr_defs = AttributeDefs()
+        self.attr_defs = AttrDefs()
 
         self.analysis = analysis
         analysis.parent = self

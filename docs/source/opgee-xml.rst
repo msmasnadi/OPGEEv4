@@ -51,9 +51,33 @@ below it in the hierarchy are deleted before the new element is added.
 
 <A>
 ^^^^^^^^^^^^^^^
-This element contains no further elements, but it contains an optional value, which if
-absent is assigned the default for this attribute. The `name` attribute must refer to
-the name of an ``<Attr>`` defined in the built-in `attributes.xml` or a file loaded by
+
+The ``<A>`` element is used to set values for attributes of a model element. The XML schema allows model elements to
+have zero or more attributes. The XML schema ensures that the ``<A>`` elements are syntactically correct. The semantics
+of these elements is defined by a corresponding ``<AttrDef>`` element (see attributes.xml) in the named class. For example,
+
+.. code-block:: xml
+
+    <Process class="SurveyShip">
+        <A name="weight">124</A>
+        <A name="distance">2342</A>
+    </Process >
+
+provides values for two attributes, `weight` and `distance`, for the `SurveyVehicle` class. These have a
+corresponding ``<AttrDef>`` definition in attributes.xml that provides the units, description, type, and
+default value:
+
+.. code-block:: xml
+
+    <ClassAttrs name="SurveyShip">
+        <AttrDef name="distance" type="float" desc="Distance of travel for survey" unit="mi">10000</Attr>
+        <AttrDef name="weight" type="float" desc="Weight of ocean survey vehicle" unit="tons">100</Attr>
+    </ClassAttrs>
+
+
+The ``<A>`` element contains no further elements, but it contains an optional value for the attribute,
+which if absent is assigned the default for this attribute. The `name` attribute must refer to
+the name of an ``<AttrDef>`` defined in the built-in `attributes.xml` or a file loaded by
 the user.
 
 .. list-table:: <A> Attributes
@@ -248,7 +272,7 @@ no attributes and contains only ``<Class>`` elements.
 ^^^^^^^^^
 This element describes attributes associated with an OPGEE class, whose
 name is provide by the `name` attribute. ``<Class>`` elements contain
-any number of ``<Options>`` and ``<Attr>`` elements.
+any number of ``<Options>`` and ``<AttrDef>`` elements.
 
 .. list-table:: <Class> Attributes
    :widths: 10 10 10 10
@@ -316,13 +340,13 @@ e.g.,
      - (none)
      - text
 
-<Attr>
-^^^^^^^^^
+<AttrDef>
+^^^^^^^^^^^
 This element defines a single attribute, including its name, description,
 Python type, and unit. This element can also optionally refer to an ``<Options>``
 element describing valid values for this attribute.
 
-.. list-table:: <Attr> Attributes
+.. list-table:: <AttrDef> Attributes
    :widths: 10 10 10 10
    :header-rows: 1
 
