@@ -182,14 +182,21 @@ getFuncName = lambda n=0: sys._getframe(n + 1).f_code.co_name
 
 def coercible(value, pytype, raiseError=True):
     """
-    Attempt to coerce a value to `type` and raise an error on failure.
+    Attempt to coerce a value to `type` and raise an error on failure. If the
+    value is a pint.Quantity, the value is simply returned.
 
     :param value: any value coercible to `type`
     :param pytype: any Python type or its string equivalent
     :return: (`pytype`) the coerced value, if it's coercible, otherwise
        None if raiseError is False
-    :raises OpgeeException: if not coercible and raiseError is True
+    :raises OpgeeException: if the value is a pint.Quantity, it is returned
+       unchanged. Otherwise, if not coercible and raiseError is True.
     """
+    from pint import Quantity
+
+    if isinstance(value, Quantity):
+        return
+
     # pseudo-type
     def binary(value):
         return 1 if getBooleanXML(value) else 0

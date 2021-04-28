@@ -4,6 +4,7 @@
 .. Copyright (c) 2021 Richard Plevin and Adam Brandt
    See the https://opensource.org/licenses/MIT for license details.
 '''
+from .attributes import AttrDefs, AttributeMixin
 from .core import A, XmlInstantiable, elt_name, instantiate_subelts
 from .container import Container
 from .error import OpgeeException, AbstractMethodError
@@ -59,7 +60,7 @@ def _get_subclass(cls, subclass_name, reload=False):
         raise OpgeeException(f"Class {subclass_name} is not a known subclass of {cls}")
 
 
-class Process(XmlInstantiable):
+class Process(XmlInstantiable, AttributeMixin):
     """
     The "leaf" node in the container/process hierarchy. Process is an abstract superclass:
     actual runnable Process instances must be of subclasses of Process, defined either
@@ -74,10 +75,12 @@ class Process(XmlInstantiable):
         name = name or self.__class__.__name__
         super().__init__(name)
 
+        self.attr_dict = attr_dict or {}
+        self.attr_defs = AttrDefs.get_instance()
+
         self._model = None      # @property "model" caches model here after first lookup
 
         self.desc = desc or name
-        self.attr_dict = attr_dict or {}
 
         self.produces = set(produces) if produces else {}
         self.consumes = set(consumes) if consumes else {}
@@ -167,13 +170,6 @@ class Process(XmlInstantiable):
             self._model = self.find_parent('Model')
 
         return self._model
-
-    def attr(self, attr_name, default=None, raiseError=False):
-        obj = self.attr_dict.get(attr_name)
-        if obj is None and raiseError:
-            raise OpgeeException(f"Attribute '{attr_name}' not found in {self}")
-
-        return obj.value or default
 
     def get_field(self):
         """
@@ -335,8 +331,8 @@ class Process(XmlInstantiable):
         classname = a['class']  # required by XML schema
         subclass = _get_subclass(Process, classname)
 
-        # TBD: fill in Smart Defaults here, or assume they've been filled already?
-        attr_dict = instantiate_subelts(elt, A, as_dict=True)
+        # attr_dict = instantiate_subelts(elt, A, as_dict=True)
+        attr_dict = subclass.instantiate_attrs(elt)
 
         produces = [node.text for node in elt.findall('Produces')]
         consumes = [node.text for node in elt.findall('Consumes')]

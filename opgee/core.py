@@ -220,16 +220,14 @@ def validate_unit(unit):
 # The <A> element
 # TBD: some of this doesn't belong here; it's actually in <Attr> (definitions)
 class A(XmlInstantiable):
-    def __init__(self, name, value=None, atype=None, option_set=None, unit=None):
+    def __init__(self, name, value=None, atype=None, unit=None):
         super().__init__(name)
 
         if atype is not None:
             value = coercible(value, atype)
 
         unit_obj = validate_unit(unit)
-        self.value = value if unit_obj is None else Quantity(value, unit_obj)
-
-        self.option_set = option_set        # the name of the option set, if any
+        self.value = None if value is None else (value if unit_obj is None else Quantity(value, unit_obj))
         self.unit = unit
         self.atype = atype
 
@@ -240,9 +238,6 @@ class A(XmlInstantiable):
 
         if self.unit:
             attrs += f"unit = '{self.unit}'"
-
-        if self.option_set:
-            attrs += f" options='{self.option_set}'"
 
         return f"<{type_str} {attrs}>"
 
@@ -261,7 +256,7 @@ class A(XmlInstantiable):
             elt_xml = etree.tostring(elt).decode()
             raise OpgeeException(f"Empty <A> elements are not allowed: {elt_xml}")
 
-        obj = A(a['name'], value=elt.text, atype=a.get('type'), unit=a.get('unit'),
-                option_set=a.get('options'))
+        # TBD: some of this comes from <AttrDef>, not <A>.
+        obj = A(a['name'], value=elt.text)
 
         return obj

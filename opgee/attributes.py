@@ -5,7 +5,7 @@
    See the https://opensource.org/licenses/MIT for license details.
 """
 from pint import Quantity
-from .core import OpgeeObject, XmlInstantiable, instantiate_subelts, elt_name, validate_unit
+from .core import OpgeeObject, XmlInstantiable, A, instantiate_subelts, elt_name, validate_unit
 from .error import OpgeeException
 from .log import getLogger
 from .pkg_utils import resourceStream
@@ -139,7 +139,11 @@ class ClassAttrs(XmlInstantiable):
 class AttrDefs(OpgeeObject):
     """
     Parse and provide access to attributes.xml metadata file.
+    This is a singleton class: use AttrDefs.get_instance() rather
+    than calling AttrDefs() directly.
     """
+    instance = None
+
     def __init__(self):
         super().__init__()
 
@@ -147,6 +151,7 @@ class AttrDefs(OpgeeObject):
         # Value is a ClassAttrs instance.
         self.classes = None
 
+        _logger.debug("Reading etc/attributes.xml")
         stream = resourceStream('etc/attributes.xml', stream_type='bytes', decode=None)
         attr_xml = XMLFile(stream, schemaPath='etc/attributes.xsd')
         root = attr_xml.tree.getroot()
@@ -159,6 +164,13 @@ class AttrDefs(OpgeeObject):
         #
 
         self.classes = instantiate_subelts(root, ClassAttrs, as_dict=True)
+
+    @classmethod
+    def get_instance(cls):
+        if cls.instance is None:
+            cls.instance = AttrDefs()
+
+        return cls.instance
 
     def class_attrs(self, classname, raiseError=True):
         """
@@ -177,7 +189,7 @@ class AttrDefs(OpgeeObject):
 
         return attrs
 
-    def attr_def(self, classname, name, raiseError=True):
+    def get_def(self, classname, name, raiseError=True):
         """
         Return the definition of an attribute `name` defined for class `classname`.
 
@@ -190,3 +202,67 @@ class AttrDefs(OpgeeObject):
         """
         class_attrs = self.class_attrs(classname, raiseError=raiseError)
         return class_attrs.attribute(name, raiseError=raiseError)
+
+
+class AttributeMixin():
+    """
+    Consolidates attribute-related code shared by `Container` and `Process` classes.
+    Note: must be mixed into classes that have both self.attr_dict and self.attr_defs.
+    """
+
+    def __init__(self):
+        self.attr_dict = None
+
+    def attr(self, attr_name, raiseError=False):
+        obj = self.attr_dict.get(attr_name)
+        if obj is None and raiseError:
+            raise OpgeeException(f"Attribute '{attr_name}' not found in {self}")
+
+        return obj.value
+
+    def attrs_with_prefix(self, prefix):
+        """
+        Collect a group of similarly-prefixed attributes into a dictionary keyed by the
+        portion of the name after the prefix.
+
+        :param prefix: (str) a common prefix shared by multiple attributes
+        :return: (dict) attribute objects keyed by the portion of the name after the prefix.
+        """
+        from pandas import Series
+
+        prefix_len = len(prefix)
+        attr_dict = self.attr_dict
+
+        names = [name for name in attr_dict.keys() if name.startswith(prefix)]
+        d = {name[prefix_len:] : attr_dict[name].value for name in names}
+        return Series(d)
+
+    # TBD: fill in Smart Defaults here, or assume they've been filled already?
+    @classmethod
+    def instantiate_attrs(cls, elt):
+        classname = cls.__name__
+        attr_defs = AttrDefs.get_instance()
+        class_attrs = attr_defs.class_attrs(classname, raiseError=False)
+
+        attr_dict = {}
+
+        if class_attrs:
+            # set up all attributes with default values
+            for name, attr_def in class_attrs.attr_dict.items():
+                attr_dict[name] = A(name, value=attr_def.default, atype=attr_def.atype, unit=attr_def.unit)
+        else:
+            _logger.warning(f"Found no attribute metadata for {cls}")
+
+        # update all user-defined attributes with the values from the model definition XML
+        user_attrs = instantiate_subelts(elt, A)
+
+        if len(user_attrs) > 0 and class_attrs is None:
+            raise OpgeeException(f"Attributes defined in model XML for {classname} lack metadata")
+
+        for attr in user_attrs:
+            try:
+                attr_dict[attr.name].value = attr.value
+            except KeyError:
+                raise OpgeeException(f"Unrecognized attribute '{attr.name}' in model definition for class {classname}")
+
+        return attr_dict

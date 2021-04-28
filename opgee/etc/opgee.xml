@@ -41,8 +41,8 @@
 
 			<Process class="Exploration"/>
 			<Process class="DrillingAndDevelopment" desc="Drilling &amp; development">
-				<A name="productivity">medium</A>
-				<A name="total_wells">2500</A>
+				<A name="well_complexity">high</A>
+				<A name="length_lateral">4500</A>
 			</Process>
 
 			<Aggregator name="Production_and_extraction">
@@ -151,8 +151,8 @@
 			</Aggregator>
 			<Aggregator name="DrillingAndDevelopment">
 				<Process class="DrillingAndDevelopment" desc="Drilling &amp; development">
-					<A name="productivity">medium</A>
-					<A name="total_wells">2500</A>
+					<A name="well_complexity">high</A>
+					<A name="length_lateral">4500</A>
 				</Process>
 				<Process class="LandUse"/>
 				<Process class="Fracking"/>
@@ -167,7 +167,6 @@
 			</Process>
 			<Aggregator name="Production_and_extraction">
 				<Process class="ReservoirWellInterface" desc="Reservoir-well interface">
-					<A name="x">0</A>
 				</Process>
 				<Process class="DownholePump" desc="Downhole pump (lifting)"/>
 				<Process class="CrudeOilStorage" desc="Crude Oil Storage"/>

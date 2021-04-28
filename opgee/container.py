@@ -4,15 +4,15 @@
 .. Copyright (c) 2021 Richard Plevin and Stanford University
    See the https://opensource.org/licenses/MIT for license details.
 '''
+from .attributes import AttrDefs, AttributeMixin
 from .core import XmlInstantiable
 from .emissions import Emissions
 from .energy import Energy
-from .error import OpgeeException
 from .log import getLogger
 
 _logger = getLogger(__name__)
 
-class Container(XmlInstantiable):
+class Container(XmlInstantiable, AttributeMixin):
     """
     Generic hierarchical node element, has a name and contains other Containers and/or
     Processes (and subclasses thereof).
@@ -20,20 +20,15 @@ class Container(XmlInstantiable):
     def __init__(self, name, attr_dict=None, aggs=None, procs=None):
         super().__init__(name)
 
+        self.attr_defs = AttrDefs.get_instance()
+        self.attr_dict = attr_dict or {}
+
         self.emissions = Emissions()
         self.energy = Energy()
         self.ghgs = 0.0
 
-        self.attr_dict = attr_dict or {}
         self.aggs  = self.adopt(aggs)
         self.procs = self.adopt(procs)
-
-    def attr(self, attr_name, default=None, raiseError=False):
-        obj = self.attr_dict.get(attr_name)
-        if obj is None and raiseError:
-            raise OpgeeException(f"Attribute '{attr_name}' not found in {self}")
-
-        return obj.value or default
 
     def run(self, names=None, **kwargs):
         """

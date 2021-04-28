@@ -159,7 +159,7 @@
     <AttrDef name="number_wells_dry" type="int" desc="Number of dry wells drilled per field found">1</AttrDef>
     <AttrDef name="number_wells_exploratory" type="int" desc="Number of exploratory/scientific wells drilled after field discovery">3</AttrDef>
   </ClassAttrs>
-  <ClassAttrs name="Drilling">
+  <ClassAttrs name="DrillingAndDevelopment">
     <Options name="rig_efficiency" default="Medium">
       <Option desc="Mud pump 60%, Rotary Table 40%">Low</Option>
       <Option desc="Mud pump 65%, Rotary Table 45%">Medium</Option>

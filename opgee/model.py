@@ -5,7 +5,6 @@
    See the https://opensource.org/licenses/MIT for license details.
 """
 from .analysis import Analysis
-from .attributes import AttrDefs
 from .container import Container
 from .core import instantiate_subelts, elt_name, ureg
 from .config import getParam
@@ -21,14 +20,10 @@ _logger = getLogger(__name__)
 
 class Model(Container):
     def __init__(self, name, analysis, attr_dict=None):
-        super().__init__(name)
-
-        # Load global attribute definitions from attributes.xml
-        self.attr_defs = AttrDefs()
+        super().__init__(name, attr_dict=attr_dict)
 
         self.analysis = analysis
         analysis.parent = self
-        self.attr_dict = attr_dict or {}
 
         self.table_mgr = tbl_mgr = TableManager()
 
@@ -110,19 +105,6 @@ class Model(Container):
             return self.constants[name]
         except KeyError:
             raise OpgeeException(f"No known constant with name '{name}'")
-
-    def attr_def(self, classname, name, raiseError=True):
-        """
-        Return the definition of an attribute `name` defined for class `classname`.
-
-        :param classname: (str) the name of a class associated with the attribute
-        :param name: (str) the name of an attribute
-        :param raiseError: (bool) whether to raise an error if the attribute or
-           classname are not known.
-        :return: the value of the attribute
-        :raises: OpgeeException if the attribute or classname are unknown.
-        """
-        self.attr_defs.attr_def(classname, name, raiseError=raiseError)
 
     def _children(self, include_disabled=False):
         """
