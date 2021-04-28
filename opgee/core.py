@@ -4,7 +4,7 @@
 .. Copyright (c) 2021 Richard Plevin and Stanford University
    See the https://opensource.org/licenses/MIT for license details.
 '''
-from pint import UnitRegistry, Quantity
+from pint import UnitRegistry
 from .error import OpgeeException, AbstractMethodError, AbstractInstantiationError
 from .log import getLogger
 from .pkg_utils import resourceStream
@@ -81,7 +81,7 @@ def subelt_text(elt, tag, coerce=None, with_unit=True, required=True):
     if with_unit:
         if unit is None:
             raise OpgeeException(f"subelt_value: unit is missing from element {subelt}")
-        return Quantity(value, ureg[unit])
+        return ureg.Quantity(value, ureg[unit])
     else:
         return value
 
@@ -227,7 +227,7 @@ class A(XmlInstantiable):
             value = coercible(value, atype)
 
         unit_obj = validate_unit(unit)
-        self.value = None if value is None else (value if unit_obj is None else Quantity(value, unit_obj))
+        self.value = None if value is None else (value if unit_obj is None else ureg.Quantity(value, unit_obj))
         self.unit = unit
         self.atype = atype
 

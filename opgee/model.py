@@ -162,7 +162,8 @@ class Model(Container):
         if count != 1:
             raise OpgeeException(f"Expected on <Analysis> element; got {count}")
 
-        attr_dict = instantiate_subelts(elt, A, as_dict=True)
+        attr_dict = cls.instantiate_attrs(elt)
+
         obj = Model(elt_name(elt), analyses[0], attr_dict=attr_dict)
         return obj
 

@@ -4,8 +4,7 @@
 .. Copyright (c) 2021 Richard Plevin and Stanford University
    See the https://opensource.org/licenses/MIT for license details.
 """
-from pint import Quantity
-from .core import OpgeeObject, XmlInstantiable, A, instantiate_subelts, elt_name, validate_unit
+from .core import OpgeeObject, XmlInstantiable, A, instantiate_subelts, elt_name, validate_unit, ureg
 from .error import OpgeeException
 from .log import getLogger
 from .pkg_utils import resourceStream
@@ -44,7 +43,7 @@ class AttrDef(XmlInstantiable):
 
         unit_obj = validate_unit(self.unit)
 
-        self.default = value if unit_obj is None else Quantity(value, unit_obj)
+        self.default = value if unit_obj is None else ureg.Quantity(value, unit_obj)
 
     def __str__(self):
         type_str = type(self).__name__
@@ -250,8 +249,6 @@ class AttributeMixin():
             # set up all attributes with default values
             for name, attr_def in class_attrs.attr_dict.items():
                 attr_dict[name] = A(name, value=attr_def.default, atype=attr_def.atype, unit=attr_def.unit)
-        else:
-            _logger.warning(f"Found no attribute metadata for {cls}")
 
         # update all user-defined attributes with the values from the model definition XML
         user_attrs = instantiate_subelts(elt, A)

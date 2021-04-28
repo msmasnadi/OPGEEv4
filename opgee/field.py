@@ -1,5 +1,4 @@
 import networkx as nx
-
 from .container import Container
 from .core import A, elt_name, instantiate_subelts, dict_from_list
 from .error import OpgeeException
@@ -176,7 +175,7 @@ class Field(Container):
         name = elt_name(elt)
 
         # TBD: fill in Smart Defaults here, or assume they've been filled already?
-        attr_dict = instantiate_subelts(elt, A, as_dict=True)
+        attr_dict = cls.instantiate_attrs(elt)
 
         aggs    = instantiate_subelts(elt, Aggregator)
         procs   = instantiate_subelts(elt, Process)

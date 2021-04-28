@@ -1,4 +1,5 @@
 from .core import elt_name, subelt_text, instantiate_subelts, A
+from .attributes import AttrDefs
 from .container import Container
 from .field import Field
 from .log import getLogger
@@ -32,7 +33,7 @@ class Analysis(Container):
         """
         name = elt_name(elt)
 
-        attr_dict = instantiate_subelts(elt, A, as_dict=True)
+        attr_dict = cls.instantiate_attrs(elt)
         fields = instantiate_subelts(elt, Field)
 
         # TBD: should these just become attributes?

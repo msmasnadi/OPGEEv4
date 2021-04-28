@@ -19,8 +19,8 @@
 		<EnergyBasis>LHV</EnergyBasis>
 
 		<Field name="test">
-			<A name="location">USA</A>
-			<A name="is_offshore">0</A>
+			<A name="country">USA</A>
+			<A name="offshore">0</A>
 			<A name="age">86</A>
 			<A name="depth">4936</A>
 			<A name="oil_prod">101295</A>
@@ -110,8 +110,8 @@
 			<Stream number="8" src="CrudeOilDewatering" dst="CrudeOilStabilization"/>
 		</Field>
 		<Field name="US_FW">
-			<A name="location">USA</A>
-			<A name="is_offshore">0</A>
+			<A name="country">USA</A>
+			<A name="offshore">0</A>
 			<A name="age">86</A>
 			<A name="depth">4936</A>
 			<A name="oil_prod">101295</A>

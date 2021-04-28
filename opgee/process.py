@@ -392,8 +392,7 @@ class Aggregator(Container):
         aggs  = instantiate_subelts(elt, Aggregator)
         procs = instantiate_subelts(elt, Process)
 
-        # TBD: fill in Smart Defaults here, or assume they've been filled already?
-        attr_dict = instantiate_subelts(elt, A, as_dict=True)
+        attr_dict = cls.instantiate_attrs(elt)
 
         obj = cls(name, attr_dict=attr_dict, aggs=aggs, procs=procs)
         return obj

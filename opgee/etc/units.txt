@@ -27,7 +27,9 @@ barrel_H2O = 42 * gal * water = bbl_water = bbl_H2O
 # ratio of density of oil to density of water
 degAPI = [fraction]; offset: 0 = API_gravity
 
-mol% = dimensionless
+mol_pct = dimensionless
+
+percent = dimensionless
 
 # Not sure this is at all helpful
 CO2eq = []
