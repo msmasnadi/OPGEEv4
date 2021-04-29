@@ -37,18 +37,13 @@ def main():
                 print(f"\n<Stream '{s.name}>'\n{s.components}")
 
 def test_pint():
-    from pint import UnitRegistry, Quantity
+    from pint import UnitRegistry
 
     ureg = UnitRegistry()
     ureg.load_definitions(resourceStream('etc/opgee_units.txt'))
 
-    # c = Quantity(10, ureg.degC)
-    # k = Quantity(111, ureg.degK)
-    # x = c.to(ureg.degK) + k
-    # print(x)
-
-    g = Quantity(10, ureg.psig)
-    a = Quantity(21, ureg.psia)
+    g = ureg.Quantity(10, ureg.psig)
+    a = ureg.Quantity(21, ureg.psia)
     x = g.to(ureg.psia) + a
     print(x)
 

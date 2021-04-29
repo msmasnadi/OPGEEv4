@@ -5,7 +5,8 @@
    See the https://opensource.org/licenses/MIT for license details.
 '''
 import pandas as pd
-from .core import XmlInstantiable, subelt_text, elt_name
+from .attributes import AttributeMixin
+from .core import XmlInstantiable, elt_name
 from .error import OpgeeException
 from .log import getLogger
 from .utils import coercible
@@ -20,12 +21,16 @@ PHASE_GAS = 'gas'
 #
 # Can streams have emissions (e.g., leakage) or is that attributed to a process?
 #
-class Stream(XmlInstantiable):
+class Stream(XmlInstantiable, AttributeMixin):
     """
-    The `Stream` class holds values for pre-defined substances in any of three phases of matter
-    (solid, liquid, or gas). The default set of substances is defined by ``Stream.components``
-    but can be extended by the user to include other substances, by setting the configuration
-    file variable `OPGEE.StreamComponents`.
+    The `Stream` class represent the flow rates of single substances or mingled combinations of co-flowing substances
+    in any of the three states of matter (solid, liquid, or gas). Streams and stream components are specified in mass
+    flow rates (e.g., Mg per day). The default set of substances is defined by ``Stream.components`` but can be
+    extended by the user to include other substances, by setting the configuration file variable
+    `OPGEE.StreamComponents`.
+
+    Streams are defined within the `<Field>` element and are stored in a `Field` instance. The `Field` class tracks
+    all `Stream` instances in a dictionary keyed by `Stream` name.
     """
 
     # HCs with 1-60 carbon atoms, i.e., C1, C2, ..., C60
@@ -37,7 +42,8 @@ class Stream(XmlInstantiable):
     _gases = ['N2', 'O2', 'CO2', 'H2O', 'CH4', 'C2H6', 'C3H8', 'C4H10', 'H2', 'H2S', 'SO2', 'air']
     _other = ['Na+', 'Cl-', 'Si-']
 
-    #: The stream components tracked by OPGEE.
+    #: The stream components tracked by OPGEE. This list can be extended by calling ``Stream.extend_components(names)``,
+    #: or more simply by defining configuration file variable ``OPGEE.StreamComponents``.
     components = _solids + _liquids + _gases + _other  # or use C1-C60 (_hydrocarbons)?
 
     # Remember extensions to avoid applying any redundantly.
@@ -47,8 +53,10 @@ class Stream(XmlInstantiable):
     @classmethod
     def extend_components(cls, names):
         """
-        Extend the global `Component` list.
-        N.B. This must be called before any streams are instantiated.
+        Allows the user to extend the global `Component` list. This must be called before any streams
+        are instantiated. This method is called automatically if the configuration file variable
+        ``OPGEE.StreamComponents`` is not empty: set it to a comma-delimited list of component names
+        and they will be added to ``Stream.components`` at startup.
 
         :param names: (iterable of str) the names of new stream components.
         :return: None
@@ -173,8 +181,15 @@ class Stream(XmlInstantiable):
 
         # The following are optional
         number = coercible(a['number'], int, raiseError=False) # optional and eventually deprecated
-        temp = subelt_text(elt, 'Temperature', coerce=float, required=False)
-        pres = subelt_text(elt, 'Pressure', coerce=float, required=False)
+
+        # There should be exactly 2 attributes: temperature and pressure
+        attr_dict = cls.instantiate_attrs(elt)
+        expected = {'temperature', 'pressure'}
+        if set(attr_dict.keys()) != expected:
+            raise OpgeeException(f"Stream {name}: expected 2 attributes, {expected}")
+
+        temp = attr_dict['temperature'].value
+        pres = attr_dict['pressure'].value
 
         obj = Stream(name, number=number, temperature=temp, pressure=pres, src_name=src, dst_name=dst)
         comp_df = obj.components # this is an empty DataFrame; it is filled in below or at runtime
@@ -199,32 +214,32 @@ class Stream(XmlInstantiable):
         return obj
 
 # Deprecated? May be useful for Environment. Or not.
-class SignalingStream(Stream):
-    """
-    Augments Stream to have a dirty bit and a read method that returns a copy of the
-    stream contents and resets the stream to zeros, clearing the dirty bit. The main
-    use is for the Environment() process to collect emissions from all Processes, but
-    incrementally after each upstream process runs.
-    """
-    def __init__(self, name, number=0, temperature=None, pressure=None,
-                 src_name=None, dst_name=None, comp_matrix=None):
-
-        super().init(name, number=number, temperature=temperature, pressure=pressure,
-                     src_name=src_name, dst_name=dst_name, comp_matrix=comp_matrix)
-
-        self.dirty = False
-
-    def get_data(self):
-        if not self.dirty:
-            return None
-
-        comps = self.components
-        copy = comps.copy()
-        comps.loc[:, :] = 0.0
-        self.dirty = False
-
-        return copy
-
-    def set_flow_rate(self, name, phase, rate):
-        super().set_flow_rate(name, phase, rate)
-        self.dirty = True
+# class SignalingStream(Stream):
+#     """
+#     Augments Stream to have a dirty bit and a read method that returns a copy of the
+#     stream contents and resets the stream to zeros, clearing the dirty bit. The main
+#     use is for the Environment() process to collect emissions from all Processes, but
+#     incrementally after each upstream process runs.
+#     """
+#     def __init__(self, name, number=0, temperature=None, pressure=None,
+#                  src_name=None, dst_name=None, comp_matrix=None):
+#
+#         super().init(name, number=number, temperature=temperature, pressure=pressure,
+#                      src_name=src_name, dst_name=dst_name, comp_matrix=comp_matrix)
+#
+#         self.dirty = False
+#
+#     def get_data(self):
+#         if not self.dirty:
+#             return None
+#
+#         comps = self.components
+#         copy = comps.copy()
+#         comps.loc[:, :] = 0.0
+#         self.dirty = False
+#
+#         return copy
+#
+#     def set_flow_rate(self, name, phase, rate):
+#         super().set_flow_rate(name, phase, rate)
+#         self.dirty = True

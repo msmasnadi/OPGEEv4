@@ -121,8 +121,7 @@
     <xs:element name='Stream'>
         <xs:complexType>
             <xs:choice minOccurs="0" maxOccurs="unbounded">
-                <xs:element minOccurs="1" maxOccurs="1" ref='Temperature'/>
-                <xs:element minOccurs="1" maxOccurs="1" ref='Pressure'/>
+                <xs:element minOccurs="2" maxOccurs="2" ref='A'/>
                 <xs:element minOccurs="1" maxOccurs="unbounded" ref='Component'/>
             </xs:choice>
             <xs:attribute name='name'/>                      <!-- allow this for now, but will be computed -->

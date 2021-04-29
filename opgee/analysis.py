@@ -1,5 +1,4 @@
-from .core import elt_name, subelt_text, instantiate_subelts, A
-from .attributes import AttrDefs
+from .core import elt_name, subelt_text, instantiate_subelts
 from .container import Container
 from .field import Field
 from .log import getLogger

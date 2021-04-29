@@ -90,14 +90,14 @@
 			<Stream number="3" name="crude oil at wellbottom" src="ReservoirWellInterface" dst="DownholePump"/>
 			<Stream number="4" name="crude oil at wellhead" src="DownholePump" dst="Separation"/>
 			<Stream number="7" name="crude oil after separator" src="Separation" dst="CrudeOilDewatering">
-				<Temperature unit="degF">90.0</Temperature>
-				<Pressure unit="psia">100.0</Pressure>
+				<A name="temperature">90.0</A>
+				<A name="pressure">100.0</A>
 				<Component name="oil" phase="liquid" unit="tonne/d">14555.9</Component>
 				<Component name="H2O" phase="liquid" unit="tonne/d">2037.8</Component>
 			</Stream>
 			<Stream number="160" name="Fuel gas - dewatering" src="Separation" dst="CrudeOilDewatering">
-				<Temperature unit="degF">90.0</Temperature>
-				<Pressure unit="psia">150.0</Pressure>
+				<A name="temperature">90.0</A>
+				<A name="pressure">150.0</A>
 				<Component name="N2" phase="gas" unit="tonne/d">0.8</Component>
 				<Component name="CO2" phase="gas" unit="tonne/d">0.7</Component>
 				<Component name="CH4" phase="gas" unit="tonne/d">35.5</Component>
@@ -125,19 +125,19 @@
 				<Produces>crude oil</Produces>
 			</Process>
 			<Stream number="1" name="oil in reservoir" src="Reservoir" dst="ReservoirWellInterface">
-				<Temperature unit="degF">70.8</Temperature>
-				<Pressure unit="psia">887.3</Pressure>
+				<A name="temperature">70.8</A>
+				<A name="pressure">887.3</A>
 				<Component name="oil" phase="liquid" unit="tonne/d">14555.9</Component>
 				<Component name="H2O" phase="liquid" unit="tonne/d">2037.8</Component>
 			</Stream>
 			<Stream number="100" name="water in reservoir" src="Reservoir" dst="ReservoirWellInterface">
-				<Temperature unit="degF">70.8</Temperature>
-				<Pressure unit="psia">887.3</Pressure>
+				<A name="temperature">70.8</A>
+				<A name="pressure">887.3</A>
 				<Component name="H2O" phase="liquid" unit="tonne/d">255636.1</Component>
 			</Stream>
 			<Stream number="25" name="gas from reservoir" src="Reservoir" dst="ReservoirWellInterface">
-				<Temperature unit="degF">70.8</Temperature>
-				<Pressure unit="psia">887.3</Pressure>
+				<A name="temperature">70.8</A>
+				<A name="pressure">887.3</A>
 				<Component name="N2" phase="gas" unit="tonne/d">519.9</Component>
 				<Component name="CO2" phase="gas" unit="tonne/d">8858.8</Component>
 				<Component name="CH4" phase="gas" unit="tonne/d">22288.1</Component>

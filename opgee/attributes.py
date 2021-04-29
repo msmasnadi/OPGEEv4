@@ -83,7 +83,7 @@ class ClassAttrs(XmlInstantiable):
         self.attr_dict = attr_dict
         self.option_dict = option_dict
 
-        # TBD: set defaults for anything not previously set
+        # TBD: set defaults for attributes using options to the option's default
         for attr in attr_dict.values():
             set_name = attr.option_set
             if attr.default is None and set_name:
@@ -233,8 +233,14 @@ class AttributeMixin():
         attr_dict = self.attr_dict
 
         names = [name for name in attr_dict.keys() if name.startswith(prefix)]
+
+        # assume that all have same units
+        # unit = attr_dict[names[0]].unit
+        dtype = None # doesn't work with custom types f"pint[{unit}]" if unit else None
+
         d = {name[prefix_len:] : attr_dict[name].value for name in names}
-        return Series(d)
+        s = Series(d, dtype=dtype)
+        return s
 
     # TBD: fill in Smart Defaults here, or assume they've been filled already?
     @classmethod
@@ -250,15 +256,21 @@ class AttributeMixin():
             for name, attr_def in class_attrs.attr_dict.items():
                 attr_dict[name] = A(name, value=attr_def.default, atype=attr_def.atype, unit=attr_def.unit)
 
-        # update all user-defined attributes with the values from the model definition XML
-        user_attrs = instantiate_subelts(elt, A)
+        # Update all user-defined attributes with the values from the model definition XML.
+        user_attrs = []
+        for a in elt.findall('A'):
+            name = elt_name(a)
+            value = a.text
+            attr_def = attr_dict[name]
+            user_attr = A(name, value=value, atype=attr_def.atype, unit=attr_def.unit)
+            user_attrs.append(user_attr)
 
         if len(user_attrs) > 0 and class_attrs is None:
             raise OpgeeException(f"Attributes defined in model XML for {classname} lack metadata")
 
         for attr in user_attrs:
             try:
-                attr_dict[attr.name].value = attr.value
+                attr_dict[attr.name] = attr
             except KeyError:
                 raise OpgeeException(f"Unrecognized attribute '{attr.name}' in model definition for class {classname}")
 

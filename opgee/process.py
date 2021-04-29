@@ -5,7 +5,7 @@
    See the https://opensource.org/licenses/MIT for license details.
 '''
 from .attributes import AttrDefs, AttributeMixin
-from .core import A, XmlInstantiable, elt_name, instantiate_subelts
+from .core import XmlInstantiable, elt_name, instantiate_subelts
 from .container import Container
 from .error import OpgeeException, AbstractMethodError
 from .emissions import Emissions

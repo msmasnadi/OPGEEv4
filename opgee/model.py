@@ -69,11 +69,15 @@ class Model(Container):
         :param gwp_version: (str) the GWP version to use; must be one of 'AR4', 'AR5', 'AR5_CCF'
         :return: none
         """
+        from pint import Quantity
+
         # TBD: validate these against options in attributes.xml rather than hardcoding here
         valid_years = (20, 100)
         valid_versions = ('AR4', 'AR5', 'AR5_CCF')
 
-        gwp_years = int(gwp_years)
+        if isinstance(gwp_years, Quantity):
+            gwp_years = gwp_years.magnitude
+
         if gwp_years not in valid_years:
             raise OpgeeException(f"GWP years must be one of {valid_years}; value given was {gwp_years}")
 
@@ -155,8 +159,6 @@ class Model(Container):
         :param elt: (etree.Element) representing a <Model> element
         :return: (Model) instance populated from XML
         """
-        from .core import A
-
         analyses = instantiate_subelts(elt, Analysis)
         count = len(analyses)
         if count != 1:

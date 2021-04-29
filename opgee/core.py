@@ -218,12 +218,11 @@ def validate_unit(unit):
     return None
 
 # The <A> element
-# TBD: some of this doesn't belong here; it's actually in <Attr> (definitions)
 class A(XmlInstantiable):
     def __init__(self, name, value=None, atype=None, unit=None):
         super().__init__(name)
 
-        if atype is not None:
+        if value is not None and atype is not None:
             value = coercible(value, atype)
 
         unit_obj = validate_unit(unit)
@@ -237,26 +236,25 @@ class A(XmlInstantiable):
         attrs = f"name='{self.name}' type='{self.atype}' value='{self.value}'"
 
         if self.unit:
-            attrs += f"unit = '{self.unit}'"
+            attrs += f" unit = '{self.unit}'"
 
         return f"<{type_str} {attrs}>"
 
-    @classmethod
-    def from_xml(cls, elt):
-        """
-        Instantiate an instance from an XML element
-
-        :param elt: (etree.Element) representing an <A> element
-        :return: (A) instance of class A
-        """
-        a = elt.attrib
-
-        if elt.text is None:
-            from lxml import etree
-            elt_xml = etree.tostring(elt).decode()
-            raise OpgeeException(f"Empty <A> elements are not allowed: {elt_xml}")
-
-        # TBD: some of this comes from <AttrDef>, not <A>.
-        obj = A(a['name'], value=elt.text)
-
-        return obj
+    # Deprecated: subclasses of AttributeMixin use cls.instantiate_attrs()
+    # @classmethod
+    # def from_xml(cls, elt):
+    #     """
+    #     Instantiate an instance from an XML element
+    #
+    #     :param elt: (etree.Element) representing an <A> element
+    #     :return: (A) instance of class A
+    #     """
+    #     if elt.text is None:
+    #         from lxml import etree
+    #         elt_xml = etree.tostring(elt).decode()
+    #         raise OpgeeException(f"Empty <A> elements are not allowed: {elt_xml}")
+    #
+    #     # TBD: some of this comes from <AttrDef>, not <A>.
+    #     obj = A(elt.attrib['name'], value=elt.text)
+    #
+    #     return obj
