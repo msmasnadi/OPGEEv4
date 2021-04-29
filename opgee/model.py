@@ -18,6 +18,13 @@ from .XMLFile import XMLFile
 
 _logger = getLogger(__name__)
 
+# TBD
+# Create a directed graph in Network X to simplify do loop detection.
+# Add “visited” flags to processes and technologies, and may be a list of visited nudes so they can be reset easily without searching.
+# Support both max number of iterations, and designation of an output variable v and a value epsilon so the iteration stops when,
+#    between iterations, %change < epsilon.
+# How to handle multiple loops? Each may need a value to compare against to detect convergence.
+
 class Model(Container):
     def __init__(self, name, analysis, attr_dict=None):
         super().__init__(name, attr_dict=attr_dict)

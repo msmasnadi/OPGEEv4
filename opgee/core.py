@@ -5,7 +5,7 @@
    See the https://opensource.org/licenses/MIT for license details.
 '''
 from pint import UnitRegistry
-from .error import OpgeeException, AbstractMethodError, AbstractInstantiationError
+from .error import OpgeeException, AbstractMethodError
 from .log import getLogger
 from .pkg_utils import resourceStream
 from .utils import coercible, getBooleanXML
@@ -32,20 +32,6 @@ def superclass(cls):
     mro = cls.__mro__
     return mro[1] if len(mro) > 1 else None
 
-# deprecated
-# def class_from_str(classname, module_name=__name__):
-#     m = sys.modules[module_name]   # get the module object
-#
-#     try:
-#         cls = getattr(m, classname)
-#
-#         if not issubclass(cls, XmlInstantiable):
-#             raise OpgeeException(f'Class {classname} is not a subclass of XmlInstantiable')
-#
-#         return cls
-#
-#     except AttributeError:
-#         raise OpgeeException(f'Class {classname} is not a defined OPGEE class')
 
 def subelt_text(elt, tag, coerce=None, with_unit=True, required=True):
     """
@@ -139,8 +125,8 @@ class XmlInstantiable(OpgeeObject):
 
     1. They subclass from XmlInstantiable or its subclasses
     2. They define ``__init__(self, name, **kwargs)`` and call ``super().__init__(name)``
-    3. They define @classmethod from_xml(cls, element) to create an instance from XML.
-    4. Subclasses of Container and Process implement run(self) to perform any required operations.
+    3. They define ``@classmethod from_xml(cls, element)`` to create an instance from XML.
+    4. Subclasses of Container and Process implement ``run(self)`` to perform any required operations.
 
     """
     def __init__(self, name):
@@ -217,8 +203,12 @@ def validate_unit(unit):
 
     return None
 
-# The <A> element
-class A(XmlInstantiable):
+class A(OpgeeObject):
+    """
+    The <A> element represents the value of an attribute previously defined in
+    attributes.xml or a user-provided file. Note that this class is not instantiated
+    using from_xml() approach since values are merged with metadata from attributes.xml.
+    """
     def __init__(self, name, value=None, atype=None, unit=None):
         super().__init__(name)
 
@@ -239,22 +229,3 @@ class A(XmlInstantiable):
             attrs += f" unit = '{self.unit}'"
 
         return f"<{type_str} {attrs}>"
-
-    # Deprecated: subclasses of AttributeMixin use cls.instantiate_attrs()
-    # @classmethod
-    # def from_xml(cls, elt):
-    #     """
-    #     Instantiate an instance from an XML element
-    #
-    #     :param elt: (etree.Element) representing an <A> element
-    #     :return: (A) instance of class A
-    #     """
-    #     if elt.text is None:
-    #         from lxml import etree
-    #         elt_xml = etree.tostring(elt).decode()
-    #         raise OpgeeException(f"Empty <A> elements are not allowed: {elt_xml}")
-    #
-    #     # TBD: some of this comes from <AttrDef>, not <A>.
-    #     obj = A(elt.attrib['name'], value=elt.text)
-    #
-    #     return obj

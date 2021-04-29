@@ -34,53 +34,7 @@ class ConfigCommand(SubcommandABC):
                             help=clean_help('Treat the text not as a substring to match, but '
                             'as the name of a specific variable. Match is case-sensitive. '
                             'Prints only the value.'))
-
-        parser.add_argument('-t', '--test', action='store_true',
-                            help=clean_help('Test the settings in the configuration file to ensure '
-                            'that the basic setup is ok, i.e., required parameters have '
-                            'values that make sense. If specified, no variables are displayed.'))
-
         return parser
-
-    def testConfig(self, section):
-        import os
-        from ..config import getParam
-
-        requiredDirs = ['SandboxRoot', 'ProjectRoot', 'ProjectDir', 'TempDir']
-        requiredFiles = ['ProjectXmlFile']
-        optionalDirs  = ['UserTempDir']
-        optionalFiles = []
-
-        dirVars  = requiredDirs  + optionalDirs
-        fileVars = requiredFiles + optionalFiles
-
-        optionalVars = optionalDirs + optionalFiles
-
-        errors = []
-
-        for item in dirVars + fileVars:
-            var = 'OPGEE.' + item
-            value = getParam(var)
-
-            if not value:
-                if item in optionalVars:
-                    continue
-                print("Config variable", var, "is empty")
-
-            elif not os.path.lexists(value) and item not in optionalVars:
-                errors.append("%s = '%s' : non-existent path" % (var, value))
-
-            elif not os.path.isfile(value) and item in fileVars:
-                errors.append("%s = '%s' : does not refer to a file" % (var, value))
-
-            elif not os.path.isdir(value) and item in dirVars:
-                errors.append("%s = '%s' : does not refer to a directory" % (var, value))
-
-            print('OK: %s = %s' %(var, value))
-        if errors:
-            print('')
-            for error in errors:
-                print('Error:', error)
 
     def run(self, args, tool):
         import re
@@ -88,7 +42,9 @@ class ConfigCommand(SubcommandABC):
         from ..config import getParam, _ConfigParser, USR_CONFIG_FILE
 
         if args.edit:
-            cmd = '%s %s/%s' % (getParam('OPGEE.TextEditor'), getParam('Home'), USR_CONFIG_FILE)
+            editor = getParam('OPGEE.TextEditor')
+            home = getParam('Home')
+            cmd = f"{editor} {home}/{USR_CONFIG_FILE}"
             print(cmd)
             exitStatus = subprocess.call(cmd, shell=True)
             if exitStatus != 0:
@@ -102,10 +58,6 @@ class ConfigCommand(SubcommandABC):
 
         if section != 'DEFAULT' and not _ConfigParser.has_section(section):
             raise CommandlineError("Unknown configuration file section '%s'" % section)
-
-        if args.test:
-            self.testConfig(section)
-            return
 
         if args.name and args.exact:
             value = getParam(args.name, section=section, raiseError=False)

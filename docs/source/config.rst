@@ -92,9 +92,16 @@ For example, consider the following values in ``$HOME/opgee.cfg``:
     OPGEE.ShowStackTrace = False
 
     [test]
-    OPGEE.LogLevel = INFO, .core:DEBUG
+    # example of setting different logging levels for individual modules
+    OPGEE.LogLevel = INFO, .core:DEBUG, .processes.reservoir_well_interface:DEBUG
+
+    # example of identifying user-defined Process subclasses
     OPGEE.ClassPath = %(Home)s/tmp/opgee_procs.py
+
+    # example of adding new elements to stream components
     OPGEE.StreamComponents = foo, bar ,baz
+
+    # show full stack trace on error (useful mostly for developers)
     OPGEE.ShowStackTrace = True
 
 The default value for ``OPGEE.ShowStackTrace`` is ``False``, meaning that if errors are
@@ -185,46 +192,6 @@ All defined environmental variables are loaded into the config parameter space b
 reading any configuration files, and are accessible with a prefix of ``$``, as in a
 UNIX shell. For example, to reference the environment variable ``SCRATCH``, you can
 use ``%($SCRATCH)s``.
-
-
-Validating configuration settings
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-``opgee`` requires that certain configuration variables be set. The table
-below shows key variables, indicating whether they are required or optional,
-and whether their value must be a file or directory.
-
-** TO BE REVISED **
-
-+-----------------------+----------+-----------+
-| Variable name         | Required | Type      |
-+=======================+==========+===========+
-| OPGEE.UserTempDir     | no       | directory |
-+-----------------------+----------+-----------+
-| OPGEE.RegionMapFile   | no       | file      |
-+-----------------------+----------+-----------+
-| OPGEE.RewriteSetsFile | no       | file      |
-+-----------------------+----------+-----------+
-
-The ``config`` sub-command provides a limited amount of validation by checking
-that all required and optional variables are set to reasonable values. You can
-do a basic (not foolproof) check that the required files and directories exist
-using the command:
-
-.. code-block:: sh
-
-     opg config -t
-
-which will print out a listing of files and their status.
-
-You can also specify a project to check that project's variables. For example,
-I can test the values set for project ``myproj`` with the following command,
-shown with command output:
-
-.. code-block:: sh
-
-     $ opg +P myproj config -t
-
-     TBD or deleted
 
 
 Default configuration variables and values
