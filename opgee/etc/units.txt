@@ -1,5 +1,5 @@
 #
-# Pint unit definitions for OPGEE
+# Pint unit definitions for OPGEE (Wennan)
 #
 
 # We might want to define "@group OPGEE" so we can redefine bbl.
@@ -37,3 +37,4 @@ gCO2eq = grams * CO2eq
 
 million_gallons = 1E6 * gal = Mgal
 billion_gallons = 1E9 * gal = Bgal
+

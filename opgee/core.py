@@ -210,8 +210,8 @@ class A(OpgeeObject):
     using from_xml() approach since values are merged with metadata from attributes.xml.
     """
     def __init__(self, name, value=None, atype=None, unit=None):
-        super().__init__(name)
-
+        super().__init__()
+        self.name = name
         if value is not None and atype is not None:
             value = coercible(value, atype)
 

@@ -12,6 +12,7 @@ class ReservoirWellInterface(Process):
 
         # collect the "gas_comp_*" attributes in a pandas.Series
         gas_comp = field.attrs_with_prefix('gas_comp_')
+        # oil_comp =
 
         N2  = gas_comp.N2
         CO2 = gas_comp.CO2
