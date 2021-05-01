@@ -4,3 +4,4 @@ std-pressure,14.7,psi
 amb-temperature,60,degF
 amb-pressure,14.676,psia
 amb-air-density,0.001225,kg/m**3
+water-FVF,1,dimensionless

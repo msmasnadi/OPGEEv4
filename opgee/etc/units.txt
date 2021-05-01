@@ -38,3 +38,6 @@ gCO2eq = grams * CO2eq
 million_gallons = 1E6 * gal = Mgal
 billion_gallons = 1E9 * gal = Bgal
 
+# TODO: Check the context feature in Pint
+moles_per_scf = scf / 1.2023
+

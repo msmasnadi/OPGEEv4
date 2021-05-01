@@ -3,6 +3,7 @@ from .container import Container
 from .core import elt_name, instantiate_subelts, dict_from_list
 from .error import OpgeeException
 from .log import getLogger
+from .processes import Oil
 from .process import Process, Environment, Reservoir, Aggregator
 from .stream import Stream
 from .utils import getBooleanXML
@@ -40,6 +41,13 @@ class Field(Container):
         self.run_order = nx.topological_sort(g) if self.is_dag else []
         if self.run_order is None:
             _logger.warn(f"Field '{name}' has cycles, which aren't supported yet")
+
+        gas_comp = self.attrs_with_prefix('gas_comp_')
+        API = self.attr("API")
+        gas_oil_ratio = self.attr('GOR')
+        self.oil = Oil(API, gas_comp, gas_oil_ratio)
+
+
 
     def __str__(self):
         return f"<Field name='{self.name}'>"

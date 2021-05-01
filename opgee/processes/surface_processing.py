@@ -10,11 +10,6 @@ class Separation(Process):
         self.print_running_msg()
 
 
-class ProducedWaterTreatment(Process):
-    def run(self, **kwargs):
-        self.print_running_msg()
-
-
 class MakeupWaterTreatment(Process):
     def run(self, **kwargs):
         self.print_running_msg()
