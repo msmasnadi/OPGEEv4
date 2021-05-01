@@ -32,19 +32,19 @@ class Stream(XmlInstantiable, AttributeMixin):
     Streams are defined within the `<Field>` element and are stored in a `Field` instance. The `Field` class tracks
     all `Stream` instances in a dictionary keyed by `Stream` name.
     """
+    _phases = [PHASE_SOLID, PHASE_LIQUID, PHASE_GAS]
 
     # HCs with 1-60 carbon atoms, i.e., C1, C2, ..., C60
-    # _hydrocarbons = [f'C{n + 1}' for n in range(60)]
-
-    _phases = [PHASE_SOLID, PHASE_LIQUID, PHASE_GAS]
+    _hydrocarbons = [f'C{n + 1}' for n in range(60)]
     _solids = ['PC']  # petcoke
     _liquids = ['oil']
-    _gases = ['N2', 'O2', 'CO2', 'H2O', 'CH4', 'C2H6', 'C3H8', 'C4H10', 'H2', 'H2S', 'SO2', 'air']
+    # _hc_molecules = ['CH4', 'C2H6', 'C3H8', 'C4H10']
+    _gases = ['N2', 'O2', 'CO2', 'H2O', 'H2', 'H2S', 'SO2', 'air']
     _other = ['Na+', 'Cl-', 'Si-']
 
     #: The stream components tracked by OPGEE. This list can be extended by calling ``Stream.extend_components(names)``,
     #: or more simply by defining configuration file variable ``OPGEE.StreamComponents``.
-    components = _solids + _liquids + _gases + _other  # or use C1-C60 (_hydrocarbons)?
+    components = _solids + _liquids + _gases + _other + _hydrocarbons
 
     # Remember extensions to avoid applying any redundantly.
     # Value is a dict keyed by set(added_component_names).
@@ -198,12 +198,23 @@ class Stream(XmlInstantiable, AttributeMixin):
         comp_elts = elt.findall('Component')
         obj.has_exogenous_data = len(comp_elts) > 0
 
+
+
         for comp_elt in comp_elts:
             a = comp_elt.attrib
             comp_name = elt_name(comp_elt)
             rate  = coercible(comp_elt.text, float)
             phase = a['phase']  # required by XML schema to be one of the 3 legal values
             unit  = a['unit']   # required by XML schema (TBD: use this)
+
+            if comp_name == 'CH4':
+                comp_name = 'C1'
+            else:
+                import re
+
+                m = re.match('C(\d+)H(\d+)', comp_name)
+                if m is not None:
+                    comp_name = 'C' + m.group(1)
 
             if comp_name not in comp_df.index:
                 raise OpgeeException(f"Unrecognized stream component name '{comp_name}'.")

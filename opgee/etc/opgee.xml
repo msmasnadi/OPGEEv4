@@ -100,10 +100,10 @@
 				<A name="pressure">150.0</A>
 				<Component name="N2" phase="gas" unit="tonne/d">0.8</Component>
 				<Component name="CO2" phase="gas" unit="tonne/d">0.7</Component>
-				<Component name="CH4" phase="gas" unit="tonne/d">35.5</Component>
-				<Component name="C2H6" phase="gas" unit="tonne/d">3.8</Component>
-				<Component name="C3H8" phase="gas" unit="tonne/d">0.2</Component>
-				<Component name="C4H10" phase="gas" unit="tonne/d">0.0</Component>
+				<Component name="C1" phase="gas" unit="tonne/d">35.5</Component>
+				<Component name="C2" phase="gas" unit="tonne/d">3.8</Component>
+				<Component name="C3" phase="gas" unit="tonne/d">0.2</Component>
+				<Component name="C4" phase="gas" unit="tonne/d">0.0</Component>
 				<Component name="H2S" phase="gas" unit="tonne/d">0.0</Component>
 			</Stream>
 			<Stream number="115" src="CrudeOilDewatering" dst="ProducedWaterTreatment"/>
@@ -141,9 +141,9 @@
 				<Component name="N2" phase="gas" unit="tonne/d">519.9</Component>
 				<Component name="CO2" phase="gas" unit="tonne/d">8858.8</Component>
 				<Component name="CH4" phase="gas" unit="tonne/d">22288.1</Component>
-				<Component name="C2H6" phase="gas" unit="tonne/d">4495.1</Component>
-				<Component name="C3H8" phase="gas" unit="tonne/d">4399.9</Component>
-				<Component name="C4H10" phase="gas" unit="tonne/d">284.4</Component>
+				<Component name="C10H22" phase="gas" unit="tonne/d">4495.1</Component>
+				<Component name="C3" phase="gas" unit="tonne/d">4399.9</Component>
+				<Component name="C4" phase="gas" unit="tonne/d">284.4</Component>
 				<Component name="H2S" phase="gas" unit="tonne/d">1.5</Component>
 			</Stream>
 			<Aggregator name="Exploration">
