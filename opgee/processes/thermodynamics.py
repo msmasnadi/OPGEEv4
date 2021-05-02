@@ -1,5 +1,4 @@
 from ..core import OpgeeObject
-import gas_library as gas_lib
 import numpy as np
 import constant as const
 import pyromat as py
@@ -36,29 +35,43 @@ class Oil(OpgeeObject):
         gas_SG = 0
         for name, value in gas_comp.items():
             if value > 0:
-                mw = gas_lib.dict_gas_pyromat[name].mw()  # g/mol
+                mw = dict_gas_pyromat[name].mw()
                 density = const.moles_of_gas_per_SCF_STP * mw
                 gas_SG += density * value
-        return gas_SG / gas_lib.dict_gas_pyromat["Air"].mw()
+        return gas_SG / dict_gas_pyromat["Air"].mw()
 
     # TODO: we can treat is as unit conversion
     @staticmethod
-    def specific_gravity(API):
-        """
-
-        :param API: (float) API gravity
-        :return: (float) specific gravity
-        """
+    def oil_specific_gravity(self):
+        API = self.API
         return 141.5 / (131.5 + API)
 
-    def solution_gas_oil_ratio(self):
-        gas_SG = thermo_f.gas_sg(gas_comp)
-        GOR_bubble = fuel.GOR_bubblepoint(GOR)
-        gamma_o = GAMMA_O(API)
+    def bubble_point_solution_GOR(self):
+        """
+        R_sb = 1.1618 * R_sp R_Sb is GOR at bubblepoint, R_sp is GOR at separator
+        Valco and McCain (2002) give a means to estimate the bubble point gas-oil ratio from the separator gas oil ratio.
+        Since OPGEE takes separator gas oil ratio as an input, we use this
+        :return:(float) GOR at bubblepoint
+        """
+        #TODO: ask Rich if the unit comment is needed
+        gor = self.gas_oil_ratio
+        return gor * 1.1618
 
-        # see OPGEE v3.0a Flow Sheet tab row 33
-        first_part = np.power(pressure, 1 / pbub_a2)
-        second_part = np.power(gamma_o, -pbub_a1 / pbub_a2)
-        third_part = np.exp(pbub_a3 / pbub_a2 * gas_SG * gamma_o)
-        forth_part = 1 / ((460 + tempt) * gas_SG)
-        return np.min([first_part * second_part * third_part * forth_part, GOR_bubble])  # scf/bbl
+    def solution_gas_oil_ratio(self):
+        # TODO: ask Rich if I need to call the self.varible
+        API = self.API
+        gas_comp = self.gas_comp
+        GOR = self.gas_oil_ratio
+
+        gas_SG = gas_specific_gravity(gas_comp)
+        oil_SG = oil_specific_gravity(API)
+        GOR_bubble = bubble_point_solution_GOR(GOR)
+
+        #TODO:
+        # 1. ask Rich how to deal with long equation
+        # 2. where to get stream variable such as temp and pres
+        temp1 = np.power(pressure, 1 / pbub_a2)
+        temp2 = np.power(gamma_o, -pbub_a1 / pbub_a2)
+        temp3 = np.exp(pbub_a3 / pbub_a2 * gas_SG * oil_SG)
+        temp4 = 1 / ((460 + temperature) * gas_SG)
+        return np.min([temp1 * temp2 * temp3 * temp4, GOR_bubble])
