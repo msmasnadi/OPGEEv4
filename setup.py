@@ -21,12 +21,15 @@ requirements = [
     'numpy>=1.19.0',
     'pandas>=1.2.0',
     'pint>=0.17',
+    'pint-pandas>=0.2',
     'pydot>=1.4.0',
+    'pyromat>=2.0.12',
     'pytest>=6.1.1',
     'semver>=2.8.0',
     'sphinx>=3.5.0'
     'sphinx-argparse>=0.2.0',
     'sphinx-rtd-theme>=0.4.0',
+    'thermosteam>=0.25.4',
 ]
 
 long_description = '''
