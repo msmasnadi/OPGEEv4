@@ -62,7 +62,7 @@
     <AttrDef name="res_temp" unit="degF" desc="Average reservoir temperature" type="float">158.8</AttrDef>
     <AttrDef name="offshore" type="binary" desc="Offshore?">0</AttrDef>
     <!-- Fluid properties -->
-    <AttrDef name="API_grav" desc="API gravity of produced crude" unit="degAPI" type="float">47</AttrDef>
+    <AttrDef name="API" desc="API gravity of produced crude" unit="degAPI" type="float">47</AttrDef>
     <AttrDef name="gas_comp_N2" unit="mol_pct" type="float">2.0</AttrDef>
     <AttrDef name="gas_comp_CO2" unit="mol_pct" type="float">6.0</AttrDef>
     <AttrDef name="gas_comp_C1" unit="mol_pct" type="float">84.0</AttrDef>
