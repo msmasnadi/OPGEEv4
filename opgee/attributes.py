@@ -27,19 +27,19 @@ class Options(XmlInstantiable):
         return obj
 
 class AttrDef(XmlInstantiable):
-    def __init__(self, name, value=None, atype=None, option_set=None, unit=None):
+    def __init__(self, name, value=None, pytype=None, option_set=None, unit=None):
         super().__init__(name)
         self.default = None
         self.option_set = option_set        # the name of the option set, if any
         self.unit = unit
-        self.atype = atype
+        self.pytype = pytype
 
         if value is not None:               # if value is None, we set default later
             self.set_default(value)
 
     def set_default(self, value):
-        if self.atype is not None:
-            value = coercible(value, self.atype)
+        if self.pytype is not None:
+            value = coercible(value, self.pytype)
 
         unit_obj = validate_unit(self.unit)
 
@@ -48,7 +48,7 @@ class AttrDef(XmlInstantiable):
     def __str__(self):
         type_str = type(self).__name__
 
-        attrs = f"name='{self.name}' type='{self.atype}' value='{self.value}'"
+        attrs = f"name='{self.name}' type='{self.pytype}' value='{self.value}'"
 
         if self.unit:
             attrs += f"unit = '{self.unit}'"
@@ -69,7 +69,7 @@ class AttrDef(XmlInstantiable):
         a = elt.attrib
 
         # if elt.text is None, we supply the default later in __init__()
-        obj = AttrDef(a['name'], value=elt.text, atype=a.get('type'), unit=a.get('unit'),
+        obj = AttrDef(a['name'], value=elt.text, pytype=a.get('type'), unit=a.get('unit'),
                    option_set=a.get('options'))
         return obj
 
@@ -246,32 +246,23 @@ class AttributeMixin():
     @classmethod
     def instantiate_attrs(cls, elt):
         classname = cls.__name__
-        attr_defs = AttrDefs.get_instance()
-        class_attrs = attr_defs.class_attrs(classname, raiseError=False)
 
+        attr_defs = AttrDefs.get_instance()
         attr_dict = {}
 
+        class_attrs = attr_defs.class_attrs(classname, raiseError=False)
+
         if class_attrs:
+            # Create a list of tuples of (name, value) to set attribute values below.
+            user_values = {elt_name(a) : a.text for a in elt.findall('A')}
+
+            if len(user_values) > 0 and class_attrs is None:
+                raise OpgeeException(f"Attributes defined in model XML for {classname} lack metadata")
+
             # set up all attributes with default values
             for name, attr_def in class_attrs.attr_dict.items():
-                attr_dict[name] = A(name, value=attr_def.default, atype=attr_def.atype, unit=attr_def.unit)
-
-        # Update all user-defined attributes with the values from the model definition XML.
-        user_attrs = []
-        for a in elt.findall('A'):
-            name = elt_name(a)
-            value = a.text
-            attr_def = attr_dict[name]
-            user_attr = A(name, value=value, atype=attr_def.atype, unit=attr_def.unit)
-            user_attrs.append(user_attr)
-
-        if len(user_attrs) > 0 and class_attrs is None:
-            raise OpgeeException(f"Attributes defined in model XML for {classname} lack metadata")
-
-        for attr in user_attrs:
-            try:
-                attr_dict[attr.name] = attr
-            except KeyError:
-                raise OpgeeException(f"Unrecognized attribute '{attr.name}' in model definition for class {classname}")
+                user_value = user_values.get(name)
+                value = user_value or attr_def.default
+                attr_dict[name] = A(name, value=value, pytype=attr_def.pytype, unit=attr_def.unit)
 
         return attr_dict

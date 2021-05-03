@@ -195,7 +195,7 @@ def coercible(value, pytype, raiseError=True):
     from pint import Quantity
 
     if isinstance(value, Quantity):
-        return
+        return value
 
     # pseudo-type
     def binary(value):
@@ -215,6 +215,7 @@ def coercible(value, pytype, raiseError=True):
 
     try:
         value = pytype(value)
+
     except (TypeError, ValueError) as e:
         if raiseError:
             raise OpgeeException("%s: %r is not coercible to %s" % (getFuncName(1), value, pytype))

@@ -209,21 +209,41 @@ class A(OpgeeObject):
     attributes.xml or a user-provided file. Note that this class is not instantiated
     using from_xml() approach since values are merged with metadata from attributes.xml.
     """
-    def __init__(self, name, value=None, atype=None, unit=None):
+    def __init__(self, name, value=None, pytype=None, unit=None):
         super().__init__()
         self.name = name
-        if value is not None and atype is not None:
-            value = coercible(value, atype)
-
-        unit_obj = validate_unit(unit)
-        self.value = None if value is None else (value if unit_obj is None else ureg.Quantity(value, unit_obj))
         self.unit = unit
-        self.atype = atype
+        self.pytype = pytype
+        self.value = self.set_value(value)
+
+    def set_value(self, value):
+        """
+        Sets the instances' value to the value given, using the stored `pytype` for type
+        conversion and `unit` to define a pint `Quantity`, if given.
+
+        :param value: (str, numerical, or pint.Quantity) the value to possibly convert
+        :param pytype: (type) a Python type
+        :param unit: (str) a pint unit name
+        :return: the value, converted to `pytype`, and with `unit`, if specified.
+        """
+        if value is None:
+            return None
+
+        if self.pytype:
+            value = coercible(value, self.pytype)
+
+        unit_obj = validate_unit(self.unit)
+
+        if unit_obj is not None:
+            value = ureg.Quantity(value, unit_obj)
+
+        self.value = value
+        return value
 
     def __str__(self):
         type_str = type(self).__name__
 
-        attrs = f"name='{self.name}' type='{self.atype}' value='{self.value}'"
+        attrs = f"name='{self.name}' type='{self.pytype}' value='{self.value}'"
 
         if self.unit:
             attrs += f" unit = '{self.unit}'"
