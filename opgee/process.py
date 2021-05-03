@@ -260,32 +260,32 @@ class Process(XmlInstantiable, AttributeMixin):
     def set_extend(self, extend):
         self.extend = extend
 
-    def run_internal(self, **kwargs):
+    def run(self, **kwargs):
         """
         This method implements the behavior required of the Process subclass, when
-        the Process is enabled. If it is disabled, the run() method calls bypass()
-        instead. **Subclasses of Process must implement this method.**
+        the Process is enabled. **Subclasses of Process must implement this method.**
 
         :param kwargs: (dict) arbitrary keyword args passed down from the Analysis object.
         :return: None
         """
         raise AbstractMethodError(type(self), 'Process.run_internal')
 
-    def run(self, **kwargs):
+    def run_or_bypass(self, **kwargs):
         """
-        If the Process is enabled, call `self.run_internal()` else call `self.bypass()`.
+        If the Process is enabled, run the process, otherwise bypass it, i.e., copy
+        input streams to output streams.
 
-        :param kwargs: (dict) arbitrary keyword args passed down from the Analysis object.
+        :param kwargs: (dict) arbitrary keyword args
         :return: None
         """
-        if not self.enabled:
-            self.bypass()
+        if self.enabled:
+            self.run(**kwargs)
         else:
-            self.run_internal(**kwargs)
+            self.bypass(**kwargs)
 
     # TBD: Can we create a generic method for passing inputs to outputs when disabled?
     # TBD: If not, this will become an abstract method.
-    def bypass(self):
+    def bypass(self, **kwargs):
         """
         This method is called if a `Process` is disabled, allowing it to pass data from
         all input streams to output streams, effectively bypassing the disabled element.
@@ -373,7 +373,7 @@ class Environment(Process):
                 self.emissions += comp_data
 
     def report(self):
-        print(f"Cumulative emissions to Environment:\n{self.emissions}")
+        print(f"{self}: cumulative emissions to Environment:\n{self.emissions}")
 
 class Aggregator(Container):
     def __init__(self, name, attr_dict=None, aggs=None, procs=None):

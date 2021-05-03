@@ -51,21 +51,6 @@ class Model(Container):
         df = tbl_mgr.get_table('constants')
         self.constants = {name : ureg.Quantity(row.value, row.unit) for name, row in df.iterrows()}
 
-    # TBD: how to pass args like fields to process?
-    # TBD: also need to clear all prior data to avoid collecting stale data?
-    def run(self):
-        """
-        Run all Analyses and collect emissions and energy use for all Containers and Processes.
-
-        :return: None
-        """
-        for child in self.children():
-            child.run() # TBD: args?
-
-        # calculate and store results internally
-        self.get_energy_rates()
-        self.get_emission_rates()
-
     def use_GWP(self, gwp_years, gwp_version):
         """
         Set which GWP values to use for this model. Initially set from the XML model definition,

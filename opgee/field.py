@@ -47,10 +47,8 @@ class Field(Container):
         gas_oil_ratio = self.attr('GOR')
         self.oil = Oil(API, gas_comp, gas_oil_ratio)
 
-
-
     def __str__(self):
-        return f"<Field name='{self.name}'>"
+        return f"<Field '{self.name}'>"
 
     def run(self, **kwargs):
         """
@@ -80,7 +78,7 @@ class Field(Container):
                     _impute_upstream(src_proc)
 
             for proc in self.run_order:
-                proc.run(**kwargs)
+                proc.run_or_bypass(**kwargs)
 
     def _connect_processes(self):
         """

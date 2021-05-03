@@ -30,19 +30,6 @@ class Container(XmlInstantiable, AttributeMixin):
         self.aggs  = self.adopt(aggs)
         self.procs = self.adopt(procs)
 
-    def run(self, names=None, **kwargs):
-        """
-        Run all children of this Container if `names` is None, otherwise run only the
-        children whose names are in in `names`.
-
-        :param names: (None, or list of str) the names of children to run
-        :param kwargs: (dict) arbitrary keyword args to pass through
-        :return: None
-        """
-        if self.is_enabled():
-            self.print_running_msg()
-            self.run_children(names=names, **kwargs)
-
     def _children(self):
         """
         Return a list of all children. External callers should use children() instead,
@@ -64,12 +51,23 @@ class Container(XmlInstantiable, AttributeMixin):
     def print_running_msg(self):
         _logger.info(f"Running {type(self)} name='{self.name}'")
 
-    def run_children(self, names=None, **kwargs):
-        for child in self.children():
-            if names is None or child.name in names:
-                child.run(**kwargs)
+    # TBD: how to pass args like fields to process?
+    # TBD: also need to clear all prior data to avoid collecting stale data?
+    def run(self, **kwargs):
+        """
+        Run all children and collect emissions and energy use for all Containers and Processes.
 
-        # TBD: else self.bypass()?
+        :return: None
+        """
+        for child in self.children():
+            child.run(**kwargs)
+
+        # calculate and store results internally
+        self.get_energy_rates()
+        self.get_emission_rates()
+
+    def report(self):
+        print(f"{self}: cumulative emissions to Environment:\n{self.emissions}")
 
     def get_energy_rates(self):
         """
