@@ -180,17 +180,19 @@ def systemOpenFile(path):
 # the stack, based on value of n.
 getFuncName = lambda n=0: sys._getframe(n + 1).f_code.co_name
 
-def coercible(value, pytype, raiseError=True):
+def coercible(value, pytype, raiseError=True, allow_truncation=False):
     """
     Attempt to coerce a value to `type` and raise an error on failure. If the
     value is a pint.Quantity, the value is simply returned.
 
     :param value: any value coercible to `type`
     :param pytype: any Python type or its string equivalent
+    :param raiseError: (bool) whether to raise errors when appropriate
+    :param allow_truncation: (bool) whether to allow truncation of float to int
     :return: (`pytype`) the coerced value, if it's coercible, otherwise
        None if raiseError is False
     :raises OpgeeException: if the value is a pint.Quantity, it is returned
-       unchanged. Otherwise, if not coercible and raiseError is True.
+       unchanged. Otherwise, if not coercible and raiseError is True, error is raised.
     """
     from pint import Quantity
 
@@ -212,6 +214,10 @@ def coercible(value, pytype, raiseError=True):
             pytype = binary
         else:
             raise OpgeeException(f"coercible: '{pytype}' is not a recognized type string")
+
+    # avoid silent truncation of float to int
+    if not allow_truncation and pytype == int and type(value) == float:
+        raise OpgeeException(f"coercible: Refusing to truncate float {value} to int")
 
     try:
         value = pytype(value)
