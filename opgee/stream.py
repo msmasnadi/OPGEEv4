@@ -5,6 +5,7 @@
    See the https://opensource.org/licenses/MIT for license details.
 '''
 import pandas as pd
+import re
 from .attributes import AttributeMixin
 from .core import XmlInstantiable, elt_name
 from .error import OpgeeException
@@ -17,6 +18,32 @@ _logger = getLogger(__name__)
 PHASE_SOLID = 'solid'
 PHASE_LIQUID = 'liquid'
 PHASE_GAS = 'gas'
+
+def molecule_to_carbon(molecule):
+    if molecule == "CH4":
+        return "C1"
+
+    m = re.match('(C\d+)H\d+', molecule)
+    if m is None:
+        raise OpgeeException(f"Expected hydrocarbon molecule name like CxHy, got {molecule}")
+
+    c_name = m.group(1)
+    return c_name
+
+
+def carbon_to_molecule(c_name):
+    if c_name == "C1":
+        return "CH4"
+
+    m = re.match('^C(\d+)$', c_name)
+    if m is None:
+        raise OpgeeException(f"Expected carbon number name like Cn, got {c_name}")
+
+    carbons = int(m.group(1))
+    hydrogens = 2 * carbons + 2
+    molecule = f"{c_name}H{hydrogens}"
+    return molecule
+
 
 #
 # Can streams have emissions (e.g., leakage) or is that attributed to a process?
