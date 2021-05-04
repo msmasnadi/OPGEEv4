@@ -19,11 +19,21 @@ PHASE_SOLID = 'solid'
 PHASE_LIQUID = 'liquid'
 PHASE_GAS = 'gas'
 
+# Compile the patterns at load time for better performance
+_carbon_number_pattern = re.compile('^C(\d+)$')
+_hydrocarbon_pattern   = re.compile('^(C\d+)H(\d+)$')
+
+def is_carbon_number(name):
+    return (re.match(_carbon_number_pattern, name) is not None)
+
+def is_hydrocarbon(name):
+    return (name == 'CH4' or re.match(_hydrocarbon_pattern, name) is not None)
+
 def molecule_to_carbon(molecule):
     if molecule == "CH4":
         return "C1"
 
-    m = re.match('(C\d+)H\d+', molecule)
+    m = re.match(_hydrocarbon_pattern, molecule)
     if m is None:
         raise OpgeeException(f"Expected hydrocarbon molecule name like CxHy, got {molecule}")
 
@@ -35,7 +45,7 @@ def carbon_to_molecule(c_name):
     if c_name == "C1":
         return "CH4"
 
-    m = re.match('^C(\d+)$', c_name)
+    m = re.match(_carbon_number_pattern, c_name)
     if m is None:
         raise OpgeeException(f"Expected carbon number name like Cn, got {c_name}")
 
@@ -225,8 +235,6 @@ class Stream(XmlInstantiable, AttributeMixin):
         comp_elts = elt.findall('Component')
         obj.has_exogenous_data = len(comp_elts) > 0
 
-
-
         for comp_elt in comp_elts:
             a = comp_elt.attrib
             comp_name = elt_name(comp_elt)
@@ -234,14 +242,9 @@ class Stream(XmlInstantiable, AttributeMixin):
             phase = a['phase']  # required by XML schema to be one of the 3 legal values
             unit  = a['unit']   # required by XML schema (TBD: use this)
 
-            if comp_name == 'CH4':
-                comp_name = 'C1'
-            else:
-                import re
-
-                m = re.match('C(\d+)H(\d+)', comp_name)
-                if m is not None:
-                    comp_name = 'C' + m.group(1)
+            # convert hydrocarbon molecule name to carbon number format
+            if is_hydrocarbon(comp_name):
+                comp_name = molecule_to_carbon(comp_name)
 
             if comp_name not in comp_df.index:
                 raise OpgeeException(f"Unrecognized stream component name '{comp_name}'.")
