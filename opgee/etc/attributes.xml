@@ -30,7 +30,14 @@
     <AttrDef name="GWP_version" options="GWP_version" type="str"/>
     <AttrDef name="functional_unit" options="functional_unit" type="str"/>
     <AttrDef name="energy_basis" options="energy_basis" type="str"/>
+
+    <!-- Maximum number of iterations for process loops -->
+    <AttrDef name="maximum_iterations" type="int">10</AttrDef>
+
+    <!-- Change threshold for iteration loops. Requires a Process to set a change variable. -->
+    <AttrDef name="maximum_change" type="float">0.001</AttrDef>
   </ClassAttrs>
+
   <ClassAttrs name="Stream">
     <!-- the zero values aren't real defaults; they just avoid having None as a default -->
     <AttrDef name="temperature" type="float" unit="degF">0</AttrDef>

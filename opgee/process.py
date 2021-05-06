@@ -7,7 +7,7 @@
 from .attributes import AttrDefs, AttributeMixin
 from .core import XmlInstantiable, elt_name, instantiate_subelts
 from .container import Container
-from .error import OpgeeException, AbstractMethodError
+from .error import OpgeeException, AbstractMethodError, OpgeeIterationStop
 from .emissions import Emissions
 from .energy import Energy
 from .log import getLogger
@@ -62,13 +62,20 @@ def _get_subclass(cls, subclass_name, reload=False):
 
 class Process(XmlInstantiable, AttributeMixin):
     """
-    The "leaf" node in the container/process hierarchy. Process is an abstract superclass:
-    actual runnable Process instances must be of subclasses of Process, defined either
-    in opgee/processes/\*.py or in the user's files, provided in the configuration file in
-    the variable ``OPGEE.ClassPath``.
+    The "leaf" node in the container/process hierarchy. Process is an abstract superclass: actual runnable Process
+    instances must be of subclasses of Process, defined either in opgee/processes/\*.py or in the user's files,
+    provided in the configuration file in the variable ``OPGEE.ClassPath``.
 
-    Each Process subclass must implement the ``run_internal`` and ``bypass`` methods, described
-    below.
+    Each Process subclass must implement the ``run`` and ``bypass`` methods, described below.
+
+    If a model contains process loops (cycles), one or more of the processes can call the method
+    ``set_iteration_value()`` to store the value of a designed variable that is checked on each call to see if the
+    change from the prior iteration is <= the value of Model attribute "maximum_change". If so,
+    an ``OpgeeIterationStop`` exception is raised to terminate the run. In addition, a "visit" counter in each
+    `Process` is incremented each time the process is run (or bypassed) and if the count >= the Model's
+    "maximum_iterations" attribute, ``OpgeeIterationStop`` is likewise raised. Whichever limit is reached first
+    will cause iterations to stop. Between model runs, the method ``iteration_reset()`` is called for all processes
+    to clear the visited counters and reset the iteration value to None.
     """
 
     def __init__(self, name, desc=None, consumes=None, produces=None, attr_dict=None):
@@ -95,6 +102,9 @@ class Process(XmlInstantiable, AttributeMixin):
 
         self.energy = Energy()
         self.emissions = Emissions()
+
+        self.iteration_count = 0
+        self.iteration_value = None
 
     #
     # Pass-through convenience methods for energy and emissions
@@ -184,6 +194,7 @@ class Process(XmlInstantiable, AttributeMixin):
 
     def visit(self):
         self.visit_count += 1
+        return self.visit_count
 
     def visited(self):
         return self.visit_count
@@ -212,7 +223,7 @@ class Process(XmlInstantiable, AttributeMixin):
         field = self.get_field()
         return field.find_stream(name, raiseError=raiseError)
 
-    def find_input_streams(self, stream_type, combine=False, raiseError=True):
+    def find_input_streams(self, stream_type, combine=True, raiseError=True):
         """
         Find the input streams connected to an upstream Process that handles the indicated
         `stream_type`, e.g., 'crude oil', 'raw water' and so on.
@@ -251,6 +262,20 @@ class Process(XmlInstantiable, AttributeMixin):
 
         return streams
 
+    def find_output_stream(self, stream_type, raiseError=True):
+        """
+        Find the first output stream connected to a downstream Process that handles the indicated
+        `stream_type`, e.g., 'crude oil', 'raw water' and so on.
+
+        :param direction: (str) 'input' or 'output'
+        :param stream_type: (str) the generic type of stream a process can handle.
+        :param raiseError: (bool) whether to raise an error if no handlers of `stream_type` are found.
+        :return: (Streams or None)
+        :raises: OpgeeException if no processes handling `stream_type` are found and `raiseError` is True
+        """
+        streams = self.find_output_streams(stream_type, raiseError=raiseError)
+        return streams[0] if streams else None
+
     def add_output_stream(self, stream):
         self.outputs.append(stream)
 
@@ -259,6 +284,33 @@ class Process(XmlInstantiable, AttributeMixin):
 
     def set_extend(self, extend):
         self.extend = extend
+
+    def set_iteration_value(self, value):
+        """
+        Store the value of a variable used to determine when an iteration loop
+        has stabilized. When set, if the absolute value of the percent change
+        in the value is less than the model's `iteration_epsilon`, the run loop
+        is terminated by throwing an OpgeeStopIteration exception.
+
+        :param value: (float) the value of a designated 'change' variable
+        :return: none
+        :raises: OpgeeIterationStop if the percent change in `value` (versus
+            the previously stored value) is less than the `iteration_epsilon`
+            attribute for the model.
+        """
+        m = self.model
+
+        # If previously zero, set to a small number to avoid division by zero
+        prior_value = self.iteration_value
+
+        if prior_value is not None and abs(value - prior_value) <= m.maximum_change:
+            raise OpgeeIterationStop(f"Change <= maximum_change ({m.maximum_change}) in {self}")
+
+        self.iteration_value = value
+
+    def iteration_reset(self):
+        self.clear_visit_count()
+        self.iteration_value = None
 
     def run(self, **kwargs):
         """
@@ -282,6 +334,10 @@ class Process(XmlInstantiable, AttributeMixin):
             self.run(**kwargs)
         else:
             self.bypass(**kwargs)
+
+        m = self.model
+        if self.visit() >= m.maximum_iterations:
+            raise OpgeeIterationStop(f"Maximum iterations ({m.maximum_iterations}) reached in {self}")
 
     # TBD: Can we create a generic method for passing inputs to outputs when disabled?
     # TBD: If not, this will become an abstract method.

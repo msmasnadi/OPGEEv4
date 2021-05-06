@@ -104,7 +104,7 @@ class RunCommand(SubcommandABC):
                     if len(analyses) > 1:
                         raise CommandlineError(f"Found multiple analyses with name '{analysis_name}'")
 
-                    field = analysis.field_dict.get(field_name)
+                    field = analysis.get_field(field_name)
                     if field is None:
                         raise CommandlineError(f"Field '{field_name}' was not found in analysis '{analysis_name}'")
 

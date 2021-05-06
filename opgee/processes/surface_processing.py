@@ -28,7 +28,7 @@ class CrudeOilDewatering(Process):
         self.print_running_msg()
 
         # find appropriate streams by checking connected processes' capabilities
-        input_stream = self.find_input_streams('crude oil', combine=True)
+        input_stream = self.find_input_streams('crude oil')
 
         # Split the oil and water from the input stream into two output streams
         oil_rate = input_stream.flow_rate('oil', PHASE_LIQUID)

@@ -1,12 +1,12 @@
 import networkx as nx
 from .container import Container
 from .core import elt_name, instantiate_subelts, dict_from_list
-from .error import OpgeeException
+from .error import OpgeeException, OpgeeIterationStop
 from .log import getLogger
 from .processes import Oil
 from .process import Process, Environment, Reservoir, Aggregator
 from .stream import Stream
-from .utils import getBooleanXML
+from .utils import getBooleanXML, flatten
 
 _logger = getLogger(__name__)
 
@@ -37,10 +37,11 @@ class Field(Container):
         # and Streams (edges).
         self.graph = g = self._connect_processes()
 
-        self.is_dag = nx.is_directed_acyclic_graph(g)
-        self.run_order = nx.topological_sort(g) if self.is_dag else []
-        if self.run_order is None:
-            _logger.warn(f"Field '{name}' has cycles, which aren't supported yet")
+        self.cycles = list(nx.simple_cycles(g))
+        self.run_order = None if self.cycles else nx.topological_sort(g)
+
+        if self.cycles:
+            _logger.info(f"Field '{name}' has cycles")
 
         gas_comp = self.attrs_with_prefix('gas_comp_')
         API = self.attr("API")
@@ -60,6 +61,8 @@ class Field(Container):
         :param kwargs: (dict) arbitrary keyword args to pass through
         :return: None
         """
+
+        # TBD: this doesn't work when the upstream processes include a cycle
         def _impute_upstream(proc):
             # recurse upstream, calling impute()
             if proc:
@@ -68,25 +71,119 @@ class Field(Container):
                     _impute_upstream(s.src_proc)
 
         if self.is_enabled():
+            self.iteration_reset()
+
             _logger.debug(f"Running '{self}'")
 
             start_streams = self.find_start_streams()
             for s in start_streams:
                 _logger.info(f"Running impute() methods for procs upstream of start stream {s}")
+
                 src_proc = s.src_proc
                 if src_proc:
+                    if self.is_cycle_member(src_proc):
+                        raise OpgeeException(f"Can't run impute(): process {src_proc} is part of a process cycle")
                     _impute_upstream(src_proc)
 
-            for proc in self.run_order:
+            if not self.cycles:
+                for proc in self.run_order:
+                    proc.run_or_bypass(**kwargs)
+            else:
+                self.iterate_processes(**kwargs)
+
+    def is_cycle_member(self, process):
+        """
+        Return True if `process` is a member of any process cycle.
+
+        :param process: (Process)
+        :return: (bool)
+        """
+        return any([process in cycle for cycle in self.cycles])
+
+    # TBD: move these static methods to graph.py
+    def ancestors(self, process):
+        """
+        Return a Process's immediate ancestor Processes.
+
+        :param process: (Process) the starting Process
+        :return: (list of Process) the Processes that are the sources of
+           Streams connected to `process`.
+        """
+        procs = [stream.src_proc for stream in process.inputs]
+        return procs
+
+    def depends_on_cycle(self, process, visited=None):
+        visited = visited or set()
+
+        for ancestor in self.ancestors(process):
+            if ancestor in visited:
+                return True
+
+            visited.add(ancestor)
+            if self.depends_on_cycle(ancestor, visited=visited):
+                return True
+
+        return False
+
+    def compute_graph_sections(self):
+        """
+        Divide the nodes of ``self.graph`` into three disjoint sets:
+        1. Nodes neither in cycle nor dependent on cycles
+        2. Nodes in cycles
+        3. Nodes dependent on cycles
+
+        :return: (3-tuple of lists of Processes)
+        """
+        processes = self.processes()
+        cycles = self.cycles
+        procs_in_cycles = set(flatten(cycles)) if cycles else []
+
+        # reset visited flags since we use these to avoid cycling
+        # self.iteration_reset()
+
+        cycle_dependent = set()
+        for process in processes:
+            if process not in procs_in_cycles and self.depends_on_cycle(process):
+                cycle_dependent.add(process)
+
+        cycle_independent = set(processes) - procs_in_cycles - cycle_dependent
+        return (cycle_independent, procs_in_cycles, cycle_dependent)
+
+
+    def iterate_processes(self, **kwargs):
+        cycle_independent, procs_in_cycles, cycle_dependent = self.compute_graph_sections()
+
+        def run_procs_in_order(processes):
+            sg = self.graph.subgraph(processes)
+            run_order = nx.topological_sort(sg)
+            for proc in run_order:
                 proc.run_or_bypass(**kwargs)
+
+        # run all the cycle-independent nodes in topological order
+        run_procs_in_order(cycle_independent)
+
+        # Iterate on the processes in cycle until a termination condition is met and an
+        # OpgeeIterationStop exception is thrown.
+        while True:
+            try:
+                for proc in procs_in_cycles:
+                    proc.run_or_bypass(**kwargs)
+
+            except OpgeeIterationStop as e:
+                _logger.info(e)
+                break
+
+        # run all processes dependent on cycles, which are now complete
+        run_procs_in_order(cycle_dependent)
 
     def _connect_processes(self):
         """
-        Connect streams and processes to one another.
+        Connect streams and processes in a directed graph.
 
         :return: (networkx.DiGraph) a directed graph representing the processes and streams.
         """
-        g = nx.DiGraph()
+        # g = nx.DiGraph()
+        g = nx.MultiDiGraph()  # allows parallel edges
 
         # first add all defined Processes since some (Exploration, Development & Drilling)
         # have no streams associated with them, but we still need to run the processes.
@@ -104,10 +201,6 @@ class Field(Container):
 
         return g
 
-    def _clear_visited(self):
-        for proc in self.processes():
-            proc.clear_visit_count()
-
     def streams(self):
         """
         Gets all `Stream` instances for this `Field`.
@@ -123,6 +216,10 @@ class Field(Container):
         :return: (iterator of `Process` (subclasses) instances) in this `Field`
         """
         return self.process_dict.values()
+
+    def iteration_reset(self):
+        for proc in self.processes():
+            proc.iteration_reset()
 
     def find_stream(self, name, raiseError=True):
         """

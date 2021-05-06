@@ -217,9 +217,10 @@ class Stream(XmlInstantiable, AttributeMixin):
         name = a.get('name') or f"{src} => {dst}"
 
         # The following are optional
-        number = coercible(a['number'], int, raiseError=False) # optional and eventually deprecated
+        number_str = a.get('number')
+        number = coercible(number_str, int, raiseError=False) if number_str else None
 
-        # There should be exactly 2 attributes: temperature and pressure
+        # There should be 2 attributes: temperature and pressure
         attr_dict = cls.instantiate_attrs(elt)
         expected = {'temperature', 'pressure'}
         if set(attr_dict.keys()) != expected:

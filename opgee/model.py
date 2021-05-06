@@ -51,6 +51,10 @@ class Model(Container):
         df = tbl_mgr.get_table('constants')
         self.constants = {name : ureg.Quantity(row.value, row.unit) for name, row in df.iterrows()}
 
+        # parameters controlling process cyclic calculations
+        self.maximum_iterations = self.attr('maximum_iterations')
+        self.maximum_change     = self.attr('maximum_change')
+
     def use_GWP(self, gwp_years, gwp_version):
         """
         Set which GWP values to use for this model. Initially set from the XML model definition,
@@ -162,38 +166,53 @@ class Model(Container):
         return obj
 
 
-# TBD: grab a path like OPGEE.UserClassPath, which defaults to OPGEE.ClassPath
-# TBD: split these and load all *.py files in each directory (if a directory;
-# TBD: allow specify specific files in path as well)
-# TBD: import these into this module so they're found by class_from_str()?
-# TBD: Alternatively, create dict of base classname and actual module it's in
-# TBD: by looping over sys.modules[name]
 class ModelFile(XMLFile):
     """
     Represents the overall parameters.xml file.
     """
-    def __init__(self, filename, stream=None):
+    def __init__(self, filename, stream=None, add_stream_components=True, use_class_path=True):
+        """
+        Several steps are performed, some of which are dependent on the function's parameters:
+
+        1. If `add_stream_components` is True, load any extra stream components defined by config file
+        variable "OPGEE.StreamComponents".
+
+        2. Reads the input XML filename using either from `filename` (if `stream` is None) or from
+        `stream`. In the latter case, the filename is used only as a description of the stream.
+
+        3. If `use_class_path` is True, loads any Python files found in the path list defined by
+        "OPGEE.ClassPath". Note that all classes referenced by the XML must be defined internally
+        by opgee, or in the user's files indicated by "OPGEE.ClassPath".
+
+        4. Construct the model data structure from the input XML file and store the result in `self.model`.
+
+        :param filename: (str) the name of the file to read, if `stream` is None, else the description
+           of the file, e.g., "[opgee package]/etc/opgee.xml".
+        :param stream: (file-like object) if not None, read from this stream rather than opening `filename`.
+        """
         import os
         from pathlib import Path
 
-        extra_components = getParam('OPGEE.StreamComponents')
-        if extra_components:
-            names = splitAndStrip(extra_components, ',')
-            Stream.extend_components(names)
+        if add_stream_components:
+            extra_components = getParam('OPGEE.StreamComponents')
+            if extra_components:
+                names = splitAndStrip(extra_components, ',')
+                Stream.extend_components(names)
 
         # We expect a single 'Analysis' element below Model
         _logger.debug("Loading model file: %s", filename)
 
         super().__init__(stream or filename, schemaPath='etc/opgee.xsd')
 
-        class_path = getParam('OPGEE.ClassPath')
-        paths = [Path(path) for path in class_path.split(os.path.pathsep) if path]
-        for path in paths:
-            if path.is_dir():
-                for module_path in path.glob('*.py'):   # load all .py files found in directory
-                    loadModuleFromPath(module_path)
-            else:
-                loadModuleFromPath(path)
+        if use_class_path:
+            class_path = getParam('OPGEE.ClassPath')
+            paths = [Path(path) for path in class_path.split(os.path.pathsep) if path]
+            for path in paths:
+                if path.is_dir():
+                    for module_path in path.glob('*.py'):   # load all .py files found in directory
+                        loadModuleFromPath(module_path)
+                else:
+                    loadModuleFromPath(path)
 
         self.root = self.tree.getroot()
         self.model = Model.from_xml(self.root)

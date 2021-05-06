@@ -15,6 +15,9 @@ class Analysis(Container):
         self.energy_basis = energy_basis
         self.field_dict = self.adopt(fields, asDict=True)
 
+    def get_field(self, name):
+        return self.field_dict.get(name)
+
     def _children(self):
         """
         Return a list of all children. External callers should use children() instead,
