@@ -4,7 +4,8 @@
 .. Copyright (c) 2021 Richard Plevin and Stanford University
    See the https://opensource.org/licenses/MIT for license details.
 """
-from .core import OpgeeObject, XmlInstantiable, A, instantiate_subelts, elt_name, validate_unit, ureg
+from . import ureg
+from .core import OpgeeObject, XmlInstantiable, A, instantiate_subelts, elt_name, validate_unit
 from .error import OpgeeException
 from .log import getLogger
 from .pkg_utils import resourceStream

@@ -4,9 +4,10 @@
 .. Copyright (c) 2021 Richard Plevin and Stanford University
    See the https://opensource.org/licenses/MIT for license details.
 """
+from . import ureg
 from .analysis import Analysis
 from .container import Container
-from .core import instantiate_subelts, elt_name, ureg
+from .core import instantiate_subelts, elt_name
 from .config import getParam
 from .emissions import Emissions
 from .error import OpgeeException

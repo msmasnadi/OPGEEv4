@@ -53,7 +53,6 @@ class GraphCommand(SubcommandABC):
         from ..graph import write_model_diagram, write_class_diagram, write_process_diagram
         from ..model import ModelFile
         from ..pkg_utils import resourceStream
-        import opgee.processes
 
         # TBD allow user to select which model file to graph
         s = resourceStream('etc/opgee.xml', stream_type='bytes', decode=None)

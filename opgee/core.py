@@ -4,22 +4,14 @@
 .. Copyright (c) 2021 Richard Plevin and Stanford University
    See the https://opensource.org/licenses/MIT for license details.
 '''
-from pint import UnitRegistry
+from . import ureg
 from .error import OpgeeException, AbstractMethodError
 from .log import getLogger
-from .pkg_utils import resourceStream
 from .utils import coercible, getBooleanXML
 
 _logger = getLogger(__name__)
 
-# Note that we probably will define some of our own units:
-# From a file:
-# ureg.load_definitions('/your/path/to/my_def.txt')
-#
-# Or one at a time:
-# ureg.define('dog_year = 52 * day = dy')
-ureg = UnitRegistry()
-ureg.load_definitions(resourceStream('etc/units.txt'))
+# Note: moved pint registry setup to __init__.py
 
 def superclass(cls):
     """

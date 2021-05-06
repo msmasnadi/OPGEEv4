@@ -22,15 +22,25 @@ Who do I talk to?
 To Do
 ===========
 * Handle process loops
+  * Finish test for loops
+  * Run acyclic graphs using the same algorithm as cyclic ones (just no cycles, so
+    all nodes are in set 1, independent of cycles, run in topological order)
+
 * Finish developing facility merge user model/attribute defs with default (or other) defs.
+
 * Finish integrating pint units (including offset conversions like psia/psig and API gravity)
+
 * Test / report on mass balances
+
 * Handle Fuel Gas Imports
   * Exchanges of energy carriers from outside system boundary
   * Add a Natural Gas Pipeline process: exports generate a credit (depends on functional unit)
+
 * Setup code coverage testing
+
 * Remove unneeded functionality that was imported from pygcam
-* Develop simple GUI using dash
+
+* [postponed] Develop simple GUI using dash
 
 
 Release Notes
