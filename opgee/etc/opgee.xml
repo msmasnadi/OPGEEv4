@@ -14,10 +14,6 @@
 	<A name="energy_basis">LHV</A>
 
 	<Analysis name="default">
-		<!-- Global parameters -->
-		<FunctionalUnit>oil</FunctionalUnit>
-		<EnergyBasis>LHV</EnergyBasis>
-
 		<Field name="test">
 			<A name="country">USA</A>
 			<A name="offshore">0</A>

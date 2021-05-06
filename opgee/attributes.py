@@ -218,7 +218,7 @@ class AttributeMixin():
         if obj is None and raiseError:
             raise OpgeeException(f"Attribute '{attr_name}' not found in {self}")
 
-        return obj.value
+        return obj.value if obj else None
 
     def attrs_with_prefix(self, prefix):
         """

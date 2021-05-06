@@ -190,7 +190,7 @@ def validate_unit(unit):
         return ureg[unit]
 
     if unit not in _undefined_units:
-        _logger.warn(f"Unit '{unit}' is not in the UnitRegistry")
+        _logger.warning(f"Unit '{unit}' is not in the UnitRegistry")
         _undefined_units[unit] = 1
 
     return None
