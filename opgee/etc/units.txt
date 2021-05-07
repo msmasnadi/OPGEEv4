@@ -12,19 +12,17 @@
 # degree_Celsius = kelvin; offset: 273.15 = °C = celsius = degC = degreeC
 # pound_force_per_square_inch = force_pound / inch ** 2 = psi
 
-psi_absolute = pound_force_per_square_inch; offset: 0 = psi_abs = psia
-psi_gauge = psi_absolute; offset: -14.7 = psig
+psi_absolute = pound_force_per_square_inch; offset: 0 = psia = psi_abs
+psi_gauge = pound_force_per_square_inch; offset: -14.7 = psig
 
 # decide what to do here
 standard_cubic_feet = 1 * ft ** 3 = scf
 
 barrel_oil = 42 * gal = bbl_oil
-barrel_water = 42 * gal * water = bbl_water = bbl_steam = bbl_H2O
-
-# percent = [fraction]; offset: 0 = %
+barrel_water = 42 * gal * water = bbl_water = bbl_steam = bbl_H2O = bbl_liquid
 
 # ratio of density of oil to density of water
-degAPI = [fraction]; offset: 0 = API_gravity
+API_gravity = dimensionless = °API = degAPI = degreeAPI
 
 percent = dimensionless = pct = mol_pct
 
@@ -35,6 +33,7 @@ gCO2eq = grams * CO2eq
 million_gallons = 1E6 * gal = Mgal
 billion_gallons = 1E9 * gal = Bgal
 
-# TODO: Check the context feature in Pint
-moles_per_scf = 1 * scf / 1.2023 = _
+# pint defines "mole", a.k.a. "mol" so there may be a way to define the relationship
+# so Quantity(10, "mole/scf") uses the constant. But it may require Contexts and a "transformation".
+moles_per_scf = scf / 1.2023 = _
 
