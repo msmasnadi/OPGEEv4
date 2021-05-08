@@ -81,17 +81,13 @@ class Field(Container):
 
                 src_proc = s.src_proc
                 if src_proc:
-                    if self.is_cycle_member(src_proc):
+                    if self._is_cycle_member(src_proc):
                         raise OpgeeException(f"Can't run impute(): process {src_proc} is part of a process cycle")
                     _impute_upstream(src_proc)
 
-            if not self.cycles:
-                for proc in self.run_order:
-                    proc.run_or_bypass(**kwargs)
-            else:
-                self.iterate_processes(**kwargs)
+            self.run_processes(**kwargs)
 
-    def is_cycle_member(self, process):
+    def _is_cycle_member(self, process):
         """
         Return True if `process` is a member of any process cycle.
 
@@ -100,32 +96,20 @@ class Field(Container):
         """
         return any([process in cycle for cycle in self.cycles])
 
-    # TBD: move these static methods to graph.py
-    def ancestors(self, process):
-        """
-        Return a Process's immediate ancestor Processes.
-
-        :param process: (Process) the starting Process
-        :return: (list of Process) the Processes that are the sources of
-           Streams connected to `process`.
-        """
-        procs = [stream.src_proc for stream in process.inputs]
-        return procs
-
-    def depends_on_cycle(self, process, visited=None):
+    def _depends_on_cycle(self, process, visited=None):
         visited = visited or set()
 
-        for ancestor in self.ancestors(process):
-            if ancestor in visited:
+        for predecessor in process.predecessors():
+            if predecessor in visited:
                 return True
 
-            visited.add(ancestor)
-            if self.depends_on_cycle(ancestor, visited=visited):
+            visited.add(predecessor)
+            if self._depends_on_cycle(predecessor, visited=visited):
                 return True
 
         return False
 
-    def compute_graph_sections(self):
+    def _compute_graph_sections(self):
         """
         Divide the nodes of ``self.graph`` into three disjoint sets:
         1. Nodes neither in cycle nor dependent on cycles
@@ -136,24 +120,26 @@ class Field(Container):
         """
         processes = self.processes()
         cycles = self.cycles
-        procs_in_cycles = set(flatten(cycles)) if cycles else []
 
-        # reset visited flags since we use these to avoid cycling
-        # self.iteration_reset()
-
+        procs_in_cycles = set(flatten(cycles)) if cycles else set()
         cycle_dependent = set()
-        for process in processes:
-            if process not in procs_in_cycles and self.depends_on_cycle(process):
-                cycle_dependent.add(process)
+
+        if cycles:
+            for process in processes:
+                if process not in procs_in_cycles and self._depends_on_cycle(process):
+                    cycle_dependent.add(process)
 
         cycle_independent = set(processes) - procs_in_cycles - cycle_dependent
         return (cycle_independent, procs_in_cycles, cycle_dependent)
 
+    def run_processes(self, **kwargs):
+        cycle_independent, procs_in_cycles, cycle_dependent = self._compute_graph_sections()
 
-    def iterate_processes(self, **kwargs):
-        cycle_independent, procs_in_cycles, cycle_dependent = self.compute_graph_sections()
-
+        # helper function
         def run_procs_in_order(processes):
+            if not processes:
+                return
+
             sg = self.graph.subgraph(processes)
             run_order = nx.topological_sort(sg)
             for proc in run_order:
@@ -164,14 +150,15 @@ class Field(Container):
 
         # Iterate on the processes in cycle until a termination condition is met and an
         # OpgeeIterationStop exception is thrown.
-        while True:
-            try:
-                for proc in procs_in_cycles:
-                    proc.run_or_bypass(**kwargs)
+        if procs_in_cycles:
+            while True:
+                try:
+                    for proc in procs_in_cycles:
+                        proc.run_or_bypass(**kwargs)
 
-            except OpgeeIterationStop as e:
-                _logger.info(e)
-                break
+                except OpgeeIterationStop as e:
+                    _logger.info(e)
+                    break
 
         # run all processes dependent on cycles, which are now complete
         run_procs_in_order(cycle_dependent)

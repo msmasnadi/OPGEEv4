@@ -178,27 +178,27 @@ class Stream(XmlInstantiable, AttributeMixin):
     # Convenience functions
     #
     def gas_flow_rate(self, name):
-        """Calls self.flow_rate(name, PHASE_GAS)"""
+        """Calls ``self.flow_rate(name, PHASE_GAS)``"""
         return self.flow_rate(name, PHASE_GAS)
 
     def liquid_flow_rate(self, name):
-        """Calls self.flow_rate(name, PHASE_LIQUID)"""
+        """Calls ``self.flow_rate(name, PHASE_LIQUID)``"""
         return self.flow_rate(name, PHASE_LIQUID)
 
     def solid_flow_rate(self, name):
-        """Calls self.flow_rate(name, PHASE_SOLID)"""
+        """Calls ``self.flow_rate(name, PHASE_SOLID)``"""
         return self.flow_rate(name, PHASE_SOLID)
 
     def set_gas_flow_rate(self, name, rate):
-        """Calls self.set_flow_rate(name, PHASE_GAS, rate)"""
+        """Calls ``self.set_flow_rate(name, PHASE_GAS, rate)``"""
         return self.set_flow_rate(name, PHASE_GAS, rate)
 
     def set_liquid_flow_rate(self, name, rate):
-        """Calls self.set_flow_rate(name, PHASE_LIQUID, rate)"""
+        """Calls ``self.set_flow_rate(name, PHASE_LIQUID, rate)``"""
         return self.set_flow_rate(name, PHASE_LIQUID, rate)
 
     def set_solid_flow_rate(self, name, rate):
-        """Calls self.set_flow_rate(name, PHASE_SOLID, rate)"""
+        """Calls ``self.set_flow_rate(name, PHASE_SOLID, rate)``"""
         return self.set_flow_rate(name, PHASE_SOLID, rate)
 
     def set_temperature_and_pressure(self, t, p):

@@ -285,6 +285,16 @@ class Process(XmlInstantiable, AttributeMixin):
     def set_extend(self, extend):
         self.extend = extend
 
+    def predecessors(self):
+        """
+        Return a Process's immediate precedent Processes.
+
+        :return: (list of Process) the Processes that are the sources of
+           Streams connected to `process`.
+        """
+        procs = [stream.src_proc for stream in self.inputs]
+        return procs
+
     def set_iteration_value(self, value):
         """
         Store the value of a variable used to determine when an iteration loop
