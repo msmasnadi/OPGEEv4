@@ -138,8 +138,6 @@ class Model(Container):
 
             print("")
 
-    def report(self):
-        pass
 
     @classmethod
     def from_xml(cls, elt):
