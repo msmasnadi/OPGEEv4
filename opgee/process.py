@@ -7,7 +7,7 @@
 from .attributes import AttrDefs, AttributeMixin
 from .core import XmlInstantiable, elt_name, instantiate_subelts
 from .container import Container
-from .error import OpgeeException, AbstractMethodError, StopOpgeeIteration
+from .error import OpgeeException, AbstractMethodError, OpgeeStopIteration
 from .emissions import Emissions
 from .energy import Energy
 from .log import getLogger
@@ -71,9 +71,9 @@ class Process(XmlInstantiable, AttributeMixin):
     If a model contains process loops (cycles), one or more of the processes can call the method
     ``set_iteration_value()`` to store the value of a designed variable that is checked on each call to see if the
     change from the prior iteration is <= the value of Model attribute "maximum_change". If so,
-    an ``StopOpgeeIteration`` exception is raised to terminate the run. In addition, a "visit" counter in each
+    an ``OpgeeStopIteration`` exception is raised to terminate the run. In addition, a "visit" counter in each
     `Process` is incremented each time the process is run (or bypassed) and if the count >= the Model's
-    "maximum_iterations" attribute, ``StopOpgeeIteration`` is likewise raised. Whichever limit is reached first
+    "maximum_iterations" attribute, ``OpgeeStopIteration`` is likewise raised. Whichever limit is reached first
     will cause iterations to stop. Between model runs, the method ``iteration_reset()`` is called for all processes
     to clear the visited counters and reset the iteration value to None.
     """
@@ -304,7 +304,7 @@ class Process(XmlInstantiable, AttributeMixin):
 
         :param value: (float) the value of a designated 'change' variable
         :return: none
-        :raises: StopOpgeeIteration if the percent change in `value` (versus
+        :raises: OpgeeStopIteration if the percent change in `value` (versus
             the previously stored value) is less than the `iteration_epsilon`
             attribute for the model.
         """
@@ -314,7 +314,7 @@ class Process(XmlInstantiable, AttributeMixin):
         prior_value = self.iteration_value
 
         if prior_value is not None and abs(value - prior_value) <= m.maximum_change:
-            raise StopOpgeeIteration(f"Change <= maximum_change ({m.maximum_change}) in {self}")
+            raise OpgeeStopIteration(f"Change <= maximum_change ({m.maximum_change}) in {self}")
 
         self.iteration_value = value
 
@@ -347,7 +347,7 @@ class Process(XmlInstantiable, AttributeMixin):
 
         m = self.model
         if self.visit() >= m.maximum_iterations:
-            raise StopOpgeeIteration(f"Maximum iterations ({m.maximum_iterations}) reached in {self}")
+            raise OpgeeStopIteration(f"Maximum iterations ({m.maximum_iterations}) reached in {self}")
 
     # TBD: Can we create a generic method for passing inputs to outputs when disabled?
     # TBD: If not, this will become an abstract method.

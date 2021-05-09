@@ -10,7 +10,7 @@ class OpgeeException(Exception):
 
 # Thrown when iterations have reached Model's max_iterations or a Process's
 # change variable has changed less than Model's iteration_epsilon between runs.
-class StopOpgeeIteration(Exception):
+class OpgeeStopIteration(Exception):
     def __init__(self, reason):
         self.reason = reason
 

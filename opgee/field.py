@@ -1,7 +1,7 @@
 import networkx as nx
 from .container import Container
 from .core import elt_name, instantiate_subelts, dict_from_list
-from .error import OpgeeException, StopOpgeeIteration
+from .error import OpgeeException, OpgeeStopIteration
 from .log import getLogger
 from .processes.thermodynamics import Oil
 from .process import Process, Environment, Reservoir, Aggregator
@@ -149,14 +149,14 @@ class Field(Container):
         run_procs_in_order(cycle_independent)
 
         # Iterate on the processes in cycle until a termination condition is met and an
-        # StopOpgeeIteration exception is thrown.
+        # OpgeeStopIteration exception is thrown.
         if procs_in_cycles:
             while True:
                 try:
                     for proc in procs_in_cycles:
                         proc.run_or_bypass(**kwargs)
 
-                except StopOpgeeIteration as e:
+                except OpgeeStopIteration as e:
                     _logger.info(e)
                     break
 
