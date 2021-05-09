@@ -1,4 +1,3 @@
-from __future__ import print_function
 from lxml import etree as ET
 import os
 import pkg_resources as pkg
@@ -34,8 +33,6 @@ _ops = {
 }
 
 _types = {'str': str, 'int': int, 'float': float, 'bool': bool}
-
-# TBD: Modified from version from mcs.XML
 
 class XMLFile(object):
     """

@@ -30,18 +30,19 @@ class Model(Container):
 
         # load all the GWP options
         df = tbl_mgr.get_table('GWP')
-        self.gwp20  = df.query('Years ==  20').set_index('Gas', drop=True).drop('Years', axis='columns')
-        self.gwp100 = df.query('Years == 100').set_index('Gas', drop=True).drop('Years', axis='columns')
+
+        self.gwp_horizons = list(df.Years.unique())
+        self.gwp_versions = list(df.columns[2:])
+        self.gwp_dict = {y : df.query('Years == @y').set_index('Gas', drop=True).drop('Years', axis='columns') for y in self.gwp_horizons}
 
         # This will be set to a pandas.Series holding the current values in use, indexed by gas name
         self.gwp = None
 
         # Use the GWP years and version specified in XML
-        gwp_years   = self.attr('GWP_years')
+        gwp_horizon = self.attr('GWP_years')
         gwp_version = self.attr('GWP_version')
-        self.use_GWP(gwp_years, gwp_version)
+        self.use_GWP(gwp_horizon, gwp_version)
 
-        # TBD: convert to dict mapping names to unitful values
         df = tbl_mgr.get_table('constants')
         self.constants = {name : ureg.Quantity(row.value, row.unit) for name, row in df.iterrows()}
 
@@ -49,32 +50,28 @@ class Model(Container):
         self.maximum_iterations = self.attr('maximum_iterations')
         self.maximum_change     = self.attr('maximum_change')
 
-    def use_GWP(self, gwp_years, gwp_version):
+    def use_GWP(self, gwp_horizon, gwp_version):
         """
         Set which GWP values to use for this model. Initially set from the XML model definition,
         but this function allows this choice to be changed after the model is loaded, e.g., by
         choosing different values in a GUI and rerunning the emissions summary.
 
-        :param gwp_years: (int) the GWP time horizon; currently must 20 or 100.
+        :param gwp_horizon: (int) the GWP time horizon; currently must 20 or 100.
         :param gwp_version: (str) the GWP version to use; must be one of 'AR4', 'AR5', 'AR5_CCF'
         :return: none
         """
         from pint import Quantity
 
-        # TBD: validate these against options in attributes.xml rather than hardcoding here
-        valid_years = (20, 100)
-        valid_versions = ('AR4', 'AR5', 'AR5_CCF')
+        if isinstance(gwp_horizon, Quantity):
+            gwp_horizon = gwp_horizon.magnitude
 
-        if isinstance(gwp_years, Quantity):
-            gwp_years = gwp_years.magnitude
+        if gwp_horizon not in self.gwp_horizons:
+            raise OpgeeException(f"GWP years must be one of {self.gwp_horizons}; value given was {gwp_horizon}")
 
-        if gwp_years not in valid_years:
-            raise OpgeeException(f"GWP years must be one of {valid_years}; value given was {gwp_years}")
+        if gwp_version not in self.gwp_versions:
+            raise OpgeeException(f"GWP version must be one of {self.gwp_versions}; value given was {gwp_version}")
 
-        if gwp_version not in valid_versions:
-            raise OpgeeException(f"GWP version must be one of {valid_versions}; value given was {gwp_version}")
-
-        df = self.gwp20 if gwp_years == 20 else self.gwp100
+        df = self.gwp_dict[gwp_horizon]
         gwp = df[gwp_version]
         self.gwp = gwp.reindex(index=Emissions.emissions)  # keep them in the same order for consistency
 
@@ -118,11 +115,6 @@ class Model(Container):
     def validate(self):
 
         # TBD: validate all attributes of classes Field, Process, etc.
-        # attributes = AttributeDefs()
-        # field_attrs = attributes.class_attrs('Field')
-        # print(field_attrs.attribute('downhole_pump'))
-        # print(field_attrs.attribute('ecosystem_richness'))
-        # print(field_attrs.option('ecosystem_C_richness'))
 
         show_streams = False
 

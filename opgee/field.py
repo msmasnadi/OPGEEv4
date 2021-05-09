@@ -17,11 +17,8 @@ class Field(Container):
     of `Reservoir` and `Environment`, which are sources and sinks, respectively, in
     the process structure.
     """
-
-    # TBD: can a field have any Processes that are not within Aggregator nodes?
     def __init__(self, name, attr_dict=None, aggs=None, procs=None, streams=None):
-
-        # Note that `procs` are just those Processes defined at the top-level of the field
+        # Note that `procs` include only Processes defined at the top-level of the field
         super().__init__(name, attr_dict=attr_dict, aggs=aggs, procs=procs)
 
         self.stream_dict  = dict_from_list(streams)
@@ -30,18 +27,18 @@ class Field(Container):
         self.process_dict = dict_from_list(all_procs)
 
         self.environment = Environment()    # TBD: is Environment per Field or per Analysis?
-        self.reservoir   = Reservoir(name)  # TBD: One per field?
+        self.reservoir   = Reservoir(name)  # one per field
         self.extend = False
 
         # we use networkx to reason about the directed graph of Processes (nodes)
         # and Streams (edges).
         self.graph = g = self._connect_processes()
 
-        self.cycles = list(nx.simple_cycles(g))
+        self.cycles = cycles = list(nx.simple_cycles(g))
         self.run_order = None if self.cycles else nx.topological_sort(g)
 
-        if self.cycles:
-            _logger.info(f"Field '{name}' has cycles")
+        if cycles:
+            _logger.info(f"Field '{name}' has cycles: {cycles}")
 
         gas_comp = self.attrs_with_prefix('gas_comp_')
         API = self.attr("API")

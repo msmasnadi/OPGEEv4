@@ -84,7 +84,7 @@ class ClassAttrs(XmlInstantiable):
         self.attr_dict = attr_dict
         self.option_dict = option_dict
 
-        # TBD: set defaults for attributes using options to the option's default
+        # Set defaults for attributes using options to the option's default
         for attr in attr_dict.values():
             set_name = attr.option_set
             if attr.default is None and set_name:

@@ -281,34 +281,3 @@ class Stream(XmlInstantiable, AttributeMixin):
             comp_df.loc[comp_name, phase] = rate
 
         return obj
-
-# Deprecated? May be useful for Environment. Or not.
-# class SignalingStream(Stream):
-#     """
-#     Augments Stream to have a dirty bit and a read method that returns a copy of the
-#     stream contents and resets the stream to zeros, clearing the dirty bit. The main
-#     use is for the Environment() process to collect emissions from all Processes, but
-#     incrementally after each upstream process runs.
-#     """
-#     def __init__(self, name, number=0, temperature=None, pressure=None,
-#                  src_name=None, dst_name=None, comp_matrix=None):
-#
-#         super().init(name, number=number, temperature=temperature, pressure=pressure,
-#                      src_name=src_name, dst_name=dst_name, comp_matrix=comp_matrix)
-#
-#         self.dirty = False
-#
-#     def get_data(self):
-#         if not self.dirty:
-#             return None
-#
-#         comps = self.components
-#         copy = comps.copy()
-#         comps.loc[:, :] = 0.0
-#         self.dirty = False
-#
-#         return copy
-#
-#     def set_flow_rate(self, name, phase, rate):
-#         super().set_flow_rate(name, phase, rate)
-#         self.dirty = True
