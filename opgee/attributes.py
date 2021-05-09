@@ -4,7 +4,8 @@
 .. Copyright (c) 2021 Richard Plevin and Stanford University
    See the https://opensource.org/licenses/MIT for license details.
 """
-from .core import OpgeeObject, XmlInstantiable, A, instantiate_subelts, elt_name, validate_unit, ureg
+from . import ureg
+from .core import OpgeeObject, XmlInstantiable, A, instantiate_subelts, elt_name, validate_unit
 from .error import OpgeeException
 from .log import getLogger
 from .pkg_utils import resourceStream
@@ -83,7 +84,7 @@ class ClassAttrs(XmlInstantiable):
         self.attr_dict = attr_dict
         self.option_dict = option_dict
 
-        # TBD: set defaults for attributes using options to the option's default
+        # Set defaults for attributes using options to the option's default
         for attr in attr_dict.values():
             set_name = attr.option_set
             if attr.default is None and set_name:
@@ -217,7 +218,7 @@ class AttributeMixin():
         if obj is None and raiseError:
             raise OpgeeException(f"Attribute '{attr_name}' not found in {self}")
 
-        return obj.value
+        return obj.value if obj else None
 
     def attrs_with_prefix(self, prefix):
         """

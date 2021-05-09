@@ -70,7 +70,6 @@ dependencies:
     - prompt-toolkit==3.0.18
     - ptyprocess==0.7.0
     - pygments==2.8.1
-    - pyromat==2.0.12
     - requests==2.25.1
     - semver==3.0.0.dev2
     - snowballstemmer==2.1.0

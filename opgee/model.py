@@ -4,9 +4,10 @@
 .. Copyright (c) 2021 Richard Plevin and Stanford University
    See the https://opensource.org/licenses/MIT for license details.
 """
+from . import ureg
 from .analysis import Analysis
 from .container import Container
-from .core import instantiate_subelts, elt_name, ureg
+from .core import instantiate_subelts, elt_name
 from .config import getParam
 from .emissions import Emissions
 from .error import OpgeeException
@@ -17,13 +18,6 @@ from .utils import loadModuleFromPath, splitAndStrip
 from .XMLFile import XMLFile
 
 _logger = getLogger(__name__)
-
-# TBD
-# Create a directed graph in Network X to simplify do loop detection.
-# Add “visited” flags to processes and technologies, and may be a list of visited nudes so they can be reset easily without searching.
-# Support both max number of iterations, and designation of an output variable v and a value epsilon so the iteration stops when,
-#    between iterations, %change < epsilon.
-# How to handle multiple loops? Each may need a value to compare against to detect convergence.
 
 class Model(Container):
     def __init__(self, name, analysis, attr_dict=None):
@@ -36,47 +30,48 @@ class Model(Container):
 
         # load all the GWP options
         df = tbl_mgr.get_table('GWP')
-        self.gwp20  = df.query('Years ==  20').set_index('Gas', drop=True).drop('Years', axis='columns')
-        self.gwp100 = df.query('Years == 100').set_index('Gas', drop=True).drop('Years', axis='columns')
+
+        self.gwp_horizons = list(df.Years.unique())
+        self.gwp_versions = list(df.columns[2:])
+        self.gwp_dict = {y : df.query('Years == @y').set_index('Gas', drop=True).drop('Years', axis='columns') for y in self.gwp_horizons}
 
         # This will be set to a pandas.Series holding the current values in use, indexed by gas name
         self.gwp = None
 
         # Use the GWP years and version specified in XML
-        gwp_years   = self.attr('GWP_years')
+        gwp_horizon = self.attr('GWP_years')
         gwp_version = self.attr('GWP_version')
-        self.use_GWP(gwp_years, gwp_version)
+        self.use_GWP(gwp_horizon, gwp_version)
 
-        # TBD: convert to dict mapping names to unitful values
         df = tbl_mgr.get_table('constants')
         self.constants = {name : ureg.Quantity(row.value, row.unit) for name, row in df.iterrows()}
 
-    def use_GWP(self, gwp_years, gwp_version):
+        # parameters controlling process cyclic calculations
+        self.maximum_iterations = self.attr('maximum_iterations')
+        self.maximum_change     = self.attr('maximum_change')
+
+    def use_GWP(self, gwp_horizon, gwp_version):
         """
         Set which GWP values to use for this model. Initially set from the XML model definition,
         but this function allows this choice to be changed after the model is loaded, e.g., by
         choosing different values in a GUI and rerunning the emissions summary.
 
-        :param gwp_years: (int) the GWP time horizon; currently must 20 or 100.
+        :param gwp_horizon: (int) the GWP time horizon; currently must 20 or 100.
         :param gwp_version: (str) the GWP version to use; must be one of 'AR4', 'AR5', 'AR5_CCF'
         :return: none
         """
         from pint import Quantity
 
-        # TBD: validate these against options in attributes.xml rather than hardcoding here
-        valid_years = (20, 100)
-        valid_versions = ('AR4', 'AR5', 'AR5_CCF')
+        if isinstance(gwp_horizon, Quantity):
+            gwp_horizon = gwp_horizon.magnitude
 
-        if isinstance(gwp_years, Quantity):
-            gwp_years = gwp_years.magnitude
+        if gwp_horizon not in self.gwp_horizons:
+            raise OpgeeException(f"GWP years must be one of {self.gwp_horizons}; value given was {gwp_horizon}")
 
-        if gwp_years not in valid_years:
-            raise OpgeeException(f"GWP years must be one of {valid_years}; value given was {gwp_years}")
+        if gwp_version not in self.gwp_versions:
+            raise OpgeeException(f"GWP version must be one of {self.gwp_versions}; value given was {gwp_version}")
 
-        if gwp_version not in valid_versions:
-            raise OpgeeException(f"GWP version must be one of {valid_versions}; value given was {gwp_version}")
-
-        df = self.gwp20 if gwp_years == 20 else self.gwp100
+        df = self.gwp_dict[gwp_horizon]
         gwp = df[gwp_version]
         self.gwp = gwp.reindex(index=Emissions.emissions)  # keep them in the same order for consistency
 
@@ -120,11 +115,6 @@ class Model(Container):
     def validate(self):
 
         # TBD: validate all attributes of classes Field, Process, etc.
-        # attributes = AttributeDefs()
-        # field_attrs = attributes.class_attrs('Field')
-        # print(field_attrs.attribute('downhole_pump'))
-        # print(field_attrs.attribute('ecosystem_richness'))
-        # print(field_attrs.option('ecosystem_C_richness'))
 
         show_streams = False
 
@@ -140,8 +130,6 @@ class Model(Container):
 
             print("")
 
-    def report(self):
-        pass
 
     @classmethod
     def from_xml(cls, elt):
@@ -162,38 +150,53 @@ class Model(Container):
         return obj
 
 
-# TBD: grab a path like OPGEE.UserClassPath, which defaults to OPGEE.ClassPath
-# TBD: split these and load all *.py files in each directory (if a directory;
-# TBD: allow specify specific files in path as well)
-# TBD: import these into this module so they're found by class_from_str()?
-# TBD: Alternatively, create dict of base classname and actual module it's in
-# TBD: by looping over sys.modules[name]
 class ModelFile(XMLFile):
     """
     Represents the overall parameters.xml file.
     """
-    def __init__(self, filename, stream=None):
+    def __init__(self, filename, stream=None, add_stream_components=True, use_class_path=True):
+        """
+        Several steps are performed, some of which are dependent on the function's parameters:
+
+        1. If `add_stream_components` is True, load any extra stream components defined by config file
+        variable "OPGEE.StreamComponents".
+
+        2. Reads the input XML filename using either from `filename` (if `stream` is None) or from
+        `stream`. In the latter case, the filename is used only as a description of the stream.
+
+        3. If `use_class_path` is True, loads any Python files found in the path list defined by
+        "OPGEE.ClassPath". Note that all classes referenced by the XML must be defined internally
+        by opgee, or in the user's files indicated by "OPGEE.ClassPath".
+
+        4. Construct the model data structure from the input XML file and store the result in `self.model`.
+
+        :param filename: (str) the name of the file to read, if `stream` is None, else the description
+           of the file, e.g., "[opgee package]/etc/opgee.xml".
+        :param stream: (file-like object) if not None, read from this stream rather than opening `filename`.
+        """
         import os
         from pathlib import Path
 
-        extra_components = getParam('OPGEE.StreamComponents')
-        if extra_components:
-            names = splitAndStrip(extra_components, ',')
-            Stream.extend_components(names)
+        if add_stream_components:
+            extra_components = getParam('OPGEE.StreamComponents')
+            if extra_components:
+                names = splitAndStrip(extra_components, ',')
+                Stream.extend_components(names)
 
         # We expect a single 'Analysis' element below Model
         _logger.debug("Loading model file: %s", filename)
 
         super().__init__(stream or filename, schemaPath='etc/opgee.xsd')
 
-        class_path = getParam('OPGEE.ClassPath')
-        paths = [Path(path) for path in class_path.split(os.path.pathsep) if path]
-        for path in paths:
-            if path.is_dir():
-                for module_path in path.glob('*.py'):   # load all .py files found in directory
-                    loadModuleFromPath(module_path)
-            else:
-                loadModuleFromPath(path)
+        if use_class_path:
+            class_path = getParam('OPGEE.ClassPath')
+            paths = [Path(path) for path in class_path.split(os.path.pathsep) if path]
+            for path in paths:
+                if path.is_dir():
+                    for module_path in path.glob('*.py'):   # load all .py files found in directory
+                        loadModuleFromPath(module_path)
+                else:
+                    loadModuleFromPath(path)
 
         self.root = self.tree.getroot()
         self.model = Model.from_xml(self.root)

@@ -65,7 +65,7 @@ def emissions_for_gwp():
     return e
 
 @pytest.mark.parametrize(
-    "gwp_years, gwp_version, expected",
+    "gwp_horizon, gwp_version, expected",
     [(20,  'AR4',     1000 + 10 * 289 + 2 * 72 + 7.65 + 14),
      (20,  'AR5',     1000 + 10 * 264 + 2 * 84 + 7.65 + 14),
      (20,  'AR5_CCF', 1000 + 10 * 264 + 2 * 86 + 18.6 + 14),
@@ -73,16 +73,16 @@ def emissions_for_gwp():
      (100, 'AR5',     1000 + 10 * 265 + 2 * 30 +  2.7 + 4.5),
      ]
 )
-def test_gwp(model_instance, emissions_for_gwp, gwp_years, gwp_version, expected):
+def test_gwp(model_instance, emissions_for_gwp, gwp_horizon, gwp_version, expected):
     original_rates = emissions_for_gwp.data.copy()
-    model_instance.use_GWP(gwp_years, gwp_version)
+    model_instance.use_GWP(gwp_horizon, gwp_version)
 
     rates, ghg = emissions_for_gwp.rates(gwp=model_instance.gwp)
 
     # check that rates are unchanged
     assert all(rates == original_rates)
 
-    #print(f"GHG for ({gwp_years}, {gwp_version} => {ghg}")
+    #print(f"GHG for ({gwp_horizon}, {gwp_version} => {ghg}")
     assert ghg == pytest.approx(expected)
 
 def test_use_GWP_error(model_instance):

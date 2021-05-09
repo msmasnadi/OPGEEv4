@@ -66,13 +66,16 @@ class Container(XmlInstantiable, AttributeMixin):
         self.get_energy_rates()
         self.get_emission_rates()
 
-    def report(self):
-        print(f"{self}: cumulative emissions to Environment:\n{self.emissions}")
+    def report_energy_and_emissions(self):
+        print(f"{self} Energy consumption:\n{self.energy.data}")
+        print(f"\nCumulative emissions to Environment:\n{self.emissions.data}")
+        print(f"Total: {self.ghgs} (UNITS?) CO2eq")
 
     def get_energy_rates(self):
         """
         Return the energy consumption rates by summing those of our children nodes,
-        recursively working our way down the Container hierarchy.
+        recursively working our way down the Container hierarchy, and storing each
+        result at each container level.
         """
         self.energy.data[:] = 0.0
         data = self.energy.data

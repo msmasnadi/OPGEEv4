@@ -5,6 +5,7 @@
    See the https://opensource.org/licenses/MIT for license details.
 '''
 import pandas as pd
+import re
 from .attributes import AttributeMixin
 from .core import XmlInstantiable, elt_name
 from .error import OpgeeException
@@ -17,6 +18,42 @@ _logger = getLogger(__name__)
 PHASE_SOLID = 'solid'
 PHASE_LIQUID = 'liquid'
 PHASE_GAS = 'gas'
+
+# Compile the patterns at load time for better performance
+_carbon_number_pattern = re.compile('^C(\d+)$')
+_hydrocarbon_pattern   = re.compile('^(C\d+)H(\d+)$')
+
+def is_carbon_number(name):
+    return (re.match(_carbon_number_pattern, name) is not None)
+
+def is_hydrocarbon(name):
+    return (name == 'CH4' or re.match(_hydrocarbon_pattern, name) is not None)
+
+def molecule_to_carbon(molecule):
+    if molecule == "CH4":
+        return "C1"
+
+    m = re.match(_hydrocarbon_pattern, molecule)
+    if m is None:
+        raise OpgeeException(f"Expected hydrocarbon molecule name like CxHy, got {molecule}")
+
+    c_name = m.group(1)
+    return c_name
+
+
+def carbon_to_molecule(c_name):
+    if c_name == "C1":
+        return "CH4"
+
+    m = re.match(_carbon_number_pattern, c_name)
+    if m is None:
+        raise OpgeeException(f"Expected carbon number name like Cn, got {c_name}")
+
+    carbons = int(m.group(1))
+    hydrogens = 2 * carbons + 2
+    molecule = f"{c_name}H{hydrogens}"
+    return molecule
+
 
 #
 # Can streams have emissions (e.g., leakage) or is that attributed to a process?
@@ -137,6 +174,33 @@ class Stream(XmlInstantiable, AttributeMixin):
         """
         self.components.loc[name, phase] = rate
 
+    #
+    # Convenience functions
+    #
+    def gas_flow_rate(self, name):
+        """Calls ``self.flow_rate(name, PHASE_GAS)``"""
+        return self.flow_rate(name, PHASE_GAS)
+
+    def liquid_flow_rate(self, name):
+        """Calls ``self.flow_rate(name, PHASE_LIQUID)``"""
+        return self.flow_rate(name, PHASE_LIQUID)
+
+    def solid_flow_rate(self, name):
+        """Calls ``self.flow_rate(name, PHASE_SOLID)``"""
+        return self.flow_rate(name, PHASE_SOLID)
+
+    def set_gas_flow_rate(self, name, rate):
+        """Calls ``self.set_flow_rate(name, PHASE_GAS, rate)``"""
+        return self.set_flow_rate(name, PHASE_GAS, rate)
+
+    def set_liquid_flow_rate(self, name, rate):
+        """Calls ``self.set_flow_rate(name, PHASE_LIQUID, rate)``"""
+        return self.set_flow_rate(name, PHASE_LIQUID, rate)
+
+    def set_solid_flow_rate(self, name, rate):
+        """Calls ``self.set_flow_rate(name, PHASE_SOLID, rate)``"""
+        return self.set_flow_rate(name, PHASE_SOLID, rate)
+
     def set_temperature_and_pressure(self, t, p):
         self.temperature = t
         self.pressure = p
@@ -180,9 +244,10 @@ class Stream(XmlInstantiable, AttributeMixin):
         name = a.get('name') or f"{src} => {dst}"
 
         # The following are optional
-        number = coercible(a['number'], int, raiseError=False) # optional and eventually deprecated
+        number_str = a.get('number')
+        number = coercible(number_str, int, raiseError=False) if number_str else None
 
-        # There should be exactly 2 attributes: temperature and pressure
+        # There should be 2 attributes: temperature and pressure
         attr_dict = cls.instantiate_attrs(elt)
         expected = {'temperature', 'pressure'}
         if set(attr_dict.keys()) != expected:
@@ -198,8 +263,6 @@ class Stream(XmlInstantiable, AttributeMixin):
         comp_elts = elt.findall('Component')
         obj.has_exogenous_data = len(comp_elts) > 0
 
-
-
         for comp_elt in comp_elts:
             a = comp_elt.attrib
             comp_name = elt_name(comp_elt)
@@ -207,14 +270,9 @@ class Stream(XmlInstantiable, AttributeMixin):
             phase = a['phase']  # required by XML schema to be one of the 3 legal values
             unit  = a['unit']   # required by XML schema (TBD: use this)
 
-            if comp_name == 'CH4':
-                comp_name = 'C1'
-            else:
-                import re
-
-                m = re.match('C(\d+)H(\d+)', comp_name)
-                if m is not None:
-                    comp_name = 'C' + m.group(1)
+            # convert hydrocarbon molecule name to carbon number format
+            if is_hydrocarbon(comp_name):
+                comp_name = molecule_to_carbon(comp_name)
 
             if comp_name not in comp_df.index:
                 raise OpgeeException(f"Unrecognized stream component name '{comp_name}'.")
@@ -223,34 +281,3 @@ class Stream(XmlInstantiable, AttributeMixin):
             comp_df.loc[comp_name, phase] = rate
 
         return obj
-
-# Deprecated? May be useful for Environment. Or not.
-# class SignalingStream(Stream):
-#     """
-#     Augments Stream to have a dirty bit and a read method that returns a copy of the
-#     stream contents and resets the stream to zeros, clearing the dirty bit. The main
-#     use is for the Environment() process to collect emissions from all Processes, but
-#     incrementally after each upstream process runs.
-#     """
-#     def __init__(self, name, number=0, temperature=None, pressure=None,
-#                  src_name=None, dst_name=None, comp_matrix=None):
-#
-#         super().init(name, number=number, temperature=temperature, pressure=pressure,
-#                      src_name=src_name, dst_name=dst_name, comp_matrix=comp_matrix)
-#
-#         self.dirty = False
-#
-#     def get_data(self):
-#         if not self.dirty:
-#             return None
-#
-#         comps = self.components
-#         copy = comps.copy()
-#         comps.loc[:, :] = 0.0
-#         self.dirty = False
-#
-#         return copy
-#
-#     def set_flow_rate(self, name, phase, rate):
-#         super().set_flow_rate(name, phase, rate)
-#         self.dirty = True

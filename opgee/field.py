@@ -1,12 +1,12 @@
 import networkx as nx
 from .container import Container
 from .core import elt_name, instantiate_subelts, dict_from_list
-from .error import OpgeeException
+from .error import OpgeeException, OpgeeStopIteration
 from .log import getLogger
-from .processes import Oil
+from .processes.thermodynamics import Oil
 from .process import Process, Environment, Reservoir, Aggregator
 from .stream import Stream
-from .utils import getBooleanXML
+from .utils import getBooleanXML, flatten
 
 _logger = getLogger(__name__)
 
@@ -17,11 +17,8 @@ class Field(Container):
     of `Reservoir` and `Environment`, which are sources and sinks, respectively, in
     the process structure.
     """
-
-    # TBD: can a field have any Processes that are not within Aggregator nodes?
     def __init__(self, name, attr_dict=None, aggs=None, procs=None, streams=None):
-
-        # Note that `procs` are just those Processes defined at the top-level of the field
+        # Note that `procs` include only Processes defined at the top-level of the field
         super().__init__(name, attr_dict=attr_dict, aggs=aggs, procs=procs)
 
         self.stream_dict  = dict_from_list(streams)
@@ -30,17 +27,18 @@ class Field(Container):
         self.process_dict = dict_from_list(all_procs)
 
         self.environment = Environment()    # TBD: is Environment per Field or per Analysis?
-        self.reservoir   = Reservoir(name)  # TBD: One per field?
+        self.reservoir   = Reservoir(name)  # one per field
         self.extend = False
 
         # we use networkx to reason about the directed graph of Processes (nodes)
         # and Streams (edges).
         self.graph = g = self._connect_processes()
 
-        self.is_dag = nx.is_directed_acyclic_graph(g)
-        self.run_order = nx.topological_sort(g) if self.is_dag else []
-        if self.run_order is None:
-            _logger.warn(f"Field '{name}' has cycles, which aren't supported yet")
+        self.cycles = cycles = list(nx.simple_cycles(g))
+        self.run_order = None if self.cycles else nx.topological_sort(g)
+
+        if cycles:
+            _logger.info(f"Field '{name}' has cycles: {cycles}")
 
         gas_comp = self.attrs_with_prefix('gas_comp_')
         API = self.attr("API")
@@ -60,6 +58,8 @@ class Field(Container):
         :param kwargs: (dict) arbitrary keyword args to pass through
         :return: None
         """
+
+        # TBD: this doesn't work when the upstream processes include a cycle
         def _impute_upstream(proc):
             # recurse upstream, calling impute()
             if proc:
@@ -68,25 +68,106 @@ class Field(Container):
                     _impute_upstream(s.src_proc)
 
         if self.is_enabled():
+            self.iteration_reset()
+
             _logger.debug(f"Running '{self}'")
 
             start_streams = self.find_start_streams()
             for s in start_streams:
                 _logger.info(f"Running impute() methods for procs upstream of start stream {s}")
+
                 src_proc = s.src_proc
                 if src_proc:
+                    if self._is_cycle_member(src_proc):
+                        raise OpgeeException(f"Can't run impute(): process {src_proc} is part of a process cycle")
                     _impute_upstream(src_proc)
 
-            for proc in self.run_order:
+            self.run_processes(**kwargs)
+
+    def _is_cycle_member(self, process):
+        """
+        Return True if `process` is a member of any process cycle.
+
+        :param process: (Process)
+        :return: (bool)
+        """
+        return any([process in cycle for cycle in self.cycles])
+
+    def _depends_on_cycle(self, process, visited=None):
+        visited = visited or set()
+
+        for predecessor in process.predecessors():
+            if predecessor in visited:
+                return True
+
+            visited.add(predecessor)
+            if self._depends_on_cycle(predecessor, visited=visited):
+                return True
+
+        return False
+
+    def _compute_graph_sections(self):
+        """
+        Divide the nodes of ``self.graph`` into three disjoint sets:
+        1. Nodes neither in cycle nor dependent on cycles
+        2. Nodes in cycles
+        3. Nodes dependent on cycles
+
+        :return: (3-tuple of lists of Processes)
+        """
+        processes = self.processes()
+        cycles = self.cycles
+
+        procs_in_cycles = set(flatten(cycles)) if cycles else set()
+        cycle_dependent = set()
+
+        if cycles:
+            for process in processes:
+                if process not in procs_in_cycles and self._depends_on_cycle(process):
+                    cycle_dependent.add(process)
+
+        cycle_independent = set(processes) - procs_in_cycles - cycle_dependent
+        return (cycle_independent, procs_in_cycles, cycle_dependent)
+
+    def run_processes(self, **kwargs):
+        cycle_independent, procs_in_cycles, cycle_dependent = self._compute_graph_sections()
+
+        # helper function
+        def run_procs_in_order(processes):
+            if not processes:
+                return
+
+            sg = self.graph.subgraph(processes)
+            run_order = nx.topological_sort(sg)
+            for proc in run_order:
                 proc.run_or_bypass(**kwargs)
+
+        # run all the cycle-independent nodes in topological order
+        run_procs_in_order(cycle_independent)
+
+        # Iterate on the processes in cycle until a termination condition is met and an
+        # OpgeeStopIteration exception is thrown.
+        if procs_in_cycles:
+            while True:
+                try:
+                    for proc in procs_in_cycles:
+                        proc.run_or_bypass(**kwargs)
+
+                except OpgeeStopIteration as e:
+                    _logger.info(e)
+                    break
+
+        # run all processes dependent on cycles, which are now complete
+        run_procs_in_order(cycle_dependent)
 
     def _connect_processes(self):
         """
-        Connect streams and processes to one another.
+        Connect streams and processes in a directed graph.
 
         :return: (networkx.DiGraph) a directed graph representing the processes and streams.
         """
-        g = nx.DiGraph()
+        # g = nx.DiGraph()
+        g = nx.MultiDiGraph()  # allows parallel edges
 
         # first add all defined Processes since some (Exploration, Development & Drilling)
         # have no streams associated with them, but we still need to run the processes.
@@ -104,10 +185,6 @@ class Field(Container):
 
         return g
 
-    def _clear_visited(self):
-        for proc in self.processes():
-            proc.clear_visit_count()
-
     def streams(self):
         """
         Gets all `Stream` instances for this `Field`.
@@ -123,6 +200,10 @@ class Field(Container):
         :return: (iterator of `Process` (subclasses) instances) in this `Field`
         """
         return self.process_dict.values()
+
+    def iteration_reset(self):
+        for proc in self.processes():
+            proc.iteration_reset()
 
     def find_stream(self, name, raiseError=True):
         """
@@ -169,6 +250,8 @@ class Field(Container):
         print(f"\n*** Streams for field {self.name}")
         for stream in self.streams():
             print(f"{stream}\n{stream.components}\n")
+
+        self.report_energy_and_emissions()
 
     @classmethod
     def from_xml(cls, elt):

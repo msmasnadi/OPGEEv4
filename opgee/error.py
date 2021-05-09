@@ -8,6 +8,15 @@
 class OpgeeException(Exception):
     pass
 
+# Thrown when iterations have reached Model's max_iterations or a Process's
+# change variable has changed less than Model's iteration_epsilon between runs.
+class OpgeeStopIteration(Exception):
+    def __init__(self, reason):
+        self.reason = reason
+
+    def __str__(self):
+        return f"Process loop iteration terminated: {self.reason}"
+
 
 class AbstractMethodError(OpgeeException):
     def __init__(self, cls, method):
