@@ -6,7 +6,7 @@ _logger = getLogger(__name__)
 
 
 class ProducedWaterTreatment(Process):
-    def run(self, **kwargs):
+    def run(self, analysis):
         field = self.get_field()
         model = self.model
         water_FVF = model.const("water-FVF")

@@ -7,82 +7,90 @@
 			<xs:enumeration value="gas"/>
 			<xs:enumeration value="liquid"/>
 			<xs:enumeration value="solid"/>
-        </xs:restriction>
+    </xs:restriction>
 	</xs:simpleType>
 
 	<xs:simpleType name="FunctionalUnitType">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="gas"/>
 			<xs:enumeration value="oil"/>
-        </xs:restriction>
+    </xs:restriction>
 	</xs:simpleType>
 
 	<xs:simpleType name="EnergyBasisType">
 		<xs:restriction base="xs:string">
-			<xs:enumeration value="LHV"/>
+      <xs:enumeration value="LHV"/>
 			<xs:enumeration value="HHV"/>
-        </xs:restriction>
+    </xs:restriction>
 	</xs:simpleType>
 
 	<xs:element name='Model'>
 		<xs:complexType>
 			<xs:choice maxOccurs="unbounded">
-				<xs:element minOccurs='0' maxOccurs='unbounded' ref="A"/>
-				<xs:element minOccurs='0' maxOccurs='1' ref="Analysis"/>
-				<xs:element minOccurs='0' maxOccurs='1' ref='ProcessDatabase'/>
+				<xs:element minOccurs='0' ref="A"/>
+				<xs:element minOccurs='0' ref="Analysis"/>
+        <xs:element minOccurs='0' ref='Field'/>
+				<!-- xs:element minOccurs='0' maxOccurs='1' ref='ProcessDatabase'/ -->
 			</xs:choice>
 		</xs:complexType>
     </xs:element>
 
 	<xs:element name='FunctionalUnit'>
-        <xs:complexType>
-            <xs:simpleContent>
-                <xs:extension base='FunctionalUnitType'/>
-            </xs:simpleContent>
-        </xs:complexType>
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base='FunctionalUnitType'/>
+      </xs:simpleContent>
+    </xs:complexType>
 	</xs:element>
 
 	<xs:element name='EnergyBasis'>
-        <xs:complexType>
-            <xs:simpleContent>
-                <xs:extension base='EnergyBasisType'/>
-            </xs:simpleContent>
-        </xs:complexType>
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base='EnergyBasisType'/>
+      </xs:simpleContent>
+    </xs:complexType>
 	</xs:element>
 
 	<xs:element name='Analysis'>
-        <xs:complexType>
+    <xs:complexType>
 			<xs:choice maxOccurs='unbounded'>
-                <xs:element minOccurs='1' maxOccurs='1' ref='FunctionalUnit'/>
-                <xs:element minOccurs='1' maxOccurs='1' ref='EnergyBasis'/>
-                <xs:element minOccurs='0' maxOccurs='unbounded' ref='Field'/>
-            </xs:choice>
-            <xs:attribute name='name' use='required' type='xs:NCName'/>
-        </xs:complexType>
+        <xs:element ref='A'/>
+        <xs:element minOccurs='0' ref='WithField'/>
+        <xs:element minOccurs='0' ref='WithGroup'/>
+      </xs:choice>
+      <xs:attribute name='name' use='required' type='xs:NCName'/>
+    </xs:complexType>
 	</xs:element>
 
+  <xs:element name="WithGroup" type="xs:string"/>
+
+  <xs:element name="WithField" type="xs:string"/>
+
+  <xs:element name="Group" type="xs:string"/>
+
 	<xs:element name='Field'>
-        <xs:complexType>
-            <xs:choice maxOccurs='unbounded'>
-                <xs:element maxOccurs='unbounded' ref='A'/>
-				<xs:element minOccurs='1' maxOccurs='unbounded' ref='Aggregator'/>
-				<xs:element minOccurs='1' maxOccurs='unbounded' ref='Process'/>
-				<xs:element minOccurs='1' maxOccurs='unbounded' ref='Stream'/>
-            </xs:choice>
+    <xs:complexType>
+      <xs:choice maxOccurs='unbounded'>
+        <xs:element minOccurs='0' ref='A'/>
+        <xs:element minOccurs='0' ref='Group'/>
+        <xs:element minOccurs='0' ref='Aggregator'/>
+				<xs:element minOccurs='0' ref='Process'/>
+				<xs:element ref='Stream'/>
+      </xs:choice>
 			<xs:attribute name='name' use='required' type='xs:NCName'/>
 			<xs:attribute name='enabled' default='1' type='xs:boolean'/>
 			<xs:attribute name='extend' default='0' type='xs:boolean'/>
-        </xs:complexType>
-    </xs:element>
+    </xs:complexType>
+  </xs:element>
 
-    <xs:element name='A'>
-        <xs:complexType>
-            <xs:simpleContent>
-                <xs:extension base='xs:string'>
-                    <xs:attribute name='name' use='required' type='xs:NCName'/>
-                </xs:extension>
-            </xs:simpleContent>
-        </xs:complexType>
+  <xs:element name='A'>
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base='xs:string'>
+          <xs:attribute name='name' use='required' type='xs:NCName'/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
 	</xs:element>
 
 	<!-- use type forward reference to define recursive structure -->
@@ -91,98 +99,98 @@
 	<xs:complexType name="AggregatorType">
 		<xs:choice maxOccurs="unbounded">
 			<xs:element name="Aggregator" type="AggregatorType"/>
-			<xs:element minOccurs='0' maxOccurs='unbounded' ref='A'/>
-			<xs:element minOccurs='0' maxOccurs='unbounded' ref='Process'/>
+			<xs:element minOccurs='0' ref='A'/>
+			<xs:element minOccurs='0' ref='Process'/>
 		</xs:choice>
 		<xs:attribute name='name' type='xs:NCName'/>
 		<xs:attribute name='enabled' default='1' type='xs:boolean'/>
 	</xs:complexType>
 
 	<xs:element name='Temperature'>
-        <xs:complexType>
-            <xs:simpleContent>
-                <xs:extension base='xs:decimal'>
-                    <xs:attribute name='unit' use='required'/>
-                </xs:extension>
-            </xs:simpleContent>
-        </xs:complexType>
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base='xs:decimal'>
+          <xs:attribute name='unit' use='required'/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
 	</xs:element>
 
 	<xs:element name='Pressure'>
-        <xs:complexType>
-            <xs:simpleContent>
-                <xs:extension base='xs:decimal'>
-                    <xs:attribute name='unit' use='required'/>
-                </xs:extension>
-            </xs:simpleContent>
-        </xs:complexType>
-    </xs:element>
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base='xs:decimal'>
+          <xs:attribute name='unit' use='required'/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
 
-    <xs:element name='Stream'>
-        <xs:complexType>
-            <xs:choice minOccurs="0" maxOccurs="unbounded">
-                <xs:element minOccurs="2" maxOccurs="2" ref='A'/>
-                <xs:element minOccurs="1" maxOccurs="unbounded" ref='Component'/>
-            </xs:choice>
-            <xs:attribute name='name'/>                      <!-- allow this for now, but will be computed -->
-            <xs:attribute name='number' type='xs:integer'/>  <!-- allow this for now, but probably will be deprecated -->
-            <xs:attribute name='src' use='required'/>
-            <xs:attribute name='dst' use='required'/>
-        </xs:complexType>
-	</xs:element>
+  <xs:element name='Stream'>
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element minOccurs="2" maxOccurs="2" ref='A'/>
+        <xs:element ref='Component'/>
+      </xs:choice>
+      <xs:attribute name='name'/>                      <!-- allow this for now, but will be computed -->
+      <xs:attribute name='number' type='xs:integer'/>  <!-- allow this for now, but probably will be deprecated -->
+      <xs:attribute name='src' use='required'/>
+      <xs:attribute name='dst' use='required'/>
+    </xs:complexType>
+  </xs:element>
 
-    <xs:element name='Component'>
-        <xs:complexType>
-            <xs:simpleContent>
-                <xs:extension base='xs:decimal'>
-                  <xs:attribute name='name' use='required'/>
-                  <xs:attribute name='phase' use='required' type="PhaseType"/>
-                  <xs:attribute name='unit' use='required'/>
-                </xs:extension>
-            </xs:simpleContent>
-        </xs:complexType>
-	</xs:element>
+  <xs:element name='Component'>
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base='xs:decimal'>
+          <xs:attribute name='name' use='required'/>
+          <xs:attribute name='phase' use='required' type="PhaseType"/>
+          <xs:attribute name='unit' use='required'/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
 
 	<xs:element name='Produces'>
-        <xs:complexType>
-            <xs:simpleContent>
-                <xs:extension base='xs:string'>
-                </xs:extension>
-            </xs:simpleContent>
-        </xs:complexType>
-	</xs:element>
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base='xs:string'>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
 
 	<xs:element name='Consumes'>
-        <xs:complexType>
-            <xs:simpleContent>
-                <xs:extension base='xs:string'>
-                </xs:extension>
-            </xs:simpleContent>
-        </xs:complexType>
-	</xs:element>
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base='xs:string'>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
 
 	<xs:element name='Process'>
     <xs:complexType>
 			<xs:choice maxOccurs="unbounded">
-				<xs:element minOccurs='0' ref='A'/>
+        <xs:element minOccurs='0' ref='A'/>
 				<xs:element minOccurs='0' ref='Produces'/>
 				<xs:element minOccurs='0' ref='Consumes'/>
       </xs:choice>
-          <xs:attribute name='class' use='required'/>
-          <xs:attribute name='name' type='xs:NCName'/>
-          <xs:attribute name='desc' type='xs:string'/>
-          <xs:attribute name='enabled' default='1' type='xs:boolean'/>
-          <xs:attribute name='extend' default='0' type='xs:boolean'/>
-        </xs:complexType>
+      <xs:attribute name='class' use='required'/>
+      <xs:attribute name='name' type='xs:NCName'/>
+      <xs:attribute name='desc' type='xs:string'/>
+      <xs:attribute name='enabled' default='1' type='xs:boolean'/>
+      <xs:attribute name='extend' default='0' type='xs:boolean'/>
+    </xs:complexType>
 	</xs:element>
 
-  <!-- TBD: unclear if this will be used -->
+  <!-- TBD: unclear if this is useful -->
 	<xs:element name='ProcessDatabase'>
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element minOccurs='0' maxOccurs='unbounded' ref='Process'/>
-			</xs:sequence>
-		</xs:complexType>
-	</xs:element>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs='0' maxOccurs='unbounded' ref='Process'/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
 
 </xs:schema>

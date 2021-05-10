@@ -13,54 +13,54 @@
 	<A name="functional_unit">oil</A>
 	<A name="energy_basis">LHV</A>
 
-	<Analysis name="default">
-		<FunctionalUnit>oil</FunctionalUnit>
-		<EnergyBasis>LHV</EnergyBasis>
-
-		<Field name="test">
-			<A name="country">USA</A>
-			<A name="offshore">0</A>
-			<A name="age">86</A>
-			<A name="depth">4936</A>
-			<A name="oil_prod">101295</A>
-			<A name="num_prod_wells">41539</A>
-			<A name="num_water_inj_wells">34426</A>
-			<A name="well_diam">3.01</A>
-			<A name="prod_index">37.53</A>
-			<A name="res_press">887.31</A>
-			<A name="res_temp">70.84</A>
-			<A name="GOR">1205.4</A>
-
-			<Process class="Proc1" desc="Test process 1">
-				<Produces>crude oil</Produces>
-			</Process>
-
-			<Process class="Proc2" desc="Test process 2">
-				<Consumes>crude oil</Consumes>
-				<Consumes>hydrogen</Consumes>
-				<Produces>natural gas</Produces>
-			</Process>
-
-			<Process class="Proc3" desc="Test process 3">
-				<Consumes>natural gas</Consumes>
-				<Produces>hydrogen</Produces>
-				<Produces>CO2</Produces>
-			</Process>
-
-			<Process class="Proc4" desc="Test process 4">
-				<Consumes>CO2</Consumes>
-			</Process>
-
-			<Stream src="Proc1" dst="Proc2">
-				<A name="temperature">90.0</A>
-				<A name="pressure">150.0</A>
-				<Component name="oil" phase="liquid" unit="tonne/d">100</Component>
-			</Stream>
-
-			<!-- Creates a process loop -->
-			<Stream src="Proc2" dst="Proc3"/>
-			<Stream src="Proc3" dst="Proc2"/>
-			<Stream src="Proc3" dst="Proc4"/>
-		</Field>
+	<Analysis name="test">
+		<A name="functional_unit">oil</A>
+		<A name="energy_basis">LHV</A>
 	</Analysis>
+
+	<Field name="test">
+		<A name="country">USA</A>
+		<A name="offshore">0</A>
+		<A name="age">86</A>
+		<A name="depth">4936</A>
+		<A name="oil_prod">101295</A>
+		<A name="num_prod_wells">41539</A>
+		<A name="num_water_inj_wells">34426</A>
+		<A name="well_diam">3.01</A>
+		<A name="prod_index">37.53</A>
+		<A name="res_press">887.31</A>
+		<A name="res_temp">70.84</A>
+		<A name="GOR">1205.4</A>
+
+		<Process class="Proc1" desc="Test process 1">
+			<Produces>crude oil</Produces>
+		</Process>
+
+		<Process class="Proc2" desc="Test process 2">
+			<Consumes>crude oil</Consumes>
+			<Consumes>hydrogen</Consumes>
+			<Produces>natural gas</Produces>
+		</Process>
+
+		<Process class="Proc3" desc="Test process 3">
+			<Consumes>natural gas</Consumes>
+			<Produces>hydrogen</Produces>
+			<Produces>CO2</Produces>
+		</Process>
+
+		<Process class="Proc4" desc="Test process 4">
+			<Consumes>CO2</Consumes>
+		</Process>
+
+		<Stream src="Proc1" dst="Proc2">
+			<A name="temperature">90.0</A>
+			<A name="pressure">150.0</A>
+			<Component name="oil" phase="liquid" unit="tonne/d">100</Component>
+		</Stream>
+
+		<!-- Creates a process loop -->
+		<Stream src="Proc2" dst="Proc3"/>
+		<Stream src="Proc3" dst="Proc2"/>
+		<Stream src="Proc3" dst="Proc4"/>
+	</Field>
 </Model>

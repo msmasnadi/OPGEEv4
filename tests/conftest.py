@@ -14,7 +14,12 @@ def configure_logging_for_tests():
     return None
 
 @pytest.fixture
-def model_instance(configure_logging_for_tests):
+def opgee_model(configure_logging_for_tests):
     s = resourceStream('etc/opgee.xml', stream_type='bytes', decode=None)
     mf = ModelFile('[opgee package]/etc/opgee.xml', stream=s)
+    return mf.model
+
+@pytest.fixture
+def model(): # configure_logging_for_tests
+    mf = ModelFile('files/test_model.xml', add_stream_components=False, use_class_path=False)
     return mf.model

@@ -1,7 +1,7 @@
 import pytest
 from lxml import etree as ET
 from pint import Quantity
-from opgee import ureg
+from opgee.analysis import Analysis
 from opgee.attributes import ClassAttrs, AttributeMixin
 from opgee.core import instantiate_subelts
 from opgee.error import OpgeeException
@@ -50,24 +50,41 @@ def attr_classes():
 def attr_dict_1():
     xml = ET.XML("""
 <Model>
-	<A name="GWP_years">20</A>
-	<A name="GWP_version">AR4</A>
 	<A name="maximum_iterations">20</A>
 </Model>
 """)
     attr_dict = Model.instantiate_attrs(xml)
     return attr_dict
 
+@pytest.fixture
+def attr_dict_2():
+    xml = ET.XML("""
+<Analysis>
+  <A name="GWP_horizon">20</A>
+  <A name="GWP_version">AR4</A>    
+</Analysis>
+""")
+    attr_dict = Analysis.instantiate_attrs(xml)
+    return attr_dict
+
+
 @pytest.mark.parametrize(
-    "attr_name, value", [("GWP_years", Quantity(20, 'year')),   # test units and numerical override
-                         ("GWP_version", "AR4"),        # test character value override
-                         ("energy_basis", "LHV"),       # test character default adopted
-                         ("maximum_iterations", 20),    # test numerical value override
+    "attr_name, value", [("maximum_iterations", 20),    # test numerical value override
                          ("maximum_change", 0.001),     # test numerical default adopted
                          ]
 )
-def test_defaults(attr_classes, attr_dict_1, attr_name, value):
+def test_model_defaults(attr_classes, attr_dict_1, attr_name, value):
     assert attr_dict_1[attr_name].value == value
+
+@pytest.mark.parametrize(
+    "attr_name, value", [("GWP_horizon", Quantity(20, 'year')),   # test units and numerical override
+                         ("GWP_version", "AR4"),        # test character value override
+                         ("energy_basis", "LHV"),       # test character default adopted
+                         ]
+)
+def test_analysis_defaults(attr_classes, attr_dict_2, attr_name, value):
+    assert attr_dict_2[attr_name].value == value
+
 
 class AttributeHolder(AttributeMixin):
     def __init__(self, attr_dict):

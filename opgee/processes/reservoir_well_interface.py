@@ -4,7 +4,7 @@ from ..log import getLogger
 _logger = getLogger(__name__) # data logging
 
 class ReservoirWellInterface(Process):
-    def run(self, **kwargs):
+    def run(self, analysis):
         _logger.debug("test message")
         self.print_running_msg()
 
