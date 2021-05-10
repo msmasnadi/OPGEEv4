@@ -21,10 +21,7 @@ Who do I talk to?
 
 To Do
 ===========
-* Handle process loops
-  * Finish test for loops
-  * Run acyclic graphs using the same algorithm as cyclic ones (just no cycles, so
-    all nodes are in set 1, independent of cycles, run in topological order)
+* Finish testing process loops
 
 * Finish developing facility merge user model/attribute defs with default (or other) defs.
 
