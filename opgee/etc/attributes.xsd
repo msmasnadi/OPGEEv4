@@ -37,6 +37,12 @@
             <xs:attribute name='options' type='xs:NCName'/>
             <xs:attribute name='type' type='xs:NCName'/>
             <xs:attribute name='unit'/>
+
+            <!-- Not sure we'll use this -->
+            <xs:attribute name="greater_than" type="xs:decimal"/>
+            <xs:attribute name="greater_than_or_eq" type="xs:decimal"/>
+            <xs:attribute name="less_than" type="xs:decimal"/>
+            <xs:attribute name="less_than_or_eq" type="xs:decimal"/>
         </xs:complexType>
     </xs:element>
 </xs:schema>
