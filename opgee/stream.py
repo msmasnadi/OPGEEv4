@@ -163,6 +163,22 @@ class Stream(XmlInstantiable, AttributeMixin):
         rate = self.components.loc[name, phase]
         return rate
 
+    def hydrocarbons_rates(self, phase):
+        """
+
+        :param phase:
+        :return:
+        """
+        return self.flow_rate(self._hydrocarbons, phase)
+
+    def hydrocarbon_rate(self, phase):
+        """
+
+        :param phase:
+        :return:
+        """
+        return self.hydrocarbons_rates(phase).sum()
+
     def set_flow_rate(self, name, phase, rate):
         """
         Set the value of the stream component `name` for `phase` to `rate`.
