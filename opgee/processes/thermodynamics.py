@@ -25,7 +25,7 @@ class DryAir(OpgeeObject):
         return self.mixture.MW(self.mol_fraction)
 
     def density(self):
-        return self.mixture.rho("rho","kg/m3", "g", mol_fraction, T = 298.15, P = 10100)
+        return self.mixture.get_property("rho","kg/m3", "g", mol_fraction, T = 298.15, P = 10100)
 
 class Hydrocarbon(OpgeeObject):
     dict_chemical = None
