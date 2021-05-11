@@ -166,7 +166,7 @@ class Stream(XmlInstantiable, AttributeMixin):
     def hydrocarbons_rates(self, phase):
         """
 
-        :param phase:
+        :param phase: (str)
         :return:
         """
         return self.flow_rate(self._hydrocarbons, phase)
@@ -174,7 +174,7 @@ class Stream(XmlInstantiable, AttributeMixin):
     def hydrocarbon_rate(self, phase):
         """
 
-        :param phase:
+        :param phase: (str)
         :return:
         """
         return self.hydrocarbons_rates(phase).sum()
