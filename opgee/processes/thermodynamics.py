@@ -24,6 +24,9 @@ class DryAir(OpgeeObject):
     def mol_weight(self):
         return self.mixture.MW(self.mol_fraction)
 
+    def density(self):
+        return self.mixture.rho("rho","kg/m3", "g", mol_fraction, T = 298.15, P = 10100)
+
 class Hydrocarbon(OpgeeObject):
     dict_chemical = None
 
@@ -336,6 +339,7 @@ class Gas(Hydrocarbon):
 
     def __init__(self, res_temp, res_press):
         super().__init__(res_temp, res_press)
+        self.dry_air_MW = DryAir().mol_weight()
 
     def total_molar_flow_rate(self, stream):
         """
