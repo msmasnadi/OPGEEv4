@@ -72,7 +72,8 @@ class Stream(XmlInstantiable, AttributeMixin):
     _phases = [PHASE_SOLID, PHASE_LIQUID, PHASE_GAS]
 
     # HCs with 1-60 carbon atoms, i.e., C1, C2, ..., C60
-    _hydrocarbons = [f'C{n + 1}' for n in range(60)]
+    max_carbon_number = 50
+    _hydrocarbons = [f'C{n + 1}' for n in range(max_carbon_number)]
     _solids = ['PC']  # petcoke
     _liquids = ['oil']
     # _hc_molecules = ['CH4', 'C2H6', 'C3H8', 'C4H10']
@@ -165,19 +166,35 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     def hydrocarbons_rates(self, phase):
         """
+        Set rates for each hydrocarbons
 
-        :param phase:
-        :return:
+        :param phase: (str) the name of a phase of matter ('gas', 'liquid' or 'solid')
+        :return: (float) the flow rates for all the hydrocarbons
         """
         return self.flow_rate(self._hydrocarbons, phase)
 
     def hydrocarbon_rate(self, phase):
         """
+        Summarize rates for each hydrocarbons
 
-        :param phase:
-        :return:
+        :param phase: (str) the name of a phase of matter ('gas', 'liquid' or 'solid')
+        :return: (float) the summation of flow rates of all hydrocarbons
         """
         return self.hydrocarbons_rates(phase).sum()
+
+    def total_gases_rates(self):
+        """
+
+        :return:
+        """
+        return self.gas_flow_rate(self._hydrocarbons + self._gases)
+
+    def total_gas_rate(self):
+        """
+
+        :return:
+        """
+        return self.total_gases_rates().sum()
 
     def set_flow_rate(self, name, phase, rate):
         """
