@@ -294,6 +294,7 @@ class Stream(XmlInstantiable, AttributeMixin):
                 raise OpgeeException(f"Unrecognized stream component name '{comp_name}'.")
 
             # TBD: integrate units via pint and pint_pandas once next release appears
+            # TBD: if stream is to include electricity, it will be in MWh/day
             unit  = ureg.Unit("tonne/day")
             comp_df.loc[comp_name, phase] = rate
 

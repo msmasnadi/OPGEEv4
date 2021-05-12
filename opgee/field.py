@@ -27,8 +27,9 @@ class Field(Container):
         all_procs = self.collect_processes()
         self.process_dict = dict_from_list(all_procs)
 
-        self.environment = Environment()    # TBD: is Environment per Field or per Analysis?
+        self.environment = Environment()    # one per field
         self.reservoir   = Reservoir(name)  # one per field
+        
         self.extend = False
 
         # we use networkx to reason about the directed graph of Processes (nodes)
