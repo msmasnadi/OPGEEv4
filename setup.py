@@ -23,7 +23,6 @@ requirements = [
     'pint>=0.17',
     'pint-pandas>=0.2',
     'pydot>=1.4.0',
-    'pyromat>=2.0.12',
     'pytest>=6.1.1',
     'semver>=2.8.0',
     'sphinx>=3.5.0'
