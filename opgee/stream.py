@@ -11,6 +11,7 @@ from .core import XmlInstantiable, elt_name
 from .error import OpgeeException
 from .log import getLogger
 from .utils import coercible
+from . import ureg
 
 _logger = getLogger(__name__)
 
@@ -130,8 +131,8 @@ class Stream(XmlInstantiable, AttributeMixin):
 
         self.components = self.create_component_matrix() if comp_matrix is None else comp_matrix
         self.number = number
-        self.temperature = temperature
-        self.pressure = pressure
+        self.temperature = ureg.Quantity(temperature, "degF")
+        self.pressure = ureg.Quantity(pressure, "psi")
         self.src_name = src_name
         self.dst_name = dst_name
 
