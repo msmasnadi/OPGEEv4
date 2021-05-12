@@ -29,7 +29,7 @@ class Field(Container):
 
         self.environment = Environment()    # one per field
         self.reservoir   = Reservoir(name)  # one per field
-        
+
         self.extend = False
 
         # we use networkx to reason about the directed graph of Processes (nodes)

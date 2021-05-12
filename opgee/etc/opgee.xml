@@ -150,8 +150,8 @@
 			<A name="pressure">887.3</A>
 			<Component name="N2" phase="gas">519.9</Component>
 			<Component name="CO2" phase="gas">8858.8</Component>
-			<Component name="CH4" phase="gas">22288.1</Component>
-			<Component name="C10H22" phase="gas">4495.1</Component>
+			<Component name="C1" phase="gas">22288.1</Component>
+			<Component name="C2" phase="gas">4495.1</Component>
 			<Component name="C3" phase="gas">4399.9</Component>
 			<Component name="C4" phase="gas">284.4</Component>
 			<Component name="H2S" phase="gas">1.5</Component>
