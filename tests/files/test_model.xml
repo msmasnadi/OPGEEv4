@@ -55,7 +55,7 @@
 		<Stream src="Proc1" dst="Proc2">
 			<A name="temperature">90.0</A>
 			<A name="pressure">150.0</A>
-			<Component name="oil" phase="liquid" unit="tonne/d">100</Component>
+			<Component name="oil" phase="liquid">100</Component>
 		</Stream>
 
 		<!-- Creates a process loop -->
