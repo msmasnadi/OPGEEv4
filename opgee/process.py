@@ -106,6 +106,10 @@ class Process(XmlInstantiable, AttributeMixin):
         self.iteration_count = 0
         self.iteration_value = None
 
+    # allows Container to call this on Processes without type-checking
+    def after_init(self):
+        pass
+
     #
     # Pass-through convenience methods for energy and emissions
     #
@@ -129,16 +133,16 @@ class Process(XmlInstantiable, AttributeMixin):
         """
         self.emissions.add_rates(**kwargs)
 
-    def get_emission_rates(self):
+    def get_emission_rates(self, analysis):
         """
-        Return the emission rates, and optionally, the calculated GHG value.
-        Uses the current choice of GWP values in the Model containing this process.
+        Return the emission rates and the calculated GHG value. Uses the current
+        choice of GWP values in the Analysis containing this process.
 
         :return: ((pandas.Series, float)) a tuple containing the emissions Series
             and the GHG value computed using the model's current GWP settings.
         """
-        model = self.model()
-        return self.emissions.rates(gwp=model.gwp)
+        model = self.model
+        return self.emissions.rates(gwp=analysis.gwp)
 
     def add_energy_rate(self, carrier, rate):
         """
@@ -160,10 +164,11 @@ class Process(XmlInstantiable, AttributeMixin):
         """
         self.energy.add_rates(dictionary)
 
-    def get_energy_rates(self):
+    def get_energy_rates(self, analysis):
         """
         Return the energy consumption rates.
         """
+        # TBD: deal with LHV vs HHV here?
         return self.energy.rates()
     #
     # end of pass through energy and emissions methods
@@ -322,28 +327,28 @@ class Process(XmlInstantiable, AttributeMixin):
         self.clear_visit_count()
         self.iteration_value = None
 
-    def run(self, **kwargs):
+    def run(self, analysis):
         """
         This method implements the behavior required of the Process subclass, when
         the Process is enabled. **Subclasses of Process must implement this method.**
 
-        :param kwargs: (dict) arbitrary keyword args passed down from the Analysis object.
+        :param analysis: (Analysis) the `Analysis` used to retrieve global settings
         :return: None
         """
         raise AbstractMethodError(type(self), 'Process.run_internal')
 
-    def run_or_bypass(self, **kwargs):
+    def run_or_bypass(self, analysis):
         """
         If the Process is enabled, run the process, otherwise bypass it, i.e., copy
         input streams to output streams.
 
-        :param kwargs: (dict) arbitrary keyword args
+        :param analysis: (Analysis) the repository of analysis-specific settings
         :return: None
         """
         if self.enabled:
-            self.run(**kwargs)
+            self.run(analysis)
         else:
-            self.bypass(**kwargs)
+            self.bypass()
 
         m = self.model
         if self.visit() >= m.maximum_iterations:
@@ -351,7 +356,7 @@ class Process(XmlInstantiable, AttributeMixin):
 
     # TBD: Can we create a generic method for passing inputs to outputs when disabled?
     # TBD: If not, this will become an abstract method.
-    def bypass(self, **kwargs):
+    def bypass(self):
         """
         This method is called if a `Process` is disabled, allowing it to pass data from
         all input streams to output streams, effectively bypassing the disabled element.
@@ -415,7 +420,7 @@ class Reservoir(Process):
     Reservoir represents natural resources such as oil and gas reservoirs, and water sources.
     Each Field object holds a single Reservoir instance.
     """
-    def run(self, **kwargs):
+    def run(self, analysis):
         self.print_running_msg()
 
 class Environment(Process):
@@ -430,7 +435,7 @@ class Environment(Process):
 
         self.emissions = Stream.create_component_matrix()     # stores cumulative emissions
 
-    def run(self, **kwargs):
+    def run(self, analysis):
         self.print_running_msg()
 
         for stream in self.inputs:
@@ -438,7 +443,9 @@ class Environment(Process):
             if comp_data is not None:
                 self.emissions += comp_data
 
-    def report(self):
+        # TBD: use the analysis object to compute GWP
+
+    def report(self, analysis):
         print(f"{self}: cumulative emissions to Environment:\n{self.emissions}")
 
 class Aggregator(Container):

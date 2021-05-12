@@ -10,6 +10,7 @@ from .utils import getBooleanXML, flatten
 
 _logger = getLogger(__name__)
 
+
 class Field(Container):
     """
     A `Field` contains all the `Process` instances associated with a single oil or
@@ -21,13 +22,14 @@ class Field(Container):
         # Note that `procs` include only Processes defined at the top-level of the field
         super().__init__(name, attr_dict=attr_dict, aggs=aggs, procs=procs)
 
-        self.stream_dict  = dict_from_list(streams)
+        self.stream_dict = dict_from_list(streams)
 
         all_procs = self.collect_processes()
         self.process_dict = dict_from_list(all_procs)
 
-        self.environment = Environment()    # TBD: is Environment per Field or per Analysis?
+        self.environment = Environment()    # one per field
         self.reservoir   = Reservoir(name)  # one per field
+
         self.extend = False
 
         # we use networkx to reason about the directed graph of Processes (nodes)
@@ -50,14 +52,12 @@ class Field(Container):
     def __str__(self):
         return f"<Field '{self.name}'>"
 
-    def run(self, **kwargs):
+    def run(self, analysis):
         """
         Run all Processes defined for this Field, in the order computed from the graph
-        characteristics. Container if `names` is None, otherwise run only the
-        children whose names are in in `names`.
+        characteristics, using the settings in `analysis` (e.g., GWP).
 
-        :param names: (None, or list of str) the names of children to run
-        :param kwargs: (dict) arbitrary keyword args to pass through
+        :param analysis: (Analysis) the `Analysis` to use for analysis-specific settings.
         :return: None
         """
 
@@ -75,16 +75,16 @@ class Field(Container):
             _logger.debug(f"Running '{self}'")
 
             start_streams = self.find_start_streams()
-            for s in start_streams:
-                _logger.info(f"Running impute() methods for procs upstream of start stream {s}")
+            for stream in start_streams:
+                _logger.info(f"Running impute() methods for procs upstream of start stream {stream}")
 
-                src_proc = s.src_proc
+                src_proc = stream.src_proc
                 if src_proc:
                     if self._is_cycle_member(src_proc):
                         raise OpgeeException(f"Can't run impute(): process {src_proc} is part of a process cycle")
                     _impute_upstream(src_proc)
 
-            self.run_processes(**kwargs)
+            self.run_processes(analysis)
 
     def _is_cycle_member(self, process):
         """
@@ -129,9 +129,9 @@ class Field(Container):
                     cycle_dependent.add(process)
 
         cycle_independent = set(processes) - procs_in_cycles - cycle_dependent
-        return (cycle_independent, procs_in_cycles, cycle_dependent)
+        return cycle_independent, procs_in_cycles, cycle_dependent
 
-    def run_processes(self, **kwargs):
+    def run_processes(self, analysis):
         cycle_independent, procs_in_cycles, cycle_dependent = self._compute_graph_sections()
 
         # helper function
@@ -142,7 +142,7 @@ class Field(Container):
             sg = self.graph.subgraph(processes)
             run_order = nx.topological_sort(sg)
             for proc in run_order:
-                proc.run_or_bypass(**kwargs)
+                proc.run_or_bypass(analysis)
 
         # run all the cycle-independent nodes in topological order
         run_procs_in_order(cycle_independent)
@@ -153,7 +153,7 @@ class Field(Container):
             while True:
                 try:
                     for proc in procs_in_cycles:
-                        proc.run_or_bypass(**kwargs)
+                        proc.run_or_bypass(analysis)
 
                 except OpgeeStopIteration as e:
                     _logger.info(e)
@@ -248,12 +248,12 @@ class Field(Container):
     def set_extend(self, extend):
         self.extend = extend
 
-    def report(self):
+    def report(self, analysis):
         print(f"\n*** Streams for field {self.name}")
         for stream in self.streams():
             print(f"{stream}\n{stream.components}\n")
 
-        self.report_energy_and_emissions()
+        self.report_energy_and_emissions(analysis)
 
     @classmethod
     def from_xml(cls, elt):

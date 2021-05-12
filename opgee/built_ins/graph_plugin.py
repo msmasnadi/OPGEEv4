@@ -68,7 +68,7 @@ class GraphCommand(SubcommandABC):
 
         if args.field:
             # TBD: for now we assume one analysis per Model only
-            field = model.analysis.field_dict.get(args.field)
+            field = model.field_dict.get(args.field)
 
             if not field:
                 raise CommandlineError(f"Field name {args.field} was not found in model.")

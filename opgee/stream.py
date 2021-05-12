@@ -6,6 +6,7 @@
 '''
 import pandas as pd
 import re
+from . import ureg
 from .attributes import AttributeMixin
 from .core import XmlInstantiable, elt_name
 from .error import OpgeeException
@@ -302,7 +303,6 @@ class Stream(XmlInstantiable, AttributeMixin):
             comp_name = elt_name(comp_elt)
             rate  = coercible(comp_elt.text, float)
             phase = a['phase']  # required by XML schema to be one of the 3 legal values
-            unit  = a['unit']   # required by XML schema (TBD: use this)
 
             # convert hydrocarbon molecule name to carbon number format
             if is_hydrocarbon(comp_name):
@@ -311,7 +311,9 @@ class Stream(XmlInstantiable, AttributeMixin):
             if comp_name not in comp_df.index:
                 raise OpgeeException(f"Unrecognized stream component name '{comp_name}'.")
 
-            # TBD: integrate units via pint and pint_pandas
+            # TBD: integrate units via pint and pint_pandas once next release appears
+            # TBD: if stream is to include electricity, it will be in MWh/day
+            unit  = ureg.Unit("tonne/day")
             comp_df.loc[comp_name, phase] = rate
 
         return obj

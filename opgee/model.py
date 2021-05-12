@@ -11,6 +11,7 @@ from .core import instantiate_subelts, elt_name
 from .config import getParam
 from .emissions import Emissions
 from .error import OpgeeException
+from .field import Field
 from .log import getLogger
 from .stream import Stream
 from .table_manager import TableManager
@@ -20,11 +21,14 @@ from .XMLFile import XMLFile
 _logger = getLogger(__name__)
 
 class Model(Container):
-    def __init__(self, name, analysis, attr_dict=None):
+
+    def __init__(self, name, analyses, fields, attr_dict=None):
         super().__init__(name, attr_dict=attr_dict)
 
-        self.analysis = analysis
-        analysis.parent = self
+        Model.instance = self
+
+        self.analysis_dict = self.adopt(analyses, asDict=True)
+        self.field_dict = self.adopt(fields, asDict=True)
 
         self.table_mgr = tbl_mgr = TableManager()
 
@@ -35,55 +39,40 @@ class Model(Container):
         self.gwp_versions = list(df.columns[2:])
         self.gwp_dict = {y : df.query('Years == @y').set_index('Gas', drop=True).drop('Years', axis='columns') for y in self.gwp_horizons}
 
-        # This will be set to a pandas.Series holding the current values in use, indexed by gas name
-        self.gwp = None
-
-        # Use the GWP years and version specified in XML
-        gwp_horizon = self.attr('GWP_years')
-        gwp_version = self.attr('GWP_version')
-        self.use_GWP(gwp_horizon, gwp_version)
-
         df = tbl_mgr.get_table('constants')
         self.constants = {name : ureg.Quantity(row.value, row.unit) for name, row in df.iterrows()}
 
+        # TBD: should these be settable per Analysis?
         # parameters controlling process cyclic calculations
         self.maximum_iterations = self.attr('maximum_iterations')
         self.maximum_change     = self.attr('maximum_change')
 
-    def use_GWP(self, gwp_horizon, gwp_version):
-        """
-        Set which GWP values to use for this model. Initially set from the XML model definition,
-        but this function allows this choice to be changed after the model is loaded, e.g., by
-        choosing different values in a GUI and rerunning the emissions summary.
+    def after_init(self):
+        for obj in self.fields():
+            obj.after_init()
 
-        :param gwp_horizon: (int) the GWP time horizon; currently must 20 or 100.
-        :param gwp_version: (str) the GWP version to use; must be one of 'AR4', 'AR5', 'AR5_CCF'
-        :return: none
-        """
-        from pint import Quantity
+        for obj in self.analyses():
+            obj.after_init()
 
-        if isinstance(gwp_horizon, Quantity):
-            gwp_horizon = gwp_horizon.magnitude
+    def fields(self):
+        return self.field_dict.values()
 
-        if gwp_horizon not in self.gwp_horizons:
-            raise OpgeeException(f"GWP years must be one of {self.gwp_horizons}; value given was {gwp_horizon}")
+    def analyses(self):
+        return self.analysis_dict.values()
 
-        if gwp_version not in self.gwp_versions:
-            raise OpgeeException(f"GWP version must be one of {self.gwp_versions}; value given was {gwp_version}")
+    def get_analysis(self, name, raiseError=True):
+        analysis = self.analysis_dict.get(name)
+        if analysis is None and raiseError:
+            raise OpgeeException(f"Analysis named '{name}' is not defined")
 
-        df = self.gwp_dict[gwp_horizon]
-        gwp = df[gwp_version]
-        self.gwp = gwp.reindex(index=Emissions.emissions)  # keep them in the same order for consistency
+        return analysis
 
-    def GWP(self, gas):
-        """
-        Return the GWP for the given gas, using the model's settings for GWP time horizon and
-        the version of GWPs to use.
+    def get_field(self, name, raiseError=True):
+        field = self.field_dict.get(name)
+        if field is None and raiseError:
+            raise OpgeeException(f"Field named '{name}' is not defined")
 
-        :param gas: (str) a gas for which a GWP has been defined. Current list is CO2, CO, CH4, N2O, and VOC.
-        :return: (int) GWP value
-        """
-        return self.gwp[gas]
+        return field
 
     def const(self, name):
         """
@@ -99,10 +88,10 @@ class Model(Container):
 
     def _children(self, include_disabled=False):
         """
-        Return a list of all children. External callers should use children() instead,
-        as it respects the self.is_enabled() setting.
+        Return a list of all children objects. External callers should use children()
+        instead, as it respects the self.is_enabled() setting.
         """
-        return [self.analysis]
+        return self.analyses()   # N.B. returns an iterator
 
     def summarize(self):
         """
@@ -113,13 +102,12 @@ class Model(Container):
         pass
 
     def validate(self):
-
         # TBD: validate all attributes of classes Field, Process, etc.
 
         show_streams = False
 
         if show_streams:
-            for field in self.analysis.children():
+            for field in self.fields():
                 print(f"Processes for field {field.name}")
                 for proc in field.processes():
                     print(f"  {proc}")
@@ -130,7 +118,6 @@ class Model(Container):
 
             print("")
 
-
     @classmethod
     def from_xml(cls, elt):
         """
@@ -140,13 +127,14 @@ class Model(Container):
         :return: (Model) instance populated from XML
         """
         analyses = instantiate_subelts(elt, Analysis)
-        count = len(analyses)
-        if count != 1:
-            raise OpgeeException(f"Expected on <Analysis> element; got {count}")
-
+        fields   = instantiate_subelts(elt, Field)
         attr_dict = cls.instantiate_attrs(elt)
 
-        obj = Model(elt_name(elt), analyses[0], attr_dict=attr_dict)
+        obj = Model(elt_name(elt), analyses, fields, attr_dict=attr_dict)
+
+        # do stuff that requires the fully instantiated hierarchy
+        obj.after_init()
+
         return obj
 
 

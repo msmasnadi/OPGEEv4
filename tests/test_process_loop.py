@@ -9,7 +9,7 @@ def model(): # configure_logging_for_tests
 
 
 class Proc1(Process):
-    def run(self, **kwargs):
+    def run(self, analysis):
         # find appropriate streams by checking connected processes' capabilities
         oil_flow_rate = 100
 
@@ -18,7 +18,7 @@ class Proc1(Process):
 
 
 class Proc2(Process):
-    def run(self, **kwargs):
+    def run(self, analysis):
         h2_stream  = self.find_input_streams('hydrogen')
         h2_rate = h2_stream.gas_flow_rate('H2')
 
@@ -31,7 +31,7 @@ class Proc2(Process):
 
 
 class Proc3(Process):
-    def run(self, **kwargs):
+    def run(self, analysis):
         ng_stream = self.find_input_streams('natural gas')
         ng_rate = ng_stream.gas_flow_rate('C1')
 
@@ -46,7 +46,7 @@ class Proc3(Process):
 
 
 class Proc4(Process):
-    def run(self, **kwargs):
+    def run(self, analysis):
         co2_stream = self.find_input_streams('CO2')
         co2_rate = co2_stream.gas_flow_rate('CO2')
 
@@ -54,6 +54,7 @@ class Proc4(Process):
 
 def test_process_loop(model):
     model.validate()
-    field = model.analysis.get_field('test')
-    field.run()
+    analysis = model.get_analysis('test')
+    field = analysis.get_field('test')
+    field.run(analysis)
     assert 1 == 1

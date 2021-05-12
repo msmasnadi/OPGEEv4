@@ -30,6 +30,10 @@ class Container(XmlInstantiable, AttributeMixin):
         self.aggs  = self.adopt(aggs)
         self.procs = self.adopt(procs)
 
+    def after_init(self):
+        for child in self._children():
+            child.after_init()
+
     def _children(self):
         """
         Return a list of all children. External callers should use children() instead,
@@ -51,27 +55,17 @@ class Container(XmlInstantiable, AttributeMixin):
     def print_running_msg(self):
         _logger.info(f"Running {type(self)} name='{self.name}'")
 
-    # TBD: how to pass args like fields to process?
-    # TBD: also need to clear all prior data to avoid collecting stale data?
-    def run(self, **kwargs):
-        """
-        Run all children and collect emissions and energy use for all Containers and Processes.
 
-        :return: None
-        """
-        for child in self.children():
-            child.run(**kwargs)
-
+    def report_energy_and_emissions(self, analysis):
         # calculate and store results internally
-        self.get_energy_rates()
-        self.get_emission_rates()
+        self.get_energy_rates(analysis)
+        self.get_emission_rates(analysis)
 
-    def report_energy_and_emissions(self):
         print(f"{self} Energy consumption:\n{self.energy.data}")
         print(f"\nCumulative emissions to Environment:\n{self.emissions.data}")
         print(f"Total: {self.ghgs} (UNITS?) CO2eq")
 
-    def get_energy_rates(self):
+    def get_energy_rates(self, analysis):
         """
         Return the energy consumption rates by summing those of our children nodes,
         recursively working our way down the Container hierarchy, and storing each
@@ -81,12 +75,12 @@ class Container(XmlInstantiable, AttributeMixin):
         data = self.energy.data
 
         for child in self.children():
-            child_data = child.get_energy_rates()
+            child_data = child.get_energy_rates(analysis)
             data += child_data
 
         return data
 
-    def get_emission_rates(self):
+    def get_emission_rates(self, analysis):
         """
         Return a tuple of the emission rates (Series) and the calculated GHG value (float).
         Uses the current choice of GWP values in the enclosing Model.
@@ -100,7 +94,7 @@ class Container(XmlInstantiable, AttributeMixin):
         ghgs = 0.0
 
         for child in self.children():
-            child_data, child_ghgs = child.get_emission_rates()
+            child_data, child_ghgs = child.get_emission_rates(analysis)
             data += child_data
             ghgs += child_ghgs
 
