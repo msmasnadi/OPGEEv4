@@ -7,11 +7,6 @@
      define custom starting points.
      -->
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="opgee.xsd">
-	<!-- these might belong in Analysis, or the two levels (Model, Analysis) might collapse into one -->
-	<A name="GWP_horizon">100</A>
-	<A name="GWP_version">AR5</A>
-	<A name="functional_unit">oil</A>
-	<A name="energy_basis">LHV</A>
 
 	<Analysis name="default">
 		<WithField>US_FW</WithField>
@@ -106,19 +101,19 @@
 		<Stream number="7" name="crude oil after separator" src="Separation" dst="CrudeOilDewatering">
 			<A name="temperature">90.0</A>
 			<A name="pressure">100.0</A>
-			<Component name="oil" phase="liquid" unit="tonne/d">14555.9</Component>
-			<Component name="H2O" phase="liquid" unit="tonne/d">2037.8</Component>
+			<Component name="oil" phase="liquid">14555.9</Component>
+			<Component name="H2O" phase="liquid">2037.8</Component>
 		</Stream>
 		<Stream number="160" name="Fuel gas - dewatering" src="Separation" dst="CrudeOilDewatering">
 			<A name="temperature">90.0</A>
 			<A name="pressure">150.0</A>
-			<Component name="N2" phase="gas" unit="tonne/d">0.8</Component>
-			<Component name="CO2" phase="gas" unit="tonne/d">0.7</Component>
-			<Component name="C1" phase="gas" unit="tonne/d">35.5</Component>
-			<Component name="C2" phase="gas" unit="tonne/d">3.8</Component>
-			<Component name="C3" phase="gas" unit="tonne/d">0.2</Component>
-			<Component name="C4" phase="gas" unit="tonne/d">0.0</Component>
-			<Component name="H2S" phase="gas" unit="tonne/d">0.0</Component>
+			<Component name="N2" phase="gas">0.8</Component>
+			<Component name="CO2" phase="gas">0.7</Component>
+			<Component name="C1" phase="gas">35.5</Component>
+			<Component name="C2" phase="gas">3.8</Component>
+			<Component name="C3" phase="gas">0.2</Component>
+			<Component name="C4" phase="gas">0.0</Component>
+			<Component name="H2S" phase="gas">0.0</Component>
 		</Stream>
 		<Stream number="115" src="CrudeOilDewatering" dst="ProducedWaterTreatment"/>
 		<Stream number="8" src="CrudeOilDewatering" dst="CrudeOilStabilization"/>
@@ -142,24 +137,24 @@
 		<Stream number="1" name="oil in reservoir" src="Reservoir" dst="ReservoirWellInterface">
 			<A name="temperature">70.8</A>
 			<A name="pressure">887.3</A>
-			<Component name="oil" phase="liquid" unit="tonne/d">14555.9</Component>
-			<Component name="H2O" phase="liquid" unit="tonne/d">2037.8</Component>
+			<Component name="oil" phase="liquid">14555.9</Component>
+			<Component name="H2O" phase="liquid">2037.8</Component>
 		</Stream>
 		<Stream number="100" name="water in reservoir" src="Reservoir" dst="ReservoirWellInterface">
 			<A name="temperature">70.8</A>
 			<A name="pressure">887.3</A>
-			<Component name="H2O" phase="liquid" unit="tonne/d">255636.1</Component>
+			<Component name="H2O" phase="liquid">255636.1</Component>
 		</Stream>
 		<Stream number="25" name="gas from reservoir" src="Reservoir" dst="ReservoirWellInterface">
 			<A name="temperature">70.8</A>
 			<A name="pressure">887.3</A>
-			<Component name="N2" phase="gas" unit="tonne/d">519.9</Component>
-			<Component name="CO2" phase="gas" unit="tonne/d">8858.8</Component>
-			<Component name="CH4" phase="gas" unit="tonne/d">22288.1</Component>
-			<Component name="C10H22" phase="gas" unit="tonne/d">4495.1</Component>
-			<Component name="C3" phase="gas" unit="tonne/d">4399.9</Component>
-			<Component name="C4" phase="gas" unit="tonne/d">284.4</Component>
-			<Component name="H2S" phase="gas" unit="tonne/d">1.5</Component>
+			<Component name="N2" phase="gas">519.9</Component>
+			<Component name="CO2" phase="gas">8858.8</Component>
+			<Component name="CH4" phase="gas">22288.1</Component>
+			<Component name="C10H22" phase="gas">4495.1</Component>
+			<Component name="C3" phase="gas">4399.9</Component>
+			<Component name="C4" phase="gas">284.4</Component>
+			<Component name="H2S" phase="gas">1.5</Component>
 		</Stream>
 		<Aggregator name="Exploration">
 			<Process class="Exploration"/>
