@@ -2,7 +2,7 @@ import pint
 from .pkg_utils import resourceStream
 
 #
-# Create a pint registry, load our defs, and make it the application registry
+# Create a pint registry, load our defs, and make it the application registry.
 #
 ureg = pint.UnitRegistry()
 ureg.load_definitions(resourceStream('etc/units.txt'))
