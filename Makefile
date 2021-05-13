@@ -48,11 +48,16 @@ RQMTS := $(shell cat requirements.in)
 MODS  := $(subst $(SPACE),|,$(RQMTS))
 EXPR  := $(shell printf "^(%s)=\n" '$(MODS)')
 
-RTD_RQMTS = rtd.requirements.txt
+RTD_REQS = rtd.requirements.txt
+TRAVIS_REQS = requirements.txt
 
 clean-requirements:
-	rm $(RTD_RQMTS)
+	rm $(RTD_REQS) $(TRAVIS_REQS)
 
-rtd-reqs $(RTD_RQMTS): requirements.in
-	python -V|sed -e 's/Python /python==/' > $(RTD_RQMTS)
-	pip freeze | egrep '$(EXPR)' >> $(RTD_RQMTS)
+rtd-reqs $(RTD_REQS): requirements.in
+	python -V|sed -e 's/Python /python==/' > $(RTD_REQS)
+	pip freeze | egrep '$(EXPR)' >> $(RTD_REQS)
+
+travis-reqs $(TRAVIS_REQS): requirements.in
+	python -V|sed -e 's/Python /python==/' > $(TRAVIS_REQS)
+	pip freeze | egrep '$(EXPR)' >> $(TRAVIS_REQS)

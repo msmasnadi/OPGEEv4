@@ -4,6 +4,8 @@
 .. Copyright (c) 2021 Richard Plevin and Stanford University
    See the https://opensource.org/licenses/MIT for license details.
 '''
+import pint
+
 from . import ureg
 from .error import OpgeeException, AbstractMethodError
 from .log import getLogger
@@ -25,6 +27,7 @@ def superclass(cls):
     return mro[1] if len(mro) > 1 else None
 
 
+# Deprecated?
 def subelt_text(elt, tag, coerce=None, with_unit=True, required=True):
     """
     Get the value from the text of the named subelement of `elt`. If `required`
@@ -187,7 +190,7 @@ def validate_unit(unit):
         return None
 
     if unit in ureg:
-        return ureg[unit]
+        return ureg.Unit(unit)
 
     if unit not in _undefined_units:
         _logger.warning(f"Unit '{unit}' is not in the UnitRegistry")
@@ -221,10 +224,17 @@ class A(OpgeeObject):
         if value is None:
             return None
 
+        unit_obj = validate_unit(self.unit)
+
+        if isinstance(value, pint.Quantity):
+            if value.units == unit_obj:
+                self.value = value
+                return value
+            else:
+                value = value.magnitude
+
         if self.pytype:
             value = coercible(value, self.pytype)
-
-        unit_obj = validate_unit(self.unit)
 
         if unit_obj is not None:
             value = ureg.Quantity(value, unit_obj)

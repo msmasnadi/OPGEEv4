@@ -71,7 +71,8 @@ def write_model_diagram(model, pathname, levels=0):
                 graph.add_edge(pydot.Edge(name, name_of(child), color='black'))
 
     graph = pydot.Dot('model', graph_type='graph', bgcolor='white')
-    add_tree(graph, model.analysis, 1)
+    for obj in model.analyses() + model.fields():
+        add_tree(graph, obj, 1)
 
     _logger.info(f"Writing {pathname}")
     graph.write_png(pathname)

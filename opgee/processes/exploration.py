@@ -5,7 +5,7 @@ from ..log import getLogger
 _logger = getLogger(__name__)
 
 class Exploration(Process):
-    def run(self, **kwargs):
+    def run(self, analysis):
         self.print_running_msg()
 
         m = self.model
@@ -13,14 +13,14 @@ class Exploration(Process):
         pres = m.const('amb-pressure')
 
 class SurveyTruck(Process):
-    def run(self, **kwargs):
+    def run(self, analysis):
         self.print_running_msg()
 
     def __str__(self):
         return f'<SurveyTruck>'
 
 class SurveyShip(Process):
-    def run(self, **kwargs):
+    def run(self, analysis):
         self.print_running_msg()
 
     def __str__(self):

@@ -47,6 +47,9 @@ class RunCommand(SubcommandABC):
         field_names = args.fields
         analysis_names = args.analyses
 
+        if not (field_names or analysis_names):
+            raise CommandlineError("Must indicate one or more fields or analyses to run")
+
         if not (use_default_model or model_file):
             raise CommandlineError("No model to run: the --model_file option was not used and --no_default_model was specified.")
 
@@ -73,45 +76,45 @@ class RunCommand(SubcommandABC):
         model = merge_models(builtin_model, user_model)
         model.validate()
 
-        if not (field_names or analysis_names):
-            # run the whole model
-            model.run()
+        all_analyses = model.analyses()
+        if analysis_names:
+            selected_analyses = [ana for ana in all_analyses if ana.name in analysis_names]
+            if not selected_analyses:
+                raise CommandlineError(f"Specified analyses {analysis_names} were not found in model")
         else:
-            all_analyses = model.children()
-            if analysis_names:
-                selected_analyses = [ana for ana in all_analyses if ana.name in analysis_names]
-                if not selected_analyses:
-                    raise CommandlineError(f"Specified analyses ({analysis_names}) were not found in model")
-            else:
-                selected_analyses = all_analyses
+            selected_analyses = list(all_analyses)
 
-            if field_names:
-                specific_field_tuples = [name.split('.') for name in field_names if '.' in name] # tuples of (analysis, field)
-                nonspecific_field_names = [name for name in field_names if '.' not in name]
+        if field_names:
+            specific_field_tuples = [name.split('.') for name in field_names if '.' in name] # tuples of (analysis, field)
+            nonspecific_field_names = [name for name in field_names if '.' not in name]
 
-                selected_fields = []
-                for analysis in selected_analyses:
-                    found = [field for name, field in analysis.field_dict.items() if name in nonspecific_field_names]
-                    selected_fields.extend(found)
+            selected_fields = []    # list of tuples of (analysis_name, field_name)
 
-                for analysis_name, field_name in specific_field_tuples:
-                    analyses = [ana for ana in all_analyses if ana.name == analysis_name]
+            for analysis in selected_analyses:
+                found = [field for field in analysis.fields() if field.name in nonspecific_field_names]
+                selected_fields.extend((found, analysis))
 
-                    if not analyses:
-                        raise CommandlineError(f"Analysis '{analysis_name}' was not found in model.")
+            for analysis_name, field_name in specific_field_tuples:
+                analyses = [ana for ana in all_analyses if ana.name == analysis_name]
 
-                    if len(analyses) > 1:
-                        raise CommandlineError(f"Found multiple analyses with name '{analysis_name}'")
+                if not analyses:
+                    raise CommandlineError(f"Analysis '{analysis_name}' was not found in model.")
 
-                    field = analysis.get_field(field_name)
-                    if field is None:
-                        raise CommandlineError(f"Field '{field_name}' was not found in analysis '{analysis_name}'")
+                if len(analyses) > 1:
+                    raise CommandlineError(f"Found multiple analyses with name '{analysis_name}'")
 
-                    selected_fields.append(field)
+                analysis = analyses[0]
+                field = analysis.get_field(field_name)
+                if field is None:
+                    raise CommandlineError(f"Field '{field_name}' was not found in analysis '{analysis_name}'")
 
-                if not selected_fields:
-                    raise CommandlineError("The model contains no fields matching command line arguments.")
+                selected_fields.append((field, analysis))
 
-                for field in selected_fields:
-                    field.run()
-                    field.report()
+            if not selected_fields:
+                raise CommandlineError("The model contains no fields matching command line arguments.")
+        else:
+            selected_fields = [(analysis.get_field(field_name), analysis) for analysis in selected_analyses for field_name in analysis.fields]
+
+        for field, analysis in selected_fields:
+            field.run(analysis)
+            field.report(analysis)

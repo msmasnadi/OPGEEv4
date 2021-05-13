@@ -8,7 +8,21 @@
      -->
 <AttrDefs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="attributes.xsd">
   <ClassAttrs name="Model">
-    <Options name="GWP_time_horizon" default="100">
+    <!-- Maximum number of iterations for process loops -->
+    <AttrDef name="maximum_iterations" type="int">10</AttrDef>
+
+    <!-- Change threshold for iteration loops. Requires a Process to set a change variable. -->
+    <AttrDef name="maximum_change" type="float">0.001</AttrDef>
+  </ClassAttrs>
+
+  <ClassAttrs name="Stream">
+    <!-- the zero values aren't real defaults; they just avoid having None as a default -->
+    <AttrDef name="temperature" type="float" unit="degF">0</AttrDef>
+    <AttrDef name="pressure" type="float" unit="psia">0</AttrDef>
+  </ClassAttrs>
+
+  <ClassAttrs name="Analysis">
+    <Options name="GWP_horizon" default="100">
       <Option>20</Option>
       <Option>100</Option>
     </Options>
@@ -26,24 +40,12 @@
       <Option>HHV</Option>
     </Options>
 
-    <AttrDef name="GWP_years" options="GWP_time_horizon" type="int" unit="years"/>
+    <AttrDef name="GWP_horizon" options="GWP_horizon" type="int" unit="years"/>
     <AttrDef name="GWP_version" options="GWP_version" type="str"/>
     <AttrDef name="functional_unit" options="functional_unit" type="str"/>
     <AttrDef name="energy_basis" options="energy_basis" type="str"/>
-
-    <!-- Maximum number of iterations for process loops -->
-    <AttrDef name="maximum_iterations" type="int">10</AttrDef>
-
-    <!-- Change threshold for iteration loops. Requires a Process to set a change variable. -->
-    <AttrDef name="maximum_change" type="float">0.001</AttrDef>
   </ClassAttrs>
 
-  <ClassAttrs name="Stream">
-    <!-- the zero values aren't real defaults; they just avoid having None as a default -->
-    <AttrDef name="temperature" type="float" unit="degF">0</AttrDef>
-    <AttrDef name="pressure" type="float" unit="psia">0</AttrDef>
-  </ClassAttrs>
-  <ClassAttrs name="Analysis"/>
   <ClassAttrs name="Field">
     <!-- Production methods -->
     <AttrDef name="downhole_pump" type="binary" desc="Downhole pump">1</AttrDef>

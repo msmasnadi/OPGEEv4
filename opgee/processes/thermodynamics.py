@@ -150,7 +150,7 @@ class Oil(Hydrocarbon):
 
     def bubble_point_pressure(self):
         """
-        
+
         :return: (float) bubblepoint pressure (unit = psia)
         """
         API = self.API
@@ -552,6 +552,6 @@ class Gas(Hydrocarbon):
         return
 
 
-
-
-
+        #TODO: ask Rich, what is the best way to direct convert tonne/day to lb/day
+        result = mass_energy_density * mass_flow_rate.to("lb/day")
+        return result
