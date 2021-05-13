@@ -8,7 +8,7 @@ from opgee.pkg_utils import resourceStream
 class ProcA(Process): pass
 class ProcB(Process): pass
 
-@pytest.fixture(scope="session ")
+@pytest.fixture(scope="session")
 def configure_logging_for_tests():
     # Don't display routine diagnostic messages during tests
     getConfig()

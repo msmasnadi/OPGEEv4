@@ -133,7 +133,7 @@ def parse_version_info(vers=None):
     vers = vers or getParam('OPGEE.VersionNumber')
 
     # if only major.minor is given (e.g., "4.4"), add .patch of zero (e.g., "4.4.0")
-    if re.match('^\d\.\d$', vers):
+    if re.match(r'^\d\.\d$', vers):
         vers += '.0'
 
     return semver.parse_version_info(vers)
