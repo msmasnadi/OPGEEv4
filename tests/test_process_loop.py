@@ -2,11 +2,10 @@ import pytest
 from opgee.model import ModelFile
 from opgee.process import Process
 
-@pytest.fixture
-def model(): # configure_logging_for_tests
-    mf = ModelFile('files/test_model.xml', add_stream_components=False, use_class_path=False)
+@pytest.fixture(scope="session")
+def process_loop_model(configure_logging_for_tests):
+    mf = ModelFile('files/test_process_loop_model.xml', add_stream_components=False, use_class_path=False)
     return mf.model
-
 
 class Proc1(Process):
     def run(self, analysis):
@@ -52,9 +51,9 @@ class Proc4(Process):
 
         self.add_emission_rate('CO2', co2_rate)
 
-def test_process_loop(model):
-    model.validate()
-    analysis = model.get_analysis('test')
+def test_process_loop(process_loop_model):
+    process_loop_model.validate()
+    analysis = process_loop_model.get_analysis('test')
     field = analysis.get_field('test')
     field.run(analysis)
     assert 1 == 1
