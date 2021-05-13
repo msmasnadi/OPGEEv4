@@ -211,18 +211,19 @@ def _readConfigResourceFile(filename, package='opgee', raiseError=True):
 
 
 def getHomeDir():
+    env = os.environ
+    
     if PlatformName == 'Windows':
         # HOME exists on all Unix-like systems; for Windows it's HOMEPATH or HOMESHARE.
         # If set, we use OPGEE_HOME to identify the folder with the config file;
         # otherwise, we use HOMESHARE if set, or HOMEPATH, in that order.
-        env = os.environ
         homedir = env.get('OPGEE_HOME') or env.get('HOMESHARE') or env.get('HOMEPATH')
         drive, path = os.path.splitdrive(homedir)
         drive = drive or env.get('HOMEDRIVE') or 'C:'
         home = os.path.realpath(drive + path)
         home = home.replace('\\', '/')            # avoids '\' quoting issues
     else:
-        home = os.getenv('HOME')
+        home = env.get('OPGEE_HOME') or os.getenv('HOME')
 
     return home
 
