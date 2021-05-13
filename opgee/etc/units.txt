@@ -18,8 +18,8 @@ psi_gauge = pound_force_per_square_inch; offset: -14.7 = psig
 # decide what to do here
 standard_cubic_feet = 1 * ft ** 3 = scf
 
-barrel_oil = 42 * gal = bbl_oil
-barrel_water = 42 * gal * water = bbl_water = bbl_steam = bbl_H2O = bbl_liquid
+barrel_oil = 0.1589873 * m**3 = bbl_oil
+barrel_water = 0.1589873 * m**3 * water = bbl_water = bbl_steam = bbl_H2O = bbl_liquid
 
 # ratio of density of oil to density of water
 API_gravity = dimensionless = °API = degAPI = degreeAPI
@@ -37,3 +37,6 @@ billion_gallons = 1E9 * gal = Bgal
 # so Quantity(10, "mole/scf") uses the constant. But it may require Contexts and a "transformation".
 moles_per_scf = scf / 1.2023 = _
 
+# thermo unit
+btu = Btu = 1055.06 * joule
+mmBtu = 1E6 * btu = mmbtu

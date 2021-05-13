@@ -78,7 +78,7 @@ class Stream(XmlInstantiable, AttributeMixin):
     _solids = ['PC']  # petcoke
     _liquids = ['oil']
     # _hc_molecules = ['CH4', 'C2H6', 'C3H8', 'C4H10']
-    _gases = ['N2', 'O2', 'CO2', 'H2O', 'H2', 'H2S', 'SO2', 'air']
+    _gases = ['N2', 'O2', 'CO2', 'H2O', 'H2', 'H2S', 'SO2']
     _other = ['Na+', 'Cl-', 'Si-']
 
     #: The stream components tracked by OPGEE. This list can be extended by calling ``Stream.extend_components(names)``,

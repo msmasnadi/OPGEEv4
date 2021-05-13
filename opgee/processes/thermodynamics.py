@@ -26,7 +26,7 @@ class DryAir(OpgeeObject):
         return self.mixture.MW(self.mol_fraction)
 
     def density(self):
-        return self.mixture.get_property("rho","kg/m3", "g", mol_fraction, T = 298.15, P = 10100)
+        return self.mixture.get_property("rho","kg/m**3", "g", self.mol_fraction, T = 298.15, P = 10100)
 
 class Hydrocarbon(OpgeeObject):
     dict_chemical = None
@@ -70,10 +70,10 @@ class Oil(Hydrocarbon):
     oil_FVF_bub_a5 = 2.06E-04
 
     # Oil lower heating value correlation
-    oil_LHV_a1 = 1.68E+04
-    oil_LHV_a2 = 5.44E+01
-    oil_LHV_a3 = 2.17E-01
-    oil_LHV_a4 = 1.90E-03
+    oil_LHV_a1 = 16796
+    oil_LHV_a2 = 54.4
+    oil_LHV_a3 = 0.217
+    oil_LHV_a4 = 0.0019
 
     # TODO: field.model.const("std-temperature")
     def __init__(self, API, gas_comp, gas_oil_ratio, res_temp, res_press):
@@ -165,7 +165,7 @@ class Oil(Hydrocarbon):
         result = (oil_SG ** self.pbub_a1 *
                   (gas_SG * gor_bubble * res_temperature) ** self.pbub_a2 *
                   np.exp(-self.pbub_a3 * gas_SG * oil_SG))
-        return result
+        return ureg.Quantity(result, "psi")
 
     def bubble_point_formation_volume_factor(self):
         """
@@ -289,7 +289,7 @@ class Oil(Hydrocarbon):
             result = self.unsat_formation_volume_factor()
         return result
 
-    def density(self):
+    def density(self, stream):
         """
         crude oil density
 
@@ -298,45 +298,48 @@ class Oil(Hydrocarbon):
         oil_SG = self.oil_specific_gravity
 
         gas_SG = self.gas_specific_gravity()
-        solution_gor = self.solution_gas_oil_ratio()
-        volume_factor = self.volume_factor()
+        solution_gor = self.solution_gas_oil_ratio(stream)
+        volume_factor = self.formation_volume_factor(stream)
 
-        result = (62.42796 * oil_SG + 0.0136 * gas_sg * solution_gor) / volume_factor
-        return result
+        result = (62.42796 * oil_SG + 0.0136 * gas_SG * solution_gor) / volume_factor
+        return ureg.Quantity(result, "lb/ft^3")
 
     def mass_energy_density(self):
         """
 
         :return:(float) mass energy density (unit = btu/lb)
         """
-        API = self.API
+        API = self.API.m
 
-        result = (oil_LHV_a1 + oil_LHV_a2 * API -
-                  oil_LHV_a3 * API**2 - oil_LHV_a4 * F31**3)
-        return result
+        result = (self.oil_LHV_a1 + self.oil_LHV_a2 * API -
+                  self.oil_LHV_a3 * API**2 - self.oil_LHV_a4 * API**3)
+        return ureg.Quantity(result, "british_thermal_unit/lb")
 
     #TODO: cut this into the Hydrocarbon class
-    def volume_energy_density(self):
+    def volume_energy_density(self, stream):
         """
 
-        :return:(float) volume energy density (unit = J/m3)
+        :return:(float) volume energy density (unit = mmBtu/bbl)
         """
         mass_energy_density = self.mass_energy_density()
-        density = self.density()
+        density = self.density(stream).to("lb/bbl_oil")
 
-        result = mass_energy_density * density * 1e+6
-        return result
+        result = mass_energy_density * density
+        return result.to("mmBtu/bbl_oil")
 
     def energy_flow_rate(self, stream):
         """
 
-        :return:(float) energy flow rate (unit = btu/day)
+        :return:(float) energy flow rate (unit = mmBtu/day)
         """
         mass_flow_rate = stream.hydrocarbon_rate(PHASE_LIQUID)
+        #TODO: delete this line once the pint pandas works
+        mass_flow_rate = ureg.Quantity(mass_flow_rate, "tonne/day")
+        mass_flow_rate = mass_flow_rate.to("lb/day")
         mass_energy_density = self.mass_energy_density()
 
-        result = mass_energy_density * mass_flow_rate.to("lb/day")
-        return result
+        result = mass_energy_density * mass_flow_rate
+        return result.to("mmbtu/day")
 
 
 class Gas(Hydrocarbon):
@@ -346,7 +349,8 @@ class Gas(Hydrocarbon):
 
     def __init__(self, res_temp, res_press):
         super().__init__(res_temp, res_press)
-        self.dry_air_MW = DryAir().mol_weight()
+        self.wet_air_MW = WetAir().mol_weight()
+        self.dry_air = DryAir()
 
     def total_molar_flow_rate(self, stream):
         """
@@ -357,8 +361,9 @@ class Gas(Hydrocarbon):
         mass_flow_rate = stream.total_gases_rates() #pandas.Series
         total_molar_flow_rate = 0
         for component, tonne_per_day in mass_flow_rate.items():
-            # TODO: ask Rich if i need to create unit for all the non-unit variable
             molecular_weight = ureg.Quantity(self.dict_chemical[component].MW, "g/mol")
+            #TODO: delete this line once the pint pandas works
+            tonne_per_day = ureg.Quantity(tonne_per_day, "tonne/day")
             total_molar_flow_rate += tonne_per_day.to("g/day") / molecular_weight
 
         return total_molar_flow_rate
@@ -372,7 +377,10 @@ class Gas(Hydrocarbon):
         """
         total_molar_flow_rate = self.total_molar_flow_rate(stream)
         mass_flow_rate = stream.gas_flow_rate(name)
-        molar_flow_rate = mass_flow_rate.to("g/day") / self.dict_chemical[name].MW
+        #TODO: delete this line once the pint pandas works
+        mass_flow_rate = ureg.Quantity(mass_flow_rate, "tonne/day")
+        molecular_weight = ureg.Quantity(self.dict_chemical[name].MW, "g/mol")
+        molar_flow_rate = mass_flow_rate.to("g/day") / molecular_weight
 
         result = molar_flow_rate / total_molar_flow_rate
         return result
@@ -386,7 +394,7 @@ class Gas(Hydrocarbon):
         mass_flow_rate = stream.total_gases_rates() #pandas.Series
         specific_gravity = 0
         for component, tonne_per_day in mass_flow_rate.items():
-            molecular_weight = self.dict_chemical[component].MW
+            molecular_weight = ureg.Quantity(self.dict_chemical[component].MW, "g/mol")
             molar_fraction = self.component_molar_fraction(component, stream)
             specific_gravity += molar_fraction * molecular_weight
 
@@ -400,14 +408,20 @@ class Gas(Hydrocarbon):
         """
         mass_flow_rate = stream.total_gases_rates()  # pandas.Series
         universal_gas_constants = 8.31446261815324   # J/mol/K
+        specific_heat_press = 0; specific_heat_volm = 0
         ratio_of_specific_heat = 0
         for component, tonne_per_day in mass_flow_rate.items():
             molecular_weight = self.dict_chemical[component].MW
+            # TODO: delete this line once the pint pandas works
+            tonne_per_day = ureg.Quantity(tonne_per_day, "tonne/day")
+            kg_per_day = tonne_per_day.to("kg/day").m
             gas_constant = universal_gas_constants / molecular_weight
-            Cp = self.dict_chemical[component].cp(phase = 'g', T = 298.15)
-            Cv = Cp + gas_constant
-            ratio_of_specific_heat += Cp / Cv
+            Cp = self.dict_chemical[component].Cp(phase = 'g', T = 298.15)
+            Cv = Cp - gas_constant
+            specific_heat_press += kg_per_day * Cp
+            specific_heat_volm += kg_per_day * Cv
 
+        ratio_of_specific_heat = specific_heat_press / specific_heat_volm
         return ratio_of_specific_heat
 
     def uncorrelated_pseudocritical_temperature_and_pressure(self, stream):
@@ -420,9 +434,11 @@ class Gas(Hydrocarbon):
         temp1 = 0; temp2 = 0; temp3 = 0
         temperature = 0; presure = 0
         for component, tonne_per_day in mass_flow_rate.items():
-            molar_fraction = self.component_molar_fraction(component, stream)
-            critical_temperature = ureg.Quantity(dict_chemical[component].Tc, "kelvin").to("rankine")
-            critical_pressure = ureg.Quantity(dict_chemical[component].Pc, "Pa").to("psi")
+            if tonne_per_day == 0:
+                continue
+            molar_fraction = self.component_molar_fraction(component, stream).m
+            critical_temperature = ureg.Quantity(self.dict_chemical[component].Tc, "kelvin").to("rankine")
+            critical_pressure = ureg.Quantity(self.dict_chemical[component].Pc, "Pa").to("psi")
             temp1 += molar_fraction * critical_temperature.m / critical_pressure.m**0.5
             temp2 += molar_fraction * critical_temperature.m / critical_pressure.m
             temp3 += molar_fraction * (critical_temperature.m / critical_pressure.m)**0.5
@@ -439,14 +455,14 @@ class Gas(Hydrocarbon):
         :param stream:
         :return:
         """
-        uncorr_pseudocritical_temp = self.uncorrelated_pseudocritical_temperature_and_pressure(stream)["temperature"]
-        molar_frac_O2 = self.component_molar_fraction("O2", stream)
-        molar_frac_H2S = self.component_molar_fraction("H2S", stream)
+        uncorr_pseudocritical_temp = self.uncorrelated_pseudocritical_temperature_and_pressure(stream)["temperature"].m
+        molar_frac_O2 = self.component_molar_fraction("O2", stream).m
+        molar_frac_H2S = self.component_molar_fraction("H2S", stream).m
         result = (uncorr_pseudocritical_temp -
                   120 * ((molar_frac_O2 + molar_frac_H2S) ** 0.9 - (molar_frac_O2 + molar_frac_H2S) ** 1.6) +
                   15 * (molar_frac_H2S ** 0.5 - molar_frac_H2S ** 4)
                   )
-        return result
+        return ureg.Quantity(result, "rankine")
 
     def correlated_pseudocritical_pressure(self, stream):
         """
@@ -454,17 +470,17 @@ class Gas(Hydrocarbon):
         :param stream:
         :return:
         """
-        uncorr_pseudocritical_temp = self.uncorrelated_pseudocritical_temperature_and_pressure(stream)["temperature"]
-        uncorr_pseudocritical_press = self.uncorrelated_pseudocritical_temperature_and_pressure(stream)["pressure"]
-        corr_pseudocritical_temp = self.correlated_pseudocritical_temperature(stream)
-        molar_frac_H2S = self.component_molar_fraction("H2S", stream)
+        uncorr_pseudocritical_temp = self.uncorrelated_pseudocritical_temperature_and_pressure(stream)["temperature"].m
+        uncorr_pseudocritical_press = self.uncorrelated_pseudocritical_temperature_and_pressure(stream)["pressure"].m
+        corr_pseudocritical_temp = self.correlated_pseudocritical_temperature(stream).m
+        molar_frac_H2S = self.component_molar_fraction("H2S", stream).m
 
         result = ((uncorr_pseudocritical_press * corr_pseudocritical_temp) /
                   (uncorr_pseudocritical_temp -
                    molar_frac_H2S * (1 - molar_frac_H2S) *
                    (uncorr_pseudocritical_temp - corr_pseudocritical_temp)))
 
-        return result
+        return ureg.Quantity(result, "psi")
 
     def reduced_temperature(self, stream):
         """
@@ -505,7 +521,8 @@ class Gas(Hydrocarbon):
                       0.32 * reduced_temp_dimensonless ** 6 / (10 ** (9 * reduced_temp_dimensonless - 9)))
         z_factor_C = 0.132 - 0.32 * np.log10(reduced_temp_dimensonless)
         z_factor_D = 10 ** (0.3106 - 0.49 * reduced_temp_dimensonless + 0.1824 * reduced_temp_dimensonless ** 2)
-        z_factor = (z_factor_A + (1 - z_factor_A) * np.exp(-1 * z_factor_B) + z_factor_C * p_r ** z_factor_D)
+        z_factor = (z_factor_A + (1 - z_factor_A) * np.exp(-1 * z_factor_B)
+                    + z_factor_C * reduced_press_dimensonless ** z_factor_D)
 
         return np.max([z_factor, 0.05])
 
@@ -517,9 +534,9 @@ class Gas(Hydrocarbon):
         """
         z_factor = self.Z_factor(stream)
         temp = stream.temperature.to("rankine")
-        amb_temp = ambient.to("rankine")
+        amb_temp = self.ambient_temperature.to("rankine")
 
-        result = ambient_pressure.m * z_factor * temp.m / (stream.pressure.m * amb_temp.m)
+        result = self.ambient_pressure.m * z_factor * temp.m / (stream.pressure.m * amb_temp.m)
 
         return result
 
