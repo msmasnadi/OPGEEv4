@@ -212,7 +212,7 @@ def _readConfigResourceFile(filename, package='opgee', raiseError=True):
 
 def getHomeDir():
     env = os.environ
-    
+
     if PlatformName == 'Windows':
         # HOME exists on all Unix-like systems; for Windows it's HOMEPATH or HOMESHARE.
         # If set, we use OPGEE_HOME to identify the folder with the config file;

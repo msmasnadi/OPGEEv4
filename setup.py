@@ -18,12 +18,15 @@ requirements = [
     'future>=0.18.0',
     'lxml>=4.6.0',
     'networkx>=2.5.0',
-    'numpy>=1.19.0',
-    'pandas>=1.2.0',
+    # loosen restrictions for travis
+    #'numpy>=1.19.0',
+    #'pandas>=1.2.0',
+    'numpy',
+    'pandas',
     'pint>=0.17',
     'pint-pandas>=0.2',
     'pydot>=1.4.0',
-    'pytest>=6.1.1',
+    'pytest>=6.1.0',
     'semver>=2.8.0',
     'sphinx>=3.5.0'
     'sphinx-argparse>=0.2.0',
