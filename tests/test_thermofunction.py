@@ -38,7 +38,7 @@ def test_reservoir_solution_GOR(oil_instance):
 
 def test_bubble_point_pressure(oil_instance):
     p_bubblepoint = oil_instance.bubble_point_pressure()
-    assert round(p_bubblepoint) == pytest.approx(9337)
+    assert round(p_bubblepoint.m) == pytest.approx(9337)
 
 def test_bubble_point_formation_volume_factor(oil_instance):
     bubble_oil_FVF = oil_instance.bubble_point_formation_volume_factor()
@@ -62,11 +62,11 @@ def test_unsat_formation_volume_factor(oil_instance):
 def test_isothermal_compressibility_X(oil_instance):
     stream = Stream("test_stream", temperature=200.0, pressure=1556.0)
     iso_compress_x = oil_instance.isothermal_compressibility_X(stream)
-    assert round(iso_compress_x, num_digits) == pytest.approx(-0.032)
+    assert round(iso_compress_x, num_digits) == pytest.approx(0.0)
 
 def test_isothermal_compressibility(oil_instance):
     iso_compress = oil_instance.isothermal_compressibility()
-    assert round(iso_compress, num_digits) == pytest.approx(3.05e-6)
+    assert iso_compress == pytest.approx(3.0528295800365155e-6)
 
 def test_formation_volume_factor(oil_instance):
     stream = Stream("test_stream", temperature=200.0, pressure=1556.0)
@@ -93,7 +93,7 @@ def test_energy_flow_rate(oil_instance):
     stream.set_flow_rate("C10", "liquid", 273.7766 / 2)
     stream.set_flow_rate("C9", "liquid", 273.7766 / 2)
     energy_flow_rate = oil_instance.energy_flow_rate(stream)
-    assert round(energy_flow_rate.m, num_digits) == pytest.approx(11030.107)
+    assert round(energy_flow_rate.m, num_digits) == pytest.approx(11030.223)
 
 @pytest.fixture
 def gas_instance():
@@ -116,7 +116,7 @@ def test_stream():
 def test_total_molar_flow_rate(gas_instance):
     stream = test_stream()
     total_molar_flow_rate = gas_instance.total_molar_flow_rate(stream)
-    assert round(total_molar_flow_rate.m, num_digits) == pytest.approx(6122900.860)
+    assert round(total_molar_flow_rate.m, num_digits) == pytest.approx(6122349.11)
 
 def test_component_molar_fraction(gas_instance):
     stream = test_stream()
@@ -153,22 +153,22 @@ def test_uncorrelated_pseudocritical_temperature_and_pressure(gas_instance):
 def test_correlated_pseudocritical_temperature(gas_instance):
     stream = test_stream()
     corr_pseudocritical_temp = gas_instance.correlated_pseudocritical_temperature(stream)
-    assert round(corr_pseudocritical_temp.m, num_digits) == pytest.approx(360.924)
+    assert round(corr_pseudocritical_temp.m, num_digits) == pytest.approx(361.312)
 
 def test_correlated_pseudocritical_pressure(gas_instance):
     stream = test_stream()
     corr_pseudocritical_press = gas_instance.correlated_pseudocritical_pressure(stream)
-    assert round(corr_pseudocritical_press.m, num_digits) == pytest.approx(668.4)
+    assert round(corr_pseudocritical_press.m, num_digits) == pytest.approx(670.169)
 
 def test_reduced_temperature(gas_instance):
     stream = test_stream()
     reduced_temperature = gas_instance.reduced_temperature(stream)
-    assert round(reduced_temperature.m, num_digits) == pytest.approx(1.828)
+    assert round(reduced_temperature.m, num_digits) == pytest.approx(1.826)
 
 def test_reduced_pressure(gas_instance):
     stream = test_stream()
     reduced_press = gas_instance.reduced_pressure(stream)
-    assert round(reduced_press.m, num_digits) == pytest.approx(2.329)
+    assert round(reduced_press.m, num_digits) == pytest.approx(2.322)
 
 def test_Z_factor(gas_instance):
     stream = test_stream()
@@ -178,5 +178,5 @@ def test_Z_factor(gas_instance):
 def test_volume_factor(gas_instance):
     stream = test_stream()
     vol_factor = gas_instance.volume_factor(stream)
-    assert round(vol_factor, num_digits) == pytest.approx(0.01094)
+    assert round(vol_factor, num_digits) == pytest.approx(0.011)
 

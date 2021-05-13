@@ -244,7 +244,7 @@ class Oil(Hydrocarbon):
         :return: (float) unsaturated formation volume factor (unit = fraction)
         """
         bubble_oil_FVF = self.bubble_point_formation_volume_factor()
-        p_bubblepoint = self.bubble_point_pressure()
+        p_bubblepoint = self.bubble_point_pressure().m
         stream_press = stream.pressure.m
 
         result = bubble_oil_FVF * np.exp(self.isothermal_compressibility() * (p_bubblepoint - stream_press))
@@ -262,7 +262,7 @@ class Oil(Hydrocarbon):
 
         result = (self.iso_comp_a1 * solution_gor + self.iso_comp_a2 * solution_gor ** 2 +
                   self.iso_comp_a3 * gas_SG + self.iso_comp_a4 * stream_temp ** 2)
-        return max(result, 0)
+        return max(result, 0.0)
 
     def isothermal_compressibility(self):
         """
