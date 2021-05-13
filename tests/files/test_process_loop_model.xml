@@ -7,12 +7,15 @@
      define custom starting points.
      -->
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
+	<!-- these might belong in Analysis, or the two levels (Model, Analysis) might collapse into one -->
+	<A name="GWP_years">100</A>
+	<A name="GWP_version">AR5</A>
+	<A name="functional_unit">oil</A>
+	<A name="energy_basis">LHV</A>
 
 	<Analysis name="test">
 		<A name="functional_unit">oil</A>
 		<A name="energy_basis">LHV</A>
-	  <A name="GWP_years">100</A>
-	  <A name="GWP_version">AR5</A>
 	</Analysis>
 
 	<Field name="test">
@@ -29,21 +32,35 @@
 		<A name="res_temp">70.84</A>
 		<A name="GOR">1205.4</A>
 
-		<Process class="ProcA" desc="Test process 1">
+		<Process class="Proc1" desc="Test process 1">
 			<Produces>crude oil</Produces>
 		</Process>
 
-		<Process class="ProcB" desc="Test process 2">
+		<Process class="Proc2" desc="Test process 2">
 			<Consumes>crude oil</Consumes>
 			<Consumes>hydrogen</Consumes>
 			<Produces>natural gas</Produces>
 		</Process>
 
-		<Stream src="ProcA" dst="ProcB">
+		<Process class="Proc3" desc="Test process 3">
+			<Consumes>natural gas</Consumes>
+			<Produces>hydrogen</Produces>
+			<Produces>CO2</Produces>
+		</Process>
+
+		<Process class="Proc4" desc="Test process 4">
+			<Consumes>CO2</Consumes>
+		</Process>
+
+		<Stream src="Proc1" dst="Proc2">
 			<A name="temperature">90.0</A>
 			<A name="pressure">150.0</A>
 			<Component name="oil" phase="liquid">100</Component>
 		</Stream>
 
+		<!-- Creates a process loop -->
+		<Stream src="Proc2" dst="Proc3"/>
+		<Stream src="Proc3" dst="Proc2"/>
+		<Stream src="Proc3" dst="Proc4"/>
 	</Field>
 </Model>
