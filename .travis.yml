@@ -1,14 +1,14 @@
 language: python
 os:
   - linux
-  - windows
+  #- windows
   # - osx
 python :
-  - "3.7"
+  #- "3.7"
   - "3.8"
   #- "3.9"
-  - "nightly"
-  # - "pypy3"
+  #- "nightly"
+  #- "pypy3"
 install:
   - pip install -r requirements.txt
   - python setup.py -q install
