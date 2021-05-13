@@ -1,6 +1,6 @@
 ﻿name,value,unit
 std-temperature,60,degF
-std-pressure,14.7,psi
+std-pressure,14.7,psia
 amb-temperature,60,degF
 amb-pressure,14.676,psia
 amb-air-density,0.001225,kg/m**3

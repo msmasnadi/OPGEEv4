@@ -22,6 +22,8 @@ class Field(Container):
         # Note that `procs` include only Processes defined at the top-level of the field
         super().__init__(name, attr_dict=attr_dict, aggs=aggs, procs=procs)
 
+        self._model = None  # @property "model" caches model here after first lookup
+
         self.stream_dict = dict_from_list(streams)
 
         all_procs = self.collect_processes()
@@ -42,12 +44,19 @@ class Field(Container):
         if cycles:
             _logger.info(f"Field '{name}' has cycles: {cycles}")
 
-        gas_comp = self.attrs_with_prefix('gas_comp_')
-        API = self.attr("API")
-        gas_oil_ratio = self.attr('GOR')
-        res_temp = self.attr("res_temp")
-        res_press = self.attr("res_press")
         self.oil = Oil(API, gas_comp, gas_oil_ratio, res_temp, res_press)
+
+    @property
+    def model(self):
+        """
+        Return the `Model` this `Process` belongs to.
+
+        :return: (Model) the enclosing `Model` instance.
+        """
+        if not self._model:
+            self._model = self.find_parent('Model')
+
+        return self._model
 
     def __str__(self):
         return f"<Field '{self.name}'>"
