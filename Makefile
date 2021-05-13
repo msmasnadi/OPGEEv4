@@ -59,5 +59,5 @@ rtd-reqs $(RTD_REQS): requirements.in
 	pip freeze | egrep '$(EXPR)' >> $(RTD_REQS)
 
 travis-reqs $(TRAVIS_REQS): requirements.in
-	python -V|sed -e 's/Python /python==/' > $(TRAVIS_REQS)
+	python -V|sed -e 's/Python /python>=/' > $(TRAVIS_REQS)
 	pip freeze | egrep '$(EXPR)' >> $(TRAVIS_REQS)
