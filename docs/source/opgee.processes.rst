@@ -3,6 +3,9 @@
 
 This module contains the subclasses of Process defined in the opgee package.
 
+.. automodule:: opgee.processes.thermodynamics
+   :members:
+
 .. automodule:: opgee.processes.drilling
    :members:
 
