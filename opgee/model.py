@@ -9,7 +9,6 @@ from .analysis import Analysis
 from .container import Container
 from .core import instantiate_subelts, elt_name
 from .config import getParam
-from .emissions import Emissions
 from .error import OpgeeException
 from .field import Field
 from .log import getLogger

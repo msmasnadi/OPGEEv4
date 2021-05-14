@@ -58,6 +58,12 @@ rtd-reqs $(RTD_REQS): requirements.in
 	python -V|sed -e 's/Python /python==/' > $(RTD_REQS)
 	pip freeze | egrep '$(EXPR)' >> $(RTD_REQS)
 
+# "pip freeze" erroneously reports pytest==0.0.0
 travis-reqs $(TRAVIS_REQS): requirements.in
-	python -V|sed -e 's/Python /python>=/' > $(TRAVIS_REQS)
-	pip freeze | egrep '$(EXPR)' >> $(TRAVIS_REQS)
+	echo "numpy"   > $(TRAVIS_REQS)
+	echo "pandas" >> $(TRAVIS_REQS)
+	echo "pytest" >> $(TRAVIS_REQS)
+	echo "scipy"  >> $(TRAVIS_REQS)
+	echo "pytest-cov" >> $(TRAVIS_REQS)
+	echo "codecov"    >> $(TRAVIS_REQS)
+	pip freeze | egrep -v '(numpy|pandas|pytest|scipy)' | egrep '$(EXPR)' >> $(TRAVIS_REQS)

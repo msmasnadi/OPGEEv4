@@ -20,7 +20,7 @@ reporting of results at each nesting level.
 
    opgee.core
    opgee.processes
-
+   opgee.thermodynamics
 
 Supporting Modules
 ---------------------

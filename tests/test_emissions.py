@@ -51,9 +51,9 @@ def emissions_for_gwp():
      (100, 'AR5',     1000 + 10 * 265 + 2 * 30 +  2.7 + 4.5),
      ]
 )
-def test_gwp(model, emissions_for_gwp, gwp_horizon, gwp_version, expected):
+def test_gwp(test_model, emissions_for_gwp, gwp_horizon, gwp_version, expected):
     original_rates = emissions_for_gwp.data.copy()
-    analysis = model.get_analysis('test')
+    analysis = test_model.get_analysis('test')
     analysis.use_GWP(gwp_horizon, gwp_version)
 
     rates, ghg = emissions_for_gwp.rates(gwp=analysis.gwp)
@@ -64,8 +64,8 @@ def test_gwp(model, emissions_for_gwp, gwp_horizon, gwp_version, expected):
     #print(f"GHG for ({gwp_horizon}, {gwp_version} => {ghg}")
     assert ghg == pytest.approx(expected)
 
-def test_use_GWP_error(model):
+def test_use_GWP_error(test_model):
     with pytest.raises(OpgeeException, match=r".*GWP version must be one of*"):
-        analysis = model.get_analysis('test')
+        analysis = test_model.get_analysis('test')
         analysis.use_GWP(20, 'AR4_CCF')
 

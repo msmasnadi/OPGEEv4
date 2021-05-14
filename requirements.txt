@@ -2,6 +2,8 @@ numpy
 pandas
 pytest
 scipy
+pytest-cov
+codecov
 future==0.18.2
 ipython==7.22.0
 lxml==4.6.3

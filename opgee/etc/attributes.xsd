@@ -6,7 +6,8 @@
                 <xs:element ref='ClassAttrs' maxOccurs='unbounded'/>
             </xs:sequence>
         </xs:complexType>
-	</xs:element>
+	  </xs:element>
+
     <xs:element name='ClassAttrs'>
         <xs:complexType>
             <xs:choice maxOccurs='unbounded'>
@@ -16,6 +17,7 @@
             <xs:attribute name='name' use='required' type='xs:NCName'/>
         </xs:complexType>
     </xs:element>
+
     <xs:element name='Options'>
         <xs:complexType>
             <xs:sequence>
@@ -25,13 +27,20 @@
             <xs:attribute name='default' use='required' type='xs:string'/>
         </xs:complexType>
     </xs:element>
+
     <xs:element name='Option'>
         <xs:complexType mixed='true'>
             <xs:attribute name='desc' type='xs:string'/>
         </xs:complexType>
     </xs:element>
+
+    <xs:element name="Requires"/>
+
     <xs:element name='AttrDef'>
         <xs:complexType mixed='true'>
+            <xs:sequence minOccurs="0" maxOccurs="unbounded">
+                <xs:element ref="Requires"/>
+            </xs:sequence>
             <xs:attribute name='desc'/>
             <xs:attribute name='name' use='required' type='xs:NCName'/>
             <xs:attribute name='options' type='xs:NCName'/>
