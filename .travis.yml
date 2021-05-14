@@ -9,29 +9,31 @@ python :
   #- "3.9"
   #- "nightly"
   #- "pypy3"
+
 install:
   - pip install -r requirements.txt
   - python setup.py -q install
-  - pip install pytest-cov codecov coveralls
+  - pip install pytest-cov codecov coveralls PyYAML
+
 script:
-  # - cd tests && pytest --cov=opgee/
-  - coverage run --source=opgee -m pytest tests/
+  - coverage run --source=opgee -m pytest
 env:
   # set OPGEE_HOME so the test opgee.cfg file is found
   OPGEE_HOME=/home/travis/build/Stanford-EAO/OPGEEv4/tests/files
+
 notifications:
   email: true
+
 branches:
   only:
   - master
   - test-travis
   - /v(\d+)\.(\d+)\.*/
+
 matrix:
   allow_failures:
   - python: nightly
 
 codecov: true
-
 after_success:
-  - codecov
   - coveralls
