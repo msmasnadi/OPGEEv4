@@ -37,4 +37,4 @@ matrix:
 
 codecov: true
 after_success:
-  coveralls -v
+  cd tests && coveralls -v
