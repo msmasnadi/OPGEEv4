@@ -23,7 +23,7 @@ notifications:
 branches:
   only:
   - master
-  - xml-schema-revision
+  - test-travis
   - /v(\d+)\.(\d+)\.*/
 matrix:
   allow_failures:
