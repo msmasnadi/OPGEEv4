@@ -22,8 +22,8 @@ PHASE_LIQUID = 'liquid'
 PHASE_GAS = 'gas'
 
 # Compile the patterns at load time for better performance
-_carbon_number_pattern = re.compile('^C(\d+)$')
-_hydrocarbon_pattern   = re.compile('^(C\d+)H(\d+)$')
+_carbon_number_pattern = re.compile(r'^C(\d+)$')
+_hydrocarbon_pattern   = re.compile(r'^(C\d+)H(\d+)$')
 
 def is_carbon_number(name):
     return (re.match(_carbon_number_pattern, name) is not None)
