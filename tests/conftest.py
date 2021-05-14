@@ -23,6 +23,6 @@ def opgee_model(configure_logging_for_tests):
     return mf.model
 
 @pytest.fixture(scope="module")
-def test_model(configure_logging_for_tests):
+def model(configure_logging_for_tests):
     mf = ModelFile('files/test_model.xml', add_stream_components=False, use_class_path=False)
     return mf.model
