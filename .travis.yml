@@ -37,4 +37,4 @@ matrix:
 
 codecov: true
 after_success:
-  coveralls
+  coveralls -v
