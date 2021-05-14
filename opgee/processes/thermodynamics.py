@@ -691,7 +691,7 @@ class Gas(Hydrocarbon):
         return volume_energy_density
 
     def energy_flow_rate(self, stream):
-        total_mass_flow_rate = stream.total_gase_rate()
+        total_mass_flow_rate = stream.total_gas_rate()
         # TODO: delete this line once pint pandas works
         total_mass_flow_rate = ureg.Quantity(total_mass_flow_rate, "tonne/day")
         mass_energy_density = self.mass_energy_density(stream)
