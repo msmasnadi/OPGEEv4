@@ -91,8 +91,8 @@ class RunCommand(SubcommandABC):
             selected_fields = []    # list of tuples of (analysis_name, field_name)
 
             for analysis in selected_analyses:
-                found = [field for field in analysis.fields() if field.name in nonspecific_field_names]
-                selected_fields.extend((found, analysis))
+                found = [(analysis.get_field(field_name), analysis) for field_name in analysis.fields if field_name in nonspecific_field_names]
+                selected_fields.extend(found)
 
             for analysis_name, field_name in specific_field_tuples:
                 analyses = [ana for ana in all_analyses if ana.name == analysis_name]
