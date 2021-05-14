@@ -1,26 +1,24 @@
-OPGEE v4
-=======
+[![Build Status](https://travis-ci.com/Stanford-EAO/OPGEEv4.svg?token=qVku1FaPpCm5v3f1zYpw&branch=master)](https://travis-ci.com/Stanford-EAO/OPGEEv4)
 
-``opgee`` is a Python package that provides classes, functions, and scripts that implement the OPGEE model.
+# OPGEE v4
 
-Core functionality
-------------------
+
+`opgee` is a Python package that provides classes, functions, and scripts that implement the OPGEE model.
+
+## Core functionality
+
 
 * TBD
 
-How do I get set up?
-----------------------
+## How do I get set up?
 
 * Eventually, see http://opgee.readthedocs.io/en/latest/install.html. But that's not hosted yet.
 
-Who do I talk to?
-------------------
+## Who do I talk to?
 
 * TBD
 
-
-To Do
-===========
+## To Do
 * Finish testing process loops
 
 * Finish developing facility merge user model/attribute defs with default (or other) defs.
@@ -40,8 +38,6 @@ To Do
 * [postponed] Develop simple GUI using dash
 
 
-Release Notes
-==============
+# Release Notes
 
-Version 4.0.0a (xx-xxx-2021)
-----------------------------
+## Version 4.0.0a (xx-xxx-2021)
