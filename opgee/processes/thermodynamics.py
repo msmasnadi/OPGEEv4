@@ -11,62 +11,18 @@ class Air(OpgeeObject):
 
     """
 
-    def __init__(self, field):
+    def __init__(self, field, composition):
         """
 
         :param field:
         """
-        self.wet_air_composition = [("N2", 0.774396),
-                                    ("O2", 0.20531),
-                                    ("CO2", 0.000294),
-                                    ("H2O", 0.02)]
-
-        self.dry_air_composition = [("N2", 0.79),
-                                    ("O2", 0.21)]
-
+        self.composition = composition
         self.field = field
-
-
-class WetAir(Air):
-    """
-
-    """
-
-    def __init__(self, field):
-        """
-
-        :param field:
-        """
-        super().__init__(field)
-        self.components = [name for name, fraction in self.wet_air_composition]
-        self.mol_fraction = [fraction for name, fraction in self.wet_air_composition]
+        self.components = [name for name, fraction in self.composition]
+        self.mol_fraction = [fraction for name, fraction in self.composition]
         self.mixture = Mixture.from_chemicals(self.components)
 
     def mol_weight(self):
-        mol_weight = self.mixture.MW(self.mol_fraction)
-        return ureg.Quantity(mol_weight, "g/mol")
-
-
-class DryAir(Air):
-    """
-
-    """
-
-    def __init__(self, field):
-        """
-
-        :param field:
-        """
-        super().__init__(field)
-        self.components = [name for name, fraction in self.dry_air_composition]
-        self.mol_fraction = [fraction for name, fraction in self.dry_air_composition]
-        self.mixture = Mixture.from_chemicals(self.components)
-
-    def mol_weight(self):
-        """
-
-        :return:
-        """
         mol_weight = self.mixture.MW(self.mol_fraction)
         return ureg.Quantity(mol_weight, "g/mol")
 
@@ -79,6 +35,39 @@ class DryAir(Air):
         std_press = self.field.model.const("std-pressure").to("Pa")
         rho = self.mixture.rho("g", self.mol_fraction, std_temp.m, std_press.m)
         return rho
+
+
+class WetAir(Air):
+    """
+
+    """
+
+    def __init__(self, field):
+        """
+
+        :param field:
+        """
+
+        composition = [("N2", 0.774396),
+                       ("O2", 0.20531),
+                       ("CO2", 0.000294),
+                       ("H2O", 0.02)]
+        super().__init__(field, composition)
+
+
+class DryAir(Air):
+    """
+
+    """
+
+    def __init__(self, field):
+        """
+
+        :param field:
+        """
+        composition = [("N2", 0.79),
+                       ("O2", 0.21)]
+        super().__init__(field, composition)
 
 
 class Hydrocarbon(OpgeeObject):
@@ -473,7 +462,8 @@ class Gas(Hydrocarbon):
         """
         mass_flow_rate = stream.total_gases_rates()  # pandas.Series
         universal_gas_constants = 8.31446261815324  # J/mol/K
-        specific_heat_press = 0; specific_heat_volm = 0
+        specific_heat_press = 0;
+        specific_heat_volm = 0
         ratio_of_specific_heat = 0
         for component, tonne_per_day in mass_flow_rate.items():
             molecular_weight = self.dict_chemical[component].MW
@@ -496,8 +486,11 @@ class Gas(Hydrocarbon):
         :return:(float) pandas.Series
         """
         mass_flow_rate = stream.total_gases_rates()  # pandas.Series
-        temp1 = 0; temp2 = 0; temp3 = 0
-        temperature = 0; presure = 0
+        temp1 = 0;
+        temp2 = 0;
+        temp3 = 0
+        temperature = 0;
+        presure = 0
         for component, tonne_per_day in mass_flow_rate.items():
             if tonne_per_day == 0:
                 continue
@@ -696,3 +689,12 @@ class Gas(Hydrocarbon):
             volume_energy_density += molar_fraction * density * LHV / molecular_weight
 
         return volume_energy_density
+
+    def energy_flow_rate(self, stream):
+        total_mass_flow_rate = stream.total_gase_rate()
+        # TODO: delete this line once pint pandas works
+        total_mass_flow_rate = ureg.Quantity(total_mass_flow_rate, "tonne/day")
+        mass_energy_density = self.mass_energy_density(stream)
+        energy_flow_rate = total_mass_flow_rate.to("kg/day") * mass_energy_density.to("mmBtu/kg")
+
+        return energy_flow_rate

@@ -9,8 +9,8 @@ num_digits = 3
 
 
 @pytest.fixture
-def oil_instance(model):
-    field = model.get_field("test")
+def oil_instance(test_model):
+    field = test_model.get_field("test")
     oil = Oil(field)
 
     return oil
@@ -103,8 +103,8 @@ def test_energy_flow_rate(oil_instance):
 
 
 @pytest.fixture
-def gas_instance(model):
-    field = model.get_field("test")
+def gas_instance(test_model):
+    field = test_model.get_field("test")
     gas = Gas(field)
     return gas
 
@@ -124,22 +124,22 @@ def stream():
 
 def test_total_molar_flow_rate(gas_instance, stream):
     total_molar_flow_rate = gas_instance.total_molar_flow_rate(stream)
-    assert round(total_molar_flow_rate.m, num_digits) == pytest.approx(6122349.11)
+    assert total_molar_flow_rate.m == pytest.approx(6122349.11)
 
 
 def test_component_molar_fraction(gas_instance, stream):
     component_molar_fraction = gas_instance.component_molar_fraction("N2", stream)
-    assert round(component_molar_fraction, ndigits=4) == pytest.approx(0.0286)
+    assert component_molar_fraction == pytest.approx(0.0286)
 
 
 def test_component_molar_fraction(gas_instance, stream):
     component_molar_fraction = gas_instance.component_molar_fraction("C1", stream)
-    assert round(component_molar_fraction, ndigits=4) == pytest.approx(0.8917)
+    assert component_molar_fraction == pytest.approx(0.8917)
 
 
 def test_specific_gravity(gas_instance, stream):
     specific_gravity = gas_instance.specific_gravity(stream)
-    assert round(specific_gravity, ndigits=4) == pytest.approx(0.6277)
+    assert specific_gravity == pytest.approx(0.6277, abs=1e-4)
 
 
 def test_ratio_of_specific_heat(gas_instance, stream):
@@ -149,12 +149,10 @@ def test_ratio_of_specific_heat(gas_instance, stream):
 
 def test_uncorrelated_pseudocritical_temperature(gas_instance, stream):
     pseudocritical_temp = gas_instance.uncorrelated_pseudocritical_temperature_and_pressure(stream)["temperature"]
-    # pseudocritical_press = gas_instance.uncorrelated_pseudocritical_temperature_and_pressure(stream)["pressure"]
-    assert round(pseudocritical_temp.m, ndigits=0) == pytest.approx(361)
+    assert int(pseudocritical_temp.m) == 361
 
 
 def test_uncorrelated_pseudocritical_pressure(gas_instance, stream):
-    # pseudocritical_temp = gas_instance.uncorrelated_pseudocritical_temperature_and_pressure(stream)["temperature"]
     pseudocritical_press = gas_instance.uncorrelated_pseudocritical_temperature_and_pressure(stream)["pressure"]
     assert round(pseudocritical_press.m, ndigits=0) == pytest.approx(670)
 
@@ -212,3 +210,6 @@ def test_mass_energy_density(gas_instance, stream):
 def test_volume_energy_density(gas_instance, stream):
     volume_energy_density = gas_instance.volume_energy_density(stream)
     assert round(volume_energy_density.m, num_digits) == pytest.approx(959.501)
+
+# def test_energy_flow_rate(gas_instance, stream):
+#
