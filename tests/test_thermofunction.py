@@ -1,8 +1,5 @@
 import pytest
-import pandas as pd
-import pint
 from opgee.processes.thermodynamics import Oil, Gas
-from opgee.core import ureg
 from opgee.stream import Stream
 
 num_digits = 3
@@ -211,5 +208,7 @@ def test_volume_energy_density(gas_instance, stream):
     volume_energy_density = gas_instance.volume_energy_density(stream)
     assert round(volume_energy_density.m, num_digits) == pytest.approx(959.501)
 
-# def test_energy_flow_rate(gas_instance, stream):
-#
+def test_energy_flow_rate(gas_instance, stream):
+    energy_flow_rate = gas_instance.energy_flow_rate(stream)
+    assert energy_flow_rate.m == pytest.approx(4894.052, abs=1e-3)
+
