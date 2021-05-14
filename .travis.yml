@@ -17,7 +17,7 @@ install:
 
 script:
 #  - cd tests && pytest
-  - coverage run --source=opgee -m pytest tests/
+  - cd tests && coverage run --source=opgee -m pytest
 env:
   # set OPGEE_HOME so the test opgee.cfg file is found
   OPGEE_HOME=/home/travis/build/Stanford-EAO/OPGEEv4/tests/files
