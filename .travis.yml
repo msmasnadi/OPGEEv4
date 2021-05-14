@@ -21,14 +21,20 @@ script:
 env:
   # set OPGEE_HOME so the test opgee.cfg file is found
   OPGEE_HOME=/home/travis/build/Stanford-EAO/OPGEEv4/tests/files
+
 notifications:
   email: true
+
 branches:
   only:
   - master
   - test-travis
   - /v(\d+)\.(\d+)\.*/
+
 matrix:
   allow_failures:
   - python: nightly
+
 codecov: true
+after_success:
+  coveralls
