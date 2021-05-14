@@ -16,8 +16,7 @@ install:
   - pip install pytest-cov codecov coveralls
 
 script:
-#  - cd tests && pytest
-  - cd tests && coverage run --source=opgee -m pytest
+  - coverage run --source=opgee -m pytest
 env:
   # set OPGEE_HOME so the test opgee.cfg file is found
   OPGEE_HOME=/home/travis/build/Stanford-EAO/OPGEEv4/tests/files
@@ -37,4 +36,4 @@ matrix:
 
 codecov: true
 after_success:
-  cd tests && coveralls -v
+  - coveralls -v
