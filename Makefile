@@ -64,4 +64,6 @@ travis-reqs $(TRAVIS_REQS): requirements.in
 	echo "pandas" >> $(TRAVIS_REQS)
 	echo "pytest" >> $(TRAVIS_REQS)
 	echo "scipy"  >> $(TRAVIS_REQS)
+	echo "pytest-cov" >> $(TRAVIS_REQS)
+	echo "codecov"    >> $(TRAVIS_REQS)
 	pip freeze | egrep -v '(numpy|pandas|pytest|scipy)' | egrep '$(EXPR)' >> $(TRAVIS_REQS)
