@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.com/Stanford-EAO/OPGEEv4.svg?token=qVku1FaPpCm5v3f1zYpw&branch=master)](https://travis-ci.com/Stanford-EAO/OPGEEv4)
+[![codecov](https://codecov.io/gh/Stanford-EAO/OPGEEv4/branch/master/graph/badge.svg?token=NVziMt7tdD)](https://codecov.io/gh/Stanford-EAO/OPGEEv4)
 
 # OPGEE v4
 
