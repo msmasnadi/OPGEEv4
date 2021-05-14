@@ -2,9 +2,13 @@
 # so we identify the basenames of the files here and then extract them into a structure.
 import os
 import pandas as pd
-from opgee.core import OpgeeObject
-from opgee.error import OpgeeException
-from opgee.pkg_utils import resourceStream
+from .core import OpgeeObject
+from .error import OpgeeException
+from .log import getLogger
+from .pkg_utils import resourceStream
+
+_logger = getLogger(__name__)
+
 
 class TableDef(object):
     """
