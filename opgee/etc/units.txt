@@ -37,6 +37,7 @@ billion_gallons = 1E9 * gal = Bgal
 # so Quantity(10, "mole/scf") uses the constant. But it may require Contexts and a "transformation".
 moles_per_scf = scf / 1.2023 = _
 
-# thermo unit
+# energy unit
 btu = Btu = 1055.06 * joule
 mmBtu = 1E6 * btu = mmbtu
+MJ = 1E6 * joule
