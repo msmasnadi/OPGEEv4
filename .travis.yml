@@ -13,7 +13,7 @@ python :
 install:
   - pip install -r requirements.txt
   - python setup.py -q install
-  - pip install pytest-cov codecov coveralls
+  - pip install pytest-cov codecov coveralls PyYAML
 
 script:
   - coverage run --source=opgee -m pytest
