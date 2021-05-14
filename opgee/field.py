@@ -44,7 +44,7 @@ class Field(Container):
         if cycles:
             _logger.info(f"Field '{name}' has cycles: {cycles}")
 
-        self.oil = Oil(self)
+        self.oil = None # Oil(self)
 
     @property
     def model(self):
