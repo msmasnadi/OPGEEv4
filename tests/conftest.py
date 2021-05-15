@@ -1,10 +1,10 @@
 import pytest
-import os
 from opgee.config import getConfig
 from opgee.log import setLogLevels, configureLogs
 from opgee.model import ModelFile
 from opgee.process import Process
 from opgee.pkg_utils import resourceStream
+from .utils_for_tests import path_to_test_file
 
 class ProcA(Process): pass
 class ProcB(Process): pass
@@ -25,6 +25,7 @@ def opgee_model(configure_logging_for_tests):
 
 @pytest.fixture(scope="module")
 def test_model(configure_logging_for_tests):
-    os.chdir(os.path.abspath(os.path.join(__file__, '..')))
-    mf = ModelFile('files/test_model.xml', add_stream_components=False, use_class_path=False)
+    xml_path = path_to_test_file('test_model.xml')
+    mf = ModelFile(xml_path, add_stream_components=False, use_class_path=False)
     return mf.model
+

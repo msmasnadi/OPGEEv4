@@ -286,24 +286,24 @@ def _getMainParser():
     tool = Opgee.getInstance(loadPlugins=False)
     return tool.parser
 
-
-def checkWindowsSymlinks():
-    '''
-    If running on Windows and OPGEE.CopyAllFiles is not set, and
-    we fail to create a test symlink, set OPGEE.CopyAllFiles to True.
-    '''
-    from .temp_file import getTempFile
-
-    if IsWindows and not getParamAsBoolean('OPGEE.CopyAllFiles'):
-        src = getTempFile()
-        dst = getTempFile()
-
-        try:
-            os.symlink(src, dst)
-        except:
-            _logger = getLogger(__name__)
-            _logger.info('No symlink permission; setting OPGEE.CopyAllFiles = True')
-            setParam('OPGEE.CopyAllFiles', 'True')
+# may not be needed in opgee
+# def checkWindowsSymlinks():
+#     '''
+#     If running on Windows and OPGEE.CopyAllFiles is not set, and
+#     we fail to create a test symlink, set OPGEE.CopyAllFiles to True.
+#     '''
+#     from .temp_file import getTempFile
+#
+#     if IsWindows and not getParamAsBoolean('OPGEE.CopyAllFiles'):
+#         src = getTempFile()
+#         dst = getTempFile()
+#
+#         try:
+#             os.symlink(src, dst)
+#         except:
+#             _logger = getLogger(__name__)
+#             _logger.info('No symlink permission; setting OPGEE.CopyAllFiles = True')
+#             setParam('OPGEE.CopyAllFiles', 'True')
 
 # This parser handles only --VERSION flag.
 def _showVersion(argv):
@@ -391,9 +391,11 @@ def main(argv=None, raiseError=False):
             traceback.print_exc()
 
     finally:
-        from .temp_file import TempFile
-
+        pass
+        # may not be needed in opgee
+        # from .temp_file import TempFile
+        #
         # Delete any temporary files that were created
-        TempFile.deleteAll()
+        # TempFile.deleteAll()
 
     return 1
