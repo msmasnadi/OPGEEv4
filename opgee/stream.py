@@ -12,7 +12,6 @@ from .core import XmlInstantiable, elt_name
 from .error import OpgeeException
 from .log import getLogger
 from .utils import coercible
-from . import ureg
 
 _logger = getLogger(__name__)
 

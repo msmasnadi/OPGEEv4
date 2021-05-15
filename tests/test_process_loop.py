@@ -1,10 +1,12 @@
 import pytest
 from opgee.model import ModelFile
 from opgee.process import Process
+from opgee.utils import pathjoin
 
 @pytest.fixture(scope="session")
 def process_loop_model(configure_logging_for_tests):
-    mf = ModelFile('files/test_process_loop_model.xml', add_stream_components=False, use_class_path=False)
+    xml_path = pathjoin(__file__, '..', 'files/test_process_loop_model.xml', abspath=True)
+    mf = ModelFile(xml_path, add_stream_components=False, use_class_path=False)
     return mf.model
 
 class Proc1(Process):

@@ -54,15 +54,10 @@ def unixPath(path, abspath=False):
     """
 
     # Use str values, not Paths
-    path = str(path)
+    path = str(path).replace('\\', '/')
 
     if abspath:
-        # Path.resolve() is supposed to do this, but it fails
         path = os.path.abspath(path)
-
-    if PlatformName == 'Windows':
-        from pathlib import Path
-        path = str(Path(path).as_posix())
 
     return path
 
@@ -83,31 +78,32 @@ def pathjoin(*elements, **kwargs):
 
     return unixPath(path)
 
-def savePathMap(mapString):
-    """
-    Save a list of pathname translations (sorted, descending by length)
-    for use with docker, mapping host directories to container-mounted
-    directories. The function getParam() performs the translations.
-
-    :param mapString: (str) sequence of newline-limited lines, each
-       containing a pair of the form "host-path:container-path".
-
-    :return: nothing
-    """
-    global _PathMap, _PathPattern
-
-    pairStrings = mapString.split()
-    pairs = [s.split(':') for s in pairStrings]
-
-    # strip whitespace
-    pairs = [[s.strip() for s in pair] for pair in pairs]
-
-    # process the longest strings first to avoid overlooking long prefixes
-    pairs = sorted(pairs, key = lambda pair: len(pair[0]), reverse=True)
-    pattern = '|'.join([pair[0] for pair in pairs])
-
-    _PathPattern = re.compile(pattern)
-    _PathMap = dict(pairs)
+# may not be needed in opgee
+# def savePathMap(mapString):
+#     """
+#     Save a list of pathname translations (sorted, descending by length)
+#     for use with docker, mapping host directories to container-mounted
+#     directories. The function getParam() performs the translations.
+#
+#     :param mapString: (str) sequence of newline-limited lines, each
+#        containing a pair of the form "host-path:container-path".
+#
+#     :return: nothing
+#     """
+#     global _PathMap, _PathPattern
+#
+#     pairStrings = mapString.split()
+#     pairs = [s.split(':') for s in pairStrings]
+#
+#     # strip whitespace
+#     pairs = [[s.strip() for s in pair] for pair in pairs]
+#
+#     # process the longest strings first to avoid overlooking long prefixes
+#     pairs = sorted(pairs, key = lambda pair: len(pair[0]), reverse=True)
+#     pattern = '|'.join([pair[0] for pair in pairs])
+#
+#     _PathPattern = re.compile(pattern)
+#     _PathMap = dict(pairs)
 
 
 def _translatePath(value):
@@ -127,16 +123,17 @@ def _translatePath(value):
 
     return value
 
-def parse_version_info(vers=None):
-    import semver
-
-    vers = vers or getParam('OPGEE.VersionNumber')
-
-    # if only major.minor is given (e.g., "4.4"), add .patch of zero (e.g., "4.4.0")
-    if re.match(r'^\d\.\d$', vers):
-        vers += '.0'
-
-    return semver.parse_version_info(vers)
+# may not be needed in opgee
+# def parse_version_info(vers=None):
+#     import semver
+#
+#     vers = vers or getParam('OPGEE.VersionNumber')
+#
+#     # if only major.minor is given (e.g., "4.4"), add .patch of zero (e.g., "4.4.0")
+#     if re.match(r'^\d\.\d$', vers):
+#         vers += '.0'
+#
+#     return semver.parse_version_info(vers)
 
 def getSection():
     return _ProjectSection
@@ -167,8 +164,6 @@ def ensure_default_config():
 
         except Exception as e:
             raise OpgeeException(f'\n***\n*** Failed to write default opgee configuration file {configPath}: {e}.\n***\n')
-
-
 
 def getConfig(reload=False, allowMissing=False, createDefault=False):
     """
@@ -209,7 +204,6 @@ def _readConfigResourceFile(filename, package='opgee', raiseError=True):
     _ConfigParser.read_string(data, source=filename)
     return data
 
-
 def getHomeDir():
     env = os.environ
 
@@ -226,7 +220,6 @@ def getHomeDir():
         home = env.get('OPGEE_HOME') or os.getenv('HOME')
 
     return home
-
 
 def userConfigPath():
     path = pathjoin(getHomeDir(), USR_CONFIG_FILE)
@@ -403,7 +396,6 @@ def stringTrue(value, raiseError=True):
     else:
         return None
 
-
 def getParamAsBoolean(name, section=None):
     """
     Get the value of the configuration parameter `name`, coerced
@@ -428,7 +420,6 @@ def getParamAsBoolean(name, section=None):
         raise ConfigFileError(msg)
 
     return result
-
 
 def getParamAsInt(name, section=None):
     """
