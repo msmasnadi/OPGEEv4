@@ -17,6 +17,7 @@ install:
 
 script:
   - coverage run --source=opgee -m pytest
+
 env:
   # set OPGEE_HOME so the test opgee.cfg file is found
   OPGEE_HOME=/home/travis/build/Stanford-EAO/OPGEEv4/tests/files
@@ -35,5 +36,7 @@ matrix:
   - python: nightly
 
 codecov: true
+
 after_success:
   - coveralls
+  - bash <(curl -s https://codecov.io/bash)
