@@ -1,7 +1,8 @@
 from ..process import Process
 from ..log import getLogger
 
-_logger = getLogger(__name__) # data logging
+_logger = getLogger(__name__)  # data logging
+
 
 class ReservoirWellInterface(Process):
     def run(self, analysis):
@@ -14,7 +15,7 @@ class ReservoirWellInterface(Process):
         gas_comp = field.attrs_with_prefix('gas_comp_')
         # oil_comp =
 
-        N2  = gas_comp.N2
+        N2 = gas_comp.N2
         CO2 = gas_comp.CO2
 
         # examples of getting attribute values

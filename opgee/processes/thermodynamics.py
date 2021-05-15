@@ -8,13 +8,16 @@ from pandas import Series
 
 class Air(OpgeeObject):
     """
-
+    The Air class represents the wet air and dry air chemical properties such as molar weights, density, etc.
+    The wet air and dry air composition are given. The molecular weight is in unit g/mol and density is in unit
+    kg/m3.
     """
 
     def __init__(self, field, composition):
         """
 
         :param field:
+        :param composition:
         """
         self.composition = composition
         self.field = field
@@ -34,12 +37,13 @@ class Air(OpgeeObject):
         std_temp = self.field.model.const("std-temperature").to("kelvin")
         std_press = self.field.model.const("std-pressure").to("Pa")
         rho = self.mixture.rho("g", self.mol_fraction, std_temp.m, std_press.m)
-        return rho
+        return ureg.Quantity(rho, "kg/m**3")
 
 
 class WetAir(Air):
     """
-
+    WetAir class represents the composition of wet air.
+    The composition is N2 = 0.774394, O2 = 0.20531, CO2 = 0.000294, H2O = 0.02
     """
 
     def __init__(self, field):
@@ -47,7 +51,6 @@ class WetAir(Air):
 
         :param field:
         """
-
         composition = [("N2", 0.774396),
                        ("O2", 0.20531),
                        ("CO2", 0.000294),
@@ -57,9 +60,9 @@ class WetAir(Air):
 
 class DryAir(Air):
     """
-
+    DryAir class represents the composition of dry air.
+    The composition is N2 = 0.79, O2 = 0.21
     """
-
     def __init__(self, field):
         """
 
@@ -607,7 +610,7 @@ class Gas(Hydrocarbon):
         """
         volume_factor = self.volume_factor(stream)
         specific_gravity = self.specific_gravity(stream)
-        air_density_stp = ureg.Quantity(self.dry_air.density(), "kg/m**3")
+        air_density_stp = self.dry_air.density()
 
         return air_density_stp.to("tonne/m**3") * specific_gravity / volume_factor
 
