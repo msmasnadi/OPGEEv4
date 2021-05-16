@@ -19,7 +19,7 @@ from .log import getLogger, setLogLevels, configureLogs
 from .signals import SignalException, catchSignals
 from .subcommand import clean_help
 from .version import VERSION
-from .windows import IsWindows
+#from .windows import IsWindows
 
 PROGRAM = 'opg'
 

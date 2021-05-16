@@ -95,15 +95,7 @@ class RunCommand(SubcommandABC):
                 selected_fields.extend(found)
 
             for analysis_name, field_name in specific_field_tuples:
-                analyses = [ana for ana in all_analyses if ana.name == analysis_name]
-
-                if not analyses:
-                    raise CommandlineError(f"Analysis '{analysis_name}' was not found in model.")
-
-                if len(analyses) > 1:
-                    raise CommandlineError(f"Found multiple analyses with name '{analysis_name}'")
-
-                analysis = analyses[0]
+                analysis = model.get_analysis(analysis_name)
                 field = analysis.get_field(field_name)
                 if field is None:
                     raise CommandlineError(f"Field '{field_name}' was not found in analysis '{analysis_name}'")
@@ -113,6 +105,7 @@ class RunCommand(SubcommandABC):
             if not selected_fields:
                 raise CommandlineError("The model contains no fields matching command line arguments.")
         else:
+            # run all fields for selected analyses
             selected_fields = [(analysis.get_field(field_name), analysis) for analysis in selected_analyses for field_name in analysis.fields]
 
         for field, analysis in selected_fields:

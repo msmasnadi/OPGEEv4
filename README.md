@@ -32,14 +32,10 @@
 * Handle Fuel Gas Imports
   * Exchanges of energy carriers from outside system boundary
   * Add a Natural Gas Pipeline process: exports generate a credit (depends on functional unit)
-
-* Setup code coverage testing
-
-* Remove unneeded functionality that was imported from pygcam
-
+  
 * [postponed] Develop simple GUI using dash
 
 
 # Release Notes
 
-## Version 4.0.0a (xx-xxx-2021)
+## Version 4.0.0-alpha.0 (xx-xxx-2021)
