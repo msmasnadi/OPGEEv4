@@ -8,6 +8,10 @@
 from copy import deepcopy
 from io import StringIO
 from lxml import etree as ET
+from .log import getLogger
+
+_logger = getLogger(__name__)
+
 
 def prettify(elt):
     parser = ET.XMLParser(remove_blank_text=True)

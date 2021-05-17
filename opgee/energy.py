@@ -8,6 +8,10 @@ import pandas as pd
 from .core import OpgeeObject
 from .error import OpgeeException
 
+from .log import getLogger
+
+_logger = getLogger(__name__)
+
 # TBD: Decide if these strings are the ones we want to use throughout.
 EN_NATURAL_GAS = 'Natural gas'
 EN_UPG_PROC_GAS = 'Upgrader proc. gas'

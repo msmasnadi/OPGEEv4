@@ -2,7 +2,6 @@ from .core import elt_name
 from .container import Container
 from .error import OpgeeException
 from .emissions import Emissions
-from .field import Field
 from .log import getLogger
 
 _logger = getLogger(__name__)
