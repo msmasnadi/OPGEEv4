@@ -3,7 +3,6 @@ from .container import Container
 from .core import elt_name, instantiate_subelts, dict_from_list
 from .error import OpgeeException, OpgeeStopIteration
 from .log import getLogger
-from .processes.thermodynamics import Oil
 from .process import Process, Environment, Reservoir, Aggregator
 from .stream import Stream
 from .utils import getBooleanXML, flatten

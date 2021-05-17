@@ -1,8 +1,8 @@
-from ..core import OpgeeObject
+from opgee.core import OpgeeObject
 import numpy as np
 from thermosteam import Chemical, Mixture
-from ..stream import PHASE_GAS, PHASE_SOLID, PHASE_LIQUID, Stream
-from .. import ureg
+from opgee.stream import PHASE_GAS, PHASE_SOLID, PHASE_LIQUID, Stream
+from opgee import ureg
 from pandas import Series
 
 

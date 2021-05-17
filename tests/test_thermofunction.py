@@ -1,5 +1,5 @@
 import pytest
-from opgee.processes.thermodynamics import Oil, Gas
+from opgee.thermodynamics import Oil, Gas
 from opgee.stream import Stream
 
 num_digits = 3
