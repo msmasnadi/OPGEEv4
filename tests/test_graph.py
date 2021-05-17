@@ -1,6 +1,18 @@
 import pytest
 from opgee.error import CommandlineError
 
+# See what exception is raised
+def test_graph_classes1(opgee):
+    pathname = '/dev/null'
+    opgee.run(None, ['graph', '--classes', 'core', '--classes_output', pathname])
+    assert True
+
+def test_graph_field1(opgee):
+    pathname = '/tmp/graph.png'
+    opgee.run(None, ['graph', '--field', 'test', '--field_output', pathname])
+    assert True
+
+
 def test_graph_classes(opgee):
     pathname = '/dev/null'
     try:
