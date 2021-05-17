@@ -61,7 +61,7 @@ class RunCommand(SubcommandABC):
             builtin_model = mf.model
 
         if model_file:
-            mf = ModelFile(model_file, stream=s)
+            mf = ModelFile(model_file)
             user_model = mf.model
 
         # TBD: write this, probably in model.py

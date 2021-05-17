@@ -6,8 +6,13 @@ from opgee.process import Process
 from opgee.pkg_utils import resourceStream
 from .utils_for_tests import path_to_test_file
 
-class ProcA(Process): pass
-class ProcB(Process): pass
+class ProcA(Process):
+    def run(self, analysis):
+        pass
+
+class ProcB(Process):
+    def run(self, analysis):
+        pass
 
 @pytest.fixture(scope="session")
 def configure_logging_for_tests():

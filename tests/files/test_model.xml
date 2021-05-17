@@ -13,6 +13,7 @@
 		<A name="energy_basis">LHV</A>
 	  <A name="GWP_years">100</A>
 	  <A name="GWP_version">AR5</A>
+		<WithField>test</WithField>
 	</Analysis>
 
 	<Field name="test">
