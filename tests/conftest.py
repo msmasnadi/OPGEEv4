@@ -4,6 +4,7 @@ from opgee.log import setLogLevels, configureLogs
 from opgee.model import ModelFile
 from opgee.process import Process
 from opgee.pkg_utils import resourceStream
+from opgee.tool import Opgee
 from .utils_for_tests import path_to_test_file
 
 class ProcA(Process):
@@ -34,3 +35,6 @@ def test_model(configure_logging_for_tests):
     mf = ModelFile(xml_path, add_stream_components=False, use_class_path=False)
     return mf.model
 
+@pytest.fixture(scope='module')
+def opgee():
+    return Opgee()

@@ -67,7 +67,6 @@ class GraphCommand(SubcommandABC):
             write_class_diagram(args.classes_output, show_process_subclasses=show_process_subclasses)
 
         if args.field:
-            # TBD: for now we assume one analysis per Model only
             field = model.field_dict.get(args.field)
 
             if not field:

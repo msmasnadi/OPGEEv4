@@ -1,11 +1,6 @@
 import pytest
 from opgee.error import CommandlineError
-from opgee.tool import Opgee
 from .utils_for_tests import path_to_test_file
-
-@pytest.fixture(scope='module')
-def opgee():
-    return Opgee()
 
 def test_run_builtin(opgee):
     try:
@@ -33,7 +28,7 @@ def test_run_test_model(opgee):
         good = True
     except Exception as e:
         good = False
-        pass
+
     assert good
 
 def test_unknown_analysis(opgee):
