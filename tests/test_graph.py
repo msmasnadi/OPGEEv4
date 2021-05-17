@@ -4,7 +4,7 @@ from opgee.error import CommandlineError
 from .utils_for_tests import path_to_test_file
 
 def test_graph_classes(opgee):
-    pathname = path_to_test_file('classes.png')
+    pathname = '/tmp/classes.png'
     try:
         opgee.run(None, ['graph', '--classes', 'core', '--classes_output', pathname])
         os.remove(pathname)
@@ -15,7 +15,7 @@ def test_graph_classes(opgee):
     assert good
 
 def test_graph_classes(opgee):
-    pathname = path_to_test_file('field.png')
+    pathname = '/tmp/field.png'
     try:
         opgee.run(None, ['graph', '--field', 'test', '--field_output', pathname])
         os.remove(pathname)
@@ -26,7 +26,7 @@ def test_graph_classes(opgee):
     assert good
 
 def test_graph_model(opgee):
-    pathname = path_to_test_file('model_hierarchy.png')
+    pathname = '/tmp/model_hierarchy.png'
     try:
         opgee.run(None, ['graph', '--hierarchy_output', pathname])
         os.remove(pathname)
