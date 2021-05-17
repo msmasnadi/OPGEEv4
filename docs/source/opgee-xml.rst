@@ -40,9 +40,7 @@ elements. The ``<Model>`` element takes the following attributes:
      - "0"
      - boolean
 
-The ``class`` attribute provides the name of an OPGEE class that the  a default :doc:`rewrite set <rewrites-xml>` to use
-with all queries, which can be overridden for any single query by explicitly
-specifying ``useDefault="0"``.
+The ``class`` attribute provides the name of an OPGEE class.
 
 The ``delete`` attribute is used only by user-defined files. If the value
 of the attribute is "1", "yes", or "true" (case insensitive), and a corresponding
