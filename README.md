@@ -4,11 +4,9 @@
 
 # OPGEE v4
 
-
 `opgee` is a Python package that provides classes, functions, and scripts that implement the OPGEE model.
 
 ## Core functionality
-
 
 * TBD
 
