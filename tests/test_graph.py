@@ -1,4 +1,3 @@
-import os
 import pytest
 from opgee.error import CommandlineError
 
@@ -12,8 +11,8 @@ def test_graph_classes(opgee):
 
     assert good
 
-def test_graph_classes(opgee):
-    pathname = '/dev/null'
+def test_graph_field(opgee):
+    pathname = '/tmp/graph.png'
     try:
         opgee.run(None, ['graph', '--field', 'test', '--field_output', pathname])
         good = True
