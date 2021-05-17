@@ -106,6 +106,15 @@ class Hydrocarbon(OpgeeObject):
         Hydrocarbon.dict_chemical = dict_chemical
         return dict_chemical
 
+    def mol_weight(self, component):
+        """
+
+        :param component:
+        :return:
+        """
+        mol_weight = ureg.Quantity(self.dict_chemical[component].MW, "g/mol")
+        return mol_weight
+
 
 class Oil(Hydrocarbon):
     """
@@ -147,7 +156,7 @@ class Oil(Hydrocarbon):
         gas_comp = self.gas_comp
         gas_SG = 0
         for component, mol_frac in gas_comp.items():
-            molecular_weight = ureg.Quantity(self.dict_chemical[component].MW, "g/mol")
+            molecular_weight = self.mol_weight(component)
             gas_SG += molecular_weight * mol_frac.m / 100
 
         gas_SG = gas_SG / self.wet_air_MW
@@ -413,7 +422,7 @@ class Gas(Hydrocarbon):
         mass_flow_rate = stream.total_gases_rates()  # pandas.Series
         total_molar_flow_rate = 0
         for component, tonne_per_day in mass_flow_rate.items():
-            molecular_weight = ureg.Quantity(self.dict_chemical[component].MW, "g/mol")
+            molecular_weight = self.mol_weight(component)
             # TODO: delete this line once the pint pandas works
             tonne_per_day = ureg.Quantity(tonne_per_day, "tonne/day")
             total_molar_flow_rate += tonne_per_day.to("g/day") / molecular_weight
@@ -447,7 +456,7 @@ class Gas(Hydrocarbon):
         mass_flow_rate = stream.total_gases_rates()  # pandas.Series
         specific_gravity = 0
         for component, tonne_per_day in mass_flow_rate.items():
-            molecular_weight = ureg.Quantity(self.dict_chemical[component].MW, "g/mol")
+            molecular_weight = self.mol_weight(component)
             molar_fraction = self.component_molar_fraction(component, stream)
             specific_gravity += molar_fraction * molecular_weight
 
@@ -623,7 +632,7 @@ class Gas(Hydrocarbon):
         mass_flow_rate = stream.total_gases_rates()  # pandas.Series
         molar_weight = ureg.Quantity(0, "g/mol")
         for component, tonne_per_day in mass_flow_rate.items():
-            molecular_weight = ureg.Quantity(self.dict_chemical[component].MW, "g/mol")
+            molecular_weight = self.mol_weight(component)
             molar_fraction = self.component_molar_fraction(component, stream)
             molar_weight += molar_fraction * molecular_weight
 
@@ -660,7 +669,7 @@ class Gas(Hydrocarbon):
                 LHV = -LHV
             LHV = ureg.Quantity(LHV, "joule/mol")
             LHV = LHV.to("MJ/mol")
-            molecular_weight = ureg.Quantity(self.dict_chemical[component].MW, "g/mol")
+            molecular_weight = self.mol_weight(component)
             # TODO: delete this line once the pint pandas works
             tonne_per_day = ureg.Quantity(tonne_per_day, "tonne/day")
             mass_energy_density += tonne_per_day / total_mass_rate * LHV / molecular_weight.to("kg/mol")
@@ -685,7 +694,7 @@ class Gas(Hydrocarbon):
                 LHV = -LHV
             LHV = ureg.Quantity(LHV, "joule/mol")
             LHV = LHV.to("Btu/mol")
-            molecular_weight = ureg.Quantity(self.dict_chemical[component].MW, "g/mol")
+            molecular_weight = self.mol_weight(component)
             density = ureg.Quantity(self.dict_chemical[component].rho("g", std_temp, std_press), "kg/m**3")
             density = density.to("g/ft**3")
             molar_fraction = self.component_molar_fraction(component, stream)
