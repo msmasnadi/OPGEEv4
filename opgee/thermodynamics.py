@@ -1,20 +1,23 @@
-from ..core import OpgeeObject
+from opgee.core import OpgeeObject
 import numpy as np
 from thermosteam import Chemical, Mixture
-from ..stream import PHASE_GAS, PHASE_SOLID, PHASE_LIQUID, Stream
-from .. import ureg
+from opgee.stream import PHASE_GAS, PHASE_SOLID, PHASE_LIQUID, Stream
+from opgee import ureg
 from pandas import Series
 
 
 class Air(OpgeeObject):
     """
-
+    The Air class represents the wet air and dry air chemical properties such as molar weights, density, etc.
+    The wet air and dry air composition are given. The molecular weight is in unit g/mol and density is in unit
+    kg/m3.
     """
 
     def __init__(self, field, composition):
         """
 
         :param field:
+        :param composition:
         """
         self.composition = composition
         self.field = field
@@ -34,12 +37,13 @@ class Air(OpgeeObject):
         std_temp = self.field.model.const("std-temperature").to("kelvin")
         std_press = self.field.model.const("std-pressure").to("Pa")
         rho = self.mixture.rho("g", self.mol_fraction, std_temp.m, std_press.m)
-        return rho
+        return ureg.Quantity(rho, "kg/m**3")
 
 
 class WetAir(Air):
     """
-
+    WetAir class represents the composition of wet air.
+    The composition is N2 = 0.774394, O2 = 0.20531, CO2 = 0.000294, H2O = 0.02
     """
 
     def __init__(self, field):
@@ -47,7 +51,6 @@ class WetAir(Air):
 
         :param field:
         """
-
         composition = [("N2", 0.774396),
                        ("O2", 0.20531),
                        ("CO2", 0.000294),
@@ -57,9 +60,9 @@ class WetAir(Air):
 
 class DryAir(Air):
     """
-
+    DryAir class represents the composition of dry air.
+    The composition is N2 = 0.79, O2 = 0.21
     """
-
     def __init__(self, field):
         """
 
@@ -103,6 +106,15 @@ class Hydrocarbon(OpgeeObject):
         Hydrocarbon.dict_chemical = dict_chemical
         return dict_chemical
 
+    def mol_weight(self, component):
+        """
+
+        :param component:
+        :return:
+        """
+        mol_weight = ureg.Quantity(self.dict_chemical[component].MW, "g/mol")
+        return mol_weight
+
 
 class Oil(Hydrocarbon):
     """
@@ -144,7 +156,7 @@ class Oil(Hydrocarbon):
         gas_comp = self.gas_comp
         gas_SG = 0
         for component, mol_frac in gas_comp.items():
-            molecular_weight = ureg.Quantity(self.dict_chemical[component].MW, "g/mol")
+            molecular_weight = self.mol_weight(component)
             gas_SG += molecular_weight * mol_frac.m / 100
 
         gas_SG = gas_SG / self.wet_air_MW
@@ -410,7 +422,7 @@ class Gas(Hydrocarbon):
         mass_flow_rate = stream.total_gases_rates()  # pandas.Series
         total_molar_flow_rate = 0
         for component, tonne_per_day in mass_flow_rate.items():
-            molecular_weight = ureg.Quantity(self.dict_chemical[component].MW, "g/mol")
+            molecular_weight = self.mol_weight(component)
             # TODO: delete this line once the pint pandas works
             tonne_per_day = ureg.Quantity(tonne_per_day, "tonne/day")
             total_molar_flow_rate += tonne_per_day.to("g/day") / molecular_weight
@@ -444,7 +456,7 @@ class Gas(Hydrocarbon):
         mass_flow_rate = stream.total_gases_rates()  # pandas.Series
         specific_gravity = 0
         for component, tonne_per_day in mass_flow_rate.items():
-            molecular_weight = ureg.Quantity(self.dict_chemical[component].MW, "g/mol")
+            molecular_weight = self.mol_weight(component)
             molar_fraction = self.component_molar_fraction(component, stream)
             specific_gravity += molar_fraction * molecular_weight
 
@@ -607,7 +619,7 @@ class Gas(Hydrocarbon):
         """
         volume_factor = self.volume_factor(stream)
         specific_gravity = self.specific_gravity(stream)
-        air_density_stp = ureg.Quantity(self.dry_air.density(), "kg/m**3")
+        air_density_stp = self.dry_air.density()
 
         return air_density_stp.to("tonne/m**3") * specific_gravity / volume_factor
 
@@ -620,7 +632,7 @@ class Gas(Hydrocarbon):
         mass_flow_rate = stream.total_gases_rates()  # pandas.Series
         molar_weight = ureg.Quantity(0, "g/mol")
         for component, tonne_per_day in mass_flow_rate.items():
-            molecular_weight = ureg.Quantity(self.dict_chemical[component].MW, "g/mol")
+            molecular_weight = self.mol_weight(component)
             molar_fraction = self.component_molar_fraction(component, stream)
             molar_weight += molar_fraction * molecular_weight
 
@@ -657,7 +669,7 @@ class Gas(Hydrocarbon):
                 LHV = -LHV
             LHV = ureg.Quantity(LHV, "joule/mol")
             LHV = LHV.to("MJ/mol")
-            molecular_weight = ureg.Quantity(self.dict_chemical[component].MW, "g/mol")
+            molecular_weight = self.mol_weight(component)
             # TODO: delete this line once the pint pandas works
             tonne_per_day = ureg.Quantity(tonne_per_day, "tonne/day")
             mass_energy_density += tonne_per_day / total_mass_rate * LHV / molecular_weight.to("kg/mol")
@@ -682,7 +694,7 @@ class Gas(Hydrocarbon):
                 LHV = -LHV
             LHV = ureg.Quantity(LHV, "joule/mol")
             LHV = LHV.to("Btu/mol")
-            molecular_weight = ureg.Quantity(self.dict_chemical[component].MW, "g/mol")
+            molecular_weight = self.mol_weight(component)
             density = ureg.Quantity(self.dict_chemical[component].rho("g", std_temp, std_press), "kg/m**3")
             density = density.to("g/ft**3")
             molar_fraction = self.component_molar_fraction(component, stream)
