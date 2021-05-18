@@ -21,20 +21,20 @@ PHASE_LIQUID = 'liquid'
 PHASE_GAS = 'gas'
 
 # Compile the patterns at load time for better performance
-_carbon_number_pattern = re.compile(r'^C(\d+)$')
-_hydrocarbon_pattern   = re.compile(r'^(C\d+)H(\d+)$')
+_carbon_number_prog = re.compile(r'^C(\d+)$')
+_hydrocarbon_prog   = re.compile(r'^(C\d+)H(\d+)$')
 
 def is_carbon_number(name):
-    return (re.match(_carbon_number_pattern, name) is not None)
+    return (_carbon_number_prog.match(name) is not None)
 
 def is_hydrocarbon(name):
-    return (name == 'CH4' or re.match(_hydrocarbon_pattern, name) is not None)
+    return (name == 'CH4' or _hydrocarbon_prog.match(name) is not None)
 
 def molecule_to_carbon(molecule):
     if molecule == "CH4":
         return "C1"
 
-    m = re.match(_hydrocarbon_pattern, molecule)
+    m = _hydrocarbon_prog.match(molecule)
     if m is None:
         raise OpgeeException(f"Expected hydrocarbon molecule name like CxHy, got {molecule}")
 
@@ -46,7 +46,7 @@ def carbon_to_molecule(c_name):
     if c_name == "C1":
         return "CH4"
 
-    m = re.match(_carbon_number_pattern, c_name)
+    m = _carbon_number_prog.match(c_name)
     if m is None:
         raise OpgeeException(f"Expected carbon number name like Cn, got {c_name}")
 

@@ -30,10 +30,6 @@ class Container(XmlInstantiable, AttributeMixin):
         self.aggs  = self.adopt(aggs)
         self.procs = self.adopt(procs)
 
-    def after_init(self):
-        for child in self._children():
-            child.after_init()
-
     def _children(self):
         """
         Return a list of all children. External callers should use children() instead,

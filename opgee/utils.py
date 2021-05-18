@@ -61,11 +61,14 @@ def validate_years(years):
 
     return [i for i in range(first, last+1, 5)]
 
+
+_abspath_prog = re.compile(r"^([/\\])|([a-zA-Z]:)")
+
 def is_abspath(pathname):
     """
     Return True if pathname is an absolute pathname, else False.
     """
-    return bool(re.match(r"^([/\\])|([a-zA-Z]:)", pathname))
+    return bool(_abspath_prog.match(pathname))
 
 def get_path(pathname, defaultDir):
     """

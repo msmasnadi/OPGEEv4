@@ -91,7 +91,7 @@ class RunCommand(SubcommandABC):
             selected_fields = []    # list of tuples of (analysis_name, field_name)
 
             for analysis in selected_analyses:
-                found = [(analysis.get_field(field_name), analysis) for field_name in analysis.fields if field_name in nonspecific_field_names]
+                found = [(field, analysis) for field in analysis.fields() if field.name in nonspecific_field_names]
                 selected_fields.extend(found)
 
             for analysis_name, field_name in specific_field_tuples:
@@ -106,7 +106,7 @@ class RunCommand(SubcommandABC):
                 raise CommandlineError("The model contains no fields matching command line arguments.")
         else:
             # run all fields for selected analyses
-            selected_fields = [(analysis.get_field(field_name), analysis) for analysis in selected_analyses for field_name in analysis.fields]
+            selected_fields = [(field, analysis) for analysis in selected_analyses for field in analysis.fields()]
 
         for field, analysis in selected_fields:
             field.run(analysis)

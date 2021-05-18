@@ -1,26 +1,51 @@
-from .core import elt_name
+import re
+from .core import elt_name, OpgeeObject
 from .container import Container
 from .error import OpgeeException
 from .emissions import Emissions
 from .log import getLogger
+from .utils import getBooleanXML
 
 _logger = getLogger(__name__)
 
+class Group(OpgeeObject):
+    def __init__(self, elt):
+        self.is_regex = getBooleanXML(elt.attrib.get('regex', 0))
+        self.text = elt.text
+
 class Analysis(Container):
-    def __init__(self, name, attr_dict=None, fields=None, groups=None):
+    def __init__(self, name, attr_dict=None, field_names=None, groups=None):
         super().__init__(name, attr_dict=attr_dict)
 
-        self.model = None   # set in after_init()
-        self.fields = fields
+        self._field_names = field_names
         self.groups = groups
 
-        # This is set in after_init() to a pandas.Series holding the current values in use,
+        # The following are set in _after_init()
+        self.model = None
+        self.field_dict = None
+
+        # This is set in _after_init() to a pandas.Series holding the current values in use,
         # indexed by gas name. Must be set after initialization since we reference the Model
         # object which isn't fully instantiated until after we are.
         self.gwp = None
 
-    def after_init(self):
-        self.model = self.parent    # for clarity elsewhere in the code
+    def _after_init(self):
+        self.model = model = self.parent    # also assign to self.model for clarity
+
+        fields = [model.get_field(name) for name in self._field_names]
+
+        for group in self.groups:
+            text = group.text
+            if group.is_regex:
+                prog = re.compile(text)
+                matches = [field for field in model.fields() for name in field.group_names if prog.match(name)]
+            else:
+                matches = [field for field in model.fields() if field.name == text]
+
+            fields.extend(matches)
+
+        # storing into dict eliminates duplicates
+        self.field_dict = {field.name : field for field in fields}
 
         # Use the GWP years and version specified in XML
         gwp_horizon = self.attr('GWP_horizon')
@@ -29,14 +54,32 @@ class Analysis(Container):
         self.use_GWP(gwp_horizon, gwp_version)
 
     def get_field(self, name, raiseError=True):
-        return self.model.get_field(name, raiseError=raiseError)
+        """
+        Find a `Field` by name in an `Analysis`.
+
+        :param name: (str) the name of the `Field`
+        :param raiseError: (bool) whether to raise an error if the field is not found
+        :return: (Field) the named field, or None if not found and `raiseError` is False.
+        """
+        field = self.field_dict.get(name)
+        if field is None and raiseError:
+            raise OpgeeException(f"Field named '{name}' is not defined in Analysis '{self.name}'")
+
+        return field
+
+    def fields(self):
+        """
+        Get the `Field`s included in this `Analysis`.
+        :return: (iterator) of Field instances
+        """
+        return self.field_dict.values()  # N.B. returns an iterator
 
     def _children(self):
         """
-        Return a list of all children. External callers should use children() instead,
+        Return an iterator of all children Fields. External callers should use children() instead,
         as it respects the self.is_enabled() setting.
         """
-        return self.field_dict.values()     # N.B. returns an iterator
+        return self.fields()
 
     def use_GWP(self, gwp_horizon, gwp_version):
         """
@@ -83,8 +126,7 @@ class Analysis(Container):
 
         :return: None
         """
-        for field_name in self.fields:
-            field = self.get_field(field_name)
+        for field in self.fields():
             field.run(self)
 
     @classmethod
@@ -97,8 +139,8 @@ class Analysis(Container):
         """
         name = elt_name(elt)
         attr_dict = cls.instantiate_attrs(elt)
-        fields = [node.text for node in elt.findall('WithField')]
-        groups = [node.text for node in elt.findall('WithGroup')]
+        field_names = [elt_name(node) for node in elt.findall('Field')]
+        groups = [Group(node) for node in elt.findall('Group')]
 
-        obj = Analysis(name, attr_dict=attr_dict, fields=fields, groups=groups)
+        obj = Analysis(name, attr_dict=attr_dict, field_names=field_names, groups=groups)
         return obj

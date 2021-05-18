@@ -106,8 +106,8 @@ class Process(XmlInstantiable, AttributeMixin):
         self.iteration_count = 0
         self.iteration_value = None
 
-    # allows Container to call this on Processes without type-checking
-    def after_init(self):
+    # Optional for Process subclasses
+    def _after_init(self):
         pass
 
     #

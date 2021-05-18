@@ -55,24 +55,28 @@
     <xs:complexType>
 			<xs:choice maxOccurs='unbounded'>
         <xs:element ref='A'/>
-        <xs:element minOccurs='0' ref='WithField'/>
-        <xs:element minOccurs='0' ref='WithGroup'/>
+        <xs:element minOccurs='0' ref='Field'/>
+        <xs:element minOccurs='0' ref='Group'/>   <!-- field groups to include in this analysis -->
       </xs:choice>
       <xs:attribute name='name' use='required' type='xs:NCName'/>
     </xs:complexType>
 	</xs:element>
 
-  <xs:element name="WithGroup" type="xs:string"/>
-
-  <xs:element name="WithField" type="xs:string"/>
-
-  <xs:element name="Group" type="xs:string"/>
+	<xs:element name='Group'>
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base='xs:string'>
+			    <xs:attribute name='regex' default='0' type='xs:boolean'/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
 
 	<xs:element name='Field'>
     <xs:complexType>
       <xs:choice maxOccurs='unbounded'>
         <xs:element minOccurs='0' ref='A'/>
-        <xs:element minOccurs='0' ref='Group'/>
+        <xs:element minOccurs='0' ref='Group'/>       <!-- groups this field belongs to -->
         <xs:element minOccurs='0' ref='Aggregator'/>
 				<xs:element minOccurs='0' ref='Process'/>
 				<xs:element ref='Stream'/>
@@ -105,26 +109,6 @@
 		<xs:attribute name='name' type='xs:NCName'/>
 		<xs:attribute name='enabled' default='1' type='xs:boolean'/>
 	</xs:complexType>
-
-	<xs:element name='Temperature'>
-    <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base='xs:decimal'>
-          <xs:attribute name='unit' use='required'/>
-        </xs:extension>
-      </xs:simpleContent>
-    </xs:complexType>
-	</xs:element>
-
-	<xs:element name='Pressure'>
-    <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base='xs:decimal'>
-          <xs:attribute name='unit' use='required'/>
-        </xs:extension>
-      </xs:simpleContent>
-    </xs:complexType>
-  </xs:element>
 
   <xs:element name='Stream'>
     <xs:complexType>

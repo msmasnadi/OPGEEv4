@@ -31,6 +31,6 @@ def test_run_test_model(opgee):
 
     assert good
 
-def test_unknown_analysis(opgee):
+def test_no_model(opgee):
     with pytest.raises(CommandlineError, match=r"No model to run: .*"):
         opgee.run(None, ['run', '-a', 'test', '--no_default_model'])

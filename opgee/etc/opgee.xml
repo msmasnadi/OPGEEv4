@@ -9,23 +9,31 @@
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="opgee.xsd">
 
 	<Analysis name="default">
-		<WithField>US_FW</WithField>
 		<A name="GWP_horizon">100</A>
 		<A name="GWP_version">AR5</A>
 		<A name="functional_unit">oil</A>
 		<A name="energy_basis">LHV</A>
+		<Field name="US_FW"/>
 	</Analysis>
 
 	<Analysis name="test">
-		<WithField>test</WithField>
 		<A name="GWP_horizon">20</A>
 		<A name="GWP_version">AR5_CCF</A>
 		<A name="functional_unit">oil</A>
 		<A name="energy_basis">LHV</A>
+
+		<!-- Field name="test" -->		<!-- this would include "test" field w/o change -->
+
+		<!-- TBD: implement the required merge behavior -->
+		<Field name="test">	<!-- include "test" field with modifications to process attributes -->
+			<Process class="ReservoirWellInterface">
+				<A name="some_attribute">12345</A>
+			</Process>
+		</Field>
 	</Analysis>
 
 	<Analysis name="default">
-		<WithField>US_FW</WithField>
+		<Field name="US_FW"/>			<!-- include one field only -->
 		<A name="country">USA</A>
 		<A name="offshore">0</A>
 		<A name="age">86</A>
@@ -48,6 +56,8 @@
 	</Analysis>
 
 	<Field name="test">
+		<Group>testing</Group>	<!-- to allow multiple fields to be identified easily in Analysis -->
+
 		<Process class="Exploration"/>
 		<Process class="DrillingAndDevelopment" desc="Drilling &amp; development">
 			<A name="well_complexity">high</A>
@@ -101,19 +111,19 @@
 		<Stream number="7" name="crude oil after separator" src="Separation" dst="CrudeOilDewatering">
 			<A name="temperature">90.0</A>
 			<A name="pressure">100.0</A>
-			<Component name="oil" phase="liquid">14555.9</Component>
-			<Component name="H2O" phase="liquid">2037.8</Component>
+			<Component name="oil" phase="liquid" >14555.9</Component>
+			<Component name="H2O" phase="liquid" >2037.8</Component>
 		</Stream>
 		<Stream number="160" name="Fuel gas - dewatering" src="Separation" dst="CrudeOilDewatering">
 			<A name="temperature">90.0</A>
 			<A name="pressure">150.0</A>
-			<Component name="N2" phase="gas">0.8</Component>
-			<Component name="CO2" phase="gas">0.7</Component>
-			<Component name="C1" phase="gas">35.5</Component>
-			<Component name="C2" phase="gas">3.8</Component>
-			<Component name="C3" phase="gas">0.2</Component>
-			<Component name="C4" phase="gas">0.0</Component>
-			<Component name="H2S" phase="gas">0.0</Component>
+			<Component name="N2" phase="gas" >0.8</Component>
+			<Component name="CO2" phase="gas" >0.7</Component>
+			<Component name="C1" phase="gas" >35.5</Component>
+			<Component name="C2" phase="gas" >3.8</Component>
+			<Component name="C3" phase="gas" >0.2</Component>
+			<Component name="C4" phase="gas" >0.0</Component>
+			<Component name="H2S" phase="gas" >0.0</Component>
 		</Stream>
 		<Stream number="115" src="CrudeOilDewatering" dst="ProducedWaterTreatment"/>
 		<Stream number="8" src="CrudeOilDewatering" dst="CrudeOilStabilization"/>
@@ -137,24 +147,24 @@
 		<Stream number="1" name="oil in reservoir" src="Reservoir" dst="ReservoirWellInterface">
 			<A name="temperature">70.8</A>
 			<A name="pressure">887.3</A>
-			<Component name="oil" phase="liquid">14555.9</Component>
-			<Component name="H2O" phase="liquid">2037.8</Component>
+			<Component name="oil" phase="liquid" >14555.9</Component>
+			<Component name="H2O" phase="liquid" >2037.8</Component>
 		</Stream>
 		<Stream number="100" name="water in reservoir" src="Reservoir" dst="ReservoirWellInterface">
 			<A name="temperature">70.8</A>
 			<A name="pressure">887.3</A>
-			<Component name="H2O" phase="liquid">255636.1</Component>
+			<Component name="H2O" phase="liquid" >255636.1</Component>
 		</Stream>
 		<Stream number="25" name="gas from reservoir" src="Reservoir" dst="ReservoirWellInterface">
 			<A name="temperature">70.8</A>
 			<A name="pressure">887.3</A>
-			<Component name="N2" phase="gas">519.9</Component>
-			<Component name="CO2" phase="gas">8858.8</Component>
-			<Component name="C1" phase="gas">22288.1</Component>
-			<Component name="C2" phase="gas">4495.1</Component>
-			<Component name="C3" phase="gas">4399.9</Component>
-			<Component name="C4" phase="gas">284.4</Component>
-			<Component name="H2S" phase="gas">1.5</Component>
+			<Component name="N2" phase="gas" >519.9</Component>
+			<Component name="CO2" phase="gas" >8858.8</Component>
+			<Component name="C1" phase="gas" >22288.1</Component>
+			<Component name="C2" phase="gas" >4495.1</Component>
+			<Component name="C3" phase="gas" >4399.9</Component>
+			<Component name="C4" phase="gas" >284.4</Component>
+			<Component name="H2S" phase="gas" >1.5</Component>
 		</Stream>
 		<Aggregator name="Exploration">
 			<Process class="Exploration"/>

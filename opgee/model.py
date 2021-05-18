@@ -46,12 +46,12 @@ class Model(Container):
         self.maximum_iterations = self.attr('maximum_iterations')
         self.maximum_change     = self.attr('maximum_change')
 
-    def after_init(self):
+    def _after_init(self):
         for obj in self.fields():
-            obj.after_init()
+            obj._after_init()
 
         for obj in self.analyses():
-            obj.after_init()
+            obj._after_init()
 
     def fields(self):
         return self.field_dict.values()
@@ -69,7 +69,7 @@ class Model(Container):
     def get_field(self, name, raiseError=True):
         field = self.field_dict.get(name)
         if field is None and raiseError:
-            raise OpgeeException(f"Field named '{name}' is not defined")
+            raise OpgeeException(f"Field named '{name}' is not defined in Model")
 
         return field
 
@@ -132,7 +132,7 @@ class Model(Container):
         obj = Model(elt_name(elt), analyses, fields, attr_dict=attr_dict)
 
         # do stuff that requires the fully instantiated hierarchy
-        obj.after_init()
+        obj._after_init()
 
         return obj
 

@@ -18,12 +18,14 @@ class Field(Container):
     of `Reservoir` and `Environment`, which are sources and sinks, respectively, in
     the process structure.
     """
-    def __init__(self, name, attr_dict=None, aggs=None, procs=None, streams=None):
-        # Note that `procs` include only Processes defined at the top-level of the field
+    def __init__(self, name, attr_dict=None, aggs=None, procs=None, streams=None, group_names=None):
+        # Note that `procs` include only Processes defined at the top-level of the field.
+        # Other Processes maybe defined within the Aggregators in `aggs`.
         super().__init__(name, attr_dict=attr_dict, aggs=aggs, procs=procs)
 
-        self._model = None  # @property "model" caches model here after first lookup
+        self._model = None  # set in _after_init
 
+        self.group_names = group_names
         self.stream_dict = dict_from_list(streams)
 
         all_procs = self.collect_processes()
@@ -46,17 +48,8 @@ class Field(Container):
 
         self.oil = Oil(self)
 
-    @property
-    def model(self):
-        """
-        Return the `Model` this `Process` belongs to.
-
-        :return: (Model) the enclosing `Model` instance.
-        """
-        if not self._model:
-            self._model = self.find_parent('Model')
-
-        return self._model
+    def _after_init(self):
+        self.model = self.find_parent('Model')
 
     def __str__(self):
         return f"<Field '{self.name}'>"
@@ -280,8 +273,10 @@ class Field(Container):
         aggs    = instantiate_subelts(elt, Aggregator)
         procs   = instantiate_subelts(elt, Process)
         streams = instantiate_subelts(elt, Stream)
+        group_names = [node.text for node in elt.findall('Group')]
 
-        obj = Field(name, attr_dict=attr_dict, aggs=aggs, procs=procs, streams=streams)
+        obj = Field(name, attr_dict=attr_dict, aggs=aggs, procs=procs,
+                    streams=streams, group_names=group_names)
 
         attrib = elt.attrib
         obj.set_enabled(getBooleanXML(attrib.get('enabled', '1')))
