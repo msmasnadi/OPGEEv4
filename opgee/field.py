@@ -5,6 +5,7 @@ from .error import OpgeeException, OpgeeStopIteration
 from .log import getLogger
 from .process import Process, Environment, Reservoir, Aggregator
 from .stream import Stream
+from .thermodynamics import Oil
 from .utils import getBooleanXML, flatten
 
 _logger = getLogger(__name__)
