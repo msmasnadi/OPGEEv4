@@ -20,39 +20,24 @@ The elements that comprise the ``opgee.xml`` file are described below.
 <Model>
 ^^^^^^^^^^
 
-The top-most element, ``<Model>``, encloses one or more ``<Analysis>`` and
-elements. The ``<Model>`` element takes the following attributes:
+The top-most element, ``<Model>``, encloses one or more ``<Analysis>``,
+``<Field>``, and ``<A>`` elements. The ``<Model>`` element takes no attributes.
 
-.. list-table:: <Model> Attributes
-   :widths: 10 10 10 10
-   :header-rows: 1
-
-   * - Attribute
-     - Required
-     - Default
-     - Values
-   * - class
-     - yes
-     - (none)
-     - text
-   * - delete
-     - no
-     - "0"
-     - boolean
-
-The ``class`` attribute provides the name of an OPGEE class.
-
-The ``delete`` attribute is used only by user-defined files. If the value
-of the attribute is "1", "yes", or "true" (case insensitive), and a corresponding
-value exists in the built-in XML structure, the built-in element and all elements
-below it in the hierarchy are deleted before the new element is added.
+..
+  [Saved for later]
+  The ``delete`` attribute is used only by user-defined files. If the value
+  of the attribute is "1", "yes", or "true" (case insensitive), and a corresponding
+  value exists in the built-in XML structure, the built-in element and all elements
+  below it in the hierarchy are deleted before the new element is added.
 
 <A>
 ^^^^^^^^^^^^^^^
 
-The ``<A>`` element is used to set values for attributes of a model element. The XML schema allows model elements to
-have zero or more attributes. The XML schema ensures that the ``<A>`` elements are syntactically correct. The semantics
-of these elements is defined by a corresponding ``<AttrDef>`` element (see attributes.xml) in the named class. For example,
+The ``<A>`` element is used to set values for attributes in a ``<Model>``, ``<Analysis>``,
+``<Field>`` or ``<Process>`` element.
+The XML schema allows model elements to have zero or more attributes. The XML schema ensures that the
+``<A>`` elements are syntactically correct. The semantics of these elements is defined by a corresponding
+``<AttrDef>`` element (see attributes.xml) in the named class. For example,
 
 .. code-block:: xml
 
@@ -61,8 +46,8 @@ of these elements is defined by a corresponding ``<AttrDef>`` element (see attri
         <A name="distance">2342</A>
     </Process >
 
-provides values for two attributes, `weight` and `distance`, for the `SurveyVehicle` class. These have a
-corresponding ``<AttrDef>`` definition in attributes.xml that provides the units, description, type, and
+provides values for two attributes, `weight` and `distance`, for the `SurveyShip` class. These have a
+corresponding (**required**) ``<AttrDef>`` definition in attributes.xml that provides the units, description, type, and
 default value:
 
 .. code-block:: xml
@@ -93,7 +78,10 @@ the user.
 
 <Analysis>
 ^^^^^^^^^^^^^
-This element contains one or more ``<Field>`` elements and accepts one required attribute, `name`.
+This element contains one or more ``<Field>`` or ``<Group>`` elements and accepts one
+required attribute, `name`. The ``<Field>`` elements identify fields to include in the
+analysis by field name, whereas ``<Group>`` elements allow matching of group names
+indicated in ``<Field>`` definitions, by direct string match or by regular expression match.
 
 .. list-table:: <Analysis> Attributes
    :widths: 10 10 10 10
@@ -108,9 +96,41 @@ This element contains one or more ``<Field>`` elements and accepts one required 
      - (none)
      - text
 
+<Group>
+^^^^^^^^^
+The ``<Group>`` element provides a system of keyword matching by which ``<Field>``
+elements can declare themselves members of a group, and ``<Analysis>`` elements
+can reference members of the group.
+
+.. list-table:: <Group> Attributes
+   :widths: 10 10 10 10
+   :header-rows: 1
+
+   * - Attribute
+     - Required
+     - Default
+     - Values
+   * - regex
+     - no
+     - "false"
+     - boolean
+
+The ``<Group>`` element allows one attribute, `regex` and contains no
+subelements. It must contain a string that is either a regular expression
+(if `regex` has a "true" value, i.e., "true", "yes", "1") or the name of
+a field group (if `regex` has a "false" value, i.e., "false", "no", "0",
+or is absent.)
+
+The identification of the ``<Field>`` elements to include in the ``<Analysis>``
+matches ``<Group>`` elements declared within ``<Field>`` elements. The match
+uses direct string matching (if `regex` is false) or regular expression matching
+(if `regex` is true).
+
 <Field>
 ^^^^^^^^^^
-This element contains more or more ``<Aggregator>``, ``<Process>``, or ``<Stream>`` elements.
+This element describes an oil or gas field and its processes.
+``<Field>`` can contain more or more ``<A>``, ``<Aggregator>``, ``<Stream>``,
+``<Process>``, or ``<Group>`` elements.
 
 .. list-table:: <Field> Attributes
    :widths: 10 10 10 10
@@ -156,7 +176,12 @@ This element contains one or more ``<Aggregator>``, ``<Process>``, or ``<A>`` el
 
 <Process>
 ^^^^^^^^^^^^^^^
-This element contains one or more ``<A>``, ``<Produces>``, or ``<Consusmes>`` elements.
+The ``<Process>`` element defines the characteristics of a physical process.
+It must include a `class` attribute which identifies the Python class that
+implements the process. The identified class must be a subclass of `Process`.
+
+``<Process>>`` elements may contain one or more ``<A>``, ``<Produces>``, or
+``<Consusmes>`` elements.
 
 .. list-table:: <Process> Attributes
    :widths: 10 10 10 10
@@ -166,9 +191,13 @@ This element contains one or more ``<A>``, ``<Produces>``, or ``<Consusmes>`` el
      - Required
      - Default
      - Values
-   * - name
+   * - class
      - yes
      - (none)
+     - text
+   * - name
+     - no
+     - (class name)
      - text
    * - desc
      - no
@@ -185,9 +214,7 @@ This element contains one or more ``<A>``, ``<Produces>``, or ``<Consusmes>`` el
 
 <Stream>
 ^^^^^^^^^^^^^^^
-This element contains one or more ``<Component>`` elements.
-
-*(Currently has <Temperature> and <Pressure> subelements, but perhaps these should be attributes?*
+This element contains one or more ``<Component>`` or ``<A>`` elements.
 
 .. list-table:: <Stream> Attributes
    :widths: 10 10 10 10
@@ -211,12 +238,14 @@ This element contains one or more ``<Component>`` elements.
      - str
    * - dst
      - yes
-     - (non)
+     - (none)
      - str
 
 <Component>
 ^^^^^^^^^^^^^^^^
-Component encloses an optional numerical value for exogenously-defined component flow rate.
+Component encloses a numerical value defining an exogenous component flow rate,
+expressed in mmbtu/day for all components other than electricity, expressed in kWh/day.
+(See :obj:`opgee.stream.Stream` for a list of component names.)
 
 .. list-table:: <Component> Attributes
    :widths: 10 10 10 10
@@ -232,11 +261,7 @@ Component encloses an optional numerical value for exogenously-defined component
      - text
    * - phase
      - yes
-     - "solid", "liquid" or "gas")
-     - str
-   * - unit
-     - yes
-     - (none)
+     - "solid", "liquid" or "gas"
      - str
 
 <Produces>
@@ -253,7 +278,7 @@ This is used in bypassing Processes.
 attributes.xml
 ----------------
 
-<Attributes>
+<AttrDefs>
 ^^^^^^^^^^^^^
 
 .. saved for reference link format only
@@ -264,15 +289,15 @@ attributes.xml
 .. the config variable ``GCAM.RewriteSetsFile``.
 
 This is the top-level element in the `attributes.xml` file. It accepts
-no attributes and contains only ``<Class>`` elements.
+no attributes and contains only ``<ClassAttrs>`` elements.
 
-<Class>
-^^^^^^^^^
+<ClassAttrs>
+^^^^^^^^^^^^^^^^^
 This element describes attributes associated with an OPGEE class, whose
-name is provide by the `name` attribute. ``<Class>`` elements contain
+name is provide by the `name` attribute. ``<ClassAttrs>`` elements contain
 any number of ``<Options>`` and ``<AttrDef>`` elements.
 
-.. list-table:: <Class> Attributes
+.. list-table:: <ClassAttrs> Attributes
    :widths: 10 10 10 10
    :header-rows: 1
 
@@ -306,7 +331,7 @@ one or more (more usefully, two or more) ``<Option>`` elements.
      - text
    * - default
      - yes
-     - (non)
+     - (none)
      - text
 
 <Option>
@@ -341,8 +366,12 @@ e.g.,
 <AttrDef>
 ^^^^^^^^^^^
 This element defines a single attribute, including its name, description,
-Python type, and unit. This element can also optionally refer to an ``<Options>``
-element describing valid values for this attribute.
+Python type, and unit. This element should provide a default value or
+refer to an ``<Options>`` element describing valid values (and a default)
+for this attribute.
+
+``<AttrDef>`` also can include ``<Requires>`` elements indicating other
+attributes upon whose value the "smart default" for this attribute depends.
 
 .. list-table:: <AttrDef> Attributes
    :widths: 10 10 10 10
@@ -372,12 +401,22 @@ element describing valid values for this attribute.
      - no
      - (none)
      - text
+
+..
    * - delete
      - no
      - "0"
      - boolean
 
-The ``delete`` attribute is used only by user-defined files. If the value
-of the attribute is "1", "yes", or "true" (case insensitive), and a corresponding
-value exists in the built-in XML structure, the built-in element and all elements
-below it in the hierarchy are deleted before the new element is added.
+..
+  The ``delete`` attribute is used only by user-defined files. If the value
+  of the attribute is "1", "yes", or "true" (case insensitive), and a corresponding
+  value exists in the built-in XML structure, the built-in element and all elements
+  below it in the hierarchy are deleted before the new element is added.
+
+<Requires>
+^^^^^^^^^^^^^
+This element takes no attributes and contains only a string, which must be the name
+of another defined attribute. This is used to create the dependency structure for
+setting "smart defaults", ensuring that values that depend on other values are set
+after the precedents are set.
