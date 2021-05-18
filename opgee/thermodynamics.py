@@ -75,7 +75,7 @@ class DryAir(Air):
 
 class Hydrocarbon(OpgeeObject):
     """
-
+    Hydrocarbon class contains Oil and Gas class
     """
     dict_chemical = None
 
