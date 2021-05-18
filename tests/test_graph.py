@@ -1,7 +1,8 @@
 import pytest
 from opgee.error import CommandlineError
+from opgee.windows import IsWindows
 
-DEVNULL = '/dev/null'
+DEVNULL = 'nul' if IsWindows else '/dev/null'
 
 @pytest.mark.parametrize(
     "args", [
