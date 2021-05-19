@@ -240,6 +240,17 @@ This element contains one or more ``<Component>`` or ``<A>`` elements.
      - yes
      - (none)
      - str
+   * - impute
+     - no
+     - 1
+     - bool
+
+The `src` and `dst` attributes must be set to the names of Process subclasses that are the
+source and destination, respectively, for the `Stream`. If no `name` is provided, the name
+becomes "{src} => {dst}", with the names of the source and destination processes substituted
+for `{src}` and `{dst}`. The `impute` attribute defaults to "1" (true); if set to "0" (or
+"false" or "no") the `Stream` will not be traversed during the `impute()` processing phase,
+which works backwards (upstream) from the `Streams` with exogenously-defined flow rates.
 
 <Component>
 ^^^^^^^^^^^^^^^^

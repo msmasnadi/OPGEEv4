@@ -20,35 +20,36 @@
 		<A name="res_temp">70.84</A>
 		<A name="GOR">1205.4</A>
 
-		<Process class="Proc1" desc="Test process 1">
+		<Process class="Impute1" desc="Test process 1">
 			<Produces>crude oil</Produces>
 		</Process>
 
-		<Process class="Proc2" desc="Test process 2">
+		<Process class="Impute2" desc="Test process 2">
 			<Consumes>crude oil</Consumes>
 			<Consumes>hydrogen</Consumes>
 			<Produces>natural gas</Produces>
 		</Process>
 
-		<Process class="Proc3" desc="Test process 3">
+		<Process class="Impute3" desc="Test process 3">
 			<Consumes>natural gas</Consumes>
 			<Produces>hydrogen</Produces>
 			<Produces>CO2</Produces>
 		</Process>
 
-		<Process class="Proc4" desc="Test process 4">
+		<Process class="Impute4" desc="Test process 4">
 			<Consumes>CO2</Consumes>
 		</Process>
 
-		<Stream src="Proc1" dst="Proc2">
+		<Stream src="Impute1" dst="Impute2"/>
+
+		<Stream src="Impute2" dst="Impute3">
 			<A name="temperature">90.0</A>
 			<A name="pressure">150.0</A>
 			<Component name="oil" phase="liquid">100</Component>
 		</Stream>
 
 		<!-- Creates a process loop -->
-		<Stream src="Proc2" dst="Proc3"/>
-		<Stream src="Proc3" dst="Proc2"/>
-		<Stream src="Proc3" dst="Proc4"/>
+		<Stream src="Impute3" dst="Impute2" impute="no"/>
+		<Stream src="Impute3" dst="Impute4"/>
 	</Field>
 </Model>

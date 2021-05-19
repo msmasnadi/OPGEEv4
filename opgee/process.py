@@ -16,6 +16,11 @@ from .utils import getBooleanXML
 
 _logger = getLogger(__name__)
 
+def get_subclasses(cls):
+    for subclass in cls.__subclasses__():
+        yield from get_subclasses(subclass)
+        yield subclass
+
 def _subclass_dict(superclass):
     """
     Return a dictionary of all defined subclasses of `superclass`, keyed by name.
@@ -23,7 +28,7 @@ def _subclass_dict(superclass):
 
     :return: (dict) subclasses keyed by name
     """
-    d = {cls.__name__ : cls for cls in superclass.__subclasses__()}
+    d = {cls.__name__ : cls for cls in get_subclasses(superclass)}
     return d
 
 #
@@ -69,7 +74,7 @@ class Process(XmlInstantiable, AttributeMixin):
     Each Process subclass must implement the ``run`` and ``bypass`` methods, described below.
 
     If a model contains process loops (cycles), one or more of the processes can call the method
-    ``set_iteration_value()`` to store the value of a designed variable that is checked on each call to see if the
+    ``set_iteration_value()`` to store the value of a designated variable that is checked on each call to see if the
     change from the prior iteration is <= the value of Model attribute "maximum_change". If so,
     an ``OpgeeStopIteration`` exception is raised to terminate the run. In addition, a "visit" counter in each
     `Process` is incremented each time the process is run (or bypassed) and if the count >= the Model's

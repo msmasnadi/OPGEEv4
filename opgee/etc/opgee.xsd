@@ -120,6 +120,7 @@
       <xs:attribute name='number' type='xs:integer'/>  <!-- allow this for now, but probably will be deprecated -->
       <xs:attribute name='src' use='required'/>
       <xs:attribute name='dst' use='required'/>
+      <xs:attribute name="impute" default="1"/>        <!-- if false, don't traverse during impute() processing -->
     </xs:complexType>
   </xs:element>
 

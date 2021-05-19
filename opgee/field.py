@@ -54,6 +54,35 @@ class Field(Container):
     def __str__(self):
         return f"<Field '{self.name}'>"
 
+    def _impute(self):
+        max_iter = self.model.maximum_iterations
+
+        # recursive helper function
+        def _impute_upstream(proc):
+            # recurse upstream, calling impute()
+            if proc:
+                if proc.visit() >= max_iter:
+                    raise OpgeeStopIteration(f"Maximum iterations ({max_iter}) reached in {self}")
+
+                proc.impute()
+                for stream in proc.inputs:
+                    if stream.impute:
+                        _impute_upstream(stream.src_proc)
+
+        start_streams = self.find_start_streams()
+        for stream in start_streams:
+            if not stream.impute:
+                raise OpgeeException(f"A start stream {stream} cannot have its 'impute' flag set to '0'.")
+
+            _logger.info(f"Running impute() methods for procs upstream of start stream {stream}")
+
+            src_proc = stream.src_proc
+            if src_proc:
+                try:
+                    _impute_upstream(src_proc)
+                except OpgeeStopIteration as e:
+                    raise OpgeeException("Impute failed due to a process loop. Use Stream attribute impute='0' to break cycle.")
+
     def run(self, analysis):
         """
         Run all Processes defined for this Field, in the order computed from the graph
@@ -62,30 +91,13 @@ class Field(Container):
         :param analysis: (Analysis) the `Analysis` to use for analysis-specific settings.
         :return: None
         """
-
-        # TBD: this doesn't work when the upstream processes include a cycle
-        def _impute_upstream(proc):
-            # recurse upstream, calling impute()
-            if proc:
-                proc.impute()
-                for s in proc.inputs:
-                    _impute_upstream(s.src_proc)
-
         if self.is_enabled():
-            self.iteration_reset()
-
             _logger.debug(f"Running '{self}'")
 
-            start_streams = self.find_start_streams()
-            for stream in start_streams:
-                _logger.info(f"Running impute() methods for procs upstream of start stream {stream}")
+            self.iteration_reset()
+            self._impute()
 
-                src_proc = stream.src_proc
-                if src_proc:
-                    if self._is_cycle_member(src_proc):
-                        raise OpgeeException(f"Can't run impute(): process {src_proc} is part of a process cycle")
-                    _impute_upstream(src_proc)
-
+            self.iteration_reset()
             self.run_processes(analysis)
 
     def _is_cycle_member(self, process):

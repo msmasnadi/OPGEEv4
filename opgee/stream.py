@@ -6,12 +6,14 @@
 '''
 import pandas as pd
 import re
+
+import pint
 from . import ureg
 from .attributes import AttributeMixin
 from .core import XmlInstantiable, elt_name
 from .error import OpgeeException
 from .log import getLogger
-from .utils import coercible
+from .utils import getBooleanXML, coercible
 
 _logger = getLogger(__name__)
 
@@ -126,19 +128,21 @@ class Stream(XmlInstantiable, AttributeMixin):
         """
         return pd.DataFrame(data=0.0, index=cls.components, columns=cls._phases)
 
-    def __init__(self, name, number=0, temperature=None, pressure=None, src_name=None, dst_name=None, comp_matrix=None):
+    def __init__(self, name, number=0, temperature=None, pressure=None,
+                 src_name=None, dst_name=None, comp_matrix=None, impute=True):
         super().__init__(name)
 
         self.components = self.create_component_matrix() if comp_matrix is None else comp_matrix
         self.number = number
-        self.temperature = ureg.Quantity(temperature, "degF")
-        self.pressure = ureg.Quantity(pressure, "psi")
+        self.temperature = temperature if isinstance(temperature, pint.Quantity) else ureg.Quantity(temperature, "degF")
+        self.pressure = pressure if isinstance(pressure, pint.Quantity) else ureg.Quantity(pressure, "psi")
         self.src_name = src_name
         self.dst_name = dst_name
 
         self.src_proc = None        # set in Field.connect_processes()
         self.dst_proc = None
 
+        self.impute = impute
         self.has_exogenous_data = False
 
     def __str__(self):
@@ -276,6 +280,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         src  = a['src']
         dst  = a['dst']
         name = a.get('name') or f"{src} => {dst}"
+        impute = getBooleanXML(a.get('impute', "1"))
 
         # The following are optional
         number_str = a.get('number')
@@ -290,7 +295,8 @@ class Stream(XmlInstantiable, AttributeMixin):
         temp = attr_dict['temperature'].value
         pres = attr_dict['pressure'].value
 
-        obj = Stream(name, number=number, temperature=temp, pressure=pres, src_name=src, dst_name=dst)
+        obj = Stream(name, number=number, temperature=temp, pressure=pres,
+                     src_name=src, dst_name=dst, impute=impute)
         comp_df = obj.components # this is an empty DataFrame; it is filled in below or at runtime
 
         # Set up the stream component info
