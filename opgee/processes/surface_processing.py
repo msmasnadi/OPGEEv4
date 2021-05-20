@@ -5,11 +5,6 @@ from ..stream import PHASE_LIQUID
 _logger = getLogger(__name__)
 
 
-class Separation(Process):
-    def run(self, analysis):
-        self.print_running_msg()
-
-
 class MakeupWaterTreatment(Process):
     def run(self, analysis):
         self.print_running_msg()

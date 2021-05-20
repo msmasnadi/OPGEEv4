@@ -216,6 +216,10 @@
 <!--  <ClassAttrs name="ReservoirWellInterface">-->
 <!--    <AttrDef name=""-->
 <!--  </ClassAttrs>-->
+  <ClassAttrs name="DownholePump">
+    <AttrDef name="wellhead_pressure" type="float" unit="psia" >500</AttrDef>
+    <AttrDef name="wellhead_temperature" type="float" unit="degF" >150</AttrDef>
+  </ClassAttrs>
   <ClassAttrs name="FluidProduction">
     <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
   </ClassAttrs>

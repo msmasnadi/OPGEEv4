@@ -141,17 +141,17 @@ def test_specific_gravity(gas_instance, stream):
 
 def test_ratio_of_specific_heat(gas_instance, stream):
     ratio_of_specific_heat = gas_instance.ratio_of_specific_heat(stream)
-    assert round(ratio_of_specific_heat, num_digits) == pytest.approx(1.286)
+    assert ratio_of_specific_heat == pytest.approx(1.2855407)
 
 
 def test_uncorrelated_pseudocritical_temperature(gas_instance, stream):
     pseudocritical_temp = gas_instance.uncorrelated_pseudocritical_temperature_and_pressure(stream)["temperature"]
-    assert int(pseudocritical_temp.m) == 361
+    assert pseudocritical_temp.m == pytest.approx(361.19242)
 
 
 def test_uncorrelated_pseudocritical_pressure(gas_instance, stream):
     pseudocritical_press = gas_instance.uncorrelated_pseudocritical_temperature_and_pressure(stream)["pressure"]
-    assert round(pseudocritical_press.m, ndigits=0) == pytest.approx(670)
+    assert pseudocritical_press.m == pytest.approx(669.3558)
 
 
 def test_correlated_pseudocritical_temperature(gas_instance, stream):

@@ -243,6 +243,24 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.temperature = t
         self.pressure = p
 
+    def copy_flow_rates_from(self, stream):
+        """
+        copy all mass flow rates from `stream` to `self`
+
+        :param stream: (Stream) to copy
+        :return: none
+        """
+        self.components[:] = stream.components[:]
+
+    def add_flow_rates_from(self, stream):
+        """
+
+        :param stream:
+        :return:
+        """
+        self.components += stream.components
+
+
     @classmethod
     def combine(cls, streams):
         """

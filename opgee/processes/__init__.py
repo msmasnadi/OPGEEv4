@@ -5,5 +5,7 @@ from .other import *
 from .production_extraction import *
 from .produced_water_treatment import ProducedWaterTreatment
 from .surface_processing import *
+from .separation import Separation
 from .transport_storage import *
 from .reservoir_well_interface import *
+

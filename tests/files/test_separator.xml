@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
+
+	<Analysis name="test_separator">
+		<A name="functional_unit">oil</A>
+		<A name="energy_basis">LHV</A>
+	  <A name="GWP_years">100</A>
+	  <A name="GWP_version">AR5</A>
+		<Field name="test"/>
+	</Analysis>
+
+	<Field name="test">
+		<A name="country">USA</A>
+
+		<Process class="Separation" desc="Test process 1">
+			<Produces>crude oil</Produces>
+		</Process>
+
+		<Process class="Before" desc="Test process 2">
+			<Consumes>crude oil</Consumes>
+			<Consumes>hydrogen</Consumes>
+			<Produces>natural gas</Produces>
+		</Process>
+
+		<Process class="After" desc="Test process 2">
+			<Consumes>crude oil</Consumes>
+			<Consumes>hydrogen</Consumes>
+			<Produces>natural gas</Produces>
+		</Process>
+
+		<Process class="DownholePump"/>
+
+		<Stream src="Separation" dst="After" name="oil after separator">
+			<A name="temperature">90.0</A>
+			<A name="pressure">100.0</A>
+			<Component name="oil" phase="liquid">273.6926</Component>
+			<Component name="H2O" phase="liquid">38.3170</Component>
+		</Stream>
+
+		<Stream src="Separation" dst="After" name="water after separator">
+			<A name="temperature">90.0</A>
+			<A name="pressure">100.0</A>
+			<Component name="H2O" phase="liquid">1963.015</Component>
+		</Stream>
+
+		<Stream src="Separation" dst="After" name="gas after separator">
+			<A name="temperature">90.0</A>
+			<A name="pressure">500.0</A>
+			<Component name="N2" phase="gas">4.8803</Component>
+			<Component name="CO2" phase="gas">0.8848</Component>
+			<Component name="C1" phase="gas">87.1392</Component>
+			<Component name="C2" phase="gas">9.7080</Component>
+			<Component name="C3" phase="gas">4.3515</Component>
+			<Component name="C4" phase="gas">2.5138</Component>
+			<Component name="H2S" phase="gas">0.0208</Component>
+		</Stream>
+
+		<Stream src="Separation" dst="Environment" name="gas fugitives from separator">
+			<A name="temperature">60.0</A>
+			<A name="pressure">14.7</A>
+			<Component name="N2" phase="gas">0.001275</Component>
+			<Component name="CO2" phase="gas">0.000231</Component>
+			<Component name="C1" phase="gas">0.022765</Component>
+			<Component name="C2" phase="gas">0.002536</Component>
+			<Component name="C3" phase="gas">0.001137</Component>
+			<Component name="C4" phase="gas">0.000657</Component>
+			<Component name="H2S" phase="gas">0.000005</Component>
+		</Stream>
+
+		<Stream src="Before" dst="Separation" name="oil before separator"/>
+		<Stream src="Before" dst="Separation" name="water before separator"/>
+		<Stream src="Before" dst="Separation" name="gas before separator"/>
+
+
+	</Field>
+</Model>

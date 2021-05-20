@@ -33,6 +33,8 @@ class Field(Container):
 
         self.environment = Environment()    # one per field
         self.reservoir   = Reservoir(name)  # one per field
+        self.process_dict["Environment"] = self.environment
+        self.process_dict["Reservoir"] = self.reservoir
 
         self.extend = False
 
