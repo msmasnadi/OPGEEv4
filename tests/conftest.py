@@ -5,7 +5,7 @@ from opgee.model import ModelFile
 from opgee.process import Process
 from opgee.pkg_utils import resourceStream
 from opgee.tool import Opgee
-from .utils_for_tests import path_to_test_file
+from .utils_for_tests import load_test_model
 
 class ProcA(Process):
     def run(self, analysis):
@@ -31,9 +31,7 @@ def opgee_model(configure_logging_for_tests):
 
 @pytest.fixture(scope="module")
 def test_model(configure_logging_for_tests):
-    xml_path = path_to_test_file('test_model.xml')
-    mf = ModelFile(xml_path, add_stream_components=False, use_class_path=False)
-    return mf.model
+    return load_test_model('test_model.xml')
 
 @pytest.fixture(scope='module')
 def opgee():

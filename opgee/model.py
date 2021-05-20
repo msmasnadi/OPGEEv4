@@ -12,6 +12,7 @@ from .config import getParam
 from .error import OpgeeException
 from .field import Field
 from .log import getLogger
+from .process import reload_subclass_dict
 from .stream import Stream
 from .table_manager import TableManager
 from .utils import loadModuleFromPath, splitAndStrip
@@ -102,20 +103,21 @@ class Model(Container):
 
     def validate(self):
         # TBD: validate all attributes of classes Field, Process, etc.
+        pass
 
-        show_streams = False
-
-        if show_streams:
-            for field in self.fields():
-                print(f"Processes for field {field.name}")
-                for proc in field.processes():
-                    print(f"  {proc}")
-
-                print(f"\nStreams for field {field.name}")
-                for stream in field.streams():
-                    print(f"  {stream}")
-
-            print("")
+        # show_streams = False
+        #
+        # if show_streams:
+        #     for field in self.fields():
+        #         print(f"Processes for field {field.name}")
+        #         for proc in field.processes():
+        #             print(f"  {proc}")
+        #
+        #         print(f"\nStreams for field {field.name}")
+        #         for stream in field.streams():
+        #             print(f"  {stream}")
+        #
+        #     print("")
 
     @classmethod
     def from_xml(cls, elt):
@@ -184,6 +186,8 @@ class ModelFile(XMLFile):
                         loadModuleFromPath(module_path)
                 else:
                     loadModuleFromPath(path)
+
+            reload_subclass_dict()
 
         self.root = self.tree.getroot()
         self.model = Model.from_xml(self.root)

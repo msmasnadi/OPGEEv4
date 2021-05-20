@@ -36,6 +36,14 @@ def _subclass_dict(superclass):
 #
 _Subclass_dict = None
 
+def reload_subclass_dict():
+    global _Subclass_dict
+
+    _Subclass_dict = {
+        Aggregator : _subclass_dict(Aggregator),
+        Process    : _subclass_dict(Process)
+    }
+
 def _get_subclass(cls, subclass_name, reload=False):
     """
     Return the class for `subclass_name`, which must be a known subclass of `cls`.
@@ -49,10 +57,7 @@ def _get_subclass(cls, subclass_name, reload=False):
     global _Subclass_dict
 
     if reload or _Subclass_dict is None:
-        _Subclass_dict = {
-            Aggregator : _subclass_dict(Aggregator),
-            Process    : _subclass_dict(Process)
-        }
+        reload_subclass_dict()
 
     subclasses = _Subclass_dict.keys()
     if cls not in subclasses:

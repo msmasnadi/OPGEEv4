@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
+
+	<Analysis name="Analysis1">
+		<A name="functional_unit">oil</A>
+		<A name="energy_basis">LHV</A>
+	  <A name="GWP_years">100</A>
+	  <A name="GWP_version">AR5</A>
+		<Field name="Field1"/>
+	</Analysis>
+
+	<Field name="Field1">
+		<A name="country">USA</A>
+		<A name="offshore">0</A>
+		<A name="age">86</A>
+		<A name="depth">4936</A>
+		<A name="oil_prod">101295</A>
+		<A name="num_prod_wells">41539</A>
+		<A name="num_water_inj_wells">34426</A>
+		<A name="well_diam">3.01</A>
+		<A name="prod_index">37.53</A>
+		<A name="res_press">1556.6</A>
+		<A name="res_temp">200.0</A>
+		<A name="GOR">2429.30</A>
+		<A name="gas_comp_N2">0.4</A>
+		<A name="gas_comp_CO2">0.0</A>
+		<A name="gas_comp_C1">96.6</A>
+		<A name="gas_comp_C2">2.0</A>
+		<A name="gas_comp_C3">1.0</A>
+		<A name="gas_comp_C4">0.0</A>
+		<A name="gas_comp_H2S">0.0</A>
+		<A name="API">32.8</A>
+
+		<Process class="UserProcess1" desc="Test process 1">
+			<Produces>crude oil</Produces>
+		</Process>
+
+		<Process class="UserProcess2" desc="Test process 2">
+			<Consumes>crude oil</Consumes>
+			<Consumes>hydrogen</Consumes>
+			<Produces>natural gas</Produces>
+		</Process>
+
+		<Stream src="UserProcess1" dst="UserProcess2">
+			<A name="temperature">90.0</A>
+			<A name="pressure">150.0</A>
+			<Component name="oil" phase="liquid">100</Component>
+		</Stream>
+
+	</Field>
+</Model>
