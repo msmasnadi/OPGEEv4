@@ -136,7 +136,7 @@ class Process(XmlInstantiable, AttributeMixin):
     def add_emission_rates(self, **kwargs):
         """
         Add emissions to those already stored, for of one or more gases, given as
-        keyword arguments, e.g., add_rates(CO2=100, CH4=30, N2O=6).
+        keyword arguments, e.g., add_emission_rates(CO2=100, CH4=30, N2O=6).
 
         :param kwargs: (dict) the keyword arguments
         :return: none
@@ -151,7 +151,6 @@ class Process(XmlInstantiable, AttributeMixin):
         :return: ((pandas.Series, float)) a tuple containing the emissions Series
             and the GHG value computed using the model's current GWP settings.
         """
-        model = self.model
         return self.emissions.rates(gwp=analysis.gwp)
 
     def add_energy_rate(self, carrier, rate):

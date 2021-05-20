@@ -42,19 +42,20 @@ def resourceStream(relpath, stream_type='text', decode=DFLT_ENCODING):
     text = getResource(relpath, decode=decode)
     return io.BytesIO(text) if stream_type == 'bytes' else io.StringIO(text)
 
-def copyResource(relpath, dest, overwrite=True):
-    """
-    Copy a resource from the 'opgee' package to the given destination.
-
-    :param relpath: (str) a path relative to the opgee package
-    :param dest: (str) the pathname of the file to create by copying the resource.
-    :param overwrite: (bool) if False, raise an error if the destination
-      file already exists.
-    :return: none
-    """
-    if not overwrite and os.path.lexists(dest):
-        raise OpgeeException(dest)
-
-    text = getResource(relpath)
-    with open(dest, 'w') as f:
-        f.write(text)
+# Deprecated: probably not needed
+# def copyResource(relpath, dest, overwrite=True):
+#     """
+#     Copy a resource from the 'opgee' package to the given destination.
+#
+#     :param relpath: (str) a path relative to the opgee package
+#     :param dest: (str) the pathname of the file to create by copying the resource.
+#     :param overwrite: (bool) if False, raise an error if the destination
+#       file already exists.
+#     :return: none
+#     """
+#     if not overwrite and os.path.lexists(dest):
+#         raise OpgeeException(dest)
+#
+#     text = getResource(relpath)
+#     with open(dest, 'w') as f:
+#         f.write(text)
