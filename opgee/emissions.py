@@ -8,6 +8,7 @@
 import pandas as pd
 from .core import OpgeeObject
 from .error import OpgeeException
+from .stream import Stream, PHASE_GAS
 from .log import getLogger
 
 _logger = getLogger(__name__)
@@ -112,3 +113,20 @@ class Emissions(OpgeeObject):
         """
         for gas, rate in kwargs.items():
             self.add_rate(gas, rate)
+
+    def add_from_stream(self, stream):
+        """
+        Add emission flow rates from a Stream instance.
+
+        :param stream: (Stream)
+        :return: none
+        """
+        self.add_rate('CO2', stream.gas_flow_rate('CO2'))
+        self.add_rate('CH4', stream.gas_flow_rate('C1'))
+
+        # TBD: where to get CO and N2O?
+
+        # Any gas-phase hydrocarbon heavier than methane is considered a VOC
+        VOCs = [f'C{n}' for n in range(2, Stream.max_carbon_number + 1)] # skip C1 == CH4
+        voc_rate = stream.components.loc[VOCs, PHASE_GAS].sum()
+        self.add_rate('VOC', voc_rate)

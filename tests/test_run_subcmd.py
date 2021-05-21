@@ -6,7 +6,8 @@ def test_run_builtin(opgee):
     try:
         opgee.run(None, ['run', '-a', 'test'])
         good = True
-    except:
+    except Exception as e:
+        print(e)
         good = False
 
     assert good

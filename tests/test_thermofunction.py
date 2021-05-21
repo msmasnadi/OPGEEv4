@@ -151,7 +151,7 @@ def test_uncorrelated_pseudocritical_temperature(gas_instance, stream):
 
 def test_uncorrelated_pseudocritical_pressure(gas_instance, stream):
     pseudocritical_press = gas_instance.uncorrelated_pseudocritical_temperature_and_pressure(stream)["pressure"]
-    assert pseudocritical_press.m == pytest.approx(669.3558)
+    assert pseudocritical_press.m == pytest.approx(669.94638)
 
 
 def test_correlated_pseudocritical_temperature(gas_instance, stream):

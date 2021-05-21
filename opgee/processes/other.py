@@ -3,6 +3,11 @@ from ..log import getLogger
 
 _logger = getLogger(__name__)
 
+# A renamed version while testing Separation process
+class SeparationTemporary(Process):
+    def run(self, analysis):
+        self.print_running_msg()
+
 
 class FluidProduction(Process):
     def run(self, analysis):

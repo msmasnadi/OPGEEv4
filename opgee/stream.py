@@ -76,7 +76,7 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     # HCs with 1-60 carbon atoms, i.e., C1, C2, ..., C60
     max_carbon_number = 50
-    _hydrocarbons = [f'C{n + 1}' for n in range(max_carbon_number)]
+    _hydrocarbons = [f'C{n}' for n in range(1, max_carbon_number + 1)]
     _solids = ['PC']  # petcoke
     _liquids = ['oil']
     # _hc_molecules = ['CH4', 'C2H6', 'C3H8', 'C4H10']

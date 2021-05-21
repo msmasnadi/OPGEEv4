@@ -80,7 +80,7 @@
 				<Produces>untreated water</Produces>
 			</Process>
 
-			<Process class="Separation">
+			<Process class="SeparationTemporary">
 				<Consumes>crude oil</Consumes>
 				<Produces>untreated water</Produces>
 			</Process>
@@ -107,14 +107,14 @@
 		</Aggregator>
 		<Stream number="1" name="oil in reservoir" src="Reservoir" dst="ReservoirWellInterface"/>
 		<Stream number="3" name="crude oil at wellbottom" src="ReservoirWellInterface" dst="DownholePump"/>
-		<Stream number="4" name="crude oil at wellhead" src="DownholePump" dst="Separation"/>
-		<Stream number="7" name="crude oil after separator" src="Separation" dst="CrudeOilDewatering">
+		<Stream number="4" name="crude oil at wellhead" src="DownholePump" dst="SeparationTemporary"/>
+		<Stream number="7" name="crude oil after separator" src="SeparationTemporary" dst="CrudeOilDewatering">
 			<A name="temperature">90.0</A>
 			<A name="pressure">100.0</A>
 			<Component name="oil" phase="liquid" >14555.9</Component>
 			<Component name="H2O" phase="liquid" >2037.8</Component>
 		</Stream>
-		<Stream number="160" name="Fuel gas - dewatering" src="Separation" dst="CrudeOilDewatering">
+		<Stream number="160" name="Fuel gas - dewatering" src="SeparationTemporary" dst="CrudeOilDewatering">
 			<A name="temperature">90.0</A>
 			<A name="pressure">150.0</A>
 			<Component name="N2" phase="gas" >0.8</Component>
@@ -128,6 +128,7 @@
 		<Stream number="115" src="CrudeOilDewatering" dst="ProducedWaterTreatment"/>
 		<Stream number="8" src="CrudeOilDewatering" dst="CrudeOilStabilization"/>
 	</Field>
+
 	<Field name="US_FW">
 		<A name="country">USA</A>
 		<A name="offshore">0</A>
@@ -203,7 +204,7 @@
 			<Process class="Flaring" desc="Flaring"/>
 		</Aggregator>
 		<Aggregator name="Surface_processing">
-			<Process class="Separation" desc="Separation"/>
+			<Process class="SeparationTemporary" desc="Separation"/>
 			<Process class="ProducedWaterTreatment" desc="Produced Water Treatment"/>
 			<Process class="MakeupWaterTreatment" desc="Makeup Water Treatment"/>
 			<Process class="SteamGeneration" desc="Steam Generation"/>

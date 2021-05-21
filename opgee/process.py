@@ -442,20 +442,23 @@ class Environment(Process):
     def __init__(self):
         super().__init__('Environment', desc='The Environment')
 
-        self.emissions = Stream.create_component_matrix()     # stores cumulative emissions
+    # TBD: decide whether emissions are in streams or in separate calls inside Processes
 
     def run(self, analysis):
         self.print_running_msg()
 
-        for stream in self.inputs:
-            comp_data = stream.get_data()
-            if comp_data is not None:
-                self.emissions += comp_data
+        emissions = self.emissions
 
-        # TBD: use the analysis object to compute GWP
+        emissions.data[:] = 0
+
+        for stream in self.inputs:
+            emissions.add_from_stream(stream)
+
+        emissions.GHG(analysis.gwp) # compute and cache GWP in emissions instance
 
     def report(self, analysis):
         print(f"{self}: cumulative emissions to Environment:\n{self.emissions}")
+
 
 class Aggregator(Container):
     def __init__(self, name, attr_dict=None, aggs=None, procs=None):

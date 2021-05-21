@@ -28,13 +28,11 @@ class Field(Container):
         self.group_names = group_names
         self.stream_dict = dict_from_list(streams)
 
-        all_procs = self.collect_processes()
-        self.process_dict = dict_from_list(all_procs)
-
         self.environment = Environment()    # one per field
         self.reservoir   = Reservoir(name)  # one per field
-        self.process_dict["Environment"] = self.environment
-        self.process_dict["Reservoir"] = self.reservoir
+
+        all_procs = self.collect_processes() # includes reservoir and environment
+        self.process_dict = self.adopt(all_procs, asDict=True)
 
         self.extend = False
 
@@ -67,23 +65,29 @@ class Field(Container):
                     raise OpgeeStopIteration(f"Maximum iterations ({max_iter}) reached in {self}")
 
                 proc.impute()
-                for stream in proc.inputs:
-                    if stream.impute:
-                        _impute_upstream(stream.src_proc)
+
+                upstream_procs = {stream.src_proc for stream in proc.inputs if stream.impute}
+                for upstream_proc in upstream_procs:
+                    _impute_upstream(upstream_proc)
 
         start_streams = self.find_start_streams()
+
         for stream in start_streams:
             if not stream.impute:
                 raise OpgeeException(f"A start stream {stream} cannot have its 'impute' flag set to '0'.")
 
-            _logger.info(f"Running impute() methods for procs upstream of start stream {stream}")
+        # require that all start streams emerge from one Process
+        start_procs = {stream.src_proc for stream in start_streams}
+        if len(start_procs) != 1:
+            raise OpgeeException(f"Expected one start process upstream from start streams, got {len(start_procs)}: {start_procs}")
 
-            src_proc = stream.src_proc
-            if src_proc:
-                try:
-                    _impute_upstream(src_proc)
-                except OpgeeStopIteration as e:
-                    raise OpgeeException("Impute failed due to a process loop. Use Stream attribute impute='0' to break cycle.")
+        start_proc = start_procs.pop()
+        _logger.info(f"Running impute() methods for {start_proc}")
+
+        try:
+            _impute_upstream(start_proc)
+        except OpgeeStopIteration as e:
+            raise OpgeeException("Impute failed due to a process loop. Use Stream attribute impute='0' to break cycle.")
 
     def run(self, analysis):
         """
@@ -301,7 +305,8 @@ class Field(Container):
     def collect_processes(self):
         """
         Recursively descend the Field's Aggregators to create a list of all
-        processes defined for this field.
+        processes defined for this field. Includes Field's environment and reservoir
+        automatically.
 
         :return: (list of instances of Process subclasses) the processes
            defined for this field
@@ -313,6 +318,6 @@ class Field(Container):
                 else:
                     _collect(process_list, child)
 
-        processes = []
+        processes = [self.environment, self.reservoir]
         _collect(processes, self)
         return processes
