@@ -94,6 +94,31 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     _units = ureg.Unit('tonne/day')
 
+    def __init__(self, name, number=0, temperature=None, pressure=None,
+                 src_name=None, dst_name=None, comp_matrix=None, impute=True):
+        super().__init__(name)
+
+        self.components = self.create_component_matrix() if comp_matrix is None else comp_matrix
+        self.number = number
+        self.temperature = temperature if isinstance(temperature, pint.Quantity) else ureg.Quantity(temperature, "degF")
+        self.pressure = pressure if isinstance(pressure, pint.Quantity) else ureg.Quantity(pressure, "psi")
+        self.src_name = src_name
+        self.dst_name = dst_name
+
+        self.src_proc = None        # set in Field.connect_processes()
+        self.dst_proc = None
+
+        self.impute = impute
+        self.has_exogenous_data = False
+
+    def __str__(self):
+        number_str = f" #{self.number}" if self.number else ''
+        return f"<Stream '{self.name}'{number_str}>"
+
+    @classmethod
+    def units(cls):
+        return cls._units
+
     @classmethod
     def extend_components(cls, names):
         """
@@ -130,27 +155,6 @@ class Stream(XmlInstantiable, AttributeMixin):
         :return: (pandas.DataFrame) Zero-filled stream DataFrame
         """
         return pd.DataFrame(data=0.0, index=cls.components, columns=cls._phases, dtype='pint[tonne/day]')
-
-    def __init__(self, name, number=0, temperature=None, pressure=None,
-                 src_name=None, dst_name=None, comp_matrix=None, impute=True):
-        super().__init__(name)
-
-        self.components = self.create_component_matrix() if comp_matrix is None else comp_matrix
-        self.number = number
-        self.temperature = temperature if isinstance(temperature, pint.Quantity) else ureg.Quantity(temperature, "degF")
-        self.pressure = pressure if isinstance(pressure, pint.Quantity) else ureg.Quantity(pressure, "psi")
-        self.src_name = src_name
-        self.dst_name = dst_name
-
-        self.src_proc = None        # set in Field.connect_processes()
-        self.dst_proc = None
-
-        self.impute = impute
-        self.has_exogenous_data = False
-
-    def __str__(self):
-        number_str = f" #{self.number}" if self.number else ''
-        return f"<Stream '{self.name}'{number_str}>"
 
     def component_phases(self, name):
         """
@@ -213,7 +217,9 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param rate: (float) the flow rate for the given stream component
         :return: None
         """
-        self.components.loc[name, phase] = magnitude(rate, units=self._units)
+        # TBD: it's currently not possible to assign a Quantity to a DataFrame even if
+        # TBD: the units match. It's magnitude must be extracted. We check the units first...
+        self.components.loc[name, phase] = magnitude(rate, units=self.units())
 
     #
     # Convenience functions
@@ -337,9 +343,7 @@ class Stream(XmlInstantiable, AttributeMixin):
             if comp_name not in comp_df.index:
                 raise OpgeeException(f"Unrecognized stream component name '{comp_name}'.")
 
-            # TBD: integrate units via pint and pint_pandas once next release appears
             # TBD: if stream is to include electricity, it will be in MWh/day
-            unit  = ureg.Unit("tonne/day")
             comp_df.loc[comp_name, phase] = rate
 
         return obj

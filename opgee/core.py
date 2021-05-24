@@ -13,8 +13,6 @@ from .utils import coercible, getBooleanXML
 
 _logger = getLogger(__name__)
 
-# Note: moved pint registry setup to __init__.py
-
 def magnitude(value, units=None):
     """
     Return the magnitude of `value`. If `value` is a pint.Quantity and
@@ -35,23 +33,24 @@ def magnitude(value, units=None):
     else:
         return value
 
-def ensure_units(value, units):
-    """
-    If `value` is a pint.Quantity, check that `value` has the given `units` and return
-    the value or raise and error if not of the expected units. If `value` is not a
-    Quantity, convert it to one using `units`.
-
-    :param value: (float or pint.Quantity) the value to check and/or convert to Quantity
-    :param units: (pint.Unit) the expected units, also used to convert to Quantity
-    :return: (pint.Quantity) with `value` and `units`
-    """
-    if isinstance(value, ureg.Quantity):
-        if value.units != units:
-            raise OpgeeException(f"ensure_units: value {value} units are not {units}")
-        else:
-            return value
-    else:
-        return ureg.Quantity(value, units)
+# Deprecated
+# def ensure_units(value, units):
+#     """
+#     If `value` is a pint.Quantity, check that `value` has the given `units` and return
+#     the value or raise and error if not of the expected units. If `value` is not a
+#     Quantity, convert it to one using `units`.
+#
+#     :param value: (float or pint.Quantity) the value to check and/or convert to Quantity
+#     :param units: (pint.Unit) the expected units, also used to convert to Quantity
+#     :return: (pint.Quantity) with `value` and `units`
+#     """
+#     if isinstance(value, ureg.Quantity):
+#         if value.units != units:
+#             raise OpgeeException(f"ensure_units: value {value} units are not {units}")
+#         else:
+#             return value
+#     else:
+#         return ureg.Quantity(value, units)
 
 
 

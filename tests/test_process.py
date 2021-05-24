@@ -1,5 +1,5 @@
 import pytest
-from opgee.core import magnitude
+from opgee import ureg
 from opgee.error import OpgeeException
 from opgee.process import Process, _get_subclass
 
@@ -21,11 +21,14 @@ def test_set_emission_rates(test_model):
     field = analysis.get_field('test')
     procA = field.find_process('ProcA')
 
-    procA.add_emission_rates(CO2=100, CH4=30, N2O=6)
+    rate_co2 = ureg.Quantity(100, 'tonne/day')
+    rate_ch4 = ureg.Quantity( 30, 'tonne/day')
+    rate_n2o = ureg.Quantity(  6, 'tonne/day')
+
+    procA.add_emission_rates(CO2=rate_co2, CH4=rate_ch4, N2O=rate_n2o)
     (rates, co2eq) = procA.get_emission_rates(analysis)
-    assert (magnitude(rates.N2O) == 6 and
-            magnitude(rates.CH4) == 30 and
-            magnitude(rates.CO2) == 100)
+
+    assert (rates.N2O == rate_n2o and rates.CH4 == rate_ch4 and rates.CO2 == rate_co2)
 
 # TBD test these:
 # process.get_environment
