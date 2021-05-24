@@ -622,7 +622,7 @@ class Gas(Hydrocarbon):
         :return:
         """
         mass_flow_rate = stream.total_gases_rates()  # pandas.Series
-        molar_weight = ureg.Quantity(0, "g/mol")
+        molar_weight = ureg.Quantity(0.0, "g/mol")
         for component, tonne_per_day in mass_flow_rate.items():
             molecular_weight = self.mol_weight(component)
             molar_fraction = self.component_molar_fraction(component, stream)
@@ -650,7 +650,7 @@ class Gas(Hydrocarbon):
         """
         mass_flow_rate = stream.total_gases_rates()  # pandas.Series
         total_mass_rate = stream.total_gas_rate()
-        mass_energy_density = ureg.Quantity(0, "MJ/kg")
+        mass_energy_density = ureg.Quantity(0.0, "MJ/kg")
         for component, tonne_per_day in mass_flow_rate.items():
             if tonne_per_day == 0:
                 continue
@@ -673,7 +673,7 @@ class Gas(Hydrocarbon):
         mass_flow_rate = stream.total_gases_rates()  # pandas.Series
         std_temp = self.field.model.const("std-temperature").to("kelvin").m
         std_press = self.field.model.const("std-pressure").to("Pa").m
-        volume_energy_density = ureg.Quantity(0, "Btu/ft**3")
+        volume_energy_density = ureg.Quantity(0.0, "Btu/ft**3")
         for component, tonne_per_day in mass_flow_rate.items():
             if tonne_per_day == 0:
                 continue
