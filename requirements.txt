@@ -1,5 +1,7 @@
 numpy
 pandas
+pint
+pint-pandas
 pytest
 scipy
 pytest-cov
