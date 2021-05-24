@@ -15,6 +15,46 @@ _logger = getLogger(__name__)
 
 # Note: moved pint registry setup to __init__.py
 
+def magnitude(value, units=None):
+    """
+    Return the magnitude of `value`. If `value` is a pint.Quantity and
+    `units` is not None, check that `value` has the expected `units and
+    return the magnitude of `value`. If `value` is not a Quantity, just
+    return it.
+
+    :param value: (float or pint.Quantity) the value for which we return the magnitude.
+    :param units: (None or pint.Unit) the expected units
+    :return: the magnitude of `value`
+    """
+    if isinstance(value, ureg.Quantity):
+        # if optional units are provided, validate them
+        if units and value.units != units:
+            raise OpgeeException(f"magnitude: value {value} units are not {units}")
+
+        return value.m
+    else:
+        return value
+
+def ensure_units(value, units):
+    """
+    If `value` is a pint.Quantity, check that `value` has the given `units` and return
+    the value or raise and error if not of the expected units. If `value` is not a
+    Quantity, convert it to one using `units`.
+
+    :param value: (float or pint.Quantity) the value to check and/or convert to Quantity
+    :param units: (pint.Unit) the expected units, also used to convert to Quantity
+    :return: (pint.Quantity) with `value` and `units`
+    """
+    if isinstance(value, ureg.Quantity):
+        if value.units != units:
+            raise OpgeeException(f"ensure_units: value {value} units are not {units}")
+        else:
+            return value
+    else:
+        return ureg.Quantity(value, units)
+
+
+
 def superclass(cls):
     """
     Get the first superclass of the given class from the __mro__ (method resolution order).
@@ -25,7 +65,6 @@ def superclass(cls):
     """
     mro = cls.__mro__
     return mro[1] if len(mro) > 1 else None
-
 
 # Deprecated?
 def subelt_text(elt, tag, coerce=None, with_unit=True, required=True):

@@ -4,6 +4,8 @@
 .. Copyright (c) 2021 Richard Plevin and Stanford University
    See the https://opensource.org/licenses/MIT for license details.
 """
+import pandas as pd
+import pint_pandas
 from . import ureg
 from .core import OpgeeObject, XmlInstantiable, A, instantiate_subelts, elt_name, validate_unit
 from .error import OpgeeException
@@ -228,19 +230,18 @@ class AttributeMixin():
         :param prefix: (str) a common prefix shared by multiple attributes
         :return: (dict) attribute objects keyed by the portion of the name after the prefix.
         """
-        from pandas import Series
-
         prefix_len = len(prefix)
         attr_dict = self.attr_dict
 
         names = [name for name in attr_dict.keys() if name.startswith(prefix)]
 
         # assume that all have same units
-        # unit = attr_dict[names[0]].unit
-        dtype = None # doesn't work with custom types f"pint[{unit}]" if unit else None
+        unit = attr_dict[names[0]].unit
+        # dtype = None # doesn't work with custom types f"pint[{unit}]" if unit else None
+        dtype = f"pint[{unit}]" if unit else None
 
         d = {name[prefix_len:] : attr_dict[name].value for name in names}
-        s = Series(d, dtype=dtype)
+        s = pd.Series(d, dtype=dtype)
         return s
 
     # TBD: fill in Smart Defaults here, or assume they've been filled already?

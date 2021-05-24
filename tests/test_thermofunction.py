@@ -5,7 +5,7 @@ from opgee.stream import Stream
 num_digits = 3
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def oil_instance(test_model):
     field = test_model.get_field("test")
     oil = Oil(field)

@@ -5,6 +5,7 @@
    See the https://opensource.org/licenses/MIT for license details.
 '''
 import pandas as pd
+import pint_pandas
 from .core import OpgeeObject
 from .error import OpgeeException
 
@@ -44,9 +45,9 @@ class Energy(OpgeeObject):
 
          :return: (pandas.Series) Zero-filled energy carrier Series
          """
-        # TBD: use the units via pint's pandas support
         # TBD: all are in mmbtu/day except electricity in kWh/day
-        return pd.Series(data=0.0, index=cls.carriers, name='energy', dtype=float)
+        # TBD: might have to store electricity separately to allow different unit
+        return pd.Series(data=0.0, index=cls.carriers, name='energy', dtype="pint[mmbtu/day]")
 
     def __init__(self):
         self.data = self.create_energy_series()

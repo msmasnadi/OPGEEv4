@@ -389,8 +389,6 @@ class Oil(Hydrocarbon):
         :return:(float) energy flow rate (unit = mmBtu/day)
         """
         mass_flow_rate = stream.hydrocarbon_rate(PHASE_LIQUID)
-        # TODO: delete this line once the pint pandas works
-        mass_flow_rate = ureg.Quantity(mass_flow_rate, "tonne/day")
         mass_flow_rate = mass_flow_rate.to("lb/day")
         mass_energy_density = self.mass_energy_density()
 
@@ -423,8 +421,6 @@ class Gas(Hydrocarbon):
         total_molar_flow_rate = 0
         for component, tonne_per_day in mass_flow_rate.items():
             molecular_weight = self.mol_weight(component)
-            # TODO: delete this line once the pint pandas works
-            tonne_per_day = ureg.Quantity(tonne_per_day, "tonne/day")
             total_molar_flow_rate += tonne_per_day.to("g/day") / molecular_weight
 
         return total_molar_flow_rate
@@ -438,8 +434,6 @@ class Gas(Hydrocarbon):
         """
         total_molar_flow_rate = self.total_molar_flow_rate(stream)
         mass_flow_rate = stream.gas_flow_rate(name)
-        # TODO: delete this line once the pint pandas works
-        mass_flow_rate = ureg.Quantity(mass_flow_rate, "tonne/day")
         molecular_weight = ureg.Quantity(self.dict_chemical[name].MW, "g/mol")
         molar_flow_rate = mass_flow_rate.to("g/day") / molecular_weight
 
@@ -479,8 +473,6 @@ class Gas(Hydrocarbon):
         ratio_of_specific_heat = 0
         for component, tonne_per_day in mass_flow_rate.items():
             molecular_weight = self.dict_chemical[component].MW
-            # TODO: delete this line once the pint pandas works
-            tonne_per_day = ureg.Quantity(tonne_per_day, "tonne/day")
             kg_per_day = tonne_per_day.to("kg/day").m
             gas_constant = universal_gas_constants / molecular_weight
             Cp = self.dict_chemical[component].Cp(phase='g', T=298.15)
@@ -644,8 +636,7 @@ class Gas(Hydrocarbon):
         :param stream:
         :return:
         """
-        # TODO: change this if pint pandas works
-        total_mass_rate = ureg.Quantity(stream.total_gas_rate(), "tonne/day")
+        total_mass_rate = stream.total_gas_rate()
         density = self.density(stream)
 
         volume_flow_rate = total_mass_rate / density
@@ -658,8 +649,7 @@ class Gas(Hydrocarbon):
         :return: (float) gas mass energy density (unit = MJ/kg)
         """
         mass_flow_rate = stream.total_gases_rates()  # pandas.Series
-        # TODO: change this if pint pandas works
-        total_mass_rate = ureg.Quantity(stream.total_gas_rate(), "tonne/day")
+        total_mass_rate = stream.total_gas_rate()
         mass_energy_density = ureg.Quantity(0, "MJ/kg")
         for component, tonne_per_day in mass_flow_rate.items():
             if tonne_per_day == 0:
@@ -670,8 +660,6 @@ class Gas(Hydrocarbon):
             LHV = ureg.Quantity(LHV, "joule/mol")
             LHV = LHV.to("MJ/mol")
             molecular_weight = self.mol_weight(component)
-            # TODO: delete this line once the pint pandas works
-            tonne_per_day = ureg.Quantity(tonne_per_day, "tonne/day")
             mass_energy_density += tonne_per_day / total_mass_rate * LHV / molecular_weight.to("kg/mol")
 
         return mass_energy_density
@@ -704,8 +692,6 @@ class Gas(Hydrocarbon):
 
     def energy_flow_rate(self, stream):
         total_mass_flow_rate = stream.total_gas_rate()
-        # TODO: delete this line once pint pandas works
-        total_mass_flow_rate = ureg.Quantity(total_mass_flow_rate, "tonne/day")
         mass_energy_density = self.mass_energy_density(stream)
         energy_flow_rate = total_mass_flow_rate.to("kg/day") * mass_energy_density.to("mmBtu/kg")
 

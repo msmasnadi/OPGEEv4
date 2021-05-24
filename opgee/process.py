@@ -4,8 +4,9 @@
 .. Copyright (c) 2021 Richard Plevin and Adam Brandt
    See the https://opensource.org/licenses/MIT for license details.
 '''
+from . import ureg
 from .attributes import AttrDefs, AttributeMixin
-from .core import XmlInstantiable, elt_name, instantiate_subelts
+from .core import XmlInstantiable, elt_name, instantiate_subelts, magnitude
 from .container import Container
 from .error import OpgeeException, AbstractMethodError, OpgeeStopIteration
 from .emissions import Emissions
@@ -327,8 +328,10 @@ class Process(XmlInstantiable, AttributeMixin):
         # If previously zero, set to a small number to avoid division by zero
         prior_value = self.iteration_value
 
-        if prior_value is not None and abs(value - prior_value) <= m.maximum_change:
-            raise OpgeeStopIteration(f"Change <= maximum_change ({m.maximum_change}) in {self}")
+        if prior_value is not None:
+            delta = magnitude(abs(value - prior_value))
+            if delta <= m.maximum_change:
+                raise OpgeeStopIteration(f"Change <= maximum_change ({m.maximum_change}) in {self}")
 
         self.iteration_value = value
 

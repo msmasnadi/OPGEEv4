@@ -59,7 +59,7 @@ class Container(XmlInstantiable, AttributeMixin):
 
         print(f"{self} Energy consumption:\n{self.energy.data}")
         print(f"\nCumulative emissions to Environment:\n{self.emissions.data}")
-        print(f"Total: {self.ghgs} (UNITS?) CO2eq")
+        print(f"Total: {self.ghgs} CO2eq")
 
     def get_energy_rates(self, analysis):
         """

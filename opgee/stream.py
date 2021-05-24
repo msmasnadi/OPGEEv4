@@ -5,12 +5,13 @@
    See the https://opensource.org/licenses/MIT for license details.
 '''
 import pandas as pd
+import pint_pandas
+import pint
 import re
 
-import pint
 from . import ureg
 from .attributes import AttributeMixin
-from .core import XmlInstantiable, elt_name
+from .core import XmlInstantiable, elt_name, magnitude
 from .error import OpgeeException
 from .log import getLogger
 from .utils import getBooleanXML, coercible
@@ -91,6 +92,8 @@ class Stream(XmlInstantiable, AttributeMixin):
     # Value is a dict keyed by set(added_component_names).
     _extensions = {}
 
+    _units = ureg.Unit('tonne/day')
+
     @classmethod
     def extend_components(cls, names):
         """
@@ -126,7 +129,7 @@ class Stream(XmlInstantiable, AttributeMixin):
 
         :return: (pandas.DataFrame) Zero-filled stream DataFrame
         """
-        return pd.DataFrame(data=0.0, index=cls.components, columns=cls._phases)
+        return pd.DataFrame(data=0.0, index=cls.components, columns=cls._phases, dtype='pint[tonne/day]')
 
     def __init__(self, name, number=0, temperature=None, pressure=None,
                  src_name=None, dst_name=None, comp_matrix=None, impute=True):
@@ -210,7 +213,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param rate: (float) the flow rate for the given stream component
         :return: None
         """
-        self.components.loc[name, phase] = rate
+        self.components.loc[name, phase] = magnitude(rate, units=self._units)
 
     #
     # Convenience functions
@@ -250,7 +253,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param stream: (Stream) to copy
         :return: none
         """
-        self.components[:] = stream.components[:]
+        self.components[:] = stream.components
 
     def add_flow_rates_from(self, stream):
         """

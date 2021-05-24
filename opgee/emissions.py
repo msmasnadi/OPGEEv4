@@ -6,7 +6,9 @@
 '''
 
 import pandas as pd
-from .core import OpgeeObject
+import pint_pandas
+from . import ureg
+from .core import OpgeeObject, magnitude
 from .error import OpgeeException
 from .stream import Stream, PHASE_GAS
 from .log import getLogger
@@ -28,21 +30,20 @@ class Emissions(OpgeeObject):
     # for faster test for inclusion in this list
     _emissions_set = set(emissions)
 
+    _units = ureg.Unit("tonne/day")
+
     @classmethod
-    def create_emissions_series(cls, unit=None):
+    def create_emissions_series(cls):
         """
         Create a pandas Series to hold emissions.
 
-        :param unit: (str or pint units) the units assigned to these emissions
         :return: (pandas.Series) Zero-filled emissions Series
         """
-        # TBD: use the units via pint's pandas support
-        return pd.Series(data=0.0, index=cls.emissions, name='emissions', dtype=float)
+        return pd.Series(data=0.0, index=cls.emissions, name='emissions', dtype="pint[tonne/day]")
 
-    def __init__(self, unit=None):
-        self.data = self.create_emissions_series(unit=unit)
-        self.unit = unit
-        self.ghg = 0.0
+    def __init__(self):
+        self.data = self.create_emissions_series()
+        self.ghg = ureg.Quantity(0.0, self._units)
 
     def rates(self, gwp=None):
         """
@@ -77,7 +78,7 @@ class Emissions(OpgeeObject):
         if gas not in self._emissions_set:
             raise OpgeeException(f"Emissions.set_rate: Unrecognized gas '{gas}'")
 
-        self.data[gas] = rate
+        self.data[gas] = magnitude(rate, units=self._units)
 
     def set_rates(self, **kwargs):
         """
@@ -101,7 +102,7 @@ class Emissions(OpgeeObject):
         if gas not in self._emissions_set:
             raise OpgeeException(f"Emissions.add_rate: Unrecognized gas '{gas}'")
 
-        self.data[gas] += rate
+        self.data[gas] += ureg.Quantity(magnitude(rate, units=self._units), self._units)
 
     def add_rates(self, **kwargs):
         """

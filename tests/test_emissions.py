@@ -1,11 +1,15 @@
+from opgee.core import magnitude
+import pytest
+
+from opgee.core import magnitude
 from opgee.emissions import Emissions
 from opgee.error import OpgeeException
-import pytest
+
 
 def test_set_rate():
     e = Emissions()
     e.set_rate('CO2', 123.45)
-    assert e.data['CO2'] == 123.45
+    assert magnitude(e.data['CO2']) == 123.45
 
 def test_set_rate_error():
     """Test that an unknown gas name throws an OpgeeException"""
@@ -25,7 +29,7 @@ def emissions_of_two_gases():
     "gas,rate", [('CO2', 123.45), ('N2O', 45.6), ('CO', 0.0), ('CH4', 0.0), ('VOC', 0.0)]
 )
 def test_set_rates(emissions_of_two_gases, gas, rate):
-    assert emissions_of_two_gases[gas] == rate
+    assert magnitude(emissions_of_two_gases[gas]) == rate
 
 
 def test_set_rates_error():
@@ -62,7 +66,7 @@ def test_gwp(test_model, emissions_for_gwp, gwp_horizon, gwp_version, expected):
     assert all(rates == original_rates)
 
     #print(f"GHG for ({gwp_horizon}, {gwp_version} => {ghg}")
-    assert ghg == pytest.approx(expected)
+    assert magnitude(ghg) == pytest.approx(expected)
 
 def test_use_GWP_error(test_model):
     with pytest.raises(OpgeeException, match=r".*GWP version must be one of*"):
