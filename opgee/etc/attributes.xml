@@ -62,7 +62,7 @@
     <AttrDef name="name" desc="Field name" type="str">Generic</AttrDef>
     <AttrDef name="age" unit="yr" desc="Field age" type="float">38</AttrDef>
     <AttrDef name="depth" unit="ft" desc="Field depth" type="float">8285</AttrDef>
-    <AttrDef name="oil_prod" unit="bbl/d" desc="Oil production volume" type="float">2098</AttrDef>
+    <AttrDef name="oil_prod" unit="bbl_oil/d" desc="Oil production volume" type="float">2098</AttrDef>
     <AttrDef name="num_prod_wells" desc="Number of producing wells" type="int">1158</AttrDef>
     <AttrDef name="num_water_inj_wells" desc="Number of water injecting wells" type="int">34436</AttrDef>
     <AttrDef name="well_diam" unit="in" desc="Well diameter" type="float">2.8</AttrDef>
@@ -72,13 +72,12 @@
     <AttrDef name="offshore" type="binary" desc="Offshore?">0</AttrDef>
     <!-- Fluid properties -->
     <AttrDef name="API" desc="API gravity of produced crude" unit="degAPI" type="float">47</AttrDef>
-    <AttrDef name="gas_comp_N2" unit="mol_pct" type="float">2.0</AttrDef>
-    <AttrDef name="gas_comp_CO2" unit="mol_pct" type="float">6.0</AttrDef>
-    <AttrDef name="gas_comp_C1" unit="mol_pct" type="float">84.0</AttrDef>
-    <AttrDef name="gas_comp_C2" unit="mol_pct" type="float">4.0</AttrDef>
-    <AttrDef name="gas_comp_C3" unit="mol_pct" type="float">2.0</AttrDef>
-    <AttrDef name="gas_comp_C4" unit="mol_pct" type="float">1.0</AttrDef>
-    <AttrDef name="gas_comp_H2S" unit="mol_pct" type="float">1.0</AttrDef>
+    <AttrDef name="gas_comp_N2" unit="mol_pct" type="float">2.86</AttrDef>
+    <AttrDef name="gas_comp_CO2" unit="mol_pct" type="float">0.33</AttrDef>
+    <AttrDef name="gas_comp_C1" unit="mol_pct" type="float">89.18</AttrDef>
+    <AttrDef name="gas_comp_C2" unit="mol_pct" type="float">5.30</AttrDef>
+    <AttrDef name="gas_comp_C3" unit="mol_pct" type="float">1.62</AttrDef>
+    <AttrDef name="gas_comp_C4" unit="mol_pct" type="float">0.71</AttrDef>
     <!-- Production practices -->
     <Options name="flood_gases" default="NG">
       <Option desc="Natural gas">NG</Option>
@@ -94,11 +93,11 @@
       <Option desc="natural subsurface reservoir">reservoir</Option>
       <Option>anthropogenic</Option>
     </Options>
-    <AttrDef name="GOR" desc="Gas-to-oil ratio" unit="scf/bbl_oil" type="float">1205.4</AttrDef>
-    <AttrDef name="WOR" desc="Water-to-oil ratio" unit="bbl_water/bbl" type="float">27.7</AttrDef>
-    <AttrDef name="WIR" desc="Water injection ratio" unit="bbl_water/bbl" type="float">17.0</AttrDef>
-    <AttrDef name="GLIR" desc="Gas lifting injection ratio" unit="scf/bbl_liquid" type="float">1500.0</AttrDef>
-    <AttrDef name="GFIR" desc="Gas flooding injection ratio" unit="scf/bbl_oil" type="float">22611.0</AttrDef>
+    <AttrDef name="GOR" desc="Gas-to-oil ratio" unit="scf/bbl_oil" type="float">2429.3</AttrDef>
+    <AttrDef name="WOR" desc="Water-to-oil ratio" unit="bbl_water/bbl" type="float">6.0</AttrDef>
+    <AttrDef name="WIR" desc="Water injection ratio" unit="bbl_water/bbl" type="float">7.0</AttrDef>
+    <AttrDef name="GLIR" desc="Gas lifting injection ratio" unit="scf/bbl_liquid" type="float">364.0</AttrDef>
+    <AttrDef name="GFIR" desc="Gas flooding injection ratio" unit="scf/bbl_oil" type="float">3644.0</AttrDef>
     <AttrDef name="flood_gas_type" desc="Flood gas" options="flood_gases" type="str"/>
     <AttrDef name="liquids_unloading" options="liquids_unloading" type="str"/>
     <AttrDef name="perc_CO2_breakthrough" desc="Fraction of CO2 breaking through to producers" unit="percent" type="float">59</AttrDef>
@@ -233,8 +232,17 @@
     <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
   </ClassAttrs>
   <!-- Surface processing-->
-  <ClassAttrs name="CrudeSeparationAndHandling">
-    <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
+  <ClassAttrs name="Separation">
+    <AttrDef name="number_stages" type="int" desc="Number of separator stages">2</AttrDef>
+    <AttrDef name="pressure_first_stage" type="float" unit="psia" desc="First stage separator pressure">500.0</AttrDef>
+    <AttrDef name="pressure_second_stage" type="float" unit="psia" desc="Second stage separator pressure">250.0</AttrDef>
+    <AttrDef name="pressure_third_stage" type="float" unit="psia" desc="Third stage separator pressure">150.0</AttrDef>
+    <AttrDef name="pressure_outlet" type="float" unit="psia" desc="Separator pressure (final if multi-stage)">100.0</AttrDef>
+    <AttrDef name="temperature_outlet" type="float" unit="degF" desc="Separator temperature (final if multi-stage)">90.0</AttrDef>
+    <AttrDef name="water_content_oil_emulsion" type="float" unit="percent" desc="Entrained water as a fraction of oil emulsion (weight percentage)">14.0</AttrDef>
+    <AttrDef name="gas_pressure_after_boosting" type="float" unit="psia" desc="Separator gas outlet pressure after boosting compressors">500</AttrDef>
+    <AttrDef name="eta_compressor" type="float" unit="percent" desc="Compressor efficiency">75.0</AttrDef>
+    <AttrDef name="prime_mover_type" type="int" desc="Prime mover type: 1 == Electricity, 2 == NG-Engine">2</AttrDef>
   </ClassAttrs>
   <ClassAttrs name="CrudeStorage">
     <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>

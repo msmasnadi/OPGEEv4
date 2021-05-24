@@ -34,6 +34,8 @@ class TableManager(OpgeeObject):
         TableDef('bitumen-mining-energy-intensity', index_col=0),
         TableDef('transport-specific-EF', index_col=('Mode', 'Fuel'), skiprows=1, units='g/mmbtu'),
         TableDef('stationary-application-EF', index_col=('Fuel', 'Application'), skiprows=1, units='g/mmbtu'),
+        # TODO: see updates from OGPEE github
+        TableDef('separator_capacity', index_col=False, skiprows=1)
     ]
 
     def __init__(self):

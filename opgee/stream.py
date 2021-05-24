@@ -7,6 +7,7 @@
 import pandas as pd
 import re
 
+import pint_pandas
 import pint
 from . import ureg
 from .attributes import AttributeMixin
@@ -126,7 +127,7 @@ class Stream(XmlInstantiable, AttributeMixin):
 
         :return: (pandas.DataFrame) Zero-filled stream DataFrame
         """
-        return pd.DataFrame(data=0.0, index=cls.components, columns=cls._phases)
+        return pd.DataFrame(data=0.0, index=cls.components, columns=cls._phases, dtype="pint[tonne/day]")
 
     def __init__(self, name, number=0, temperature=None, pressure=None,
                  src_name=None, dst_name=None, comp_matrix=None, impute=True):
