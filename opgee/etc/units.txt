@@ -41,3 +41,8 @@ moles_per_scf = scf / 1.2023 = _
 btu = Btu = 1055.06 * joule
 mmBtu = 1E6 * btu = mmbtu
 MJ = 1E6 * joule
+
+# percent & fraction & dimensionless
+fraction = [] = frac
+percent = 1e-2 frac = pct
+ppm = 1e-6 fraction

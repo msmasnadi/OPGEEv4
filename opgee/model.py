@@ -20,6 +20,7 @@ from .XMLFile import XMLFile
 
 _logger = getLogger(__name__)
 
+
 class Model(Container):
 
     def __init__(self, name, analyses, fields, attr_dict=None):
@@ -37,15 +38,16 @@ class Model(Container):
 
         self.gwp_horizons = list(df.Years.unique())
         self.gwp_versions = list(df.columns[2:])
-        self.gwp_dict = {y : df.query('Years == @y').set_index('Gas', drop=True).drop('Years', axis='columns') for y in self.gwp_horizons}
+        self.gwp_dict = {y: df.query('Years == @y').set_index('Gas', drop=True).drop('Years', axis='columns') for y in
+                         self.gwp_horizons}
 
         df = tbl_mgr.get_table('constants')
-        self.constants = {name : ureg.Quantity(row.value, row.unit) for name, row in df.iterrows()}
+        self.constants = {name: ureg.Quantity(row.value, row.unit) for name, row in df.iterrows()}
 
         # TBD: should these be settable per Analysis?
         # parameters controlling process cyclic calculations
         self.maximum_iterations = self.attr('maximum_iterations')
-        self.maximum_change     = self.attr('maximum_change')
+        self.maximum_change = self.attr('maximum_change')
 
     def _after_init(self):
         for obj in self.fields():
@@ -91,7 +93,7 @@ class Model(Container):
         Return a list of all children objects. External callers should use children()
         instead, as it respects the self.is_enabled() setting.
         """
-        return self.analyses()   # N.B. returns an iterator
+        return self.analyses()  # N.B. returns an iterator
 
     def summarize(self):
         """
@@ -128,7 +130,7 @@ class Model(Container):
         :return: (Model) instance populated from XML
         """
         analyses = instantiate_subelts(elt, Analysis)
-        fields   = instantiate_subelts(elt, Field)
+        fields = instantiate_subelts(elt, Field)
         attr_dict = cls.instantiate_attrs(elt)
 
         obj = Model(elt_name(elt), analyses, fields, attr_dict=attr_dict)
@@ -143,6 +145,7 @@ class ModelFile(XMLFile):
     """
     Represents the overall parameters.xml file.
     """
+
     def __init__(self, filename, stream=None, add_stream_components=True, use_class_path=True):
         """
         Several steps are performed, some of which are dependent on the function's parameters:
@@ -182,7 +185,7 @@ class ModelFile(XMLFile):
             paths = [Path(path) for path in class_path.split(os.path.pathsep) if path]
             for path in paths:
                 if path.is_dir():
-                    for module_path in path.glob('*.py'):   # load all .py files found in directory
+                    for module_path in path.glob('*.py'):  # load all .py files found in directory
                         loadModuleFromPath(module_path)
                 else:
                     loadModuleFromPath(path)
