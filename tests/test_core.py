@@ -4,7 +4,7 @@ from opgee.core import magnitude, dict_from_list, validate_unit, XmlInstantiable
 from opgee.error import OpgeeException, AbstractMethodError
 
 def test_magnitude_error():
-    q = ureg.Quantity(10, "tonnes/day")
+    q = ureg.Quantity(10.0, "tonnes/day")
     with pytest.raises(OpgeeException, match=r"magnitude: value .* units are not .*"):
         magnitude(q, ureg.Unit("tonnes/year"))
 

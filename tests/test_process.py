@@ -22,9 +22,9 @@ def test_set_emission_rates(test_model):
     field = analysis.get_field('test')
     procA = field.find_process('ProcA')
 
-    rate_co2 = ureg.Quantity(100, 'tonne/day')
-    rate_ch4 = ureg.Quantity( 30, 'tonne/day')
-    rate_n2o = ureg.Quantity(  6, 'tonne/day')
+    rate_co2 = ureg.Quantity(100.0, 'tonne/day')
+    rate_ch4 = ureg.Quantity( 30.0, 'tonne/day')
+    rate_n2o = ureg.Quantity(  6.0, 'tonne/day')
 
     procA.add_emission_rates(CO2=rate_co2, CH4=rate_ch4, N2O=rate_n2o)
     (rates, co2eq) = procA.get_emission_rates(analysis)
@@ -38,7 +38,7 @@ def test_add_energy_rates(test_model):
 
     unit = ureg.Unit('mmbtu/day')
     ng_rate = ureg.Quantity(123.45, unit)
-    oil_rate = ureg.Quantity(4321, unit)
+    oil_rate = ureg.Quantity(4321.0, unit)
 
     procA.add_energy_rates({EN_NATURAL_GAS: ng_rate, EN_CRUDE_OIL: oil_rate})
 
