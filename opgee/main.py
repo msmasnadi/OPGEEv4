@@ -8,4 +8,4 @@
 '''
 from opgee.tool import main
 
-main()
+main() # pragma: no cover

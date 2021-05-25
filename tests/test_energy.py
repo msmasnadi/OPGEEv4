@@ -9,13 +9,26 @@ def test_set_rate():
     e.set_rate(EN_DIESEL, rate)
     assert e.data[EN_DIESEL] == rate
 
-def test_set_rate_error():
+def test_set_rates_error():
     """Test that an unknown carrier name throws an OpgeeException"""
     e = Energy()
 
     with pytest.raises(OpgeeException, match=r".*Unrecognized carrier*"):
         e.set_rate('Uranium', 4321)
 
+def test_add_rate():
+    e = Energy()
+    rate = ureg.Quantity(40.0, 'mmbtu/day')
+    e.set_rate(EN_DIESEL, rate)
+    e.add_rate(EN_DIESEL, rate)
+    assert e.data[EN_DIESEL] == ureg.Quantity(80.0, 'mmbtu/day')
+
+def test_add_rate_error():
+    """Test that an unknown carrier name throws an OpgeeException"""
+    e = Energy()
+
+    with pytest.raises(OpgeeException, match=r".*Unrecognized carrier*"):
+        e.add_rates({'Uranium': 4321})
 
 @pytest.fixture
 def two_carriers():
