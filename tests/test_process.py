@@ -1,7 +1,8 @@
 import pytest
 from opgee import ureg
+from opgee.energy import EN_NATURAL_GAS, EN_CRUDE_OIL
 from opgee.error import OpgeeException
-from opgee.process import Process, _get_subclass
+from opgee.process import Process, _get_subclass, Environment, Reservoir
 
 class NotProcess(): pass
 
@@ -30,7 +31,36 @@ def test_set_emission_rates(test_model):
 
     assert (rates.N2O == rate_n2o and rates.CH4 == rate_ch4 and rates.CO2 == rate_co2)
 
-# TBD test these:
-# process.get_environment
-# process.get_reservoir
-# find_input_streams failure to find a stream_type
+def test_add_energy_rates(test_model):
+    analysis = test_model.get_analysis('test')
+    field = analysis.get_field('test')
+    procA = field.find_process('ProcA')
+
+    unit = ureg.Unit('mmbtu/day')
+    ng_rate = ureg.Quantity(123.45, unit)
+    oil_rate = ureg.Quantity(4321, unit)
+
+    procA.add_energy_rates({EN_NATURAL_GAS: ng_rate, EN_CRUDE_OIL: oil_rate})
+
+    rates = procA.get_energy_rates(analysis)
+
+    assert (rates[EN_NATURAL_GAS] == ng_rate and rates[EN_CRUDE_OIL] == oil_rate)
+
+@pytest.fixture(scope='module')
+def process(test_model):
+    analysis = test_model.get_analysis('test')
+    field = analysis.get_field('test')
+    proc = field.find_process('ProcA')
+    return proc
+
+def test_get_environment(process):
+    assert isinstance(process.get_environment(),  Environment)
+
+def test_get_reservoir(process):
+    assert isinstance(process.get_reservoir(),  Reservoir)
+
+def test_find_input_streams_error(process):
+    stream_type = 'unknown_stream_type'
+    with pytest.raises(OpgeeException, match=f".* no input streams connect to processes handling '{stream_type}'"):
+        process.find_input_streams(stream_type)
+
