@@ -34,19 +34,15 @@ class TableManager(OpgeeObject):
         TableDef('bitumen-mining-energy-intensity', index_col=0),
         TableDef('transport-specific-EF', index_col=('Mode', 'Fuel'), skiprows=1, units='g/mmbtu'),
         TableDef('stationary-application-EF', index_col=('Fuel', 'Application'), skiprows=1, units='g/mmbtu'),
+        TableDef('venting_fugitives_by_process', index_col=False, units='fraction')
         # TODO: see updates from OGPEE github
-        # TableDef('separator_capacity', index_col=False, skiprows=1)
+        # TableDef('separator_capacity', index_col=False, skiprows=1),
     ]
 
-    def __init__(self):
-        self.table_dict = table_dict = {}
+    _table_def_dict = {tbl_def.basename : tbl_def for tbl_def in table_defs}
 
-        # TBD: load tables on demand
-        for t in self.table_defs:
-            relpath = f"tables/{t.basename}.csv"
-            s = resourceStream(relpath, stream_type='text')
-            df = pd.read_csv(s, index_col=t.index_col, skiprows=t.skiprows)
-            table_dict[t.basename] = df
+    def __init__(self):
+        self.table_dict = {}
 
     def get_table(self, name):
         """
@@ -56,10 +52,21 @@ class TableManager(OpgeeObject):
         :return: (pandas.DataFrame) the corresponding data
         :raises: OpgeeException if the `name` is unknown.
         """
-        try:
-            return self.table_dict[name]
-        except KeyError:
-            raise OpgeeException(f"Failed to find table named {name}.")
+        df = self.table_dict.get(name)
+
+        # load on demand, if a TableDef is found
+        if df is None:
+            try:
+                tbl_def = self._table_def_dict[name]
+            except KeyError:
+                raise OpgeeException(f"Unknown table '{name}'")
+
+            relpath = f"tables/{name}.csv"
+            s = resourceStream(relpath, stream_type='text')
+            df = pd.read_csv(s, index_col=tbl_def.index_col, skiprows=tbl_def.skiprows)
+            self.table_dict[name] = df
+
+        return df
 
     def add_table(self, pathname, index_col=None, skiprows=0): #  , units=None):
         """

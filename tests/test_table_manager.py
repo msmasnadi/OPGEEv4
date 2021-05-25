@@ -13,5 +13,6 @@ def test_add_table():
 
 def test_bad_table_name():
     mgr = TableManager()
-    with pytest.raises(OpgeeException, match="Failed to find table named .*"):
-        mgr.get_table('non-existent-table')
+    name = 'non-existent-table'
+    with pytest.raises(OpgeeException, match=f"Unknown table '{name}'"):
+        mgr.get_table(name)
