@@ -44,13 +44,14 @@ class TableManager(OpgeeObject):
     def __init__(self):
         self.table_dict = {}
 
-    def get_table(self, name):
+    def get_table(self, name, raiseError=True):
         """
         Retrieve a dataframe representing CSV data loaded by the TableManager
 
         :param name: (str) the name of a table
+        :param raiseError: (bool) whether to raise an error (or just return None) if the table isn't found.
         :return: (pandas.DataFrame) the corresponding data
-        :raises: OpgeeException if the `name` is unknown.
+        :raises: OpgeeException if the `name` is unknown and `raiseError` is True.
         """
         df = self.table_dict.get(name)
 
@@ -59,7 +60,10 @@ class TableManager(OpgeeObject):
             try:
                 tbl_def = self._table_def_dict[name]
             except KeyError:
-                raise OpgeeException(f"Unknown table '{name}'")
+                if raiseError:
+                    raise OpgeeException(f"Unknown table '{name}'")
+                else:
+                    return None
 
             relpath = f"tables/{name}.csv"
             s = resourceStream(relpath, stream_type='text')

@@ -399,6 +399,37 @@ class Process(XmlInstantiable, AttributeMixin):
     def print_running_msg(self):
         _logger.info(f"Running {type(self)} name='{self.name}'")
 
+    def venting_fugitive_rate(self, trial=None):
+        """
+        Look up venting/fugitive rate for this process. For user-defined processes not listed
+        in the venting_fugitives_by_process table, the Process subclass must implement this
+        method to override to the lookup.
+
+        :param trial: (int or None) if `trial` is None, the mean venting/fugitive rate is returned.
+           If `trial` is not None, it must be an integer trial number in the table's index.
+        :return: (float) the fraction of the output stream assumed to be lost to the environment,
+           either for the indicated `trial`, or the mean of all trial values if `trial` is None.
+        """
+        mgr = self.model.table_mgr
+        tbl_name = 'venting_fugitives_by_process'
+        df = mgr.get_table(tbl_name)
+
+        # Look up the process by name, but fall back to the classname if not found by name
+        columns = df.columns
+        name = self.name
+        if name not in columns:
+            classname = self.__class__.__name__
+            if classname != name:
+                if classname in columns:
+                    name = classname
+                else:
+                    raise OpgeeException(f"Neither '{name}' nor '{classname}' was found in table '{tbl_name}'")
+            else:
+                raise OpgeeException(f"'Class {classname}' was not found in table '{tbl_name}'")
+
+        value = df[name].mean() if trial is None else df.loc[name, trial]
+        return value
+
     @classmethod
     def from_xml(cls, elt):
         """
