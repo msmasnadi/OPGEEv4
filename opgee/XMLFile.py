@@ -8,31 +8,32 @@ from .error import XmlFormatError
 
 _logger = getLogger(__name__)
 
-CONDITIONAL = 'CONDITIONAL'
-TEST = 'TEST'
-THEN = 'THEN'
-ELSE = 'ELSE'
-OR   = 'OR'
-AND  = 'AND'
-
-_ops = {
-    '=' : lambda a, b: a == b,
-    '==': lambda a, b: a == b,
-    '!=': lambda a, b: a != b,
-    '<' : lambda a, b: a <  b,
-    '<=': lambda a, b: a <= b,
-    '>' : lambda a, b: a >  b,
-    '>=': lambda a, b: a >= b,
-
-    'eq': lambda a, b: a == b,
-    'ne': lambda a, b: a != b,
-    'lt': lambda a, b: a <  b,
-    'le': lambda a, b: a <= b,
-    'gt': lambda a, b: a >  b,
-    'ge': lambda a, b: a >= b,
-}
-
-_types = {'str': str, 'int': int, 'float': float, 'bool': bool}
+# Deprecated (maybe)
+# CONDITIONAL = 'CONDITIONAL'
+# TEST = 'TEST'
+# THEN = 'THEN'
+# ELSE = 'ELSE'
+# OR   = 'OR'
+# AND  = 'AND'
+#
+# _ops = {
+#     '=' : lambda a, b: a == b,
+#     '==': lambda a, b: a == b,
+#     '!=': lambda a, b: a != b,
+#     '<' : lambda a, b: a <  b,
+#     '<=': lambda a, b: a <= b,
+#     '>' : lambda a, b: a >  b,
+#     '>=': lambda a, b: a >= b,
+#
+#     'eq': lambda a, b: a == b,
+#     'ne': lambda a, b: a != b,
+#     'lt': lambda a, b: a <  b,
+#     'le': lambda a, b: a <= b,
+#     'gt': lambda a, b: a >  b,
+#     'ge': lambda a, b: a >= b,
+# }
+#
+# _types = {'str': str, 'int': int, 'float': float, 'bool': bool}
 
 class XMLFile(object):
     """
@@ -92,7 +93,7 @@ class XMLFile(object):
             raise XmlFormatError("Can't read XML file '%s': %s" % (filename, e))
 
         # Deprecated (maybe)
-        # if self.conditionalXML:
+        # if self.conditionalXML: # pragma: no cover
         #     self.evaluateConditionals(tree.getroot())
 
         if self.removeComments:
