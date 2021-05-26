@@ -29,7 +29,7 @@ def test_from_xml_error():
 def test_find_parent_error():
     assert XmlInstantiable("foo").find_parent('Model') is None
 
-def test_validate_unit_error():
+def test_validate_unit_error(configure_logging_for_tests):
     unit = 'not_a_unit'
     assert unit not in _undefined_units
     assert validate_unit(unit) is None and unit in _undefined_units
