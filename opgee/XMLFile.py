@@ -91,8 +91,9 @@ class XMLFile(object):
         except Exception as e:
             raise XmlFormatError("Can't read XML file '%s': %s" % (filename, e))
 
-        if self.conditionalXML:
-            self.evaluateConditionals(tree.getroot())
+        # Deprecated (maybe)
+        # if self.conditionalXML:
+        #     self.evaluateConditionals(tree.getroot())
 
         if self.removeComments:
             for elt in tree.iterfind('//comment'):
@@ -132,78 +133,79 @@ class XMLFile(object):
             valid = schema.validate(tree)
             return valid
 
-    def evalTest(self, node):
-        tag = node.tag
-
-        if tag == TEST:
-            varName  = node.get('var')
-            op       = node.get('op', '==')      # defaults to equality
-            value    = node.get('value')
-            typeName = node.get('type', 'str')   # defaults to str comparison
-            varValue = self.varDict.get(varName)
-            typeFunc = stringTrue if typeName == 'bool' else _types[typeName]
-
-            def coerce(value, func):
-                try:
-                    return func(value)
-                except Exception:
-                    raise XmlFormatError('Failed to convert variable "%s" value "%s" to %s', varName, value, func)
-
-            value    = coerce(value, typeFunc)
-            varValue = coerce(varValue, typeFunc)
-
-            try:
-                func = _ops[op]
-            except KeyError:
-                # Shouldn't happen if schema is correct
-                raise XmlFormatError('Unknown comparison operator (%s) in conditional XML' % op)
-
-            result = func(varValue, value)
-            _logger.debug('<test $%s %s %r> -> %s' % (varName, op, value, result))
-            return result
-
-        if tag == AND:
-            for child in node:
-                if not self.evalTest(child):
-                    _logger.debug('<AND> -> False')
-                    return False
-            _logger.debug('<AND> -> True')
-            return True
-
-        if tag == OR:
-            for child in node:
-                if self.evalTest(child):
-                    _logger.debug('<OR> -> True')
-                    return True
-            _logger.debug('<OR> -> False')
-            return False
-
-        raise XmlFormatError('Expected one of %s; got %s' % ((TEST, AND, OR), tag))
-
-    def chooseBranch(self, ifnode):
-        tests = ifnode.xpath('%s|%s|%s' % (TEST, AND, OR))
-
-        if len(tests) != 1:
-            # Shouldn't happen if schema is correct
-            raise XmlFormatError('Expected 1 test|and|or node, got %d' % len(tests))
-
-        test = tests[0]
-
-        result = self.evalTest(test)
-        branch = ifnode.find(THEN if result else ELSE)
-        return branch
-
-    def evaluateConditionals(self, parent):
-        for child in parent:
-            if child.tag == CONDITIONAL:
-                branch = self.chooseBranch(child)
-                if branch is not None:          # test because <else> is optional
-                    self.evaluateConditionals(branch)
-
-                    last = child                # insert after the <conditional>
-                    for elt in branch:
-                        last.addnext(elt)
-                        last = elt
-                parent.remove(child)            # remove the <conditional>
-            else:
-                self.evaluateConditionals(child)
+    # Deprecated? Unclear whether we need conditional XML.
+    # def evalTest(self, node):
+    #     tag = node.tag
+    #
+    #     if tag == TEST:
+    #         varName  = node.get('var')
+    #         op       = node.get('op', '==')      # defaults to equality
+    #         value    = node.get('value')
+    #         typeName = node.get('type', 'str')   # defaults to str comparison
+    #         varValue = self.varDict.get(varName)
+    #         typeFunc = stringTrue if typeName == 'bool' else _types[typeName]
+    #
+    #         def coerce(value, func):
+    #             try:
+    #                 return func(value)
+    #             except Exception:
+    #                 raise XmlFormatError('Failed to convert variable "%s" value "%s" to %s', varName, value, func)
+    #
+    #         value    = coerce(value, typeFunc)
+    #         varValue = coerce(varValue, typeFunc)
+    #
+    #         try:
+    #             func = _ops[op]
+    #         except KeyError:
+    #             # Shouldn't happen if schema is correct
+    #             raise XmlFormatError('Unknown comparison operator (%s) in conditional XML' % op)
+    #
+    #         result = func(varValue, value)
+    #         _logger.debug('<test $%s %s %r> -> %s' % (varName, op, value, result))
+    #         return result
+    #
+    #     if tag == AND:
+    #         for child in node:
+    #             if not self.evalTest(child):
+    #                 _logger.debug('<AND> -> False')
+    #                 return False
+    #         _logger.debug('<AND> -> True')
+    #         return True
+    #
+    #     if tag == OR:
+    #         for child in node:
+    #             if self.evalTest(child):
+    #                 _logger.debug('<OR> -> True')
+    #                 return True
+    #         _logger.debug('<OR> -> False')
+    #         return False
+    #
+    #     raise XmlFormatError('Expected one of %s; got %s' % ((TEST, AND, OR), tag))
+    #
+    # def chooseBranch(self, ifnode):
+    #     tests = ifnode.xpath('%s|%s|%s' % (TEST, AND, OR))
+    #
+    #     if len(tests) != 1:
+    #         # Shouldn't happen if schema is correct
+    #         raise XmlFormatError('Expected 1 test|and|or node, got %d' % len(tests))
+    #
+    #     test = tests[0]
+    #
+    #     result = self.evalTest(test)
+    #     branch = ifnode.find(THEN if result else ELSE)
+    #     return branch
+    #
+    # def evaluateConditionals(self, parent):
+    #     for child in parent:
+    #         if child.tag == CONDITIONAL:
+    #             branch = self.chooseBranch(child)
+    #             if branch is not None:          # test because <else> is optional
+    #                 self.evaluateConditionals(branch)
+    #
+    #                 last = child                # insert after the <conditional>
+    #                 for elt in branch:
+    #                     last.addnext(elt)
+    #                     last = elt
+    #             parent.remove(child)            # remove the <conditional>
+    #         else:
+    #             self.evaluateConditionals(child)
