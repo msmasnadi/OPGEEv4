@@ -35,6 +35,15 @@ class AbstractInstantiationError(OpgeeException):
         return f"Abstract {self.cls} was instantiated."
 
 
+class AttributeError(OpgeeException):
+    def __init__(self, dict_name, key):
+        self.dict_name = dict_name
+        self.key = key
+
+    def __str__(self):
+        return f"Attribute {self.dict_name} named '{self.key}' was not found"
+
+
 class FileMissingError(OpgeeException):
     """
     Indicate that a required file was not found or not readable.

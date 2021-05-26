@@ -8,7 +8,7 @@ import pandas as pd
 import pint_pandas
 from . import ureg
 from .core import OpgeeObject, XmlInstantiable, A, instantiate_subelts, elt_name, validate_unit
-from .error import OpgeeException
+from .error import OpgeeException, AttributeError
 from .log import getLogger
 from .pkg_utils import resourceStream
 from .XMLFile import XMLFile
@@ -51,7 +51,7 @@ class AttrDef(XmlInstantiable):
     def __str__(self):
         type_str = type(self).__name__
 
-        attrs = f"name='{self.name}' type='{self.pytype}' value='{self.value}'"
+        attrs = f"name='{self.name}' type='{self.pytype}' default='{self.default}'"
 
         if self.unit:
             attrs += f"unit = '{self.unit}'"
@@ -122,19 +122,17 @@ class ClassAttrs(XmlInstantiable):
         :return: the value associated with `key`
         :raises: OpgeeException if `key` is not present and `raiseError` is True
         """
-        if key:
-            value = obj.get(key)
-            if value is None and raiseError:
-                raise OpgeeException(f"Attribute {dict_name} named '{key}' was not found")
+        value = obj.get(key)
+        if value is None and raiseError:
+            raise AttributeError(dict_name, key)
 
-            return value
-        else:
-            return obj.keys()
+        return value
 
-    def option(self, name=None, raiseError=True):
-        return self._lookup(self.option_dict, 'option', name, raiseError=raiseError)
+    # Deprecated
+    # def option(self, name, raiseError=True):
+    #     return self._lookup(self.option_dict, 'option', name, raiseError=raiseError)
 
-    def attribute(self, name=None, raiseError=True):
+    def attribute(self, name, raiseError=True):
         return self._lookup(self.attr_dict, 'definition', name, raiseError=raiseError)
 
 

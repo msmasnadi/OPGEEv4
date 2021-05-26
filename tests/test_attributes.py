@@ -95,3 +95,9 @@ def test_exceptions(attr_classes, attr_dict_1):
     name = 'unknown'
     with pytest.raises(OpgeeException, match=f".*Attribute '{name}' not found in*"):
         obj.attr(name, raiseError=True)
+
+def test_string_rep(attr_classes):
+    name = 'energy_basis'
+    adef = attr_classes['Model'].attribute(name)
+    s = str(adef)
+    s == f"<AttrDef name='{name} type='{adef.pytype}' default='{adef.default}' options='{adef.option_set}'>"
