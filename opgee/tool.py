@@ -15,7 +15,7 @@ import sys
 from .config import (pathjoin, getParam, getConfig, getParamAsBoolean, getParamAsFloat,
                      setParam, getSection, setSection, getSections)
 from .error import OpgeeException, CommandlineError
-from .log import getLogger, setLogLevels, configureLogs
+from .log import setLogLevels, configureLogs
 from .subcommand import clean_help
 from .version import VERSION
 

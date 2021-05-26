@@ -19,6 +19,8 @@ USR_DEFAULTS_FILE = '.opgee.defaults'
 
 PlatformName = platform.system()
 
+IsWindows = platform.system() == 'Windows'
+
 _ConfigParser = None # type: configparser.ConfigParser
 
 _ProjectSection = DEFAULT_SECTION
