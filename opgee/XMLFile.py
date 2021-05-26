@@ -90,7 +90,7 @@ class XMLFile(object):
             tree = self.tree = ET.parse(filename, parser)
 
         except Exception as e:
-            raise XmlFormatError("Can't read XML file '%s': %s" % (filename, e))
+            raise XmlFormatError(f"Can't read XML file '{filename}': {e}")
 
         # Deprecated (maybe)
         # if self.conditionalXML: # pragma: no cover
@@ -129,7 +129,7 @@ class XMLFile(object):
                 schema.assertValid(tree)
                 return True
             except ET.DocumentInvalid as e:
-                raise XmlFormatError("Validation of '%s'\n  using schema '%s' failed:\n  %s" % (self.filename, self.schemaPath, e))
+                raise XmlFormatError(f"Validation of '{self.filename}'\n  using schema '{self.schemaPath}' failed:\n  {e}")
         else:
             valid = schema.validate(tree)
             return valid

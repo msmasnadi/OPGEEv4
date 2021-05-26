@@ -60,9 +60,9 @@ class XmlFormatError(FileFormatError):
 #     """
 #     def __init__(self, filename):
 #         self.filename = filename
-
-    def __str__(self):
-        return "Refusing to overwrite file: %s" % self.filename
+#
+#     def __str__(self):
+#         return "Refusing to overwrite file: %s" % self.filename
 
 class ConfigFileError(FileFormatError):
     """
