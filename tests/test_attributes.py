@@ -4,7 +4,7 @@ from pint import Quantity
 from opgee.analysis import Analysis
 from opgee.attributes import ClassAttrs, AttributeMixin
 from opgee.core import instantiate_subelts
-from opgee.error import OpgeeException
+from opgee.error import OpgeeException, AttributeError
 from opgee.model import Model
 
 @pytest.fixture
@@ -101,3 +101,9 @@ def test_string_rep(attr_classes):
     adef = attr_classes['Model'].attribute(name)
     s = str(adef)
     s == f"<AttrDef name='{name} type='{adef.pytype}' default='{adef.default}' options='{adef.option_set}'>"
+
+def test_unknown_attribute(attr_classes):
+    name = 'unknown-attribute'
+    with pytest.raises(AttributeError, match=f"Attribute definition for '{name}' was not found"):
+        attr_classes['Model'].attribute(name)
+

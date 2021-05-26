@@ -23,7 +23,7 @@ def test_dict_from_list_error():
         dict_from_list(items)
 
 def test_from_xml_error():
-    with pytest.raises(AbstractMethodError):
+    with pytest.raises(AbstractMethodError, match=f"Abstract method XmlInstantiable.from_xml was called. A subclass of XmlInstantiable must implement this method."):
         XmlInstantiable("foo").from_xml(None)
 
 def test_find_parent_error():
