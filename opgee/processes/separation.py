@@ -2,7 +2,7 @@ from ..log import getLogger
 from ..process import Process
 from ..thermodynamics import Hydrocarbon
 from opgee import ureg
-from opgee.stream import Stream
+from opgee.stream import Stream, PHASE_GAS, PHASE_LIQUID, PHASE_SOLID
 
 _logger = getLogger(__name__)
 
@@ -19,30 +19,21 @@ class Separation(Process):
     def impute(self):
         field = self.get_field()
 
+        wellhead_temp = field.attr("wellhead_temperature")
+        wellhead_press = field.attr("wellhead_pressure")
 
-
-        gas_before = field.find_stream("gas from downhole pump to separator")
-        oil_before = field.find_stream("oil from downhole pump to separator")
-        water_before = field.find_stream("water from downhole pump to separator")
-
-        downhole_pump = field.find_process("DownholePump")
-        wellhead_temp = downhole_pump.attr("wellhead_temperature")
-        wellhead_press = downhole_pump.attr("wellhead_pressure")
-        for stream in [oil_before, water_before, gas_before]:
-            stream.set_temperature_and_pressure(wellhead_temp, wellhead_press)
-
-
-
-        # oil_after = field.find_stream("oil after separator")
-        # water_after = field.find_stream("water after separator")
         gas_after = self.get_gas_stream(field)
-        oil_after = self.get_oil_stream(field, gas_after)
+        oil_after = self.get_oil_stream(field)
+        water_after = self.get_water_stream(field, oil_after)
         gas_fugitives = field.find_stream("gas fugitives from separator")
 
-        oil_before.copy_flow_rates_from(oil_after)
-        water_before.copy_flow_rates_from(water_after)
-        gas_before.copy_flow_rates_from(gas_after)
-        gas_before.add_flow_rates_from(gas_fugitives)
+        output = Stream.combine([oil_after, gas_after, water_after], temperature=wellhead_temp, pressure=wellhead_press)
+        output.add_flow_rates_from(gas_fugitives)
+
+        input = self.find_input_streams("crude oil")
+        input.set_temperature_and_pressure(wellhead_temp, wellhead_press)
+        input.add_flow_rates_from(output)
+
 
     def get_gas_stream(self, field):
         """
@@ -50,25 +41,24 @@ class Separation(Process):
         :param field:
         :return:
         """
-        oil_volume_rate = field.attr("oil_prod")                                                                        # (float) bbl/day
-        gas_oil_ratio = field.attr("GOR")                                                                               # (float) scf/bbl
-        gas_comp = field.attrs_with_prefix("gas_comp_")                                                                 # Pandas.Series (float) percent
-        temperature = self.attr("temperature_outlet").to("kelvin")
-        pressure = self.attr("gas_pressure_after_boosting").to("Pa").m
-        std_temp = field.model.const("std-temperature").to("kelvin").m
-        std_press = field.model.const("std-pressure").to("Pa").m
+        oil_volume_rate = field.attr("oil_prod")                        # (float) bbl/day
+        gas_oil_ratio = field.attr("GOR")                               # (float) scf/bbl
+        gas_comp = field.attrs_with_prefix("gas_comp_")                 # Pandas.Series (float) percent
+        temperature = self.attr("temperature_outlet")
+        pressure = self.attr("gas_pressure_after_boosting")
+        std_temp = field.model.const("std-temperature")
+        std_press = field.model.const("std-pressure")
 
         gas_after = field.find_stream("gas after separator")
-        for component in gas_comp.keys():
-            mol_frac = gas_comp[component]
+        for component, mol_frac in gas_comp.items():
             gas_volume_rate = oil_volume_rate * gas_oil_ratio * mol_frac.to("frac")
-            gas_density = ureg.Quantity(dict_chemical[component].rho("g", std_temp, std_press), "kg/m**3")
-            gas_mass_rate = gas_volume_rate.to("m**3/day") * gas_density.to("tonne/m**3")
+            gas_density = field.oil.rho(component, std_temp, std_press, PHASE_GAS)
+            gas_mass_rate = (gas_volume_rate * gas_density).to("tonne/day")
             gas_after.set_gas_flow_rate(component, gas_mass_rate)
         gas_after.set_temperature_and_pressure(temperature, pressure)
         return gas_after
 
-    def get_oil_stream(self, field, gas_after):
+    def get_oil_stream(self, field):
         """
 
         :param field:
@@ -76,7 +66,7 @@ class Separation(Process):
         :return:
         """
         num_of_stages = self.attr("number_stages")
-        temperature_stage1 = field.find_process("DownholePump").attr("wellhead_temperature")
+        temperature_stage1 = field.attr("wellhead_temperature")
         temperature_stage2 = (temperature_stage1.to("kelvin") + self.attr("temperature_outlet").to("kelvin")) / 2
         temperature_stage3 = self.attr("temperature_outlet")
         temperature_of_stages = [temperature_stage1, temperature_stage2.to("degF"), temperature_stage3]
@@ -84,18 +74,47 @@ class Separation(Process):
         pressure_stage2 = self.attr("pressure_second_stage")
         pressure_stage3 = self.attr("pressure_third_stage")
         pressure_of_stages = [pressure_stage1, pressure_stage2, pressure_stage3]
-        gas_oil_ratio = field.attr("GOR")
-        std_temp = field.model.const("std-temperature").to("kelvin").m
-        std_press = field.model.const("std-pressure").to("Pa").m
-        water_density_STP = ureg.Quantity(dict_chemical["H2O"].rho("l", std_temp, std_press), "kg/m**3")
 
-        gas_specific_gravity = field.gas.specific_gravity(gas_after)
-        stream = Stream("stages_stream", temperature=temperature_of_stages[num_of_stages - 1], pressure=pressure_of_stages[num_of_stages - 1])
-        solution_GOR = field.oil.solution_gas_oil_ratio(stream)
-        density = field.oil.density(stream)
-        specific_gravity = (density / water_density_STP.to("lb/ft**3")).to("frac")
+        stream = Stream("stages_stream",
+                        temperature=temperature_of_stages[num_of_stages - 1],
+                        pressure=pressure_of_stages[num_of_stages - 1])
+        oil = field.oil
 
-    # def free_gas_not_in_solution_of_stages(self, temperature_of_stages, pressure_of_stages)
+        density = oil.density(stream,                              # lb/ft3
+                                    oil.oil_specific_gravity,
+                                    oil.gas_specific_gravity,
+                                    oil.gas_oil_ratio,
+                                    oil.res_temp)
+
+        oil_volume_rate = field.attr("oil_prod")                   # (float) bbl/day
+        oil_after = field.find_stream("oil after separator")
+        oil_mass_rate = (oil_volume_rate * density).to("tonne/day")
+        water_mass_rate = (oil_mass_rate * self.attr("water_content_oil_emulsion")).to("tonne/day")
+        oil_after.set_liquid_flow_rate("oil", oil_mass_rate)
+        oil_after.set_liquid_flow_rate("H2O", water_mass_rate)
+        oil_after.set_temperature_and_pressure(self.attr("temperature_outlet"), self.attr("pressure_outlet"))
+        return oil_after
+
+    def get_water_stream(self, field, oil_after):
+        """
+
+        :param field:
+        :param oil_after:
+        :return:
+        """
+        water_oil_ratio = field.attr("WOR")
+        oil_volume_rate = field.attr("oil_prod")
+        water_mass_rate_of_oil_after = oil_after.flow_rate("H2O", "liquid")
+        std_temp = field.model.const("std-temperature")
+        std_press = field.model.const("std-pressure")
+        water_density_STP = field.oil.rho("H2O", std_temp, std_press, PHASE_LIQUID)
+        water_mass_rate = (oil_volume_rate * water_oil_ratio * water_density_STP.to("tonne/barrel_water") -
+                           water_mass_rate_of_oil_after)
+
+        water_after = field.find_stream("water after separator")
+        water_after.set_liquid_flow_rate("H2O", water_mass_rate)
+        water_after.set_temperature_and_pressure(self.attr("temperature_outlet"), self.attr("pressure_outlet"))
+        return water_after
 
 
 

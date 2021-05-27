@@ -13,10 +13,6 @@ class CrudeOilTransport(Process):
         self.print_running_msg()
 
 
-class CrudeOilStorage(Process):
-    def run(self, analysis):
-        self.print_running_msg()
-
 class StorageCompressor(Process):
     def run(self, analysis):
         self.print_running_msg()

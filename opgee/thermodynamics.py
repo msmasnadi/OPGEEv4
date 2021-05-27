@@ -119,6 +119,21 @@ class Hydrocarbon(OpgeeObject):
         mol_weight = ureg.Quantity(self.dict_chemical[component].MW, "g/mol")
         return mol_weight
 
+    def rho(self, component, temperature, pressure, phase):
+        """
+
+        :param component:
+        :param temperature:
+        :param pressure:
+        :param phase:
+        :return:
+        """
+        temperature = temperature.to("kelvin").m
+        pressure = pressure.to("Pa").m
+        phases = {PHASE_GAS: "g", PHASE_LIQUID: "l", PHASE_SOLID: "s"}
+
+        rho = self.dict_chemical[component].rho(phases[phase], temperature, pressure)
+        return ureg.Quantity(rho, "kg/m**3")
 
 class Oil(Hydrocarbon):
     """
@@ -146,11 +161,12 @@ class Oil(Hydrocarbon):
         super().__init__(field)
         self.API = API = field.attr("API")
         self.oil_specific_gravity = ureg.Quantity(141.5 / (131.5 + API.m), "frac")
+        self.gas_specific_gravity = self._gas_specific_gravity()
         self.gas_comp = field.attrs_with_prefix('gas_comp_')
         self.gas_oil_ratio = field.attr('GOR')
         self.wet_air_MW = WetAir(field).mol_weight()
 
-    def gas_specific_gravity(self):
+    def _gas_specific_gravity(self):
         """
         Gas specific gravity is defined as the ratio of the molecular weight (MW) of the gas
         to the MW of wet air
@@ -188,7 +204,7 @@ class Oil(Hydrocarbon):
         oil_SG = self.oil_specific_gravity
         res_temperature = self.res_temp.to("rankine").m
         res_pressure = self.res_press.m
-        gas_SG = self.gas_specific_gravity()
+        gas_SG = self.gas_specific_gravity
         gor_bubble = self.bubble_point_solution_GOR(self.gas_oil_ratio)
 
         result = np.min([
@@ -278,7 +294,7 @@ class Oil(Hydrocarbon):
         res_stream = Stream("test_stream", temperature=self.res_temp, pressure=self.res_press)
         bubble_oil_FVF = self.saturated_formation_volume_factor(res_stream,
                                                                 self.oil_specific_gravity,
-                                                                self.gas_specific_gravity(),
+                                                                self.gas_specific_gravity,
                                                                 self.gas_oil_ratio).m
 
         p_bubblepoint = self.bubble_point_pressure(oil_specific_gravity,

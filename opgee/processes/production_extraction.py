@@ -3,15 +3,6 @@ from ..log import getLogger
 
 _logger = getLogger(__name__)
 
-class DownholePump(Process):
-    def run(self, analysis):
-        self.print_running_msg()
-
-    def impute(self):
-        # TBD: copy some output streams to input streams, and
-        # TBD: sum rates of some substances from outputs to compute input rates
-        pass
-
 
 class CrudeStorage(Process):
     def run(self, analysis):

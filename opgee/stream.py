@@ -265,7 +265,7 @@ class Stream(XmlInstantiable, AttributeMixin):
 
 
     @classmethod
-    def combine(cls, streams):
+    def combine(cls, streams, temperature=None, pressure=None):
         """
         Thermodynamically combine multiple streams' components into a new
         anonymous Stream. This is used on input streams since it makes no
@@ -282,11 +282,9 @@ class Stream(XmlInstantiable, AttributeMixin):
 
         matrices = [stream.components for stream in streams]
 
-        # TBD: for now, we naively sum the components, and average the temp and pressure
-        # TODO: Wennan need to fix this using thermosteam
         comp_matrix = sum(matrices)
-        temperature = mean([stream.temperature for stream in streams])
-        pressure    = mean([stream.pressure for stream in streams])
+        temperature = temperature or mean([stream.temperature for stream in streams])
+        pressure    = pressure or mean([stream.pressure for stream in streams])
         stream = Stream('-', temperature=temperature, pressure=pressure, comp_matrix=comp_matrix)
         return stream
 

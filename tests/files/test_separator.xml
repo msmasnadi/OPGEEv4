@@ -23,6 +23,7 @@
 		<Process class="DownholePump">
 			<Consumes>crude oil</Consumes>
 			<Consumes>lifting gas</Consumes>
+			<Produces>crude oil</Produces>
 		</Process>
 
 		<Process class="After" desc="Test process 2">
@@ -30,19 +31,8 @@
 			<Produces>lifting gas</Produces>
 		</Process>
 
-		<Stream src="Separation" dst="After" name="oil after separator">
-			<A name="temperature">90.0</A>
-			<A name="pressure">100.0</A>
-			<Component name="oil" phase="liquid">273.6926</Component>
-			<Component name="H2O" phase="liquid">38.3170</Component>
-		</Stream>
-
-		<Stream src="Separation" dst="After" name="water after separator">
-			<A name="temperature">90.0</A>
-			<A name="pressure">100.0</A>
-			<Component name="H2O" phase="liquid">1963.015</Component>
-		</Stream>
-
+		<Stream src="Separation" dst="After" name="oil after separator"/>
+		<Stream src="Separation" dst="After" name="water after separator"/>
 		<Stream src="Separation" dst="After" name="gas after separator"/>
 
 		<Stream src="Separation" dst="Environment" name="gas fugitives from separator">
@@ -61,9 +51,7 @@
 		<Stream src="ReservoirWellInterface" dst="DownholePump" name="oil from reservoir well interface to downhole pump"/>
 		<Stream src="ReservoirWellInterface" dst="DownholePump" name="water from reservoir well interface to downhole pump"/>
 
-		<Stream src="DownholePump" dst="Separation" name="oil from downhole pump to separator"/>
-		<Stream src="DownholePump" dst="Separation" name="water from downhole pump to separator"/>
-		<Stream src="DownholePump" dst="Separation" name="gas from downhole pump to separator"/>
+		<Stream src="DownholePump" dst="Separation" name="downhole pump to separator"/>
 
 		<Stream src="After" dst="DownholePump" name="lifting gas" impute="False"/>
 		<Stream src="After" dst="ReservoirWellInterface" name="flooding CO2" impute="False"/>

@@ -8,4 +8,5 @@ from .surface_processing import *
 from .separation import Separation
 from .transport_storage import *
 from .reservoir_well_interface import *
+from .crude_oil_storage import CrudeOilStorage
 

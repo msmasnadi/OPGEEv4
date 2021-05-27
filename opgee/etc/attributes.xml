@@ -69,6 +69,8 @@
     <AttrDef name="prod_index" unit="bbl/psi(d)" desc="Productivity index">17.0</AttrDef>
     <AttrDef name="res_press" unit="psia" desc="Average reservoir pressure" type="float">1556.6</AttrDef>
     <AttrDef name="res_temp" unit="degF" desc="Average reservoir temperature" type="float">200.0</AttrDef>
+    <AttrDef name="wellhead_pressure" type="float" unit="psia" >500</AttrDef>
+    <AttrDef name="wellhead_temperature" type="float" unit="degF" >150</AttrDef>
     <AttrDef name="offshore" type="binary" desc="Offshore?">0</AttrDef>
     <!-- Fluid properties -->
     <AttrDef name="API" desc="API gravity of produced crude" unit="degAPI" type="float">32.80</AttrDef>
@@ -94,7 +96,7 @@
       <Option>anthropogenic</Option>
     </Options>
     <AttrDef name="GOR" desc="Gas-to-oil ratio" unit="scf/bbl_oil" type="float">2429.3</AttrDef>
-    <AttrDef name="WOR" desc="Water-to-oil ratio" unit="bbl_water/bbl" type="float">6.0</AttrDef>
+    <AttrDef name="WOR" desc="Water-to-oil ratio" unit="bbl_water/bbl_oil" type="float">6.0</AttrDef>
     <AttrDef name="WIR" desc="Water injection ratio" unit="bbl_water/bbl" type="float">7.0</AttrDef>
     <AttrDef name="GLIR" desc="Gas lifting injection ratio" unit="scf/bbl_liquid" type="float">364.0</AttrDef>
     <AttrDef name="GFIR" desc="Gas flooding injection ratio" unit="scf/bbl_oil" type="float">3644.0</AttrDef>
@@ -216,8 +218,7 @@
 <!--    <AttrDef name=""-->
 <!--  </ClassAttrs>-->
   <ClassAttrs name="DownholePump">
-    <AttrDef name="wellhead_pressure" type="float" unit="psia" >500</AttrDef>
-    <AttrDef name="wellhead_temperature" type="float" unit="degF" >150</AttrDef>
+
   </ClassAttrs>
   <ClassAttrs name="FluidProduction">
     <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
@@ -236,7 +237,7 @@
     <AttrDef name="number_stages" type="int" desc="Number of separator stages">2</AttrDef>
     <AttrDef name="pressure_first_stage" type="float" unit="psia" desc="First stage separator pressure">500.0</AttrDef>
     <AttrDef name="pressure_second_stage" type="float" unit="psia" desc="Second stage separator pressure">250.0</AttrDef>
-    <AttrDef name="pressure_third_stage" type="float" unit="psia" desc="Third stage separator pressure">150.0</AttrDef>
+    <AttrDef name="pressure_third_stage" type="float" unit="psia" desc="Third stage separator pressure">100.0</AttrDef>
     <AttrDef name="pressure_outlet" type="float" unit="psia" desc="Separator pressure (final if multi-stage)">100.0</AttrDef>
     <AttrDef name="temperature_outlet" type="float" unit="degF" desc="Separator temperature (final if multi-stage)">90.0</AttrDef>
     <AttrDef name="water_content_oil_emulsion" type="float" unit="percent" desc="Entrained water as a fraction of oil emulsion (weight percentage)">14.0</AttrDef>

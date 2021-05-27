@@ -260,13 +260,14 @@ class Process(XmlInstantiable, AttributeMixin):
     def handles(self, stream_type):
         return stream_type in self.consumes
 
-    def find_output_streams(self, stream_type, raiseError=True):
+    def find_output_streams(self, stream_type, combine=True, raiseError=True):
         """
         Find the output streams connected to a downstream Process that handles the indicated
         `stream_type`, e.g., 'crude oil', 'raw water' and so on.
 
         :param direction: (str) 'input' or 'output'
         :param stream_type: (str) the generic type of stream a process can handle.
+        :param combine: (bool) whether to (thermodynamically) combine multiple Streams into a single one
         :param raiseError: (bool) whether to raise an error if no handlers of `stream_type` are found.
         :return: (list of Streams)
         :raises: OpgeeException if no processes handling `stream_type` are found and `raiseError` is True
@@ -275,7 +276,7 @@ class Process(XmlInstantiable, AttributeMixin):
         if not streams and raiseError:
             raise OpgeeException(f"{self}: no output streams connect to processes handling '{stream_type}'")
 
-        return streams
+        return Stream.combine(streams) if combine else streams
 
     def find_output_stream(self, stream_type, raiseError=True):
         """
