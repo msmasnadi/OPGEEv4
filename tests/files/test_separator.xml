@@ -11,23 +11,24 @@
 
 	<Field name="test">
 		<A name="country">USA</A>
-		<Process class="Separation" desc="Test process 1">
+		<Process class="Separation">
 			<Produces>crude oil</Produces>
 		</Process>
 
-		<Process class="Before" desc="Test process 2">
+		<Process class="ReservoirWellInterface">
 			<Consumes>crude oil</Consumes>
-			<Consumes>hydrogen</Consumes>
-			<Produces>natural gas</Produces>
+			<Consumes>flooding CO2</Consumes>
+		</Process>
+
+		<Process class="DownholePump">
+			<Consumes>crude oil</Consumes>
+			<Consumes>lifting gas</Consumes>
 		</Process>
 
 		<Process class="After" desc="Test process 2">
 			<Consumes>crude oil</Consumes>
-			<Consumes>hydrogen</Consumes>
-			<Produces>natural gas</Produces>
+			<Produces>lifting gas</Produces>
 		</Process>
-
-		<Process class="DownholePump"/>
 
 		<Stream src="Separation" dst="After" name="oil after separator">
 			<A name="temperature">90.0</A>
@@ -56,9 +57,17 @@
 			<Component name="H2S" phase="gas">0.000005</Component>
 		</Stream>
 
-		<Stream src="Before" dst="Separation" name="oil before separator"/>
-		<Stream src="Before" dst="Separation" name="water before separator"/>
-		<Stream src="Before" dst="Separation" name="gas before separator"/>
+		<Stream src="ReservoirWellInterface" dst="DownholePump" name="gas from reservoir well interface to downhole pump"/>
+		<Stream src="ReservoirWellInterface" dst="DownholePump" name="oil from reservoir well interface to downhole pump"/>
+		<Stream src="ReservoirWellInterface" dst="DownholePump" name="water from reservoir well interface to downhole pump"/>
+
+		<Stream src="DownholePump" dst="Separation" name="oil from downhole pump to separator"/>
+		<Stream src="DownholePump" dst="Separation" name="water from downhole pump to separator"/>
+		<Stream src="DownholePump" dst="Separation" name="gas from downhole pump to separator"/>
+
+		<Stream src="After" dst="DownholePump" name="lifting gas" impute="False"/>
+		<Stream src="After" dst="ReservoirWellInterface" name="flooding CO2" impute="False"/>
+
 
 
 	</Field>

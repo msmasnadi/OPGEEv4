@@ -283,6 +283,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         matrices = [stream.components for stream in streams]
 
         # TBD: for now, we naively sum the components, and average the temp and pressure
+        # TODO: Wennan need to fix this using thermosteam
         comp_matrix = sum(matrices)
         temperature = mean([stream.temperature for stream in streams])
         pressure    = mean([stream.pressure for stream in streams])
