@@ -20,14 +20,15 @@ def prettify(elt):
     tree = ET.parse(file_obj, parser)
     return tree.getroot()
 
+# Deprecated (currently unused)
 # Oddly, we must re-parse the XML to get the formatting right.
-def write_xml(tree, filename):
-    parser = ET.XMLParser(remove_blank_text=True)
-    xml = ET.tostring(tree.getroot())
-    file_obj = StringIO(xml.decode('utf-8'))
-    tree = ET.parse(file_obj, parser)
-
-    tree.write(filename, pretty_print=True, xml_declaration=True)
+# def write_xml(tree, filename):
+#     parser = ET.XMLParser(remove_blank_text=True)
+#     xml = ET.tostring(tree.getroot())
+#     file_obj = StringIO(xml.decode('utf-8'))
+#     tree = ET.parse(file_obj, parser)
+#
+#     tree.write(filename, pretty_print=True, xml_declaration=True)
 
 # Surface level (tag and attribute) comparison of elements
 def match_element(elt1, elt2):
@@ -86,13 +87,13 @@ def merge_siblings(elt1, elt2):
 
     merge_elements(elt1, elt2[:])
 
-
-def ElementWithText(tag, text, **kwargs):
-    elt = ET.Element(tag, **kwargs)
-    elt.text = str(text)
-    return elt
-
-def SubElementWithText(parent, tag, text, **kwargs):
-    elt = ElementWithText(tag, text, **kwargs)
-    parent.append(elt)
-    return elt
+# Deprecated (currently unused)
+# def ElementWithText(tag, text, **kwargs):
+#     elt = ET.Element(tag, **kwargs)
+#     elt.text = str(text)
+#     return elt
+#
+# def SubElementWithText(parent, tag, text, **kwargs):
+#     elt = ElementWithText(tag, text, **kwargs)
+#     parent.append(elt)
+#     return elt

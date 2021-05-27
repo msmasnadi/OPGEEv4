@@ -1,5 +1,7 @@
 import pytest
+from opgee import ureg
 from opgee.model import ModelFile
+from opgee.stream import Stream
 from opgee.process import Process
 from .utils_for_tests import path_to_test_file
 
@@ -12,7 +14,7 @@ def process_loop_model(configure_logging_for_tests):
 class Proc1(Process):
     def run(self, analysis):
         # find appropriate streams by checking connected processes' capabilities
-        oil_flow_rate = 100
+        oil_flow_rate = ureg.Quantity(100.0, Stream.units())
 
         out_stream = self.find_output_stream('crude oil')
         out_stream.set_liquid_flow_rate('oil', oil_flow_rate)
@@ -58,4 +60,3 @@ def test_process_loop(process_loop_model):
     analysis = process_loop_model.get_analysis('test')
     field = analysis.get_field('test')
     field.run(analysis)
-    assert 1 == 1

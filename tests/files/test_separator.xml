@@ -12,6 +12,7 @@
 	<Field name="test">
 		<A name="country">USA</A>
 		<Process class="Separation">
+			<Consumes>crude oil</Consumes>
 			<Produces>crude oil</Produces>
 		</Process>
 

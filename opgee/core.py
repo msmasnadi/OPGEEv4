@@ -13,8 +13,6 @@ from .utils import coercible, getBooleanXML
 
 _logger = getLogger(__name__)
 
-# Note: moved pint registry setup to __init__.py
-
 def magnitude(value, units=None):
     """
     Return the magnitude of `value`. If `value` is a pint.Quantity and
@@ -35,75 +33,76 @@ def magnitude(value, units=None):
     else:
         return value
 
-def ensure_units(value, units):
-    """
-    If `value` is a pint.Quantity, check that `value` has the given `units` and return
-    the value or raise and error if not of the expected units. If `value` is not a
-    Quantity, convert it to one using `units`.
+# Deprecated
+# def ensure_units(value, units):
+#     """
+#     If `value` is a pint.Quantity, check that `value` has the given `units` and return
+#     the value or raise and error if not of the expected units. If `value` is not a
+#     Quantity, convert it to one using `units`.
+#
+#     :param value: (float or pint.Quantity) the value to check and/or convert to Quantity
+#     :param units: (pint.Unit) the expected units, also used to convert to Quantity
+#     :return: (pint.Quantity) with `value` and `units`
+#     """
+#     if isinstance(value, ureg.Quantity):
+#         if value.units != units:
+#             raise OpgeeException(f"ensure_units: value {value} units are not {units}")
+#         else:
+#             return value
+#     else:
+#         return ureg.Quantity(value, units)
 
-    :param value: (float or pint.Quantity) the value to check and/or convert to Quantity
-    :param units: (pint.Unit) the expected units, also used to convert to Quantity
-    :return: (pint.Quantity) with `value` and `units`
-    """
-    if isinstance(value, ureg.Quantity):
-        if value.units != units:
-            raise OpgeeException(f"ensure_units: value {value} units are not {units}")
-        else:
-            return value
-    else:
-        return ureg.Quantity(value, units)
 
-
-
-def superclass(cls):
-    """
-    Get the first superclass of the given class from the __mro__ (method resolution order).
-    This is necessary since super().xml_attrs() did not work as required for class methods.
-
-    :param cls: (class) The class to get the superclass of
-    :return: (class) The first superclass in class's MRO, if any, else None
-    """
-    mro = cls.__mro__
-    return mro[1] if len(mro) > 1 else None
+# Deprecated
+# def superclass(cls):
+#     """
+#     Get the first superclass of the given class from the __mro__ (method resolution order).
+#     This is necessary since super().xml_attrs() did not work as required for class methods.
+#
+#     :param cls: (class) The class to get the superclass of
+#     :return: (class) The first superclass in class's MRO, if any, else None
+#     """
+#     mro = cls.__mro__
+#     return mro[1] if len(mro) > 1 else None
 
 # Deprecated?
-def subelt_text(elt, tag, coerce=None, with_unit=True, required=True):
-    """
-    Get the value from the text of the named subelement of `elt`. If `required`
-    is True and the element is not found, raise an error. If not found and `required`
-    is False, return None. Regardless of `required`, an error is raised if multiple
-    subelements with `tag` are found.
-
-    :param elt: (etree.Element) the parent element
-    :param tag: (str) the tag of the subelement
-    :param coerce: (type) a type to coerce the value
-    :param with_unit: (bool) if True, return a Value instance with value and unit.
-    :param required: (bool) whether to raise an error if element is not found,
-           or if found and `with_unit` is True, there is no unit attribute.
-    :return: (str) the value found in the subelement, converted by `coerce` if
-           `coerce` is not None, or if `with_unit` is True, an instance of Value.
-    :raises: OpgeeException if `required` is True and the subelement isn't found,
-           or if multiple subelements with `tag` are found, or if a required element
-           is missing a unit attribute and `with_unit` is True.
-    """
-    subs = elt.findall(tag)
-    count = len(subs)
-    if count == 0 and not required:
-        return None
-
-    if count != 1:
-        raise OpgeeException(f"Expected one {tag} subelements below {elt}; found {count}")
-
-    subelt = subs[0]
-    value = subelt.text if coerce is None else coercible(subelt.text, coerce)
-    unit = subelt.attrib.get('unit')
-
-    if with_unit:
-        if unit is None:
-            raise OpgeeException(f"subelt_value: unit is missing from element {subelt}")
-        return ureg.Quantity(value, ureg[unit])
-    else:
-        return value
+# def subelt_text(elt, tag, coerce=None, with_unit=True, required=True):
+#     """
+#     Get the value from the text of the named subelement of `elt`. If `required`
+#     is True and the element is not found, raise an error. If not found and `required`
+#     is False, return None. Regardless of `required`, an error is raised if multiple
+#     subelements with `tag` are found.
+#
+#     :param elt: (etree.Element) the parent element
+#     :param tag: (str) the tag of the subelement
+#     :param coerce: (type) a type to coerce the value
+#     :param with_unit: (bool) if True, return a Value instance with value and unit.
+#     :param required: (bool) whether to raise an error if element is not found,
+#            or if found and `with_unit` is True, there is no unit attribute.
+#     :return: (str) the value found in the subelement, converted by `coerce` if
+#            `coerce` is not None, or if `with_unit` is True, an instance of Value.
+#     :raises: OpgeeException if `required` is True and the subelement isn't found,
+#            or if multiple subelements with `tag` are found, or if a required element
+#            is missing a unit attribute and `with_unit` is True.
+#     """
+#     subs = elt.findall(tag)
+#     count = len(subs)
+#     if count == 0 and not required:
+#         return None
+#
+#     if count != 1:
+#         raise OpgeeException(f"Expected one {tag} subelements below {elt}; found {count}")
+#
+#     subelt = subs[0]
+#     value = subelt.text if coerce is None else coercible(subelt.text, coerce)
+#     unit = subelt.attrib.get('unit')
+#
+#     if with_unit:
+#         if unit is None:
+#             raise OpgeeException(f"subelt_value: unit is missing from element {subelt}")
+#         return ureg.Quantity(value, ureg[unit])
+#     else:
+#         return value
 
 def elt_name(elt):
     return elt.attrib.get('name')
@@ -283,10 +282,6 @@ class A(OpgeeObject):
 
     def __str__(self):
         type_str = type(self).__name__
-
         attrs = f"name='{self.name}' type='{self.pytype}' value='{self.value}'"
-
-        if self.unit:
-            attrs += f" unit = '{self.unit}'"
 
         return f"<{type_str} {attrs}>"

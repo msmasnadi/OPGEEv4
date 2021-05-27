@@ -1,4 +1,4 @@
-from opgee.utils import pathjoin
+from opgee.config import pathjoin
 from opgee.model import ModelFile
 
 def path_to_test_file(filename):

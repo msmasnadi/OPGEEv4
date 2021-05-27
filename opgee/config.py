@@ -19,13 +19,16 @@ USR_DEFAULTS_FILE = '.opgee.defaults'
 
 PlatformName = platform.system()
 
+IsWindows = platform.system() == 'Windows'
+
 _ConfigParser = None # type: configparser.ConfigParser
 
 _ProjectSection = DEFAULT_SECTION
 
+# Deprecated (docker)
 # Support for path translations to access docker-mounted host dirs
-_PathMap = None
-_PathPattern = None     # compiled regex matching any mapped paths
+# _PathMap = None
+# _PathPattern = None     # compiled regex matching any mapped paths
 
 _DEFAULT_CONFIG = """# Default configuration file
 #
@@ -78,7 +81,7 @@ def pathjoin(*elements, **kwargs):
 
     return unixPath(path)
 
-# may not be needed in opgee
+# Deprecated (docker)
 # def savePathMap(mapString):
 #     """
 #     Save a list of pathname translations (sorted, descending by length)
@@ -104,24 +107,23 @@ def pathjoin(*elements, **kwargs):
 #
 #     _PathPattern = re.compile(pattern)
 #     _PathMap = dict(pairs)
-
-
-def _translatePath(value):
-    """
-    Translate a value if it matches _PathPattern.
-
-    :param value: (str) the config value to translate
-    :return: (str) the translated value or original if no key was matched
-    """
-    matches = re.findall(_PathPattern, value)
-    if matches:
-        for m in sorted(matches, key=len, reverse=True):
-            hostPath = m
-            contPath = _PathMap[hostPath]
-            # print("re.sub({}, {}, {})".format(hostPath, contPath, value))
-            value = re.sub(hostPath, contPath, value)
-
-    return value
+#
+# def _translatePath(value):
+#     """
+#     Translate a value if it matches _PathPattern.
+#
+#     :param value: (str) the config value to translate
+#     :return: (str) the translated value or original if no key was matched
+#     """
+#     matches = re.findall(_PathPattern, value)
+#     if matches:
+#         for m in sorted(matches, key=len, reverse=True):
+#             hostPath = m
+#             contPath = _PathMap[hostPath]
+#             # print("re.sub({}, {}, {})".format(hostPath, contPath, value))
+#             value = re.sub(hostPath, contPath, value)
+#
+#     return value
 
 # may not be needed in opgee
 # def parse_version_info(vers=None):
@@ -310,8 +312,11 @@ def getConfigDict(section=DEFAULT_SECTION, raw=False):
        those defined in DEFAULT.)
     """
 
+    # Deprecated (docker)
     # Translation function of identity
-    func = _translatePath if _PathMap else lambda x: x
+    # func = _translatePath if _PathMap else lambda x: x
+
+    func = lambda x: x  # no-op
 
     d = {key : func(value) for key, value in _ConfigParser.items(section, raw=raw)}
     return d
@@ -372,9 +377,10 @@ def getParam(name, section=None, raw=False, raiseError=True):
         else:
             return None
 
+    # Deprecated (docker)
     # perform pathname translation for use of opgee.cfg in Docker images
-    if _PathMap:
-        value = _translatePath(value)
+    # if _PathMap:
+    #     value = _translatePath(value)
 
     return value
 

@@ -1,20 +1,34 @@
-from opgee.core import magnitude
+from opgee import ureg
 from opgee.energy import Energy, EN_DIESEL, EN_NATURAL_GAS, EN_RESID, EN_PETCOKE, EN_CRUDE_OIL
 from opgee.error import OpgeeException
 import pytest
 
 def test_set_rate():
     e = Energy()
-    e.set_rate(EN_DIESEL, 123.45)
-    assert magnitude(e.data[EN_DIESEL]) == 123.45
+    rate = ureg.Quantity(123.45, 'mmbtu/day')
+    e.set_rate(EN_DIESEL, rate)
+    assert e.data[EN_DIESEL] == rate
 
-def test_set_rate_error():
+def test_set_rates_error():
     """Test that an unknown carrier name throws an OpgeeException"""
     e = Energy()
 
     with pytest.raises(OpgeeException, match=r".*Unrecognized carrier*"):
         e.set_rate('Uranium', 4321)
 
+def test_add_rate():
+    e = Energy()
+    rate = ureg.Quantity(40.0, 'mmbtu/day')
+    e.set_rate(EN_DIESEL, rate)
+    e.add_rate(EN_DIESEL, rate)
+    assert e.data[EN_DIESEL] == ureg.Quantity(80.0, 'mmbtu/day')
+
+def test_add_rate_error():
+    """Test that an unknown carrier name throws an OpgeeException"""
+    e = Energy()
+
+    with pytest.raises(OpgeeException, match=r".*Unrecognized carrier*"):
+        e.add_rates({'Uranium': 4321})
 
 @pytest.fixture
 def two_carriers():
@@ -27,7 +41,7 @@ def two_carriers():
                       (EN_PETCOKE, 0.0), (EN_RESID, 0.0)]
 )
 def test_set_rates(two_carriers, carrier, rate):
-    assert magnitude(two_carriers[carrier]) == rate
+    assert two_carriers[carrier] == ureg.Quantity(rate, 'mmbtu/day')
 
 
 def test_set_rates_error():

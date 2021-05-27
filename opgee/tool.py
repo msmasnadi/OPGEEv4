@@ -15,11 +15,12 @@ import sys
 from .config import (pathjoin, getParam, getConfig, getParamAsBoolean, getParamAsFloat,
                      setParam, getSection, setSection, getSections)
 from .error import OpgeeException, CommandlineError
-from .log import getLogger, setLogLevels, configureLogs
-from .signals import SignalException, catchSignals
+from .log import setLogLevels, configureLogs
 from .subcommand import clean_help
 from .version import VERSION
-#from .windows import IsWindows
+
+# Deprecated (signals.py)
+# from .signals import SignalException, catchSignals
 
 PROGRAM = 'opg'
 
@@ -349,8 +350,9 @@ def _main(argv=None):
     if ns.showBatch:
         ns.batch = True
 
+    # Deprecated (signals.py)
     # Catch signals to allow cleanup of TempFile instances, e.g., on ^C
-    catchSignals()
+    # catchSignals()
 
     if ns.batch:
         run = not ns.showBatch
@@ -372,13 +374,14 @@ def main(argv=None, raiseError=False):
     except CommandlineError as e:
         print(e)
 
-    except SignalException as e:
-        if raiseError:
-            raise
-
-        _logger = getLogger(__name__)
-        _logger.error(f"{PROGRAM}: {e}")
-        return e.signum
+    # Deprecated (signals.py)
+    # except SignalException as e:
+    #     if raiseError:
+    #         raise
+    #
+    #     _logger = getLogger(__name__)
+    #     _logger.error(f"{PROGRAM}: {e}")
+    #     return e.signum
 
     except Exception as e:
         if raiseError:

@@ -32,6 +32,12 @@ def test_unknown_const(test_model2):
 def test_get_analysis(test_model2):
     assert test_model2.get_analysis('Analysis1')
 
+def test_get_analysis_group_regex(test_model):
+    assert test_model.get_analysis('test2')
+
+def test_get_analysis_group(test_model):
+    assert test_model.get_analysis('test3')
+
 def test_get_field(test_model2):
     assert test_model2.get_field('Field1')
 

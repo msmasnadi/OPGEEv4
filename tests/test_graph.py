@@ -1,6 +1,6 @@
 import pytest
 from opgee.error import CommandlineError
-from opgee.windows import IsWindows
+from opgee.config import IsWindows
 
 DEVNULL = 'nul' if IsWindows else '/dev/null'
 

@@ -13,7 +13,7 @@ def oil_instance(test_model):
 
 
 def test_gas_specific_gravity(oil_instance):
-    gas_SG = oil_instance.gas_specific_gravity()
+    gas_SG = oil_instance.gas_specific_gravity
     assert gas_SG == ureg.Quantity(pytest.approx(0.627654556), "frac")
 
 
@@ -30,7 +30,7 @@ def test_reservoir_solution_GOR(oil_instance):
 
 def test_bubble_point_pressure(oil_instance):
     oil_SG = oil_instance.oil_specific_gravity
-    gas_SG = oil_instance.gas_specific_gravity()
+    gas_SG = oil_instance.gas_specific_gravity
     GOR = oil_instance.gas_oil_ratio
     temp = oil_instance.res_temp
     p_bubblepoint = oil_instance.bubble_point_pressure(oil_SG, gas_SG, GOR, temp)
@@ -40,7 +40,7 @@ def test_bubble_point_pressure(oil_instance):
 def test_solution_gas_oil_ratio(oil_instance):
     stream = Stream("test_stream", temperature=200.0, pressure=1556.0)
     oil_SG = oil_instance.oil_specific_gravity
-    gas_SG = oil_instance.gas_specific_gravity()
+    gas_SG = oil_instance.gas_specific_gravity
     GOR = oil_instance.gas_oil_ratio
     solution_gor = oil_instance.solution_gas_oil_ratio(stream, oil_SG, gas_SG, GOR)
     assert solution_gor == ureg.Quantity(pytest.approx(291.767004), "scf/bbl_oil")
@@ -49,7 +49,7 @@ def test_solution_gas_oil_ratio(oil_instance):
 def test_saturated_formation_volume_factor(oil_instance):
     stream = Stream("test_stream", temperature=200.0, pressure=1556.0)
     oil_SG = oil_instance.oil_specific_gravity
-    gas_SG = oil_instance.gas_specific_gravity()
+    gas_SG = oil_instance.gas_specific_gravity
     GOR = oil_instance.gas_oil_ratio
     sat_fvf = oil_instance.saturated_formation_volume_factor(stream, oil_SG, gas_SG, GOR)
     assert sat_fvf == ureg.Quantity(pytest.approx(1.1995558), "frac")
@@ -58,7 +58,7 @@ def test_saturated_formation_volume_factor(oil_instance):
 def test_unsat_formation_volume_factor(oil_instance):
     stream = Stream("test_stream", temperature=200.0, pressure=1556.0)
     oil_SG = oil_instance.oil_specific_gravity
-    gas_SG = oil_instance.gas_specific_gravity()
+    gas_SG = oil_instance.gas_specific_gravity
     GOR = oil_instance.gas_oil_ratio
     temp = oil_instance.res_temp
     unsat_fvf = oil_instance.unsat_formation_volume_factor(stream, oil_SG, gas_SG, GOR, temp)
@@ -68,7 +68,7 @@ def test_unsat_formation_volume_factor(oil_instance):
 def test_isothermal_compressibility_X(oil_instance):
     stream = Stream("test_stream", temperature=200.0, pressure=1556.0)
     oil_SG = oil_instance.oil_specific_gravity
-    gas_SG = oil_instance.gas_specific_gravity()
+    gas_SG = oil_instance.gas_specific_gravity
     GOR = oil_instance.gas_oil_ratio
     iso_compress_x = oil_instance.isothermal_compressibility_X(stream, oil_SG, gas_SG, GOR)
     assert iso_compress_x == ureg.Quantity(0.0, "pa**-1")
@@ -83,7 +83,7 @@ def test_isothermal_compressibility(oil_instance):
 def test_formation_volume_factor(oil_instance):
     stream = Stream("test_stream", temperature=200.0, pressure=1556.0)
     oil_SG = oil_instance.oil_specific_gravity
-    gas_SG = oil_instance.gas_specific_gravity()
+    gas_SG = oil_instance.gas_specific_gravity
     GOR = oil_instance.gas_oil_ratio
     temp = oil_instance.res_temp
     fvf = oil_instance.formation_volume_factor(stream, oil_SG, gas_SG, GOR, temp)
@@ -93,7 +93,7 @@ def test_formation_volume_factor(oil_instance):
 def test_oil_density(oil_instance):
     stream = Stream("test_stream", temperature=200.0, pressure=1556.0)
     oil_SG = oil_instance.oil_specific_gravity
-    gas_SG = oil_instance.gas_specific_gravity()
+    gas_SG = oil_instance.gas_specific_gravity
     GOR = oil_instance.gas_oil_ratio
     temp = oil_instance.res_temp
     density = oil_instance.density(stream, oil_SG, gas_SG, GOR, temp)
@@ -108,7 +108,7 @@ def test_oil_mass_energy_density(oil_instance):
 def test_oil_volume_energy_density(oil_instance):
     stream = Stream("test_stream", temperature=200.0, pressure=1556.0)
     oil_SG = oil_instance.oil_specific_gravity
-    gas_SG = oil_instance.gas_specific_gravity()
+    gas_SG = oil_instance.gas_specific_gravity
     GOR = oil_instance.gas_oil_ratio
     temp = oil_instance.res_temp
     volume_energy_density = oil_instance.volume_energy_density(stream, oil_SG, gas_SG, GOR, temp)

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
+
+	<Analysis name="test">
+		<A name="functional_unit">oil</A>
+		<A name="energy_basis">LHV</A>
+	  <A name="GWP_years">100</A>
+	  <A name="GWP_version">AR5</A>
+		<Field name="test"/>
+	</Analysis>
+
+	<Analysis name="test2">
+		<A name="functional_unit">oil</A>
+		<A name="energy_basis">LHV</A>
+	  <A name="GWP_years">100</A>
+	  <A name="GWP_version">AR5</A>
+		<Group regex="1">.*test</Group>
+	</Analysis>
+
+	<Analysis name="test3">
+		<A name="GWP_version">AR5</A>
+		<Group regex="0">other-field</Group>
+	</Analysis>
+	<Field>
+
+	</Field>
+</Model>

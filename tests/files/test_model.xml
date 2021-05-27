@@ -9,7 +9,22 @@
 		<Field name="test"/>
 	</Analysis>
 
+	<Analysis name="test2">
+		<A name="functional_unit">oil</A>
+		<A name="energy_basis">LHV</A>
+	  <A name="GWP_years">100</A>
+	  <A name="GWP_version">AR5</A>
+		<Group regex="1">.*test</Group>
+	</Analysis>
+
+	<Analysis name="test3">
+		<A name="GWP_version">AR5</A>
+		<Group regex="0">other-field</Group>
+	</Analysis>
+
+
 	<Field name="test">
+		<Group>First test</Group>		<!-- to test regex group matching -->
 		<A name="country">USA</A>
 		<A name="offshore">0</A>
 		<A name="age">38</A>
@@ -46,6 +61,26 @@
 			<A name="pressure">150.0</A>
 			<Component name="oil" phase="liquid">100</Component>
 		</Stream>
+	</Field>
 
+	<Field name="other-field">
+		<Group>Second test</Group>
+		<A name="country">USA</A>
+
+		<Process class="ProcA" desc="Test process 1">
+			<Produces>crude oil</Produces>
+		</Process>
+
+		<Process class="ProcB" desc="Test process 2">
+			<Consumes>crude oil</Consumes>
+			<Consumes>hydrogen</Consumes>
+			<Produces>natural gas</Produces>
+		</Process>
+
+		<Stream src="ProcA" dst="ProcB">
+			<A name="temperature">90.0</A>
+			<A name="pressure">150.0</A>
+			<Component name="oil" phase="liquid">100</Component>
+		</Stream>
 	</Field>
 </Model>

@@ -43,7 +43,11 @@ class Emissions(OpgeeObject):
 
     def __init__(self):
         self.data = self.create_emissions_series()
-        self.ghg = ureg.Quantity(0.0, self._units)
+        self.ghg = ureg.Quantity(0.0, self.units())
+
+    @classmethod
+    def units(cls):
+        return cls._units
 
     def rates(self, gwp=None):
         """
@@ -102,7 +106,7 @@ class Emissions(OpgeeObject):
         if gas not in self._emissions_set:
             raise OpgeeException(f"Emissions.add_rate: Unrecognized gas '{gas}'")
 
-        self.data[gas] += ureg.Quantity(magnitude(rate, units=self._units), self._units)
+        self.data[gas] += rate
 
     def add_rates(self, **kwargs):
         """
