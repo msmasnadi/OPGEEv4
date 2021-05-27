@@ -61,17 +61,17 @@
     <AttrDef name="country" desc="Field location (country)" type="str">Generic</AttrDef>
     <AttrDef name="name" desc="Field name" type="str">Generic</AttrDef>
     <AttrDef name="age" unit="yr" desc="Field age" type="float">38</AttrDef>
-    <AttrDef name="depth" unit="ft" desc="Field depth" type="float">8285</AttrDef>
-    <AttrDef name="oil_prod" unit="bbl_oil/d" desc="Oil production volume" type="float">2098</AttrDef>
-    <AttrDef name="num_prod_wells" desc="Number of producing wells" type="int">1158</AttrDef>
-    <AttrDef name="num_water_inj_wells" desc="Number of water injecting wells" type="int">34436</AttrDef>
-    <AttrDef name="well_diam" unit="in" desc="Well diameter" type="float">2.8</AttrDef>
+    <AttrDef name="depth" unit="ft" desc="Field depth" type="float">7240.0</AttrDef>
+    <AttrDef name="oil_prod" unit="bbl_oil/d" desc="Oil production volume" type="float">2098.0</AttrDef>
+    <AttrDef name="num_prod_wells" desc="Number of producing wells" type="int">24</AttrDef>
+    <AttrDef name="num_water_inj_wells" desc="Number of water injecting wells" type="int">20</AttrDef>
+    <AttrDef name="well_diam" unit="in" desc="Well diameter" type="float">2.78</AttrDef>
     <AttrDef name="prod_index" unit="bbl/psi(d)" desc="Productivity index">17.0</AttrDef>
-    <AttrDef name="res_press" unit="psia" desc="Average reservoir pressure" type="float">1061.2</AttrDef>
-    <AttrDef name="res_temp" unit="degF" desc="Average reservoir temperature" type="float">158.8</AttrDef>
+    <AttrDef name="res_press" unit="psia" desc="Average reservoir pressure" type="float">1556.6</AttrDef>
+    <AttrDef name="res_temp" unit="degF" desc="Average reservoir temperature" type="float">200.0</AttrDef>
     <AttrDef name="offshore" type="binary" desc="Offshore?">0</AttrDef>
     <!-- Fluid properties -->
-    <AttrDef name="API" desc="API gravity of produced crude" unit="degAPI" type="float">47</AttrDef>
+    <AttrDef name="API" desc="API gravity of produced crude" unit="degAPI" type="float">32.80</AttrDef>
     <AttrDef name="gas_comp_N2" unit="mol_pct" type="float">2.86</AttrDef>
     <AttrDef name="gas_comp_CO2" unit="mol_pct" type="float">0.33</AttrDef>
     <AttrDef name="gas_comp_C1" unit="mol_pct" type="float">89.18</AttrDef>
