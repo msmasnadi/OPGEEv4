@@ -14,4 +14,8 @@ class DownholePump(Process):
         field = self.get_field()
 
         output = self.find_output_streams("crude oil")
-        pass
+        gas_fugitives = self.find_stream("gas fugitives from downhole pump")
+
+        input = self.find_input_streams("crude oil")
+        input.set_temperature_and_pressure(wellhead_temp, wellhead_press)
+        input.add_flow_rates_from(output)

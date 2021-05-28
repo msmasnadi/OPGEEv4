@@ -36,17 +36,8 @@
 		<Stream src="Separation" dst="After" name="water after separator"/>
 		<Stream src="Separation" dst="After" name="gas after separator"/>
 
-		<Stream src="Separation" dst="Environment" name="gas fugitives from separator">
-			<A name="temperature">60.0</A>
-			<A name="pressure">14.7</A>
-			<Component name="N2" phase="gas">0.001275</Component>
-			<Component name="CO2" phase="gas">0.000231</Component>
-			<Component name="C1" phase="gas">0.022765</Component>
-			<Component name="C2" phase="gas">0.002536</Component>
-			<Component name="C3" phase="gas">0.001137</Component>
-			<Component name="C4" phase="gas">0.000657</Component>
-			<Component name="H2S" phase="gas">0.000005</Component>
-		</Stream>
+		<Stream src="Separation" dst="Environment" name="gas fugitives from separator"/>
+		<Stream src="DownholePump" dst="Environment" name="gas fugitives from downhole pump"/>
 
 		<Stream src="ReservoirWellInterface" dst="DownholePump" name="gas from reservoir well interface to downhole pump"/>
 		<Stream src="ReservoirWellInterface" dst="DownholePump" name="oil from reservoir well interface to downhole pump"/>
