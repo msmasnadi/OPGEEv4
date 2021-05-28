@@ -34,25 +34,6 @@
 
 	<Analysis name="default">
 		<Field name="US_FW"/>			<!-- include one field only -->
-		<A name="country">USA</A>
-		<A name="offshore">0</A>
-		<A name="age">86</A>
-		<A name="depth">4936</A>
-		<A name="oil_prod">101295</A>
-		<A name="num_prod_wells">41539</A>
-		<A name="num_water_inj_wells">34426</A>
-		<A name="well_diam">3.01</A>
-		<A name="prod_index">37.53</A>
-		<A name="res_press">887.31</A>
-		<A name="res_temp">70.84</A>
-		<A name="gas_comp_N2">2.0</A>
-		<A name="gas_comp_CO2">6.0</A>
-		<A name="gas_comp_C1">84.0</A>
-		<A name="gas_comp_C2">4.0</A>
-		<A name="gas_comp_C3">2.0</A>
-		<A name="gas_comp_C4">1.0</A>
-		<A name="gas_comp_H2S">1.0</A>
-		<A name="GOR">1205.4</A>
 	</Analysis>
 
 	<Field name="test">
@@ -68,6 +49,7 @@
 			<Process class="Reservoir" desc="Oil reservoir">
 				<Produces>crude oil</Produces>
 				<Produces>untreated water</Produces>
+				<A name="leak_rate">0.0025</A>
 			</Process>
 
 			<Process class="ReservoirWellInterface">
@@ -76,6 +58,7 @@
 			</Process>
 
 			<Process class="DownholePump">
+				<Consumes>crude oil</Consumes>
 				<Produces>crude oil</Produces>
 				<Produces>untreated water</Produces>
 			</Process>
@@ -141,9 +124,18 @@
 		<A name="prod_index">37.53</A>
 		<A name="res_press">887.31</A>
 		<A name="res_temp">70.84</A>
+		<A name="gas_comp_N2">2.0</A>
+		<A name="gas_comp_CO2">6.0</A>
+		<A name="gas_comp_C1">84.0</A>
+		<A name="gas_comp_C2">4.0</A>
+		<A name="gas_comp_C3">2.0</A>
+		<A name="gas_comp_C4">1.0</A>
+		<A name="gas_comp_H2S">1.0</A>
+		<A name="GOR">1205.4</A>
 
 		<Process class="Reservoir" desc="Oil reservoir">
 			<Produces>crude oil</Produces>
+			<A name="leak_rate">0.0022</A>
 		</Process>
 		<Stream number="1" name="oil in reservoir" src="Reservoir" dst="ReservoirWellInterface">
 			<A name="temperature">70.8</A>

@@ -4,7 +4,7 @@
 	<Analysis name="test_separator">
 		<A name="functional_unit">oil</A>
 		<A name="energy_basis">LHV</A>
-	  <A name="GWP_years">100</A>
+	  <A name="GWP_horizon">100</A>
 	  <A name="GWP_version">AR5</A>
 		<Field name="test"/>
 	</Analysis>
@@ -19,6 +19,7 @@
 		<Process class="ReservoirWellInterface">
 			<Consumes>crude oil</Consumes>
 			<Consumes>flooding CO2</Consumes>
+			<Produces>crude oil</Produces>
 		</Process>
 
 		<Process class="DownholePump">

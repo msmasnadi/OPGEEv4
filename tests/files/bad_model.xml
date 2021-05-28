@@ -4,7 +4,7 @@
 	<Analysis name="test">
 		<A name="functional_unit">oil</A>
 		<A name="energy_basis">LHV</A>
-	  <A name="GWP_years">100</A>
+	  <A name="GWP_horizon">100</A>
 	  <A name="GWP_version">AR5</A>
 		<Field name="test"/>
 	</Analysis>
@@ -12,7 +12,7 @@
 	<Analysis name="test2">
 		<A name="functional_unit">oil</A>
 		<A name="energy_basis">LHV</A>
-	  <A name="GWP_years">100</A>
+	  <A name="GWP_horizon">100</A>
 	  <A name="GWP_version">AR5</A>
 		<Group regex="1">.*test</Group>
 	</Analysis>
@@ -22,6 +22,6 @@
 		<Group regex="0">other-field</Group>
 	</Analysis>
 	<Field>
-
+		<!-- this is erroneous XML per the opgee.xsd schema -->
 	</Field>
 </Model>

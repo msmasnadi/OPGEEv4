@@ -450,8 +450,6 @@ class Process(XmlInstantiable, AttributeMixin):
 
         classname = a['class']  # required by XML schema
         subclass = _get_subclass(Process, classname)
-
-        # attr_dict = instantiate_subelts(elt, A, as_dict=True)
         attr_dict = subclass.instantiate_attrs(elt)
 
         produces = [node.text for node in elt.findall('Produces')]

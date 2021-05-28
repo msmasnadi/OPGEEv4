@@ -30,7 +30,7 @@ def attr_classes():
       <Option>HHV</Option>
     </Options>
 
-    <AttrDef name="GWP_years" options="GWP_time_horizon" type="int" unit="years"/>
+    <AttrDef name="GWP_horizon" options="GWP_time_horizon" type="int" unit="years"/>
     <AttrDef name="GWP_version" options="GWP_version" type="str"/>
     <AttrDef name="functional_unit" options="functional_unit" type="str"/>
     <AttrDef name="energy_basis" options="energy_basis" type="str"/>

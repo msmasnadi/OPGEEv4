@@ -189,19 +189,20 @@ class AttrDefs(OpgeeObject):
 
         return attrs
 
-    def get_def(self, classname, name, raiseError=True):
-        """
-        Return the definition of an attribute `name` defined for class `classname`.
-
-        :param classname: (str) the name of a class associated with the attribute
-        :param name: (str) the name of an attribute
-        :param raiseError: (bool) whether to raise an error if the attribute or
-           classname are not known.
-        :return: the value of the attribute
-        :raises: OpgeeException if the attribute or classname are unknown.
-        """
-        class_attrs = self.class_attrs(classname, raiseError=raiseError)
-        return class_attrs.attribute(name, raiseError=raiseError)
+    # Deprecated
+    # def get_def(self, classname, name, raiseError=True):
+    #     """
+    #     Return the definition of an attribute `name` defined for class `classname`.
+    #
+    #     :param classname: (str) the name of a class associated with the attribute
+    #     :param name: (str) the name of an attribute
+    #     :param raiseError: (bool) whether to raise an error if the attribute or
+    #        classname are not known.
+    #     :return: the value of the attribute
+    #     :raises: OpgeeException if the attribute or classname are unknown.
+    #     """
+    #     class_attrs = self.class_attrs(classname, raiseError=raiseError)
+    #     return class_attrs.attribute(name, raiseError=raiseError)
 
 
 class AttributeMixin():
@@ -235,7 +236,6 @@ class AttributeMixin():
 
         # assume that all have same units
         unit = attr_dict[names[0]].unit
-        # dtype = None # doesn't work with custom types f"pint[{unit}]" if unit else None
         dtype = f"pint[{unit}]" if unit else None
 
         d = {name[prefix_len:] : attr_dict[name].value for name in names}
@@ -245,22 +245,36 @@ class AttributeMixin():
     # TBD: fill in Smart Defaults here, or assume they've been filled already?
     @classmethod
     def instantiate_attrs(cls, elt):
-        classname = cls.__name__
-
         attr_defs = AttrDefs.get_instance()
         attr_dict = {}
 
+        # TBD: To avoid an import loop, we don't import Process from process.py. This
+        # TBD: works, but it's a bit of a hack. There might be a better way...
+        if str(cls.__mro__[1]) == "<class 'opgee.process.Process'>":
+            attr_defs = AttrDefs.get_instance()
+            # i.e., isinstance(cls, Process)
+            process_attrs = attr_defs.classes.get('Process')
+        else:
+            process_attrs = None
+
+        classname = cls.__name__
         class_attrs = attr_defs.class_attrs(classname, raiseError=False)
 
-        if class_attrs:
+        if class_attrs or process_attrs:
             # Create a list of tuples of (name, value) to set attribute values below.
             user_values = {elt_name(a) : a.text for a in elt.findall('A')}
 
-            if len(user_values) > 0 and class_attrs is None:
-                raise OpgeeException(f"Attributes defined in model XML for {classname} lack metadata")
+            # first copy Process attributes, if relevant. Then overwrite with subprocess attributes
+            combined_dict = process_attrs.attr_dict.copy() if process_attrs else {}
+            if class_attrs:
+                combined_dict.update(class_attrs.attr_dict)
+
+            unknown_attrs = set(user_values.keys()) - set(combined_dict.keys())
+            if unknown_attrs:
+                raise OpgeeException(f"Attributes {unknown_attrs} in model XML for '{classname}' lack metadata")
 
             # set up all attributes with default values
-            for name, attr_def in class_attrs.attr_dict.items():
+            for name, attr_def in combined_dict.items():
                 user_value = user_values.get(name)
                 value = user_value or attr_def.default
                 attr_dict[name] = A(name, value=value, pytype=attr_def.pytype, unit=attr_def.unit)

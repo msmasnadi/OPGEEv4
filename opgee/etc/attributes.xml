@@ -46,6 +46,11 @@
     <AttrDef name="energy_basis" options="energy_basis" type="str"/>
   </ClassAttrs>
 
+  <!-- Attributes shared by all Processes. These values can be overridden in subprocesses -->
+  <ClassAttrs name="Process">
+    <AttrDef name="leak_rate" type="float" desc="Fraction of gas streams leaked to environment" unit="fraction">0.002</AttrDef>
+  </ClassAttrs>
+
   <ClassAttrs name="Field">
     <!-- Production methods -->
     <AttrDef name="downhole_pump" type="binary" desc="Downhole pump">1</AttrDef>
@@ -80,6 +85,7 @@
     <AttrDef name="gas_comp_C2" unit="mol_pct" type="float">5.30</AttrDef>
     <AttrDef name="gas_comp_C3" unit="mol_pct" type="float">1.62</AttrDef>
     <AttrDef name="gas_comp_C4" unit="mol_pct" type="float">0.71</AttrDef>
+    <AttrDef name="gas_comp_H2S" unit="mol_pct" type="float">0.0</AttrDef>    <!-- TODO: needs a default value -->
     <!-- Production practices -->
     <Options name="flood_gases" default="NG">
       <Option desc="Natural gas">NG</Option>
