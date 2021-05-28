@@ -77,8 +77,10 @@ class Field(Container):
             if not stream.impute:
                 raise OpgeeException(f"A start stream {stream} cannot have its 'impute' flag set to '0'.")
 
-        # require that all start streams emerge from one Process
-        start_procs = {stream.src_proc for stream in start_streams}
+        # Find procs with start == True or find start_procs upstream from streams with exogenous data.from
+        # We require that all start streams emerge from one Process.
+        start_procs = {p for p in self.processes() if p.start} or {stream.src_proc for stream in start_streams}
+
         if len(start_procs) != 1:
             raise OpgeeException(f"Expected one start process upstream from start streams, got {len(start_procs)}: {start_procs}")
 

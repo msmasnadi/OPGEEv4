@@ -89,7 +89,7 @@ class Process(XmlInstantiable, AttributeMixin):
     to clear the visited counters and reset the iteration value to None.
     """
 
-    def __init__(self, name, desc=None, consumes=None, produces=None, attr_dict=None):
+    def __init__(self, name, desc=None, consumes=None, produces=None, attr_dict=None, start=False):
         name = name or self.__class__.__name__
         super().__init__(name)
 
@@ -99,6 +99,7 @@ class Process(XmlInstantiable, AttributeMixin):
         self._model = None      # @property "model" caches model here after first lookup
 
         self.desc = desc or name
+        self.start = getBooleanXML(start)
 
         self.produces = set(produces) if produces else {}
         self.consumes = set(consumes) if consumes else {}
@@ -445,6 +446,7 @@ class Process(XmlInstantiable, AttributeMixin):
         name = elt_name(elt)
         a = elt.attrib
         desc = a.get('desc')
+        start = a.get('start')
 
         classname = a['class']  # required by XML schema
         subclass = _get_subclass(Process, classname)
@@ -455,7 +457,7 @@ class Process(XmlInstantiable, AttributeMixin):
         produces = [node.text for node in elt.findall('Produces')]
         consumes = [node.text for node in elt.findall('Consumes')]
 
-        obj = subclass(name, desc=desc, attr_dict=attr_dict, produces=produces, consumes=consumes)
+        obj = subclass(name, desc=desc, attr_dict=attr_dict, produces=produces, consumes=consumes, start=start)
 
         obj.set_enabled(getBooleanXML(a.get('enabled', '1')))
         obj.set_extend(getBooleanXML(a.get('extend', '0')))

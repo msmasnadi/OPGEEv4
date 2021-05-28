@@ -125,12 +125,12 @@ def getBooleanXML(value):
              value is passed.
     :raises: OpgeeException
     """
-    false = ["false", "no", "0"]
+    false = ["false", "no", "0", "none"]
     true  = ["true", "yes", "1"]
 
     val = str(value).strip().lower()
     if val not in true + false:
-        raise OpgeeException("Can't convert '%s' to boolean; must be in {false,no,0,true,yes,1} (case sensitive)." % value)
+        raise OpgeeException("Can't convert '%s' to boolean; must be in {none,false,no,0,true,yes,1} (case sensitive)." % value)
 
     return (val in true)
 
