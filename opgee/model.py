@@ -42,7 +42,7 @@ class Model(Container):
                          self.gwp_horizons}
 
         df = tbl_mgr.get_table('constants')
-        self.constants = {name: ureg.Quantity(row.value, row.unit) for name, row in df.iterrows()}
+        self.constants = {name: ureg.Quantity(float(row.value), row.unit) for name, row in df.iterrows()}
 
         # TBD: should these be settable per Analysis?
         # parameters controlling process cyclic calculations
