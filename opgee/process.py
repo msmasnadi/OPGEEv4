@@ -185,6 +185,21 @@ class Process(XmlInstantiable, AttributeMixin):
     # end of pass through energy and emissions methods
     #
 
+    def set_gas_fugitives(self, stream, name):
+        """
+
+        :param stream:
+        :param name:
+        :return:
+        """
+        gas_fugitives = self.field.find_stream(name)
+        loss_rate = self.venting_fugitive_rate()
+        gas_fugitives.add_flow_rates_from(stream)
+        gas_fugitives.multiply_flow_rates(loss_rate)
+        gas_fugitives.set_temperature_and_pressure(60, 14.7)
+
+        return gas_fugitives
+
     @property
     def model(self):
         """

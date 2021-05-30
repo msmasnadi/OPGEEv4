@@ -241,9 +241,9 @@
     <AttrDef name="pressure_outlet" type="float" unit="psia" desc="Separator pressure (final if multi-stage)">100.0</AttrDef>
     <AttrDef name="temperature_outlet" type="float" unit="degF" desc="Separator temperature (final if multi-stage)">90.0</AttrDef>
     <AttrDef name="water_content_oil_emulsion" type="float" unit="percent" desc="Entrained water as a fraction of oil emulsion (weight percentage)">14.0</AttrDef>
-    <AttrDef name="gas_pressure_after_boosting" type="float" unit="psia" desc="Separator gas outlet pressure after boosting compressors">500</AttrDef>
+    <AttrDef name="gas_pressure_after_boosting" type="float" unit="psia" desc="Separator gas outlet pressure after boosting compressors">5000</AttrDef>
     <AttrDef name="eta_compressor" type="float" unit="percent" desc="Compressor efficiency">75.0</AttrDef>
-    <AttrDef name="prime_mover_type" type="int" desc="Prime mover type: 1 == Electricity, 2 == NG-Engine">2</AttrDef>
+    <AttrDef name="prime_mover_type" type="int" desc="Prime mover type: 1 = NG engine,2 = Electric motor,3 = Diesel engine,4 = NG turbine">2</AttrDef>
   </ClassAttrs>
   <ClassAttrs name="CrudeStorage">
     <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>

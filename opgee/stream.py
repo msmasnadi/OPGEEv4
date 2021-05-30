@@ -261,6 +261,14 @@ class Stream(XmlInstantiable, AttributeMixin):
         """
         self.components[:] = stream.components
 
+    def multiply_flow_rates(self, factor):
+        """
+
+        :param factor:
+        :return:
+        """
+        self.components *= factor
+
     def add_flow_rates_from(self, stream):
         """
 
