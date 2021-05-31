@@ -102,8 +102,8 @@ class Separation(Process):
         gas_after, oil_after, water_after = self.get_output_streams(field)
         gas_fugitives = self.set_gas_fugitives(gas_after, "gas fugitives from separator")
 
-        output = Stream.combine([oil_after, gas_after, water_after], temperature=wellhead_temp, pressure=wellhead_press)
-        output.add_flow_rates_from(gas_fugitives)
+        output = Stream.combine([oil_after, gas_after, water_after, gas_fugitives],
+                                temperature=wellhead_temp, pressure=wellhead_press)
 
         input = self.find_input_stream("crude oil")
         input.set_temperature_and_pressure(wellhead_temp, wellhead_press)

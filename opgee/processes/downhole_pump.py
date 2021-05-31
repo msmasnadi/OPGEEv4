@@ -11,7 +11,7 @@ class DownholePump(Process):
     def run(self, analysis):
         self.print_running_msg()
 
-        lift_gas = self.find_input_streams('lifting gas', combine=True, raiseError=False)
+        # lift_gas = self.find_input_streams('lifting gas', combine=True, raiseError=False)
 
 
     def impute(self):

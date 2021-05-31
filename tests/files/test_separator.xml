@@ -16,6 +16,7 @@
 			<Produces>crude oil</Produces>
 			<Produces>water</Produces>
 			<Produces>natural gas</Produces>
+			<Produces>gas fugitives</Produces>
 		</Process>
 
 		<Process class="ReservoirWellInterface">
@@ -28,6 +29,7 @@
 			<Consumes>crude oil</Consumes>
 			<Consumes>lifting gas</Consumes>
 			<Produces>crude oil</Produces>
+			<Produces>gas fugitives</Produces>
 		</Process>
 
 		<Process class="After" desc="Test process 2">
@@ -42,9 +44,7 @@
 		<Stream src="Separation" dst="Environment" name="gas fugitives from separator"/>
 		<Stream src="DownholePump" dst="Environment" name="gas fugitives from downhole pump"/>
 
-		<Stream src="ReservoirWellInterface" dst="DownholePump" name="gas from reservoir well interface to downhole pump"/>
-		<Stream src="ReservoirWellInterface" dst="DownholePump" name="oil from reservoir well interface to downhole pump"/>
-		<Stream src="ReservoirWellInterface" dst="DownholePump" name="water from reservoir well interface to downhole pump"/>
+		<Stream src="ReservoirWellInterface" dst="DownholePump" name="reservoir well interface to downhole pump"/>
 
 		<Stream src="DownholePump" dst="Separation" name="downhole pump to separator"/>
 
