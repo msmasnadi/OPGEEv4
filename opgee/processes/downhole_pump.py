@@ -27,13 +27,6 @@ class DownholePump(Process):
         gas_fugitives = self.set_gas_fugitives(gas_at_wellbore, "gas fugitives from downhole pump")
         output.add_flow_rates_from(gas_fugitives)
 
-        inputs = self.find_input_streams("crude oil", as_list=True)
+        input = self.find_input_stream("crude oil")
         #input.set_temperature_and_pressure(res_temp, wellhead_press)
-
-        # need to decide which ones to set
-        found = [s for s in inputs if s.name.startswith('oil from')]
-        if len(found) != 1:
-            raise OpgeeException(f"Downhole pump expected one crude oil stream, got {len(found)}")
-
-        input = found[0]
         input.add_flow_rates_from(output)
