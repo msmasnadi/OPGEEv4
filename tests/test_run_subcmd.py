@@ -2,16 +2,6 @@ import pytest
 from opgee.error import CommandlineError
 from .utils_for_tests import path_to_test_file
 
-def test_run_builtin(opgee):
-    try:
-        opgee.run(None, ['run', '-a', 'test'])
-        good = True
-    except Exception as e:
-        print(e)
-        good = False
-
-    assert good
-
 def test_unknown_analysis(opgee):
     name = 'unknown-analysis'
     with pytest.raises(CommandlineError, match=r"Specified analyses .* not found in model"):
