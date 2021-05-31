@@ -17,6 +17,7 @@ psi_gauge = pound_force_per_square_inch; offset: -14.7 = psig
 
 # decide what to do here
 standard_cubic_feet = 1 * ft ** 3 = scf
+million_standard_cubic_feet = 1E6 * ft **3 = mmscf
 
 barrel_oil = 0.1589873 * m**3 = bbl_oil
 barrel_water = 0.1589873 * m**3 = bbl_water = bbl_steam = bbl_H2O = bbl_liquid
@@ -43,6 +44,6 @@ mmBtu = 1E6 * btu = mmbtu
 MJ = 1E6 * joule
 
 # percent & fraction & dimensionless
-fraction = [] = frac
+fraction = [] = frac = dimensionless
 percent = 1e-2 frac = pct
 ppm = 1e-6 fraction

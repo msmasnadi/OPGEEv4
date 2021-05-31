@@ -261,6 +261,30 @@ class Stream(XmlInstantiable, AttributeMixin):
         """
         self.components[:] = stream.components
 
+    def copy_gas_rates_from(self, stream):
+        """
+
+        :param stream:
+        :return:
+        """
+        self.components[PHASE_GAS] = stream.components[PHASE_GAS]
+
+    def copy_liquid_rates_from(self, stream):
+        """
+
+        :param stream:
+        :return:
+        """
+        self.components[PHASE_LIQUID] = stream.components[PHASE_LIQUID]
+
+    def multiply_flow_rates(self, factor):
+        """
+
+        :param factor:
+        :return:
+        """
+        self.components *= factor
+
     def add_flow_rates_from(self, stream):
         """
 
@@ -268,6 +292,14 @@ class Stream(XmlInstantiable, AttributeMixin):
         :return:
         """
         self.components += stream.components
+
+    def delete_gas_rates_from(self, stream):
+        """
+
+        :param stream:
+        :return:
+        """
+        self.components[PHASE_GAS] = self.components[PHASE_GAS] - stream.components[PHASE_GAS]
 
 
     @classmethod
