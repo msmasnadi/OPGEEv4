@@ -17,10 +17,12 @@ from .utils import getBooleanXML
 
 _logger = getLogger(__name__)
 
+
 def get_subclasses(cls):
     for subclass in cls.__subclasses__():
         yield from get_subclasses(subclass)
         yield subclass
+
 
 def _subclass_dict(superclass):
     """
@@ -29,21 +31,24 @@ def _subclass_dict(superclass):
 
     :return: (dict) subclasses keyed by name
     """
-    d = {cls.__name__ : cls for cls in get_subclasses(superclass)}
+    d = {cls.__name__: cls for cls in get_subclasses(superclass)}
     return d
+
 
 #
 # Cache of known subclasses of Aggregator and Process
 #
 _Subclass_dict = None
 
+
 def reload_subclass_dict():
     global _Subclass_dict
 
     _Subclass_dict = {
-        Aggregator : _subclass_dict(Aggregator),
-        Process    : _subclass_dict(Process)
+        Aggregator: _subclass_dict(Aggregator),
+        Process: _subclass_dict(Process)
     }
+
 
 def _get_subclass(cls, subclass_name, reload=False):
     """
@@ -96,7 +101,7 @@ class Process(XmlInstantiable, AttributeMixin):
         self.attr_dict = attr_dict or {}
         self.attr_defs = AttrDefs.get_instance()
 
-        self._model = None      # @property "model" caches model here after first lookup
+        self._model = None  # @property "model" caches model here after first lookup
 
         self.desc = desc or name
         self.start = getBooleanXML(start)
@@ -105,12 +110,12 @@ class Process(XmlInstantiable, AttributeMixin):
         self.consumes = set(consumes) if consumes else {}
 
         self.extend = False
-        self.field = None              # the Field we're part of, set on first lookup
+        self.field = None  # the Field we're part of, set on first lookup
 
-        self.inputs  = []              # Stream instances, set in Field.connect_processes()
-        self.outputs = []              # ditto
+        self.inputs = []  # Stream instances, set in Field.connect_processes()
+        self.outputs = []  # ditto
 
-        self.visit_count = 0           # increment the Process has been run
+        self.visit_count = 0  # increment the Process has been run
 
         self.energy = Energy()
         self.emissions = Emissions()
@@ -181,6 +186,7 @@ class Process(XmlInstantiable, AttributeMixin):
         """
         # TBD: deal with LHV vs HHV here?
         return self.energy.rates()
+
     #
     # end of pass through energy and emissions methods
     #
@@ -279,23 +285,27 @@ class Process(XmlInstantiable, AttributeMixin):
     def handles(self, stream_type):
         return stream_type in self.consumes
 
-    def find_output_streams(self, stream_type, combine=True, raiseError=True):
+    def find_output_streams(self, stream_type, combine=True, as_dict=False, raiseError=True):
         """
         Find the output streams connected to a downstream Process that handles the indicated
         `stream_type`, e.g., 'crude oil', 'raw water' and so on.
 
-        :param direction: (str) 'input' or 'output'
+        :param as_dict:
         :param stream_type: (str) the generic type of stream a process can handle.
         :param combine: (bool) whether to (thermodynamically) combine multiple Streams into a single one
         :param raiseError: (bool) whether to raise an error if no handlers of `stream_type` are found.
-        :return: (list of Streams)
+        :return: (Stream, list or dict of Streams)
         :raises: OpgeeException if no processes handling `stream_type` are found and `raiseError` is True
         """
+        if as_dict:
+            combine = False
+
         streams = [stream for stream in self.outputs if stream.dst_proc.handles(stream_type)]
         if not streams and raiseError:
             raise OpgeeException(f"{self}: no output streams connect to processes handling '{stream_type}'")
 
-        return Stream.combine(streams) if combine else streams
+        return Stream.combine(streams) if combine else (streams if not as_dict else
+                                                        {s.name: s for s in streams})
 
     def find_output_stream(self, stream_type, raiseError=True):
         """
@@ -479,13 +489,16 @@ class Process(XmlInstantiable, AttributeMixin):
 
         return obj
 
+
 class Reservoir(Process):
     """
     Reservoir represents natural resources such as oil and gas reservoirs, and water sources.
     Each Field object holds a single Reservoir instance.
     """
+
     def run(self, analysis):
         self.print_running_msg()
+
 
 class Environment(Process):
     """
@@ -494,6 +507,7 @@ class Environment(Process):
     restriction might change if air-capture of CO2 were introduced into the model. Each Analysis
     object holds a single Environment instance.
     """
+
     def __init__(self):
         super().__init__('Environment', desc='The Environment')
 
@@ -509,7 +523,7 @@ class Environment(Process):
         for stream in self.inputs:
             emissions.add_from_stream(stream)
 
-        emissions.GHG(analysis.gwp) # compute and cache GWP in emissions instance
+        emissions.GHG(analysis.gwp)  # compute and cache GWP in emissions instance
 
     def report(self, analysis):
         print(f"{self}: cumulative emissions to Environment:\n{self.emissions}")
@@ -529,7 +543,7 @@ class Aggregator(Container):
         """
         name = elt_name(elt)
 
-        aggs  = instantiate_subelts(elt, Aggregator)
+        aggs = instantiate_subelts(elt, Aggregator)
         procs = instantiate_subelts(elt, Process)
 
         attr_dict = cls.instantiate_attrs(elt)

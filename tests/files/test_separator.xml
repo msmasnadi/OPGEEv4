@@ -14,11 +14,14 @@
 		<Process class="Separation" start="true">
 			<Consumes>crude oil</Consumes>
 			<Produces>crude oil</Produces>
+			<Produces>water</Produces>
+			<Produces>natural gas</Produces>
 		</Process>
 
 		<Process class="ReservoirWellInterface">
 			<Consumes>crude oil</Consumes>
 			<Consumes>flooding CO2</Consumes>
+			<Produces>crude oil</Produces>
 		</Process>
 
 		<Process class="DownholePump">

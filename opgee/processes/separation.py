@@ -10,16 +10,16 @@ from opgee.stream import Stream, PHASE_GAS, PHASE_LIQUID, PHASE_SOLID
 _logger = getLogger(__name__)
 
 dict_chemical = Hydrocarbon.get_dict_chemical()
+_power = [1, 1 / 2, 1 / 3, 1 / 4, 1 / 5]
 
 
 def get_compression_ratio_stages(overall_compression_ratio_stages):
-    power = [1, 1 / 2, 1 / 3, 1 / 4, 1 / 5]
-    constant = 5
+    max_stages = len(_power)
     compression_ratio_per_stages = []
 
     for compression_ratio in overall_compression_ratio_stages:
-        for pow in power:
-            if compression_ratio ** pow < constant:
+        for pow in _power:
+            if compression_ratio ** pow < max_stages:
                 compression_ratio_per_stages.append(compression_ratio ** pow)
                 break
 
@@ -27,12 +27,12 @@ def get_compression_ratio_stages(overall_compression_ratio_stages):
 
 
 def get_num_of_compression_stages(overall_compression_ratio_stages, compression_ratio_per_stages):
-    power = [1, 1 / 2, 1 / 3, 1 / 4, 1 / 5]
     num_of_compression_stages = []
 
-    for i in range(len(overall_compression_ratio_stages)):
-        for pow in power:
-            if overall_compression_ratio_stages[i] ** pow == compression_ratio_per_stages[i]:
+    for overall_compression_ratio, compression_ratio in \
+            zip(overall_compression_ratio_stages, compression_ratio_per_stages):
+        for pow in _power:
+            if overall_compression_ratio ** pow == compression_ratio:
                 num_of_compression_stages.append(int(1 / pow))
                 break
 
@@ -42,7 +42,7 @@ def get_num_of_compression_stages(overall_compression_ratio_stages, compression_
 def get_energy_consumption_stages(prime_mover_type, brake_horsepower_of_stages):
     energy_consumption_of_stages = []
     for brake_horsepower in brake_horsepower_of_stages:
-        eff = Drivers().get_efficiency(prime_mover_type, brake_horsepower)
+        eff = Drivers.get_efficiency(prime_mover_type, brake_horsepower)
         energy_consumption = (brake_horsepower * eff).to("mmBtu/day")
         energy_consumption_of_stages.append(energy_consumption)
 
@@ -54,10 +54,20 @@ class Separation(Process):
         self.print_running_msg()
 
         field = self.get_field()
+        temperature_outlet = self.attr("temperature_outlet")
+        pressure_after_boosting = self.attr("gas_pressure_after_boosting")
 
         # mass rate
+        input = self.find_input_streams("crude oil")
         # lift_gas = self.find_input_streams('lifting gas', raiseError=False)
         # flood_CO2 = self.find_input_streams('flooding CO2', raiseError=False)
+        outputs = self.find_output_streams("crude oil", as_dict=True)
+        gas_fugitives = self.find_stream("gas fugitives from separator")
+
+        gas_after_separation = outputs["gas after separator"]
+        gas_after_separation.copy_gas_rates_from(input)
+        gas_after_separation.delete_gas_rates_from(gas_fugitives)
+        # gas_fugitives = self.set_gas_fugitives(gas_after_separation, "gas fugitives from separator")
 
         # energy rate
         oil_volume_rate = field.attr("oil_prod")  # (float) bbl/day
@@ -67,24 +77,20 @@ class Separation(Process):
 
         free_gas_stages = self.get_free_gas_stages(field)  # (float, list) scf/bbl
         gas_compression_volume_stages = [(oil_volume_rate * free_gas).to("mmscf/day") for free_gas in free_gas_stages]
-        # TODO: use gas_after + lift_gas + flood_CO2
-        gas_after, _, _ = self.get_output_streams(field)
         compressor_horsepower_of_stages = self.compressor_horsepower_of_stages(field,
-                                                                               gas_after,
+                                                                               gas_after_separation,
                                                                                gas_compression_volume_stages)
         brake_horsepower_of_stages = [compressor_hp / compressor_eff
                                       for compressor_hp in compressor_horsepower_of_stages]
         energy_consumption_of_stages = get_energy_consumption_stages(prime_mover_type, brake_horsepower_of_stages)
         energy_consumption_sum = sum(energy_consumption_of_stages)
 
-        energy_use = Energy()
-        (energy_use.set_rate(EN_NATURAL_GAS, energy_consumption_sum) if prime_mover_type == 1
-         else energy_use.set_rate(EN_ELECTRICITY, energy_consumption_sum))
+        energy_use = self.energy
+        energy_carrier = EN_NATURAL_GAS if prime_mover_type == "NG_engine" else EN_ELECTRICITY
+        energy_use.set_rate(energy_carrier, energy_consumption_sum)
 
         # emission rate
-        emissions = Emissions()
-
-
+        emissions = self.emissions
 
     def impute(self):
         field = self.get_field()
@@ -205,13 +211,15 @@ class Separation(Process):
                                                                   compression_ratio_per_stages)  # (int)
 
         horsepower_of_stages = []
-        for i in range(num_of_stages):
-            inlet_temp = temperature_of_stages[i]
-            inlet_press = pressure_of_stages[i]
-            compression_ratio = compression_ratio_per_stages[i]
-            gas_compression_volume = gas_compression_volume_stages[i]
+        for (inlet_temp, inlet_press, compression_ratio,
+             gas_compression_volume, num_of_compression) \
+                in zip(temperature_of_stages,
+                       pressure_of_stages,
+                       compression_ratio_per_stages,
+                       gas_compression_volume_stages,
+                       num_of_compression_stages):
             work = 0
-            for j in range(num_of_compression_stages[i]):
+            for j in range(num_of_compression):
                 inlet_reduced_temp = inlet_temp.to("rankine") / gas.corrected_pseudocritical_temperature(gas_after)
                 inlet_reduced_press = inlet_press / gas.corrected_pseudocritical_pressure(gas_after)
                 z_factor = gas.Z_factor(inlet_reduced_temp, inlet_reduced_press)
@@ -223,10 +231,10 @@ class Separation(Process):
                 work += work_temp1 * work_temp2 * inlet_temp.to("rankine")
 
                 delta_temp = (inlet_temp.to("rankine") *
-                              compression_ratio ** (z_factor * (ratio)) - inlet_temp) * 0.2
+                              compression_ratio ** (z_factor * ratio) - inlet_temp) * 0.2
                 inlet_temp = ureg.Quantity(inlet_temp.m + delta_temp.m, "degF")
-                inlet_press = (compression_ratio * pressure_of_stages[i] if j == 0 else
-                               inlet_press * compression_ratio * num_of_compression_stages[i])
+                inlet_press = (compression_ratio * inlet_press if j == 0 else
+                               inlet_press * compression_ratio * num_of_compression)
 
             work_sum = ureg.Quantity(work.m, "hp*day/mmscf")
             horsepower = work_sum * gas_compression_volume
