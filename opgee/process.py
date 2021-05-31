@@ -94,6 +94,10 @@ class Process(XmlInstantiable, AttributeMixin):
     to clear the visited counters and reset the iteration value to None.
     """
 
+    # Constants to support stream "finding" methods
+    INPUT = 'input'
+    OUTPUT = 'output'
+
     def __init__(self, name, desc=None, consumes=None, produces=None, attr_dict=None, start=False):
         name = name or self.__class__.__name__
         super().__init__(name)
@@ -106,8 +110,8 @@ class Process(XmlInstantiable, AttributeMixin):
         self.desc = desc or name
         self.start = getBooleanXML(start)
 
-        self.produces = set(produces) if produces else {}
-        self.consumes = set(consumes) if consumes else {}
+        self.production  = set(produces) if produces else {}
+        self.consumption = set(consumes) if consumes else {}
 
         self.extend = False
         self.field = None  # the Field we're part of, set on first lookup
@@ -260,66 +264,103 @@ class Process(XmlInstantiable, AttributeMixin):
         field = self.get_field()
         return field.find_stream(name, raiseError=raiseError)
 
-    def find_input_streams(self, stream_type, combine=True, raiseError=True):
+    def produces(self, stream_type):
+        return stream_type in self.production
+
+    def consumes(self, stream_type):
+        return stream_type in self.consumption
+
+    def find_streams_by_type(self, direction, stream_type, combine=False, as_list=False, raiseError=True):
         """
-        Find the input streams connected to an upstream Process that handles the indicated
-        `stream_type`, e.g., 'crude oil', 'raw water' and so on.
+        Find the input or output streams (indicated by `direction`) connected to a Process that handles
+        the indicated `stream_type`, e.g., 'crude oil', 'raw water' and so on.
 
         :param direction: (str) 'input' or 'output'
         :param stream_type: (str) the generic type of stream a process can handle.
         :param combine: (bool) whether to (thermodynamically) combine multiple Streams into a single one
+        :param as_list: (bool) return results as a list rather than as a dict
         :param raiseError: (bool) whether to raise an error if no handlers of `stream_type` are found.
-        :return: (Stream or list of Streams) if `combine` is True, a single, combined stream is returned,
-           otherwise a list of Streams.
+        :return: (Stream, list or dict of Streams) depends on various keyword args
         :raises: OpgeeException if no processes handling `stream_type` are found and `raiseError` is True
         """
-        streams = [stream for stream in self.inputs if stream.dst_proc.handles(stream_type)]
-        if not streams:
-            if raiseError:
-                raise OpgeeException(f"{self}: no input streams connect to processes handling '{stream_type}'")
-            else:
-                return []
+        if combine and as_list:
+            raise OpgeeException(f"_find_streams_by_type: both 'combine' and 'as_list' cannot be True")
 
-        return Stream.combine(streams) if combine else streams
+        if direction == self.INPUT:
+            streams = [stream for stream in self.inputs if stream.src_proc.produces(stream_type)]
+        elif direction == self.OUTPUT:
+            streams = [stream for stream in self.outputs if stream.dst_proc.consumes(stream_type)]
+        else:
+            raise OpgeeException(f"Stream direction must be one of {self.directions}; got '{direction}'")
 
-    def handles(self, stream_type):
-        return stream_type in self.consumes
+        if not streams and raiseError:
+            raise OpgeeException(f"{self}: no {direction} streams connect to processes handling '{stream_type}'")
 
-    def find_output_streams(self, stream_type, combine=True, as_dict=False, raiseError=True):
+        return Stream.combine(streams) if combine else (streams if as_list else {s.name: s for s in streams})
+
+    def find_input_streams(self, stream_type, combine=False, as_list=False, raiseError=True):
         """
-        Find the output streams connected to a downstream Process that handles the indicated
-        `stream_type`, e.g., 'crude oil', 'raw water' and so on.
+        Convenience method to call `find_streams_by_type` with direction "input"
 
-        :param as_dict:
         :param stream_type: (str) the generic type of stream a process can handle.
         :param combine: (bool) whether to (thermodynamically) combine multiple Streams into a single one
+        :param as_list: (bool) return results as a list rather than as a dict
         :param raiseError: (bool) whether to raise an error if no handlers of `stream_type` are found.
-        :return: (Stream, list or dict of Streams)
+        :return: (Stream, list or dict of Streams) depends on various keyword args
         :raises: OpgeeException if no processes handling `stream_type` are found and `raiseError` is True
         """
-        if as_dict:
-            combine = False
+        return self.find_streams_by_type(self.INPUT, stream_type, combine=combine, as_list=as_list, raiseError=raiseError)
 
-        streams = [stream for stream in self.outputs if stream.dst_proc.handles(stream_type)]
-        if not streams and raiseError:
-            raise OpgeeException(f"{self}: no output streams connect to processes handling '{stream_type}'")
-
-        return Stream.combine(streams) if combine else (streams if not as_dict else
-                                                        {s.name: s for s in streams})
-
-    def find_output_stream(self, stream_type, raiseError=True):
+    def find_output_streams(self, stream_type, combine=False, as_list=False, raiseError=True):
         """
-        Find the first output stream connected to a downstream Process that handles the indicated
+        Convenience method to call `find_streams_by_type` with direction "output"
+
+        :param stream_type: (str) the generic type of stream a process can handle.
+        :param combine: (bool) whether to (thermodynamically) combine multiple Streams into a single one
+        :param as_list: (bool) return results as a list rather than as a dict
+        :param raiseError: (bool) whether to raise an error if no handlers of `stream_type` are found.
+        :return: (Stream, list or dict of Streams) depends on various keyword args
+        :raises: OpgeeException if no processes handling `stream_type` are found and `raiseError` is True
+        """
+        return self.find_streams_by_type(self.OUTPUT, stream_type, combine=combine, as_list=as_list, raiseError=raiseError)
+
+    def find_input_stream(self, stream_type, raiseError=True):
+        """
+        Find exactly one input stream connected to a downstream Process that produces the indicated
         `stream_type`, e.g., 'crude oil', 'raw water' and so on.
 
         :param direction: (str) 'input' or 'output'
         :param stream_type: (str) the generic type of stream a process can handle.
         :param raiseError: (bool) whether to raise an error if no handlers of `stream_type` are found.
         :return: (Streams or None)
-        :raises: OpgeeException if no processes handling `stream_type` are found and `raiseError` is True
+        :raises: OpgeeException if exactly one process producing `stream_type` is not found and `raiseError` is True
         """
-        streams = self.find_output_streams(stream_type, combine=False, raiseError=raiseError)
-        return streams[0] if streams else None
+        streams = self.find_input_streams(stream_type, as_list=True, raiseError=raiseError)
+        if len(streams) != 1:
+            if raiseError:
+                raise OpgeeException(f"Expected one input stream with '{stream_type}'; found {len(streams)}")
+            return None
+
+        return streams[0]
+
+    def find_output_stream(self, stream_type, raiseError=True):
+        """
+        Find exactly one output stream connected to a downstream Process that consumes the indicated
+        `stream_type`, e.g., 'crude oil', 'raw water' and so on.
+
+        :param direction: (str) 'input' or 'output'
+        :param stream_type: (str) the generic type of stream a process can handle.
+        :param raiseError: (bool) whether to raise an error if no handlers of `stream_type` are found.
+        :return: (Streams or None)
+        :raises: OpgeeException if exactly one process consuming `stream_type` is not found and `raiseError` is True
+        """
+        streams = self.find_output_streams(stream_type, as_list=True, raiseError=raiseError)
+        if len(streams) != 1:
+            if raiseError:
+                raise OpgeeException(f"Expected one output stream with '{stream_type}'; found {len(streams)}")
+            return None
+
+        return streams[0]
 
     def add_output_stream(self, stream):
         self.outputs.append(stream)

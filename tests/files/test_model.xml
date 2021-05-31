@@ -48,6 +48,8 @@
 
 		<Process class="ProcA" desc="Test process 1">
 			<Produces>crude oil</Produces>
+			<Produces>water</Produces>
+			<Consumes>crude oil</Consumes>
 		</Process>
 
 		<Process class="ProcB" desc="Test process 2">

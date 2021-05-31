@@ -26,12 +26,12 @@ class CrudeOilDewatering(Process):
         input_stream = self.find_input_streams('crude oil')
 
         # Split the oil and water from the input stream into two output streams
-        oil_rate = input_stream.flow_rate('oil', PHASE_LIQUID)
-        H2O_rate = input_stream.flow_rate('H2O', PHASE_LIQUID)
+        oil_rate = input_stream.liquid_flow_rate('oil')
+        H2O_rate = input_stream.liquid_flow_rate('H2O')
 
-        # TBD: For now, we're assuming only one handler for each type of stream is found
-        oil_stream = self.find_output_streams('dewatered crude oil')
-        H2O_stream = self.find_output_streams('untreated water')
+        # TBD: For now, we're assuming only one consumer for each type of stream is found
+        oil_stream = self.find_output_stream('dewatered crude oil')
+        H2O_stream = self.find_output_stream('untreated water')
 
         oil_stream.set_flow_rate('oil', PHASE_LIQUID, oil_rate)
         H2O_stream.set_flow_rate('H2O', PHASE_LIQUID, H2O_rate)

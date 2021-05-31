@@ -58,10 +58,11 @@ class Separation(Process):
         pressure_after_boosting = self.attr("gas_pressure_after_boosting")
 
         # mass rate
-        input = self.find_input_streams("crude oil")
+        input = self.find_input_streams("crude oil", combine=True)              # TODO: should we expect exactly one of these? If so, call find_input_stream instead.
         # lift_gas = self.find_input_streams('lifting gas', raiseError=False)
         # flood_CO2 = self.find_input_streams('flooding CO2', raiseError=False)
-        outputs = self.find_output_streams("crude oil", as_dict=True)
+
+        outputs = self.find_output_streams("crude oil")                         # TODO: note that default now returns a dict.
         gas_fugitives = self.find_stream("gas fugitives from separator")
 
         gas_after_separation = outputs["gas after separator"]
@@ -104,7 +105,7 @@ class Separation(Process):
         output = Stream.combine([oil_after, gas_after, water_after], temperature=wellhead_temp, pressure=wellhead_press)
         output.add_flow_rates_from(gas_fugitives)
 
-        input = self.find_input_streams("crude oil")
+        input = self.find_input_stream("crude oil")
         input.set_temperature_and_pressure(wellhead_temp, wellhead_press)
         input.add_flow_rates_from(output)
 

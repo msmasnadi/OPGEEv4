@@ -59,11 +59,33 @@ def test_get_environment(process):
 def test_get_reservoir(process):
     assert isinstance(process.get_reservoir(),  Reservoir)
 
-def test_find_input_streams_error(process):
+@pytest.fixture(scope='module')
+def procB(test_model):
+    analysis = test_model.get_analysis('test')
+    field = analysis.get_field('test')
+    proc = field.find_process('ProcB')
+    return proc
+
+def test_find_input_streams_dict(procB):
+    obj = procB.find_input_streams("crude oil")
+    assert isinstance(obj, dict) and len(obj) == 1
+
+def test_find_input_streams_list(procB):
+    obj = procB.find_input_streams("crude oil", as_list=True)
+    assert isinstance(obj, list) and len(obj) == 1
+
+def test_find_input_stream(procB):
+    procB.find_input_stream("crude oil")
+
+def test_find_output_stream(process):
+    process.find_output_stream("crude oil")
+
+def test_find_input_stream_error(procB):
     stream_type = 'unknown_stream_type'
     with pytest.raises(OpgeeException, match=f".* no input streams connect to processes handling '{stream_type}'"):
-        process.find_input_streams(stream_type)
+        procB.find_input_stream(stream_type)
 
+# TBD: revise this after removing this table.
 def test_venting_fugitive_rate_error(process):
     classname = process.__class__.__name__
     with pytest.raises(OpgeeException, match=f"'Class {classname}' was not found in table 'venting_fugitives_by_process'"):

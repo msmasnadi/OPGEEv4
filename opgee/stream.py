@@ -299,7 +299,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param stream:
         :return:
         """
-        self.components[PHASE_GAS] = self.components[PHASE_GAS] - stream.components[PHASE_GAS]
+        self.components[PHASE_GAS] -= stream.components[PHASE_GAS]
 
 
     @classmethod
