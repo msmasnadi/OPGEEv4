@@ -163,6 +163,7 @@ class Oil(Hydrocarbon):
         self.gas_comp = field.attrs_with_prefix('gas_comp_')
         self.gas_oil_ratio = field.attr('GOR')
         self.wet_air_MW = WetAir(field).mol_weight()
+        self.dry_air_MW = DryAir(field).mol_weight()
         self.oil_specific_gravity = ureg.Quantity(141.5 / (131.5 + API.m), "frac")
         self.gas_specific_gravity = self._gas_specific_gravity()
 
@@ -179,7 +180,7 @@ class Oil(Hydrocarbon):
             molecular_weight = self.mol_weight(component)
             gas_SG += molecular_weight * mol_frac.to("frac")
 
-        gas_SG = gas_SG / self.wet_air_MW
+        gas_SG = gas_SG / self.dry_air_MW
         return gas_SG
 
     def bubble_point_solution_GOR(self, gas_oil_ratio):
@@ -450,6 +451,7 @@ class Gas(Hydrocarbon):
         """
         super().__init__(field)
         self.wet_air_MW = WetAir(field).mol_weight()
+        self.dry_air_MW = DryAir(field).mol_weight()
         self.dry_air = DryAir(field)
         self.field = field
 
@@ -495,7 +497,7 @@ class Gas(Hydrocarbon):
             molar_fraction = self.component_molar_fraction(component, stream)
             specific_gravity += molar_fraction * molecular_weight
 
-        specific_gravity = specific_gravity / self.wet_air_MW
+        specific_gravity = specific_gravity / self.dry_air_MW
 
         return specific_gravity.to("frac")
 
@@ -520,7 +522,7 @@ class Gas(Hydrocarbon):
         ratio_of_specific_heat = specific_heat_press / specific_heat_volm
         return ratio_of_specific_heat.to("frac")
 
-    def uncorrelated_pseudocritical_temperature_and_pressure(self, stream):
+    def uncorrected_pseudocritical_temperature_and_pressure(self, stream):
         """
 
         :param stream:
@@ -546,13 +548,13 @@ class Gas(Hydrocarbon):
         pressure = ureg.Quantity(temp1 / (temp2 + temp3) ** 2, "psia")
         return Series(data=[temperature, pressure], index=["temperature", "pressure"])
 
-    def correlated_pseudocritical_temperature(self, stream):
+    def corrected_pseudocritical_temperature(self, stream):
         """
 
         :param stream:
-        :return:
+        :return: (float) corrected pseudocritical temperature (unit = rankine)
         """
-        uncorr_pseudocritical_temp = self.uncorrelated_pseudocritical_temperature_and_pressure(stream)["temperature"].m
+        uncorr_pseudocritical_temp = self.uncorrected_pseudocritical_temperature_and_pressure(stream)["temperature"].m
         molar_frac_O2 = self.component_molar_fraction("O2", stream).m
         molar_frac_H2S = self.component_molar_fraction("H2S", stream).m
         result = (uncorr_pseudocritical_temp -
@@ -561,15 +563,15 @@ class Gas(Hydrocarbon):
                   )
         return ureg.Quantity(result, "rankine")
 
-    def correlated_pseudocritical_pressure(self, stream):
+    def corrected_pseudocritical_pressure(self, stream):
         """
 
         :param stream:
         :return:
         """
-        uncorr_pseudocritical_temp = self.uncorrelated_pseudocritical_temperature_and_pressure(stream)["temperature"]
-        uncorr_pseudocritical_press = self.uncorrelated_pseudocritical_temperature_and_pressure(stream)["pressure"]
-        corr_pseudocritical_temp = self.correlated_pseudocritical_temperature(stream)
+        uncorr_pseudocritical_temp = self.uncorrected_pseudocritical_temperature_and_pressure(stream)["temperature"]
+        uncorr_pseudocritical_press = self.uncorrected_pseudocritical_temperature_and_pressure(stream)["pressure"]
+        corr_pseudocritical_temp = self.corrected_pseudocritical_temperature(stream)
         molar_frac_H2S = self.component_molar_fraction("H2S", stream)
 
         result = ((uncorr_pseudocritical_press * corr_pseudocritical_temp) /
@@ -585,7 +587,7 @@ class Gas(Hydrocarbon):
         :param stream:
         :return:
         """
-        corr_pseudocritical_temp = self.correlated_pseudocritical_temperature(stream)
+        corr_pseudocritical_temp = self.corrected_pseudocritical_temperature(stream)
         result = stream.temperature.to("rankine") / corr_pseudocritical_temp
 
         return result.to("frac")
@@ -596,19 +598,20 @@ class Gas(Hydrocarbon):
         :param stream:
         :return:
         """
-        corr_pseudocritical_press = self.correlated_pseudocritical_pressure(stream)
+        corr_pseudocritical_press = self.corrected_pseudocritical_pressure(stream)
         result = stream.pressure / corr_pseudocritical_press
 
         return result.to("frac")
 
-    def Z_factor(self, stream):
+    def Z_factor(self, reduced_temperature, reduced_pressure):
         """
 
-        :param stream:
+        :param reduced_temperature:
+        :param reduced_pressure:
         :return:
         """
-        reduced_temp = self.reduced_temperature(stream).m
-        reduced_press = self.reduced_pressure(stream).m
+        reduced_temp = reduced_temperature.m
+        reduced_press = reduced_pressure.m
 
         z_factor_A = 1.39 * (reduced_temp - 0.92) ** 0.5 - 0.36 * reduced_temp - 0.101
         z_factor_B = (reduced_press * (0.62 - 0.23 * reduced_temp) +
@@ -628,7 +631,8 @@ class Gas(Hydrocarbon):
         :param stream:
         :return:
         """
-        z_factor = self.Z_factor(stream)
+
+        z_factor = self.Z_factor(self.reduced_temperature(stream), self.reduced_pressure(stream))
         temp = stream.temperature.to("rankine")
         amb_temp = self.field.model.const("std-temperature").to("rankine")
         amb_press = self.field.model.const("std-pressure")
@@ -711,10 +715,7 @@ class Gas(Hydrocarbon):
             if tonne_per_day == 0:
                 continue
             LHV = self.dict_chemical[component].LHV
-            if LHV < 0:
-                LHV = -LHV
-            LHV = ureg.Quantity(LHV, "joule/mol")
-            LHV = LHV.to("Btu/mol")
+            LHV = ureg.Quantity(abs(LHV), "joule/mol").to("Btu/mol")
             molecular_weight = self.mol_weight(component)
             density = ureg.Quantity(self.dict_chemical[component].rho("g", std_temp, std_press), "kg/m**3")
             density = density.to("g/ft**3")
