@@ -40,16 +40,24 @@
 			<Consumes>CO2</Consumes>
 		</Process>
 
-		<Stream src="Impute1" dst="Impute2"/>
+		<Stream src="Impute1" dst="Impute2">
+			<Contains>crude oil</Contains>
+		</Stream>
 
 		<Stream src="Impute2" dst="Impute3">
 			<A name="temperature">90.0</A>
 			<A name="pressure">150.0</A>
 			<Component name="oil" phase="liquid">100</Component>
+			<Contains>crude oil</Contains>
 		</Stream>
 
 		<!-- Creates a process loop -->
-		<Stream src="Impute3" dst="Impute2" impute="no"/>
-		<Stream src="Impute3" dst="Impute4"/>
+		<Stream src="Impute3" dst="Impute2" impute="no">
+			<Contains>hydrogen</Contains>
+		</Stream>
+
+		<Stream src="Impute3" dst="Impute4">
+			<Contains>CO2</Contains>
+		</Stream>
 	</Field>
 </Model>

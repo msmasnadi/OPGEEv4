@@ -82,7 +82,7 @@ def test_find_output_stream(process):
 
 def test_find_input_stream_error(procB):
     stream_type = 'unknown_stream_type'
-    with pytest.raises(OpgeeException, match=f".* no input streams connect to processes handling '{stream_type}'"):
+    with pytest.raises(OpgeeException, match=f".* no input streams contain '{stream_type}'"):
         procB.find_input_stream(stream_type)
 
 # TBD: revise this after removing this table.

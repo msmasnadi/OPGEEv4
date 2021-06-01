@@ -272,8 +272,8 @@ class Process(XmlInstantiable, AttributeMixin):
 
     def find_streams_by_type(self, direction, stream_type, combine=False, as_list=False, raiseError=True):
         """
-        Find the input or output streams (indicated by `direction`) connected to a Process that handles
-        the indicated `stream_type`, e.g., 'crude oil', 'raw water' and so on.
+        Find the input or output streams (indicated by `direction`) that contain the indicated
+        `stream_type`, e.g., 'crude oil', 'raw water' and so on.
 
         :param direction: (str) 'input' or 'output'
         :param stream_type: (str) the generic type of stream a process can handle.
@@ -286,15 +286,11 @@ class Process(XmlInstantiable, AttributeMixin):
         if combine and as_list:
             raise OpgeeException(f"_find_streams_by_type: both 'combine' and 'as_list' cannot be True")
 
-        if direction == self.INPUT:
-            streams = [stream for stream in self.inputs if stream.src_proc.produces(stream_type)]
-        elif direction == self.OUTPUT:
-            streams = [stream for stream in self.outputs if stream.dst_proc.consumes(stream_type)]
-        else:
-            raise OpgeeException(f"Stream direction must be one of {self.directions}; got '{direction}'")
+        stream_list = self.inputs if direction == self.INPUT else self.outputs
+        streams = [stream for stream in stream_list if stream.contains(stream_type)]
 
         if not streams and raiseError:
-            raise OpgeeException(f"{self}: no {direction} streams connect to processes handling '{stream_type}'")
+            raise OpgeeException(f"{self}: no {direction} streams contain '{stream_type}'")
 
         return Stream.combine(streams) if combine else (streams if as_list else {s.name: s for s in streams})
 

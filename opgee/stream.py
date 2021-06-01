@@ -95,7 +95,7 @@ class Stream(XmlInstantiable, AttributeMixin):
     _units = ureg.Unit('tonne/day')
 
     def __init__(self, name, number=0, temperature=None, pressure=None,
-                 src_name=None, dst_name=None, comp_matrix=None, impute=True):
+                 src_name=None, dst_name=None, comp_matrix=None, contents=None, impute=True):
         super().__init__(name)
 
         self.components = self.create_component_matrix() if comp_matrix is None else comp_matrix
@@ -107,6 +107,8 @@ class Stream(XmlInstantiable, AttributeMixin):
 
         self.src_proc = None        # set in Field.connect_processes()
         self.dst_proc = None
+
+        self.contents = contents or []
 
         self.impute = impute
         self.has_exogenous_data = False
@@ -254,7 +256,7 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     def copy_flow_rates_from(self, stream):
         """
-        copy all mass flow rates from `stream` to `self`
+        Copy all mass flow rates from `stream` to `self`
 
         :param stream: (Stream) to copy
         :return: none
@@ -263,44 +265,48 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     def copy_gas_rates_from(self, stream):
         """
+        Copy gas mass flow rates from `stream` to `self`
 
-        :param stream:
-        :return:
+        :param stream: (Stream) to copy
+        :return: none
         """
         self.components[PHASE_GAS] = stream.components[PHASE_GAS]
 
     def copy_liquid_rates_from(self, stream):
         """
+        Copy liquid mass flow rates from `stream` to `self`
 
-        :param stream:
-        :return:
+        :param stream: (Stream) to copy
+        :return: none
         """
         self.components[PHASE_LIQUID] = stream.components[PHASE_LIQUID]
 
     def multiply_flow_rates(self, factor):
         """
+        Multiply all our mass flow rates by `factor`.
 
-        :param factor:
-        :return:
+        :param factor: (float) what to multiply by
+        :return: none
         """
         self.components *= factor
 
     def add_flow_rates_from(self, stream):
         """
+        Add the mass flow rates from `stream` to our own.
 
-        :param stream:
-        :return:
+        :param stream: (Stream) the source of the rates to add
+        :return: none
         """
         self.components += stream.components
 
-    def delete_gas_rates_from(self, stream):
+    def subtract_gas_rates_from(self, stream):
         """
+        Subtract the gas mass flow rates of `stream` from our own.
 
-        :param stream:
-        :return:
+        :param stream: (Stream) the source of the rates to subtract
+        :return: none
         """
         self.components[PHASE_GAS] -= stream.components[PHASE_GAS]
-
 
     @classmethod
     def combine(cls, streams, temperature=None, pressure=None):
@@ -325,6 +331,15 @@ class Stream(XmlInstantiable, AttributeMixin):
         pressure    = pressure if pressure is not None else mean([stream.pressure for stream in streams])
         stream = Stream('-', temperature=temperature, pressure=pressure, comp_matrix=comp_matrix)
         return stream
+
+    def contains(self, stream_type):
+        """
+        Return whether `stream_type` is one of named contents of `stream`.
+
+        :param stream_type: (str) a symbolic name for contents of `stream`
+        :return: (bool) True if `stream_type` is among the contents of `stream`
+        """
+        return stream_type in self.contents
 
     @classmethod
     def from_xml(cls, elt):
@@ -353,8 +368,10 @@ class Stream(XmlInstantiable, AttributeMixin):
         temp = attr_dict['temperature'].value
         pres = attr_dict['pressure'].value
 
+        contents = [node.text for node in elt.findall('Contains')]
+
         obj = Stream(name, number=number, temperature=temp, pressure=pres,
-                     src_name=src, dst_name=dst, impute=impute)
+                     src_name=src, dst_name=dst, contents=contents, impute=impute)
         comp_df = obj.components # this is an empty DataFrame; it is filled in below or at runtime
 
         # Set up the stream component info

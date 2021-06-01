@@ -110,11 +110,22 @@
 		<xs:attribute name='enabled' default='1' type='xs:boolean'/>
 	</xs:complexType>
 
+  <!-- identifier for stream contents -->
+  <xs:element name='Contains'>
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base='xs:string'>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name='Stream'>
     <xs:complexType>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:element minOccurs="2" maxOccurs="2" ref='A'/>
         <xs:element ref='Component'/>
+        <xs:element ref="Contains"/>
       </xs:choice>
       <xs:attribute name='name'/>                      <!-- allow this for now, but will be computed -->
       <xs:attribute name='number' type='xs:integer'/>  <!-- allow this for now, but probably will be deprecated -->

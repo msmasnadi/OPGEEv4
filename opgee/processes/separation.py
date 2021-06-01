@@ -62,18 +62,16 @@ class Separation(Process):
         # lift_gas = self.find_input_streams('lifting gas', raiseError=False)
         # flood_CO2 = self.find_input_streams('flooding CO2', raiseError=False)
 
-        outputs = self.find_output_streams("crude oil")                         # TODO: note that default now returns a dict.
-        gas_fugitives = self.find_stream("gas fugitives from separator")
-
-        gas_after_separation = outputs["gas after separator"]
+        gas_fugitives = self.find_output_stream("gas fugitives")
+        gas_after_separation = self.find_output_stream("gas")
         gas_after_separation.copy_gas_rates_from(input)
-        gas_after_separation.delete_gas_rates_from(gas_fugitives)
+        gas_after_separation.subtract_gas_rates_from(gas_fugitives)
         # gas_fugitives = self.set_gas_fugitives(gas_after_separation, "gas fugitives from separator")
 
         # energy rate
         oil_volume_rate = field.attr("oil_prod")  # (float) bbl/day
         compressor_eff = self.attr("eta_compressor").to("frac")
-        # Primary mover type: 1 = NG engine, 2 = Electric motor, 3 = Diesel engine,4 = NG turbine
+        # Primary mover type is one of: {"NG_engine", "Electric_motor", "Diesel_engine", "NG_turbine"}
         prime_mover_type = self.attr("prime_mover_type")
 
         free_gas_stages = self.get_free_gas_stages(field)  # (float, list) scf/bbl

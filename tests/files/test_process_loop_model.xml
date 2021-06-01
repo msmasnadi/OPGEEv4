@@ -44,11 +44,20 @@
 			<A name="temperature">90.0</A>
 			<A name="pressure">150.0</A>
 			<Component name="oil" phase="liquid">100</Component>
+			<Contains>crude oil</Contains>
 		</Stream>
 
 		<!-- Creates a process loop -->
-		<Stream src="Proc2" dst="Proc3"/>
-		<Stream src="Proc3" dst="Proc2"/>
-		<Stream src="Proc3" dst="Proc4"/>
+		<Stream src="Proc2" dst="Proc3">
+			<Contains>natural gas</Contains>
+		</Stream>
+
+		<Stream src="Proc3" dst="Proc2">
+			<Contains>hydrogen</Contains>
+		</Stream>
+
+		<Stream src="Proc3" dst="Proc4">
+			<Contains>CO2</Contains>
+		</Stream>
 	</Field>
 </Model>

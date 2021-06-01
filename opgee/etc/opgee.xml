@@ -88,14 +88,22 @@
 				<Produces>crude oil</Produces>
 			</Process>
 		</Aggregator>
-		<Stream number="1" name="oil in reservoir" src="Reservoir" dst="ReservoirWellInterface"/>
-		<Stream number="3" name="crude oil at wellbottom" src="ReservoirWellInterface" dst="DownholePump"/>
-		<Stream number="4" name="crude oil at wellhead" src="DownholePump" dst="SeparationTemporary"/>
+		<Stream number="1" name="oil in reservoir" src="Reservoir" dst="ReservoirWellInterface">
+			<Contains>crude oil</Contains>
+		</Stream>
+		<Stream number="3" name="crude oil at wellbottom" src="ReservoirWellInterface" dst="DownholePump">
+			<Contains>crude oil</Contains>
+		</Stream>
+		<Stream number="4" name="crude oil at wellhead" src="DownholePump" dst="SeparationTemporary">
+			<Contains>crude oil</Contains>
+		</Stream>
 		<Stream number="7" name="crude oil after separator" src="SeparationTemporary" dst="CrudeOilDewatering">
 			<A name="temperature">90.0</A>
 			<A name="pressure">100.0</A>
 			<Component name="oil" phase="liquid" >14555.9</Component>
 			<Component name="H2O" phase="liquid" >2037.8</Component>
+			<Contains>crude oil</Contains>
+			<Contains>water</Contains>
 		</Stream>
 		<Stream number="160" name="Fuel gas - dewatering" src="SeparationTemporary" dst="CrudeOilDewatering">
 			<A name="temperature">90.0</A>
@@ -107,9 +115,14 @@
 			<Component name="C3" phase="gas" >0.2</Component>
 			<Component name="C4" phase="gas" >0.0</Component>
 			<Component name="H2S" phase="gas" >0.0</Component>
+			<Contains>fuel gas</Contains>
 		</Stream>
-		<Stream number="115" src="CrudeOilDewatering" dst="ProducedWaterTreatment"/>
-		<Stream number="8" src="CrudeOilDewatering" dst="CrudeOilStabilization"/>
+		<Stream number="115" src="CrudeOilDewatering" dst="ProducedWaterTreatment">
+			<Contains>crude oil</Contains>
+		</Stream>
+		<Stream number="8" src="CrudeOilDewatering" dst="CrudeOilStabilization">
+			<Contains>crude oil</Contains>
+		</Stream>
 	</Field>
 
 	<Field name="US_FW">
@@ -142,11 +155,13 @@
 			<A name="pressure">887.3</A>
 			<Component name="oil" phase="liquid" >14555.9</Component>
 			<Component name="H2O" phase="liquid" >2037.8</Component>
+			<Contains>crude oil</Contains>
 		</Stream>
 		<Stream number="100" name="water in reservoir" src="Reservoir" dst="ReservoirWellInterface">
 			<A name="temperature">70.8</A>
 			<A name="pressure">887.3</A>
 			<Component name="H2O" phase="liquid" >255636.1</Component>
+			<Contains>water</Contains>
 		</Stream>
 		<Stream number="25" name="gas from reservoir" src="Reservoir" dst="ReservoirWellInterface">
 			<A name="temperature">70.8</A>
@@ -158,6 +173,7 @@
 			<Component name="C3" phase="gas" >4399.9</Component>
 			<Component name="C4" phase="gas" >284.4</Component>
 			<Component name="H2S" phase="gas" >1.5</Component>
+			<Contains>gas</Contains>
 		</Stream>
 		<Aggregator name="Exploration">
 			<Process class="Exploration"/>

@@ -37,21 +37,40 @@
 			<Produces>lifting gas</Produces>
 		</Process>
 
-		<Stream src="Separation" dst="After" name="oil after separator"/>
-		<Stream src="Separation" dst="After" name="water after separator"/>
-		<Stream src="Separation" dst="After" name="gas after separator"/>
+		<Stream src="Separation" dst="After" name="oil after separator">
+			<Contains>crude oil</Contains>
+		</Stream>
 
-		<Stream src="Separation" dst="Environment" name="gas fugitives from separator"/>
-		<Stream src="DownholePump" dst="Environment" name="gas fugitives from downhole pump"/>
+		<Stream src="Separation" dst="After" name="water after separator">
+			<Contains>water</Contains>
+		</Stream>
 
-		<Stream src="ReservoirWellInterface" dst="DownholePump" name="reservoir well interface to downhole pump"/>
+		<Stream src="Separation" dst="After" name="gas after separator">
+			<Contains>gas</Contains>
+		</Stream>
 
-		<Stream src="DownholePump" dst="Separation" name="downhole pump to separator"/>
+		<Stream src="Separation" dst="Environment" name="gas fugitives from separator">
+			<Contains>gas fugitives</Contains>
+		</Stream>
 
-		<Stream src="After" dst="DownholePump" name="lifting gas" impute="False"/>
-		<Stream src="After" dst="ReservoirWellInterface" name="flooding CO2" impute="False"/>
+		<Stream src="DownholePump" dst="Environment" name="gas fugitives from downhole pump">
+			<Contains>gas fugitives</Contains>
+		</Stream>
 
+		<Stream src="ReservoirWellInterface" dst="DownholePump" name="reservoir well interface to downhole pump">
+			<Contains>crude oil</Contains>
+		</Stream>
 
+		<Stream src="DownholePump" dst="Separation" name="downhole pump to separator">
+			<Contains>crude oil</Contains>
+		</Stream>
 
+		<Stream src="After" dst="DownholePump" name="lifting gas" impute="False">
+			<Contains>lifting gas</Contains>
+		</Stream>
+
+		<Stream src="After" dst="ReservoirWellInterface" name="flooding CO2" impute="False">
+			<Contains>CO2</Contains>
+		</Stream>
 	</Field>
 </Model>
