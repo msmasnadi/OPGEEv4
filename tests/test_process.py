@@ -85,21 +85,11 @@ def test_find_input_stream_error(procB):
     with pytest.raises(OpgeeException, match=f".* no input streams contain '{stream_type}'"):
         procB.find_input_stream(stream_type)
 
-# TBD: revise this after removing this table.
-def test_venting_fugitive_rate_error(process):
-    classname = process.__class__.__name__
-    with pytest.raises(OpgeeException, match=f"'Class {classname}' was not found in table 'venting_fugitives_by_process'"):
-        process.venting_fugitive_rate()
-
 def test_venting_fugitive_rate(test_model):
-    from opgee.processes import Drilling
-
     analysis = test_model.get_analysis('test')
     field = analysis.get_field('test')
-    drilling = Drilling("OtherName")
-    drilling.parent = field
-
-    rate = drilling.venting_fugitive_rate()
+    procA = field.find_process('ProcA')
+    rate = procA.venting_fugitive_rate()
 
     # mean of 1000 random draws from uniform(0.001, .003) should be ~0.002
     assert rate == pytest.approx(0.002, abs=0.0005)

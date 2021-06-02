@@ -195,7 +195,7 @@ class Process(XmlInstantiable, AttributeMixin):
     # end of pass through energy and emissions methods
     #
 
-    def set_gas_fugitives(self, stream, name):
+    def set_gas_fugitives(self, stream, name) -> Stream:
         """
 
         :param stream:
@@ -251,7 +251,7 @@ class Process(XmlInstantiable, AttributeMixin):
         field = self.get_field()
         return field.reservoir
 
-    def find_stream(self, name, raiseError=False):
+    def find_stream(self, name, raiseError=False) -> Stream:
         """
         Convenience function to find a named stream from a Process instance by calling
         find_stream() on the enclosing Field instance.
@@ -270,7 +270,7 @@ class Process(XmlInstantiable, AttributeMixin):
     def consumes(self, stream_type):
         return stream_type in self.consumption
 
-    def find_streams_by_type(self, direction, stream_type, combine=False, as_list=False, raiseError=True):
+    def find_streams_by_type(self, direction, stream_type, combine=False, as_list=False, raiseError=True) -> Stream:
         """
         Find the input or output streams (indicated by `direction`) that contain the indicated
         `stream_type`, e.g., 'crude oil', 'raw water' and so on.
@@ -320,7 +320,7 @@ class Process(XmlInstantiable, AttributeMixin):
         """
         return self.find_streams_by_type(self.OUTPUT, stream_type, combine=combine, as_list=as_list, raiseError=raiseError)
 
-    def find_input_stream(self, stream_type, raiseError=True):
+    def find_input_stream(self, stream_type, raiseError=True) -> Stream:
         """
         Find exactly one input stream connected to a downstream Process that produces the indicated
         `stream_type`, e.g., 'crude oil', 'raw water' and so on.
@@ -339,7 +339,7 @@ class Process(XmlInstantiable, AttributeMixin):
 
         return streams[0]
 
-    def find_output_stream(self, stream_type, raiseError=True):
+    def find_output_stream(self, stream_type, raiseError=True) -> Stream:
         """
         Find exactly one output stream connected to a downstream Process that consumes the indicated
         `stream_type`, e.g., 'crude oil', 'raw water' and so on.
@@ -466,36 +466,40 @@ class Process(XmlInstantiable, AttributeMixin):
     def print_running_msg(self):
         _logger.info(f"Running {type(self)} name='{self.name}'")
 
-    def venting_fugitive_rate(self, trial=None):
-        """
-        Look up venting/fugitive rate for this process. For user-defined processes not listed
-        in the venting_fugitives_by_process table, the Process subclass must implement this
-        method to override to the lookup.
+    def venting_fugitive_rate(self):
+        return self.attr('leak_rate')
 
-        :param trial: (int or None) if `trial` is None, the mean venting/fugitive rate is returned.
-           If `trial` is not None, it must be an integer trial number in the table's index.
-        :return: (float) the fraction of the output stream assumed to be lost to the environment,
-           either for the indicated `trial`, or the mean of all trial values if `trial` is None.
-        """
-        mgr = self.model.table_mgr
-        tbl_name = 'venting_fugitives_by_process'
-        df = mgr.get_table(tbl_name)
-
-        # Look up the process by name, but fall back to the classname if not found by name
-        columns = df.columns
-        name = self.name
-        if name not in columns:
-            classname = self.__class__.__name__
-            if classname != name:
-                if classname in columns:
-                    name = classname
-                else:
-                    raise OpgeeException(f"Neither '{name}' nor '{classname}' was found in table '{tbl_name}'")
-            else:
-                raise OpgeeException(f"'Class {classname}' was not found in table '{tbl_name}'")
-
-        value = df[name].mean() if trial is None else df.loc[name, trial]
-        return value
+    # Deprecated
+    # def venting_fugitive_rate(self, trial=None):
+    #     """
+    #     Look up venting/fugitive rate for this process. For user-defined processes not listed
+    #     in the venting_fugitives_by_process table, the Process subclass must implement this
+    #     method to override to the lookup.
+    #
+    #     :param trial: (int or None) if `trial` is None, the mean venting/fugitive rate is returned.
+    #        If `trial` is not None, it must be an integer trial number in the table's index.
+    #     :return: (float) the fraction of the output stream assumed to be lost to the environment,
+    #        either for the indicated `trial`, or the mean of all trial values if `trial` is None.
+    #     """
+    #     mgr = self.model.table_mgr
+    #     tbl_name = 'venting_fugitives_by_process'
+    #     df = mgr.get_table(tbl_name)
+    #
+    #     # Look up the process by name, but fall back to the classname if not found by name
+    #     columns = df.columns
+    #     name = self.name
+    #     if name not in columns:
+    #         classname = self.__class__.__name__
+    #         if classname != name:
+    #             if classname in columns:
+    #                 name = classname
+    #             else:
+    #                 raise OpgeeException(f"Neither '{name}' nor '{classname}' was found in table '{tbl_name}'")
+    #         else:
+    #             raise OpgeeException(f"'Class {classname}' was not found in table '{tbl_name}'")
+    #
+    #     value = df[name].mean() if trial is None else df.loc[name, trial]
+    #     return value
 
     @classmethod
     def from_xml(cls, elt):
@@ -514,6 +518,7 @@ class Process(XmlInstantiable, AttributeMixin):
         subclass = _get_subclass(Process, classname)
         attr_dict = subclass.instantiate_attrs(elt)
 
+        # Deprecated, probably (TBD)
         produces = [node.text for node in elt.findall('Produces')]
         consumes = [node.text for node in elt.findall('Consumes')]
 
@@ -530,6 +535,8 @@ class Reservoir(Process):
     Reservoir represents natural resources such as oil and gas reservoirs, and water sources.
     Each Field object holds a single Reservoir instance.
     """
+    def __init__(self):
+        super().__init__(None, desc='The Reservoir')
 
     def run(self, analysis):
         self.print_running_msg()
@@ -542,7 +549,6 @@ class Environment(Process):
     restriction might change if air-capture of CO2 were introduced into the model. Each Analysis
     object holds a single Environment instance.
     """
-
     def __init__(self):
         super().__init__('Environment', desc='The Environment')
 
