@@ -11,25 +11,45 @@ class ReservoirWellInterface(Process):
 
         field = self.get_field()
 
-        # collect the "gas_comp_*" attributes in a pandas.Series
-        gas_comp = field.attrs_with_prefix('gas_comp_')
-        # oil_comp =
+        res_temp = field.attr("res_temp")
+        res_press = field.attr("res_press")
 
-        N2 = gas_comp.N2
-        CO2 = gas_comp.CO2
+        # mass rate
+        input = self.find_input_stream("crude oil")
+        input.set_temperature_and_pressure(res_temp, res_press)
+        flooding_CO2 = self.find_input_stream("CO2")
+        flooding_CO2.set_temperature_and_pressure(res_temp, res_press)
 
-        # examples of getting attribute values
-        num_wells = field.attr('num_prod_wells')
-        depth = field.attr('depth')
-        GOR = field.attr('GOR')
-        _logger.info(f"{self.name}: wells:{num_wells} depth:{depth} GOR:{GOR}")
+        output = self.find_output_stream("crude oil")
+        output.copy_flow_rates_from(input)
+        output.add_flow_rates_from(flooding_CO2)
 
-        # Functions to set energy use and emission rates
-        # self.add_energy_rate(carrier, rate)
-        # self.add_energy_rates(dictionary=d)
-        # self.add_emission_rate('CO2', rate)
-        # self.add_emission_rates(CO2=rate1, N2O=rate2, ...)
+        # bottom hole flowing pressure
+        bottomhole_flowing_press = self.get_bottomhole_press(input)
+
+
 
     def impute(self):
-        # TBD: copy from output streams to input streams
+        output = self.find_output_stream("crude oil")
+
+        input = self.find_input_stream("crude oil")
+        input.add_flow_rates_from(output)
+
+    def get_bottomhole_press(self, input_stream):
+        """
+
+        :param input_stream: (stream) one combined stream from reservoir to reservoir well interface
+        :return:(float) bottomhole pressure (BHP) (unit = psia)
+        """
+        field =self.get_field()
+        oil = field.oil
+        gas = field.gas
+
+        # injection and production rate
+        oil_prod_volume_rate = oil.volume_flow_rate(input_stream,
+                                                    oil.oil_specific_gravity,
+                                                    oil.gas_specific_gravity,
+                                                    oil.gas_oil_ratio)
+        # water_prod_volume_rate =
         pass
+

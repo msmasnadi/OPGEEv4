@@ -63,6 +63,7 @@ class DryAir(Air):
     DryAir class represents the composition of dry air.
     The composition is N2 = 0.79, O2 = 0.21
     """
+
     def __init__(self, field):
         """
 
@@ -76,7 +77,7 @@ class DryAir(Air):
 def _get_dict_chemical():
     """
 
-    :return:
+    :return: a dictionary which has key of the (str) compo
     """
     carbon_number = [f'C{n + 1}' for n in range(Stream.max_carbon_number)]
     saturated_hydrocarbon = ["CH4"] + [f'C_{n + 1}H_{2 * n + 4}' for n in range(1, Stream.max_carbon_number)]
@@ -88,9 +89,9 @@ def _get_dict_chemical():
     return dict_chemical
 
 
-class Hydrocarbon(OpgeeObject):
+class OilGasWater(OpgeeObject):
     """
-    Hydrocarbon class contains Oil and Gas class
+    OilGasWater class contains Oil, Gas and Water class
     """
     dict_chemical = _get_dict_chemical()
 
@@ -135,7 +136,7 @@ class Hydrocarbon(OpgeeObject):
         rho = self.dict_chemical[component].rho(phases[phase], temperature, pressure)
         return ureg.Quantity(rho, "kg/m**3")
 
-class Oil(Hydrocarbon):
+class Oil(OilGasWater):
     """
 
     """
@@ -183,7 +184,8 @@ class Oil(Hydrocarbon):
         gas_SG = gas_SG / self.dry_air_MW
         return gas_SG
 
-    def bubble_point_solution_GOR(self, gas_oil_ratio):
+    @staticmethod
+    def bubble_point_solution_GOR(gas_oil_ratio):
         """
         R_sb = 1.1618 * R_sp
         R_Sb is GOR at bubblepoint, R_sp is GOR at separator
@@ -218,13 +220,17 @@ class Oil(Hydrocarbon):
         result = ureg.Quantity(result, "scf/bbl_oil")
         return result
 
-    def bubble_point_pressure(self, oil_specific_gravity, gas_specific_gravity, gas_oil_ratio, temperature):
+    def bubble_point_pressure(self, stream, oil_specific_gravity, gas_specific_gravity, gas_oil_ratio):
         """
 
-        :return: (float) bubblepoint pressure (unit = psia)
+        :param stream:
+        :param oil_specific_gravity:
+        :param gas_specific_gravity:
+        :param gas_oil_ratio:
+        :return:
         """
         oil_SG = oil_specific_gravity.m
-        temperature = temperature.to("rankine").m
+        temperature = stream.temperature.to("rankine").m
 
         gas_SG = gas_specific_gravity.m
         gor_bubble = self.bubble_point_solution_GOR(gas_oil_ratio).m
@@ -284,8 +290,7 @@ class Oil(Hydrocarbon):
                                       stream,
                                       oil_specific_gravity,
                                       gas_specific_gravity,
-                                      gas_oil_ratio,
-                                      temperature):
+                                      gas_oil_ratio):
         """
         the formation volume factor is defined as the ratio of the volume of oil (plus the gas in solution)
         at the prevailing reservoir temperature and pressure to the volume of oil at standard conditions
@@ -298,10 +303,10 @@ class Oil(Hydrocarbon):
                                                                 self.gas_specific_gravity,
                                                                 self.gas_oil_ratio).m
 
-        p_bubblepoint = self.bubble_point_pressure(oil_specific_gravity,
+        p_bubblepoint = self.bubble_point_pressure(stream,
+                                                   oil_specific_gravity,
                                                    gas_specific_gravity,
-                                                   gas_oil_ratio,
-                                                   temperature).m
+                                                   gas_oil_ratio).m
         isothermal_compressibility = self.isothermal_compressibility(oil_specific_gravity).m
         stream_press = stream.pressure.m
 
@@ -329,11 +334,12 @@ class Oil(Hydrocarbon):
         stream_temp = stream.temperature.to("rankine").m
 
         result = max((iso_comp_a1 * solution_gor + iso_comp_a2 * solution_gor ** 2 +
-                  iso_comp_a3 * gas_SG + iso_comp_a4 * stream_temp ** 2), 0.0)
+                      iso_comp_a3 * gas_SG + iso_comp_a4 * stream_temp ** 2), 0.0)
         result = ureg.Quantity(result, "pa**-1")
         return result
 
-    def isothermal_compressibility(self, oil_specific_gravity):
+    @staticmethod
+    def isothermal_compressibility(oil_specific_gravity):
         """
         Regression from ...
 
@@ -348,18 +354,17 @@ class Oil(Hydrocarbon):
                                 stream,
                                 oil_specific_gravity,
                                 gas_specific_gravity,
-                                gas_oil_ratio,
-                                temperature):
+                                gas_oil_ratio):
         """
         the formation volume factor is defined as the ratio of the volume of oil (plus the gas in solution)
         at the prevailing reservoir temperature and pressure to the volume of oil at standard conditions
 
         :return:(float) final formation volume factor (unit = fraction)
         """
-        p_bubblepoint = self.bubble_point_pressure(oil_specific_gravity,
+        p_bubblepoint = self.bubble_point_pressure(stream,
+                                                   oil_specific_gravity,
                                                    gas_specific_gravity,
-                                                   gas_oil_ratio,
-                                                   temperature)
+                                                   gas_oil_ratio)
 
         result = (self.saturated_formation_volume_factor(stream,
                                                          oil_specific_gravity,
@@ -369,15 +374,18 @@ class Oil(Hydrocarbon):
                   self.unsat_formation_volume_factor(stream,
                                                      oil_specific_gravity,
                                                      gas_specific_gravity,
-                                                     gas_oil_ratio,
-                                                     temperature))
+                                                     gas_oil_ratio))
         return result
 
-    def density(self, stream, oil_specific_gravity, gas_specific_gravity, gas_oil_ratio, temperature):
+    def density(self, stream, oil_specific_gravity, gas_specific_gravity, gas_oil_ratio):
         """
-        crude oil density
 
-        :return: (float) crude oil density (unit = lb/ft3)
+        :param stream:
+        :param oil_specific_gravity:
+        :param gas_specific_gravity:
+        :param gas_oil_ratio:
+        :param temperature:
+        :return:
         """
         oil_SG = oil_specific_gravity.m
 
@@ -389,11 +397,26 @@ class Oil(Hydrocarbon):
         volume_factor = self.formation_volume_factor(stream,
                                                      oil_specific_gravity,
                                                      gas_specific_gravity,
-                                                     gas_oil_ratio,
-                                                     temperature).m
+                                                     gas_oil_ratio).m
 
         result = (62.42796 * oil_SG + 0.0136 * gas_SG * solution_gor) / volume_factor
         return ureg.Quantity(result, "lb/ft**3")
+
+    def volume_flow_rate(self, stream, oil_specific_gravity, gas_specific_gravity, gas_oil_ratio):
+        """
+
+        :param stream:
+        :param oil_specific_gravity:
+        :param gas_specific_gravity:
+        :param gas_oil_ratio:
+        :return:(float) oil volume flow rate (unit = bbl/day)
+        """
+
+        mass_flow_rate = stream.hydrocarbon_rate(PHASE_LIQUID)
+        density = self.density(stream, oil_specific_gravity, gas_specific_gravity, gas_oil_ratio)
+
+        volume_flow_rate = (mass_flow_rate / density).to("bbl_oil/day")
+        return volume_flow_rate
 
     def mass_energy_density(self):
         """
@@ -411,7 +434,7 @@ class Oil(Hydrocarbon):
         result = (oil_LHV_a1 + oil_LHV_a2 * API - oil_LHV_a3 * API ** 2 - oil_LHV_a4 * API ** 3)
         return ureg.Quantity(result, "british_thermal_unit/lb")
 
-    def volume_energy_density(self, stream, oil_specific_gravity, gas_specific_gravity, gas_oil_ratio, temperature):
+    def volume_energy_density(self, stream, oil_specific_gravity, gas_specific_gravity, gas_oil_ratio):
         """
 
         :return:(float) volume energy density (unit = mmBtu/bbl)
@@ -420,8 +443,7 @@ class Oil(Hydrocarbon):
         density = self.density(stream,
                                oil_specific_gravity,
                                gas_specific_gravity,
-                               gas_oil_ratio,
-                               temperature).to("lb/bbl_oil")
+                               gas_oil_ratio).to("lb/bbl_oil")
 
         result = mass_energy_density * density
         return result.to("mmBtu/bbl_oil")
@@ -439,7 +461,7 @@ class Oil(Hydrocarbon):
         return result.to("mmbtu/day")
 
 
-class Gas(Hydrocarbon):
+class Gas(OilGasWater):
     """
 
     """
@@ -620,7 +642,7 @@ class Gas(Hydrocarbon):
         z_factor_C = 0.132 - 0.32 * np.log10(reduced_temp)
         z_factor_D = 10 ** (0.3106 - 0.49 * reduced_temp + 0.1824 * reduced_temp ** 2)
         z_factor = max((z_factor_A + (1 - z_factor_A) * np.exp(-1 * z_factor_B)
-                    + z_factor_C * reduced_press ** z_factor_D), 0.05)
+                        + z_factor_C * reduced_press ** z_factor_D), 0.05)
         z_factor = ureg.Quantity(z_factor, "frac")
 
         return z_factor
@@ -735,3 +757,16 @@ class Gas(Hydrocarbon):
         energy_flow_rate = total_mass_flow_rate.to("kg/day") * mass_energy_density.to("mmBtu/kg")
 
         return energy_flow_rate
+
+
+    class Water(OilGasWater):
+        """
+        water class includes the method to calculate water density, water volume flow rate, etc.
+        """
+
+        def __init__(self, field):
+            self.water_TDS = field.attr("total_solid_content")
+            # self.water_specific_gravity = 1 +
+
+        def water_specific_gravity(self):
+            pass

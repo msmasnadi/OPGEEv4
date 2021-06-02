@@ -61,6 +61,10 @@
 			<Contains>crude oil</Contains>
 		</Stream>
 
+		<Stream src="Reservoir" dst="ReservoirWellInterface" name="reservoir to reservoir well interface">
+			<Contains>crude oil</Contains>
+		</Stream>
+
 		<Stream src="DownholePump" dst="Separation" name="downhole pump to separator">
 			<Contains>crude oil</Contains>
 		</Stream>
