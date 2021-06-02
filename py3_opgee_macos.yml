@@ -7,11 +7,14 @@ dependencies:
   - bzip2=1.0.8
   - ca-certificates=2020.12.5
   - certifi=2020.12.5
+  - colour=0.1.5
+  - dash=1.20.0
   - freetype=2.10.4
   - graphviz=2.42.3
   - importlib-metadata=3.10.1
   - importlib_metadata=3.10.1
   - importlib_resources=5.1.2
+  - jinja2=3.0.1
   - jpeg=9d
   - libblas=3.9.0
   - libcblas=3.9.0

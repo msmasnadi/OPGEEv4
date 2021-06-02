@@ -1,28 +1,21 @@
 from opgee.version import VERSION
-
-# Build the full version with MCS on when running on ReadTheDocs.
-# In normal mode, MCS is an optional install.
-# import os
-# import platform
-#
-# if platform.system() != 'Windows':
-#     # Unfortunately, this stalled on Windows when I tested it...
-#     import ez_setup
-#     ez_setup.use_setuptools(version='36.7.2')
-
-
 from setuptools import setup
 
 requirements = [
+    'colour>=0.1.5',    # used with dash app
+    'dash>=1.20.0',
     'ipython>=7.2',
     'future>=0.18.0',
+    'Jinja2>=3.0',      # required by flask, via dash
     'lxml>=4.6.0',
     'networkx>=2.5.0',
+
     # loosen restrictions for travis
     #'numpy>=1.19.0',
     #'pandas>=1.2.0',
     'numpy>=1.0.0',
     'pandas>=1.0.0',
+
     'pint>=0.17',
     'pint-pandas>=0.2',
     'pydot>=1.4.0',
