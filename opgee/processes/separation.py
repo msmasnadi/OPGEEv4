@@ -1,6 +1,6 @@
 from ..log import getLogger
 from ..process import Process
-from ..thermodynamics import Hydrocarbon
+from ..thermodynamics import OilGasWater
 from ..drivers import Drivers
 from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY
 from ..emissions import Emissions
@@ -9,7 +9,7 @@ from opgee.stream import Stream, PHASE_GAS, PHASE_LIQUID, PHASE_SOLID
 
 _logger = getLogger(__name__)
 
-dict_chemical = Hydrocarbon.get_dict_chemical()
+dict_chemical = OilGasWater.get_dict_chemical()
 _power = [1, 1 / 2, 1 / 3, 1 / 4, 1 / 5]
 
 
@@ -58,15 +58,17 @@ class Separation(Process):
         pressure_after_boosting = self.attr("gas_pressure_after_boosting")
 
         # mass rate
-        input = self.find_input_streams("crude oil", combine=True)              # TODO: should we expect exactly one of these? If so, call find_input_stream instead.
-        # lift_gas = self.find_input_streams('lifting gas', raiseError=False)
-        # flood_CO2 = self.find_input_streams('flooding CO2', raiseError=False)
+        input = self.find_input_stream("crude oil")
 
         gas_fugitives = self.find_output_stream("gas fugitives")
         gas_after_separation = self.find_output_stream("gas")
-        gas_after_separation.copy_gas_rates_from(input)
-        gas_after_separation.subtract_gas_rates_from(gas_fugitives)
+
+        loss_rate = self.venting_fugitive_rate()
+        # gas_after_separation.copy_gas_rates_from(input)
+        # gas_after_separation.multiply_flow_rates(1 / (1 + loss_rate))
         # gas_fugitives = self.set_gas_fugitives(gas_after_separation, "gas fugitives from separator")
+
+        # temperature and pressure
 
         # energy rate
         oil_volume_rate = field.attr("oil_prod")  # (float) bbl/day
@@ -98,14 +100,15 @@ class Separation(Process):
         wellhead_press = field.attr("wellhead_pressure")
 
         gas_after, oil_after, water_after = self.get_output_streams(field)
-        gas_fugitives = self.set_gas_fugitives(gas_after, "gas fugitives from separator")
+        loss_rate = self.venting_fugitive_rate()
+        gas_fugitives = self.set_gas_fugitives(gas_after)
 
         output = Stream.combine([oil_after, gas_after, water_after, gas_fugitives],
                                 temperature=wellhead_temp, pressure=wellhead_press)
 
         input = self.find_input_stream("crude oil")
         input.set_temperature_and_pressure(wellhead_temp, wellhead_press)
-        input.add_flow_rates_from(output)
+        input.copy_flow_rates_from(output)
 
     def get_stages_temperature_and_pressure(self, field):
         temperature_outlet = self.attr("temperature_outlet")
@@ -147,8 +150,7 @@ class Separation(Process):
         density = oil.density(stream,  # lb/ft3
                               oil.oil_specific_gravity,
                               oil.gas_specific_gravity,
-                              oil.gas_oil_ratio,
-                              oil.res_temp)
+                              oil.gas_oil_ratio)
 
         for component, mol_frac in gas_comp.items():
             gas_volume_rate = oil_volume_rate * gas_oil_ratio * mol_frac.to("frac")
@@ -196,7 +198,7 @@ class Separation(Process):
 
         return free_gas_of_stages
 
-    def compressor_horsepower_of_stages(self, field, gas_after, gas_compression_volume_stages):
+    def compressor_horsepower_of_stages(self, field, gas_stream, gas_compression_volume_stages):
         gas = field.gas
 
         num_of_stages = self.attr("number_stages")
@@ -219,10 +221,10 @@ class Separation(Process):
                        num_of_compression_stages):
             work = 0
             for j in range(num_of_compression):
-                inlet_reduced_temp = inlet_temp.to("rankine") / gas.corrected_pseudocritical_temperature(gas_after)
-                inlet_reduced_press = inlet_press / gas.corrected_pseudocritical_pressure(gas_after)
+                inlet_reduced_temp = inlet_temp.to("rankine") / gas.corrected_pseudocritical_temperature(gas_stream)
+                inlet_reduced_press = inlet_press / gas.corrected_pseudocritical_pressure(gas_stream)
                 z_factor = gas.Z_factor(inlet_reduced_temp, inlet_reduced_press)
-                ratio_of_specific_heat = gas.ratio_of_specific_heat(gas_after)
+                ratio_of_specific_heat = gas.ratio_of_specific_heat(gas_stream)
 
                 work_temp1 = 3.027 * 14.7 / (60 + 460) * ratio_of_specific_heat / (ratio_of_specific_heat - 1)
                 ratio = (ratio_of_specific_heat - 1) / ratio_of_specific_heat

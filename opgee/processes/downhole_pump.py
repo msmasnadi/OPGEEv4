@@ -13,20 +13,10 @@ class DownholePump(Process):
 
         # lift_gas = self.find_input_streams('lifting gas', combine=True, raiseError=False)
 
-
     def impute(self):
-        # TBD: copy some output streams to input streams, and
-        # TBD: sum rates of some substances from outputs to compute input rates
-        field = self.get_field()
-
-        res_temp = field.attr("res_temp")
-
         output = self.find_output_stream("crude oil")
-        gas_at_wellbore = Stream("gas_at_wellbore", temperature=output.temperature, pressure=output.pressure)
-        gas_at_wellbore.copy_gas_rates_from(output)
-        gas_fugitives = self.set_gas_fugitives(gas_at_wellbore, "gas fugitives from downhole pump")
-        output.add_flow_rates_from(gas_fugitives)
+        gas_fugitives = self.set_gas_fugitives(output)
 
         input = self.find_input_stream("crude oil")
-        #input.set_temperature_and_pressure(res_temp, wellhead_press)
         input.add_flow_rates_from(output)
+        input.add_flow_rates_from(gas_fugitives)
