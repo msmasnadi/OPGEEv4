@@ -537,7 +537,7 @@ class Reservoir(Process):
     Reservoir represents natural resources such as oil and gas reservoirs, and water sources.
     Each Field object holds a single Reservoir instance.
     """
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         super().__init__(None, desc='The Reservoir')
 
     def run(self, analysis):
