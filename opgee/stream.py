@@ -185,7 +185,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param phase: (str) the name of a phase of matter ('gas', 'liquid' or 'solid')
         :return: (float) the flow rates for all the hydrocarbons
         """
-        return self.flow_rate(self._hydrocarbons, phase)
+        return self.flow_rate(self._hydrocarbons + self._liquids, phase)
 
     def hydrocarbon_rate(self, phase):
         """

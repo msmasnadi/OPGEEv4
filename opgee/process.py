@@ -195,18 +195,25 @@ class Process(XmlInstantiable, AttributeMixin):
     # end of pass through energy and emissions methods
     #
 
-    def set_gas_fugitives(self, stream, name):
+    def set_gas_fugitives(self, stream):
+        #TODO: complete
         """
+        initialize the gas fugitives stream, get loss rate, copy..
 
         :param stream:
-        :param name:
         :return:
         """
-        gas_fugitives = self.field.find_stream(name)
+
+        field = self.get_field()
+
+        gas_fugitives = self.find_output_stream("gas fugitives")
         loss_rate = self.venting_fugitive_rate()
-        gas_fugitives.add_flow_rates_from(stream)
+        gas_fugitives.copy_gas_rates_from(stream)
         gas_fugitives.multiply_flow_rates(loss_rate)
-        gas_fugitives.set_temperature_and_pressure(60, 14.7)
+
+        std_temp = field.model.const("std-temperature")
+        std_press = field.model.const("std-pressure")
+        gas_fugitives.set_temperature_and_pressure(std_temp, std_press)
 
         return gas_fugitives
 
@@ -320,7 +327,7 @@ class Process(XmlInstantiable, AttributeMixin):
         """
         return self.find_streams_by_type(self.OUTPUT, stream_type, combine=combine, as_list=as_list, raiseError=raiseError)
 
-    def find_input_stream(self, stream_type, raiseError=True):
+    def find_input_stream(self, stream_type, raiseError=True) -> Stream:
         """
         Find exactly one input stream connected to a downstream Process that produces the indicated
         `stream_type`, e.g., 'crude oil', 'raw water' and so on.
@@ -339,7 +346,7 @@ class Process(XmlInstantiable, AttributeMixin):
 
         return streams[0]
 
-    def find_output_stream(self, stream_type, raiseError=True):
+    def find_output_stream(self, stream_type, raiseError=True) -> Stream:
         """
         Find exactly one output stream connected to a downstream Process that consumes the indicated
         `stream_type`, e.g., 'crude oil', 'raw water' and so on.
@@ -530,6 +537,8 @@ class Reservoir(Process):
     Reservoir represents natural resources such as oil and gas reservoirs, and water sources.
     Each Field object holds a single Reservoir instance.
     """
+    def __init__(self):
+        super().__init__(None, desc='The Reservoir')
 
     def run(self, analysis):
         self.print_running_msg()

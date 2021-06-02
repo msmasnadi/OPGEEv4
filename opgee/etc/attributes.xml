@@ -79,6 +79,7 @@
     <AttrDef name="offshore" type="binary" desc="Offshore?">0</AttrDef>
     <!-- Fluid properties -->
     <AttrDef name="API" desc="API gravity of produced crude" unit="degAPI" type="float">32.80</AttrDef>
+    <AttrDef name="total_dissolved_solids" desc="water total dissolved solid (TDS)" unit="mg/L" type="float">5000.0</AttrDef>
     <AttrDef name="gas_comp_N2" unit="mol_pct" type="float">2.86</AttrDef>
     <AttrDef name="gas_comp_CO2" unit="mol_pct" type="float">0.33</AttrDef>
     <AttrDef name="gas_comp_C1" unit="mol_pct" type="float">89.18</AttrDef>

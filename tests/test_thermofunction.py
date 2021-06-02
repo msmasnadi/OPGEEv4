@@ -29,11 +29,11 @@ def test_reservoir_solution_GOR(oil_instance):
 
 
 def test_bubble_point_pressure(oil_instance):
+    stream = Stream("test_stream", temperature=200.0, pressure=1556.0)
     oil_SG = oil_instance.oil_specific_gravity
     gas_SG = oil_instance.gas_specific_gravity
     GOR = oil_instance.gas_oil_ratio
-    temp = oil_instance.res_temp
-    p_bubblepoint = oil_instance.bubble_point_pressure(oil_SG, gas_SG, GOR, temp)
+    p_bubblepoint = oil_instance.bubble_point_pressure(stream, oil_SG, gas_SG, GOR)
     assert p_bubblepoint == ureg.Quantity(pytest.approx(9227.70805), "psia")
 
 
@@ -60,8 +60,7 @@ def test_unsat_formation_volume_factor(oil_instance):
     oil_SG = oil_instance.oil_specific_gravity
     gas_SG = oil_instance.gas_specific_gravity
     GOR = oil_instance.gas_oil_ratio
-    temp = oil_instance.res_temp
-    unsat_fvf = oil_instance.unsat_formation_volume_factor(stream, oil_SG, gas_SG, GOR, temp)
+    unsat_fvf = oil_instance.unsat_formation_volume_factor(stream, oil_SG, gas_SG, GOR)
     assert unsat_fvf == ureg.Quantity(pytest.approx(1.22745738), "frac")
 
 
@@ -85,8 +84,7 @@ def test_formation_volume_factor(oil_instance):
     oil_SG = oil_instance.oil_specific_gravity
     gas_SG = oil_instance.gas_specific_gravity
     GOR = oil_instance.gas_oil_ratio
-    temp = oil_instance.res_temp
-    fvf = oil_instance.formation_volume_factor(stream, oil_SG, gas_SG, GOR, temp)
+    fvf = oil_instance.formation_volume_factor(stream, oil_SG, gas_SG, GOR)
     assert fvf == ureg.Quantity(pytest.approx(1.19898185), "frac")
 
 
@@ -95,8 +93,7 @@ def test_oil_density(oil_instance):
     oil_SG = oil_instance.oil_specific_gravity
     gas_SG = oil_instance.gas_specific_gravity
     GOR = oil_instance.gas_oil_ratio
-    temp = oil_instance.res_temp
-    density = oil_instance.density(stream, oil_SG, gas_SG, GOR, temp)
+    density = oil_instance.density(stream, oil_SG, gas_SG, GOR)
     assert density == ureg.Quantity(pytest.approx(46.8997952), "lb/ft**3")
 
 
@@ -105,20 +102,28 @@ def test_oil_mass_energy_density(oil_instance):
     assert mass_energy_density == ureg.Quantity(pytest.approx(18279.816), "btu/lb")
 
 
+def test_oil_volume_flow_rate(oil_instance):
+    stream = Stream("test_stream", temperature=200.0, pressure=1556.0)
+    stream.set_flow_rate("oil", "liquid", 276.534764)
+    oil_SG = oil_instance.oil_specific_gravity
+    gas_SG = oil_instance.gas_specific_gravity
+    GOR = oil_instance.gas_oil_ratio
+    volume_flow_rate = oil_instance.volume_flow_rate(stream, oil_SG, gas_SG, GOR)
+    assert volume_flow_rate == ureg.Quantity(pytest.approx(2315.23726), "bbl_oil/day")
+
+
 def test_oil_volume_energy_density(oil_instance):
     stream = Stream("test_stream", temperature=200.0, pressure=1556.0)
     oil_SG = oil_instance.oil_specific_gravity
     gas_SG = oil_instance.gas_specific_gravity
     GOR = oil_instance.gas_oil_ratio
-    temp = oil_instance.res_temp
-    volume_energy_density = oil_instance.volume_energy_density(stream, oil_SG, gas_SG, GOR, temp)
+    volume_energy_density = oil_instance.volume_energy_density(stream, oil_SG, gas_SG, GOR)
     assert volume_energy_density == ureg.Quantity(pytest.approx(4.81349274), "mmBtu/bbl_oil")
 
 
 def test_oil_energy_flow_rate(oil_instance):
     stream = Stream("test_stream", temperature=200.0, pressure=1556.0)
-    stream.set_flow_rate("C10", "liquid", 273.831958 / 2)
-    stream.set_flow_rate("C9", "liquid", 273.831958 / 2)
+    stream.set_flow_rate("oil", "liquid", 273.831958)
     energy_flow_rate = oil_instance.energy_flow_rate(stream)
     assert energy_flow_rate == ureg.Quantity(pytest.approx(11035.4544), "mmbtu/day")
 
@@ -233,7 +238,7 @@ def test_volume_energy_density(gas_instance, stream):
     volume_energy_density = gas_instance.volume_energy_density(stream)
     assert volume_energy_density == ureg.Quantity(pytest.approx(959.532995), "btu/ft**3")
 
+
 def test_energy_flow_rate(gas_instance, stream):
     energy_flow_rate = gas_instance.energy_flow_rate(stream)
     assert energy_flow_rate == ureg.Quantity(pytest.approx(4894.21783), "mmBtu/day")
-

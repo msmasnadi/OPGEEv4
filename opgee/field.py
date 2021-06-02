@@ -29,7 +29,7 @@ class Field(Container):
         self.stream_dict = dict_from_list(streams)
 
         self.environment = Environment()    # one per field
-        self.reservoir   = Reservoir(name)  # one per field
+        self.reservoir   = Reservoir()  # one per field
 
         all_procs = self.collect_processes() # includes reservoir and environment
         self.process_dict = self.adopt(all_procs, asDict=True)
