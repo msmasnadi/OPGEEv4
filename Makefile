@@ -60,12 +60,39 @@ rtd-reqs $(RTD_REQS): requirements.in
 
 # "pip freeze" erroneously reports pytest==0.0.0
 travis-reqs $(TRAVIS_REQS): requirements.in
-	echo "numpy"   > $(TRAVIS_REQS)
-	echo "pandas" >> $(TRAVIS_REQS)
-	echo "pint" >> $(TRAVIS_REQS)
+	echo "colour"       > $(TRAVIS_REQS)
+	echo "dash"        >> $(TRAVIS_REQS)
+	echo "numpy"       >> $(TRAVIS_REQS)
+	echo "pandas"      >> $(TRAVIS_REQS)
+	echo "pint"        >> $(TRAVIS_REQS)
 	echo "pint-pandas" >> $(TRAVIS_REQS)
-	echo "pytest" >> $(TRAVIS_REQS)
-	echo "scipy"  >> $(TRAVIS_REQS)
-	echo "pytest-cov" >> $(TRAVIS_REQS)
-	echo "codecov"    >> $(TRAVIS_REQS)
+	echo "pytest"      >> $(TRAVIS_REQS)
+	echo "scipy"       >> $(TRAVIS_REQS)
+	echo "pytest-cov"  >> $(TRAVIS_REQS)
+	echo "codecov"     >> $(TRAVIS_REQS)
 	pip freeze | egrep -v '^(numpy|pandas|pint|pytest|scipy)' | egrep '$(EXPR)' >> $(TRAVIS_REQS)
+
+test:
+	@echo "pip freeze | egrep -v '^(numpy|pandas|pint|pytest|scipy)' | egrep '$(EXPR)' >> $(TRAVIS_REQS)"
+
+#
+# Virtual environment / package dependency support
+#
+TEST_YML=py3-opgee-macos.yml
+INPUT_YML=py3_opgee_macos-less-constrained.yml
+
+test-yml: $(TEST_YML)
+
+# drops all commment lines
+$(TEST_YML) : $(INPUT_YML)
+	egrep -v '^#' $(INPUT_YML) > $(TEST_YML)
+
+remove-opgee:
+	conda env remove -n opgee
+
+create-opgee: $(TEST_YML)
+	conda env create -f $(TEST_YML)
+	conda activate opgee
+	python setup.py develop
+
+rebuild-opgee: remove-opgee create-opgee
