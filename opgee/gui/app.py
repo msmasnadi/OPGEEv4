@@ -9,21 +9,18 @@ import pydot
 import plotly.graph_objs as go
 from textwrap import dedent as d
 
-from opgee import Process
-from opgee.model import ModelFile
+from .. import Process
+from ..model import ModelFile
+from ..gui.widgets import radio_items
+from ..log import getLogger
 
-# import the css template, and pass the css template into dash
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-app.title = "OPGEE Field Network"
+_logger = getLogger(__name__)
 
+# TBD: get these from the command line
 MODEL_XML = '/Users/rjp/repos/OPGEEv4/tests/files/test_separator.xml'
 FIELD_NAME = 'test'
 ANALYSIS_NAME = 'test_separator'
 
-CurrentModel = None
-CurrentField = None
-CurrentAnalysis = None
 
 # Required to load separator_model.xml
 class After(Process):
@@ -33,19 +30,7 @@ class After(Process):
     def impute(self):
         pass
 
-
-def field_network_graph(model_xml, field_name):
-    mf = ModelFile(model_xml, add_stream_components=False, use_class_path=False)
-    field = mf.model.get_field(field_name)
-
-    global CurrentModel
-    global CurrentAnalysis
-    global CurrentField
-
-    CurrentModel = mf.model
-    CurrentAnalysis = CurrentModel.get_analysis(ANALYSIS_NAME)
-    CurrentField = field
-
+def field_network_graph(field):
     graph = pydot.Dot('model', graph_type='digraph', bgcolor='white')
 
     for name, proc in field.process_dict.items():
@@ -69,6 +54,7 @@ def field_network_graph(model_xml, field_name):
 
     traces = []  # contains edge_trace and node_trace
 
+    # TBD: might be useful to be able to click on a Stream (edge) to display it
     # No need to draw these since we draw the arrows as annotations
     # for edge, color in zip(G.edges, colors):
     #     x0, y0 = G.nodes[edge[0]]['pos']
@@ -97,7 +83,7 @@ def field_network_graph(model_xml, field_name):
 
     traces.append(node_trace)
 
-    layout = go.Layout(title=f"Model: '{MODEL_XML}'", showlegend=False,
+    layout = go.Layout(title=f"Field: '{field.name}'", showlegend=False,
                        margin={'b': 40, 'l': 40, 'r': 40, 't': 40},
                        xaxis={'showgrid': False, 'zeroline': False, 'showticklabels': False},
                        yaxis={'showgrid': False, 'zeroline': False, 'showticklabels': False},
@@ -137,104 +123,182 @@ styles = {
     }
 }
 
-app.layout = html.Div([
-    # Title
-    html.Div([html.H1(f"OPGEE field '{FIELD_NAME}'")],
-             className="row",
-             style={'textAlign': "center"}),
-    # define the row
-    html.Div(
-        className="row",
-        children=[
-             # middle graph component
-            html.Div(
-                className="eight columns",
-                children=[dcc.Graph(id="my-graph",
-                                    # figure=network_graph(YEAR, ACCOUNT),
-                                    figure=field_network_graph(MODEL_XML, FIELD_NAME))],
-            ),
+def main(args):
+    from ..version import VERSION
 
-            # right side two output component
-            html.Div(
-                className="four columns",
-                children=[
-                    html.Div(
-                        className='twelve columns',
+    # TBD: make adding stream components and class path cmdline args
+    mf = ModelFile(args.modelFile, add_stream_components=args.add_stream_components, use_class_path=args.use_class_path)
+    current_model = mf.model
+
+    field_name = args.field
+    field = current_model.get_field(field_name)
+
+    analysis_name = args.analysis
+    current_analysis = current_model.get_analysis(analysis_name)
+    current_field = field
+
+    # import the css template, and pass the css template into dash
+    external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+    app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+    app.title = "OPGEEv" + VERSION # OPGEEv4.0a0
+
+    # TBD:
+    # - text field (or Open panel) to select a model XML file to run? Or select this from command-line?
+    #   - dcc.Upload allows a file to be uploaded. Could be useful in the future.
+    # - add dcc.Dropdown from Analyses in a model or to run just one field
+    #
+    # Note: dcc.Store provides a browser-side caching mechanism
+
+
+    app.layout = html.Div([
+        # Title
+        html.Div([html.H1(app.title)],
+                 className="row",
+                 style={'textAlign': "center"}),
+
+        html.Div(
+            className="row",
+
+            # TBD: get all the radio button values from model attributes
+            # radio buttons
+            children=[
+                html.Div(
+                    className="two columns",
+                    children=[
+                        radio_items('Energy basis', {'Lower heating value': 'LHV',
+                                                     'Higher heating value': 'HHV'
+                                                     }, 'LHV'),
+                    ],
+                ),
+                html.Div(
+                    className="two columns",
+                    children=[
+                        radio_items('Functional unit', {'1 MJ Crude oil': 'oil',
+                                                        '1 MJ Natural gas': 'gas'
+                                                        }, 'oil'),
+                    ],
+                ),
+                html.Div(
+                        className="two columns",
                         children=[
-                            html.Button('Run model', id='run-button', n_clicks=0),
-                            dcc.Markdown(id='model-status')
+                            radio_items('System boundary', {'Field': 'field',
+                                                            'Post-transport': 'post-transport',
+                                                            'Post-distribution': 'post-distribution',
+                                                            }, 'field'),
                         ],
-                        style={'height': '100px'}),
-                    html.Div(
-                        className='twelve columns',
+                ),
+                html.Div(
+                        className="two columns",
                         children=[
-                            dcc.Markdown(d("""
-                            **Hover Data**
-
-                            Emissions and energy use
-                            """)),
-                            html.Pre(id='hover-data', style=styles['pre'])
+                            radio_items('Allocation method', {'Energy basis': 'energy',
+                                                              'Displacement': 'displacement'
+                                                              }, 'energy'),
                         ],
-                        style={'height': '400px'}),
+                ),
+                html.Div(
+                    className='two columns',
+                    children=[
+                        html.Button('Run model', id='run-button', n_clicks=0),
+                        dcc.Markdown(id='model-status')
+                    ],
+                    style={'height': '100px'}),
+            ],
+        ),
 
-                    html.Div(
-                        className='twelve columns',
-                        children=[
-                            dcc.Markdown(d("""
-                            **Click Data**
+        # the main row
+        html.Div(
+            className="row",
+            children=[
+                # middle graph component
+                html.Div(
+                    className="eight columns",
+                    children=[
+                        dcc.Graph(id="my-graph", figure=field_network_graph(current_field))],
+                ),
 
-                            Click on points in the graph.
-                            """)),
-                            html.Pre(id='click-data', style=styles['pre'])
-                        ],
-                        style={'height': '400px'})
-                ]
-            )
-        ]
-    )
-])
+                # right side two output component
+                html.Div(
+                    className="four columns",
+                    children=[
+                        html.Div(
+                            className='twelve columns',
+                            children=[
+                                dcc.Markdown(d("""
+                                **Hover Data**
+    
+                                Emissions and energy use
+                                """)),
+                                html.Pre(id='hover-data', style=styles['pre'])
+                            ],
+                            style={'height': '500px'}),
 
-# callback for left side components
-@app.callback(
-    dash.dependencies.Output('my-graph', 'figure'),
-    [dash.dependencies.Input('my-range-slider', 'value'), dash.dependencies.Input('input1', 'value')])
-def update_output(value,input1):
-    return field_network_graph(MODEL_XML, FIELD_NAME)
-    # to update the global variable of YEAR and ACCOUNT
+                        html.Div(
+                            className='twelve columns',
+                            children=[
+                                dcc.Markdown(d("""
+                                **Click Data**
+    
+                                Click on points in the graph.
+                                """)),
+                                html.Pre(id='click-data', style=styles['pre'])
+                            ],
+                            style={'height': '400px'})
+                    ]
+                )
+            ]
+        )
+    ])
 
-# callback for right side components
-@app.callback(
-    dash.dependencies.Output('hover-data', 'children'),
-    [dash.dependencies.Input('my-graph', 'hoverData')])
-def display_hover_data(hoverData):
-    if hoverData:
-        proc_name = hoverData['points'][0]['text']
-        proc = CurrentField.find_process(proc_name)
-        rates, co2e = proc.get_emission_rates(CurrentAnalysis)
-        # display values without all the Series stuff
-        digits = 2
-        values = '\n'.join([f"{name:4s} {round(value.m, digits)}" for name, value in rates.items()])
-        return f"{proc_name}:\n{values}\nCO2e {round(co2e, digits)}"
-    else:
-        return ''
+    # callback for left side components
+    @app.callback(
+        dash.dependencies.Output('my-graph', 'figure'),
 
-@app.callback(
-    dash.dependencies.Output('model-status', 'children'),
-    [dash.dependencies.Input('run-button', 'n_clicks')])
-def update_output(n_clicks):
-    if n_clicks:
-        CurrentField.run(CurrentAnalysis)
-        return "Model has been run"
-    else:
-        return f"Model has not been run"
+        # TBD: this isn't needed, but something was required syntactically... fix it!
+        [dash.dependencies.Input('run-button', 'n_clicks')])
+    def update_output(n_clicks):
+        return field_network_graph(current_field)
 
-@app.callback(
-    dash.dependencies.Output('click-data', 'children'),
-    [dash.dependencies.Input('my-graph', 'clickData')])
-def display_click_data(clickData):
-    return json.dumps(clickData, indent=2)
+    # callback for right side components
+    @app.callback(
+        dash.dependencies.Output('hover-data', 'children'),
+        [dash.dependencies.Input('my-graph', 'hoverData')])
+    def display_hover_data(hoverData):
+        if hoverData:
+            proc_name = hoverData['points'][0]['text']
+            proc = current_field.find_process(proc_name)
+            digits = 2
 
+            header = f"Process: {proc_name}\n"
 
+            # display values without all the Series stuff
+            rates, co2e = proc.get_emission_rates(current_analysis)
+            values = '\n'.join([f"{name:4s} {round(value.m, digits)}" for name, value in rates.items()])
+            emissions_str = f"\nEmissions: (tonne/day)\n{values}\nCO2e {round(co2e.m, digits)}"
 
-if __name__ == '__main__':
+            rates = proc.get_energy_rates(current_analysis)
+            values = '\n'.join([f"{name:19s} {round(value.m, digits)}" for name, value in rates.items()])
+            energy_str = f"\n\nEnergy use: (mmbtu/day)\n{values}"
+
+            return header + emissions_str + energy_str
+        else:
+            return ''
+
+    @app.callback(
+        dash.dependencies.Output('model-status', 'children'),
+        [dash.dependencies.Input('run-button', 'n_clicks')])
+    def update_output(n_clicks):
+        if n_clicks:
+            # TBD: get user selections from radio buttons and pass to run method
+            # TBD: have run method take optional args for all the run parameters, defaulting to what's in the model file
+            current_field.run(current_analysis)
+            return "Model has been run"
+        else:
+            return f"Model has not been run"
+
+    @app.callback(
+        dash.dependencies.Output('click-data', 'children'),
+        [dash.dependencies.Input('my-graph', 'clickData')])
+    def display_click_data(clickData):
+        return json.dumps(clickData, indent=2)
+
     app.run_server(debug=True)
