@@ -44,7 +44,7 @@ class Field(Container):
         self.run_order = None if self.cycles else nx.topological_sort(g)
 
         if cycles:
-            _logger.info(f"Field '{name}' has cycles: {cycles}")
+            _logger.debug(f"Field '{name}' has cycles: {cycles}")
 
         self.oil = Oil(self)
         self.gas = Gas(self)
