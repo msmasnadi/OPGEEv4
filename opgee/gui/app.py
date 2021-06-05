@@ -3,6 +3,7 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+import dash_table
 import json
 import networkx as nx
 import pydot
@@ -15,12 +16,6 @@ from ..gui.widgets import radio_items
 from ..log import getLogger
 
 _logger = getLogger(__name__)
-
-# TBD: get these from the command line
-MODEL_XML = '/Users/rjp/repos/OPGEEv4/tests/files/test_separator.xml'
-FIELD_NAME = 'test'
-ANALYSIS_NAME = 'test_separator'
-
 
 # Required to load separator_model.xml
 class After(Process):
@@ -126,7 +121,6 @@ styles = {
 def main(args):
     from ..version import VERSION
 
-    # TBD: make adding stream components and class path cmdline args
     mf = ModelFile(args.modelFile, add_stream_components=args.add_stream_components, use_class_path=args.use_class_path)
     current_model = mf.model
 
@@ -160,6 +154,8 @@ def main(args):
             className="row",
 
             # TBD: get all the radio button values from model attributes
+            # TBD: to do this, just add the radio button with an id, and populate it in a callback
+            # TBD: as in https://dash.plotly.com/basic-callbacks
             # radio buttons
             children=[
                 html.Div(
@@ -246,6 +242,17 @@ def main(args):
                     ]
                 )
             ]
+        ),
+
+        html.Div(
+            className="row",
+            children=[dash_table.DataTable(
+                id='table',
+                columns=[{"name": col, "id": col} for col in ('Process', 'CH4', 'CO', 'N2O', 'CO2', 'VOC')],
+                data=[{'Process': 'DownholePump', 'CH4': 0.2, 'CO': 0.22, 'N2O': .33, 'CO2': 0.5, 'VOC': 0.1},
+                      {'Process': 'Separation',   'CH4': 1.2, 'CO': 0.32, 'N2O': .43, 'CO2': 1.5, 'VOC': 1.1}
+                      ]
+            )]
         )
     ])
 
