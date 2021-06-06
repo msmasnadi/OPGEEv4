@@ -246,6 +246,7 @@ def main(args):
 
         html.Div(
             className="row",
+            # TBD: maybe better just to use go.Table? https://plotly.com/python/table/ combined with <summary> and <detail> with indentation
             children=[dash_table.DataTable(
                 id='table',
                 columns=[{"name": col, "id": col} for col in ('Process', 'CH4', 'CO', 'N2O', 'CO2', 'VOC')],
@@ -253,6 +254,12 @@ def main(args):
                       {'Process': 'Separation',   'CH4': 1.2, 'CO': 0.32, 'N2O': .43, 'CO2': 1.5, 'VOC': 1.1}
                       ]
             )]
+        ),
+
+        html.Div(
+            className="row",
+            id='emissions-table',
+            children = []
         )
     ])
 
@@ -291,6 +298,12 @@ def main(args):
             return ''
 
     @app.callback(
+        dash.dependencies.Output('click-data', 'children'),
+        [dash.dependencies.Input('my-graph', 'clickData')])
+    def display_click_data(clickData):
+        return json.dumps(clickData, indent=2)
+
+    @app.callback(
         dash.dependencies.Output('model-status', 'children'),
         [dash.dependencies.Input('run-button', 'n_clicks')])
     def update_output(n_clicks):
@@ -303,9 +316,23 @@ def main(args):
             return f"Model has not been run"
 
     @app.callback(
-        dash.dependencies.Output('click-data', 'children'),
-        [dash.dependencies.Input('my-graph', 'clickData')])
-    def display_click_data(clickData):
-        return json.dumps(clickData, indent=2)
+        dash.dependencies.Output('emissions-table', 'children'),
+        [dash.dependencies.Input('run-button', 'n_clicks')])
+    def update_result_table(n_clicks):
+        style = "margin-left: 16px"
+
+        # recursively create expanding aggregator structure with emissions (table, eventually)
+        def add_children(container, elt):
+            for agg in container.aggs:
+                details = html.Details(children=[html.Summary(agg.name)], style=style)
+                add_children(agg, details)
+
+            for proc in container.procs:
+                tbl = html.Div(proc.name, style=style)
+                elt.children.append(tbl)
+
+        elt = html.Details(open=True, children=[html.Summary("Process Emissions")])
+        add_children(current_field, elt)
+
 
     app.run_server(debug=True)

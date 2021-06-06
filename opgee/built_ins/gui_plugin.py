@@ -35,10 +35,10 @@ class GUICommand(SubcommandABC):
 
         # TBD: apparently action=argparse.BooleanOptionalAction requires py 3.9
         parser.add_argument('--add-stream-components', action='store_true',
-                            help=f'''Whether to include additional stream components, if found in opgee.cfg''')
+                            help=f'''Include additional stream components listed in config variable "OPGEE.StreamComponents"''')
 
         parser.add_argument('--use-class-path', action='store_true',
-                            help=f'''Whether to use the config variable CLASSPATH to find custom Process subclasses''')
+                            help=f'''Search for Process subclasses in Python files found in the path(s) listed in config variable "OPGEE.ClassPath"''')
 
         return parser
 
