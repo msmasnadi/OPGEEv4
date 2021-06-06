@@ -110,7 +110,7 @@ class Process(XmlInstantiable, AttributeMixin):
         self.desc = desc or name
         self.start = getBooleanXML(start)
 
-        self.production  = set(produces) if produces else {}
+        self.production = set(produces) if produces else {}
         self.consumption = set(consumes) if consumes else {}
 
         self.extend = False
@@ -195,11 +195,12 @@ class Process(XmlInstantiable, AttributeMixin):
     # end of pass through energy and emissions methods
     #
 
-    def set_gas_fugitives(self, stream):
-        #TODO: complete
+    def set_gas_fugitives(self, stream, loss_rate) -> Stream:
+        # TODO: complete
         """
         initialize the gas fugitives stream, get loss rate, copy..
 
+        :param loss_rate:
         :param stream:
         :return:
         """
@@ -207,7 +208,6 @@ class Process(XmlInstantiable, AttributeMixin):
         field = self.get_field()
 
         gas_fugitives = self.find_output_stream("gas fugitives")
-        loss_rate = self.venting_fugitive_rate()
         gas_fugitives.copy_gas_rates_from(stream)
         gas_fugitives.multiply_flow_rates(loss_rate)
 
@@ -312,7 +312,8 @@ class Process(XmlInstantiable, AttributeMixin):
         :return: (Stream, list or dict of Streams) depends on various keyword args
         :raises: OpgeeException if no processes handling `stream_type` are found and `raiseError` is True
         """
-        return self.find_streams_by_type(self.INPUT, stream_type, combine=combine, as_list=as_list, raiseError=raiseError)
+        return self.find_streams_by_type(self.INPUT, stream_type, combine=combine, as_list=as_list,
+                                         raiseError=raiseError)
 
     def find_output_streams(self, stream_type, combine=False, as_list=False, raiseError=True):
         """
@@ -325,7 +326,8 @@ class Process(XmlInstantiable, AttributeMixin):
         :return: (Stream, list or dict of Streams) depends on various keyword args
         :raises: OpgeeException if no processes handling `stream_type` are found and `raiseError` is True
         """
-        return self.find_streams_by_type(self.OUTPUT, stream_type, combine=combine, as_list=as_list, raiseError=raiseError)
+        return self.find_streams_by_type(self.OUTPUT, stream_type, combine=combine, as_list=as_list,
+                                         raiseError=raiseError)
 
     def find_input_stream(self, stream_type, raiseError=True) -> Stream:
         """
@@ -537,6 +539,7 @@ class Reservoir(Process):
     Reservoir represents natural resources such as oil and gas reservoirs, and water sources.
     Each Field object holds a single Reservoir instance.
     """
+
     def __init__(self):
         super().__init__(None, desc='The Reservoir')
 

@@ -47,3 +47,7 @@ MJ = 1E6 * joule
 fraction = [] = frac = dimensionless
 percent = 1e-2 frac = pct
 ppm = 1e-6 fraction
+
+# permeability
+Darcy = 9.869233E-13 * meter**2
+mD = Darcy / 1000

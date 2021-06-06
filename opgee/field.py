@@ -5,7 +5,7 @@ from .error import OpgeeException, OpgeeStopIteration
 from .log import getLogger
 from .process import Process, Environment, Reservoir, Aggregator
 from .stream import Stream
-from .thermodynamics import Oil, Gas
+from .thermodynamics import Oil, Gas, Water
 from .utils import getBooleanXML, flatten
 
 _logger = getLogger(__name__)
@@ -48,6 +48,7 @@ class Field(Container):
 
         self.oil = Oil(self)
         self.gas = Gas(self)
+        self.water = Water(self)
 
     def _after_init(self):
         self.model = self.find_parent('Model')

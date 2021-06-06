@@ -102,6 +102,7 @@ class OilGasWater(OpgeeObject):
         """
         self.res_temp = field.attr("res_temp")
         self.res_press = field.attr("res_press")
+        self.field = field
 
     @classmethod
     def get_dict_chemical(cls):
@@ -135,6 +136,16 @@ class OilGasWater(OpgeeObject):
 
         rho = self.dict_chemical[component].rho(phases[phase], temperature, pressure)
         return ureg.Quantity(rho, "kg/m**3")
+
+    def LHV(self, component):
+        """
+
+        :param component:
+        :return: (float) low heat value (unit = joule/mol)
+        """
+        LHV = ureg.Quantity(abs(self.dict_chemical[component].LHV), "joule/mol")
+        return LHV
+
 
 class Oil(OilGasWater):
     """
@@ -215,8 +226,7 @@ class Oil(OilGasWater):
             oil_SG ** (-self.pbub_a1 / self.pbub_a2) *
             np.exp(self.pbub_a3 / self.pbub_a2 * gas_SG * oil_SG) /
             (res_temperature * gas_SG),
-            gor_bubble
-        ])
+            gor_bubble])
         result = ureg.Quantity(result, "scf/bbl_oil")
         return result
 
@@ -384,7 +394,6 @@ class Oil(OilGasWater):
         :param oil_specific_gravity:
         :param gas_specific_gravity:
         :param gas_oil_ratio:
-        :param temperature:
         :return:
         """
         oil_SG = oil_specific_gravity.m
@@ -500,7 +509,7 @@ class Gas(OilGasWater):
         """
         total_molar_flow_rate = self.total_molar_flow_rate(stream)
         mass_flow_rate = stream.gas_flow_rate(name)
-        molecular_weight = ureg.Quantity(self.dict_chemical[name].MW, "g/mol")
+        molecular_weight = self.mol_weight(name)
         molar_flow_rate = mass_flow_rate.to("g/day") / molecular_weight
 
         result = molar_flow_rate / total_molar_flow_rate
@@ -534,7 +543,7 @@ class Gas(OilGasWater):
         specific_heat_press = 0
         specific_heat_volm = 0
         for component, tonne_per_day in mass_flow_rate.items():
-            molecular_weight = ureg.Quantity(self.dict_chemical[component].MW, "g/mol")
+            molecular_weight = self.mol_weight(component)
             gas_constant = universal_gas_constants / molecular_weight
             Cp = ureg.Quantity(self.dict_chemical[component].Cp(phase='g', T=298.15), "joule/g/kelvin")
             Cv = Cp - gas_constant
@@ -559,10 +568,12 @@ class Gas(OilGasWater):
                 continue
             molar_fraction = self.component_molar_fraction(component, stream).m
             critical_temperature = ureg.Quantity(self.dict_chemical[component].Tc, "kelvin").to("rankine")
+            critical_temperature = critical_temperature.m
             critical_pressure = ureg.Quantity(self.dict_chemical[component].Pc, "Pa").to("psia")
-            temp1 += molar_fraction * critical_temperature.m / critical_pressure.m ** 0.5
-            temp2 += molar_fraction * critical_temperature.m / critical_pressure.m
-            temp3 += molar_fraction * (critical_temperature.m / critical_pressure.m) ** 0.5
+            critical_pressure = critical_pressure.m
+            temp1 += molar_fraction * critical_temperature / critical_pressure ** 0.5
+            temp2 += molar_fraction * critical_temperature / critical_pressure
+            temp3 += molar_fraction * (critical_temperature / critical_pressure) ** 0.5
         temp1 = temp1 ** 2
         temp2 = 1 / 3 * temp2
         temp3 = 2 / 3 * temp3 ** 2
@@ -625,12 +636,13 @@ class Gas(OilGasWater):
 
         return result.to("frac")
 
-    def Z_factor(self, reduced_temperature, reduced_pressure):
+    @staticmethod
+    def Z_factor(reduced_temperature, reduced_pressure):
         """
 
         :param reduced_temperature:
         :param reduced_pressure:
-        :return:
+        :return:(float) gas z_factor (unit = frac)
         """
         reduced_temp = reduced_temperature.m
         reduced_press = reduced_pressure.m
@@ -674,6 +686,24 @@ class Gas(OilGasWater):
 
         return air_density_stp.to("tonne/m**3") * specific_gravity / volume_factor
 
+    def viscosity(self, stream):
+        """
+        Calculate natural gas viscosity using Lee et al.(1966) correlation
+
+        :param stream:
+        :return:(float) natural gas viscosity (unit = cP)
+        """
+        gas_stream_molar_weight = self.molar_weight(stream).m
+        gas_density = self.density(stream).to("lb/ft**3").m
+        temp = stream.temperature.to("rankine").m
+
+        factor_K = (9.4 + 0.02 * gas_stream_molar_weight) * temp ** 1.5 / (209 + 19 * gas_stream_molar_weight + temp)
+        factor_X = 3.5 + 986 / temp + 0.01 * gas_stream_molar_weight
+        factor_Y = 2.4 - 0.2 * factor_X
+
+        viscosity = 1.10e-4 * factor_K * np.exp(factor_X * (gas_density / 62.4) ** factor_Y)
+        return ureg.Quantity(viscosity, "centipoise")
+
     def molar_weight(self, stream):
         """
 
@@ -713,10 +743,7 @@ class Gas(OilGasWater):
         for component, tonne_per_day in mass_flow_rate.items():
             if tonne_per_day == 0:
                 continue
-            LHV = self.dict_chemical[component].LHV
-            if LHV < 0:
-                LHV = -LHV
-            LHV = ureg.Quantity(LHV, "joule/mol")
+            LHV = self.LHV(component)
             LHV = LHV.to("MJ/mol")
             molecular_weight = self.mol_weight(component)
             mass_energy_density += tonne_per_day / total_mass_rate * LHV / molecular_weight.to("kg/mol")
@@ -730,16 +757,16 @@ class Gas(OilGasWater):
         :return:(float) gas volume energy density (unit = btu/scf)
         """
         mass_flow_rate = stream.total_gases_rates()  # pandas.Series
-        std_temp = self.field.model.const("std-temperature").to("kelvin").m
-        std_press = self.field.model.const("std-pressure").to("Pa").m
+        std_temp = self.field.model.const("std-temperature").to("kelvin")
+        std_press = self.field.model.const("std-pressure").to("Pa")
         volume_energy_density = ureg.Quantity(0.0, "Btu/ft**3")
         for component, tonne_per_day in mass_flow_rate.items():
             if tonne_per_day == 0:
                 continue
-            LHV = self.dict_chemical[component].LHV
-            LHV = ureg.Quantity(abs(LHV), "joule/mol").to("Btu/mol")
+            LHV = self.LHV(component)
+            LHV = LHV.to("Btu/mol")
             molecular_weight = self.mol_weight(component)
-            density = ureg.Quantity(self.dict_chemical[component].rho("g", std_temp, std_press), "kg/m**3")
+            density = self.rho(component, std_temp, std_press, PHASE_GAS)
             density = density.to("g/ft**3")
             molar_fraction = self.component_molar_fraction(component, stream)
             volume_energy_density += molar_fraction * density * LHV / molecular_weight
@@ -759,14 +786,40 @@ class Gas(OilGasWater):
         return energy_flow_rate
 
 
-    class Water(OilGasWater):
+class Water(OilGasWater):
+    """
+    water class includes the method to calculate water density, water volume flow rate, etc.
+    """
+
+    def __init__(self, field):
+        super().__init__(field)
+        self.TDS = field.attr("total_dissolved_solids")  # mg/L
+        # TODO: this can be improved by adding ions in the H2O in the solution
+        self.specific_gravity = ureg.Quantity(1 + self.TDS.m * 0.695 * 1e-6, "frac")
+        self.field = field
+
+    def density(self):
         """
-        water class includes the method to calculate water density, water volume flow rate, etc.
+        water density
+
+        :return: (float) water density (unit = kg/m3)
+        """
+        std_temp = self.field.model.const("std-temperature")
+        std_press = self.field.model.const("std-pressure")
+        specifc_gravity = self.specific_gravity
+        water_density_STP = self.rho("H2O", std_temp, std_press, PHASE_LIQUID)
+        density = specifc_gravity * water_density_STP
+
+        return density.to("kg/m**3")
+
+    def volume_flow_rate(self, stream):
         """
 
-        def __init__(self, field):
-            self.water_TDS = field.attr("total_solid_content")
-            # self.water_specific_gravity = 1 +
+        :param stream:
+        :return: (float) water volume flow rate (unit = bbl_water/d)
+        """
+        mass_rate = stream.flow_rate("H2O", PHASE_LIQUID)
+        density = self.density()
 
-        def water_specific_gravity(self):
-            pass
+        volume_flow_rate = (mass_rate / density).to("bbl_water/day")
+        return volume_flow_rate
