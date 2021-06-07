@@ -23,13 +23,16 @@ def _get_dict_chemical():
 
 _dict_chemical = _get_dict_chemical()
 
-def mol_weight(component):
+def mol_weight(component, with_units=True):
     """
     Return the molecular weight of a Stream `component` (chemical)
     :param component: (str) the name of a Stream `component`
     :return: (Quantity) molecular weight
     """
-    mol_weight = ureg.Quantity(_dict_chemical[component].MW, "g/mol")
+    mol_weight = _dict_chemical[component].MW
+    if with_units:
+        mol_weight = ureg.Quantity(mol_weight, "g/mol")
+
     return mol_weight
 
 def rho(component, temperature, pressure, phase):
@@ -50,14 +53,16 @@ def rho(component, temperature, pressure, phase):
     rho = _dict_chemical[component].rho(phases[phase], temperature, pressure)
     return ureg.Quantity(rho, "kg/m**3")
 
-def LHV(component):
+def LHV(component, with_units=True):
     """
 
     :param component:
     :return: (float) low heat value (unit = joule/mol)
     """
     lhv = _dict_chemical[component].LHV or 0.0      # TODO: for "C6", LHV returns None. Is that correct?
-    lhv = ureg.Quantity(abs(lhv), "joule/mol")
+    if with_units:
+        lhv = ureg.Quantity(abs(lhv), "joule/mol")
+
     return lhv
 
 
@@ -148,8 +153,8 @@ class AbstractSubstance(OpgeeObject):
         self.dry_air_MW = self.dry_air.mol_weight()
 
         components = list(_dict_chemical.keys())
-        self.component_MW  = pd.Series({name: mol_weight(name) for name in components})
-        self.component_LHV = pd.Series({name: LHV(name) for name in components})
+        self.component_MW  = pd.Series({name: mol_weight(name, with_units=False) for name in components}, dtype="pint[g/mole]")
+        self.component_LHV = pd.Series({name: LHV(name, with_units=False) for name in components}, dtype="pint[joule/mole]")
 
 
 class Oil(AbstractSubstance):
@@ -195,6 +200,11 @@ class Oil(AbstractSubstance):
         for component, mol_frac in gas_comp.items():
             molecular_weight = mol_weight(component)
             gas_SG += molecular_weight * mol_frac.to("frac")
+
+        # TODO: all of the above can be replaced with the line below. The units are different
+        # TODO: but if you compare the above with the line below and use gas_SG.to_base_units(),
+        # TODO: they both return 0.017973756202 <Unit('fraction * kilogram / mole')>
+        # gas_SG = (gas_comp * self.component_MW[self.gas_comp.index]).sum()
 
         gas_SG = gas_SG / self.dry_air_MW
         return gas_SG
@@ -498,6 +508,9 @@ class Gas(AbstractSubstance):
             molecular_weight = mol_weight(component)
             total_molar_flow_rate += tonne_per_day.to("g/day") / molecular_weight
 
+        # TODO: this line replaces everything above:
+        #total_molar_flow_rate = (mass_flow_rate/self.component_MW).sum().to("mol/day")
+
         return total_molar_flow_rate
 
     def component_molar_fraction(self, name, stream):
@@ -514,6 +527,24 @@ class Gas(AbstractSubstance):
 
         result = molar_flow_rate / total_molar_flow_rate
         return result.to("frac")
+
+    # TODO: this gets the fractions in a series, all at once. The units are weird, but
+    # TODO: when converted to base units, they are correct numerically.
+    def component_molar_fractions(self, stream):
+        """
+        Compute all molar fractions and return in a Series.
+
+        :param name: (str) component name
+        :param stream: (Stream)
+        :return: (pd.Series) indexed by component name
+        """
+        total_molar_flow_rate = self.total_molar_flow_rate(stream)
+        gas_flow_rates = stream.components.query("gas > 0.0").gas
+
+        molar_flow_rate = gas_flow_rates / self.component_MW[gas_flow_rates.index]
+
+        result = molar_flow_rate / total_molar_flow_rate
+        return result
 
     def specific_gravity(self, stream):
         """

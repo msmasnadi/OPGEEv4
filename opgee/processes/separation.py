@@ -1,15 +1,14 @@
 from ..log import getLogger
 from ..process import Process
-from ..thermodynamics import AbstractSubstance
 from ..drivers import Drivers
 from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY
 from ..emissions import Emissions
-from opgee import ureg
-from opgee.stream import Stream, PHASE_GAS, PHASE_LIQUID, PHASE_SOLID
+from .. import ureg
+from ..stream import Stream, PHASE_GAS, PHASE_LIQUID, PHASE_SOLID
+from ..thermodynamics import rho
 
 _logger = getLogger(__name__)
 
-dict_chemical = AbstractSubstance.get_dict_chemical()
 _power = [1, 1 / 2, 1 / 3, 1 / 4, 1 / 5]
 
 
@@ -156,7 +155,7 @@ class Separation(Process):
 
         for component, mol_frac in gas_comp.items():
             gas_volume_rate = oil_volume_rate * gas_oil_ratio * mol_frac.to("frac")
-            gas_density = oil.rho(component, std_temp, std_press, PHASE_GAS)
+            gas_density = rho(component, std_temp, std_press, PHASE_GAS)
             gas_mass_rate = (gas_volume_rate * gas_density).to("tonne/day")
             gas_after.set_gas_flow_rate(component, gas_mass_rate)
         gas_after.set_temperature_and_pressure(temperature_outlet, pressure_after_boosting)
@@ -168,7 +167,7 @@ class Separation(Process):
         oil_after.set_liquid_flow_rate("H2O", water_in_oil_mass_rate)
         oil_after.set_temperature_and_pressure(temperature_outlet, pressure_outlet)
 
-        water_density_STP = field.oil.rho("H2O", std_temp, std_press, PHASE_LIQUID)
+        water_density_STP = rho("H2O", std_temp, std_press, PHASE_LIQUID)
         water_mass_rate = (oil_volume_rate * water_oil_ratio * water_density_STP.to("tonne/barrel_water") -
                            water_in_oil_mass_rate)
         water_after = self.find_output_stream("water")
