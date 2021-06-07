@@ -1,6 +1,6 @@
 from ..log import getLogger
 from ..process import Process
-from ..thermodynamics import OilGasWater
+from ..thermodynamics import AbstractSubstance
 from ..drivers import Drivers
 from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY
 from ..emissions import Emissions
@@ -9,7 +9,7 @@ from opgee.stream import Stream, PHASE_GAS, PHASE_LIQUID, PHASE_SOLID
 
 _logger = getLogger(__name__)
 
-dict_chemical = OilGasWater.get_dict_chemical()
+dict_chemical = AbstractSubstance.get_dict_chemical()
 _power = [1, 1 / 2, 1 / 3, 1 / 4, 1 / 5]
 
 

@@ -1,3 +1,5 @@
+import pandas as pd
+
 from opgee.core import OpgeeObject
 import numpy as np
 from thermosteam import Chemical, Mixture
@@ -89,7 +91,7 @@ def _get_dict_chemical():
     return dict_chemical
 
 
-class OilGasWater(OpgeeObject):
+class AbstractSubstance(OpgeeObject):
     """
     OilGasWater class contains Oil, Gas and Water class
     """
@@ -103,6 +105,8 @@ class OilGasWater(OpgeeObject):
         self.res_temp = field.attr("res_temp")
         self.res_press = field.attr("res_press")
         self.field = field
+        self.component_MW = pd.Series({name: self.mol_weight(name) for name in Stream.components})
+        self.component_LHV = pd.Series({name: self.LHV(name) for name in Stream.components})
 
     @classmethod
     def get_dict_chemical(cls):
@@ -112,16 +116,18 @@ class OilGasWater(OpgeeObject):
         """
         return cls.dict_chemical
 
-    def mol_weight(self, component):
+    @classmethod
+    def mol_weight(cls, component):
         """
 
         :param component:
         :return:
         """
-        mol_weight = ureg.Quantity(self.dict_chemical[component].MW, "g/mol")
+        mol_weight = ureg.Quantity(cls.dict_chemical[component].MW, "g/mol")
         return mol_weight
 
-    def rho(self, component, temperature, pressure, phase):
+    @classmethod
+    def rho(cls, component, temperature, pressure, phase):
         """
 
         :param component:
@@ -134,20 +140,21 @@ class OilGasWater(OpgeeObject):
         pressure = pressure.to("Pa").m
         phases = {PHASE_GAS: "g", PHASE_LIQUID: "l", PHASE_SOLID: "s"}
 
-        rho = self.dict_chemical[component].rho(phases[phase], temperature, pressure)
+        rho = cls.dict_chemical[component].rho(phases[phase], temperature, pressure)
         return ureg.Quantity(rho, "kg/m**3")
 
-    def LHV(self, component):
+    @classmethod
+    def LHV(cls, component):
         """
 
         :param component:
         :return: (float) low heat value (unit = joule/mol)
         """
-        LHV = ureg.Quantity(abs(self.dict_chemical[component].LHV), "joule/mol")
+        LHV = ureg.Quantity(abs(cls.dict_chemical[component].LHV), "joule/mol")
         return LHV
 
 
-class Oil(OilGasWater):
+class Oil(AbstractSubstance):
     """
 
     """
@@ -470,7 +477,7 @@ class Oil(OilGasWater):
         return result.to("mmbtu/day")
 
 
-class Gas(OilGasWater):
+class Gas(AbstractSubstance):
     """
 
     """
@@ -786,7 +793,7 @@ class Gas(OilGasWater):
         return energy_flow_rate
 
 
-class Water(OilGasWater):
+class Water(AbstractSubstance):
     """
     water class includes the method to calculate water density, water volume flow rate, etc.
     """
