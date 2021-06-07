@@ -98,7 +98,8 @@ class Process(XmlInstantiable, AttributeMixin):
     INPUT = 'input'
     OUTPUT = 'output'
 
-    def __init__(self, name, desc=None, consumes=None, produces=None, attr_dict=None, start=False):
+    def __init__(self, name, desc=None, consumes=None, produces=None, attr_dict=None,
+                 cycle_start=False, impute_start=False):
         name = name or self.__class__.__name__
         super().__init__(name)
 
@@ -108,7 +109,8 @@ class Process(XmlInstantiable, AttributeMixin):
         self._model = None  # @property "model" caches model here after first lookup
 
         self.desc = desc or name
-        self.start = getBooleanXML(start)
+        self.impute_start = getBooleanXML(impute_start)
+        self.cycle_start  = getBooleanXML(cycle_start)
 
         self.production  = set(produces) if produces else {}
         self.consumption = set(consumes) if consumes else {}
@@ -384,6 +386,16 @@ class Process(XmlInstantiable, AttributeMixin):
         procs = [stream.src_proc for stream in self.inputs]
         return procs
 
+    def successors(self):
+        """
+        Return a Process's immediately following Processes.
+
+        :return: (list of Process) the Processes that are the destinations
+           of Streams connected to `process`.
+        """
+        procs = [stream.dst_proc for stream in self.outputs]
+        return procs
+
     def set_iteration_value(self, value):
         """
         Store the value of a variable used to determine when an iteration loop
@@ -519,7 +531,8 @@ class Process(XmlInstantiable, AttributeMixin):
         name = elt_name(elt)
         a = elt.attrib
         desc = a.get('desc')
-        start = a.get('start')
+        impute_start = a.get('impute-start')
+        cycle_start = a.get('cycle-start')
 
         classname = a['class']  # required by XML schema
         subclass = _get_subclass(Process, classname)
@@ -529,7 +542,8 @@ class Process(XmlInstantiable, AttributeMixin):
         produces = [node.text for node in elt.findall('Produces')]
         consumes = [node.text for node in elt.findall('Consumes')]
 
-        obj = subclass(name, desc=desc, attr_dict=attr_dict, produces=produces, consumes=consumes, start=start)
+        obj = subclass(name, desc=desc, attr_dict=attr_dict, produces=produces, consumes=consumes,
+                       cycle_start=cycle_start, impute_start=impute_start)
 
         obj.set_enabled(getBooleanXML(a.get('enabled', '1')))
         obj.set_extend(getBooleanXML(a.get('extend', '0')))
