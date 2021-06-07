@@ -11,7 +11,7 @@
 
 	<Field name="test">
 		<A name="country">USA</A>
-		<Process class="Separation" start="true">
+		<Process class="Separation" impute-start="true">
 			<Consumes>crude oil</Consumes>
 			<Produces>crude oil</Produces>
 			<Produces>water</Produces>
@@ -19,7 +19,7 @@
 			<Produces>gas fugitives</Produces>
 		</Process>
 
-		<Process class="ReservoirWellInterface">
+		<Process class="ReservoirWellInterface" cycle-start="true">
 			<Consumes>crude oil</Consumes>
 			<Consumes>flooding CO2</Consumes>
 			<Produces>crude oil</Produces>
