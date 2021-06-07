@@ -6,3 +6,4 @@ amb-pressure,14.676,psia
 amb-air-density,0.001225,kg/m**3
 water-FVF,1,dimensionless
 gravitational-constant, 32.2, (lb*ft)/(lbf*s**2)
+gravitational-acceleration, 9.8, m/second**2

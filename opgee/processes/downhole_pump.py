@@ -26,7 +26,8 @@ class DownholePump(Process):
         num_prod_wells = field.attr("num_prod_wells")
         prod_tubing_xsection_area = np.pi * prod_tubing_radius ** 2
         prod_tubing_volume = (prod_tubing_xsection_area * depth).to("ft**3")
-        gravitational_constant = field.model.const("gravitational-constant")
+        # gravitational_constant = field.model.const("gravitational-constant")
+        gravitational_acceleration = field.model.const("gravitational-acceleration")
 
         # mass rate
         input = self.find_input_stream("crude oil")
@@ -97,17 +98,17 @@ class DownholePump(Process):
         total_volume_fluid_lifted = (average_volume_oil_lifted +
                                      volume_water_lifted +
                                      volume_free_gas_lifted).to("ft**3/day")
-        fluid_velocity = (total_volume_fluid_lifted / (prod_tubing_xsection_area * num_prod_wells)).to("ft/day")
+        fluid_velocity = (total_volume_fluid_lifted / (prod_tubing_xsection_area * num_prod_wells)).to("ft/sec")
 
         total_mass_fluid_lifted = (average_oil_density * average_volume_oil_lifted +
                                    water_density * volume_water_lifted +
-                                   gas_density * volume_free_gas_lifted).to("lb")
+                                   gas_density * volume_free_gas_lifted).to("lb/day")
         fluid_lifted_density = (total_mass_fluid_lifted / total_volume_fluid_lifted).to("lb/ft**3")
 
         # downhole pump
-        pressure_drop_elev = (total_mass_fluid_lifted / prod_tubing_xsection_area).to("psi")
+        pressure_drop_elev = (fluid_lifted_density * gravitational_acceleration * depth).to("psi")
         pressure_drop_fric = (friction_factor * depth * fluid_velocity ** 2 /
-                              (2 * prod_tubing_diam * gravitational_constant)).to("psi")
+                              (2 * prod_tubing_diam * gravitational_acceleration)).to("ft")
 
 
 
