@@ -248,8 +248,8 @@ class AttributeMixin():
         attr_defs = AttrDefs.get_instance()
         attr_dict = {}
 
-        # TBD: To avoid an import loop, we don't import Process from process.py. This
-        # TBD: works, but it's a bit of a hack. There might be a better way...
+        # TBD:   To avoid an import loop, we don't import Process from process.py. This
+        # TBD:   works, but it's a bit of a hack. There might be a better way...
         if str(cls.__mro__[1]) == "<class 'opgee.process.Process'>":
             attr_defs = AttrDefs.get_instance()
             # i.e., isinstance(cls, Process)

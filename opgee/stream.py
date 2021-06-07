@@ -288,7 +288,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param factor: (float) what to multiply by
         :return: none
         """
-        self.components *= factor
+        self.components *= magnitude(factor, 'fraction')
 
     def add_flow_rates_from(self, stream):
         """

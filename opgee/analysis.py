@@ -3,6 +3,7 @@ from .core import elt_name, OpgeeObject
 from .container import Container
 from .error import OpgeeException
 from .emissions import Emissions
+from .field import Field
 from .log import getLogger
 from .utils import getBooleanXML
 
@@ -55,7 +56,7 @@ class Analysis(Container):
 
         self.use_GWP(gwp_horizon, gwp_version)
 
-    def get_field(self, name, raiseError=True):
+    def get_field(self, name, raiseError=True) -> Field:
         """
         Find a `Field` by name in an `Analysis`.
 
