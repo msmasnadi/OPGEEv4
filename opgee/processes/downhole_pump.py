@@ -120,7 +120,8 @@ class DownholePump(Process):
         output = self.find_output_stream("crude oil")
 
         loss_rate = self.venting_fugitive_rate()
-        gas_fugitives = self.set_gas_fugitives(output, 1 / (1 - loss_rate))
+        loss_rate = (1 / (1 - loss_rate)).to("frac")
+        gas_fugitives = self.set_gas_fugitives(output, loss_rate)
 
         input = self.find_input_stream("crude oil")
         input.add_flow_rates_from(output)

@@ -265,4 +265,4 @@ def test_water_volume_rate(water_instance):
     stream = Stream("water stream", temperature=200, pressure=1556.6)
     stream.set_flow_rate("H2O", "liquid", 1962.61672)
     volume_flow_rate = water_instance.volume_flow_rate(stream)
-    assert volume_flow_rate == ureg.Quantity(pytest.approx(12798.2793), "bbl_water/day")
+    assert volume_flow_rate == ureg.Quantity(pytest.approx(12293.734), "bbl_water/day")

@@ -102,7 +102,8 @@ class Separation(Process):
 
         gas_after, oil_after, water_after = self.get_output_streams(field)
         loss_rate = self.venting_fugitive_rate()
-        gas_after.multiply_flow_rates(1 / (1 - loss_rate))
+        loss_rate = (1 / (1 - loss_rate)).to("frac")
+        gas_after.multiply_flow_rates(loss_rate)
 
         output = Stream.combine([oil_after, gas_after, water_after],
                                 temperature=wellhead_temp, pressure=wellhead_press)
