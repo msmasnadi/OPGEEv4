@@ -65,7 +65,7 @@
 				<Produces>gas fugitives</Produces>
 			</Process>
 
-			<Process class="Separation" start="true">
+			<Process class="Separation" impute-start="true">
 				<Consumes>crude oil</Consumes>
 				<Produces>crude oil</Produces>
 				<Produces>water</Produces>
