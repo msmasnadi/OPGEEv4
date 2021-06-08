@@ -253,6 +253,7 @@ def test_energy_flow_rate(gas_instance, stream):
 def water_instance(test_model):
     field = test_model.get_field("test")
     water = Water(field)
+    water._after_init()
     return water
 
 

@@ -1,11 +1,12 @@
 from ..log import getLogger
 from ..process import Process
-from ..drivers import Drivers
+
 from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY
 from ..emissions import Emissions
 from .. import ureg
 from ..stream import Stream, PHASE_GAS, PHASE_LIQUID, PHASE_SOLID
 from ..thermodynamics import rho
+from ..compressor import Compressor
 
 _logger = getLogger(__name__)
 
@@ -38,16 +39,6 @@ def get_num_of_compression_stages(overall_compression_ratio_stages, compression_
     return num_of_compression_stages
 
 
-def get_energy_consumption_stages(prime_mover_type, brake_horsepower_of_stages):
-    energy_consumption_of_stages = []
-    for brake_horsepower in brake_horsepower_of_stages:
-        eff = Drivers.get_efficiency(prime_mover_type, brake_horsepower)
-        energy_consumption = (brake_horsepower * eff).to("mmBtu/day")
-        energy_consumption_of_stages.append(energy_consumption)
-
-    return energy_consumption_of_stages
-
-
 class Separation(Process):
     def run(self, analysis):
         self.print_running_msg()
@@ -72,18 +63,17 @@ class Separation(Process):
 
         # energy rate
         oil_volume_rate = field.attr("oil_prod")  # (float) bbl/day
-        compressor_eff = self.attr("eta_compressor").to("frac")
+
         # Primary mover type is one of: {"NG_engine", "Electric_motor", "Diesel_engine", "NG_turbine"}
         prime_mover_type = self.attr("prime_mover_type")
 
         free_gas_stages = self.get_free_gas_stages(field)  # (float, list) scf/bbl
         gas_compression_volume_stages = [(oil_volume_rate * free_gas).to("mmscf/day") for free_gas in free_gas_stages]
-        compressor_horsepower_of_stages = self.compressor_horsepower_of_stages(field,
-                                                                               gas_after,
-                                                                               gas_compression_volume_stages)
-        brake_horsepower_of_stages = [compressor_hp / compressor_eff
-                                      for compressor_hp in compressor_horsepower_of_stages]
-        energy_consumption_of_stages = get_energy_consumption_stages(prime_mover_type, brake_horsepower_of_stages)
+        compressor_brake_horsepower_of_stages = self.compressor_brake_horsepower_of_stages(field,
+                                                                                           gas_after,
+                                                                                           gas_compression_volume_stages)
+        energy_consumption_of_stages = self.get_energy_consumption_stages(prime_mover_type,
+                                                                          compressor_brake_horsepower_of_stages)
         energy_consumption_sum = sum(energy_consumption_of_stages)
 
         energy_use = self.energy
@@ -210,12 +200,20 @@ class Separation(Process):
 
         return free_gas_of_stages
 
-    def compressor_horsepower_of_stages(self, field, gas_stream, gas_compression_volume_stages):
-        gas = field.gas
+    def compressor_brake_horsepower_of_stages(self, field, gas_stream, gas_compression_volume_stages):
+        """
+        Get the compressor horsepower of all stages in the separator
+
+        :param field:
+        :param gas_stream:
+        :param gas_compression_volume_stages: (float) a list contains gas compression volume for each stages
+        :return: (float) compresssor brake horsepower for each stages
+        """
 
         num_of_stages = self.attr("number_stages")
         temperature_of_stages, pressure_of_stages = self.get_stages_temperature_and_pressure(field)
         pressure_after_boosting = self.attr("gas_pressure_after_boosting")
+        compressor_eff = self.attr("eta_compressor").to("frac")
 
         overall_compression_ratio_stages = [pressure_after_boosting /
                                             pressure_of_stages[stage] for stage in range(num_of_stages)]
@@ -223,7 +221,7 @@ class Separation(Process):
         num_of_compression_stages = get_num_of_compression_stages(overall_compression_ratio_stages,
                                                                   compression_ratio_per_stages)  # (int)
 
-        horsepower_of_stages = []
+        brake_horsepower_of_stages = []
         for (inlet_temp, inlet_press, compression_ratio,
              gas_compression_volume, num_of_compression) \
                 in zip(temperature_of_stages,
@@ -231,26 +229,14 @@ class Separation(Process):
                        compression_ratio_per_stages,
                        gas_compression_volume_stages,
                        num_of_compression_stages):
-            work = 0
-            for j in range(num_of_compression):
-                inlet_reduced_temp = inlet_temp.to("rankine") / gas.corrected_pseudocritical_temperature(gas_stream)
-                inlet_reduced_press = inlet_press / gas.corrected_pseudocritical_pressure(gas_stream)
-                z_factor = gas.Z_factor(inlet_reduced_temp, inlet_reduced_press)
-                ratio_of_specific_heat = gas.ratio_of_specific_heat(gas_stream)
 
-                work_temp1 = 3.027 * 14.7 / (60 + 460) * ratio_of_specific_heat / (ratio_of_specific_heat - 1)
-                ratio = (ratio_of_specific_heat - 1) / ratio_of_specific_heat
-                work_temp2 = (compression_ratio ** z_factor) ** ratio - 1
-                work += work_temp1 * work_temp2 * inlet_temp.to("rankine")
-
-                delta_temp = (inlet_temp.to("rankine") *
-                              compression_ratio ** (z_factor * ratio) - inlet_temp) * 0.2
-                inlet_temp = ureg.Quantity(inlet_temp.m + delta_temp.m, "degF")
-                inlet_press = (compression_ratio * inlet_press if j == 0 else
-                               inlet_press * compression_ratio * num_of_compression)
-
-            work_sum = ureg.Quantity(work.m, "hp*day/mmscf")
+            work_sum = Compressor.get_compressor_work(field, inlet_temp, inlet_press,
+                                                      gas_stream, compression_ratio, num_of_compression)
             horsepower = work_sum * gas_compression_volume
-            horsepower_of_stages.append(horsepower)
+            brake_horsepower = horsepower / compressor_eff
+            brake_horsepower_of_stages.append(brake_horsepower)
 
-        return horsepower_of_stages
+        return brake_horsepower_of_stages
+
+
+

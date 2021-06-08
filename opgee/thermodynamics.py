@@ -159,11 +159,21 @@ class AbstractSubstance(OpgeeObject):
         self.wet_air_MW = self.wet_air.mol_weight()
         self.dry_air_MW = self.dry_air.mol_weight()
 
+        self.std_temp = self.std_press = None
+
         components = list(_dict_chemical.keys())
         self.component_MW = pd.Series({name: mol_weight(name, with_units=False) for name in components},
                                       dtype="pint[g/mole]")
         self.component_LHV = pd.Series({name: LHV(name, with_units=False) for name in components},
                                        dtype="pint[joule/mole]")
+
+    def _after_init(self):
+        """
+
+        :return:
+        """
+        self.std_temp = self.field.model.const("std-temperature")
+        self.std_press = self.field.model.const("std-pressure")
 
 
 class Oil(AbstractSubstance):
@@ -274,11 +284,11 @@ class Oil(AbstractSubstance):
 
         :return: (float) solution gas oil ratio (unit = scf/bbl)
         """
-        oil_SG = oil_specific_gravity
+        oil_SG = oil_specific_gravity.m
         stream_temp = stream.temperature.to("rankine").m
         stream_press = stream.pressure.m
 
-        gas_SG = gas_specific_gravity
+        gas_SG = gas_specific_gravity.to("frac").m
         gor_bubble = self.bubble_point_solution_GOR(gas_oil_ratio)
 
         result = min(math.pow(stream_press, 1 / self.pbub_a2) *
@@ -732,12 +742,8 @@ class Gas(AbstractSubstance):
         :param stream:
         :return:
         """
-        mass_flow_rate = stream.total_gases_rates()  # pandas.Series
-        molar_weight = ureg.Quantity(0.0, "g/mol")
-        for component, tonne_per_day in mass_flow_rate.items():
-            molecular_weight = mol_weight(component)
-            molar_fraction = self.component_molar_fraction(component, stream)
-            molar_weight += molar_fraction * molecular_weight
+        mol_fracs = self.component_molar_fractions(stream)
+        molar_weight = (self.component_MW[mol_fracs.index] * mol_fracs).sum()
 
         return molar_weight.to("g/mol")
 
@@ -816,7 +822,6 @@ class Water(AbstractSubstance):
         self.TDS = field.attr("total_dissolved_solids")  # mg/L
         # TODO: this can be improved by adding ions in the H2O in the solution
         self.specific_gravity = ureg.Quantity(1 + self.TDS.m * 0.695 * 1e-6, "frac")
-        self.field = field
 
     def density(self):
         """
@@ -824,10 +829,9 @@ class Water(AbstractSubstance):
 
         :return: (float) water density (unit = kg/m3)
         """
-        std_temp = self.field.model.const("std-temperature")
-        std_press = self.field.model.const("std-pressure")
+
         specifc_gravity = self.specific_gravity
-        water_density_STP = rho("H2O", std_temp, std_press, PHASE_LIQUID)
+        water_density_STP = rho("H2O", self.std_temp, self.std_press, PHASE_LIQUID)
         density = specifc_gravity * water_density_STP
 
         return density.to("kg/m**3")
