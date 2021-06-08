@@ -7,6 +7,7 @@ from opgee.stream import PHASE_LIQUID, Stream, PHASE_GAS, PHASE_SOLID
 from opgee import ureg
 from pandas import Series
 
+
 def _get_dict_chemical():
     """
 
@@ -14,6 +15,7 @@ def _get_dict_chemical():
     """
     carbon_number = [f'C{n + 1}' for n in range(Stream.max_carbon_number)]
     saturated_hydrocarbon = ["CH4"] + [f'C_{n + 1}H_{2 * n + 4}' for n in range(1, Stream.max_carbon_number)]
+    saturated_hydrocarbon[5] = "Hexane"
     carbon_number_to_molecule = {carbon_number[i]: saturated_hydrocarbon[i] for i in range(len(carbon_number))}
     dict_chemical = {name: Chemical(carbon_number_to_molecule[name]) for name in carbon_number}
     non_hydrocarbon_gases = ["N2", "O2", "CO2", "H2O", "CO2", "H2", "H2S", "SO2"]
@@ -21,7 +23,9 @@ def _get_dict_chemical():
     dict_chemical.update(dict_non_hydrocarbon)
     return dict_chemical
 
+
 _dict_chemical = _get_dict_chemical()
+
 
 def mol_weight(component, with_units=True):
     """
@@ -34,6 +38,7 @@ def mol_weight(component, with_units=True):
         mol_weight = ureg.Quantity(mol_weight, "g/mol")
 
     return mol_weight
+
 
 def rho(component, temperature, pressure, phase):
     """
@@ -53,13 +58,14 @@ def rho(component, temperature, pressure, phase):
     rho = _dict_chemical[component].rho(phases[phase], temperature, pressure)
     return ureg.Quantity(rho, "kg/m**3")
 
+
 def LHV(component, with_units=True):
     """
 
     :param component:
     :return: (float) low heat value (unit = joule/mol)
     """
-    lhv = _dict_chemical[component].LHV or 0.0      # TODO: for "C6", LHV returns None. Is that correct?
+    lhv = _dict_chemical[component].LHV or 0.0  # TODO: for "C6", LHV returns None. Is that correct?
     if with_units:
         lhv = ureg.Quantity(abs(lhv), "joule/mol")
 
@@ -138,6 +144,7 @@ class AbstractSubstance(OpgeeObject):
     """
     OilGasWater class contains Oil, Gas and Water class
     """
+
     def __init__(self, field):
         """
 
@@ -153,8 +160,10 @@ class AbstractSubstance(OpgeeObject):
         self.dry_air_MW = self.dry_air.mol_weight()
 
         components = list(_dict_chemical.keys())
-        self.component_MW  = pd.Series({name: mol_weight(name, with_units=False) for name in components}, dtype="pint[g/mole]")
-        self.component_LHV = pd.Series({name: LHV(name, with_units=False) for name in components}, dtype="pint[joule/mole]")
+        self.component_MW = pd.Series({name: mol_weight(name, with_units=False) for name in components},
+                                      dtype="pint[g/mole]")
+        self.component_LHV = pd.Series({name: LHV(name, with_units=False) for name in components},
+                                       dtype="pint[joule/mole]")
 
 
 class Oil(AbstractSubstance):
@@ -176,7 +185,8 @@ class Oil(AbstractSubstance):
 
         :param API: (float) API gravity
         :param gas_comp: (panda.Series, float) Produced gas composition; unit = fraction
-        :param gas_oil_ratio: (float) The ratio of the volume of gas that comes out of solution to the volume of oil at standard conditions; unit = fraction
+        :param gas_oil_ratio: (float) The ratio of the volume of gas that comes out of solution to the volume of oil at 
+        standard conditions; unit = fraction
         :param reservoir_temperature: (float) average reservoir temperature; unit = F
         :param reservoir_pressure: (float) average reservoir pressure; unit = psia
         """
@@ -215,7 +225,8 @@ class Oil(AbstractSubstance):
         """
         R_sb = 1.1618 * R_sp
         R_Sb is GOR at bubblepoint, R_sp is GOR at separator
-        Valco and McCain (2002) give a means to estimate the bubble point gas-oil ratio from the separator gas oil ratio.
+        Valco and McCain (2002) give a means to estimate
+        the bubble point gas-oil ratio from the separator gas oil ratio.
         Since OPGEE takes separator gas oil ratio as an input, we use this
 
         :return:(float) GOR at bubblepoint (unit = scf/bbl)
@@ -257,7 +268,7 @@ class Oil(AbstractSubstance):
         oil_SG = oil_specific_gravity.m
         temperature = stream.temperature.to("rankine").m
 
-        gas_SG = gas_specific_gravity.m
+        gas_SG = gas_specific_gravity.to("frac").m
         gor_bubble = self.bubble_point_solution_GOR(gas_oil_ratio).m
 
         result = (oil_SG ** self.pbub_a1 *
@@ -302,7 +313,7 @@ class Oil(AbstractSubstance):
         oil_SG = oil_specific_gravity.m
         stream_temp = stream.temperature.m
 
-        gas_SG = gas_specific_gravity.m
+        gas_SG = gas_specific_gravity.to("frac").m
         solution_gor = self.solution_gas_oil_ratio(stream, oil_specific_gravity, gas_specific_gravity, gas_oil_ratio).m
 
         result = (1 + 0.000000525 * solution_gor * (stream_temp - 60) +
@@ -341,7 +352,8 @@ class Oil(AbstractSubstance):
 
     def isothermal_compressibility_X(self, stream, oil_specific_gravity, gas_specific_gravity, gas_oil_ratio):
         """
-        Isothermal compressibility is the change in volume of a system as the pressure changes while temperature remains constant.
+        Isothermal compressibility is the change in volume of a system as the pressure changes
+        while temperature remains constant.
 
         :return:
         """
@@ -355,7 +367,7 @@ class Oil(AbstractSubstance):
                                                    oil_specific_gravity,
                                                    gas_specific_gravity,
                                                    gas_oil_ratio).m
-        gas_SG = gas_specific_gravity.m
+        gas_SG = gas_specific_gravity.to("frac").m
         stream_temp = stream.temperature.to("rankine").m
 
         result = max((iso_comp_a1 * solution_gor + iso_comp_a2 * solution_gor ** 2 +
@@ -413,7 +425,7 @@ class Oil(AbstractSubstance):
         """
         oil_SG = oil_specific_gravity.m
 
-        gas_SG = gas_specific_gravity.m
+        gas_SG = gas_specific_gravity.to("frac").m
         solution_gor = self.solution_gas_oil_ratio(stream,
                                                    oil_specific_gravity,
                                                    gas_specific_gravity,
@@ -512,7 +524,7 @@ class Gas(AbstractSubstance):
 
         # TODO: This line replaces everything above:
         # TODO: This one change dropped runtime for test_separator from 29s to 8s!
-        total_molar_flow_rate = (mass_flow_rate/self.component_MW).sum().to("mol/day")
+        total_molar_flow_rate = (mass_flow_rate / self.component_MW).sum().to("mol/day")
 
         return total_molar_flow_rate
 
@@ -536,11 +548,9 @@ class Gas(AbstractSubstance):
     # TODO: when converted to base units, they are correct numerically.
     def component_molar_fractions(self, stream):
         """
-        Compute all molar fractions and return in a Series.
 
-        :param name: (str) component name
-        :param stream: (Stream)
-        :return: (pd.Series) indexed by component name
+        :param stream:
+        :return:
         """
         total_molar_flow_rate = self.total_molar_flow_rate(stream)
         gas_flow_rates = stream.components.query("gas > 0.0").gas
@@ -573,7 +583,8 @@ class Gas(AbstractSubstance):
         # specific_gravity = specific_gravity / self.dry_air_MW
         # return specific_gravity.to("frac")
 
-    def ratio_of_specific_heat(self, stream):
+    @staticmethod
+    def ratio_of_specific_heat(stream):
         """
 
         :param stream:
@@ -775,7 +786,8 @@ class Gas(AbstractSubstance):
         volume_flow_rate = total_mass_rate / density
         return volume_flow_rate
 
-    def mass_energy_density(self, stream):
+    @staticmethod
+    def mass_energy_density(stream):
         """
 
         :param stream:
@@ -800,20 +812,19 @@ class Gas(AbstractSubstance):
         :return:(float) gas volume energy density (unit = btu/scf)
         """
         mass_flow_rate = stream.total_gases_rates()  # pandas.Series
-        std_temp = self.field.model.const("std-temperature").to("kelvin")
-        std_press = self.field.model.const("std-pressure").to("Pa")
+        std_temp = self.field.model.const("std-temperature")
+        std_press = self.field.model.const("std-pressure")
         volume_energy_density = ureg.Quantity(0.0, "Btu/ft**3")
         for component, tonne_per_day in mass_flow_rate.items():
             if tonne_per_day == 0:
                 continue
-            lhv = LHV(component).to("Btu/mol")
+            lhv = LHV(component)
             molecular_weight = mol_weight(component)
             density = rho(component, std_temp, std_press, PHASE_GAS)
-            density = density.to("g/ft**3")
             molar_fraction = self.component_molar_fraction(component, stream)
             volume_energy_density += molar_fraction * density * lhv / molecular_weight
 
-        return volume_energy_density
+        return volume_energy_density.to("Btu/ft**3")
 
     def energy_flow_rate(self, stream):
         """
