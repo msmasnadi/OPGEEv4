@@ -1,7 +1,7 @@
 import pandas as pd
 
 from opgee.core import OpgeeObject
-import numpy as np
+import math
 from thermosteam import Chemical, Mixture
 from opgee.stream import PHASE_LIQUID, Stream, PHASE_GAS, PHASE_SOLID
 from opgee import ureg
@@ -238,10 +238,10 @@ class Oil(AbstractSubstance):
         gas_SG = self.gas_specific_gravity
         gor_bubble = self.bubble_point_solution_GOR(self.gas_oil_ratio)
 
-        result = np.min([
+        result = min([
             res_pressure ** (1 / self.pbub_a2) *
             oil_SG ** (-self.pbub_a1 / self.pbub_a2) *
-            np.exp(self.pbub_a3 / self.pbub_a2 * gas_SG * oil_SG) /
+            math.exp(self.pbub_a3 / self.pbub_a2 * gas_SG * oil_SG) /
             (res_temperature * gas_SG),
             gor_bubble])
         result = ureg.Quantity(result, "scf/bbl_oil")
@@ -264,7 +264,7 @@ class Oil(AbstractSubstance):
 
         result = (oil_SG ** self.pbub_a1 *
                   (gas_SG * gor_bubble * temperature) ** self.pbub_a2 *
-                  np.exp(-self.pbub_a3 * gas_SG * oil_SG))
+                  math.exp(-self.pbub_a3 * gas_SG * oil_SG))
         result = ureg.Quantity(result, "psia")
         return result
 
@@ -281,11 +281,11 @@ class Oil(AbstractSubstance):
         gas_SG = gas_specific_gravity
         gor_bubble = self.bubble_point_solution_GOR(gas_oil_ratio)
 
-        result = np.min([np.power(stream_press, 1 / self.pbub_a2) *
-                         np.power(oil_SG, -self.pbub_a1 / self.pbub_a2) *
-                         np.exp(self.pbub_a3 / self.pbub_a2 * gas_SG * oil_SG) *
-                         1 / (stream_temp * gas_SG),
-                         gor_bubble])
+        result = min(math.pow(stream_press, 1 / self.pbub_a2) *
+                     math.pow(oil_SG, -self.pbub_a1 / self.pbub_a2) *
+                     math.exp(self.pbub_a3 / self.pbub_a2 * gas_SG * oil_SG) *
+                     1 / (stream_temp * gas_SG),
+                     gor_bubble)
         result = ureg.Quantity(result, "scf/bbl_oil")
         return result
 
@@ -332,7 +332,7 @@ class Oil(AbstractSubstance):
         isothermal_compressibility = self.isothermal_compressibility(oil_specific_gravity).m
         stream_press = stream.pressure.m
 
-        result = bubble_oil_FVF * np.exp(isothermal_compressibility * (p_bubblepoint - stream_press))
+        result = bubble_oil_FVF * math.exp(isothermal_compressibility * (p_bubblepoint - stream_press))
         result = ureg.Quantity(result, "frac")
         return result
 
@@ -673,9 +673,9 @@ class Gas(AbstractSubstance):
         z_factor_B = (reduced_press * (0.62 - 0.23 * reduced_temp) +
                       reduced_press ** 2 * (0.066 / (reduced_temp - 0.86) - 0.037) +
                       0.32 * reduced_temp ** 6 / (10 ** (9 * reduced_temp - 9)))
-        z_factor_C = 0.132 - 0.32 * np.log10(reduced_temp)
+        z_factor_C = 0.132 - 0.32 * math.log10(reduced_temp)
         z_factor_D = 10 ** (0.3106 - 0.49 * reduced_temp + 0.1824 * reduced_temp ** 2)
-        z_factor = max((z_factor_A + (1 - z_factor_A) * np.exp(-1 * z_factor_B)
+        z_factor = max((z_factor_A + (1 - z_factor_A) * math.exp(-1 * z_factor_B)
                         + z_factor_C * reduced_press ** z_factor_D), 0.05)
         z_factor = ureg.Quantity(z_factor, "frac")
 
@@ -723,7 +723,7 @@ class Gas(AbstractSubstance):
         factor_X = 3.5 + 986 / temp + 0.01 * gas_stream_molar_weight
         factor_Y = 2.4 - 0.2 * factor_X
 
-        viscosity = 1.10e-4 * factor_K * np.exp(factor_X * (gas_density / 62.4) ** factor_Y)
+        viscosity = 1.10e-4 * factor_K * math.exp(factor_X * (gas_density / 62.4) ** factor_Y)
         return ureg.Quantity(viscosity, "centipoise")
 
     def molar_weight(self, stream):
