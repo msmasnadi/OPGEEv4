@@ -8,7 +8,6 @@ _logger = getLogger(__name__)  # data logging
 
 class ReservoirWellInterface(Process):
     def run(self, analysis):
-        _logger.debug("test message")
         self.print_running_msg()
 
         field = self.get_field()

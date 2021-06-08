@@ -53,76 +53,100 @@
 			</Process>
 
 			<Process class="ReservoirWellInterface">
+				<Consumes>crude oil</Consumes>
+				<Consumes>flooding CO2</Consumes>
 				<Produces>crude oil</Produces>
-				<Produces>untreated water</Produces>
 			</Process>
 
 			<Process class="DownholePump">
 				<Consumes>crude oil</Consumes>
+				<Consumes>lifting gas</Consumes>
 				<Produces>crude oil</Produces>
-				<Produces>untreated water</Produces>
+				<Produces>gas fugitives</Produces>
 			</Process>
 
-			<Process class="SeparationTemporary">
+			<Process class="Separation" impute-start="true">
 				<Consumes>crude oil</Consumes>
-				<Produces>untreated water</Produces>
+				<Produces>crude oil</Produces>
+				<Produces>water</Produces>
+				<Produces>natural gas</Produces>
+				<Produces>gas fugitives</Produces>
 			</Process>
 
 			<Process class="CrudeOilDewatering" desc="Crude oil dewatering">
 				<Consumes>crude oil</Consumes>
-				<Produces>untreated water</Produces>
-				<Produces>dewatered crude oil</Produces>
+				<Produces>water</Produces>
+				<Produces>crude oil</Produces>
 			</Process>
+
+			<Process class="AfterDewatering" desc="Temporary end process">
+				<Consumes>crude oil</Consumes>
+				<Consumes>water</Consumes>
+			</Process>
+
 			<Process class="CrudeOilStabilization" desc="Crude oil stabilization">
-				<Consumes>dewatered crude oil</Consumes>
-				<Produces>stablized crude oil</Produces>
+				<Consumes>crude oil</Consumes>
+				<Produces>crude oil</Produces>
 			</Process>
+
 			<Process class="ProducedWaterTreatment" desc="Produced water treatment">
-				<Consumes>untreated water</Consumes>
-				<Produces>treated water</Produces>
+				<Consumes>water</Consumes>
+				<Produces>water</Produces>
 			</Process>
 		</Aggregator>
+
 		<Aggregator name="Transport_and_storage">
 			<Process class="CrudeOilTransport">
 				<Consumes>crude oil</Consumes>
 				<Produces>crude oil</Produces>
 			</Process>
 		</Aggregator>
-		<Stream number="1" name="oil in reservoir" src="Reservoir" dst="ReservoirWellInterface">
+
+		<Stream src="Separation" dst="CrudeOilDewatering" name="oil after separator">
 			<Contains>crude oil</Contains>
 		</Stream>
-		<Stream number="3" name="crude oil at wellbottom" src="ReservoirWellInterface" dst="DownholePump">
+
+		<Stream src="Separation" dst="CrudeOilDewatering" name="water after separator">
+			<Contains>water</Contains>
+		</Stream>
+
+		<Stream src="Separation" dst="CrudeOilDewatering" name="gas after separator">
+			<Contains>gas</Contains>
+		</Stream>
+
+		<Stream src="Separation" dst="Environment" name="gas fugitives from separator">
+			<Contains>gas fugitives</Contains>
+		</Stream>
+
+		<Stream src="DownholePump" dst="Environment" name="gas fugitives from downhole pump">
+			<Contains>gas fugitives</Contains>
+		</Stream>
+
+		<Stream src="ReservoirWellInterface" dst="DownholePump" name="reservoir well interface to downhole pump">
 			<Contains>crude oil</Contains>
 		</Stream>
-		<Stream number="4" name="crude oil at wellhead" src="DownholePump" dst="SeparationTemporary">
+
+		<Stream src="Reservoir" dst="ReservoirWellInterface" name="reservoir to reservoir well interface">
 			<Contains>crude oil</Contains>
 		</Stream>
-		<Stream number="7" name="crude oil after separator" src="SeparationTemporary" dst="CrudeOilDewatering">
-			<A name="temperature">90.0</A>
-			<A name="pressure">100.0</A>
-			<Component name="oil" phase="liquid" >14555.9</Component>
-			<Component name="H2O" phase="liquid" >2037.8</Component>
+
+		<Stream src="DownholePump" dst="Separation" name="downhole pump to separator">
+			<Contains>crude oil</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilDewatering" dst="DownholePump" name="lifting gas" impute="False">
+			<Contains>lifting gas</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilDewatering" dst="ReservoirWellInterface" name="flooding CO2" impute="False">
+			<Contains>CO2</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilDewatering" dst="AfterDewatering">
 			<Contains>crude oil</Contains>
 			<Contains>water</Contains>
 		</Stream>
-		<Stream number="160" name="Fuel gas - dewatering" src="SeparationTemporary" dst="CrudeOilDewatering">
-			<A name="temperature">90.0</A>
-			<A name="pressure">150.0</A>
-			<Component name="N2" phase="gas" >0.8</Component>
-			<Component name="CO2" phase="gas" >0.7</Component>
-			<Component name="C1" phase="gas" >35.5</Component>
-			<Component name="C2" phase="gas" >3.8</Component>
-			<Component name="C3" phase="gas" >0.2</Component>
-			<Component name="C4" phase="gas" >0.0</Component>
-			<Component name="H2S" phase="gas" >0.0</Component>
-			<Contains>fuel gas</Contains>
-		</Stream>
-		<Stream number="115" src="CrudeOilDewatering" dst="ProducedWaterTreatment">
-			<Contains>crude oil</Contains>
-		</Stream>
-		<Stream number="8" src="CrudeOilDewatering" dst="CrudeOilStabilization">
-			<Contains>crude oil</Contains>
-		</Stream>
+
 	</Field>
 
 	<Field name="US_FW">

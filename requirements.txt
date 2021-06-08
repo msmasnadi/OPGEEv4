@@ -1,3 +1,5 @@
+colour
+dash
 numpy
 pandas
 pint
@@ -9,7 +11,7 @@ codecov
 future==0.18.2
 ipython==7.22.0
 lxml==4.6.3
-matplotlib==3.4.1
+matplotlib==3.4.2
 pydot==1.4.1
 python-dateutil==2.8.1
 semver==3.0.0.dev2

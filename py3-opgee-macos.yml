@@ -1,0 +1,34 @@
+name: opgee
+channels:
+  - anaconda
+  - conda-forge
+  - defaults
+dependencies:
+  - colour
+  - dash
+  - decorator
+  - ipython
+  - jinja2=3.0.1
+  - libpng
+  - libtiff
+  - lxml=4.6.3
+  - networkx
+  - numpy=1.19.2
+  - pandas>=1.2.0
+  - pint>=0.17
+  - pint-pandas>=0.2
+  - pip
+  - pydot
+  - pyparsing
+  - pytest
+  - python=3.8
+  - setuptools
+  - sphinx
+  - sphinx-argparse=0.2.5
+  - sphinx_rtd_theme
+  - sphinxcontrib-serializinghtml
+  - traitlets
+  - urllib3
+  - pip:
+    - thermosteam>=0.25.4
+    - semver>=3.0.0.dev2
