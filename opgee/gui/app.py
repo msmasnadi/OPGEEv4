@@ -133,11 +133,23 @@ styles = {
 #                fill_color='lightcyan',
 #                align='left'))
 # ])
-def emissions_table(obj):
-    rates = obj.emissions.rates()
+def emissions_table(procs):
+    import pandas as pd
+    from ..emissions import Emissions
 
-    tbl = dash_table.DataTable(columns=[{'name': col, 'id': col} for col in rates.index],
-                               data=[{col: value.m for col, value in rates.items()}])
+    columns = [{'name': 'Name', 'id': 'Name'}] + [{'name': col, 'id': col} for col in Emissions.emissions]
+
+    def series_for_df(proc):
+        s = pd.Series(proc.emissions.rates(), dtype=float, name=proc.name)
+        return s
+
+    df = pd.DataFrame(data=[series_for_df(proc) for proc in procs])
+    df.loc['Total emissions', :] = df.sum(axis='rows')
+    df.reset_index(inplace=True)
+    df.rename({'index': 'Name'}, axis='columns', inplace=True)
+
+    tbl = dash_table.DataTable(columns=columns,
+                               data=df.to_dict('records'))
     return tbl
 
 
@@ -339,9 +351,9 @@ def main(args):
                 elt.children.append(details)
                 add_children(agg, details)
 
-            for proc in container.procs:
+            if container.procs:
                 div = html.Div(style=style,
-                               children=[html.I(proc.name), emissions_table(proc)])
+                               children=[emissions_table(container.procs)])
                 elt.children.append(div)
 
         elt = html.Details(open=True, children=[html.Summary("Process Emissions")])
