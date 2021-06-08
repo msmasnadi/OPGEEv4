@@ -1,5 +1,5 @@
 import pytest
-from opgee.thermodynamics import Oil, Gas
+from opgee.thermodynamics import Oil, Gas, Water
 from opgee.stream import Stream
 from opgee import ureg
 
@@ -219,6 +219,11 @@ def test_gas_density(gas_instance, stream):
     assert density == ureg.Quantity(pytest.approx(0.069296467), "tonne/m**3")
 
 
+def test_gas_viscosity(gas_instance, stream):
+    viscosity = gas_instance.viscosity(stream)
+    assert viscosity == ureg.Quantity(pytest.approx(0.0172091105), "centipoise")
+
+
 def test_molar_weight(gas_instance, stream):
     mol_weight = gas_instance.molar_weight(stream)
     assert mol_weight == ureg.Quantity(pytest.approx(17.97378), "g/mol")
@@ -242,3 +247,22 @@ def test_volume_energy_density(gas_instance, stream):
 def test_energy_flow_rate(gas_instance, stream):
     energy_flow_rate = gas_instance.energy_flow_rate(stream)
     assert energy_flow_rate == ureg.Quantity(pytest.approx(4894.21783), "mmBtu/day")
+
+
+@pytest.fixture
+def water_instance(test_model):
+    field = test_model.get_field("test")
+    water = Water(field)
+    return water
+
+
+def test_water_density(water_instance):
+    density = water_instance.density()
+    assert density == ureg.Quantity(pytest.approx(1004.12839), "kg/m**3")
+
+
+def test_water_volume_rate(water_instance):
+    stream = Stream("water stream", temperature=200, pressure=1556.6)
+    stream.set_flow_rate("H2O", "liquid", 1962.61672)
+    volume_flow_rate = water_instance.volume_flow_rate(stream)
+    assert volume_flow_rate == ureg.Quantity(pytest.approx(12798.2793), "bbl_water/day")

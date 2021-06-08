@@ -176,7 +176,8 @@
       <xs:attribute name='desc' type='xs:string'/>
       <xs:attribute name='enabled' default='1' type='xs:boolean'/>
       <xs:attribute name='extend' default='0' type='xs:boolean'/>
-      <xs:attribute name='start' default='0' type='xs:boolean'/>
+      <xs:attribute name='impute-start' default='0' type='xs:boolean'/>
+      <xs:attribute name='cycle-start' default='0' type='xs:boolean'/>
     </xs:complexType>
 	</xs:element>
 

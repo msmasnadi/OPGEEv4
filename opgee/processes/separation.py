@@ -60,13 +60,14 @@ class Separation(Process):
         # mass rate
         input = self.find_input_stream("crude oil")
 
-        gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_after_separation = self.find_output_stream("gas")
-
         loss_rate = self.venting_fugitive_rate()
-        # gas_after_separation.copy_gas_rates_from(input)
-        # gas_after_separation.multiply_flow_rates(1 / (1 + loss_rate))
-        # gas_fugitives = self.set_gas_fugitives(gas_after_separation, "gas fugitives from separator")
+        gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
+        gas_fugitives = self.find_output_stream("gas fugitives")
+        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp)
+
+        gas_after = self.find_output_stream("gas")
+        gas_after.copy_gas_rates_from(input)
+        gas_after.subtract_gas_rates_from(gas_fugitives)
 
         # temperature and pressure
 
@@ -79,7 +80,7 @@ class Separation(Process):
         free_gas_stages = self.get_free_gas_stages(field)  # (float, list) scf/bbl
         gas_compression_volume_stages = [(oil_volume_rate * free_gas).to("mmscf/day") for free_gas in free_gas_stages]
         compressor_horsepower_of_stages = self.compressor_horsepower_of_stages(field,
-                                                                               gas_after_separation,
+                                                                               gas_after,
                                                                                gas_compression_volume_stages)
         brake_horsepower_of_stages = [compressor_hp / compressor_eff
                                       for compressor_hp in compressor_horsepower_of_stages]
@@ -101,9 +102,9 @@ class Separation(Process):
 
         gas_after, oil_after, water_after = self.get_output_streams(field)
         loss_rate = self.venting_fugitive_rate()
-        gas_fugitives = self.set_gas_fugitives(gas_after)
+        gas_after.multiply_flow_rates(1 / (1 - loss_rate))
 
-        output = Stream.combine([oil_after, gas_after, water_after, gas_fugitives],
+        output = Stream.combine([oil_after, gas_after, water_after],
                                 temperature=wellhead_temp, pressure=wellhead_press)
 
         input = self.find_input_stream("crude oil")
@@ -142,7 +143,7 @@ class Separation(Process):
 
         oil = field.oil
 
-        gas_after = field.find_stream("gas after separator")
+        gas_after = self.find_output_stream("gas")
         stream = Stream("stage_stream",
                         temperature=temperature_of_stages[num_of_stages - 1],
                         pressure=pressure_of_stages[num_of_stages - 1])
@@ -159,9 +160,9 @@ class Separation(Process):
             gas_after.set_gas_flow_rate(component, gas_mass_rate)
         gas_after.set_temperature_and_pressure(temperature_outlet, pressure_after_boosting)
 
-        oil_after = field.find_stream("oil after separator")
+        oil_after = self.find_output_stream("crude oil")
         oil_mass_rate = (oil_volume_rate * density).to("tonne/day")
-        water_in_oil_mass_rate = (oil_mass_rate * self.attr("water_content_oil_emulsion")).to("tonne/day")
+        water_in_oil_mass_rate = self.water_in_oil_mass_rate(oil_mass_rate)
         oil_after.set_liquid_flow_rate("oil", oil_mass_rate)
         oil_after.set_liquid_flow_rate("H2O", water_in_oil_mass_rate)
         oil_after.set_temperature_and_pressure(temperature_outlet, pressure_outlet)
@@ -169,10 +170,21 @@ class Separation(Process):
         water_density_STP = field.oil.rho("H2O", std_temp, std_press, PHASE_LIQUID)
         water_mass_rate = (oil_volume_rate * water_oil_ratio * water_density_STP.to("tonne/barrel_water") -
                            water_in_oil_mass_rate)
-        water_after = field.find_stream("water after separator")
+        water_after = self.find_output_stream("water")
         water_after.set_liquid_flow_rate("H2O", water_mass_rate)
         water_after.set_temperature_and_pressure(temperature_outlet, pressure_outlet)
         return gas_after, oil_after, water_after
+
+    def water_in_oil_mass_rate(self, oil_mass_rate):
+        """
+
+        :param field:
+        :param oil_mass_rate: (float) oil mass rate
+        :return: (float) water mass rate in the oil stream after separation (unit = tonne/day)
+        """
+        water_content = self.attr("water_content_oil_emulsion")
+        water_in_oil_mass_rate = (oil_mass_rate * water_content).to("tonne/day")
+        return water_in_oil_mass_rate
 
     def get_free_gas_stages(self, field):
         oil = field.oil

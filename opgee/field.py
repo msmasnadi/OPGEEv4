@@ -5,7 +5,7 @@ from .error import OpgeeException, OpgeeStopIteration
 from .log import getLogger
 from .process import Process, Environment, Reservoir, Aggregator
 from .stream import Stream
-from .thermodynamics import Oil, Gas
+from .thermodynamics import Oil, Gas, Water
 from .utils import getBooleanXML, flatten
 
 _logger = getLogger(__name__)
@@ -48,9 +48,13 @@ class Field(Container):
 
         self.oil = Oil(self)
         self.gas = Gas(self)
+        self.water = Water(self)
 
     def _after_init(self):
         self.model = self.find_parent('Model')
+
+        for obj in self.processes():
+            obj._after_init()
 
     def __str__(self):
         return f"<Field '{self.name}'>"
@@ -79,7 +83,7 @@ class Field(Container):
 
         # Find procs with start == True or find start_procs upstream from streams with exogenous data.from
         # We require that all start streams emerge from one Process.
-        start_procs = {p for p in self.processes() if p.start} or {stream.src_proc for stream in start_streams}
+        start_procs = {p for p in self.processes() if p.impute_start} or {stream.src_proc for stream in start_streams}
 
         if len(start_procs) != 1:
             raise OpgeeException(f"Expected one start process upstream from start streams, got {len(start_procs)}: {start_procs}")
@@ -138,7 +142,7 @@ class Field(Container):
         2. Nodes in cycles
         3. Nodes dependent on cycles
 
-        :return: (3-tuple of lists of Processes)
+        :return: (3-tuple of sets of Processes)
         """
         processes = self.processes()
         cycles = self.cycles
@@ -170,12 +174,40 @@ class Field(Container):
         # run all the cycle-independent nodes in topological order
         run_procs_in_order(cycle_independent)
 
-        # Iterate on the processes in cycle until a termination condition is met and an
-        # OpgeeStopIteration exception is thrown.
+        # If user has indicated a process with start-cycle="true", start there, otherwise
+        # find a process with cycle-independent processes as inputs, and start there.
+        start_procs = [proc for proc in procs_in_cycles if proc.cycle_start]
+        if len(start_procs) > 1:
+            raise OpgeeException(f"""Only one process per cycle can have cycle-start="true"; found {len(start_procs)}: {start_procs}""")
+
         if procs_in_cycles:
+            # Walk the cycle, starting at the indicated start process to generate an ordered list
+            unvisited = procs_in_cycles.copy()
+
+            if start_procs:
+                ordered_cycle = []
+
+                # recursive function to walk successors until we've visited all the procs in the cycle
+                def process_successors(proc):
+                    if unvisited:
+                        if proc in unvisited:
+                            unvisited.remove(proc)
+                            ordered_cycle.append(proc)
+
+                        for successor in proc.successors():
+                            process_successors(successor)
+
+                process_successors(start_procs[0])
+            else:
+                # TBD: Compute ordering by looking for procs in cycle that are successors to cycle_independent procs.
+                # TBD: For now, just copy run using procs_in_cycles.
+                ordered_cycle = procs_in_cycles
+
+            # Iterate on the processes in cycle until a termination condition is met and an
+            # OpgeeStopIteration exception is thrown.
             while True:
                 try:
-                    for proc in procs_in_cycles:
+                    for proc in ordered_cycle:
                         proc.run_or_bypass(analysis)
 
                 except OpgeeStopIteration as e:

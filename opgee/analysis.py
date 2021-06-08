@@ -9,10 +9,12 @@ from .utils import getBooleanXML
 
 _logger = getLogger(__name__)
 
+
 class Group(OpgeeObject):
     def __init__(self, elt):
         self.is_regex = getBooleanXML(elt.attrib.get('regex', 0))
         self.text = elt.text
+
 
 class Analysis(Container):
     def __init__(self, name, attr_dict=None, field_names=None, groups=None):
@@ -31,7 +33,7 @@ class Analysis(Container):
         self.gwp = None
 
     def _after_init(self):
-        self.model = model = self.parent    # also assign to self.model for clarity
+        self.model = model = self.parent  # also assign to self.model for clarity
 
         fields = [model.get_field(name) for name in self._field_names]
 
@@ -46,7 +48,7 @@ class Analysis(Container):
             fields.extend(matches)
 
         # storing into dict eliminates duplicates
-        self.field_dict = {field.name : field for field in fields}
+        self.field_dict = {field.name: field for field in fields}
 
         # Use the GWP years and version specified in XML
         gwp_horizon = self.attr('GWP_horizon')

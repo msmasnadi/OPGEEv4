@@ -98,7 +98,8 @@ class Process(XmlInstantiable, AttributeMixin):
     INPUT = 'input'
     OUTPUT = 'output'
 
-    def __init__(self, name, desc=None, consumes=None, produces=None, attr_dict=None, start=False):
+    def __init__(self, name, desc=None, consumes=None, produces=None, attr_dict=None,
+                 cycle_start=False, impute_start=False):
         name = name or self.__class__.__name__
         super().__init__(name)
 
@@ -108,7 +109,8 @@ class Process(XmlInstantiable, AttributeMixin):
         self._model = None  # @property "model" caches model here after first lookup
 
         self.desc = desc or name
-        self.start = getBooleanXML(start)
+        self.impute_start = getBooleanXML(impute_start)
+        self.cycle_start  = getBooleanXML(cycle_start)
 
         self.production  = set(produces) if produces else {}
         self.consumption = set(consumes) if consumes else {}
@@ -195,11 +197,12 @@ class Process(XmlInstantiable, AttributeMixin):
     # end of pass through energy and emissions methods
     #
 
-    def set_gas_fugitives(self, stream) -> Stream:
+    def set_gas_fugitives(self, stream, loss_rate) -> Stream:
         #TODO: complete
         """
         initialize the gas fugitives stream, get loss rate, copy..
 
+        :param loss_rate:
         :param stream:
         :return:
         """
@@ -207,7 +210,6 @@ class Process(XmlInstantiable, AttributeMixin):
         field = self.get_field()
 
         gas_fugitives = self.find_output_stream("gas fugitives")
-        loss_rate = self.venting_fugitive_rate()
         gas_fugitives.copy_gas_rates_from(stream)
         gas_fugitives.multiply_flow_rates(loss_rate)
 
@@ -384,6 +386,16 @@ class Process(XmlInstantiable, AttributeMixin):
         procs = [stream.src_proc for stream in self.inputs]
         return procs
 
+    def successors(self):
+        """
+        Return a Process's immediately following Processes.
+
+        :return: (list of Process) the Processes that are the destinations
+           of Streams connected to `process`.
+        """
+        procs = [stream.dst_proc for stream in self.outputs]
+        return procs
+
     def set_iteration_value(self, value):
         """
         Store the value of a variable used to determine when an iteration loop
@@ -519,7 +531,8 @@ class Process(XmlInstantiable, AttributeMixin):
         name = elt_name(elt)
         a = elt.attrib
         desc = a.get('desc')
-        start = a.get('start')
+        impute_start = a.get('impute-start')
+        cycle_start = a.get('cycle-start')
 
         classname = a['class']  # required by XML schema
         subclass = _get_subclass(Process, classname)
@@ -529,7 +542,8 @@ class Process(XmlInstantiable, AttributeMixin):
         produces = [node.text for node in elt.findall('Produces')]
         consumes = [node.text for node in elt.findall('Consumes')]
 
-        obj = subclass(name, desc=desc, attr_dict=attr_dict, produces=produces, consumes=consumes, start=start)
+        obj = subclass(name, desc=desc, attr_dict=attr_dict, produces=produces, consumes=consumes,
+                       cycle_start=cycle_start, impute_start=impute_start)
 
         obj.set_enabled(getBooleanXML(a.get('enabled', '1')))
         obj.set_extend(getBooleanXML(a.get('extend', '0')))
@@ -543,7 +557,7 @@ class Reservoir(Process):
     Each Field object holds a single Reservoir instance.
     """
     def __init__(self, *args, **kwargs):
-        super().__init__(None, desc='The Reservoir')
+        super().__init__("Reservoir", desc='The Reservoir')
 
     def run(self, analysis):
         self.print_running_msg()
@@ -556,7 +570,8 @@ class Environment(Process):
     restriction might change if air-capture of CO2 were introduced into the model. Each Analysis
     object holds a single Environment instance.
     """
-    def __init__(self):
+
+    def __init__(self, *args, **kwargs):
         super().__init__('Environment', desc='The Environment')
 
     # TBD: decide whether emissions are in streams or in separate calls inside Processes
