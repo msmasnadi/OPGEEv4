@@ -1,9 +1,69 @@
+import pandas as pd
+
 from opgee.core import OpgeeObject
 import numpy as np
 from thermosteam import Chemical, Mixture
 from opgee.stream import PHASE_LIQUID, Stream, PHASE_GAS, PHASE_SOLID
 from opgee import ureg
 from pandas import Series
+
+def _get_dict_chemical():
+    """
+
+    :return: a dictionary which has key of the (str) compo
+    """
+    carbon_number = [f'C{n + 1}' for n in range(Stream.max_carbon_number)]
+    saturated_hydrocarbon = ["CH4"] + [f'C_{n + 1}H_{2 * n + 4}' for n in range(1, Stream.max_carbon_number)]
+    carbon_number_to_molecule = {carbon_number[i]: saturated_hydrocarbon[i] for i in range(len(carbon_number))}
+    dict_chemical = {name: Chemical(carbon_number_to_molecule[name]) for name in carbon_number}
+    non_hydrocarbon_gases = ["N2", "O2", "CO2", "H2O", "CO2", "H2", "H2S", "SO2"]
+    dict_non_hydrocarbon = {name: Chemical(name) for name in non_hydrocarbon_gases}
+    dict_chemical.update(dict_non_hydrocarbon)
+    return dict_chemical
+
+_dict_chemical = _get_dict_chemical()
+
+def mol_weight(component, with_units=True):
+    """
+    Return the molecular weight of a Stream `component` (chemical)
+    :param component: (str) the name of a Stream `component`
+    :return: (Quantity) molecular weight
+    """
+    mol_weight = _dict_chemical[component].MW
+    if with_units:
+        mol_weight = ureg.Quantity(mol_weight, "g/mol")
+
+    return mol_weight
+
+def rho(component, temperature, pressure, phase):
+    """
+    Return the density at the given `temperature`, `pressure`, and `phase`
+    for chemical `component`.
+
+    :param component: (str) the name of a chemical
+    :param temperature:
+    :param pressure:
+    :param phase:
+    :return:
+    """
+    temperature = temperature.to("kelvin").m
+    pressure = pressure.to("Pa").m
+    phases = {PHASE_GAS: "g", PHASE_LIQUID: "l", PHASE_SOLID: "s"}
+
+    rho = _dict_chemical[component].rho(phases[phase], temperature, pressure)
+    return ureg.Quantity(rho, "kg/m**3")
+
+def LHV(component, with_units=True):
+    """
+
+    :param component:
+    :return: (float) low heat value (unit = joule/mol)
+    """
+    lhv = _dict_chemical[component].LHV or 0.0      # TODO: for "C6", LHV returns None. Is that correct?
+    if with_units:
+        lhv = ureg.Quantity(abs(lhv), "joule/mol")
+
+    return lhv
 
 
 class Air(OpgeeObject):
@@ -74,27 +134,10 @@ class DryAir(Air):
         super().__init__(field, composition)
 
 
-def _get_dict_chemical():
-    """
-
-    :return: a dictionary which has key of the (str) compo
-    """
-    carbon_number = [f'C{n + 1}' for n in range(Stream.max_carbon_number)]
-    saturated_hydrocarbon = ["CH4"] + [f'C_{n + 1}H_{2 * n + 4}' for n in range(1, Stream.max_carbon_number)]
-    carbon_number_to_molecule = {carbon_number[i]: saturated_hydrocarbon[i] for i in range(len(carbon_number))}
-    dict_chemical = {name: Chemical(carbon_number_to_molecule[name]) for name in carbon_number}
-    non_hydrocarbon_gases = ["N2", "O2", "CO2", "H2O", "CO2", "H2", "H2S", "SO2"]
-    dict_non_hydrocarbon = {name: Chemical(name) for name in non_hydrocarbon_gases}
-    dict_chemical.update(dict_non_hydrocarbon)
-    return dict_chemical
-
-
-class OilGasWater(OpgeeObject):
+class AbstractSubstance(OpgeeObject):
     """
     OilGasWater class contains Oil, Gas and Water class
     """
-    dict_chemical = _get_dict_chemical()
-
     def __init__(self, field):
         """
 
@@ -104,50 +147,17 @@ class OilGasWater(OpgeeObject):
         self.res_press = field.attr("res_press")
         self.field = field
 
-    @classmethod
-    def get_dict_chemical(cls):
-        """
+        self.dry_air = DryAir(field)
+        self.wet_air = WetAir(field)
+        self.wet_air_MW = self.wet_air.mol_weight()
+        self.dry_air_MW = self.dry_air.mol_weight()
 
-        :return:
-        """
-        return cls.dict_chemical
-
-    def mol_weight(self, component):
-        """
-
-        :param component:
-        :return:
-        """
-        mol_weight = ureg.Quantity(self.dict_chemical[component].MW, "g/mol")
-        return mol_weight
-
-    def rho(self, component, temperature, pressure, phase):
-        """
-
-        :param component:
-        :param temperature:
-        :param pressure:
-        :param phase:
-        :return:
-        """
-        temperature = temperature.to("kelvin").m
-        pressure = pressure.to("Pa").m
-        phases = {PHASE_GAS: "g", PHASE_LIQUID: "l", PHASE_SOLID: "s"}
-
-        rho = self.dict_chemical[component].rho(phases[phase], temperature, pressure)
-        return ureg.Quantity(rho, "kg/m**3")
-
-    def LHV(self, component):
-        """
-
-        :param component:
-        :return: (float) low heat value (unit = joule/mol)
-        """
-        LHV = ureg.Quantity(abs(self.dict_chemical[component].LHV), "joule/mol")
-        return LHV
+        components = list(_dict_chemical.keys())
+        self.component_MW  = pd.Series({name: mol_weight(name, with_units=False) for name in components}, dtype="pint[g/mole]")
+        self.component_LHV = pd.Series({name: LHV(name, with_units=False) for name in components}, dtype="pint[joule/mole]")
 
 
-class Oil(OilGasWater):
+class Oil(AbstractSubstance):
     """
 
     """
@@ -171,11 +181,10 @@ class Oil(OilGasWater):
         :param reservoir_pressure: (float) average reservoir pressure; unit = psia
         """
         super().__init__(field)
+
         self.API = API = field.attr("API")
         self.gas_comp = field.attrs_with_prefix('gas_comp_')
         self.gas_oil_ratio = field.attr('GOR')
-        self.wet_air_MW = WetAir(field).mol_weight()
-        self.dry_air_MW = DryAir(field).mol_weight()
         self.oil_specific_gravity = ureg.Quantity(141.5 / (131.5 + API.m), "frac")
         self.gas_specific_gravity = self._gas_specific_gravity()
 
@@ -187,10 +196,16 @@ class Oil(OilGasWater):
         :return: (float) gas specific gravity (unit = fraction)
         """
         gas_comp = self.gas_comp
-        gas_SG = 0
-        for component, mol_frac in gas_comp.items():
-            molecular_weight = self.mol_weight(component)
-            gas_SG += molecular_weight * mol_frac.to("frac")
+
+        # gas_SG = 0
+        # for component, mol_frac in gas_comp.items():
+        #     molecular_weight = mol_weight(component)
+        #     gas_SG += molecular_weight * mol_frac.to("frac")
+
+        # TODO: all of the above can be replaced with the line below. The units are different
+        # TODO: but if you compare the above with the line below and use gas_SG.to_base_units(),
+        # TODO: they both return 0.017973756202 <Unit('fraction * kilogram / mole')>
+        gas_SG = (gas_comp * self.component_MW[gas_comp.index]).sum()
 
         gas_SG = gas_SG / self.dry_air_MW
         return gas_SG
@@ -470,7 +485,7 @@ class Oil(OilGasWater):
         return result.to("mmbtu/day")
 
 
-class Gas(OilGasWater):
+class Gas(AbstractSubstance):
     """
 
     """
@@ -481,10 +496,6 @@ class Gas(OilGasWater):
         :param field:
         """
         super().__init__(field)
-        self.wet_air_MW = WetAir(field).mol_weight()
-        self.dry_air_MW = DryAir(field).mol_weight()
-        self.dry_air = DryAir(field)
-        self.field = field
 
     def total_molar_flow_rate(self, stream):
         """
@@ -493,13 +504,19 @@ class Gas(OilGasWater):
         :return: (float) total molar flow rate (unit = mol/day)
         """
         mass_flow_rate = stream.total_gases_rates()  # pandas.Series
-        total_molar_flow_rate = 0
-        for component, tonne_per_day in mass_flow_rate.items():
-            molecular_weight = self.mol_weight(component)
-            total_molar_flow_rate += tonne_per_day.to("g/day") / molecular_weight
+
+        # total_molar_flow_rate = 0
+        # for component, tonne_per_day in mass_flow_rate.items():
+        #     molecular_weight = mol_weight(component)
+        #     total_molar_flow_rate += tonne_per_day.to("g/day") / molecular_weight
+
+        # TODO: This line replaces everything above:
+        # TODO: This one change dropped runtime for test_separator from 29s to 8s!
+        total_molar_flow_rate = (mass_flow_rate/self.component_MW).sum().to("mol/day")
 
         return total_molar_flow_rate
 
+    # TODO: change all loops that call this to use component_molar_fractions() instead and use operations on Series objects.
     def component_molar_fraction(self, name, stream):
         """
 
@@ -509,11 +526,30 @@ class Gas(OilGasWater):
         """
         total_molar_flow_rate = self.total_molar_flow_rate(stream)
         mass_flow_rate = stream.gas_flow_rate(name)
-        molecular_weight = self.mol_weight(name)
+        molecular_weight = mol_weight(name)
         molar_flow_rate = mass_flow_rate.to("g/day") / molecular_weight
 
         result = molar_flow_rate / total_molar_flow_rate
         return result.to("frac")
+
+    # TODO: this gets the fractions in a series, all at once. The units are weird, but
+    # TODO: when converted to base units, they are correct numerically.
+    def component_molar_fractions(self, stream):
+        """
+        Compute all molar fractions and return in a Series.
+
+        :param name: (str) component name
+        :param stream: (Stream)
+        :return: (pd.Series) indexed by component name
+        """
+        total_molar_flow_rate = self.total_molar_flow_rate(stream)
+        gas_flow_rates = stream.components.query("gas > 0.0").gas
+
+        molar_flow_rate = gas_flow_rates / self.component_MW[gas_flow_rates.index]
+
+        result = molar_flow_rate / total_molar_flow_rate
+        result = pd.Series(result, dtype="pint[fraction]")  # convert units
+        return result
 
     def specific_gravity(self, stream):
         """
@@ -521,16 +557,21 @@ class Gas(OilGasWater):
         :param stream:
         :return:
         """
-        mass_flow_rate = stream.total_gases_rates()  # pandas.Series
-        specific_gravity = 0
-        for component, tonne_per_day in mass_flow_rate.items():
-            molecular_weight = self.mol_weight(component)
-            molar_fraction = self.component_molar_fraction(component, stream)
-            specific_gravity += molar_fraction * molecular_weight
+        mol_fracs = self.component_molar_fractions(stream)
+        sg = (mol_fracs * self.component_MW[mol_fracs.index]).sum()
+        sg = sg / self.dry_air_MW
+        return sg
 
-        specific_gravity = specific_gravity / self.dry_air_MW
-
-        return specific_gravity.to("frac")
+        # TODO: the rest is now obsolete
+        # mass_flow_rate = stream.total_gases_rates()  # pandas.Series
+        # specific_gravity = 0
+        # for component, tonne_per_day in mass_flow_rate.items():
+        #     molecular_weight = mol_weight(component)
+        #     molar_fraction = self.component_molar_fraction(component, stream)
+        #     specific_gravity += molar_fraction * molecular_weight
+        #
+        # specific_gravity = specific_gravity / self.dry_air_MW
+        # return specific_gravity.to("frac")
 
     def ratio_of_specific_heat(self, stream):
         """
@@ -543,9 +584,9 @@ class Gas(OilGasWater):
         specific_heat_press = 0
         specific_heat_volm = 0
         for component, tonne_per_day in mass_flow_rate.items():
-            molecular_weight = self.mol_weight(component)
+            molecular_weight = mol_weight(component)
             gas_constant = universal_gas_constants / molecular_weight
-            Cp = ureg.Quantity(self.dict_chemical[component].Cp(phase='g', T=298.15), "joule/g/kelvin")
+            Cp = ureg.Quantity(_dict_chemical[component].Cp(phase='g', T=298.15), "joule/g/kelvin")
             Cv = Cp - gas_constant
             specific_heat_press += tonne_per_day.to("g/day") * Cp
             specific_heat_volm += tonne_per_day.to("g/day") * Cv
@@ -567,10 +608,13 @@ class Gas(OilGasWater):
             if tonne_per_day == 0:
                 continue
             molar_fraction = self.component_molar_fraction(component, stream).m
-            critical_temperature = ureg.Quantity(self.dict_chemical[component].Tc, "kelvin").to("rankine")
+
+            chemical = _dict_chemical[component]
+            critical_temperature = ureg.Quantity(chemical.Tc, "kelvin").to("rankine")
             critical_temperature = critical_temperature.m
-            critical_pressure = ureg.Quantity(self.dict_chemical[component].Pc, "Pa").to("psia")
+            critical_pressure = ureg.Quantity(chemical.Pc, "Pa").to("psia")
             critical_pressure = critical_pressure.m
+
             temp1 += molar_fraction * critical_temperature / critical_pressure ** 0.5
             temp2 += molar_fraction * critical_temperature / critical_pressure
             temp3 += molar_fraction * (critical_temperature / critical_pressure) ** 0.5
@@ -713,7 +757,7 @@ class Gas(OilGasWater):
         mass_flow_rate = stream.total_gases_rates()  # pandas.Series
         molar_weight = ureg.Quantity(0.0, "g/mol")
         for component, tonne_per_day in mass_flow_rate.items():
-            molecular_weight = self.mol_weight(component)
+            molecular_weight = mol_weight(component)
             molar_fraction = self.component_molar_fraction(component, stream)
             molar_weight += molar_fraction * molecular_weight
 
@@ -743,10 +787,9 @@ class Gas(OilGasWater):
         for component, tonne_per_day in mass_flow_rate.items():
             if tonne_per_day == 0:
                 continue
-            LHV = self.LHV(component)
-            LHV = LHV.to("MJ/mol")
-            molecular_weight = self.mol_weight(component)
-            mass_energy_density += tonne_per_day / total_mass_rate * LHV / molecular_weight.to("kg/mol")
+            lhv = LHV(component).to("MJ/mol")
+            molecular_weight = mol_weight(component)
+            mass_energy_density += tonne_per_day / total_mass_rate * lhv / molecular_weight.to("kg/mol")
 
         return mass_energy_density
 
@@ -763,13 +806,12 @@ class Gas(OilGasWater):
         for component, tonne_per_day in mass_flow_rate.items():
             if tonne_per_day == 0:
                 continue
-            LHV = self.LHV(component)
-            LHV = LHV.to("Btu/mol")
-            molecular_weight = self.mol_weight(component)
-            density = self.rho(component, std_temp, std_press, PHASE_GAS)
+            lhv = LHV(component).to("Btu/mol")
+            molecular_weight = mol_weight(component)
+            density = rho(component, std_temp, std_press, PHASE_GAS)
             density = density.to("g/ft**3")
             molar_fraction = self.component_molar_fraction(component, stream)
-            volume_energy_density += molar_fraction * density * LHV / molecular_weight
+            volume_energy_density += molar_fraction * density * lhv / molecular_weight
 
         return volume_energy_density
 
@@ -786,7 +828,7 @@ class Gas(OilGasWater):
         return energy_flow_rate
 
 
-class Water(OilGasWater):
+class Water(AbstractSubstance):
     """
     water class includes the method to calculate water density, water volume flow rate, etc.
     """
@@ -807,7 +849,7 @@ class Water(OilGasWater):
         std_temp = self.field.model.const("std-temperature")
         std_press = self.field.model.const("std-pressure")
         specifc_gravity = self.specific_gravity
-        water_density_STP = self.rho("H2O", std_temp, std_press, PHASE_LIQUID)
+        water_density_STP = rho("H2O", std_temp, std_press, PHASE_LIQUID)
         density = specifc_gravity * water_density_STP
 
         return density.to("kg/m**3")
