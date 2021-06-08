@@ -65,7 +65,7 @@ def LHV(component, with_units=True):
     :param component:
     :return: (float) low heat value (unit = joule/mol)
     """
-    lhv = _dict_chemical[component].LHV or 0.0  # TODO: for "C6", LHV returns None. Is that correct?
+    lhv = _dict_chemical[component].LHV
     if with_units:
         lhv = ureg.Quantity(abs(lhv), "joule/mol")
 
@@ -206,15 +206,6 @@ class Oil(AbstractSubstance):
         :return: (float) gas specific gravity (unit = fraction)
         """
         gas_comp = self.gas_comp
-
-        # gas_SG = 0
-        # for component, mol_frac in gas_comp.items():
-        #     molecular_weight = mol_weight(component)
-        #     gas_SG += molecular_weight * mol_frac.to("frac")
-
-        # TODO: all of the above can be replaced with the line below. The units are different
-        # TODO: but if you compare the above with the line below and use gas_SG.to_base_units(),
-        # TODO: they both return 0.017973756202 <Unit('fraction * kilogram / mole')>
         gas_SG = (gas_comp * self.component_MW[gas_comp.index]).sum()
 
         gas_SG = gas_SG / self.dry_air_MW
@@ -297,11 +288,6 @@ class Oil(AbstractSubstance):
                          gor_bubble])
         result = ureg.Quantity(result, "scf/bbl_oil")
         return result
-        # TODO:
-        # 3. ask Adam to get the formula reference
-        # temp1 = np.power(stream.pressure, 1 / pbub_a2)
-        # temp2 = np.power(oil_SG, -pbub_a1 / pbub_a2)
-        # temp3 = np.exp(pbub_a3 / pbub_a2 * gas_SG * oil_SG)
 
     def saturated_formation_volume_factor(self, stream, oil_specific_gravity, gas_specific_gravity, gas_oil_ratio):
         """
@@ -516,14 +502,6 @@ class Gas(AbstractSubstance):
         :return: (float) total molar flow rate (unit = mol/day)
         """
         mass_flow_rate = stream.total_gases_rates()  # pandas.Series
-
-        # total_molar_flow_rate = 0
-        # for component, tonne_per_day in mass_flow_rate.items():
-        #     molecular_weight = mol_weight(component)
-        #     total_molar_flow_rate += tonne_per_day.to("g/day") / molecular_weight
-
-        # TODO: This line replaces everything above:
-        # TODO: This one change dropped runtime for test_separator from 29s to 8s!
         total_molar_flow_rate = (mass_flow_rate / self.component_MW).sum().to("mol/day")
 
         return total_molar_flow_rate
@@ -571,17 +549,6 @@ class Gas(AbstractSubstance):
         sg = (mol_fracs * self.component_MW[mol_fracs.index]).sum()
         sg = sg / self.dry_air_MW
         return sg
-
-        # TODO: the rest is now obsolete
-        # mass_flow_rate = stream.total_gases_rates()  # pandas.Series
-        # specific_gravity = 0
-        # for component, tonne_per_day in mass_flow_rate.items():
-        #     molecular_weight = mol_weight(component)
-        #     molar_fraction = self.component_molar_fraction(component, stream)
-        #     specific_gravity += molar_fraction * molecular_weight
-        #
-        # specific_gravity = specific_gravity / self.dry_air_MW
-        # return specific_gravity.to("frac")
 
     @staticmethod
     def ratio_of_specific_heat(stream):
