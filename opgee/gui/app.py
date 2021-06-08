@@ -118,6 +118,29 @@ styles = {
     }
 }
 
+
+# go.Table(header=dict(values=['A Scores', 'B Scores']),
+#          cells=dict(values=[[100, 90, 80, 90], [95, 85, 75, 95]])
+#
+# fig = go.Figure(data=[go.Table(
+#     header=dict(values=['A Scores', 'B Scores'],
+#                 line_color='darkslategray',
+#                 fill_color='lightskyblue',
+#                 align='left'),
+#     cells=dict(values=[[100, 90, 80, 90], # 1st column
+#                        [95, 85, 75, 95]], # 2nd column
+#                line_color='darkslategray',
+#                fill_color='lightcyan',
+#                align='left'))
+# ])
+def emissions_table(obj):
+    rates = obj.emissions.rates()
+
+    tbl = dash_table.DataTable(columns=[{'name': col, 'id': col} for col in rates.index],
+                               data=[{col: value.m for col, value in rates.items()}])
+    return tbl
+
+
 def main(args):
     from ..version import VERSION
 
@@ -226,7 +249,7 @@ def main(args):
                                 """)),
                                 html.Pre(id='hover-data', style=styles['pre'])
                             ],
-                            style={'height': '500px'}),
+                            style={'height': '300px'}),
 
                         html.Div(
                             className='twelve columns',
@@ -238,22 +261,10 @@ def main(args):
                                 """)),
                                 html.Pre(id='click-data', style=styles['pre'])
                             ],
-                            style={'height': '400px'})
+                            style={'height': '300px'})
                     ]
                 )
             ]
-        ),
-
-        html.Div(
-            className="row",
-            # TBD: maybe better just to use go.Table? https://plotly.com/python/table/ combined with <summary> and <detail> with indentation
-            children=[dash_table.DataTable(
-                id='table',
-                columns=[{"name": col, "id": col} for col in ('Process', 'CH4', 'CO', 'N2O', 'CO2', 'VOC')],
-                data=[{'Process': 'DownholePump', 'CH4': 0.2, 'CO': 0.22, 'N2O': .33, 'CO2': 0.5, 'VOC': 0.1},
-                      {'Process': 'Separation',   'CH4': 1.2, 'CO': 0.32, 'N2O': .43, 'CO2': 1.5, 'VOC': 1.1}
-                      ]
-            )]
         ),
 
         html.Div(
@@ -319,20 +330,24 @@ def main(args):
         dash.dependencies.Output('emissions-table', 'children'),
         [dash.dependencies.Input('run-button', 'n_clicks')])
     def update_result_table(n_clicks):
-        style = "margin-left: 16px"
+        style = {'margin-left': '16px'}
 
         # recursively create expanding aggregator structure with emissions (table, eventually)
         def add_children(container, elt):
             for agg in container.aggs:
-                details = html.Details(children=[html.Summary(agg.name)], style=style)
+                details = html.Details(children=[html.Summary(html.B(agg.name))], style=style)
+                elt.children.append(details)
                 add_children(agg, details)
 
             for proc in container.procs:
-                tbl = html.Div(proc.name, style=style)
-                elt.children.append(tbl)
+                div = html.Div(style=style,
+                               children=[html.I(proc.name), emissions_table(proc)])
+                elt.children.append(div)
 
         elt = html.Details(open=True, children=[html.Summary("Process Emissions")])
         add_children(current_field, elt)
+        return elt
 
 
     app.run_server(debug=True)
+

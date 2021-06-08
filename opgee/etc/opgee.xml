@@ -75,18 +75,23 @@
 
 			<Process class="CrudeOilDewatering" desc="Crude oil dewatering">
 				<Consumes>crude oil</Consumes>
-				<Produces>untreated water</Produces>
-				<Produces>dewatered crude oil</Produces>
+				<Produces>water</Produces>
+				<Produces>crude oil</Produces>
+			</Process>
+
+			<Process class="AfterDewatering" desc="Temporary end process">
+				<Consumes>crude oil</Consumes>
+				<Consumes>water</Consumes>
 			</Process>
 
 			<Process class="CrudeOilStabilization" desc="Crude oil stabilization">
-				<Consumes>dewatered crude oil</Consumes>
-				<Produces>stablized crude oil</Produces>
+				<Consumes>crude oil</Consumes>
+				<Produces>crude oil</Produces>
 			</Process>
 
 			<Process class="ProducedWaterTreatment" desc="Produced water treatment">
-				<Consumes>untreated water</Consumes>
-				<Produces>treated water</Produces>
+				<Consumes>water</Consumes>
+				<Produces>water</Produces>
 			</Process>
 		</Aggregator>
 
@@ -135,6 +140,11 @@
 
 		<Stream src="CrudeOilDewatering" dst="ReservoirWellInterface" name="flooding CO2" impute="False">
 			<Contains>CO2</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilDewatering" dst="AfterDewatering">
+			<Contains>crude oil</Contains>
+			<Contains>water</Contains>
 		</Stream>
 
 	</Field>

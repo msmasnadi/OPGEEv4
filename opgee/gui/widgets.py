@@ -1,11 +1,5 @@
-import dash
 import dash_core_components as dcc
 import dash_html_components as html
-import json
-import networkx as nx
-import pydot
-from textwrap import dedent as d
-
 
 def radio_items(title, options, default, direction='v', id=None):
     """
