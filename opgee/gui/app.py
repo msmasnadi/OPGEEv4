@@ -144,12 +144,35 @@ def emissions_table(procs):
         return s
 
     df = pd.DataFrame(data=[series_for_df(proc) for proc in procs])
-    df.loc['Total emissions', :] = df.sum(axis='rows')
+    df.loc['Total', :] = df.sum(axis='rows')
     df.reset_index(inplace=True)
     df.rename({'index': 'Name'}, axis='columns', inplace=True)
 
-    tbl = dash_table.DataTable(columns=columns,
-                               data=df.to_dict('records'))
+    tbl = dash_table.DataTable(
+        columns=columns,
+        data=df.to_dict('records'),
+        style_as_list_view=True,
+        style_cell={'padding': '5px'},
+        style_header={
+            'backgroundColor': 'white',
+            'fontWeight': 'bold'
+        },
+        style_cell_conditional=[
+            {
+                'if': {'column_id': c},
+                'textAlign': 'left'
+            } for c in ['Name']
+        ],
+        style_data_conditional=[
+            {
+                'if': {
+                    'filter_query': '{Name} = "Total"',
+                    # 'column_id': 'Name'
+                },
+                'fontWeight': 'bold'
+            },
+        ]
+    )
     return tbl
 
 
