@@ -8,7 +8,7 @@ from opgee import ureg
 def oil_instance(test_model):
     field = test_model.get_field("test")
     oil = Oil(field)
-
+    oil._after_init()
     return oil
 
 
@@ -132,6 +132,7 @@ def test_oil_energy_flow_rate(oil_instance):
 def gas_instance(test_model):
     field = test_model.get_field("test")
     gas = Gas(field)
+    gas._after_init()
     return gas
 
 
