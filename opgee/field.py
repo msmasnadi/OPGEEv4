@@ -56,6 +56,9 @@ class Field(Container):
         for obj in self.processes():
             obj._after_init()
 
+        for obj in [self.oil, self.gas, self.water]:
+            obj._after_init()
+
     def __str__(self):
         return f"<Field '{self.name}'>"
 

@@ -235,7 +235,8 @@
     </Options>
 
     <AttrDef name="friction_factor" type="float" unit="frac" desc="wellbore friction factor">0.02</AttrDef>
-    <AttrDef name="eta_pump_well" type="float" unit="percentage" desc="pump efficiency">65</AttrDef>
+    <AttrDef name="eta_pump_well" type="float" unit="percent" desc="pump efficiency">65</AttrDef>
+    <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
   </ClassAttrs>
   <ClassAttrs name="FluidProduction">
     <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
@@ -265,7 +266,7 @@
     <AttrDef name="pressure_outlet" type="float" unit="psia" desc="Separator pressure (final if multi-stage)">100.0</AttrDef>
     <AttrDef name="temperature_outlet" type="float" unit="degF" desc="Separator temperature (final if multi-stage)">90.0</AttrDef>
     <AttrDef name="water_content_oil_emulsion" type="float" unit="percent" desc="Entrained water as a fraction of oil emulsion (weight percentage)">14.0</AttrDef>
-    <AttrDef name="gas_pressure_after_boosting" type="float" unit="psia" desc="Separator gas outlet pressure after boosting compressors">5000</AttrDef>
+    <AttrDef name="gas_pressure_after_boosting" type="float" unit="psia" desc="Separator gas outlet pressure after boosting compressors">500</AttrDef>
     <AttrDef name="eta_compressor" type="float" unit="percent" desc="Compressor efficiency">75.0</AttrDef>
     <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
   </ClassAttrs>

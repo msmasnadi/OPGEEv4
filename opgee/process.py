@@ -14,6 +14,7 @@ from .energy import Energy
 from .log import getLogger
 from .stream import Stream
 from .utils import getBooleanXML
+from .drivers import Drivers
 
 _logger = getLogger(__name__)
 
@@ -487,6 +488,16 @@ class Process(XmlInstantiable, AttributeMixin):
 
     def venting_fugitive_rate(self):
         return self.attr('leak_rate')
+
+    @staticmethod
+    def get_energy_consumption_stages(prime_mover_type, brake_horsepower_of_stages):
+        energy_consumption_of_stages = []
+        for brake_horsepower in brake_horsepower_of_stages:
+            eff = Drivers.get_efficiency(prime_mover_type, brake_horsepower)
+            energy_consumption = (brake_horsepower * eff).to("mmBtu/day")
+            energy_consumption_of_stages.append(energy_consumption)
+
+        return energy_consumption_of_stages
 
     # Deprecated
     # def venting_fugitive_rate(self, trial=None):

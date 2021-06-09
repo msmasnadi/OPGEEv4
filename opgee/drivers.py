@@ -22,6 +22,7 @@ class Drivers(OpgeeObject):
         :param brake_horsepower:
         :return:
         """
+        brake_horsepower = brake_horsepower.to("horsepower")
         if prime_mover_type == "Electric_motor":
             efficiency = 2967 * brake_horsepower.m ** (-0.018) if brake_horsepower != 0.0 else 3038
         else:
