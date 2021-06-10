@@ -25,7 +25,7 @@ class Options(XmlInstantiable):
     @classmethod
     def from_xml(cls, elt):
         option_elts = elt.findall('Option')
-        options = [(elt.text, elt.attrib.get('desc')) for elt in option_elts]
+        options = [(elt.text, elt.attrib.get('label', elt.text), elt.attrib.get('desc')) for elt in option_elts]
         obj = Options(elt_name(elt), elt.attrib.get('default'), options)
         return obj
 
@@ -128,10 +128,6 @@ class ClassAttrs(XmlInstantiable):
 
         return value
 
-    # Deprecated
-    # def option(self, name, raiseError=True):
-    #     return self._lookup(self.option_dict, 'option', name, raiseError=raiseError)
-
     def attribute(self, name, raiseError=True):
         return self._lookup(self.attr_dict, 'definition', name, raiseError=raiseError)
 
@@ -188,21 +184,6 @@ class AttrDefs(OpgeeObject):
             raise OpgeeException(f"class_attrs: classname {classname} is unknown.")
 
         return attrs
-
-    # Deprecated
-    # def get_def(self, classname, name, raiseError=True):
-    #     """
-    #     Return the definition of an attribute `name` defined for class `classname`.
-    #
-    #     :param classname: (str) the name of a class associated with the attribute
-    #     :param name: (str) the name of an attribute
-    #     :param raiseError: (bool) whether to raise an error if the attribute or
-    #        classname are not known.
-    #     :return: the value of the attribute
-    #     :raises: OpgeeException if the attribute or classname are unknown.
-    #     """
-    #     class_attrs = self.class_attrs(classname, raiseError=raiseError)
-    #     return class_attrs.attribute(name, raiseError=raiseError)
 
 
 class AttributeMixin():

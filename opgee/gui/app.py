@@ -3,6 +3,7 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+from dash.dependencies import Input, Output
 import dash_table
 import json
 import networkx as nx
@@ -12,7 +13,7 @@ from textwrap import dedent as d
 
 from .. import Process
 from ..model import ModelFile
-from ..gui.widgets import radio_items
+from ..gui.widgets import radio_items, attr_options
 from ..log import getLogger
 
 _logger = getLogger(__name__)
@@ -175,6 +176,90 @@ def emissions_table(procs):
     )
     return tbl
 
+def overview_layout(app):
+    layout = html.Div([
+        # Title
+        html.Div(
+            [],
+            className="row",
+            style={'textAlign': "center"}
+        ),
+    ])
+    return layout
+
+def processes_layout(app, current_field):
+    # the main row
+    layout = html.Div([
+            html.H3('Processes', style={'textAlign': "center"}),
+
+            # middle graph component
+            html.Div(
+                className="eight columns",
+                children=[
+                    dcc.Graph(id="my-graph", figure=field_network_graph(current_field))],
+            ),
+
+            html.Div(
+                className="row",
+                id='emissions-table',
+                children=[]
+            ),
+
+            # right side two output component
+            html.Div(
+                className="twelve columns",
+                children=[
+                    html.Div(
+                        className='three columns',
+                        children=[
+                            dcc.Markdown(d("""
+                            **Emissions and energy use**
+                            """)),
+                            html.Pre(id='hover-data', style=styles['pre'])
+                        ],
+                        style={'height': '400px', 'display': 'inline-block'}),
+
+                    html.Div(
+                        className='three columns',
+                        children=[
+                            dcc.Markdown(d("""
+                            **Click Data**
+                            """)),
+                            html.Pre(id='click-data', style=styles['pre'])
+                        ],
+                        style={'height': '400px', 'display': 'inline-block'})
+                ],
+                style={'height': '400px', 'display': 'inline-block'})
+        ],
+        className="row",
+    )
+    return layout
+
+def settings_layout(app):
+    layout = html.Div([
+        html.H3('Settings'),
+        html.Div([
+            # attr_options('Model'),
+            attr_options('Analysis'),
+            ],
+            className="row",
+        ),
+
+        html.Div(
+            className='two columns',
+            children=[
+                html.Button('Run model', id='run-button', n_clicks=0),
+                dcc.Markdown(id='model-status')
+            ],
+            style={'height': '100px'}
+        ),
+
+    ], style={'textAlign': "center"},
+       className="row"
+    )
+
+    return layout
+
 
 def main(args):
     from ..version import VERSION
@@ -192,6 +277,7 @@ def main(args):
     # import the css template, and pass the css template into dash
     external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
     app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+    app.config['suppress_callback_exceptions'] = True
     app.title = "OPGEEv" + VERSION # OPGEEv4.0a0
 
     # TBD:
@@ -201,127 +287,56 @@ def main(args):
     #
     # Note: dcc.Store provides a browser-side caching mechanism
 
+    # TBD: use "app.config['suppress_callback_exceptions'] = True" to not need to call tab-layout fns in this layout def
 
     app.layout = html.Div([
-        # Title
         html.Div([html.H1(app.title)],
-                 className="row",
                  style={'textAlign': "center"}),
 
-        html.Div(
-            className="row",
-
-            # TBD: get all the radio button values from model attributes
-            # TBD: to do this, just add the radio button with an id, and populate it in a callback
-            # TBD: as in https://dash.plotly.com/basic-callbacks
-            # radio buttons
+        dcc.Tabs(
+            id="tabs-with-classes",
+            value='overview',
+            parent_className='custom-tabs',
+            className='custom-tabs-container',
             children=[
-                html.Div(
-                    className="two columns",
-                    children=[
-                        radio_items('Energy basis', {'Lower heating value': 'LHV',
-                                                     'Higher heating value': 'HHV'
-                                                     }, 'LHV'),
-                    ],
+                dcc.Tab(
+                    children=[],        # overview_layout(app)
+                    label='Overview',
+                    value='overview',
+                    className='custom-tab',
+                    selected_className='custom-tab--selected'
                 ),
-                html.Div(
-                    className="two columns",
-                    children=[
-                        radio_items('Functional unit', {'1 MJ Crude oil': 'oil',
-                                                        '1 MJ Natural gas': 'gas'
-                                                        }, 'oil'),
-                    ],
+                dcc.Tab(
+                    children=[],    # processes_layout(app, current_field)
+                    label='Processes',
+                    value='processes',
+                    className='custom-tab',
+                    selected_className='custom-tab--selected'
                 ),
-                html.Div(
-                        className="two columns",
-                        children=[
-                            radio_items('System boundary', {'Field': 'field',
-                                                            'Post-transport': 'post-transport',
-                                                            'Post-distribution': 'post-distribution',
-                                                            }, 'field'),
-                        ],
+                dcc.Tab(
+                    children=[],    # settings_layout(app)
+                    label='Settings',
+                    value='settings',
+                    className='custom-tab',
+                    selected_className='custom-tab--selected'
                 ),
-                html.Div(
-                        className="two columns",
-                        children=[
-                            radio_items('Allocation method', {'Energy basis': 'energy',
-                                                              'Displacement': 'displacement'
-                                                              }, 'energy'),
-                        ],
-                ),
-                html.Div(
-                    className='two columns',
-                    children=[
-                        html.Button('Run model', id='run-button', n_clicks=0),
-                        dcc.Markdown(id='model-status')
-                    ],
-                    style={'height': '100px'}),
-            ],
-        ),
-
-        # the main row
-        html.Div(
-            className="row",
-            children=[
-                # middle graph component
-                html.Div(
-                    className="eight columns",
-                    children=[
-                        dcc.Graph(id="my-graph", figure=field_network_graph(current_field))],
-                ),
-
-                # right side two output component
-                html.Div(
-                    className="four columns",
-                    children=[
-                        html.Div(
-                            className='twelve columns',
-                            children=[
-                                dcc.Markdown(d("""
-                                **Hover Data**
-    
-                                Emissions and energy use
-                                """)),
-                                html.Pre(id='hover-data', style=styles['pre'])
-                            ],
-                            style={'height': '300px'}),
-
-                        html.Div(
-                            className='twelve columns',
-                            children=[
-                                dcc.Markdown(d("""
-                                **Click Data**
-    
-                                Click on points in the graph.
-                                """)),
-                                html.Pre(id='click-data', style=styles['pre'])
-                            ],
-                            style={'height': '300px'})
-                    ]
-                )
             ]
         ),
-
-        html.Div(
-            className="row",
-            id='emissions-table',
-            children = []
-        )
+        html.Div(id='tabs-content-classes')
     ])
 
     # callback for left side components
     @app.callback(
-        dash.dependencies.Output('my-graph', 'figure'),
-
-        # TBD: this isn't needed, but something was required syntactically... fix it!
-        [dash.dependencies.Input('run-button', 'n_clicks')])
+        Output('my-graph', 'figure'),
+        # TBD: this input isn't needed, but something was required syntactically... fix it!
+        [Input('run-button', 'n_clicks')])
     def update_output(n_clicks):
         return field_network_graph(current_field)
 
     # callback for right side components
     @app.callback(
-        dash.dependencies.Output('hover-data', 'children'),
-        [dash.dependencies.Input('my-graph', 'hoverData')])
+        Output('hover-data', 'children'),
+        [Input('my-graph', 'hoverData')])
     def display_hover_data(hoverData):
         if hoverData:
             proc_name = hoverData['points'][0]['text']
@@ -344,14 +359,14 @@ def main(args):
             return ''
 
     @app.callback(
-        dash.dependencies.Output('click-data', 'children'),
-        [dash.dependencies.Input('my-graph', 'clickData')])
+        Output('click-data', 'children'),
+        [Input('my-graph', 'clickData')])
     def display_click_data(clickData):
         return json.dumps(clickData, indent=2)
 
     @app.callback(
-        dash.dependencies.Output('model-status', 'children'),
-        [dash.dependencies.Input('run-button', 'n_clicks')])
+        Output('model-status', 'children'),
+        [Input('run-button', 'n_clicks')])
     def update_output(n_clicks):
         if n_clicks:
             # TBD: get user selections from radio buttons and pass to run method
@@ -362,9 +377,12 @@ def main(args):
             return f"Model has not been run"
 
     @app.callback(
-        dash.dependencies.Output('emissions-table', 'children'),
-        [dash.dependencies.Input('run-button', 'n_clicks')])
-    def update_result_table(n_clicks):
+        Output('emissions-table', 'children'),
+        [Input('tabs-with-classes', 'value')])
+    def update_result_table(tab):
+        if tab != 'processes':
+            return ""
+
         style = {'margin-left': '16px'}
 
         # recursively create expanding aggregator structure with emissions (table, eventually)
@@ -383,6 +401,18 @@ def main(args):
         add_children(current_field, elt)
         return elt
 
+    @app.callback(
+        Output('tabs-content-classes', 'children'),
+        Input('tabs-with-classes', 'value'))
+    def render_content(tab):
+        if tab == 'overview':
+            return overview_layout(app)
+
+        elif tab == 'processes':
+            return processes_layout(app, current_field)
+
+        elif tab == 'settings':
+            return settings_layout(app)
 
     app.run_server(debug=True)
 

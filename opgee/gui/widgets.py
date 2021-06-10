@@ -17,6 +17,8 @@ def radio_items(title, options, default, direction='v', id=None):
 
     id = id or title
 
+    attr_options('Analysis')
+
     layout = html.Div(
         children=[
             html.Span(title, style={'font-weight': 'bold'}),
@@ -25,3 +27,35 @@ def radio_items(title, options, default, direction='v', id=None):
     )
 
     return layout
+
+def attr_options(class_name, direction='v'):
+    from ..attributes import AttrDefs
+
+    attr_defs = AttrDefs.get_instance()
+    class_attrs = attr_defs.classes[class_name]
+    option_dict = class_attrs.option_dict
+    # attr_dict   = class_attrs.attr_dict
+
+    label_style = {'display': 'inline-block', 'margin': '4px'} if direction == 'h' else None
+
+    layout = html.Div(
+        children=[html.Span(class_name, style={'font-weight': 'bold', 'font-size': '14px'}),]
+    )
+
+    children = layout.children
+
+    for title, opt in option_dict.items():
+        options = [dict(label=label, value=value) for value, label, desc in opt.options]
+
+        radio = html.Div(
+            children=[
+                html.Span(title, style={'font-weight': 'bold'}),
+                dcc.RadioItems(options=options, value=opt.default, labelStyle=label_style,
+                               persistence=True, id=title),
+            ],
+            className="two columns"
+        )
+        children.append(radio)
+
+    return layout
+

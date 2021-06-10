@@ -22,28 +22,28 @@
   </ClassAttrs>
 
   <ClassAttrs name="Analysis">
-    <Options name="GWP_horizon" default="100">
-      <Option>20</Option>
-      <Option>100</Option>
+    <Options name="GWP horizon" default="100">
+      <Option label="20 year">20</Option>
+      <Option label="100 year">100</Option>
     </Options>
-    <Options name="GWP_version" default="AR5">
+    <Options name="GWP version" default="AR5">
       <Option>AR4</Option>
       <Option>AR5</Option>
-      <Option>AR5_CCF</Option>
+      <Option label="AR5 with C-cycle feedback">AR5_CCF</Option>
     </Options>
-    <Options name="functional_unit" default="oil">
-      <Option>oil</Option>
-      <Option>gas</Option>
+    <Options name="Functional unit" default="oil">
+      <Option label="1 MJ Crude oil">oil</Option>
+      <Option label="1 MJ Natural gas">gas</Option>
     </Options>
-    <Options name="energy_basis" default="LHV">
-      <Option>LHV</Option>
-      <Option>HHV</Option>
+    <Options name="Energy basis" default="LHV">
+      <Option label="Lower heating value">LHV</Option>
+      <Option label="Higher heating value">HHV</Option>
     </Options>
 
-    <AttrDef name="GWP_horizon" options="GWP_horizon" type="int" unit="years"/>
-    <AttrDef name="GWP_version" options="GWP_version" type="str"/>
-    <AttrDef name="functional_unit" options="functional_unit" type="str"/>
-    <AttrDef name="energy_basis" options="energy_basis" type="str"/>
+    <AttrDef name="GWP_horizon" options="GWP horizon" type="int" unit="years"/>
+    <AttrDef name="GWP_version" options="GWP version" type="str"/>
+    <AttrDef name="functional_unit" options="Functional unit" type="str"/>
+    <AttrDef name="energy_basis" options="Energy basis" type="str"/>
   </ClassAttrs>
 
   <!-- Attributes shared by all Processes. These values can be overridden in subprocesses -->
@@ -90,27 +90,27 @@
     <AttrDef name="gas_comp_C4" unit="mol_pct" type="float">0.71</AttrDef>
     <AttrDef name="gas_comp_H2S" unit="mol_pct" type="float">0.0</AttrDef>    <!-- TODO: needs a default value -->
     <!-- Production practices -->
-    <Options name="flood_gases" default="NG">
+    <Options name="Flood gases" default="NG">
       <Option desc="Natural gas">NG</Option>
       <Option desc="Nitrogen">N2</Option>
       <Option desc="Carbon dioxide">CO2</Option>
     </Options>
-    <Options name="liquids_unloading" default="none">
-      <Option>plunger</Option>
-      <Option>no plunger</Option>
-      <Option>none</Option>
+    <Options name="Liquids unloading" default="none">
+      <Option>Plunger</Option>
+      <Option>No plunger</Option>
+      <Option>None</Option>
     </Options>
     <Options name="source_CO2" default="reservoir">
-      <Option desc="natural subsurface reservoir">reservoir</Option>
-      <Option>anthropogenic</Option>
+      <Option desc="natural subsurface reservoir">Reservoir</Option>
+      <Option>Anthropogenic</Option>
     </Options>
     <AttrDef name="GOR" desc="Gas-to-oil ratio" unit="scf/bbl_oil" type="float">2429.3</AttrDef>
     <AttrDef name="WOR" desc="Water-to-oil ratio" unit="bbl_water/bbl_oil" type="float">6.0</AttrDef>
     <AttrDef name="WIR" desc="Water injection ratio" unit="bbl_water/bbl" type="float">7.0</AttrDef>
     <AttrDef name="GLIR" desc="Gas lifting injection ratio" unit="scf/bbl_liquid" type="float">364.0</AttrDef>
     <AttrDef name="GFIR" desc="Gas flooding injection ratio" unit="scf/bbl_oil" type="float">3644.0</AttrDef>
-    <AttrDef name="flood_gas_type" desc="Flood gas" options="flood_gases" type="str"/>
-    <AttrDef name="liquids_unloading" options="liquids_unloading" type="str"/>
+    <AttrDef name="flood_gas_type" desc="Flood gas" options="Flood gases" type="str"/>
+    <AttrDef name="liquids_unloading" options="Liquids unloading" type="str"/>
     <AttrDef name="perc_CO2_breakthrough" desc="Fraction of CO2 breaking through to producers" unit="percent" type="float">59</AttrDef>
     <AttrDef name="source_CO2" desc="" options="source_CO2" type="str"/>
     <AttrDef name="perc_sequestration_credit" desc="Percentage of sequestration credit assigned to the oilfield" unit="percent" type="float">0</AttrDef>
