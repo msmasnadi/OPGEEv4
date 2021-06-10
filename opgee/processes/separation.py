@@ -44,8 +44,6 @@ class Separation(Process):
         self.print_running_msg()
 
         field = self.get_field()
-        temperature_outlet = self.attr("temperature_outlet")
-        pressure_after_boosting = self.attr("gas_pressure_after_boosting")
 
         # mass rate
         input = self.find_input_stream("crude oil")

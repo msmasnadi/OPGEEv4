@@ -15,6 +15,7 @@ from .log import getLogger
 
 _logger = getLogger(__name__)
 
+
 class Emissions(OpgeeObject):
     """
     Emissions is an object wrapper around a pandas.Series holding emission flow
@@ -68,7 +69,7 @@ class Emissions(OpgeeObject):
             same index as self.data (i.e., Emissions.emissions)
         :return: (float) the sum of GWP-weighted emissions
         """
-        self.ghg = sum(gwp * self.data)     # TBD: store this? Could create inconsistencies...
+        self.ghg = sum(gwp * self.data)  # TBD: store this? Could create inconsistencies...
         return self.ghg
 
     def set_rate(self, gas, rate):
@@ -132,6 +133,6 @@ class Emissions(OpgeeObject):
         # TBD: where to get CO and N2O?
 
         # Any gas-phase hydrocarbon heavier than methane is considered a VOC
-        VOCs = [f'C{n}' for n in range(2, Stream.max_carbon_number + 1)] # skip C1 == CH4
+        VOCs = [f'C{n}' for n in range(2, Stream.max_carbon_number + 1)]  # skip C1 == CH4
         voc_rate = stream.components.loc[VOCs, PHASE_GAS].sum()
         self.add_rate('VOC', voc_rate)
