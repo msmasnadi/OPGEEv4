@@ -1,5 +1,4 @@
 import numpy as np
-from ..error import OpgeeException
 from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
 from ..process import Process
 from ..log import getLogger

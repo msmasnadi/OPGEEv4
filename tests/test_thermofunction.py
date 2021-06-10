@@ -170,7 +170,7 @@ def test_specific_gravity(gas_instance, stream):
 
 def test_ratio_of_specific_heat(gas_instance, stream):
     ratio_of_specific_heat = gas_instance.ratio_of_specific_heat(stream)
-    assert ratio_of_specific_heat == ureg.Quantity(pytest.approx(1.28553925), "frac")
+    assert ratio_of_specific_heat == ureg.Quantity(pytest.approx(1.28972962), "frac")
 
 
 def test_uncorrected_pseudocritical_temperature(gas_instance, stream):
