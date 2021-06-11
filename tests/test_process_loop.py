@@ -50,10 +50,11 @@ class Proc3(Process):
 
 class Proc4(Process):
     def run(self, analysis):
+        from opgee.emissions import EM_FLARING
         co2_stream = self.find_input_stream('CO2')
         co2_rate = co2_stream.gas_flow_rate('CO2')
 
-        self.add_emission_rate('CO2', co2_rate)
+        self.add_emission_rate(EM_FLARING, 'CO2', co2_rate)
 
 def test_process_loop(process_loop_model):
     process_loop_model.validate()

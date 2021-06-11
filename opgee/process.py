@@ -9,7 +9,7 @@ from .attributes import AttrDefs, AttributeMixin
 from .core import XmlInstantiable, elt_name, instantiate_subelts, magnitude
 from .container import Container
 from .error import OpgeeException, AbstractMethodError, OpgeeStopIteration
-from .emissions import Emissions
+from .emissions import Emissions, EM_OTHER
 from .energy import Energy
 from .log import getLogger
 from .stream import Stream
@@ -137,25 +137,27 @@ class Process(XmlInstantiable, AttributeMixin):
     #
     # Pass-through convenience methods for energy and emissions
     #
-    def add_emission_rate(self, gas, rate):
+    def add_emission_rate(self, category, gas, rate):
         """
         Add to the stored rate of emissions for a single gas.
 
+        :param category: (str) one of the defined emissions categories
         :param gas: (str) one of the defined emissions (values of Emissions.emissions)
         :param rate: (float) the increment in rate in the Process' flow units (e.g., mmbtu (LHV) of fuel burned)
         :return: none
         """
-        self.emissions.add_rate(gas, rate)
+        self.emissions.add_rate(category, gas, rate)
 
-    def add_emission_rates(self, **kwargs):
+    def add_emission_rates(self, category, **kwargs):
         """
         Add emissions to those already stored, for of one or more gases, given as
         keyword arguments, e.g., add_emission_rates(CO2=100, CH4=30, N2O=6).
 
+        :param category: (str) one of the defined emissions categories
         :param kwargs: (dict) the keyword arguments
         :return: none
         """
-        self.emissions.add_rates(**kwargs)
+        self.emissions.add_rates(category, **kwargs)
 
     def get_emission_rates(self, analysis):
         """
@@ -591,13 +593,13 @@ class Environment(Process):
         self.print_running_msg()
 
         emissions = self.emissions
+        emissions.reset()
 
-        emissions.data[:] = 0
-
+        # TBD: unclear whether this is useful
         for stream in self.inputs:
-            emissions.add_from_stream(stream)
+            emissions.add_from_stream(EM_OTHER, stream)
 
-        emissions.GHG(analysis.gwp)  # compute and cache GWP in emissions instance
+        emissions.compute_GHG(analysis.gwp)  # compute and cache GWP in emissions instance
 
     def report(self, analysis):
         print(f"{self}: cumulative emissions to Environment:\n{self.emissions}")
