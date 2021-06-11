@@ -70,7 +70,7 @@ class ConfigFileError(FileFormatError):
     """
     pass
 
-class CommandlineError(Exception):
+class CommandlineError(OpgeeException):
     """
     Command-line arguments were missing or incorrectly specified.
     """

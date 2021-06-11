@@ -37,8 +37,19 @@
 			<Produces>lifting gas</Produces>
 		</Process>
 
-		<Stream src="Separation" dst="After" name="oil after separator">
+		<Process class="CrudeOilDewatering">
+			<Consumes>crude oil</Consumes>
+			<Produces>crude oil</Produces>
+			<Produces>water</Produces>
+		</Process>
+
+		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
 			<Contains>crude oil</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilDewatering" dst="After" name="oil after dewatering">
+			<Contains>crude oil</Contains>
+			<Contains>water</Contains>
 		</Stream>
 
 		<Stream src="Separation" dst="After" name="water after separator">

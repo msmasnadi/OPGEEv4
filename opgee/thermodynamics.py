@@ -73,14 +73,15 @@ def LHV(component, with_units=True):
     return lhv
 
 
-def Cp_STP(component, with_units=True):
+def Cp(component, kelvin, with_units=True):
     """
 
+    :param temperature: unit in Kelvin
     :param component:
     :param with_units:
     :return: (float) specific heat in standard condition (unit = joule/g/kelvin)
     """
-    cp = _dict_chemical[component].Cp(phase='g', T=298.15)
+    cp = _dict_chemical[component].Cp(phase='g', T=kelvin)
     if with_units:
         cp = ureg.Quantity(cp, "joule/g/kelvin")
 
@@ -207,12 +208,16 @@ class AbstractSubstance(OpgeeObject):
                                       dtype="pint[g/mole]")
         self.component_LHV = pd.Series({name: LHV(name, with_units=False) for name in components},
                                        dtype="pint[joule/mole]")
-        self.component_Cp_STP = pd.Series({name: Cp_STP(name, with_units=False) for name in components},
+        self.component_Cp_STP = pd.Series({name: Cp(name, 288.706, with_units=False) for name in components},
                                           dtype="pint[joule/g/kelvin]")
         self.component_Tc = pd.Series({name: Tc(name, with_units=False) for name in components},
-                                          dtype="pint[kelvin]")
+                                      dtype="pint[kelvin]")
         self.component_Pc = pd.Series({name: Pc(name, with_units=False) for name in components},
-                                          dtype="pint[Pa]")
+                                      dtype="pint[Pa]")
+        temp = ureg.Quantity(60, "degF")
+        press = ureg.Quantity(14.7, "psia")
+        self.component_gas_rho_STP = pd.Series({name: rho(name, temp, press, PHASE_GAS)
+                                                for name in components}, dtype="pint[kg/m**3]")
 
     def _after_init(self):
         """
@@ -539,6 +544,22 @@ class Oil(AbstractSubstance):
         result = mass_energy_density * mass_flow_rate
         return result.to("mmbtu/day")
 
+    def heat_capacity(self, temperature):
+        """
+        Campbell heat capacity of oil
+        Campbell equation from Manning and Thompson (1991). cp = (-1.39e-6 * T + 1.847e-3)*API+6.32e-4*T+0.352
+
+        :param temperature:
+        :return:(float) heat capacity of crude oil (unit = btu/lb/degF)
+        """
+        API = self.API
+        API = API.m
+        temperature = temperature.to("degF")
+        temperature = temperature.m
+
+        heat_capacity = (-1.39e-6 * temperature + 1.847e-3) * API + 6.32e-4 * temperature + 0.352
+        return ureg.Quantity(heat_capacity, "btu/lb/degF")
+
 
 class Gas(AbstractSubstance):
     """
@@ -611,7 +632,7 @@ class Gas(AbstractSubstance):
         :return:
         """
         mass_flow_rate = stream.components.query("gas > 0.0").gas  # pandas.Series
-        universal_gas_constants = ureg.Quantity(8.31446261815324, "joule/mol/kelvin")  # J/mol/K
+        universal_gas_constants = self.field.model.const("universal-gas-constants") # J/mol/K
         molecular_weight = self.component_MW[mass_flow_rate.index]
         Cp = self.component_Cp_STP[mass_flow_rate.index]
         gas_constant = universal_gas_constants / molecular_weight
@@ -812,13 +833,11 @@ class Gas(AbstractSubstance):
         :return:(float) gas volume energy density (unit = btu/scf)
         """
         mass_flow_rate = stream.components.query("gas > 0.0").gas  # pandas.Series
-        volume_energy_density = ureg.Quantity(0.0, "Btu/ft**3")
-        for component, tonne_per_day in mass_flow_rate.items():
-            lhv = LHV(component)
-            molecular_weight = mol_weight(component)
-            density = rho(component, self.std_temp, self.std_press, PHASE_GAS)
-            molar_fraction = self.component_molar_fraction(component, stream)
-            volume_energy_density += molar_fraction * density * lhv / molecular_weight
+        lhv = self.component_LHV[mass_flow_rate.index]
+        molecular_weight = self.component_MW[mass_flow_rate.index]
+        density = self.component_gas_rho_STP[mass_flow_rate.index]
+        molar_fraction = self.component_molar_fractions(stream)
+        volume_energy_density = (molar_fraction * density * lhv / molecular_weight).sum()
 
         return volume_energy_density.to("Btu/ft**3")
 
@@ -845,6 +864,7 @@ class Water(AbstractSubstance):
         self.TDS = field.attr("total_dissolved_solids")  # mg/L
         # TODO: this can be improved by adding ions in the H2O in the solution
         self.specific_gravity = ureg.Quantity(1 + self.TDS.m * 0.695 * 1e-6, "frac")
+        self.heat_capacity = ureg.Quantity(1, "btu/lb/degF")
 
     def density(self):
         """

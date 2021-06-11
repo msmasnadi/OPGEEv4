@@ -44,8 +44,6 @@ class Separation(Process):
         self.print_running_msg()
 
         field = self.get_field()
-        temperature_outlet = self.attr("temperature_outlet")
-        pressure_after_boosting = self.attr("gas_pressure_after_boosting")
 
         # mass rate
         input = self.find_input_stream("crude oil")
@@ -132,6 +130,7 @@ class Separation(Process):
         temperature_of_stages, pressure_of_stages = self.get_stages_temperature_and_pressure(field)
 
         oil = field.oil
+        gas = field.gas
 
         gas_after = self.find_output_stream("gas")
         stream = Stream("stage_stream",
@@ -143,11 +142,12 @@ class Separation(Process):
                               oil.gas_specific_gravity,
                               oil.gas_oil_ratio)
 
-        for component, mol_frac in gas_comp.items():
-            gas_volume_rate = oil_volume_rate * gas_oil_ratio * mol_frac.to("frac")
-            gas_density = rho(component, std_temp, std_press, PHASE_GAS)
-            gas_mass_rate = (gas_volume_rate * gas_density).to("tonne/day")
-            gas_after.set_gas_flow_rate(component, gas_mass_rate)
+        gas_volume_rate = oil_volume_rate * gas_oil_ratio * gas_comp
+        gas_density = gas.component_gas_rho_STP[gas_comp.index]
+        gas_mass_rate = gas_volume_rate * gas_density
+
+        for component, mass_rate in gas_mass_rate.items():
+            gas_after.set_gas_flow_rate(component, mass_rate.to("tonne/day"))
         gas_after.set_temperature_and_pressure(temperature_outlet, pressure_after_boosting)
 
         oil_after = self.find_output_stream("crude oil")
