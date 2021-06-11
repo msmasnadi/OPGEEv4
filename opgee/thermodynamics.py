@@ -544,6 +544,22 @@ class Oil(AbstractSubstance):
         result = mass_energy_density * mass_flow_rate
         return result.to("mmbtu/day")
 
+    def heat_capacity(self, temperature):
+        """
+        Campbell heat capacity of oil
+        Campbell equation from Manning and Thompson (1991). cp = (-1.39e-6 * T + 1.847e-3)*API+6.32e-4*T+0.352
+
+        :param temperature:
+        :return:(float) heat capacity of crude oil (unit = btu/lb/degF)
+        """
+        API = self.API
+        API = API.m
+        temperature = temperature.to("degF")
+        temperature = temperature.m
+
+        heat_capacity = (-1.39e-6 * temperature + 1.847e-3) * API + 6.32e-4 * temperature + 0.352
+        return ureg.Quantity(heat_capacity, "btu/lb/degF")
+
 
 class Gas(AbstractSubstance):
     """
@@ -848,6 +864,7 @@ class Water(AbstractSubstance):
         self.TDS = field.attr("total_dissolved_solids")  # mg/L
         # TODO: this can be improved by adding ions in the H2O in the solution
         self.specific_gravity = ureg.Quantity(1 + self.TDS.m * 0.695 * 1e-6, "frac")
+        self.heat_capacity = ureg.Quantity(1, "btu/lb/degF")
 
     def density(self):
         """

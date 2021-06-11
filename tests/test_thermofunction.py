@@ -128,6 +128,12 @@ def test_oil_energy_flow_rate(oil_instance):
     assert energy_flow_rate == ureg.Quantity(pytest.approx(11035.4544), "mmbtu/day")
 
 
+def test_oil_heat_capacity(oil_instance):
+    temp = ureg.Quantity(127.5, "degF")
+    heat_capacity = oil_instance.heat_capacity(temp)
+    assert heat_capacity == ureg.Quantity(pytest.approx(0.48734862), "btu/lb/degF")
+
+
 @pytest.fixture
 def gas_instance(test_model):
     field = test_model.get_field("test")
