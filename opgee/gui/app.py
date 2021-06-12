@@ -27,7 +27,7 @@ class After(Process):
         pass
 
 def field_network_graph(field):
-    graph = pydot.Dot('model', graph_type='digraph', bgcolor='white')
+    graph = pydot.Dot('model', graph_type='digraph')
 
     for name, proc in field.process_dict.items():
         graph.add_node(pydot.Node(name))
@@ -44,24 +44,7 @@ def field_network_graph(field):
     for node in G.nodes:
         G.nodes[node]['pos'] = list(pos[node])
 
-    # generate as many colors in a range as there are edges
-    # colors = list(Color('lightcoral').range_to(Color('darkred'), len(G.edges())))
-    # colors = ['rgb' + str(x.rgb) for x in colors]
-
     traces = []  # contains edge_trace and node_trace
-
-    # TBD: might be useful to be able to click on a Stream (edge) to display it
-    # No need to draw these since we draw the arrows as annotations
-    # for edge, color in zip(G.edges, colors):
-    #     x0, y0 = G.nodes[edge[0]]['pos']
-    #     x1, y1 = G.nodes[edge[1]]['pos']
-    #     trace = go.Scatter(x=tuple([x0, x1, None]), y=tuple([y0, y1, None]),
-    #                        mode='lines',
-    #                        line={'width': 2},
-    #                        marker=dict(color=colors),
-    #                        line_shape='spline',
-    #                        opacity=1)
-    #     traces.append(trace)
 
     mode = 'markers+text'
     node_trace = go.Scatter(x=[], y=[], hovertext=[], text=[], mode=mode, textposition="bottom center",
@@ -83,7 +66,8 @@ def field_network_graph(field):
                        margin={'b': 40, 'l': 40, 'r': 40, 't': 40},
                        xaxis={'showgrid': False, 'zeroline': False, 'showticklabels': False},
                        yaxis={'showgrid': False, 'zeroline': False, 'showticklabels': False},
-                       height=600
+                       height=600,
+                       plot_bgcolor='aliceblue'
                        )
     fig = go.Figure(data=traces, layout=layout)
 
@@ -136,12 +120,15 @@ styles = {
 # ])
 def emissions_table(procs):
     import pandas as pd
+    from pint import Quantity
     from ..emissions import Emissions
 
-    columns = [{'name': 'Name', 'id': 'Name'}] + [{'name': col, 'id': col} for col in Emissions.emissions]
+    columns = [{'name': 'Name', 'id': 'Name'}] + [{'name': col, 'id': col} for col in Emissions.categories]
 
     def series_for_df(proc):
-        s = pd.Series(proc.emissions.rates(), dtype=float, name=proc.name)
+        rates = proc.emissions.rates()
+        s = rates.T.GHG
+        s.name = proc.name
         return s
 
     df = pd.DataFrame(data=[series_for_df(proc) for proc in procs])
@@ -149,9 +136,12 @@ def emissions_table(procs):
     df.reset_index(inplace=True)
     df.rename({'index': 'Name'}, axis='columns', inplace=True)
 
+    def get_magnitude(quantity):
+        return quantity.m if isinstance(quantity, Quantity) else quantity
+
     tbl = dash_table.DataTable(
         columns=columns,
-        data=df.to_dict('records'),
+        data=df.applymap(get_magnitude).to_dict('records'),
         style_as_list_view=True,
         style_cell={'padding': '5px'},
         style_header={
@@ -192,25 +182,33 @@ def processes_layout(app, current_field):
     layout = html.Div([
             html.H3('Processes', style={'textAlign': "center"}),
 
-            # middle graph component
+            # graph component
             html.Div(
-                className="eight columns",
+                className="twelve columns",
                 children=[
-                    dcc.Graph(id="my-graph", figure=field_network_graph(current_field))],
+                    dcc.Graph(id="my-graph", figure=field_network_graph(current_field))
+                ],
             ),
 
             html.Div(
+                children=[],
                 className="row",
                 id='emissions-table',
-                children=[]
+                style = {
+                    'background-color': 'aliceblue',
+                    'border-radius': '4px',
+                    'border': '1px solid',
+                }
             ),
 
-            # right side two output component
+            html.Br(),
+
+            # output components
             html.Div(
                 className="twelve columns",
                 children=[
                     html.Div(
-                        className='three columns',
+                        className='four columns',
                         children=[
                             dcc.Markdown(d("""
                             **Emissions and energy use**
@@ -220,12 +218,16 @@ def processes_layout(app, current_field):
                         style={'height': '400px', 'display': 'inline-block'}),
 
                     html.Div(
-                        className='three columns',
+                        className='four columns',
                         children=[
                             dcc.Markdown(d("""
                             **Click Data**
                             """)),
-                            html.Pre(id='click-data', style=styles['pre'])
+                            html.Div(
+                                children=[],
+                                id='click-data',
+                                # style=
+                            )
                         ],
                         style={'height': '400px', 'display': 'inline-block'})
                 ],
@@ -235,15 +237,24 @@ def processes_layout(app, current_field):
     )
     return layout
 
-def settings_layout(app):
+def settings_layout(app, current_field):
+
+    proc_sections = [attr_options(proc.__class__.__name__) for proc in current_field.processes()]
+
+    sections = [
+        # attr_options('Model'),
+        attr_options('Analysis'),
+        attr_options('Field'),
+    ] + proc_sections
+
+
     layout = html.Div([
         html.H3('Settings'),
-        html.Div([
-            # attr_options('Model'),
-            attr_options('Analysis'),
-            ],
+        html.Div(sections,
             className="row",
         ),
+
+        html.Br(),
 
         html.Div(
             className='two columns',
@@ -295,7 +306,7 @@ def main(args):
 
         dcc.Tabs(
             id="tabs-with-classes",
-            value='overview',
+            value='processes',
             parent_className='custom-tabs',
             className='custom-tabs-container',
             children=[
@@ -325,14 +336,6 @@ def main(args):
         html.Div(id='tabs-content-classes')
     ])
 
-    # callback for left side components
-    @app.callback(
-        Output('my-graph', 'figure'),
-        # TBD: this input isn't needed, but something was required syntactically... fix it!
-        [Input('run-button', 'n_clicks')])
-    def update_output(n_clicks):
-        return field_network_graph(current_field)
-
     # callback for right side components
     @app.callback(
         Output('hover-data', 'children'),
@@ -347,8 +350,8 @@ def main(args):
 
             # display values without all the Series stuff
             rates = proc.get_emission_rates(current_analysis)
-            values = '\n'.join([f"{name:4s} {round(value.m, digits)}" for name, value in rates.items()])
-            emissions_str = f"\nEmissions: (tonne/day)\n{values}"
+            # values = '\n'.join([f"{name:4s} {round(value.m, digits)}" for name, value in rates.items()])
+            emissions_str = f"\nEmissions: (tonne/day)\n{rates}"
 
             rates = proc.get_energy_rates(current_analysis)
             values = '\n'.join([f"{name:19s} {round(value.m, digits)}" for name, value in rates.items()])
@@ -362,7 +365,20 @@ def main(args):
         Output('click-data', 'children'),
         [Input('my-graph', 'clickData')])
     def display_click_data(clickData):
-        return json.dumps(clickData, indent=2)
+        if not clickData:
+            return ''
+
+        proc_name = clickData['points'][0]['text']
+        proc = current_field.find_process(proc_name)
+        inputs  = [html.Div(html.I('Inputs'))]  + ([html.Div(str(stream)) for stream in proc.inputs]  if proc.inputs  else [html.Div('None')])
+        outputs = [html.Div(html.I('Outputs'))] + ([html.Div(str(stream)) for stream in proc.outputs] if proc.outputs else [html.Div('None')])
+
+        layout = html.Div([
+            html.P(html.B(proc_name)),
+            html.P(inputs),
+            html.P(outputs),
+        ])
+        return layout
 
     @app.callback(
         Output('model-status', 'children'),
@@ -380,8 +396,8 @@ def main(args):
         Output('emissions-table', 'children'),
         [Input('tabs-with-classes', 'value')])
     def update_result_table(tab):
-        if tab != 'processes':
-            return ""
+        # if tab != 'processes':
+        #     return ""
 
         style = {'margin-left': '16px'}
 
@@ -412,7 +428,7 @@ def main(args):
             return processes_layout(app, current_field)
 
         elif tab == 'settings':
-            return settings_layout(app)
+            return settings_layout(app,current_field)
 
     app.run_server(debug=True)
 

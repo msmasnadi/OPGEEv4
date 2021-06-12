@@ -32,14 +32,30 @@ def attr_options(class_name, direction='v'):
     from ..attributes import AttrDefs
 
     attr_defs = AttrDefs.get_instance()
-    class_attrs = attr_defs.classes[class_name]
+    class_attrs = attr_defs.classes.get(class_name)
+    if not class_attrs:
+        return ''
+
     option_dict = class_attrs.option_dict
+    if len(option_dict) == 0:
+        return ''
+
     # attr_dict   = class_attrs.attr_dict
 
     label_style = {'display': 'inline-block', 'margin': '4px'} if direction == 'h' else None
 
     layout = html.Div(
-        children=[html.Span(class_name, style={'font-weight': 'bold', 'font-size': '14px'}),]
+        children=[html.Div(class_name, style={'font-weight': 'bold', 'font-size': '14px'})],
+        className='row',
+        style={
+            'text-align': 'left',
+            'background-color': 'aliceblue',
+            'border-radius': '4px',
+            'border': '1px solid',
+            'padding': '5px',
+            'margin': '2px',
+        }
+
     )
 
     children = layout.children
@@ -53,7 +69,8 @@ def attr_options(class_name, direction='v'):
                 dcc.RadioItems(options=options, value=opt.default, labelStyle=label_style,
                                persistence=True, id=title),
             ],
-            className="two columns"
+            className="one column",
+            style={'text-align': 'left'}
         )
         children.append(radio)
 
