@@ -22,7 +22,7 @@ class CrudeOilDewatering(Process):
         heat_loss = self.attr("heat_loss")
         prime_mover_type = self.attr("prime_mover_type")
         eta_gas = (self.attr("eta_gas")).to("frac")
-        eta_eletricity = (self.attr("eta_electricity")).to("frac")
+        eta_electricity = (self.attr("eta_electricity")).to("frac")
 
         # mass rate
         input = self.find_input_stream("crude oil")
@@ -33,13 +33,12 @@ class CrudeOilDewatering(Process):
 
         oil_to_stabilization = self.find_output_stream("crude oil")
         oil_to_stabilization.set_liquid_flow_rate("oil", oil_rate)
-        oil_to_stabilization.set_temperature_and_pressure(temperature_heater_treater, pressure) if heater_treater else \
-            oil_to_stabilization.set_temperature_and_pressure(temperature, pressure)
+        temp = temperature_heater_treater if heater_treater else temperature
+        oil_to_stabilization.set_temperature_and_pressure(temp, pressure)
 
         water_to_stabilization = self.find_output_stream("water")
         water_to_stabilization.set_liquid_flow_rate("H2O", water_rate)
-        water_to_stabilization.set_temperature_and_pressure(temperature_heater_treater, pressure) if heater_treater else \
-            water_to_stabilization.set_temperature_and_pressure(temperature, pressure)
+        water_to_stabilization.set_temperature_and_pressure(temp, pressure)
 
         # dewater heater/treater
         average_oil_temp = ureg.Quantity((temperature.m+temperature_heater_treater.m)/2, "degF")
@@ -55,5 +54,5 @@ class CrudeOilDewatering(Process):
         # energy_use
         energy_use = self.energy
         energy_carrier = EN_NATURAL_GAS if prime_mover_type == "NG_engine" else EN_ELECTRICITY
-        energy_consumption = heat_duty / eta_gas if prime_mover_type == "NG_engine" else heat_duty / eta_eletricity
+        energy_consumption = heat_duty / eta_gas if prime_mover_type == "NG_engine" else heat_duty / eta_electricity
         energy_use.set_rate(energy_carrier, energy_consumption.to("mmBtu/day"))
