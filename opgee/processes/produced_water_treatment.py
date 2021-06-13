@@ -1,33 +1,43 @@
 from ..log import getLogger
 from ..process import Process
+from ..stream import Stream, PHASE_GAS, PHASE_LIQUID, PHASE_SOLID
+from opgee import ureg
 
 _logger = getLogger(__name__)
 
 
+def get_final_temperature(streams):
+    """
+    T = (m1T1 + m2T2 ) / ( m1 + m2 )
+
+
+    :param streams:
+    :return: (float) final temperature of produced water treatment process
+    """
+    total_mass = ureg.Quantity(0, "tonne/day")
+    total_mass_temp = ureg.Quantity(0, "tonne*kelvin/day")
+
+    for name in streams:
+        stream = streams[name]
+        total_mass += stream.flow_rate("H2O", PHASE_LIQUID)
+        total_mass_temp += stream.flow_rate("H2O", PHASE_LIQUID) * stream.temperature.to("kelvin")
+    result = total_mass_temp / total_mass
+    return result.to("degF")
+
+
 class ProducedWaterTreatment(Process):
     def run(self, analysis):
-        field = self.get_field()
-        model = self.model
-        water_FVF = model.const("water-FVF")
-
-        # collect the "gas_comp_*" attributes in a pandas.Series
-        # gas_comp = field.oil.gas_comp
-        # API = field.oil.API
-        # gas_oil_ratio = field.oil.gas_oil_ratio
-        # oil_comp =
-
-        # N2 = gas_comp.N2
-        # CO2 = gas_comp.CO2
-
-        # examples of getting attribute values
-        num_wells = field.attr('num_prod_wells')
-        depth = field.attr('depth')
-        GOR = field.attr('GOR')
-        _logger.info(f"{self.name}: wells:{num_wells} depth:{depth} GOR:{GOR}")
-
-        # Functions to set energy use and emission rates
-        # self.add_energy_rate(carrier, rate)
-        # self.add_energy_rates(dictionary=d)
-        # self.add_emission_rate('CO2', rate)
-        # self.add_emission_rates(CO2=rate1, N2O=rate2, ...)
         self.print_running_msg()
+
+        field = self.get_field()
+
+        # mass rate
+        input = self.find_input_streams("water", combine=True)
+        total_water_mass_rate = input.liquid_flow_rate("H2O")
+
+        treatment_temp = get_final_temperature(input)
+        treatment_press = input["separator to produced water treatment"].pressure
+
+        output = self.find_output_stream("water")
+        output.set_liquid_flow_rate("H2O", total_water_mass_rate)
+        output.set_temperature_and_pressure(treatment_temp, treatment_press)
