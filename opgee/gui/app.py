@@ -296,9 +296,9 @@ def main(args):
             header = f"Process: {proc_name}\n"
 
             # display values without all the Series stuff
-            rates, co2e = proc.get_emission_rates(current_analysis)
+            rates = proc.get_emission_rates(current_analysis)
             values = '\n'.join([f"{name:4s} {round(value.m, digits)}" for name, value in rates.items()])
-            emissions_str = f"\nEmissions: (tonne/day)\n{values}\nCO2e {round(co2e.m, digits)}"
+            emissions_str = f"\nEmissions: (tonne/day)\n{values}"
 
             rates = proc.get_energy_rates(current_analysis)
             values = '\n'.join([f"{name:19s} {round(value.m, digits)}" for name, value in rates.items()])

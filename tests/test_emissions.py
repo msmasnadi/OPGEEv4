@@ -1,48 +1,55 @@
 import pytest
 from opgee import ureg
-from opgee.emissions import Emissions
+from opgee.emissions import Emissions, EM_FUGITIVES, EM_FLARING, EM_LAND_USE, EmissionsError
 from opgee.error import OpgeeException
 
 
 def test_set_rate():
     e = Emissions()
     rate = ureg.Quantity(123.45, 'tonne/day')
-    e.set_rate('CO2', rate)
-    assert e.data['CO2'] == rate
+    e.set_rate(EM_FUGITIVES, 'CO2', rate)
+    assert e.data.loc['CO2', EM_FUGITIVES] == rate
 
 def test_set_rate_error():
-    """Test that an unknown gas name throws an OpgeeException"""
+    """Test that an unknown gas name throws an EmissionsError"""
     e = Emissions()
 
-    with pytest.raises(OpgeeException, match=r".*Unrecognized gas*"):
-        e.set_rate('H2O', 43)
+    with pytest.raises(EmissionsError, match=r".*Unrecognized gas*"):
+        e.set_rate(EM_FUGITIVES, 'H2O', 43)
 
 
 @pytest.fixture
 def emissions_of_two_gases():
     e = Emissions()
-    e.set_rates(CO2=123.45, N2O=45.6)
+    e.set_rates(EM_LAND_USE, CO2=123.45, N2O=45.6)
     return e.data
 
 @pytest.mark.parametrize(
     "gas,rate", [('CO2', 123.45), ('N2O', 45.6), ('CO', 0.0), ('CH4', 0.0), ('VOC', 0.0)]
 )
 def test_set_rates(emissions_of_two_gases, gas, rate):
-    assert emissions_of_two_gases[gas] == ureg.Quantity(rate, 'tonne/day')
+    assert emissions_of_two_gases.loc[gas, EM_LAND_USE] == ureg.Quantity(rate, 'tonne/day')
 
 
-def test_set_rates_error():
-    """Test that an unknown gas name (as keyword arg) throws an OpgeeException"""
+def test_set_rates_error1():
+    """Test that an unknown gas name (as keyword arg) throws an EmissionsError"""
     e = Emissions()
 
-    with pytest.raises(OpgeeException, match=r".*Unrecognized gas*"):
-        e.set_rates(H2O=123.45)
+    with pytest.raises(EmissionsError, match=r".*Unrecognized gas*"):
+        e.set_rates(EM_FLARING, H2O=123.45)
+
+def test_set_rates_error2():
+    """Test that an unknown category name throws an EmissionsError"""
+    e = Emissions()
+
+    with pytest.raises(EmissionsError, match=r".*Unrecognized category*"):
+        e.set_rates('Not-a-category', CO2=123.45)
 
 
 @pytest.fixture
 def emissions_for_gwp():
     e = Emissions()
-    e.set_rates(CO2=1000, N2O=10, CH4=2, CO=1, VOC=1)
+    e.set_rates(EM_FLARING, CO2=1000, N2O=10, CH4=2, CO=1, VOC=1)
     return e
 
 @pytest.mark.parametrize(
@@ -59,13 +66,13 @@ def test_gwp(test_model, emissions_for_gwp, gwp_horizon, gwp_version, expected):
     analysis = test_model.get_analysis('test')
     analysis.use_GWP(gwp_horizon, gwp_version)
 
-    rates, ghg = emissions_for_gwp.rates(gwp=analysis.gwp)
+    rates = emissions_for_gwp.rates(gwp=analysis.gwp)
 
-    # check that rates are unchanged
+    # check that original rates are unchanged
     assert all(rates == original_rates)
 
     #print(f"GHG for ({gwp_horizon}, {gwp_version} => {ghg}")
-    assert ghg == ureg.Quantity(pytest.approx(expected), 'tonne/day')
+    assert rates.loc['GHG', EM_FLARING] == ureg.Quantity(pytest.approx(expected), 'tonne/day')
 
 def test_use_GWP_error(test_model):
     with pytest.raises(OpgeeException, match=r".*GWP version must be one of*"):

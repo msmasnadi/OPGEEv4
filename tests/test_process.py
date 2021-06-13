@@ -1,6 +1,7 @@
 import pytest
 from opgee import ureg
 from opgee.energy import EN_NATURAL_GAS, EN_CRUDE_OIL
+from opgee.emissions import EM_FLARING
 from opgee.error import OpgeeException
 from opgee.process import Process, _get_subclass, Environment, Reservoir
 
@@ -26,8 +27,9 @@ def test_set_emission_rates(test_model):
     rate_ch4 = ureg.Quantity( 30.0, 'tonne/day')
     rate_n2o = ureg.Quantity(  6.0, 'tonne/day')
 
-    procA.add_emission_rates(CO2=rate_co2, CH4=rate_ch4, N2O=rate_n2o)
-    (rates, co2eq) = procA.get_emission_rates(analysis)
+    procA.add_emission_rates(EM_FLARING, CO2=rate_co2, CH4=rate_ch4, N2O=rate_n2o)
+    df = procA.get_emission_rates(analysis)
+    rates = df[EM_FLARING]
 
     assert (rates.N2O == rate_n2o and rates.CH4 == rate_ch4 and rates.CO2 == rate_co2)
 

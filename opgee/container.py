@@ -85,14 +85,11 @@ class Container(XmlInstantiable, AttributeMixin):
             and the GHG value computed using the model's current GWP settings.
         """
         # TBD: Are emissions in same units (e.g., kg CO2eq / day) or in terms of energy flow?
-        self.emissions.data[:] = 0.0
         data = self.emissions.data
-        ghgs = 0.0
+        data[:] = 0.0
 
         for child in self.children():
-            child_data, child_ghgs = child.get_emission_rates(analysis)
+            child_data = child.get_emission_rates(analysis)
             data += child_data
-            ghgs += child_ghgs
 
-        self.ghgs = ghgs
-        return (data, ghgs)
+        return data
