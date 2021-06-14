@@ -22,6 +22,8 @@ class ReservoirWellInterface(Process):
         flooding_CO2.set_temperature_and_pressure(res_temp, res_press)
 
         output = self.find_output_stream("crude oil")
+        # Check
+        self.set_iteration_value(output.components.sum().sum())
         output.copy_flow_rates_from(input)
         output.add_flow_rates_from(flooding_CO2)
 

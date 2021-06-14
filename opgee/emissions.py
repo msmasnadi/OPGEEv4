@@ -132,7 +132,7 @@ class Emissions(OpgeeObject):
     def set_rates(self, category, **kwargs):
         """
         Set the emissions rate for a single emissions category of one or more gases, given
-        as keyword arguments, e.g., set_rates(CO2=100, CH4=30, N2O=6).
+        as keyword arguments, e.g., set_rates(EM_FUGITIVES, CO2=100, CH4=30, N2O=6).
 
         :param category: (str) one of the defined emissions categories
         :param kwargs: (dict) the keyword arguments
@@ -151,7 +151,8 @@ class Emissions(OpgeeObject):
         :return: none
         """
         self._check_loc('add_rate', gas, category)
-        self.data.loc[gas, category] += rate
+        sum = self.data.loc[gas, category] + rate
+        self.data.loc[gas, category] = magnitude(sum, units="metric_ton / day")
 
     def add_rates(self, category, **kwargs):
         """
