@@ -35,9 +35,9 @@ class ProducedWaterTreatment(Process):
         input = self.find_input_streams("water", combine=True)
         total_water_mass_rate = input.liquid_flow_rate("H2O")
 
-        treatment_temp = get_final_temperature(input)
-        treatment_press = input["separator to produced water treatment"].pressure
+        treatment_temp = get_final_temperature(self.find_input_streams("water"))
+        treatment_press = input.pressure
 
-        output = self.find_output_stream("water")
-        output.set_liquid_flow_rate("H2O", total_water_mass_rate)
-        output.set_temperature_and_pressure(treatment_temp, treatment_press)
+        # output = self.find_output_stream("water")
+        # output.set_liquid_flow_rate("H2O", total_water_mass_rate)
+        # output.set_temperature_and_pressure(treatment_temp, treatment_press)
