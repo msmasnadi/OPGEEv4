@@ -99,6 +99,9 @@ class Process(XmlInstantiable, AttributeMixin):
     INPUT = 'input'
     OUTPUT = 'output'
 
+    # the processes that have set iteration values
+    iterating_processes = []
+
     def __init__(self, name, desc=None, consumes=None, produces=None, attr_dict=None,
                  cycle_start=False, impute_start=False):
         name = name or self.__class__.__name__
@@ -129,6 +132,7 @@ class Process(XmlInstantiable, AttributeMixin):
 
         self.iteration_count = 0
         self.iteration_value = None
+        self.iteration_converged = False
 
     # Optional for Process subclasses
     def _after_init(self):
@@ -414,19 +418,53 @@ class Process(XmlInstantiable, AttributeMixin):
         """
         m = self.model
 
+        # TODO: We should do this in the __init__ method of any process in a loop
+        # TODO: to avoid doing it every time we call set_iteration_value.
+        Process.add_iterating_process(self)
+
         # If previously zero, set to a small number to avoid division by zero
         prior_value = self.iteration_value
 
         if prior_value is not None:
             delta = magnitude(abs(value - prior_value))
             if delta <= m.maximum_change:
-                raise OpgeeStopIteration(f"Change <= maximum_change ({m.maximum_change}) in {self}")
+                self.iteration_converged = True
+                self.check_iterator_convergence()
 
         self.iteration_value = value
 
-    def iteration_reset(self):
+    @classmethod
+    def add_iterating_process(cls, process):
+        if process not in cls.iterating_processes:
+            cls.iterating_processes.append(process)
+
+    @classmethod
+    def check_iterator_convergence(cls):
+        """
+        Check whether the current process is the last of all process iterator values to converge.
+        stop when one converges but others have yet to do so.
+
+        :return: none.
+        :raises OpgeeStopIteration: if all processes have converged.
+        """
+        if all([proc.iteration_converged for proc in cls.iterating_processes]):
+            raise OpgeeStopIteration(f"Change <= maximum_change in all iterating processes")
+
+    @classmethod
+    def reset_all_iteration(cls):
+        """
+        Reset the iteration value and counter in all interating processes.
+
+        :return: none
+        """
+        for proc in cls.iterating_processes:
+            proc.reset_iteration()
+
+
+    def reset_iteration(self):
         self.clear_visit_count()
         self.iteration_value = None
+        self.iteration_converged = False
 
     def run(self, analysis):
         """
