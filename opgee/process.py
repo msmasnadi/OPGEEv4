@@ -130,9 +130,11 @@ class Process(XmlInstantiable, AttributeMixin):
         self.energy = Energy()
         self.emissions = Emissions()
 
+        # Support for cycles
         self.iteration_count = 0
         self.iteration_value = None
         self.iteration_converged = False
+        self.iteration_registered = False
 
     # Optional for Process subclasses
     def _after_init(self):
@@ -416,11 +418,14 @@ class Process(XmlInstantiable, AttributeMixin):
             the previously stored value) is less than the `iteration_epsilon`
             attribute for the model.
         """
+        if self.iteration_converged:
+            return  # nothing left to do
+
         m = self.model
 
-        # TODO: We should do this in the __init__ method of any process in a loop
-        # TODO: to avoid doing it every time we call set_iteration_value.
-        Process.add_iterating_process(self)
+        # register the process and remember its registration so we don't do it again
+        if not self.iteration_registered:
+            self.register_iterating_process(self)
 
         # If previously zero, set to a small number to avoid division by zero
         prior_value = self.iteration_value
@@ -434,9 +439,9 @@ class Process(XmlInstantiable, AttributeMixin):
         self.iteration_value = value
 
     @classmethod
-    def add_iterating_process(cls, process):
-        if process not in cls.iterating_processes:
-            cls.iterating_processes.append(process)
+    def register_iterating_process(cls, process):
+        process.iteration_registered = True
+        cls.iterating_processes.append(process)
 
     @classmethod
     def check_iterator_convergence(cls):
