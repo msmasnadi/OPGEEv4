@@ -1,4 +1,7 @@
 import re
+
+import pandas as pd
+
 from .core import elt_name, OpgeeObject
 from .container import Container
 from .error import OpgeeException
@@ -6,6 +9,7 @@ from .emissions import Emissions
 from .field import Field
 from .log import getLogger
 from .utils import getBooleanXML
+from .stream import Stream, carbon_to_molecule
 
 _logger = getLogger(__name__)
 
@@ -32,6 +36,7 @@ class Analysis(Container):
         # object which isn't fully instantiated until after we are.
         self.gwp = None
 
+
     def _after_init(self):
         self.model = model = self.parent  # also assign to self.model for clarity
 
@@ -55,6 +60,9 @@ class Analysis(Container):
         gwp_version = self.attr('GWP_version')
 
         self.use_GWP(gwp_horizon, gwp_version)
+
+        self.gwp_stream = pd.Series({name: self.GWP(name) for name in Stream.components},
+                                    dtype="pint[frac]")
 
     def get_field(self, name, raiseError=True) -> Field:
         """
@@ -121,7 +129,18 @@ class Analysis(Container):
         :param gas: (str) a gas for which a GWP has been defined. Current list is CO2, CO, CH4, N2O, and VOC.
         :return: (int) GWP value
         """
-        return self.gwp[gas]
+        hydrocarbons = Stream._hydrocarbons
+        carbon_number = gas
+        gas = carbon_to_molecule(gas) if gas in hydrocarbons else gas
+        non_methane_hydrocarbons = Stream._non_mathane_hydrocarbons
+
+        if carbon_number in non_methane_hydrocarbons:
+            result = self.gwp["VOC"]
+        elif gas in self.gwp:
+            result = self.gwp[gas]
+        else:
+            result = 0
+        return result
 
     def run(self):
         """

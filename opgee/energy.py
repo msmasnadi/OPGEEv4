@@ -23,6 +23,7 @@ EN_RESID = 'Residual fuel'
 EN_PETCOKE = 'Pet. coke'
 EN_ELECTRICITY = 'Electricity'
 
+
 class Energy(OpgeeObject):
     """
     Energy is an object wrapper around a pandas.Series holding energy consumption

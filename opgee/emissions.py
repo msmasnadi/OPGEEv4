@@ -16,11 +16,12 @@ from .log import getLogger
 _logger = getLogger(__name__)
 
 EM_COMBUSTION = 'Combustion'
-EM_LAND_USE   = 'Land-use'
-EM_VENTING    = 'Venting'
-EM_FLARING    = 'Flaring'
-EM_FUGITIVES  = 'Fugitives'
-EM_OTHER      = 'Other'
+EM_LAND_USE = 'Land-use'
+EM_VENTING = 'Venting'
+EM_FLARING = 'Flaring'
+EM_FUGITIVES = 'Fugitives'
+EM_OTHER = 'Other'
+
 
 class EmissionsError(OpgeeException):
     def __init__(self, func_name, category, gas):
@@ -47,10 +48,10 @@ class Emissions(OpgeeObject):
     #: current settings for GWP values and stored in the a row with index 'GHG'.
     emissions = ['VOC', 'CO', 'CH4', 'N2O', 'CO2']
 
-    # for faster test for inclusion in this list
-    _emissions_set = set(emissions)
-
     indices = emissions + ['GHG']
+
+    # for faster test for inclusion in this list
+    _emissions_set = set(indices)
 
     categories = [EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES, EM_OTHER]
     _categories_set = set(categories)

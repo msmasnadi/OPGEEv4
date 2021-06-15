@@ -4,6 +4,8 @@
 .. Copyright (c) 2021 Richard Plevin and Adam Brandt
    See the https://opensource.org/licenses/MIT for license details.
 '''
+import pandas as pd
+
 from . import ureg
 from .attributes import AttrDefs, AttributeMixin
 from .core import XmlInstantiable, elt_name, instantiate_subelts, magnitude
@@ -532,6 +534,39 @@ class Process(XmlInstantiable, AttributeMixin):
     #
     #     value = df[name].mean() if trial is None else df.loc[name, trial]
     #     return value
+
+    def get_process_EF(self):
+        """
+        Look up emission factor for this process to calculate the combustion emission.
+        For user-defined processes not listed in the process_EF table, the Process subclass must implement this
+        method to override to the lookup.
+
+        :return: (float) a pandas series of emission factor
+        for natural gas, upgrader proc.gas, NGL, diesel, residual fuel, pet.coke
+        (unit = gGHG/mmBtu)
+        """
+        process_EF_df = self.model.process_EF_df
+        tbl_name = "process-specific-EF"
+
+        # Look up the process by name, but fall back to the classname if not found by name
+        name = self.name
+        if name not in process_EF_df.index:
+            classname = self.__class__.__name__
+            if classname != name:
+                if classname in process_EF_df.index:
+                    name = classname
+                else:
+                    raise OpgeeException(f"Neither '{name}' nor '{classname}' was found in table '{tbl_name}'")
+            else:
+                raise OpgeeException(f"'Class {classname}' was not found in table '{tbl_name}'")
+
+        emission_series = pd.Series({fuel: process_EF_df.loc[name][fuel] for fuel in process_EF_df.columns},
+                                    dtype="pint[g/mmBtu]")
+        return emission_series
+
+    def get_gas_emission(self, stream):
+        gwp_dict = self.model.gwp_dict
+
 
     @classmethod
     def from_xml(cls, elt):

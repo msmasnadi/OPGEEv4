@@ -78,10 +78,11 @@ class Stream(XmlInstantiable, AttributeMixin):
     # HCs with 1-60 carbon atoms, i.e., C1, C2, ..., C60
     max_carbon_number = 50
     _hydrocarbons = [f'C{n}' for n in range(1, max_carbon_number + 1)]
+    _non_mathane_hydrocarbons = [f'C{n}' for n in range(2, max_carbon_number + 1)]
     _solids = ['PC']  # petcoke
     _liquids = ['oil']
     # _hc_molecules = ['CH4', 'C2H6', 'C3H8', 'C4H10']
-    _gases = ['N2', 'O2', 'CO2', 'H2O', 'H2', 'H2S', 'SO2']
+    _gases = ['N2', 'O2', 'CO2', 'H2O', 'H2', 'H2S', 'SO2', "CO"]
     _other = ['Na+', 'Cl-', 'Si-']
 
     #: The stream components tracked by OPGEE. This list can be extended by calling ``Stream.extend_components(names)``,
@@ -395,3 +396,7 @@ class Stream(XmlInstantiable, AttributeMixin):
             comp_df.loc[comp_name, phase] = rate
 
         return obj
+
+    @property
+    def hydrocarbons(self):
+        return self._hydrocarbons
