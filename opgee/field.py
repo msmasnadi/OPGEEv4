@@ -263,7 +263,7 @@ class Field(Container):
 
     def iteration_reset(self):
         for proc in self.processes():
-            proc.iteration_reset()
+            proc.reset_iteration()
 
     def find_stream(self, name, raiseError=True):
         """
