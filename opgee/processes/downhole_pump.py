@@ -138,8 +138,6 @@ class DownholePump(Process):
         fugitive_emission_stream.components[PHASE_GAS] = gwp_stream * gas_fugitives.components[PHASE_GAS]
         emissions.add_from_stream(EM_FUGITIVES, fugitive_emission_stream)
 
-
-
     def impute(self):
         output = self.find_output_stream("crude oil")
 
