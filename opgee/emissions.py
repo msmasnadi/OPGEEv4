@@ -6,7 +6,6 @@
 '''
 
 import pandas as pd
-import pint_pandas
 from . import ureg
 from .core import OpgeeObject, magnitude
 from .error import OpgeeException
@@ -177,6 +176,7 @@ class Emissions(OpgeeObject):
         """
         self.add_rate(category, 'CO2', stream.gas_flow_rate('CO2'))
         self.add_rate(category, 'CH4', stream.gas_flow_rate('C1'))
+        self.add_rate(category, "CO", stream.gas_flow_rate("CO"))
 
         # TBD: where to get CO and N2O?
 
@@ -184,3 +184,5 @@ class Emissions(OpgeeObject):
         VOCs = [f'C{n}' for n in range(2, Stream.max_carbon_number + 1)]  # skip C1 == CH4
         voc_rate = stream.components.loc[VOCs, PHASE_GAS].sum()
         self.add_rate(category, 'VOC', voc_rate)
+        GHG = self.data[EM_FUGITIVES].sum()
+        self.add_rate(category, "GHG", GHG)

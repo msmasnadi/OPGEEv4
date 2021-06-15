@@ -563,9 +563,10 @@ class Process(XmlInstantiable, AttributeMixin):
         emission_series = pd.Series({fuel: process_EF_df.loc[name][fuel] for fuel in process_EF_df.columns},
                                     dtype="pint[g/mmBtu]")
         return emission_series
-
-    def get_gas_emission(self, stream):
-        gwp_dict = self.model.gwp_dict
+    # @staticmethod
+    # def get_gas_emission(gwp_stream, stream):
+    #     emission = gwp_stream * stream
+    #
 
 
     @classmethod

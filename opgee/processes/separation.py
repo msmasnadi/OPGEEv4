@@ -2,11 +2,11 @@ from ..log import getLogger
 from ..process import Process
 
 from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY
-from ..emissions import Emissions
 from .. import ureg
 from ..stream import Stream, PHASE_GAS, PHASE_LIQUID, PHASE_SOLID
 from ..thermodynamics import rho
 from ..compressor import Compressor
+from ..emissions import EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
 
 _logger = getLogger(__name__)
 
@@ -80,6 +80,16 @@ class Separation(Process):
 
         # emission rate
         emissions = self.emissions
+        energy_for_combustion = energy_use.data.drop("Electricity")
+        process_EF = self.get_process_EF()
+        combusion_emission = (energy_for_combustion * process_EF).sum()
+        emissions.add_rate(EM_COMBUSTION, "GHG", combusion_emission)
+
+        gwp_stream = analysis.gwp_stream
+
+        fugitive_emission_stream = Stream("fugitive_emission", temperature=0, pressure=0)
+        fugitive_emission_stream.components[PHASE_GAS] = gwp_stream * gas_fugitives.components[PHASE_GAS]
+        emissions.add_from_stream(EM_FUGITIVES, fugitive_emission_stream)
 
     def impute(self):
         field = self.get_field()
@@ -229,7 +239,6 @@ class Separation(Process):
                        compression_ratio_per_stages,
                        gas_compression_volume_stages,
                        num_of_compression_stages):
-
             work_sum = Compressor.get_compressor_work(field, inlet_temp, inlet_press,
                                                       gas_stream, compression_ratio, num_of_compression)
             horsepower = work_sum * gas_compression_volume
@@ -237,6 +246,3 @@ class Separation(Process):
             brake_horsepower_of_stages.append(brake_horsepower)
 
         return brake_horsepower_of_stages
-
-
-

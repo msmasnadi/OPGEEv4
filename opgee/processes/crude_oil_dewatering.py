@@ -2,7 +2,7 @@ from ..log import getLogger
 from ..process import Process
 from ..stream import PHASE_LIQUID
 from opgee import ureg
-import numpy as np
+from ..emissions import EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
 from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY
 
 _logger = getLogger(__name__)
@@ -56,3 +56,10 @@ class CrudeOilDewatering(Process):
         energy_carrier = EN_NATURAL_GAS if prime_mover_type == "NG_engine" else EN_ELECTRICITY
         energy_consumption = heat_duty / eta_gas if prime_mover_type == "NG_engine" else heat_duty / eta_electricity
         energy_use.set_rate(energy_carrier, energy_consumption.to("mmBtu/day"))
+
+        # emissions
+        emissions = self.emissions
+        energy_for_combustion = energy_use.data.drop("Electricity")
+        process_EF = self.get_process_EF()
+        combusion_emission = (energy_for_combustion * process_EF).sum()
+        emissions.add_rate(EM_COMBUSTION, "GHG", combusion_emission)
