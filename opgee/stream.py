@@ -75,7 +75,7 @@ class Stream(XmlInstantiable, AttributeMixin):
     """
     _phases = [PHASE_SOLID, PHASE_LIQUID, PHASE_GAS]
 
-    # HCs with 1-60 carbon atoms, i.e., C1, C2, ..., C60
+    # HCs with 1-60 carbon atoms, i.e., C1, C2, ..., C50
     max_carbon_number = 50
     _hydrocarbons = [f'C{n}' for n in range(1, max_carbon_number + 1)]
     _non_mathane_hydrocarbons = [f'C{n}' for n in range(2, max_carbon_number + 1)]

@@ -87,11 +87,7 @@ class Separation(Process):
         combusion_emission = (energy_for_combustion * process_EF).sum()
         emissions.add_rate(EM_COMBUSTION, "GHG", combusion_emission)
 
-        gwp_stream = analysis.gwp_stream
-
-        fugitive_emission_stream = Stream("fugitive_emission", temperature=0, pressure=0)
-        fugitive_emission_stream.components[PHASE_GAS] = gwp_stream * gas_fugitives.components[PHASE_GAS]
-        emissions.add_from_stream(EM_FUGITIVES, fugitive_emission_stream)
+        emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
 
     def impute(self):
         field = self.get_field()

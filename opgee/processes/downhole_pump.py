@@ -128,15 +128,12 @@ class DownholePump(Process):
         # emission
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")
-        process_EF = self.get_process_EF()
+        process_EF = self.get_process_EF() # pandas Series
         combusion_emission = (energy_for_combustion * process_EF).sum()
         emissions.add_rate(EM_COMBUSTION, "GHG", combusion_emission)
 
-        gwp_stream = analysis.gwp_stream
+        emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
 
-        fugitive_emission_stream = Stream("fugitive_emission", temperature=0, pressure=0)
-        fugitive_emission_stream.components[PHASE_GAS] = gwp_stream * gas_fugitives.components[PHASE_GAS]
-        emissions.add_from_stream(EM_FUGITIVES, fugitive_emission_stream)
 
     def impute(self):
         output = self.find_output_stream("crude oil")
