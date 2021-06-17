@@ -316,7 +316,6 @@ class Process(XmlInstantiable, AttributeMixin):
         if not streams and raiseError:
             raise OpgeeException(f"{self}: no {direction} streams contain '{stream_type}'")
 
-        result = Combine.combine_streams(oil.API, streams)
         return Combine.combine_streams(oil.API, streams) if combine else (streams if as_list else {s.name: s for s in streams})
 
     def find_input_streams(self, stream_type, combine=False, as_list=False, raiseError=True):
