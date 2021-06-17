@@ -1,4 +1,4 @@
-from ..combine_streams import Combine
+from ..combine_streams import combine_streams
 from ..log import getLogger
 from ..process import Process
 
@@ -102,7 +102,7 @@ class Separation(Process):
         loss_rate = (1 / (1 - loss_rate)).to("frac")
         gas_after.multiply_flow_rates(loss_rate)
 
-        output = Combine.combine_streams(oil.API, [oil_after, gas_after, water_after])
+        output = combine_streams([oil_after, gas_after, water_after], oil.API, wellhead_press)
 
         input = self.find_input_stream("crude oil")
         input.set_temperature_and_pressure(wellhead_temp, wellhead_press)

@@ -17,7 +17,7 @@ from .log import getLogger
 from .stream import Stream
 from .utils import getBooleanXML
 from .drivers import Drivers
-from .combine_streams import Combine
+from .combine_streams import combine_streams
 
 _logger = getLogger(__name__)
 
@@ -316,7 +316,7 @@ class Process(XmlInstantiable, AttributeMixin):
         if not streams and raiseError:
             raise OpgeeException(f"{self}: no {direction} streams contain '{stream_type}'")
 
-        return Combine.combine_streams(oil.API, streams) if combine else (streams if as_list else {s.name: s for s in streams})
+        return combine_streams(streams, oil.API, streams[0].pressure) if combine else (streams if as_list else {s.name: s for s in streams})
 
     def find_input_streams(self, stream_type, combine=False, as_list=False, raiseError=True):
         """
