@@ -108,5 +108,9 @@
 		<Stream src="After" dst="ReservoirWellInterface" name="flooding CO2" impute="False">
 			<Contains>CO2</Contains>
 		</Stream>
+
+		<Stream src="After" dst="ProducedWaterTreatment" name="blowdown recycled to treatment" impute="False">
+			<Contains>water</Contains>
+		</Stream>
 	</Field>
 </Model>

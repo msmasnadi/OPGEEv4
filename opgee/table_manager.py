@@ -37,7 +37,8 @@ class TableManager(OpgeeObject):
         TableDef('transport-specific-EF', index_col=('Mode', 'Fuel'), skiprows=1, units='g/mmbtu'),
         TableDef('stationary-application-EF', index_col=('Fuel', 'Application'), skiprows=1, units='g/mmbtu'),
         TableDef('venting_fugitives_by_process', index_col=False, units='fraction'),
-        TableDef("process-specific-EF", index_col=("Process"),skiprows=1, units="g/mmbtu")
+        TableDef("process-specific-EF", index_col=("Process"),skiprows=1, units="g/mmbtu"),
+        TableDef("water-treatment", index_col=("Stages", "Treatment", "Code"), skiprows=2)
         # TODO: see updates from OGPEE github
         # TableDef('separator_capacity', index_col=False, skiprows=1),
     ]

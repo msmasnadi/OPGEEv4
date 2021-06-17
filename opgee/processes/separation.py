@@ -1,3 +1,4 @@
+from ..combine_streams import Combine
 from ..log import getLogger
 from ..process import Process
 
@@ -91,6 +92,7 @@ class Separation(Process):
 
     def impute(self):
         field = self.get_field()
+        oil = field.oil
 
         wellhead_temp = field.attr("wellhead_temperature")
         wellhead_press = field.attr("wellhead_pressure")
@@ -100,8 +102,7 @@ class Separation(Process):
         loss_rate = (1 / (1 - loss_rate)).to("frac")
         gas_after.multiply_flow_rates(loss_rate)
 
-        output = Stream.combine([oil_after, gas_after, water_after],
-                                temperature=wellhead_temp, pressure=wellhead_press)
+        output = Combine.combine_streams(oil.API, [oil_after, gas_after, water_after])
 
         input = self.find_input_stream("crude oil")
         input.set_temperature_and_pressure(wellhead_temp, wellhead_press)
