@@ -409,16 +409,20 @@ class Process(XmlInstantiable, AttributeMixin):
 
     def set_iteration_value(self, value):
         """
-        Store the value of a variable used to determine when an iteration loop
-        has stabilized. When set, if the absolute value of the percent change
-        in the value is less than the model's `iteration_epsilon`, the run loop
-        is terminated by throwing an OpgeeStopIteration exception.
+        Store the value of one or more variables used to determine when an
+        iteration loop has stabilized. When set, if the absolute value of the
+        change in each value is less than the model's `maximum_change`, the
+        run loop is terminated by throwing an OpgeeStopIteration exception.
 
-        :param value: (float) the value of a designated 'change' variable
+        :param value: (float or tuple of floats) the values of designated
+            'change' variables to compare each iteration. If a tuple is passed,
+            all values in the tuple must be within `maximum_change` of the
+            previously stored value.
         :return: none
-        :raises: OpgeeStopIteration if the percent change in `value` (versus
-            the previously stored value) is less than the `iteration_epsilon`
-            attribute for the model.
+        :raises: OpgeeStopIteration if the change in `value` (versus the
+            previously stored value) is less than the `maximum_change`
+            attribute for the model. If a tuple of floats is passed in `value`,
+            all of them must pass this test.
         """
         if self.iteration_converged:
             return  # nothing left to do
@@ -432,13 +436,26 @@ class Process(XmlInstantiable, AttributeMixin):
         # If previously zero, set to a small number to avoid division by zero
         prior_value = self.iteration_value
 
-        if prior_value is not None:
+        # helper function to check for convergence of each element of a tuple
+        def converged(prior_value, value):
             delta = magnitude(abs(value - prior_value))
-            if delta <= m.maximum_change:
+            return delta <= m.maximum_change
+
+        if prior_value is not None:
+            if type(prior_value) != type(value):
+                raise OpgeeException(f"Type of iterator value changed; was: {type(prior_value)} is: {type(value)}")
+
+            pairs = zip(prior_value, value) if isinstance(value, (tuple, list)) \
+                    else [(prior_value, value)]  # make a list of the one pair
+
+            if all([converged(old, new) for old, new in pairs]):
                 self.iteration_converged = True
+                # Raise OpgeeStopIteration exception if all process's
+                # iterator values have converged.
                 self.check_iterator_convergence()
 
         self.iteration_value = value
+
 
     @classmethod
     def register_iterating_process(cls, process):
@@ -585,8 +602,8 @@ class Process(XmlInstantiable, AttributeMixin):
         method to override to the lookup.
 
         :return: (float) a pandas series of emission factor
-        for natural gas, upgrader proc.gas, NGL, diesel, residual fuel, pet.coke
-        (unit = gGHG/mmBtu)
+           for natural gas, upgrader proc.gas, NGL, diesel, residual fuel, pet.coke
+           (unit = gGHG/mmBtu)
         """
         process_EF_df = self.model.process_EF_df
         tbl_name = "process-specific-EF"
