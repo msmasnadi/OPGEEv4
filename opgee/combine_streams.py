@@ -28,10 +28,10 @@ def combine_streams(streams, API, pressure, temperature=None):
 
     comp_matrix = sum(matrices)
 
-    non_zero_streams = [stream for stream in streams if stream.components.sum().sum() != 0]
+    non_zero_streams = [stream for stream in streams if stream.total_flow_rate() != 0]
     stream_temperature = pd.Series([stream.temperature.to("kelvin").m for stream in non_zero_streams],
                                    dtype="pint[kelvin]")
-    stream_mass_rate = pd.Series([stream.components.sum().sum().m for stream in non_zero_streams],
+    stream_mass_rate = pd.Series([stream.total_flow_rate().m for stream in non_zero_streams],
                                  dtype="pint[tonne/day]")
     stream_Cp = pd.Series([mixture_heat_capacity(API, stream).m for stream in non_zero_streams],
                           dtype="pint[btu/degF/day]")
@@ -51,7 +51,7 @@ def mixture_heat_capacity(API, stream):
     :return: (float) heat capacity of mixture (unit = btu/degF/day)
     """
     temperature = stream.temperature
-    total_mass_rate = stream.components.sum().sum()
+    total_mass_rate = stream.total_flow_rate()
     oil_heat_capacity = stream.hydrocarbon_rate(PHASE_LIQUID) * Oil.specific_heat(API, temperature)
     water_heat_capacity = Water.heat_capacity(stream)
     gas_heat_capacity = Gas.heat_capacity(stream)

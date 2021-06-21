@@ -141,7 +141,7 @@ def emissions_table(procs):
 
     tbl = dash_table.DataTable(
         columns=columns,
-        data=df.applymap(get_magnitude).to_dict('records'),
+        data=df.applymap(get_magnitude).to_dict('records'),  # TBD: Force scientific notation
         style_as_list_view=True,
         style_cell={'padding': '5px'},
         style_header={
@@ -388,6 +388,7 @@ def main(args):
             # TBD: get user selections from radio buttons and pass to run method
             # TBD: have run method take optional args for all the run parameters, defaulting to what's in the model file
             current_field.run(current_analysis)
+            current_field.report(current_analysis)
             return "Model has been run"
         else:
             return f"Model has not been run"

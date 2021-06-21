@@ -189,7 +189,7 @@ class Stream(XmlInstantiable, AttributeMixin):
 
         :return:
         """
-        return self.components.sum().sum()
+        return self.components.sum(axis='columns').sum()
 
     def hydrocarbons_rates(self, phase):
         """

@@ -78,10 +78,4 @@ class ProducedWaterTreatment(Process):
 
         #emission
         emissions = self.emissions
-
-
-
-
-
-
-
+        pass
