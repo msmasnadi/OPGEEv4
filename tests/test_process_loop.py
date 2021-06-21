@@ -47,6 +47,8 @@ class Proc3(Process):
         h2_stream.set_gas_flow_rate('H2', h2_rate)
         co2_stream.set_gas_flow_rate('CO2', co2_rate)
 
+        self.set_iteration_value((h2_rate, co2_rate)) # test multiple values
+
 
 class Proc4(Process):
     def run(self, analysis):

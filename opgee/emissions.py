@@ -6,7 +6,6 @@
 '''
 
 import pandas as pd
-import pint_pandas
 from . import ureg
 from .core import OpgeeObject, magnitude
 from .error import OpgeeException
@@ -16,11 +15,12 @@ from .log import getLogger
 _logger = getLogger(__name__)
 
 EM_COMBUSTION = 'Combustion'
-EM_LAND_USE   = 'Land-use'
-EM_VENTING    = 'Venting'
-EM_FLARING    = 'Flaring'
-EM_FUGITIVES  = 'Fugitives'
-EM_OTHER      = 'Other'
+EM_LAND_USE = 'Land-use'
+EM_VENTING = 'Venting'
+EM_FLARING = 'Flaring'
+EM_FUGITIVES = 'Fugitives'
+EM_OTHER = 'Other'
+
 
 class EmissionsError(OpgeeException):
     def __init__(self, func_name, category, gas):
@@ -47,10 +47,10 @@ class Emissions(OpgeeObject):
     #: current settings for GWP values and stored in the a row with index 'GHG'.
     emissions = ['VOC', 'CO', 'CH4', 'N2O', 'CO2']
 
-    # for faster test for inclusion in this list
-    _emissions_set = set(emissions)
-
     indices = emissions + ['GHG']
+
+    # for faster test for inclusion in this list
+    _emissions_set = set(indices)
 
     categories = [EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES, EM_OTHER]
     _categories_set = set(categories)
@@ -176,6 +176,7 @@ class Emissions(OpgeeObject):
         """
         self.add_rate(category, 'CO2', stream.gas_flow_rate('CO2'))
         self.add_rate(category, 'CH4', stream.gas_flow_rate('C1'))
+        self.add_rate(category, "CO", stream.gas_flow_rate("CO"))
 
         # TBD: where to get CO and N2O?
 
@@ -183,3 +184,5 @@ class Emissions(OpgeeObject):
         VOCs = [f'C{n}' for n in range(2, Stream.max_carbon_number + 1)]  # skip C1 == CH4
         voc_rate = stream.components.loc[VOCs, PHASE_GAS].sum()
         self.add_rate(category, 'VOC', voc_rate)
+        GHG = self.data[EM_FUGITIVES].sum()
+        self.add_rate(category, "GHG", GHG)

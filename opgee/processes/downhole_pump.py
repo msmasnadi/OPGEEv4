@@ -3,7 +3,9 @@ from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
 from ..process import Process
 from ..log import getLogger
 from opgee import ureg
-from opgee.stream import Stream, PHASE_GAS, PHASE_LIQUID, PHASE_SOLID
+from opgee.stream import Stream
+from ..stream import Stream, PHASE_GAS, PHASE_LIQUID, PHASE_SOLID
+from ..emissions import Emissions, EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
 
 _logger = getLogger(__name__)
 
@@ -39,7 +41,7 @@ class DownholePump(Process):
 
         output = self.find_output_stream("crude oil")
         # Check
-        self.set_iteration_value(output.components.sum().sum())
+        self.set_iteration_value(output.total_flow_rate())
         output.copy_flow_rates_from(input)
         output.subtract_gas_rates_from(gas_fugitives)
         output.set_temperature_and_pressure(wellhead_temp, wellhead_press)
@@ -122,6 +124,16 @@ class DownholePump(Process):
         else:
             energy_carrier = EN_DIESEL
         energy_use.set_rate(energy_carrier, energy_consumption_sum)
+
+        # emission
+        emissions = self.emissions
+        energy_for_combustion = energy_use.data.drop("Electricity")
+        process_EF = self.get_process_EF() # pandas Series
+        combusion_emission = (energy_for_combustion * process_EF).sum()
+        emissions.add_rate(EM_COMBUSTION, "GHG", combusion_emission)
+
+        emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
+
 
     def impute(self):
         output = self.find_output_stream("crude oil")

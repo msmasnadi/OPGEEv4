@@ -4,6 +4,8 @@
 .. Copyright (c) 2021 Richard Plevin and Adam Brandt
    See the https://opensource.org/licenses/MIT for license details.
 '''
+import pandas as pd
+
 from . import ureg
 from .attributes import AttrDefs, AttributeMixin
 from .core import XmlInstantiable, elt_name, instantiate_subelts, magnitude
@@ -15,6 +17,7 @@ from .log import getLogger
 from .stream import Stream
 from .utils import getBooleanXML
 from .drivers import Drivers
+from .combine_streams import combine_streams
 
 _logger = getLogger(__name__)
 
@@ -301,6 +304,9 @@ class Process(XmlInstantiable, AttributeMixin):
         :return: (Stream, list or dict of Streams) depends on various keyword args
         :raises: OpgeeException if no processes handling `stream_type` are found and `raiseError` is True
         """
+        field = self.get_field()
+        oil = field.oil
+
         if combine and as_list:
             raise OpgeeException(f"_find_streams_by_type: both 'combine' and 'as_list' cannot be True")
 
@@ -310,7 +316,7 @@ class Process(XmlInstantiable, AttributeMixin):
         if not streams and raiseError:
             raise OpgeeException(f"{self}: no {direction} streams contain '{stream_type}'")
 
-        return Stream.combine(streams) if combine else (streams if as_list else {s.name: s for s in streams})
+        return combine_streams(streams, oil.API, streams[0].pressure) if combine else (streams if as_list else {s.name: s for s in streams})
 
     def find_input_streams(self, stream_type, combine=False, as_list=False, raiseError=True):
         """
@@ -407,16 +413,20 @@ class Process(XmlInstantiable, AttributeMixin):
 
     def set_iteration_value(self, value):
         """
-        Store the value of a variable used to determine when an iteration loop
-        has stabilized. When set, if the absolute value of the percent change
-        in the value is less than the model's `iteration_epsilon`, the run loop
-        is terminated by throwing an OpgeeStopIteration exception.
+        Store the value of one or more variables used to determine when an
+        iteration loop has stabilized. When set, if the absolute value of the
+        change in each value is less than the model's `maximum_change`, the
+        run loop is terminated by throwing an OpgeeStopIteration exception.
 
-        :param value: (float) the value of a designated 'change' variable
+        :param value: (float or tuple of floats) the values of designated
+            'change' variables to compare each iteration. If a tuple is passed,
+            all values in the tuple must be within `maximum_change` of the
+            previously stored value.
         :return: none
-        :raises: OpgeeStopIteration if the percent change in `value` (versus
-            the previously stored value) is less than the `iteration_epsilon`
-            attribute for the model.
+        :raises: OpgeeStopIteration if the change in `value` (versus the
+            previously stored value) is less than the `maximum_change`
+            attribute for the model. If a tuple of floats is passed in `value`,
+            all of them must pass this test.
         """
         if self.iteration_converged:
             return  # nothing left to do
@@ -430,13 +440,26 @@ class Process(XmlInstantiable, AttributeMixin):
         # If previously zero, set to a small number to avoid division by zero
         prior_value = self.iteration_value
 
-        if prior_value is not None:
+        # helper function to check for convergence of each element of a tuple
+        def converged(prior_value, value):
             delta = magnitude(abs(value - prior_value))
-            if delta <= m.maximum_change:
+            return delta <= m.maximum_change
+
+        if prior_value is not None:
+            if type(prior_value) != type(value):
+                raise OpgeeException(f"Type of iterator value changed; was: {type(prior_value)} is: {type(value)}")
+
+            pairs = zip(prior_value, value) if isinstance(value, (tuple, list)) \
+                    else [(prior_value, value)]  # make a list of the one pair
+
+            if all([converged(old, new) for old, new in pairs]):
                 self.iteration_converged = True
+                # Raise OpgeeStopIteration exception if all process's
+                # iterator values have converged.
                 self.check_iterator_convergence()
 
         self.iteration_value = value
+
 
     @classmethod
     def register_iterating_process(cls, process):
@@ -575,6 +598,40 @@ class Process(XmlInstantiable, AttributeMixin):
     #
     #     value = df[name].mean() if trial is None else df.loc[name, trial]
     #     return value
+
+    def get_process_EF(self):
+        """
+        Look up emission factor for this process to calculate the combustion emission.
+        For user-defined processes not listed in the process_EF table, the Process subclass must implement this
+        method to override to the lookup.
+
+        :return: (float) a pandas series of emission factor
+           for natural gas, upgrader proc.gas, NGL, diesel, residual fuel, pet.coke
+           (unit = gGHG/mmBtu)
+        """
+        process_EF_df = self.model.process_EF_df
+        tbl_name = "process-specific-EF"
+
+        # Look up the process by name, but fall back to the classname if not found by name
+        name = self.name
+        if name not in process_EF_df.index:
+            classname = self.__class__.__name__
+            if classname != name:
+                if classname in process_EF_df.index:
+                    name = classname
+                else:
+                    raise OpgeeException(f"Neither '{name}' nor '{classname}' was found in table '{tbl_name}'")
+            else:
+                raise OpgeeException(f"'Class {classname}' was not found in table '{tbl_name}'")
+
+        emission_series = pd.Series({fuel: process_EF_df.loc[name][fuel] for fuel in process_EF_df.columns},
+                                    dtype="pint[g/mmBtu]")
+        return emission_series
+    # @staticmethod
+    # def get_gas_emission(gwp_stream, stream):
+    #     emission = gwp_stream * stream
+    #
+
 
     @classmethod
     def from_xml(cls, elt):

@@ -544,15 +544,15 @@ class Oil(AbstractSubstance):
         result = mass_energy_density * mass_flow_rate
         return result.to("mmbtu/day")
 
-    def heat_capacity(self, temperature):
+    @staticmethod
+    def specific_heat(API, temperature):
         """
-        Campbell heat capacity of oil
+        Campbell specific heat capacity of oil
         Campbell equation from Manning and Thompson (1991). cp = (-1.39e-6 * T + 1.847e-3)*API+6.32e-4*T+0.352
 
         :param temperature:
-        :return:(float) heat capacity of crude oil (unit = btu/lb/degF)
+        :return:(float) specific heat capacity of crude oil (unit = btu/lb/degF)
         """
-        API = self.API
         API = API.m
         temperature = temperature.to("degF")
         temperature = temperature.m
@@ -642,6 +642,24 @@ class Gas(AbstractSubstance):
 
         ratio_of_specific_heat = specific_heat_press / specific_heat_volm
         return ratio_of_specific_heat.to("frac")
+
+    @staticmethod
+    def heat_capacity(stream):
+        """
+
+        :param stream:
+        :return: (float) gas heat capacity (unit = btu/degF/day)
+        """
+        temperature = stream.temperature
+        temperature = temperature.to("kelvin").m
+        mass_flow_rate = stream.components.query("gas > 0.0").gas  # pandas.Series
+        if mass_flow_rate.empty:
+            return ureg.Quantity(0, "btu/degF/day")
+        specific_heat = pd.Series({name: Cp(name, temperature, with_units=False) for name in mass_flow_rate.index},
+                                  dtype="pint[joule/g/kelvin]")
+        heat_capacity = (mass_flow_rate * specific_heat).sum()
+
+        return heat_capacity.to("btu/degF/day")
 
     def uncorrected_pseudocritical_temperature_and_pressure(self, stream):
         """
@@ -864,17 +882,19 @@ class Water(AbstractSubstance):
         self.TDS = field.attr("total_dissolved_solids")  # mg/L
         # TODO: this can be improved by adding ions in the H2O in the solution
         self.specific_gravity = ureg.Quantity(1 + self.TDS.m * 0.695 * 1e-6, "frac")
-        self.heat_capacity = ureg.Quantity(1, "btu/lb/degF")
 
-    def density(self):
+    def density(self, temperature=None, pressure=None):
         """
         water density
 
         :return: (float) water density (unit = kg/m3)
         """
 
+        temp = temperature if temperature is not None else self.std_temp
+        press = pressure if pressure is not None else self.std_press
+
         specifc_gravity = self.specific_gravity
-        water_density_STP = rho("H2O", self.std_temp, self.std_press, PHASE_LIQUID)
+        water_density_STP = rho("H2O", temp, press, PHASE_LIQUID)
         density = specifc_gravity * water_density_STP
 
         return density.to("kg/m**3")
@@ -890,3 +910,29 @@ class Water(AbstractSubstance):
 
         volume_flow_rate = (mass_rate / density).to("bbl_water/day")
         return volume_flow_rate
+
+    @staticmethod
+    def specific_heat(temperature):
+        """
+
+        :param temperature:
+        :return:(float) water specific heat (unit = btu/lb/degF)
+        """
+        temperature = temperature.to("kelvin").m
+        specific_heat = Cp("H2O", temperature)
+        return specific_heat.to("btu/lb/degF")
+
+    @classmethod
+    def heat_capacity(cls, stream):
+        """
+
+        :param stream:
+        :return: (float) water heat capacity (unit = btu/degF/day)
+        """
+        temperature = stream.temperature
+        mass_flow_rate = stream.components.loc["H2O", PHASE_LIQUID]
+        specific_heat = cls.specific_heat(temperature)
+
+        heat_capacity = mass_flow_rate * specific_heat
+        return heat_capacity.to("btu/degF/day")
+

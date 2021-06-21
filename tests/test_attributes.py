@@ -7,6 +7,7 @@ from opgee.core import instantiate_subelts
 from opgee.error import OpgeeException, AttributeError
 from opgee.model import Model
 
+
 @pytest.fixture
 def attr_classes():
     xml = ET.XML("""
@@ -46,6 +47,7 @@ def attr_classes():
     attr_class_dict = instantiate_subelts(xml, ClassAttrs, as_dict=True)
     return attr_class_dict
 
+
 @pytest.fixture
 def attr_dict_1():
     xml = ET.XML("""
@@ -55,6 +57,7 @@ def attr_dict_1():
 """)
     attr_dict = Model.instantiate_attrs(xml)
     return attr_dict
+
 
 @pytest.fixture
 def attr_dict_2():
@@ -69,17 +72,18 @@ def attr_dict_2():
 
 
 @pytest.mark.parametrize(
-    "attr_name, value", [("maximum_iterations", 20),    # test numerical value override
-                         ("maximum_change", 0.001),     # test numerical default adopted
+    "attr_name, value", [("maximum_iterations", 20),  # test numerical value override
+                         ("maximum_change", 0.001),  # test numerical default adopted
                          ]
 )
 def test_model_defaults(attr_classes, attr_dict_1, attr_name, value):
     assert attr_dict_1[attr_name].value == value
 
+
 @pytest.mark.parametrize(
-    "attr_name, value", [("GWP_horizon", Quantity(20.0, 'year')),   # test units and numerical override
-                         ("GWP_version", "AR4"),        # test character value override
-                         ("energy_basis", "LHV"),       # test character default adopted
+    "attr_name, value", [("GWP_horizon", Quantity(20.0, 'year')),  # test units and numerical override
+                         ("GWP_version", "AR4"),  # test character value override
+                         ("energy_basis", "LHV"),  # test character default adopted
                          ]
 )
 def test_analysis_defaults(attr_classes, attr_dict_2, attr_name, value):
@@ -90,11 +94,13 @@ class AttributeHolder(AttributeMixin):
     def __init__(self, attr_dict):
         self.attr_dict = attr_dict
 
+
 def test_exceptions(attr_classes, attr_dict_1):
     obj = AttributeHolder(attr_dict_1)
     name = 'unknown'
     with pytest.raises(OpgeeException, match=f".*Attribute '{name}' not found in*"):
         obj.attr(name, raiseError=True)
+
 
 def test_string_rep(attr_classes):
     name = 'energy_basis'
@@ -102,8 +108,8 @@ def test_string_rep(attr_classes):
     s = str(adef)
     s == f"<AttrDef name='{name} type='{adef.pytype}' default='{adef.default}' options='{adef.option_set}'>"
 
+
 def test_unknown_attribute(attr_classes):
     name = 'unknown-attribute'
     with pytest.raises(AttributeError, match=f"Attribute definition for '{name}' was not found"):
         attr_classes['Model'].attribute(name)
-

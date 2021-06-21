@@ -14,11 +14,15 @@ class TableDef(object):
     """
     Holds meta-data for built-in tables (CSV files loaded into `pandas.DataFrames`).
     """
-    def __init__(self, basename, index_col=None, skiprows=0, units=None):
+
+    def __init__(self, basename, index_col=None, skiprows=0, unit_col=None, units=None, hasUnits=None):
         self.basename = basename
         self.index_col = index_col
+        self.unit_col = unit_col
         self.skiprows = skiprows
         self.units = units
+        self.hasUnits = hasUnits
+
 
 class TableManager(OpgeeObject):
     """
@@ -29,18 +33,19 @@ class TableManager(OpgeeObject):
     Users can add external tables using the ``add_table`` method.
     """
     table_defs = [
+        #TODO: I just add the hasUnits attr without deleting the units
         TableDef('constants', index_col='name'),
         TableDef('GWP', index_col=False),
         TableDef('bitumen-mining-energy-intensity', index_col=0),
         TableDef('transport-specific-EF', index_col=('Mode', 'Fuel'), skiprows=1, units='g/mmbtu'),
         TableDef('stationary-application-EF', index_col=('Fuel', 'Application'), skiprows=1, units='g/mmbtu'),
         TableDef('venting_fugitives_by_process', index_col=False, units='fraction'),
-        TableDef("process-specific-EF.csv", index_col=("Process"), units="g/mmbtu")
-        # TODO: see updates from OGPEE github
+        TableDef("process-specific-EF", index_col="Process", skiprows=1, units="g/mmbtu"),
+        TableDef("water-treatment", index_col=0, unit_col=["Apply", "Volume loss", "EC"], hasUnits=True)
         # TableDef('separator_capacity', index_col=False, skiprows=1),
     ]
 
-    _table_def_dict = {tbl_def.basename : tbl_def for tbl_def in table_defs}
+    _table_def_dict = {tbl_def.basename: tbl_def for tbl_def in table_defs}
 
     def __init__(self):
         self.table_dict = {}
@@ -68,12 +73,17 @@ class TableManager(OpgeeObject):
 
             relpath = f"tables/{name}.csv"
             s = resourceStream(relpath, stream_type='text')
-            df = pd.read_csv(s, index_col=tbl_def.index_col, skiprows=tbl_def.skiprows)
+            if tbl_def.hasUnits:
+                df = pd.read_csv(s, index_col=tbl_def.index_col, header=[0, 1])
+                df_unit_ = df[tbl_def.unit_col].pint.quantify(level=-1)
+                df[tbl_def.unit_col] = df_unit_[tbl_def.unit_col]
+            else:
+                df = pd.read_csv(s, index_col=tbl_def.index_col, skiprows=tbl_def.skiprows)
             self.table_dict[name] = df
 
         return df
 
-    def add_table(self, pathname, index_col=None, skiprows=0): #  , units=None):
+    def add_table(self, pathname, index_col=None, skiprows=0):  # , units=None):
         """
         Add a CSV file external to OPGEE to the TableManager.
 

@@ -1,12 +1,13 @@
+from ..combine_streams import combine_streams
 from ..log import getLogger
 from ..process import Process
 
 from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY
-from ..emissions import Emissions
 from .. import ureg
 from ..stream import Stream, PHASE_GAS, PHASE_LIQUID, PHASE_SOLID
 from ..thermodynamics import rho
 from ..compressor import Compressor
+from ..emissions import EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
 
 _logger = getLogger(__name__)
 
@@ -54,6 +55,8 @@ class Separation(Process):
         gas_fugitives.copy_flow_rates_from(gas_fugitives_temp)
 
         gas_after = self.find_output_stream("gas")
+        # Check
+        self.set_iteration_value(gas_after.total_flow_rate())
         gas_after.copy_gas_rates_from(input)
         gas_after.subtract_gas_rates_from(gas_fugitives)
 
@@ -80,9 +83,16 @@ class Separation(Process):
 
         # emission rate
         emissions = self.emissions
+        energy_for_combustion = energy_use.data.drop("Electricity")
+        process_EF = self.get_process_EF()
+        combusion_emission = (energy_for_combustion * process_EF).sum()
+        emissions.add_rate(EM_COMBUSTION, "GHG", combusion_emission)
+
+        emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
 
     def impute(self):
         field = self.get_field()
+        oil = field.oil
 
         wellhead_temp = field.attr("wellhead_temperature")
         wellhead_press = field.attr("wellhead_pressure")
@@ -92,8 +102,7 @@ class Separation(Process):
         loss_rate = (1 / (1 - loss_rate)).to("frac")
         gas_after.multiply_flow_rates(loss_rate)
 
-        output = Stream.combine([oil_after, gas_after, water_after],
-                                temperature=wellhead_temp, pressure=wellhead_press)
+        output = combine_streams([oil_after, gas_after, water_after], oil.API, wellhead_press)
 
         input = self.find_input_stream("crude oil")
         input.set_temperature_and_pressure(wellhead_temp, wellhead_press)
@@ -229,7 +238,6 @@ class Separation(Process):
                        compression_ratio_per_stages,
                        gas_compression_volume_stages,
                        num_of_compression_stages):
-
             work_sum = Compressor.get_compressor_work(field, inlet_temp, inlet_press,
                                                       gas_stream, compression_ratio, num_of_compression)
             horsepower = work_sum * gas_compression_volume
@@ -237,6 +245,3 @@ class Separation(Process):
             brake_horsepower_of_stages.append(brake_horsepower)
 
         return brake_horsepower_of_stages
-
-
-

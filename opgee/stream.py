@@ -16,6 +16,7 @@ from .error import OpgeeException
 from .log import getLogger
 from .utils import getBooleanXML, coercible
 
+
 _logger = getLogger(__name__)
 
 # constants to use instead of strings
@@ -25,13 +26,16 @@ PHASE_GAS = 'gas'
 
 # Compile the patterns at load time for better performance
 _carbon_number_prog = re.compile(r'^C(\d+)$')
-_hydrocarbon_prog   = re.compile(r'^(C\d+)H(\d+)$')
+_hydrocarbon_prog = re.compile(r'^(C\d+)H(\d+)$')
+
 
 def is_carbon_number(name):
     return (_carbon_number_prog.match(name) is not None)
 
+
 def is_hydrocarbon(name):
     return (name == 'CH4' or _hydrocarbon_prog.match(name) is not None)
+
 
 def molecule_to_carbon(molecule):
     if molecule == "CH4":
@@ -75,13 +79,14 @@ class Stream(XmlInstantiable, AttributeMixin):
     """
     _phases = [PHASE_SOLID, PHASE_LIQUID, PHASE_GAS]
 
-    # HCs with 1-60 carbon atoms, i.e., C1, C2, ..., C60
+    # HCs with 1-60 carbon atoms, i.e., C1, C2, ..., C50
     max_carbon_number = 50
     _hydrocarbons = [f'C{n}' for n in range(1, max_carbon_number + 1)]
+    _non_mathane_hydrocarbons = [f'C{n}' for n in range(2, max_carbon_number + 1)]
     _solids = ['PC']  # petcoke
     _liquids = ['oil']
     # _hc_molecules = ['CH4', 'C2H6', 'C3H8', 'C4H10']
-    _gases = ['N2', 'O2', 'CO2', 'H2O', 'H2', 'H2S', 'SO2']
+    _gases = ['N2', 'O2', 'CO2', 'H2O', 'H2', 'H2S', 'SO2', "CO"]
     _other = ['Na+', 'Cl-', 'Si-']
 
     #: The stream components tracked by OPGEE. This list can be extended by calling ``Stream.extend_components(names)``,
@@ -105,7 +110,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.src_name = src_name
         self.dst_name = dst_name
 
-        self.src_proc = None        # set in Field.connect_processes()
+        self.src_proc = None  # set in Field.connect_processes()
         self.dst_proc = None
 
         self.contents = contents or []
@@ -177,6 +182,14 @@ class Stream(XmlInstantiable, AttributeMixin):
         """
         rate = self.components.loc[name, phase]
         return rate
+
+    def total_flow_rate(self):
+        """
+        total mass flow rate
+
+        :return:
+        """
+        return self.components.sum().sum()
 
     def hydrocarbons_rates(self, phase):
         """
@@ -308,29 +321,52 @@ class Stream(XmlInstantiable, AttributeMixin):
         """
         self.components[PHASE_GAS] -= stream.components[PHASE_GAS]
 
-    @classmethod
-    def combine(cls, streams, temperature=None, pressure=None):
-        """
-        Thermodynamically combine multiple streams' components into a new
-        anonymous Stream. This is used on input streams since it makes no
-        sense for output streams.
-
-        :param streams: (list of Streams) the Streams to combine
-        :return: (Stream) if len(streams) > 1, returns a new Stream. If
-           len(streams) == 1, the original stream is returned.
-        """
-        from statistics import mean
-
-        if len(streams) == 1:   # corner case
-            return streams[0]
-
-        matrices = [stream.components for stream in streams]
-
-        comp_matrix = sum(matrices)
-        temperature = temperature if temperature is not None else mean([stream.temperature for stream in streams])
-        pressure    = pressure if pressure is not None else mean([stream.pressure for stream in streams])
-        stream = Stream('-', temperature=temperature, pressure=pressure, comp_matrix=comp_matrix)
-        return stream
+    # @classmethod
+    # def combine(cls, streams, temperature=None, pressure=None):
+    #     """
+    #     Thermodynamically combine multiple streams' components into a new
+    #     anonymous Stream. This is used on input streams since it makes no
+    #     sense for output streams.
+    #
+    #     :param streams: (list of Streams) the Streams to combine
+    #     :return: (Stream) if len(streams) > 1, returns a new Stream. If
+    #        len(streams) == 1, the original stream is returned.
+    #     """
+    #     from statistics import mean
+    #
+    #     if len(streams) == 1:  # corner case
+    #         return streams[0]
+    #
+    #     matrices = [stream.components for stream in streams]
+    #
+    #     comp_matrix = sum(matrices)
+    #     numerator = 0
+    #     denumerator = 0
+    #     for stream in streams:
+    #         total_mass_rate = stream.components.sum().sum()
+    #         numerator += stream.temperature * total_mass_rate * cls.mixture_heat_capacity(stream)
+    #         denumerator += total_mass_rate * cls.mixture_heat_capacity(stream)
+    #     temperature = numerator / denumerator
+    #     pressure = pressure if pressure is not None else mean([stream.pressure for stream in streams])
+    #     stream = Stream('-', temperature=temperature, pressure=pressure, comp_matrix=comp_matrix)
+    #     return stream
+    #
+    # @staticmethod
+    # def mixture_heat_capacity(stream):
+    #     """
+    #     cp_mix = (mass_1/mass_mix)cp_1 + (mass_2/mass_mix)cp_2 + ...
+    #
+    #     :param stream:
+    #     :return: (float) heat capacity of mixture (unit = btu/degF/day)
+    #     """
+    #     temperature = stream.temperature
+    #     total_mass_rate = stream.components.sum().sum()
+    #     oil_heat_capacity = stream.hydrocarbon_rate(PHASE_LIQUID) * Oil().specific_heat(temperature)
+    #     water_heat_capacity = Water().heat_capacity(stream)
+    #     gas_heat_capacity = Gas().heat_capacity(stream)
+    #
+    #     heat_capacity = (oil_heat_capacity + water_heat_capacity + gas_heat_capacity) / total_mass_rate
+    #     return heat_capacity
 
     def contains(self, stream_type):
         """
@@ -350,8 +386,8 @@ class Stream(XmlInstantiable, AttributeMixin):
         :return: (Stream) instance of class Stream
         """
         a = elt.attrib
-        src  = a['src']
-        dst  = a['dst']
+        src = a['src']
+        dst = a['dst']
         name = a.get('name') or f"{src} => {dst}"
         impute = getBooleanXML(a.get('impute', "1"))
 
@@ -372,7 +408,7 @@ class Stream(XmlInstantiable, AttributeMixin):
 
         obj = Stream(name, number=number, temperature=temp, pressure=pres,
                      src_name=src, dst_name=dst, contents=contents, impute=impute)
-        comp_df = obj.components # this is an empty DataFrame; it is filled in below or at runtime
+        comp_df = obj.components  # this is an empty DataFrame; it is filled in below or at runtime
 
         # Set up the stream component info
         comp_elts = elt.findall('Component')
@@ -381,7 +417,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         for comp_elt in comp_elts:
             a = comp_elt.attrib
             comp_name = elt_name(comp_elt)
-            rate  = coercible(comp_elt.text, float)
+            rate = coercible(comp_elt.text, float)
             phase = a['phase']  # required by XML schema to be one of the 3 legal values
 
             # convert hydrocarbon molecule name to carbon number format
@@ -395,3 +431,7 @@ class Stream(XmlInstantiable, AttributeMixin):
             comp_df.loc[comp_name, phase] = rate
 
         return obj
+
+    @property
+    def hydrocarbons(self):
+        return self._hydrocarbons

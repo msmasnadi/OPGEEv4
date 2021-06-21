@@ -130,7 +130,8 @@ def test_oil_energy_flow_rate(oil_instance):
 
 def test_oil_heat_capacity(oil_instance):
     temp = ureg.Quantity(127.5, "degF")
-    heat_capacity = oil_instance.heat_capacity(temp)
+    API = oil_instance.API
+    heat_capacity = oil_instance.specific_heat(API, temp)
     assert heat_capacity == ureg.Quantity(pytest.approx(0.48734862), "btu/lb/degF")
 
 
@@ -177,6 +178,11 @@ def test_specific_gravity(gas_instance, stream):
 def test_ratio_of_specific_heat(gas_instance, stream):
     ratio_of_specific_heat = gas_instance.ratio_of_specific_heat(stream)
     assert ratio_of_specific_heat == ureg.Quantity(pytest.approx(1.28972962), "frac")
+
+
+def test_gas_heat_capacity(gas_instance, stream):
+    heat_capacity = gas_instance.heat_capacity(stream)
+    assert heat_capacity == ureg.Quantity(pytest.approx(132557.175), "btu/degF/day")
 
 
 def test_uncorrected_pseudocritical_temperature(gas_instance, stream):
@@ -274,3 +280,16 @@ def test_water_volume_rate(water_instance):
     stream.set_flow_rate("H2O", "liquid", 1962.61672)
     volume_flow_rate = water_instance.volume_flow_rate(stream)
     assert volume_flow_rate == ureg.Quantity(pytest.approx(12293.734), "bbl_water/day")
+
+
+def test_water_specific_heat(water_instance):
+    temperature = ureg.Quantity(200, "degF")
+    specific_heat = water_instance.specific_heat(temperature)
+    assert specific_heat == ureg.Quantity(pytest.approx(0.450496339), "btu/lb/degF")
+
+
+def test_water_heat_capacity(water_instance):
+    stream = Stream("water stream", temperature=200, pressure=1556.6)
+    stream.set_flow_rate("H2O", "liquid", 1962.61672)
+    heat_capacity = water_instance.heat_capacity(stream)
+    assert heat_capacity == ureg.Quantity(pytest.approx(1949220.72), "btu/degF/day")
