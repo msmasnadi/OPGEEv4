@@ -32,16 +32,6 @@ class ProducedWaterTreatment(Process):
         input = self.find_input_streams("water", combine=True)
         total_water_mass_rate = input.liquid_flow_rate("H2O")
 
-        #TODO: the mass rate using frac need to be fixed
-        output_steam = self.find_output_stream("water for steam", raiseError=False)
-        output_reinjection = self.find_output_stream("water for reinjection")
-        output_surface_disposal = self.find_output_stream("water for surface disposal")
-        output_subsurface_disposal = self.find_output_stream("water for subsurface disposal")
-        output_subsurface_disposal.set_temperature_and_pressure(input.temperature, input.pressure)
-        output_steam.set_temperature_and_pressure(input.temperature, input.pressure)
-        output_reinjection.set_temperature_and_pressure(input.temperature, input.pressure)
-        output_surface_disposal.set_temperature_and_pressure(std_temp, std_press)
-
         water = field.water
         water_density = water.density(input.temperature, input.pressure)
         total_water_volume = total_water_mass_rate / water_density
@@ -70,6 +60,17 @@ class ProducedWaterTreatment(Process):
                                          total_water_inj_demand - total_water_volume)
         frac_prod_water_as_steam = 1 if total_steam_inj_demand > total_water_volume else \
             total_steam_inj_demand / total_water_volume
+
+        steam_inj_CWE_rate = steam_flooding
+        # TODO: the mass rate using frac need to be fixed
+        output_steam = self.find_output_stream("water for steam", raiseError=False)
+        output_reinjection = self.find_output_stream("water for reinjection")
+        output_surface_disposal = self.find_output_stream("water for surface disposal")
+        output_subsurface_disposal = self.find_output_stream("water for subsurface disposal")
+        output_subsurface_disposal.set_temperature_and_pressure(input.temperature, input.pressure)
+        output_steam.set_temperature_and_pressure(input.temperature, input.pressure)
+        output_reinjection.set_temperature_and_pressure(input.temperature, input.pressure)
+        output_surface_disposal.set_temperature_and_pressure(std_temp, std_press)
 
         #enegy use
         energy_use = self.energy
