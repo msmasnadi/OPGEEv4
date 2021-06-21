@@ -183,6 +183,14 @@ class Stream(XmlInstantiable, AttributeMixin):
         rate = self.components.loc[name, phase]
         return rate
 
+    def total_flow_rate(self):
+        """
+        total mass flow rate
+
+        :return:
+        """
+        return self.components.sum().sum()
+
     def hydrocarbons_rates(self, phase):
         """
         Set rates for each hydrocarbons

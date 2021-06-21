@@ -33,14 +33,15 @@ class CrudeOilDewatering(Process):
 
         oil_to_stabilization = self.find_output_stream("crude oil")
         # Check
-        self.set_iteration_value(oil_to_stabilization.components.sum().sum())
+
         oil_to_stabilization.set_liquid_flow_rate("oil", oil_rate)
         temp = temperature_heater_treater if heater_treater else temperature
         oil_to_stabilization.set_temperature_and_pressure(temp, pressure)
 
         water_to_stabilization = self.find_output_stream("water")
         # Check
-        self.set_iteration_value(water_to_stabilization.components.sum().sum())
+        self.set_iteration_value((oil_to_stabilization.total_flow_rate(),
+                                  water_to_stabilization.total_flow_rate()))
         water_to_stabilization.set_liquid_flow_rate("H2O", water_rate)
         water_to_stabilization.set_temperature_and_pressure(temp, pressure)
 

@@ -41,7 +41,7 @@ class DownholePump(Process):
 
         output = self.find_output_stream("crude oil")
         # Check
-        self.set_iteration_value(output.components.sum().sum())
+        self.set_iteration_value(output.total_flow_rate())
         output.copy_flow_rates_from(input)
         output.subtract_gas_rates_from(gas_fugitives)
         output.set_temperature_and_pressure(wellhead_temp, wellhead_press)
