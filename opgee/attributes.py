@@ -202,6 +202,13 @@ class AttributeMixin():
 
         return obj.value if obj else None
 
+    def set_attr(self, attr_name, value):
+        obj = self.attr_dict.get(attr_name)
+        if obj is None:
+            raise OpgeeException(f"Attribute '{attr_name}' not found in {self}")
+
+        obj.set_value(value)
+
     def attrs_with_prefix(self, prefix):
         """
         Collect a group of similarly-prefixed attributes into a dictionary keyed by the
