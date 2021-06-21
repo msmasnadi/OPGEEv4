@@ -13,6 +13,7 @@ class ProducedWaterTreatment(Process):
         field = self.get_field()
         std_temp = field.model.const("std-temperature")
         std_press = field.model.const("std-pressure")
+        water_treatment_table = self.model.water_treatment
 
         # mass rate
         input = self.find_input_streams("water", combine=True)

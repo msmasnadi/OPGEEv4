@@ -46,6 +46,8 @@ class Model(Container):
 
         self.process_EF_df = tbl_mgr.get_table("process-specific-EF")
 
+        self.water_treatment = tbl_mgr.get_table("water-treatment")
+
         # TBD: should these be settable per Analysis?
         # parameters controlling process cyclic calculations
         self.maximum_iterations = self.attr('maximum_iterations')
