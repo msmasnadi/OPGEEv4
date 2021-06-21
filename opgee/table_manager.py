@@ -41,7 +41,7 @@ class TableManager(OpgeeObject):
         TableDef('stationary-application-EF', index_col=('Fuel', 'Application'), skiprows=1, units='g/mmbtu'),
         TableDef('venting_fugitives_by_process', index_col=False, units='fraction'),
         TableDef("process-specific-EF", index_col=("Process"), skiprows=1, units="g/mmbtu"),
-        TableDef("water-treatment", unit_col=["Apply", "Volume loss", "EC"], hasUnits=True)
+        TableDef("water-treatment", index_col=[0], unit_col=["Apply", "Volume loss", "EC"], hasUnits=True)
         # TableDef('separator_capacity', index_col=False, skiprows=1),
     ]
 
@@ -74,7 +74,7 @@ class TableManager(OpgeeObject):
             relpath = f"tables/{name}.csv"
             s = resourceStream(relpath, stream_type='text')
             if tbl_def.hasUnits:
-                df = pd.read_csv(s, header=[0, 1])
+                df = pd.read_csv(s, index_col=tbl_def.index_col, header=[0, 1])
                 df_unit_ = df[tbl_def.unit_col].pint.quantify(level=-1)
                 df[tbl_def.unit_col] = df_unit_[tbl_def.unit_col]
             else:

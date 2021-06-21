@@ -883,15 +883,18 @@ class Water(AbstractSubstance):
         # TODO: this can be improved by adding ions in the H2O in the solution
         self.specific_gravity = ureg.Quantity(1 + self.TDS.m * 0.695 * 1e-6, "frac")
 
-    def density(self):
+    def density(self, temperature=None, pressure=None):
         """
         water density
 
         :return: (float) water density (unit = kg/m3)
         """
 
+        temp = temperature if temperature is not None else self.std_temp
+        press = pressure if pressure is not None else self.std_press
+
         specifc_gravity = self.specific_gravity
-        water_density_STP = rho("H2O", self.std_temp, self.std_press, PHASE_LIQUID)
+        water_density_STP = rho("H2O", temp, press, PHASE_LIQUID)
         density = specifc_gravity * water_density_STP
 
         return density.to("kg/m**3")
