@@ -284,6 +284,9 @@
   </ClassAttrs>
   <ClassAttrs name="ProducedWaterTreatment">
     <AttrDef name="steam_quality_at_generator_outlet" unit="frac" type="float" desc="steam quality at generator outlet">0.7</AttrDef>
+    <AttrDef name="steam_quality_after_blowdown" unit="frac" type="float" desc="desired steam quality after blowdown and recycle (if any)">0.7</AttrDef>
+    <AttrDef name="fraction_disp_water_subsurface" unit="frac" type="float" desc="Fraction of excess water disposed in sub-surface">1.0</AttrDef>
+    <AttrDef name="fraction_disp_water_surface" unit="frac" type="float" desc="Fraction of excess water disposed in surface waters">0.0</AttrDef>
   </ClassAttrs>
   <ClassAttrs name="CrudeStorage">
     <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>

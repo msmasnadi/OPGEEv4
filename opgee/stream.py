@@ -255,8 +255,12 @@ class Stream(XmlInstantiable, AttributeMixin):
         """Calls ``self.set_flow_rate(name, PHASE_GAS, rate)``"""
         return self.set_flow_rate(name, PHASE_GAS, rate)
 
-    def set_liquid_flow_rate(self, name, rate):
+    def set_liquid_flow_rate(self, name, rate, t=None, p=None):
         """Calls ``self.set_flow_rate(name, PHASE_LIQUID, rate)``"""
+        if t is not None:
+            self.temperature = t
+        if p is not None:
+            self.pressure = p
         return self.set_flow_rate(name, PHASE_LIQUID, rate)
 
     def set_solid_flow_rate(self, name, rate):
