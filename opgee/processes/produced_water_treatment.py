@@ -2,6 +2,7 @@ from ..log import getLogger
 from ..process import Process
 from ..energy import EN_ELECTRICITY
 from ..stream import Stream, PHASE_GAS, PHASE_LIQUID, PHASE_SOLID
+from ..error import OpgeeException
 from opgee import ureg
 
 _logger = getLogger(__name__)
@@ -24,8 +25,8 @@ class ProducedWaterTreatment(Process):
 
         steam_flooding = field.attr("steam_flooding")
         SOR = field.attr("SOR")
-        steam_quality_outlet = self.attr("steam_quality_at_generator_outlet")
-        steam_quality_blowdown = self.attr("steam_quality_after_blowdown")
+        steam_quality_outlet = field.attr("steam_quality_at_generator_outlet")
+        steam_quality_blowdown = field.attr("steam_quality_after_blowdown")
 
         frac_disp_subsurface = self.attr("fraction_disp_water_subsurface")
         frac_disp_surface = self.attr("fraction_disp_water_surface")
@@ -39,9 +40,13 @@ class ProducedWaterTreatment(Process):
         water = field.water
         water_density = water.density(input.temperature, input.pressure)
         total_water_volume = total_water_mass_rate / water_density
-        stages = ["Stage 1", "Stage 2", "Stage 3", "Stage 4"]  # TODO: define in the xml
+        num_stages = self.attr("number_of_stages")
+        stages = sorted(water_treatment_table.index.unique())
+        if num_stages > len(stages) or num_stages < 0:
+            raise OpgeeException(f"produced water treatment: number of stages must be <= {len(stages)}")
+
         electricity = 0
-        for stage in stages:
+        for stage in stages[:num_stages]:
             stage_row = water_treatment_table.loc[stage]
             electricity_factor = (stage_row["Apply"].squeeze() *
                                   stage_row["EC"].squeeze()).sum()
@@ -57,7 +62,6 @@ class ProducedWaterTreatment(Process):
             total_water_inj_demand = min(oil_volume_rate * WIR, total_water_volume)
         frac_prod_water_as_water = 1 if total_water_inj_demand > total_water_volume else \
             total_water_inj_demand / total_water_volume
-
 
         if steam_flooding:
             total_steam_inj_demand = min(oil_volume_rate * SOR / steam_quality_outlet,
@@ -80,21 +84,24 @@ class ProducedWaterTreatment(Process):
             steam_rate = (water_required if water_available > water_required else water_available)
         else:
             steam_rate = ureg.Quantity(0, "tonne/day")
-        output_steam.set_liquid_flow_rate("H2O", steam_rate, t=input.temperature, p=input.pressure)
+        # steam rate is frac*tonne/day
+        output_steam.set_liquid_flow_rate("H2O", steam_rate.to("tonne/day"), t=input.temperature, p=input.pressure)
 
         output_reinjection = self.find_output_stream("water for reinjection")
         reinjection_rate = frac_prod_water_as_water * total_water_mass_rate
-        output_reinjection.set_liquid_flow_rate("H2O", reinjection_rate, t=input.temperature, p=input.pressure)
+        output_reinjection.set_liquid_flow_rate("H2O", reinjection_rate.to("tonne/day"),
+                                                t=input.temperature, p=input.pressure)
 
         output_surface_disposal = self.find_output_stream("water for surface disposal")
-        surface_disp_rate = ((1 - frac_prod_water_as_steam - frac_prod_water_as_water) *
-                             total_water_mass_rate * frac_disp_surface) + steam_rate
+        water_for_disp = (1 - frac_prod_water_as_steam - frac_prod_water_as_water) * total_water_mass_rate
+        surface_disp_rate = water_for_disp * frac_disp_surface + steam_rate
         # surface disp rate is frac*tonne/day
-        output_surface_disposal.set_liquid_flow_rate("H2O", surface_disp_rate.to("tonne/day"), t=std_temp, p=std_press)
+        output_surface_disposal.set_liquid_flow_rate("H2O", surface_disp_rate.to("tonne/day"),
+                                                     t=std_temp, p=std_press)
 
         output_subsurface_disposal = self.find_output_stream("water for subsurface disposal")
-        subsurface_disp_rate = ((1 - frac_prod_water_as_steam - frac_prod_water_as_water) *
-                                total_water_mass_rate * frac_disp_subsurface)
+        subsurface_disp_rate = water_for_disp * frac_disp_subsurface
+        # subsurface disp rate is frac*tonne/day
         output_subsurface_disposal.set_liquid_flow_rate("H2O", subsurface_disp_rate.to("tonne/day"),
                                                         t=input.temperature, p=input.pressure)
 
