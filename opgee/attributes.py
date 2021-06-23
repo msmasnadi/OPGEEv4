@@ -322,7 +322,10 @@ class AttributeMixin():
     @classmethod
     def check_attr_constraints(cls, attr_dict):
         attr_defs = AttrDefs.get_instance()
-        class_attrs = attr_defs.class_attrs(cls.__name__)
+        class_attrs = attr_defs.class_attrs(cls.__name__, raiseError=False)
+
+        if class_attrs is None or attr_dict is None:
+            return  # nothing to check
 
         funcs = {
             'LT': lambda value, limit: value <  limit,
@@ -331,9 +334,22 @@ class AttributeMixin():
             'GE': lambda value, limit: value >= limit,
         }
 
+        def is_a_process(cls):
+            for superclass in cls.__mro__:
+                if superclass.__name__ == 'Process':
+                    return True
+
+            return False
+
+        process_attr_dict = attr_defs.class_attrs('Process').attr_dict
+
         # Check numeric constraints
         for attr_name, attr in attr_dict.items():
-            attr_def = class_attrs.attr_dict[attr_name]
+            # If the definition of an attribute of a subprocess is not known, look at Process's attributes
+            attr_def = class_attrs.attr_dict.get(attr_name) or (is_a_process(cls) and process_attr_dict.get(attr_name))
+            if not attr_def:
+                raise OpgeeException(f"Attribute '{attr_name}' not found for class '{cls.__name__}'")
+
             constraints = attr_def.constraints
 
             if constraints:
