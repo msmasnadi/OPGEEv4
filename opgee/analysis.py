@@ -38,8 +38,9 @@ class Analysis(Container):
 
 
     def _after_init(self):
-        self.model = model = self.parent  # also assign to self.model for clarity
+        self.check_attr_constraints(self.attr_dict)
 
+        self.model = model = self.find_parent('Model')
         fields = [model.get_field(name) for name in self._field_names]
 
         for group in self.groups:

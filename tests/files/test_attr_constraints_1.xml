@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
+
+	<Analysis name="test">
+		<Field name="test"/>
+	</Analysis>
+
+	<Field name="test">
+		<Group>First test</Group>		<!-- to test regex group matching -->
+		<A name="country">USA</A>
+
+		<!-- these are mutually exclusive but are not -->
+		<A name="steam_flooding">1</A>
+		<A name="gas_flooding">1</A>
+
+		<!-- these must be synchronized and are -->
+		<A name="sync_attr_1">1</A>
+		<A name="sync_attr_2">1</A>
+
+		<Process class="ProcA" desc="Test process 1">
+			<Produces>crude oil</Produces>
+			<Produces>water</Produces>
+			<Consumes>crude oil</Consumes>
+		</Process>
+
+		<Process class="ProcB" desc="Test process 2">
+			<Consumes>crude oil</Consumes>
+			<Consumes>hydrogen</Consumes>
+			<Produces>natural gas</Produces>
+		</Process>
+
+		<Stream src="ProcA" dst="ProcB">
+			<A name="temperature">90.0</A>
+			<A name="pressure">150.0</A>
+			<Component name="oil" phase="liquid">100</Component>
+			<Contains>crude oil</Contains>
+		</Stream>
+	</Field>
+
+</Model>

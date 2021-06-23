@@ -139,9 +139,8 @@ class Process(XmlInstantiable, AttributeMixin):
         self.iteration_converged = False
         self.iteration_registered = False
 
-    # Optional for Process subclasses
     def _after_init(self):
-        pass
+        self.check_attr_constraints(self.attr_dict)
 
     #
     # Pass-through convenience methods for energy and emissions

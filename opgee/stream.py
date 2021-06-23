@@ -118,6 +118,9 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.impute = impute
         self.has_exogenous_data = False
 
+    def _after_init(self):
+        self.check_attr_constraints(self.attr_dict)
+
     def __str__(self):
         number_str = f" #{self.number}" if self.number else ''
         return f"<Stream '{self.name}'{number_str}>"

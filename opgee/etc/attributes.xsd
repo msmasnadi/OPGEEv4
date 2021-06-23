@@ -13,7 +13,7 @@
             <xs:choice maxOccurs='unbounded'>
                 <xs:element minOccurs='0' ref='Options'/>
                 <xs:element minOccurs='0' ref='AttrDef'/>
-			</xs:choice>
+            </xs:choice>
             <xs:attribute name='name' use='required' type='xs:NCName'/>
         </xs:complexType>
     </xs:element>
@@ -47,12 +47,14 @@
             <xs:attribute name='options' type='xs:string'/>
             <xs:attribute name='type' type='xs:NCName'/>
             <xs:attribute name='unit'/>
+            <xs:attribute name='exclusive'/>      <!-- exclusive attributes -->
+            <xs:attribute name='synchronized'/>   <!-- synchronized attributes -->
 
-            <!-- Not sure we'll use this -->
-            <xs:attribute name="greater_than" type="xs:decimal"/>
-            <xs:attribute name="greater_than_or_eq" type="xs:decimal"/>
-            <xs:attribute name="less_than" type="xs:decimal"/>
-            <xs:attribute name="less_than_or_eq" type="xs:decimal"/>
+            <!-- Not sure we'll use these -->
+            <xs:attribute name="GT" type="xs:decimal"/>
+            <xs:attribute name="GE" type="xs:decimal"/>
+            <xs:attribute name="LT" type="xs:decimal"/>
+            <xs:attribute name="LE" type="xs:decimal"/>
         </xs:complexType>
     </xs:element>
 </xs:schema>

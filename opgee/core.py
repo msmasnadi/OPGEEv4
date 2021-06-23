@@ -51,6 +51,7 @@ def magnitude(value, units=None):
     else:
         return value
 
+
 # Deprecated
 # def ensure_units(value, units):
 #     """
@@ -185,6 +186,9 @@ class XmlInstantiable(OpgeeObject):
         self.name = name
         self.enabled = True
         self.parent = None
+
+    def _after_init(self):
+        pass
 
     @classmethod
     def from_xml(cls, elt):
