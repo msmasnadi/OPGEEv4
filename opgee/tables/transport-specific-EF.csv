@@ -1,5 +1,5 @@
-﻿"# g/mmbtu of fuel burned, LHV",,,,,,
-Mode,Fuel,VOC,CO,CH4,N2O,CO2
+﻿Mode,Fuel,VOC,CO,CH4,N2O,CO2
+_,_,g/mmbtu,g/mmbtu,g/mmbtu,g/mmbtu,g/mmbtu
 Ocean tanker,Diesel,79.908003,181.596006,4.581,2,77652.0433
 Ocean tanker,Residual oil,79.908003,181.596006,4.581,2,84534.22128
 Ocean tanker,Natural gas,79.908003,90.798003,91.619997,2,58768.99809

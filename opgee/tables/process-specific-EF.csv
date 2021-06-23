@@ -1,5 +1,5 @@
-"# g GHGs/mmbtu of fuel burned, LHV",,,,,,,
 Process,Natural gas,Upgrader proc. gas,NGL,Crude oil,Diesel,Residual fuel,Pet. coke
+_,g/mmbtu,g/mmbtu,g/mmbtu,g/mmbtu,g/mmbtu,g/mmbtu,g/mmbtu
 Exploration,68194,68194,66422,76513,78823,85706,107260
 Drilling & Development,68194,68194,66422,76513,78491,85706,107260
 DownholePump,68194,68194,66422,76513,78491,85664,107260

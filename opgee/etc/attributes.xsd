@@ -50,7 +50,7 @@
             <xs:attribute name='exclusive'/>      <!-- exclusive attributes -->
             <xs:attribute name='synchronized'/>   <!-- synchronized attributes -->
 
-            <!-- Not sure we'll use these -->
+            <!-- Numeric constraints -->
             <xs:attribute name="GT" type="xs:decimal"/>
             <xs:attribute name="GE" type="xs:decimal"/>
             <xs:attribute name="LT" type="xs:decimal"/>
