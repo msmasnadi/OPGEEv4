@@ -40,7 +40,7 @@ def field_network_graph(field):
     G = nx.nx_pydot.from_pydot(graph)
 
     #pos = nx.drawing.layout.spring_layout(G)
-    pos = nx.fruchterman_reingold_layout(G)
+    pos = nx.fruchterman_reingold_layout(G, seed=1000)
     for node in G.nodes:
         G.nodes[node]['pos'] = list(pos[node])
 

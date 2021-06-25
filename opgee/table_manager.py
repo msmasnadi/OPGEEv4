@@ -33,7 +33,6 @@ class TableManager(OpgeeObject):
     Users can add external tables using the ``add_table`` method.
     """
     table_defs = [
-        #TODO: I just add the hasUnits attr without deleting the units
         TableDef('constants', index_col='name'),
         TableDef('GWP', index_col=False),
         TableDef('bitumen-mining-energy-intensity', index_col=0),
@@ -76,10 +75,12 @@ class TableManager(OpgeeObject):
                 df = pd.read_csv(s, index_col=tbl_def.index_col, header=[0, 1])
 
                 unitful_cols = [name for name, unit in df.columns if unit != '_']
-                df_unit_ = df[unitful_cols].pint.quantify(level=-1)
-                df[unitful_cols] = df_unit_[unitful_cols]
+                df_units = df[unitful_cols].pint.quantify(level=-1)
+                df[unitful_cols] = df_units[unitful_cols]
+                df.columns = df.columns.droplevel(1)        # drop the units from the column index
             else:
                 df = pd.read_csv(s, index_col=tbl_def.index_col) #, skiprows=tbl_def.skiprows)
+
             self.table_dict[name] = df
 
         return df
