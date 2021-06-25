@@ -5,7 +5,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 import dash_table
-import json
+#import json
 import networkx as nx
 import pydot
 import plotly.graph_objs as go
@@ -13,7 +13,7 @@ from textwrap import dedent as d
 
 from .. import Process
 from ..model import ModelFile
-from ..gui.widgets import radio_items, attr_options
+from ..gui.widgets import attr_options
 from ..log import getLogger
 
 _logger = getLogger(__name__)
@@ -103,22 +103,7 @@ styles = {
     }
 }
 
-
-# go.Table(header=dict(values=['A Scores', 'B Scores']),
-#          cells=dict(values=[[100, 90, 80, 90], [95, 85, 75, 95]])
-#
-# fig = go.Figure(data=[go.Table(
-#     header=dict(values=['A Scores', 'B Scores'],
-#                 line_color='darkslategray',
-#                 fill_color='lightskyblue',
-#                 align='left'),
-#     cells=dict(values=[[100, 90, 80, 90], # 1st column
-#                        [95, 85, 75, 95]], # 2nd column
-#                line_color='darkslategray',
-#                fill_color='lightcyan',
-#                align='left'))
-# ])
-def emissions_table(procs):
+def emissions_table(analysis, procs):
     import pandas as pd
     from pint import Quantity
     from ..emissions import Emissions
@@ -126,7 +111,7 @@ def emissions_table(procs):
     columns = [{'name': 'Name', 'id': 'Name'}] + [{'name': col, 'id': col} for col in Emissions.categories]
 
     def series_for_df(proc):
-        rates = proc.emissions.rates()
+        rates = proc.get_emission_rates(analysis).astype(float)
         s = rates.T.GHG
         s.name = proc.name
         return s
@@ -141,7 +126,9 @@ def emissions_table(procs):
 
     tbl = dash_table.DataTable(
         columns=columns,
-        data=df.applymap(get_magnitude).to_dict('records'),  # TBD: Force scientific notation
+        # data=df.applymap(get_magnitude).to_dict('records'),  # TBD: Force scientific notation
+        data=df.round(3).to_dict('records'),  # TBD: Force scientific notation
+        # data=df.astype(float).to_dict('records'),
         style_as_list_view=True,
         style_cell={'padding': '5px'},
         style_header={
@@ -166,16 +153,16 @@ def emissions_table(procs):
     )
     return tbl
 
-def overview_layout(app):
-    layout = html.Div([
-        # Title
-        html.Div(
-            [],
-            className="row",
-            style={'textAlign': "center"}
-        ),
-    ])
-    return layout
+# def overview_layout(app):
+#     layout = html.Div([
+#         # Title
+#         html.Div(
+#             [],
+#             className="row",
+#             style={'textAlign': "center"}
+#         ),
+#     ])
+#     return layout
 
 def processes_layout(app, current_field):
     # the main row
@@ -208,7 +195,7 @@ def processes_layout(app, current_field):
                 className="twelve columns",
                 children=[
                     html.Div(
-                        className='four columns',
+                        className='six columns',
                         children=[
                             dcc.Markdown(d("""
                             **Emissions and energy use**
@@ -218,7 +205,7 @@ def processes_layout(app, current_field):
                         style={'height': '400px', 'display': 'inline-block'}),
 
                     html.Div(
-                        className='four columns',
+                        className='six columns',
                         children=[
                             dcc.Markdown(d("""
                             **Click Data**
@@ -310,13 +297,13 @@ def main(args):
             parent_className='custom-tabs',
             className='custom-tabs-container',
             children=[
-                dcc.Tab(
-                    children=[],        # overview_layout(app)
-                    label='Overview',
-                    value='overview',
-                    className='custom-tab',
-                    selected_className='custom-tab--selected'
-                ),
+                # dcc.Tab(
+                #     children=[],        # overview_layout(app)
+                #     label='Overview',
+                #     value='overview',
+                #     className='custom-tab',
+                #     selected_className='custom-tab--selected'
+                # ),
                 dcc.Tab(
                     children=[],    # processes_layout(app, current_field)
                     label='Processes',
@@ -350,8 +337,9 @@ def main(args):
 
             # display values without all the Series stuff
             rates = proc.get_emission_rates(current_analysis)
+            emissions_str = f"\nEmissions: (tonne/day)\n{rates.astype(float)}"
             # values = '\n'.join([f"{name:4s} {round(value.m, digits)}" for name, value in rates.items()])
-            emissions_str = f"\nEmissions: (tonne/day)\n{rates}"
+            # emissions_str = f"\nEmissions: (tonne/day)\n{values}"
 
             rates = proc.get_energy_rates(current_analysis)
             values = '\n'.join([f"{name:19s} {round(value.m, digits)}" for name, value in rates.items()])
@@ -411,7 +399,7 @@ def main(args):
 
             if container.procs:
                 div = html.Div(style=style,
-                               children=[emissions_table(container.procs)])
+                               children=[emissions_table(current_analysis, container.procs)])
                 elt.children.append(div)
 
         elt = html.Details(open=True, children=[html.Summary("Process Emissions")])
@@ -422,14 +410,14 @@ def main(args):
         Output('tabs-content-classes', 'children'),
         Input('tabs-with-classes', 'value'))
     def render_content(tab):
-        if tab == 'overview':
-            return overview_layout(app)
-
-        elif tab == 'processes':
+        if tab == 'processes':
             return processes_layout(app, current_field)
 
         elif tab == 'settings':
             return settings_layout(app,current_field)
+
+        # elif tab == 'overview':
+        #     return overview_layout(app)
 
     app.run_server(debug=True)
 
