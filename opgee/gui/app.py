@@ -3,12 +3,13 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+import dash_cytoscape as cyto
 from dash.dependencies import Input, Output
 import dash_table
 #import json
-import networkx as nx
-import pydot
-import plotly.graph_objs as go
+#import networkx as nx
+#import pydot
+#import plotly.graph_objs as go
 from textwrap import dedent as d
 
 from .. import Process
@@ -26,73 +27,62 @@ class After(Process):
     def impute(self):
         pass
 
+# Load extra layouts
+# cyto.load_extra_layouts()   # required for cose-bilkent
+
 def field_network_graph(field):
-    graph = pydot.Dot('model', graph_type='digraph')
 
-    for name, proc in field.process_dict.items():
-        graph.add_node(pydot.Node(name))
+    nodes = [{'data': {'id': name, 'label':name}} for name in field.process_dict.keys()]
+    edges = [{'data': {'id': name, 'source': s.src_name, 'target': s.dst_name}} for name, s in field.stream_dict.items()]
 
-    for name, stream in field.stream_dict.items():
-        graph.add_edge(pydot.Edge(stream.src_name, stream.dst_name))
+    edge_color = 'maroon'
+    node_color = 'sandybrown'
 
-    # TBD: just use networkx without pydot
-    # convert graph to networkx
-    G = nx.nx_pydot.from_pydot(graph)
+    layout = html.Div([
+        cyto.Cytoscape(
+            id='network-layout',
+            responsive=True,
+            elements=nodes+edges,
+            # autolock=True,        # causes drawing weirdness
+            autounselectify=False,
+            autoungrabify=True,
+            userPanningEnabled=False,
+            userZoomingEnabled=False,
+            # minZoom=0.5,
+            # maxZoom=1.5,
+            style={'width': '100%', 'height': '450px'},
+            layout={
+                'name': 'breadthfirst',
+                'roots': '[id = "Reservoir"]'
 
-    #pos = nx.drawing.layout.spring_layout(G)
-    pos = nx.fruchterman_reingold_layout(G, seed=1000)
-    for node in G.nodes:
-        G.nodes[node]['pos'] = list(pos[node])
-
-    traces = []  # contains edge_trace and node_trace
-
-    mode = 'markers+text'
-    node_trace = go.Scatter(x=[], y=[], hovertext=[], text=[], mode=mode, textposition="bottom center",
-                            hoverinfo="text", marker={'size': 40, 'color': 'sandybrown'})
-
-    for node in G.nodes():
-        x, y = G.nodes[node]['pos']
-        proc = field.find_process(node)
-        hovertext = f"Consumes: {proc.consumption}<br>Produces: {proc.production}"
-
-        node_trace['x'] += tuple([x])
-        node_trace['y'] += tuple([y])
-        node_trace['text'] += tuple([proc.name])
-        node_trace['hovertext'] += tuple([hovertext])
-
-    traces.append(node_trace)
-
-    layout = go.Layout(title=f"Field: '{field.name}'", showlegend=False,
-                       margin={'b': 40, 'l': 40, 'r': 40, 't': 40},
-                       xaxis={'showgrid': False, 'zeroline': False, 'showticklabels': False},
-                       yaxis={'showgrid': False, 'zeroline': False, 'showticklabels': False},
-                       height=600,
-                       plot_bgcolor='aliceblue'
-                       )
-    fig = go.Figure(data=traces, layout=layout)
-
-    # Add arrows as annotations
-    for edge in G.edges:
-        src = edge[0]
-        dst = edge[1]
-        x0, y0 = G.nodes[src]['pos']
-        x1, y1 = G.nodes[dst]['pos']
-        fig.add_annotation(
-            x=x1,   # arrows' head
-            y=y1,   # arrows' head
-            ax=x0,  # arrows' tail
-            ay=y0,  # arrows' tail
-            xref='x', yref='y',
-            axref='x', ayref='y',
-            text='',  # if you want only the arrow
-            showarrow=True,
-            arrowhead=2,
-            arrowsize=1,
-            arrowwidth=2,
-            arrowcolor=('black' if src == 'Reservoir' else ('lightslategray' if dst == 'Environment' else 'maroon'))
+                # 'name': 'cose'
+                # 'name': 'grid'
+                # 'name': 'circle'
+                # 'name': 'concentric'
+                # 'name': 'cose-bilkent'
+            },
+            stylesheet=[
+                {
+                    'selector': 'node',
+                    'style': {
+                        'label': 'data(id)',
+                        'background-color': node_color,
+                    }
+                },
+                {
+                    'selector': 'edge',
+                    'style': {
+                        'curve-style': 'bezier',
+                        'mid-target-arrow-color': edge_color,
+                        'mid-target-arrow-shape': 'triangle',
+                        'arrow-scale': 1.5,
+                        'line-color': edge_color,
+                    }
+                },
+            ]
         )
-
-    return fig
+    ])
+    return layout
 
 ######################################################################################################################################################################
 # styles: for right side hover/click component
@@ -167,13 +157,15 @@ def emissions_table(analysis, procs):
 def processes_layout(app, current_field):
     # the main row
     layout = html.Div([
-            html.H3('Processes', style={'textAlign': "center"}),
+            # html.H3('Processes', style={'textAlign': "center"}),
 
             # graph component
             html.Div(
-                className="twelve columns",
+                # className="twelve columns",
+                className="row",
                 children=[
-                    dcc.Graph(id="my-graph", figure=field_network_graph(current_field))
+                    # dcc.Graph(id="my-graph", figure=field_network_graph(current_field))
+                    field_network_graph(current_field)
                 ],
             ),
 
@@ -200,23 +192,36 @@ def processes_layout(app, current_field):
                             dcc.Markdown(d("""
                             **Emissions and energy use**
                             """)),
-                            html.Pre(id='hover-data', style=styles['pre'])
+                            html.Pre(id='emissions-and-energy',
+                                     style={'margin-left': '8px'})
                         ],
-                        style={'height': '400px', 'display': 'inline-block'}),
+                        style={
+                            # 'height': '400px',
+                            'display': 'inline-block',
+                            'background-color': 'aliceblue',
+                            'border-radius': '4px',
+                            'border': '1px solid',
+                        }),
 
                     html.Div(
                         className='six columns',
                         children=[
                             dcc.Markdown(d("""
-                            **Click Data**
+                            **Stream Data**
                             """)),
                             html.Div(
                                 children=[],
-                                id='click-data',
-                                # style=
+                                id='stream-data',
+                                style={'margin-left': '8px'},
                             )
                         ],
-                        style={'height': '400px', 'display': 'inline-block'})
+                        style={
+                            # 'height': '400px',
+                            'display': 'inline-block',
+                            'background-color': 'aliceblue',
+                            'border-radius': '4px',
+                            'border': '1px solid',
+                        })
                 ],
                 style={'height': '400px', 'display': 'inline-block'})
         ],
@@ -240,24 +245,62 @@ def settings_layout(app, current_field):
         html.Div(sections,
             className="row",
         ),
-
-        html.Br(),
-
-        html.Div(
-            className='two columns',
-            children=[
-                html.Button('Run model', id='run-button', n_clicks=0),
-                dcc.Markdown(id='model-status')
-            ],
-            style={'height': '100px'}
-        ),
-
     ], style={'textAlign': "center"},
        className="row"
     )
-
     return layout
 
+def app_layout(app):
+    layout = html.Div([
+        html.Div([
+            html.H1(app.title),
+
+            # html.Br(),
+
+            html.Div([
+                html.Button('Run model', id='run-button', n_clicks=0),
+                dcc.Markdown(id='model-status')
+            ],
+                style={'height': '100px'}
+            ),
+        ],
+            style={'textAlign': "center"}
+        ),
+
+        html.Div([
+            dcc.Tabs(
+                id="tabs-with-classes",
+                value='processes',
+                parent_className='custom-tabs',
+                className='custom-tabs-container',
+                children=[
+                    # dcc.Tab(
+                    #     children=[],        # overview_layout(app)
+                    #     label='Overview',
+                    #     value='overview',
+                    #     className='custom-tab',
+                    #     selected_className='custom-tab--selected'
+                    # ),
+                    dcc.Tab(
+                        children=[],  # processes_layout(app, current_field)
+                        label='Processes',
+                        value='processes',
+                        className='custom-tab',
+                        selected_className='custom-tab--selected'
+                    ),
+                    dcc.Tab(
+                        children=[],  # settings_layout(app)
+                        label='Settings',
+                        value='settings',
+                        className='custom-tab',
+                        selected_className='custom-tab--selected'
+                    ),
+                ]
+            ),
+            html.Div(id='tabs-content-classes')
+        ])
+    ])
+    return layout
 
 def main(args):
     from ..version import VERSION
@@ -287,49 +330,15 @@ def main(args):
 
     # TBD: use "app.config['suppress_callback_exceptions'] = True" to not need to call tab-layout fns in this layout def
 
-    app.layout = html.Div([
-        html.Div([html.H1(app.title)],
-                 style={'textAlign': "center"}),
-
-        dcc.Tabs(
-            id="tabs-with-classes",
-            value='processes',
-            parent_className='custom-tabs',
-            className='custom-tabs-container',
-            children=[
-                # dcc.Tab(
-                #     children=[],        # overview_layout(app)
-                #     label='Overview',
-                #     value='overview',
-                #     className='custom-tab',
-                #     selected_className='custom-tab--selected'
-                # ),
-                dcc.Tab(
-                    children=[],    # processes_layout(app, current_field)
-                    label='Processes',
-                    value='processes',
-                    className='custom-tab',
-                    selected_className='custom-tab--selected'
-                ),
-                dcc.Tab(
-                    children=[],    # settings_layout(app)
-                    label='Settings',
-                    value='settings',
-                    className='custom-tab',
-                    selected_className='custom-tab--selected'
-                ),
-            ]
-        ),
-        html.Div(id='tabs-content-classes')
-    ])
+    app.layout = app_layout(app)
 
     # callback for right side components
     @app.callback(
-        Output('hover-data', 'children'),
-        [Input('my-graph', 'hoverData')])
-    def display_hover_data(hoverData):
-        if hoverData:
-            proc_name = hoverData['points'][0]['text']
+        Output('emissions-and-energy', 'children'),
+        [Input('network-layout', 'tapNodeData')])
+    def display_emissions_and_energy(node_data):
+        if node_data:
+            proc_name = node_data['id']
             proc = current_field.find_process(proc_name)
             digits = 2
 
@@ -349,24 +358,19 @@ def main(args):
         else:
             return ''
 
-    @app.callback(
-        Output('click-data', 'children'),
-        [Input('my-graph', 'clickData')])
-    def display_click_data(clickData):
-        if not clickData:
-            return ''
+    @app.callback(Output('stream-data', 'children'),
+                  [Input('network-layout', 'tapEdgeData')])
+    def display_edge_data(data):
+        import pandas as pd
 
-        proc_name = clickData['points'][0]['text']
-        proc = current_field.find_process(proc_name)
-        inputs  = [html.Div(html.I('Inputs'))]  + ([html.Div(str(stream)) for stream in proc.inputs]  if proc.inputs  else [html.Div('None')])
-        outputs = [html.Div(html.I('Outputs'))] + ([html.Div(str(stream)) for stream in proc.outputs] if proc.outputs else [html.Div('None')])
-
-        layout = html.Div([
-            html.P(html.B(proc_name)),
-            html.P(inputs),
-            html.P(outputs),
-        ])
-        return layout
+        if data:
+            name = data['id']
+            stream = current_field.find_stream(name)
+            with pd.option_context('display.max_rows', None,
+                                   'precision', 3):
+                    components = str(stream.components.astype(float))
+            text = f"{name} (tonne/day)\n{components}"
+            return html.Pre(text)
 
     @app.callback(
         Output('model-status', 'children'),
@@ -379,12 +383,13 @@ def main(args):
             current_field.report(current_analysis)
             return "Model has been run"
         else:
-            return f"Model has not been run"
+            return "Model has not been run"
 
     @app.callback(
         Output('emissions-table', 'children'),
-        [Input('tabs-with-classes', 'value')])
-    def update_result_table(tab):
+        [Input('tabs-with-classes', 'value'),
+         Input('model-status', 'children')])
+    def update_result_table(tab, status):
         # if tab != 'processes':
         #     return ""
 
@@ -418,6 +423,7 @@ def main(args):
 
         # elif tab == 'overview':
         #     return overview_layout(app)
+
 
     app.run_server(debug=True)
 

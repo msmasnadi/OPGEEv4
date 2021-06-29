@@ -44,8 +44,15 @@ def attr_options(class_name, direction='v'):
 
     label_style = {'display': 'inline-block', 'margin': '4px'} if direction == 'h' else None
 
+    details = html.Details([
+        html.Summary(class_name, style={'font-weight': 'bold', 'font-size': '14px'})
+    ])
+
     layout = html.Div(
-        children=[html.Div(class_name, style={'font-weight': 'bold', 'font-size': '14px'})],
+        children=[
+            # html.Div(class_name, style={'font-weight': 'bold', 'font-size': '14px'})
+            details
+        ],
         className='row',
         style={
             'text-align': 'left',
@@ -58,7 +65,7 @@ def attr_options(class_name, direction='v'):
 
     )
 
-    children = layout.children
+    children = details.children
 
     for title, opt in option_dict.items():
         options = [dict(label=label, value=value) for value, label, desc in opt.options]
