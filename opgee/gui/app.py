@@ -197,7 +197,7 @@ def processes_layout(app, current_field):
                         children=[
                             dcc.Markdown(d("""
                             **Emissions and energy use**
-                            """)),
+                            """), style={'margin-left': '4px'}),
                             html.Pre(id='emissions-and-energy',
                                      style={'margin-left': '8px'})
                         ],
@@ -214,7 +214,7 @@ def processes_layout(app, current_field):
                         children=[
                             dcc.Markdown(d("""
                             **Stream Data**
-                            """)),
+                            """), style={'margin-left': '8px'}),
                             html.Div(
                                 children=[],
                                 id='stream-data',
@@ -235,7 +235,7 @@ def processes_layout(app, current_field):
     )
     return layout
 
-def settings_layout(app, current_field):
+def settings_layout(current_field):
 
     proc_sections = [attr_options(proc.__class__.__name__) for proc in current_field.processes()]
 
@@ -374,8 +374,10 @@ def main(args):
             stream = current_field.find_stream(name)
             with pd.option_context('display.max_rows', None,
                                    'precision', 3):
-                    components = str(stream.components.astype(float))
-            text = f"{name} (tonne/day)\n{components}"
+                    nonzero = stream.components.query('solid > 0 or liquid > 0 or gas > 0')
+                    components = str(nonzero.astype(float)) if len(nonzero) else None
+
+            text = f"{name} (tonne/day)\n{components}" if components else f"{name}:\n<empty stream>"
             return html.Pre(text)
 
     @app.callback(
@@ -425,7 +427,7 @@ def main(args):
             return processes_layout(app, current_field)
 
         elif tab == 'settings':
-            return settings_layout(app,current_field)
+            return settings_layout(current_field)
 
         # elif tab == 'overview':
         #     return overview_layout(app)
