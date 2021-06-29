@@ -139,9 +139,11 @@ class Process(XmlInstantiable, AttributeMixin):
         self.iteration_converged = False
         self.iteration_registered = False
 
+        self.process_EF = None
+
     # Optional for Process subclasses
     def _after_init(self):
-        pass
+        self.process_EF = self.get_process_EF()
 
     #
     # Pass-through convenience methods for energy and emissions
@@ -620,9 +622,11 @@ class Process(XmlInstantiable, AttributeMixin):
                 if classname in process_EF_df.index:
                     name = classname
                 else:
-                    raise OpgeeException(f"Neither '{name}' nor '{classname}' was found in table '{tbl_name}'")
+                    return None
+                    # raise OpgeeException(f"Neither '{name}' nor '{classname}' was found in table '{tbl_name}'")
             else:
-                raise OpgeeException(f"'Class {classname}' was not found in table '{tbl_name}'")
+                return None
+                # raise OpgeeException(f"'Class {classname}' was not found in table '{tbl_name}'")
 
         emission_series = pd.Series({fuel: process_EF_df.loc[name][fuel] for fuel in process_EF_df.columns},
                                     dtype="pint[g/mmBtu]")

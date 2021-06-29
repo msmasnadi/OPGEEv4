@@ -7,38 +7,32 @@ class Before(Process):
     def run(self, analysis):
         pass
 
-    def impute(self):
-        pass
-
 
 class After(Process):
     def run(self, analysis):
         pass
 
-    def impute(self):
-        pass
-
 
 @pytest.fixture(scope="module")
-def test_separator(configure_logging_for_tests):
-    return load_test_model('test_separator.xml')
+def test_oil_branch(configure_logging_for_tests):
+    return load_test_model('test_oil_branch.xml')
 
 
-def test_run(test_separator):
-    analysis = test_separator.get_analysis('test_separator')
+def test_run(test_oil_branch):
+    analysis = test_oil_branch.get_analysis('test_oil_branch')
     field = analysis.get_field('test')
     field.run(analysis)
 
 
-# def test_run_steam(test_separator):
-#     analysis = test_separator.get_analysis('test_separator')
+# def test_run_steam(test_oil_branch):
+#     analysis = test_oil_branch.get_analysis('test_oil_branch')
 #     field = analysis.get_field('test')
 #     field.set_attr("steam_flooding", 1)
 #     field.run(analysis)
 #
 #
-# def test_run_heater(test_separator):
-#     analysis = test_separator.get_analysis('test_separator')
+# def test_run_heater(test_oil_branch):
+#     analysis = test_oil_branch.get_analysis('test_oil_branch')
 #     field = analysis.get_field('test')
 #     field.set_attr("heater_treater", 1)
 #     field.run(analysis)

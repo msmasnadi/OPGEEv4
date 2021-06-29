@@ -11,11 +11,17 @@ _logger = getLogger(__name__)
 
 
 class DownholePump(Process):
+    def _after_init(self):
+        super()._after_init()
+        self.field = field = self.get_field()
+        self.res_temp = field.attr("res_temp")
+
     def run(self, analysis):
         self.print_running_msg()
 
-        field = self.get_field()
-        res_temp = field.attr("res_temp")
+        field = self.field
+        # res_temp = field.attr("res_temp")
+        # TODO: move all to the after init method
         wellhead_press = field.attr("wellhead_pressure")
         wellhead_temp = field.attr("wellhead_temperature")
         oil_volume_rate = field.attr("oil_prod")
@@ -87,7 +93,7 @@ class DownholePump(Process):
         # properties of free gas (all at average conditions along wellbore, in production tubing)
         free_gas = solution_gas_oil_ratio_input - average_SOR
         wellbore_average_press = (wellhead_press + input.pressure) / 2
-        wellbore_average_temp = ureg.Quantity((wellhead_temp.m + res_temp.m) / 2, "degF")
+        wellbore_average_temp = ureg.Quantity((wellhead_temp.m + self.res_temp.m) / 2, "degF")
         stream = Stream("average", temperature=wellbore_average_temp, pressure=wellbore_average_press)
         stream.copy_flow_rates_from(input)
         gas_FVF = gas.volume_factor(stream)
@@ -128,8 +134,7 @@ class DownholePump(Process):
         # emission
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")
-        process_EF = self.get_process_EF() # pandas Series
-        combusion_emission = (energy_for_combustion * process_EF).sum()
+        combusion_emission = (energy_for_combustion * self.process_EF).sum()
         emissions.add_rate(EM_COMBUSTION, "GHG", combusion_emission)
 
         emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)

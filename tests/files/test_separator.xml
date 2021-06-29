@@ -57,25 +57,42 @@
 			<Contains>water</Contains>
 		</Stream>
 
+<!--		<Stream src="CrudeOilDewatering" dst="After" name="crude oil dewatering to after">-->
+<!--			<Contains>oil for storage</Contains>-->
+<!--		</Stream>-->
+
+		<Stream src="CrudeOilDewatering" dst="After" name="crude oil dewatering to stabilization">
+			<Contains>oil for stabilization</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilDewatering" dst="After" name="crude oil dewatering to after">
+			<Contains>oil for upgrader</Contains>
+			<Contains>oil for dilution</Contains>
+			<Contains>oil for storage</Contains>
+		</Stream>
+
 		<Stream src="Separation" dst="ProducedWaterTreatment" name="separator to produced water treatment">
 			<Contains>water</Contains>
 		</Stream>
 		
 		<Stream src="ProducedWaterTreatment" dst="After" name="produced water treatment to steam">
 			<Contains>water for steam</Contains>
-		</Stream>
-
-		<Stream src="ProducedWaterTreatment" dst="After" name="produced water treatment to reinjection">
 			<Contains>water for reinjection</Contains>
-		</Stream>
-
-		<Stream src="ProducedWaterTreatment" dst="After" name="produced water treatment to surface disposal">
 			<Contains>water for surface disposal</Contains>
-		</Stream>
-
-		<Stream src="ProducedWaterTreatment" dst="After" name="produced water treatment to subsurface disposal">
 			<Contains>water for subsurface disposal</Contains>
 		</Stream>
+
+<!--		<Stream src="ProducedWaterTreatment" dst="After" name="produced water treatment to reinjection">-->
+<!--			<Contains>water for reinjection</Contains>-->
+<!--		</Stream>-->
+
+<!--		<Stream src="ProducedWaterTreatment" dst="After" name="produced water treatment to surface disposal">-->
+<!--			<Contains>water for surface disposal</Contains>-->
+<!--		</Stream>-->
+
+<!--		<Stream src="ProducedWaterTreatment" dst="After" name="produced water treatment to subsurface disposal">-->
+<!--			<Contains>water for subsurface disposal</Contains>-->
+<!--		</Stream>-->
 
 		<Stream src="Separation" dst="After" name="gas after separator">
 			<Contains>gas</Contains>

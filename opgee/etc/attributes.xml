@@ -289,6 +289,20 @@
     <AttrDef name="fraction_disp_water_surface" unit="frac" type="float" desc="Fraction of excess water disposed in surface waters">0.0</AttrDef>
     <AttrDef name="number_of_stages" type="int" desc="water treatment stages">4</AttrDef>
   </ClassAttrs>
+  <ClassAttrs name="CrudeOilStabilization">
+    <Options name="prime_mover_type" default="NG_engine">
+      <Option>NG_engine</Option>
+      <Option>Electric_motor</Option>
+    </Options>
+
+    <AttrDef name="stab_temp" unit="degF" type="float" desc="Stabilizer temperature">344.0</AttrDef>
+    <AttrDef name="stab_press" unit="psia" type="float" desc="Stabilizer pressure">100.0</AttrDef>
+    <AttrDef name="eps_stab" unit="percent" type="float" desc="Stabilizer heat loss">2.0</AttrDef>
+    <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
+    <AttrDef name="eta_gas" type="float" unit="frac" desc="heater fuel use efficiency - gas">0.80</AttrDef>
+    <AttrDef name="eta_electricity" type="float" unit="kWh/btu" desc="heater fuel use efficiency electricity">0.0004</AttrDef>
+
+  </ClassAttrs>
   <ClassAttrs name="CrudeStorage">
     <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
   </ClassAttrs>
