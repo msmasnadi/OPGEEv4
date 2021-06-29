@@ -1,4 +1,5 @@
 import networkx as nx
+from .attributes import AttrDefs
 from .container import Container
 from .core import elt_name, instantiate_subelts, dict_from_list
 from .error import OpgeeException, OpgeeStopIteration
@@ -51,13 +52,13 @@ class Field(Container):
         self.water = Water(self)
 
     def _after_init(self):
+        self.check_attr_constraints(self.attr_dict)
+
         self.model = self.find_parent('Model')
 
-        for obj in self.processes():
-            obj._after_init()
-
-        for obj in [self.oil, self.gas, self.water]:
-            obj._after_init()
+        for iterator in [self.processes(), self.streams(), [self.oil, self.gas, self.water]]:
+            for obj in iterator:
+                obj._after_init()
 
     def __str__(self):
         return f"<Field '{self.name}'>"

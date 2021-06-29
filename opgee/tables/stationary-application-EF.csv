@@ -1,5 +1,5 @@
-﻿"# g/mmbtu of fuel burned, LHV",,,,,,
-Fuel,Application,VOC,CO,CH4,N2O,CO2
+﻿Fuel,Application,VOC,CO,CH4,N2O,CO2
+_,_,g/mmbtu,g/mmbtu,g/mmbtu,g/mmbtu,g/mmbtu
 Natural Gas,Utility/ Industrial Boiler (>100 mmbtu/hr input),2.54,22.21,1.06,0.75,59366.9495
 Natural Gas,Small Industrial Boiler (10-100 mmbtu/hr input),2.54,24.97,1.06,0.35,59362.61236
 Natural Gas,Large Gas Turbine,1.056,41.286,1.056,0.102,59341.60907

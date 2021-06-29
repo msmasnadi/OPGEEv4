@@ -181,8 +181,7 @@ class Emissions(OpgeeObject):
         # TBD: where to get CO and N2O?
 
         # All gas-phase hydrocarbons heavier than methane are considered VOCs
-        VOCs = [f'C{n}' for n in range(2, Stream.max_carbon_number + 1)]  # skip C1 == CH4
-        voc_rate = stream.components.loc[VOCs, PHASE_GAS].sum()
+        voc_rate = stream.components.loc[Stream.VOCs, PHASE_GAS].sum()
         self.add_rate(category, 'VOC', voc_rate)
         GHG = self.data[EM_FUGITIVES].sum()
         self.add_rate(category, "GHG", GHG)

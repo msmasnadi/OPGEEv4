@@ -82,7 +82,10 @@ class Stream(XmlInstantiable, AttributeMixin):
     # HCs with 1-60 carbon atoms, i.e., C1, C2, ..., C50
     max_carbon_number = 50
     _hydrocarbons = [f'C{n}' for n in range(1, max_carbon_number + 1)]
-    _non_mathane_hydrocarbons = [f'C{n}' for n in range(2, max_carbon_number + 1)]
+
+    # All hydrocarbon gases other than methane (C1) are considered VOCs.
+    VOCs = _hydrocarbons[1:]
+
     _solids = ['PC']  # petcoke
     _liquids = ['oil']
     # _hc_molecules = ['CH4', 'C2H6', 'C3H8', 'C4H10']
@@ -117,6 +120,9 @@ class Stream(XmlInstantiable, AttributeMixin):
 
         self.impute = impute
         self.has_exogenous_data = False
+
+    def _after_init(self):
+        self.check_attr_constraints(self.attr_dict)
 
     def __str__(self):
         number_str = f" #{self.number}" if self.number else ''

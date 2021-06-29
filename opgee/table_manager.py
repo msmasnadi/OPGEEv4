@@ -15,13 +15,13 @@ class TableDef(object):
     Holds meta-data for built-in tables (CSV files loaded into `pandas.DataFrames`).
     """
 
-    def __init__(self, basename, index_col=None, skiprows=0, unit_col=None, units=None, hasUnits=None):
+    def __init__(self, basename, index_col=None, has_units=None): # skiprows=0, units=None
         self.basename = basename
         self.index_col = index_col
-        self.unit_col = unit_col
-        self.skiprows = skiprows
-        self.units = units
-        self.hasUnits = hasUnits
+        self.has_units = has_units
+
+        # self.skiprows = skiprows      # deprecated
+        # self.units = units
 
 
 class TableManager(OpgeeObject):
@@ -33,15 +33,13 @@ class TableManager(OpgeeObject):
     Users can add external tables using the ``add_table`` method.
     """
     table_defs = [
-        #TODO: I just add the hasUnits attr without deleting the units
         TableDef('constants', index_col='name'),
         TableDef('GWP', index_col=False),
         TableDef('bitumen-mining-energy-intensity', index_col=0),
-        TableDef('transport-specific-EF', index_col=('Mode', 'Fuel'), skiprows=1, units='g/mmbtu'),
-        TableDef('stationary-application-EF', index_col=('Fuel', 'Application'), skiprows=1, units='g/mmbtu'),
-        TableDef('venting_fugitives_by_process', index_col=False, units='fraction'),
-        TableDef("process-specific-EF", index_col="Process", skiprows=1, units="g/mmbtu"),
-        TableDef("water-treatment", index_col=0, unit_col=["Apply", "Volume loss", "EC"], hasUnits=True)
+        TableDef('transport-specific-EF', index_col=('Mode', 'Fuel'), has_units=True),
+        TableDef('stationary-application-EF', index_col=('Fuel', 'Application'), has_units=True),
+        TableDef("process-specific-EF", index_col=0, has_units=True),
+        TableDef("water-treatment", index_col=0, has_units=True)
         # TableDef('separator_capacity', index_col=False, skiprows=1),
     ]
 
@@ -73,12 +71,16 @@ class TableManager(OpgeeObject):
 
             relpath = f"tables/{name}.csv"
             s = resourceStream(relpath, stream_type='text')
-            if tbl_def.hasUnits:
+            if tbl_def.has_units:
                 df = pd.read_csv(s, index_col=tbl_def.index_col, header=[0, 1])
-                df_unit_ = df[tbl_def.unit_col].pint.quantify(level=-1)
-                df[tbl_def.unit_col] = df_unit_[tbl_def.unit_col]
+
+                unitful_cols = [name for name, unit in df.columns if unit != '_']
+                df_units = df[unitful_cols].pint.quantify(level=-1)
+                df[unitful_cols] = df_units[unitful_cols]
+                df.columns = df.columns.droplevel(1)        # drop the units from the column index
             else:
-                df = pd.read_csv(s, index_col=tbl_def.index_col, skiprows=tbl_def.skiprows)
+                df = pd.read_csv(s, index_col=tbl_def.index_col) #, skiprows=tbl_def.skiprows)
+
             self.table_dict[name] = df
 
         return df

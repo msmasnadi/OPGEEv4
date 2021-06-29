@@ -10,20 +10,6 @@
     </xs:restriction>
 	</xs:simpleType>
 
-	<xs:simpleType name="FunctionalUnitType">
-		<xs:restriction base="xs:string">
-			<xs:enumeration value="gas"/>
-			<xs:enumeration value="oil"/>
-    </xs:restriction>
-	</xs:simpleType>
-
-	<xs:simpleType name="EnergyBasisType">
-		<xs:restriction base="xs:string">
-      <xs:enumeration value="LHV"/>
-			<xs:enumeration value="HHV"/>
-    </xs:restriction>
-	</xs:simpleType>
-
 	<xs:element name='Model'>
 		<xs:complexType>
 			<xs:choice maxOccurs="unbounded">
@@ -34,22 +20,6 @@
 			</xs:choice>
 		</xs:complexType>
     </xs:element>
-
-	<xs:element name='FunctionalUnit'>
-    <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base='FunctionalUnitType'/>
-      </xs:simpleContent>
-    </xs:complexType>
-	</xs:element>
-
-	<xs:element name='EnergyBasis'>
-    <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base='EnergyBasisType'/>
-      </xs:simpleContent>
-    </xs:complexType>
-	</xs:element>
 
 	<xs:element name='Analysis'>
     <xs:complexType>
@@ -180,14 +150,5 @@
       <xs:attribute name='cycle-start' default='0' type='xs:boolean'/>
     </xs:complexType>
 	</xs:element>
-
-  <!-- TBD: unclear if this is useful -->
-	<xs:element name='ProcessDatabase'>
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs='0' maxOccurs='unbounded' ref='Process'/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
 
 </xs:schema>

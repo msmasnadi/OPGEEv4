@@ -4,10 +4,11 @@
 .. Copyright (c) 2021 Richard Plevin and Stanford University
    See the https://opensource.org/licenses/MIT for license details.
 """
+from collections import defaultdict
 import pandas as pd
 import pint_pandas
 from . import ureg
-from .core import OpgeeObject, XmlInstantiable, A, instantiate_subelts, elt_name, validate_unit
+from .core import OpgeeObject, XmlInstantiable, A, instantiate_subelts, elt_name, validate_unit, magnitude
 from .error import OpgeeException, AttributeError
 from .log import getLogger
 from .pkg_utils import resourceStream
@@ -30,12 +31,16 @@ class Options(XmlInstantiable):
         return obj
 
 class AttrDef(XmlInstantiable):
-    def __init__(self, name, value=None, pytype=None, option_set=None, unit=None):
+    def __init__(self, name, value=None, pytype=None, option_set=None, unit=None,
+                 constraints=None, exclusive=None, synchronized=None):
         super().__init__(name)
         self.default = None
         self.option_set = option_set        # the name of the option set, if any
         self.unit = unit
         self.pytype = pytype
+        self.constraints = constraints      # range constraints
+        self.synchronized = synchronized
+        self.exclusive = exclusive
 
         if value is not None:               # if value is None, we set default later
             self.set_default(value)
@@ -71,9 +76,18 @@ class AttrDef(XmlInstantiable):
         """
         a = elt.attrib
 
+        ops = ('GT', 'GE', 'LT', 'LE')
+        constraints = [(op, coercible(a[op], float)) for op in ops if a.get(op)]
+
         # if elt.text is None, we supply the default later in __init__()
-        obj = AttrDef(a['name'], value=elt.text, pytype=a.get('type'), unit=a.get('unit'),
-                   option_set=a.get('options'))
+        obj = AttrDef(a['name'],
+                      value=elt.text,
+                      pytype=a.get('type'),
+                      unit=a.get('unit'),
+                      option_set=a.get('options'),
+                      constraints=constraints,
+                      exclusive=a.get('exclusive'),
+                      synchronized=a.get('synchronized'))
         return obj
 
 
@@ -86,12 +100,21 @@ class ClassAttrs(XmlInstantiable):
         self.attr_dict = attr_dict
         self.option_dict = option_dict
 
+        self.syncs = syncs = defaultdict(list)
+        self.excludes = excludes = defaultdict(list)
+
         # Set defaults for attributes using options to the option's default
         for attr in attr_dict.values():
             set_name = attr.option_set
             if attr.default is None and set_name:
                 option_set = option_dict[set_name]
                 attr.set_default(option_set.default) # handles type coercion
+
+            if attr.synchronized:
+                syncs[attr.synchronized].append(attr.name)
+
+            if attr.exclusive:
+                excludes[attr.exclusive].append(attr.name)
 
     @classmethod
     def from_xml(cls, elt):
@@ -104,11 +127,38 @@ class ClassAttrs(XmlInstantiable):
         # add attributes to attr_dict from <AttrDef> elements
         attr_dict = instantiate_subelts(elt, AttrDef, as_dict=True)
 
+        # ensure that the constraints specified in the XML are met
+        cls.check_constraints(attr_dict)
+
         # Add all <Option> elements beneath elt to option_dict.
         option_dict = instantiate_subelts(elt, Options, as_dict=True)
 
         obj = cls(elt_name(elt), attr_dict, option_dict)
         return obj
+
+    @classmethod
+    def check_constraints(cls, attr_dict):
+        """
+        Check that all (exclusive, synchronized) constraints specified in the XML
+        are, in fact, met. Otherwise raise an error.
+
+        :param attr_dict: (dict) All the attributes for the specified class.
+        :return: none
+        :raises: OpgeeException if any constraints aren't met
+        """
+        # build constraint sets
+        syncs = defaultdict(list)
+        excludes = defaultdict(list)
+
+        for attr in attr_dict.values():
+            if attr.synchronized:
+                syncs[attr.synchronized].append(attr)
+
+            if attr.exclusive:
+                excludes[attr.exclusive].append(attr)
+
+
+
 
     @staticmethod
     def _lookup(obj, dict_name, key, raiseError=True):
@@ -268,3 +318,56 @@ class AttributeMixin():
                 attr_dict[name] = A(name, value=value, pytype=attr_def.pytype, unit=attr_def.unit)
 
         return attr_dict
+
+    @classmethod
+    def check_attr_constraints(cls, attr_dict):
+        attr_defs = AttrDefs.get_instance()
+        class_attrs = attr_defs.class_attrs(cls.__name__, raiseError=False)
+
+        if class_attrs is None or attr_dict is None:
+            return  # nothing to check
+
+        funcs = {
+            'LT': lambda value, limit: value <  limit,
+            'LE': lambda value, limit: value <= limit,
+            'GT': lambda value, limit: value >  limit,
+            'GE': lambda value, limit: value >= limit,
+        }
+
+        def is_a_process(cls):
+            for superclass in cls.__mro__:
+                if superclass.__name__ == 'Process':
+                    return True
+
+            return False
+
+        process_attr_dict = attr_defs.class_attrs('Process').attr_dict
+
+        # Check numeric constraints
+        for attr_name, attr in attr_dict.items():
+            # If the definition of an attribute of a subprocess is not known, look at Process's attributes
+            attr_def = class_attrs.attr_dict.get(attr_name) or (is_a_process(cls) and process_attr_dict.get(attr_name))
+            if not attr_def:
+                raise OpgeeException(f"Attribute '{attr_name}' not found for class '{cls.__name__}'")
+
+            constraints = attr_def.constraints
+
+            if constraints:
+                for op, limit in constraints:
+                    value = magnitude(attr.value)
+                    # print(f"Testing ({value} {op} {limit}) for attr {attr_name}")
+                    if not funcs[op](value, limit):
+                        raise OpgeeException(f"Attribute '{attr_name}': constraint failed: value {value} is not {op} {limit}")
+
+        # Check exclusive groups
+        for group, attr_names in class_attrs.excludes.items():
+            values = [attr_dict[attr_name].value for attr_name in attr_names]
+
+            if sum(values) not in (0, 1):
+                raise OpgeeException(f"Exclusive attribute group '{group}' has multiple items selected")
+
+        # Check synchronized groups
+        for group, attr_names, in class_attrs.syncs.items():
+            values = [attr_dict[attr_name].value for attr_name in attr_names]
+            if sum(values[1:]) != values[0]:
+                raise OpgeeException(f"Attributes in synchronized group '{group}' have differing values")

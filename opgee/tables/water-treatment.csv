@@ -1,5 +1,5 @@
 Stages,Treatment,Code,Apply,Volume loss,EC
-,,,dimensionless,percent,kWh/bbl_water
+_,_,_,dimensionless,percent,kWh/bbl_water
 Stage 1,Dissolved air flotation,DAF,1,0,0.04
 Stage 1,Hydrocyclones,HYDRO,0,0,0.05
 Stage 2,Rotating biological contactors,RBC,0,0,0.03

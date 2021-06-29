@@ -5,10 +5,11 @@
    See the https://opensource.org/licenses/MIT for license details.
 '''
 import pandas as pd
+import pint
 
 from . import ureg
 from .attributes import AttrDefs, AttributeMixin
-from .core import XmlInstantiable, elt_name, instantiate_subelts, magnitude
+from .core import OpgeeObject, XmlInstantiable, elt_name, instantiate_subelts, magnitude
 from .container import Container
 from .error import OpgeeException, AbstractMethodError, OpgeeStopIteration
 from .emissions import Emissions, EM_OTHER
@@ -80,6 +81,34 @@ def _get_subclass(cls, subclass_name, reload=False):
         raise OpgeeException(f"Class {subclass_name} is not a known subclass of {cls}")
 
 
+class IntermediateValues(OpgeeObject):
+    """
+    Stores "interesting" intermediate values from processes for display in GUI.
+    """
+    def __init__(self):
+        self.data = pd.DataFrame(columns=('value', 'unit', 'desc'))
+
+    def store(self, name, value, unit=None, desc=None):
+        # Strip magnitude and unit from Quantity objects
+        if isinstance(value, pint.Quantity):
+            unit = str(value.u)
+            value = value.m
+
+        self.data.loc[name, ('value', 'unit', 'desc')] = (value, unit or '', desc or '')
+
+    def get(self, name):
+        """
+        Return the record associated with `name`.
+
+        :param name: (str) the name of an intermediate value
+        :return: (pd.Series) the row in the DataFrame of intermediate values for this process.
+        """
+        try:
+            return self.data.loc[name]
+        except KeyError:
+            raise OpgeeException(f"An intermediate value for '{name}' was not found")
+
+
 class Process(XmlInstantiable, AttributeMixin):
     """
     The "leaf" node in the container/process hierarchy. Process is an abstract superclass: actual runnable Process
@@ -133,6 +162,8 @@ class Process(XmlInstantiable, AttributeMixin):
         self.energy = Energy()
         self.emissions = Emissions()
 
+        self.iv = IntermediateValues()
+
         # Support for cycles
         self.iteration_count = 0
         self.iteration_value = None
@@ -143,6 +174,7 @@ class Process(XmlInstantiable, AttributeMixin):
 
     # Optional for Process subclasses
     def _after_init(self):
+        self.check_attr_constraints(self.attr_dict)
         self.process_EF = self.get_process_EF()
 
     #
@@ -628,9 +660,10 @@ class Process(XmlInstantiable, AttributeMixin):
                 return None
                 # raise OpgeeException(f"'Class {classname}' was not found in table '{tbl_name}'")
 
-        emission_series = pd.Series({fuel: process_EF_df.loc[name][fuel] for fuel in process_EF_df.columns},
+        emission_series = pd.Series({fuel: process_EF_df.loc[name, fuel] for fuel in process_EF_df.columns},
                                     dtype="pint[g/mmBtu]")
         return emission_series
+
     # @staticmethod
     # def get_gas_emission(gwp_stream, stream):
     #     emission = gwp_stream * stream

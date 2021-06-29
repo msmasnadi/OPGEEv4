@@ -28,7 +28,7 @@ def radio_items(title, options, default, direction='v', id=None):
 
     return layout
 
-def attr_options(class_name, direction='v'):
+def attr_options(class_name, direction='h'):
     from ..attributes import AttrDefs
 
     attr_defs = AttrDefs.get_instance()
@@ -42,10 +42,15 @@ def attr_options(class_name, direction='v'):
 
     # attr_dict   = class_attrs.attr_dict
 
-    label_style = {'display': 'inline-block', 'margin': '4px'} if direction == 'h' else None
+    details = html.Details([
+        html.Summary(class_name, style={'font-weight': 'bold', 'font-size': '14px'})
+    ])
 
     layout = html.Div(
-        children=[html.Div(class_name, style={'font-weight': 'bold', 'font-size': '14px'})],
+        children=[
+            # html.Div(class_name, style={'font-weight': 'bold', 'font-size': '14px'})
+            details
+        ],
         className='row',
         style={
             'text-align': 'left',
@@ -58,7 +63,8 @@ def attr_options(class_name, direction='v'):
 
     )
 
-    children = layout.children
+    label_style = {'display': 'inline-block', 'margin-left': '8px'} if direction == 'h' else None  # , 'margin': '4px'
+    children = details.children
 
     for title, opt in option_dict.items():
         options = [dict(label=label, value=value) for value, label, desc in opt.options]
@@ -66,11 +72,11 @@ def attr_options(class_name, direction='v'):
         radio = html.Div(
             children=[
                 html.Span(title, style={'font-weight': 'bold'}),
-                dcc.RadioItems(options=options, value=opt.default, labelStyle=label_style,
-                               persistence=True, id=title),
+                dcc.RadioItems(id=title, options=options, value=opt.default,
+                               labelStyle=label_style, persistence=True),
             ],
-            className="one column",
-            style={'text-align': 'left'}
+            # className="one column",
+            style={'text-align': 'left', 'margin-left': '4px', 'padding': '2px'}
         )
         children.append(radio)
 
