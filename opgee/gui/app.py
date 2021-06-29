@@ -95,7 +95,6 @@ styles = {
 
 def emissions_table(analysis, procs):
     import pandas as pd
-    from pint import Quantity
     from ..emissions import Emissions
 
     columns = [{'name': 'Name', 'id': 'Name'}] + [{'name': col, 'id': col} for col in Emissions.categories]
@@ -111,14 +110,19 @@ def emissions_table(analysis, procs):
     df.reset_index(inplace=True)
     df.rename({'index': 'Name'}, axis='columns', inplace=True)
 
-    def get_magnitude(quantity):
-        return quantity.m if isinstance(quantity, Quantity) else quantity
+    # convert to scientific notation
+    for col_name, col in df.iteritems():
+        if col.dtype == float:
+            df[col_name] = col.apply(lambda x: '{:.2E}'.format(x))
+
+    # data = df.round(3).to_dict('records')  # TBD: use scientific notation?
+    data = df.to_dict('records')  # TBD: use scientific notation?
+
+    text_cols = ['Name']
 
     tbl = dash_table.DataTable(
         columns=columns,
-        # data=df.applymap(get_magnitude).to_dict('records'),  # TBD: Force scientific notation
-        data=df.round(3).to_dict('records'),  # TBD: Force scientific notation
-        # data=df.astype(float).to_dict('records'),
+        data=data,
         style_as_list_view=True,
         style_cell={'padding': '5px'},
         style_header={
@@ -127,15 +131,17 @@ def emissions_table(analysis, procs):
         },
         style_cell_conditional=[
             {
-                'if': {'column_id': c},
-                'textAlign': 'left'
-            } for c in ['Name']
+                'if': {
+                    'column_id': c
+                },
+                'textAlign': 'left',
+                'font-family': 'sans-serif',
+            } for c in text_cols
         ],
         style_data_conditional=[
             {
                 'if': {
                     'filter_query': '{Name} = "Total"',
-                    # 'column_id': 'Name'
                 },
                 'fontWeight': 'bold'
             },
