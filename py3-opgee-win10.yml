@@ -12,7 +12,9 @@ dependencies:
   - libpng
   - libtiff
   - lxml=4.6.3
+  - llvmlite=0.32.1
   - networkx
+  - numba=0.47.0
   - numpy=1.19.2
   - pandas>=1.2.0
   - pint>=0.17
@@ -30,6 +32,6 @@ dependencies:
   - traitlets
   - urllib3
   - pip:
-    - thermosteam>=0.25.4
+    - thermosteam==0.25.4
     - semver>=3.0.0.dev2
     - dash-cytoscape==0.2.0
