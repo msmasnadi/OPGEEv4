@@ -5,10 +5,11 @@ channels:
   - defaults
 dependencies:
   - colour
+  - configparser>=3.5
   - dash
-  - decorator
+  - decorator>=4.3.0,<5
   - ipython
-  - jinja2=3.0.1
+  - jinja2>=2.10
   - libpng
   - libtiff
   - lxml=4.6.3
@@ -21,11 +22,11 @@ dependencies:
   - pint-pandas>=0.2
   - pip
   - pydot
-  - pyparsing
+  - pyparsing>=2.1.4
   - pytest
-  - python=3.8
+  - python>=3.7
   - setuptools
-  - sphinx
+  - sphinx>=1.6
   - sphinx-argparse=0.2.5
   - sphinx_rtd_theme
   - sphinxcontrib-serializinghtml
