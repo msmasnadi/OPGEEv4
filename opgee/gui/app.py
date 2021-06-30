@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from collections import defaultdict
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_cytoscape as cyto
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import dash_table
 #import json
 #import networkx as nx
@@ -13,6 +14,7 @@ import dash_table
 from textwrap import dedent as d
 
 from .. import Process
+from ..attributes import AttrDefs
 from ..model import ModelFile
 from ..gui.widgets import attr_inputs
 from ..log import getLogger
@@ -238,11 +240,11 @@ def processes_layout(app, current_field):
     return layout
 
 def settings_layout(current_field):
-
-    proc_sections = [attr_inputs(proc.__class__.__name__) for proc in current_field.processes()]
+    proc_names = sorted([proc.name for proc in current_field.processes()])
+    proc_sections = [attr_inputs(proc_name) for proc_name in proc_names]
 
     sections = [
-        # attr_inputs('Model'),
+        attr_inputs('Model'),
         attr_inputs('Analysis'),
         attr_inputs('Field'),
     ] + proc_sections
@@ -250,6 +252,11 @@ def settings_layout(current_field):
     # noinspection PyCallingNonCallable
     layout = html.Div([
         html.H3('Settings'),
+        html.Div([
+            html.Button('Save', id='save-settings-button', n_clicks=0),
+            dcc.Markdown(id='save-button-status')
+        ],
+            style={'height': '100px'}),
         html.Div(sections,
             className="row",
         ),
@@ -258,17 +265,88 @@ def settings_layout(current_field):
     )
     return layout
 
+#
+# TBD: Really only works on a current field.
+#
+def generate_settings_callback(app, current_field):
+    """
+    Generate a callback for all the inputs in the Settings tab by walking the
+    attribute definitions dictionary. Each attribute `attr_name` in class
+    `class_name` corresponds to an input element with id f"{class_name}:{attr_name}"
+
+    :param app: a Dash app instance
+    :param ids: (list(str)) ids of Dropdown controllers to generate callbacks for.
+    :return: none
+    """
+    from lxml import etree as ET
+
+    class_names = ['Model', 'Analysis', 'Field'] + [proc.name for proc in current_field.processes()]
+
+    attr_defs = AttrDefs.get_instance()
+    class_dict = attr_defs.classes
+
+    ids = []
+    for class_name in class_names:
+        class_attrs = class_dict.get(class_name)
+        if class_attrs:
+            for attr_name in class_attrs.attr_dict.keys():
+                id = f"{class_name}:{attr_name}"
+                # print(f"Callback state for input '{id}'")
+                ids.append(id)
+        else:
+            print(f"Class {class_name} has no attributes")
+
+    state_list = [State(id, 'value') for id in ids]
+
+    def func(n_clicks, *values):
+        if n_clicks == 0 or not values:
+            return 'Not saved'
+
+        class_value_dict = defaultdict(list)
+
+        for id, value in zip(ids, values):
+            class_name, attr_name = id.split(':')
+            class_value_dict[class_name].append((attr_name, value))
+
+        root = ET.Element('Model')
+
+        for class_name, value_pairs in class_value_dict.items():
+            if class_name == 'Model':
+                class_elt = root        # Model attributes are top level
+
+            elif class_name == 'Process':
+                class_elt = ET.SubElement(root, class_name)
+
+            elif class_name in ('Field', 'Analysis'):
+                # TBD: needs name attribute
+                class_elt = ET.SubElement(root, class_name, attrib={'name': 'NEEDS_NAME'})
+
+            else:  # Process subclass
+                class_elt = ET.SubElement(root, 'Process', attrib={'name': class_name})
+
+            for attr_name, value in value_pairs:
+                elt = ET.SubElement(class_elt, 'A', attrib={'name': attr_name})
+                elt.text = str(value)
+
+        ET.dump(root)
+
+        # TBD: save attributes to XML file
+        return 'Saved to SOMETHING.xml'
+
+    app.callback(Output('save-button-status', 'children'),
+                 [Input('save-settings-button', 'n_clicks')],
+                 state=state_list)(func)
+
+
 def app_layout(app):
     # noinspection PyCallingNonCallable
     layout = html.Div([
         html.Div([
             html.H1(app.title),
 
-            # html.Br(),
-
             html.Div([
                 html.Button('Run model', id='run-button', n_clicks=0),
-                dcc.Markdown(id='model-status')
+                dcc.Markdown(id='run-model-status')
             ],
                 style={'height': '100px'}
             ),
@@ -384,7 +462,7 @@ def main(args):
             return html.Pre(text)
 
     @app.callback(
-        Output('model-status', 'children'),
+        Output('run-model-status', 'children'),
         [Input('run-button', 'n_clicks')])
     def update_output(n_clicks):
         if n_clicks:
@@ -399,7 +477,7 @@ def main(args):
     @app.callback(
         Output('emissions-table', 'children'),
         [Input('tabs-with-classes', 'value'),
-         Input('model-status', 'children')])
+         Input('run-model-status', 'children')])
     def update_result_table(tab, status):
         # if tab != 'processes':
         #     return ""
@@ -438,6 +516,7 @@ def main(args):
         # elif tab == 'overview':
         #     return overview_layout(app)
 
+    generate_settings_callback(app, current_field)
 
     app.run_server(debug=True)
 

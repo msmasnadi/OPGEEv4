@@ -1,6 +1,7 @@
 import dash_core_components as dcc
 import dash_html_components as html
 from ..core import magnitude
+from ..error import OpgeeException
 
 int_pattern = r'^\s*\d+\s*$'
 float_pattern = r'^\s*((\d+).?(\d*)|(\d*).?(\d+))\s*$'
@@ -17,10 +18,6 @@ def attr_inputs(class_name, direction='h'):
     if not class_attrs:
         return ''
 
-    option_dict = class_attrs.option_dict
-    if len(option_dict) == 0:
-        return ''
-
     attr_dict = class_attrs.attr_dict
 
     # noinspection PyCallingNonCallable
@@ -34,23 +31,30 @@ def attr_inputs(class_name, direction='h'):
     radio_label_style = {'display': 'inline', 'margin-right': '8px'} if direction == 'h' else None  # , 'margin': '4px'
 
     for attr_name in sorted(attr_dict.keys(), key=str.casefold):
+        id = f"{class_name}:{attr_name}"
+        # print(f"Layout for input '{id}'")
+
         attr_def = attr_dict[attr_name]
         title = attr_name
         pytype = attr_def.pytype
 
         if pytype == 'binary':
             # noinspection PyCallingNonCallable
-            input = dcc.RadioItems(id=attr_name, options=binary_options, value=attr_def.default,
+            input = dcc.RadioItems(id=id, options=binary_options, value=attr_def.default,
                                    labelStyle=radio_label_style,
                                    style={'display': 'inline-block', 'width': "45%"},
                                    persistence=True)
 
         elif attr_def.option_set:
+            option_dict = class_attrs.option_dict
+            if len(option_dict) == 0:
+                raise OpgeeException(f'Options for option set {attr_def.option_set} are undefined')
+
             opt = option_dict[attr_def.option_set]
             options = [dict(label=label, value=value) for value, label, desc in opt.options]
 
             # noinspection PyCallingNonCallable
-            input = dcc.RadioItems(id=attr_name, options=options, value=opt.default,
+            input = dcc.RadioItems(id=id, options=options, value=opt.default,
                                    labelStyle=radio_label_style,
                                    style={'display': 'inline-block', 'width': "45%"},
                                    persistence=True)
@@ -58,8 +62,8 @@ def attr_inputs(class_name, direction='h'):
         else:
             input_type = 'text' if (pytype is None or pytype == 'str') else 'number'
             # noinspection PyCallingNonCallable
-            input = dcc.Input(id=attr_def.name, type=input_type,
-                              debounce=True, value=magnitude(attr_def.default),
+            input = dcc.Input(id=id, type=input_type, debounce=True,
+                              value=magnitude(attr_def.default),
                               pattern=number_pattern.get(pytype))
 
             unit = f"({attr_def.unit}) " if attr_def.unit else ''
