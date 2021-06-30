@@ -65,6 +65,5 @@ class CrudeOilDewatering(Process):
         # emissions
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")
-        process_EF = self.get_process_EF()
-        combusion_emission = (energy_for_combustion * process_EF).sum()
+        combusion_emission = (energy_for_combustion * self.process_EF).sum()
         emissions.add_rate(EM_COMBUSTION, "GHG", combusion_emission)

@@ -20,10 +20,6 @@ class AfterDewatering(Process):
     def run(self, analysis):
         self.print_running_msg()
 
-class CrudeOilStabilization(Process):
-    def run(self, analysis):
-        self.print_running_msg()
-
 
 class HeavyOilUpgrading(Process):
     def run(self, analysis):
