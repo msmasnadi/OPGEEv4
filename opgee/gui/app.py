@@ -268,7 +268,7 @@ def settings_layout(current_field):
 #
 # TBD: Really only works on a current field.
 #
-def generate_settings_callback(app, current_field):
+def generate_settings_callback(app, current_analysis, current_field):
     """
     Generate a callback for all the inputs in the Settings tab by walking the
     attribute definitions dictionary. Each attribute `attr_name` in class
@@ -318,8 +318,8 @@ def generate_settings_callback(app, current_field):
                 class_elt = ET.SubElement(root, class_name)
 
             elif class_name in ('Field', 'Analysis'):
-                # TBD: needs name attribute
-                class_elt = ET.SubElement(root, class_name, attrib={'name': 'NEEDS_NAME'})
+                name = current_field.name if class_name == 'Field' else current_analysis.name
+                class_elt = ET.SubElement(root, class_name, attrib={'name': name})
 
             else:  # Process subclass
                 class_elt = ET.SubElement(root, 'Process', attrib={'name': class_name})
@@ -329,9 +329,12 @@ def generate_settings_callback(app, current_field):
                 elt.text = str(value)
 
         ET.dump(root)
+        xml_path = '/tmp/saved_attributes.xml'      # TBD: get this from an input field
+        _logger.info('Writing %s', xml_path)
 
-        # TBD: save attributes to XML file
-        return 'Saved to SOMETHING.xml'
+        tree = ET.ElementTree(root)
+        tree.write(xml_path, xml_declaration=True, pretty_print=True, encoding='utf-8')
+        return f"Saved to '{xml_path}'"
 
     app.callback(Output('save-button-status', 'children'),
                  [Input('save-settings-button', 'n_clicks')],
@@ -516,7 +519,7 @@ def main(args):
         # elif tab == 'overview':
         #     return overview_layout(app)
 
-    generate_settings_callback(app, current_field)
+    generate_settings_callback(app, current_analysis, current_field)
 
     app.run_server(debug=True)
 
