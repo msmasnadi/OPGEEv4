@@ -5,31 +5,34 @@ channels:
   - defaults
 dependencies:
   - colour
+  - configparser>=5.0.1
   - dash
   - decorator
   - ipython
-  - jinja2=3.0.1
+  - jinja2>=2.11.2
   - libpng
   - libtiff
-  - lxml=4.6.3
+  - lxml>=4.6.1
+  - llvmlite
   - networkx
-  - numpy=1.19.2
-  - pandas>=1.2.0
-  - pint>=0.17
-  - pint-pandas>=0.2
+  - numba>=0.51.2
+  - numpy>=1.9.1
+  - pandas>=1.1.3
+  - pint
+  - pint-pandas
   - pip
   - pydot
   - pyparsing
   - pytest
-  - python=3.8
+  - python>=3.7
   - setuptools
   - sphinx
-  - sphinx-argparse=0.2.5
+  - sphinx-argparse
   - sphinx_rtd_theme
   - sphinxcontrib-serializinghtml
   - traitlets
   - urllib3
   - pip:
-    - thermosteam>=0.25.4
+    - thermosteam==0.25.4
     - semver>=3.0.0.dev2
     - dash-cytoscape==0.2.0
