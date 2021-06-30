@@ -14,7 +14,7 @@ from textwrap import dedent as d
 
 from .. import Process
 from ..model import ModelFile
-from ..gui.widgets import attr_options
+from ..gui.widgets import attr_inputs
 from ..log import getLogger
 
 _logger = getLogger(__name__)
@@ -38,6 +38,7 @@ def field_network_graph(field):
     edge_color = 'maroon'
     node_color = 'sandybrown'
 
+    # noinspection PyCallingNonCallable
     layout = html.Div([
         cyto.Cytoscape(
             id='network-layout',
@@ -162,6 +163,7 @@ def emissions_table(analysis, procs):
 
 def processes_layout(app, current_field):
     # the main row
+    # noinspection PyCallingNonCallable
     layout = html.Div([
             # html.H3('Processes', style={'textAlign': "center"}),
 
@@ -237,15 +239,15 @@ def processes_layout(app, current_field):
 
 def settings_layout(current_field):
 
-    proc_sections = [attr_options(proc.__class__.__name__) for proc in current_field.processes()]
+    proc_sections = [attr_inputs(proc.__class__.__name__) for proc in current_field.processes()]
 
     sections = [
-        # attr_options('Model'),
-        attr_options('Analysis'),
-        attr_options('Field'),
+        # attr_inputs('Model'),
+        attr_inputs('Analysis'),
+        attr_inputs('Field'),
     ] + proc_sections
 
-
+    # noinspection PyCallingNonCallable
     layout = html.Div([
         html.H3('Settings'),
         html.Div(sections,
@@ -257,6 +259,7 @@ def settings_layout(current_field):
     return layout
 
 def app_layout(app):
+    # noinspection PyCallingNonCallable
     layout = html.Div([
         html.Div([
             html.H1(app.title),
@@ -406,15 +409,18 @@ def main(args):
         # recursively create expanding aggregator structure with emissions (table, eventually)
         def add_children(container, elt):
             for agg in container.aggs:
+                # noinspection PyCallingNonCallable
                 details = html.Details(children=[html.Summary(html.B(agg.name))], style=style)
                 elt.children.append(details)
                 add_children(agg, details)
 
             if container.procs:
+                # noinspection PyCallingNonCallable
                 div = html.Div(style=style,
                                children=[emissions_table(current_analysis, container.procs)])
                 elt.children.append(div)
 
+        # noinspection PyCallingNonCallable
         elt = html.Details(open=True, children=[html.Summary("Process Emissions")])
         add_children(current_field, elt)
         return elt
