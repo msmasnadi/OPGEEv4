@@ -15,25 +15,21 @@ class DownholePump(Process):
         super()._after_init()
         self.field = field = self.get_field()
         self.res_temp = field.attr("res_temp")
+        self.wellhead_press = field.attr("wellhead_pressure")
+        self.wellhead_temp = field.attr("wellhead_temperature")
+        self.oil_volume_rate = field.attr("oil_prod")
+        self.eta_pump_well = self.attr("eta_pump_well")
+        self.prod_tubing_diam = field.attr("well_diam")
+        self.prod_tubing_radius = self.prod_tubing_diam / 2
+        self.depth = field.attr("depth")
+        self.friction_factor = self.attr("friction_factor")
+        self.num_prod_wells = field.attr("num_prod_wells")
+        self.prod_tubing_xsection_area = np.pi * self.prod_tubing_radius ** 2
+        self.gravitational_acceleration = field.model.const("gravitational-acceleration")
+        self.prime_mover_type = self.attr("prime_mover_type")
 
     def run(self, analysis):
         self.print_running_msg()
-
-        field = self.field
-        # res_temp = field.attr("res_temp")
-        # TODO: move all to the after init method
-        wellhead_press = field.attr("wellhead_pressure")
-        wellhead_temp = field.attr("wellhead_temperature")
-        oil_volume_rate = field.attr("oil_prod")
-        eta_pump_well = self.attr("eta_pump_well")
-        prod_tubing_diam = field.attr("well_diam")
-        prod_tubing_radius = prod_tubing_diam / 2
-        depth = field.attr("depth")
-        friction_factor = self.attr("friction_factor")
-        num_prod_wells = field.attr("num_prod_wells")
-        prod_tubing_xsection_area = np.pi * prod_tubing_radius ** 2
-        gravitational_acceleration = field.model.const("gravitational-acceleration")
-        prime_mover_type = self.attr("prime_mover_type")
 
         # mass rate
         input = self.find_input_stream("crude oil")
@@ -50,12 +46,12 @@ class DownholePump(Process):
         self.set_iteration_value(output.total_flow_rate())
         output.copy_flow_rates_from(input)
         output.subtract_gas_rates_from(gas_fugitives)
-        output.set_temperature_and_pressure(wellhead_temp, wellhead_press)
+        output.set_temperature_and_pressure(self.wellhead_temp, self.wellhead_press)
 
         # energy use
-        oil = field.oil
-        water = field.water
-        gas = field.gas
+        oil = self.field.oil
+        water = self.field.water
+        gas = self.field.gas
         solution_gas_oil_ratio_input = oil.solution_gas_oil_ratio(input,
                                                                   oil.oil_specific_gravity,
                                                                   oil.gas_specific_gravity,
@@ -92,19 +88,19 @@ class DownholePump(Process):
 
         # properties of free gas (all at average conditions along wellbore, in production tubing)
         free_gas = solution_gas_oil_ratio_input - average_SOR
-        wellbore_average_press = (wellhead_press + input.pressure) / 2
-        wellbore_average_temp = ureg.Quantity((wellhead_temp.m + self.res_temp.m) / 2, "degF")
+        wellbore_average_press = (self.wellhead_press + input.pressure) / 2
+        wellbore_average_temp = ureg.Quantity((self.wellhead_temp.m + self.res_temp.m) / 2, "degF")
         stream = Stream("average", temperature=wellbore_average_temp, pressure=wellbore_average_press)
         stream.copy_flow_rates_from(input)
         gas_FVF = gas.volume_factor(stream)
         gas_density = gas.density(stream)
         volume_free_gas = free_gas * gas_FVF
-        volume_free_gas_lifted = (volume_free_gas * oil_volume_rate)
+        volume_free_gas_lifted = (volume_free_gas * self.oil_volume_rate)
 
         total_volume_fluid_lifted = (average_volume_oil_lifted +
                                      volume_water_lifted +
                                      volume_free_gas_lifted)
-        fluid_velocity = (total_volume_fluid_lifted / (prod_tubing_xsection_area * num_prod_wells))
+        fluid_velocity = (total_volume_fluid_lifted / (self.prod_tubing_xsection_area * self.num_prod_wells))
 
         total_mass_fluid_lifted = (average_oil_density * average_volume_oil_lifted +
                                    water_density * volume_water_lifted +
@@ -112,20 +108,20 @@ class DownholePump(Process):
         fluid_lifted_density = (total_mass_fluid_lifted / total_volume_fluid_lifted)
 
         # downhole pump
-        pressure_drop_elev = fluid_lifted_density * gravitational_acceleration * depth
-        pressure_drop_fric = (fluid_lifted_density * friction_factor * depth * fluid_velocity ** 2 /
-                              (2 * prod_tubing_diam))
+        pressure_drop_elev = fluid_lifted_density * self.gravitational_acceleration * self.depth
+        pressure_drop_fric = (fluid_lifted_density * self.friction_factor * self.depth * fluid_velocity ** 2 /
+                              (2 * self.prod_tubing_diam))
         pressure_drop_total = pressure_drop_fric + pressure_drop_elev
-        pressure_for_lifting = max(0, wellhead_press + pressure_drop_total - input.pressure)
-        liquid_flow_rate_per_well = (average_volume_oil_lifted + volume_water_lifted) / num_prod_wells
-        brake_horse_power = 1.05 * (liquid_flow_rate_per_well * pressure_for_lifting) / eta_pump_well
-        energy_consumption_of_stages = self.get_energy_consumption_stages(prime_mover_type, [brake_horse_power])
-        energy_consumption_sum = sum(energy_consumption_of_stages) * num_prod_wells
+        pressure_for_lifting = max(0, self.wellhead_press + pressure_drop_total - input.pressure)
+        liquid_flow_rate_per_well = (average_volume_oil_lifted + volume_water_lifted) / self.num_prod_wells
+        brake_horse_power = 1.05 * (liquid_flow_rate_per_well * pressure_for_lifting) / self.eta_pump_well
+        energy_consumption_of_stages = self.get_energy_consumption_stages(self.prime_mover_type, [brake_horse_power])
+        energy_consumption_sum = sum(energy_consumption_of_stages) * self.num_prod_wells
 
         energy_use = self.energy
-        if prime_mover_type == "NG_engine" or "NG_turbine":
+        if self.prime_mover_type == "NG_engine" or "NG_turbine":
             energy_carrier = EN_NATURAL_GAS
-        elif prime_mover_type == "Electric_motor":
+        elif self.prime_mover_type == "Electric_motor":
             energy_carrier = EN_ELECTRICITY
         else:
             energy_carrier = EN_DIESEL
@@ -135,10 +131,9 @@ class DownholePump(Process):
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")
         combusion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.add_rate(EM_COMBUSTION, "GHG", combusion_emission)
+        emissions.add_rate(EM_COMBUSTION, "CO2", combusion_emission)
 
         emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
-
 
     def impute(self):
         output = self.find_output_stream("crude oil")
