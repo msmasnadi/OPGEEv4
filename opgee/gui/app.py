@@ -252,7 +252,7 @@ def settings_layout(current_field):
         attr_inputs('Field'),
     ] + proc_sections
 
-    attributes_xml = getParam('OPGEE.UserAttributesFile')
+    attributes_xml = getParam('OPGEE.UserAttributesFile') or ''
 
     # noinspection PyCallingNonCallable
     layout = html.Div([
