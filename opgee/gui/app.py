@@ -7,6 +7,7 @@ import dash_html_components as html
 import dash_cytoscape as cyto
 from dash.dependencies import Input, Output, State
 import dash_table
+from pathlib import Path
 #import json
 #import networkx as nx
 #import pydot
@@ -15,9 +16,11 @@ from textwrap import dedent as d
 
 from .. import Process
 from ..attributes import AttrDefs
+from ..config import getParam
 from ..model import ModelFile
 from ..gui.widgets import attr_inputs
 from ..log import getLogger
+from ..utils import mkdirs
 
 _logger = getLogger(__name__)
 
@@ -249,10 +252,14 @@ def settings_layout(current_field):
         attr_inputs('Field'),
     ] + proc_sections
 
+    attributes_xml = getParam('OPGEE.UserAttributesFile')
+
     # noinspection PyCallingNonCallable
     layout = html.Div([
         html.H3('Settings'),
         html.Div([
+            dcc.Input(id='settings-filename', type='text', debounce=True, pattern=r'^.*\.xml$',
+                      value=attributes_xml, style={'width': '400px'}),
             html.Button('Save', id='save-settings-button', n_clicks=0),
             dcc.Markdown(id='save-button-status')
         ],
@@ -296,11 +303,13 @@ def generate_settings_callback(app, current_analysis, current_field):
         else:
             print(f"Class {class_name} has no attributes")
 
+    # First element is the filename field, we pop() this before processing all the generated inputs
+    # state_list = [State('settings-filename', 'value')] + [State(id, 'value') for id in ids]
     state_list = [State(id, 'value') for id in ids]
 
-    def func(n_clicks, *values):
-        if n_clicks == 0 or not values:
-            return 'Not saved'
+    def func(n_clicks, xml_path, *values):
+        if n_clicks == 0 or not values or not xml_path:
+            return 'Save attributes to an xml file'
 
         class_value_dict = defaultdict(list)
 
@@ -329,15 +338,20 @@ def generate_settings_callback(app, current_analysis, current_field):
                 elt.text = str(value)
 
         ET.dump(root)
-        xml_path = '/tmp/saved_attributes.xml'      # TBD: get this from an input field
+
+        # ensure the directory exists
+        path = Path(xml_path)
+        mkdirs(path.parent)
+
         _logger.info('Writing %s', xml_path)
 
         tree = ET.ElementTree(root)
         tree.write(xml_path, xml_declaration=True, pretty_print=True, encoding='utf-8')
-        return f"Saved to '{xml_path}'"
+        return f"Attributes saved to '{xml_path}'"
 
     app.callback(Output('save-button-status', 'children'),
-                 [Input('save-settings-button', 'n_clicks')],
+                 Input('save-settings-button', 'n_clicks'),
+                 Input('settings-filename', 'value'),
                  state=state_list)(func)
 
 

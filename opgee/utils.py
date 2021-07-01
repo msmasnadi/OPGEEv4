@@ -300,20 +300,20 @@ def flatten(listOfLists):
 #     with open(pathname, 'w') as f:
 #         f.write(txt)
 #
-# def mkdirs(newdir, mode=0o770):
-#     """
-#     Try to create the full path `newdir` and ignore the error if it already exists.
-#
-#     :param newdir: the directory to create (along with any needed parent directories)
-#     :return: nothing
-#     """
-#     from errno import EEXIST
-#
-#     try:
-#         os.makedirs(newdir, mode)
-#     except OSError as e:
-#         if e.errno != EEXIST:
-#             raise
+def mkdirs(newdir, mode=0o770):
+    """
+    Try to create the full path `newdir` and ignore the error if it already exists.
+
+    :param newdir: the directory to create (along with any needed parent directories)
+    :return: nothing
+    """
+    from errno import EEXIST
+
+    try:
+        os.makedirs(newdir, mode)
+    except OSError as e:
+        if e.errno != EEXIST:
+            raise
 
 def loadModuleFromPath(module_path, raiseError=True):
     """
