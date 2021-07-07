@@ -85,6 +85,7 @@ class IntermediateValues(OpgeeObject):
     """
     Stores "interesting" intermediate values from processes for display in GUI.
     """
+
     def __init__(self):
         self.data = pd.DataFrame(columns=('value', 'unit', 'desc'))
 
@@ -107,6 +108,26 @@ class IntermediateValues(OpgeeObject):
             return self.data.loc[name]
         except KeyError:
             raise OpgeeException(f"An intermediate value for '{name}' was not found")
+
+
+def run_corr_eqns(x1, x2, x3, x4, x5, coef_df):
+    """
+
+    :param x1:
+    :param x2:
+    :param x3:
+    :param x4:
+    :param x5:
+    :param coef_df:
+    :return: Pandas Series
+    """
+
+    x = pd.Series(
+        data=[1, x1, x2, x3, x4, x5, x1 * x2, x1 * x3, x1 * x4, x1 * x5, x2 * x3, x2 * x4, x2 * x5, x3 * x4,
+              x3 * x5, x4 * x5, x1 ** 2, x2 ** 2, x3 ** 2, x4 ** 2, x5 ** 2], index=coef_df.index)
+    df = coef_df.mul(x, axis = 0)
+    result = df.sum(axis="rows")
+    return result
 
 
 class Process(XmlInstantiable, AttributeMixin):
@@ -146,9 +167,9 @@ class Process(XmlInstantiable, AttributeMixin):
 
         self.desc = desc or name
         self.impute_start = getBooleanXML(impute_start)
-        self.cycle_start  = getBooleanXML(cycle_start)
+        self.cycle_start = getBooleanXML(cycle_start)
 
-        self.production  = set(produces) if produces else {}
+        self.production = set(produces) if produces else {}
         self.consumption = set(consumes) if consumes else {}
 
         self.extend = False
@@ -244,7 +265,7 @@ class Process(XmlInstantiable, AttributeMixin):
     #
 
     def set_gas_fugitives(self, stream, loss_rate) -> Stream:
-        #TODO: complete
+        # TODO: complete
         """
         initialize the gas fugitives stream, get loss rate, copy..
 
@@ -350,7 +371,8 @@ class Process(XmlInstantiable, AttributeMixin):
         if not streams and raiseError:
             raise OpgeeException(f"{self}: no {direction} streams contain '{stream_type}'")
 
-        return combine_streams(streams, oil.API, streams[0].pressure) if combine else (streams if as_list else {s.name: s for s in streams})
+        return combine_streams(streams, oil.API, streams[0].pressure) if combine else (
+            streams if as_list else {s.name: s for s in streams})
 
     def find_input_streams(self, stream_type, combine=False, as_list=False, raiseError=True):
         """
@@ -363,7 +385,8 @@ class Process(XmlInstantiable, AttributeMixin):
         :return: (Stream, list or dict of Streams) depends on various keyword args
         :raises: OpgeeException if no processes handling `stream_type` are found and `raiseError` is True
         """
-        return self.find_streams_by_type(self.INPUT, stream_type, combine=combine, as_list=as_list, raiseError=raiseError)
+        return self.find_streams_by_type(self.INPUT, stream_type, combine=combine, as_list=as_list,
+                                         raiseError=raiseError)
 
     def find_output_streams(self, stream_type, combine=False, as_list=False, raiseError=True):
         """
@@ -376,7 +399,8 @@ class Process(XmlInstantiable, AttributeMixin):
         :return: (Stream, list or dict of Streams) depends on various keyword args
         :raises: OpgeeException if no processes handling `stream_type` are found and `raiseError` is True
         """
-        return self.find_streams_by_type(self.OUTPUT, stream_type, combine=combine, as_list=as_list, raiseError=raiseError)
+        return self.find_streams_by_type(self.OUTPUT, stream_type, combine=combine, as_list=as_list,
+                                         raiseError=raiseError)
 
     def find_input_stream(self, stream_type, raiseError=True) -> Stream:
         """
@@ -484,7 +508,7 @@ class Process(XmlInstantiable, AttributeMixin):
                 raise OpgeeException(f"Type of iterator value changed; was: {type(prior_value)} is: {type(value)}")
 
             pairs = zip(prior_value, value) if isinstance(value, (tuple, list)) \
-                    else [(prior_value, value)]  # make a list of the one pair
+                else [(prior_value, value)]  # make a list of the one pair
 
             if all([converged(old, new) for old, new in pairs]):
                 self.iteration_converged = True
@@ -493,7 +517,6 @@ class Process(XmlInstantiable, AttributeMixin):
                 self.check_iterator_convergence()
 
         self.iteration_value = value
-
 
     @classmethod
     def register_iterating_process(cls, process):
@@ -521,7 +544,6 @@ class Process(XmlInstantiable, AttributeMixin):
         """
         for proc in cls.iterating_processes:
             proc.reset_iteration()
-
 
     def reset_iteration(self):
         self.clear_visit_count()
@@ -601,6 +623,13 @@ class Process(XmlInstantiable, AttributeMixin):
 
         return energy_consumption_of_stages
 
+    @staticmethod
+    def get_energy_consumption(prime_mover_type, brake_horsepower):
+        eff = Drivers.get_efficiency(prime_mover_type, brake_horsepower)
+        energy_consumption = (brake_horsepower * eff).to("mmBtu/day")
+
+        return energy_consumption
+
     # Deprecated
     # def venting_fugitive_rate(self, trial=None):
     #     """
@@ -664,12 +693,6 @@ class Process(XmlInstantiable, AttributeMixin):
                                     dtype="pint[g/mmBtu]")
         return emission_series
 
-    # @staticmethod
-    # def get_gas_emission(gwp_stream, stream):
-    #     emission = gwp_stream * stream
-    #
-
-
     @classmethod
     def from_xml(cls, elt):
         """
@@ -706,6 +729,7 @@ class Reservoir(Process):
     Reservoir represents natural resources such as oil and gas reservoirs, and water sources.
     Each Field object holds a single Reservoir instance.
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__("Reservoir", desc='The Reservoir')
 

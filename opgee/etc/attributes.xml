@@ -128,6 +128,10 @@
     <AttrDef name="fraction_water_reinjected" desc="Fraction of water produced that is reinjected" type="float">1.0</AttrDef>
     <AttrDef name="fraction_steam_cogen" desc="Fraction of steam generation via co-generation" type="float">0.0</AttrDef>
     <AttrDef name="fraction_steam_solar" desc="Fraction of steam generation via solar thermal" type="float">0.0</AttrDef>
+    <AttrDef name="pressure_outlet" type="float" unit="psia" desc="Separator pressure (final if multi-stage)">100.0</AttrDef>
+    <AttrDef name="temperature_outlet" type="float" unit="degF" desc="Separator temperature (final if multi-stage)">90.0</AttrDef>
+    <AttrDef name="gas_pressure_after_boosting" type="float" unit="psia" desc="Separator gas outlet pressure after boosting compressors">500</AttrDef>
+    <AttrDef name="eta_compressor" type="float" unit="percent" desc="Compressor efficiency">75.0</AttrDef>
     <!-- Processing practices -->
     <Options name="upgrader_type" default="None">
       <Option>None</Option>
@@ -273,11 +277,7 @@
     <AttrDef name="pressure_first_stage" type="float" unit="psia" desc="First stage separator pressure">500.0</AttrDef>
     <AttrDef name="pressure_second_stage" type="float" unit="psia" desc="Second stage separator pressure">250.0</AttrDef>
     <AttrDef name="pressure_third_stage" type="float" unit="psia" desc="Third stage separator pressure">100.0</AttrDef>
-    <AttrDef name="pressure_outlet" type="float" unit="psia" desc="Separator pressure (final if multi-stage)">100.0</AttrDef>
-    <AttrDef name="temperature_outlet" type="float" unit="degF" desc="Separator temperature (final if multi-stage)">90.0</AttrDef>
     <AttrDef name="water_content_oil_emulsion" type="float" unit="percent" desc="Entrained water as a fraction of oil emulsion (weight percentage)">14.0</AttrDef>
-    <AttrDef name="gas_pressure_after_boosting" type="float" unit="psia" desc="Separator gas outlet pressure after boosting compressors">500</AttrDef>
-    <AttrDef name="eta_compressor" type="float" unit="percent" desc="Compressor efficiency">75.0</AttrDef>
     <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
   </ClassAttrs>
   <ClassAttrs name="CrudeOilDewatering">

@@ -258,6 +258,7 @@ class Oil(AbstractSubstance):
         self.gas_comp = field.attrs_with_prefix('gas_comp_')
         self.gas_oil_ratio = field.attr('GOR')
         self.oil_specific_gravity = ureg.Quantity(141.5 / (131.5 + API.m), "frac")
+        self.total_molar_weight = (self.gas_comp * self.component_MW[self.gas_comp.index]).sum()
         self.gas_specific_gravity = self._gas_specific_gravity()
 
     def _gas_specific_gravity(self):
@@ -267,10 +268,8 @@ class Oil(AbstractSubstance):
 
         :return: (float) gas specific gravity (unit = fraction)
         """
-        gas_comp = self.gas_comp
-        gas_SG = (gas_comp * self.component_MW[gas_comp.index]).sum()
 
-        gas_SG = gas_SG / self.dry_air_MW
+        gas_SG = self.total_molar_weight / self.dry_air_MW
         return gas_SG
 
     @staticmethod

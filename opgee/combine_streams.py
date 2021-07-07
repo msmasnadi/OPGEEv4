@@ -4,6 +4,7 @@ from .thermodynamics import Oil, Gas, Water
 from .log import getLogger
 # from . import ureg
 import pandas as pd
+from .error import OpgeeException, AbstractMethodError, OpgeeStopIteration
 
 _logger = getLogger(__name__)
 
@@ -29,6 +30,10 @@ def combine_streams(streams, API, pressure, temperature=None):
     comp_matrix = sum(matrices)
 
     non_zero_streams = [stream for stream in streams if stream.total_flow_rate() != 0]
+    for stream in non_zero_streams:
+        if stream.temperature is None:
+            raise OpgeeException(f"steam temperature of '{stream.name}' is None")
+
     stream_temperature = pd.Series([stream.temperature.to("kelvin").m for stream in non_zero_streams],
                                    dtype="pint[kelvin]")
     stream_mass_rate = pd.Series([stream.total_flow_rate().m for stream in non_zero_streams],
