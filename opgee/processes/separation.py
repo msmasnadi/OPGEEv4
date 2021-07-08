@@ -11,34 +11,6 @@ from ..emissions import EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_F
 
 _logger = getLogger(__name__)
 
-_power = [1, 1 / 2, 1 / 3, 1 / 4, 1 / 5]
-
-
-def get_compression_ratio_stages(overall_compression_ratio_stages):
-    max_stages = len(_power)
-    compression_ratio_per_stages = []
-
-    for compression_ratio in overall_compression_ratio_stages:
-        for pow in _power:
-            if compression_ratio ** pow < max_stages:
-                compression_ratio_per_stages.append(compression_ratio ** pow)
-                break
-
-    return compression_ratio_per_stages
-
-
-def get_num_of_compression_stages(overall_compression_ratio_stages, compression_ratio_per_stages):
-    num_of_compression_stages = []
-
-    for overall_compression_ratio, compression_ratio in \
-            zip(overall_compression_ratio_stages, compression_ratio_per_stages):
-        for pow in _power:
-            if overall_compression_ratio ** pow == compression_ratio:
-                num_of_compression_stages.append(int(1 / pow))
-                break
-
-    return num_of_compression_stages
-
 
 class Separation(Process):
     def _after_init(self):
@@ -53,7 +25,7 @@ class Separation(Process):
         self.wellhead_press = field.attr("wellhead_pressure")
         self.loss_rate = self.venting_fugitive_rate()
         self.loss_rate = (1 / (1 - self.loss_rate)).to("frac")
-        self.temperature_outlet = self.attr("temperature_outlet")
+        self.temperature_outlet = field.attr("temperature_outlet")
         self.temperature_stage1 = field.attr("wellhead_temperature")
         self.temperature_stage2 = (self.temperature_stage1.to("kelvin") + self.temperature_outlet.to("kelvin")) / 2
         self.pressure_stage1 = self.attr("pressure_first_stage")
@@ -68,14 +40,12 @@ class Separation(Process):
         self.num_of_stages = self.attr("number_stages")
 
         self.std_temp = field.model.const("std-temperature")
-        self.temperature_outlet = self.attr("temperature_outlet")
         self.std_press = field.model.const("std-pressure")
-        self.pressure_after_boosting = self.attr("gas_pressure_after_boosting")
-        self.pressure_outlet = self.attr("pressure_outlet")
+        self.pressure_after_boosting = field.attr("gas_pressure_after_boosting")
+        self.pressure_outlet = field.attr("pressure_outlet")
 
         self.water_content = self.attr("water_content_oil_emulsion")
-        self.pressure_after_boosting = self.attr("gas_pressure_after_boosting")
-        self.compressor_eff = self.attr("eta_compressor").to("frac")
+        self.compressor_eff = field.attr("eta_compressor").to("frac")
 
     def run(self, analysis):
         self.print_running_msg()
@@ -129,7 +99,7 @@ class Separation(Process):
         input.set_temperature_and_pressure(self.wellhead_temp, self.wellhead_press)
         input.copy_flow_rates_from(output)
 
-    def get_stages_temperature_and_pressure(self, field):
+    def get_stages_temperature_and_pressure(self):
 
         temperature_of_stages = [self.temperature_stage1, self.temperature_stage2.to("degF"), self.temperature_outlet]
 
@@ -138,7 +108,7 @@ class Separation(Process):
         return temperature_of_stages, pressure_of_stages
 
     def get_output_streams(self, field):
-        temperature_of_stages, pressure_of_stages = self.get_stages_temperature_and_pressure(field)
+        temperature_of_stages, pressure_of_stages = self.get_stages_temperature_and_pressure()
 
         oil = field.oil
         gas = field.gas
@@ -189,7 +159,7 @@ class Separation(Process):
     def get_free_gas_stages(self, field):
         oil = field.oil
 
-        temperature_of_stages, pressure_of_stages = self.get_stages_temperature_and_pressure(field)
+        temperature_of_stages, pressure_of_stages = self.get_stages_temperature_and_pressure()
 
         solution_gas_oil_ratio_of_stages = [oil.gas_oil_ratio]
         for stage in range(self.num_of_stages):
@@ -219,13 +189,12 @@ class Separation(Process):
         :return: (float) compresssor brake horsepower for each stages
         """
 
-        temperature_of_stages, pressure_of_stages = self.get_stages_temperature_and_pressure(field)
+        temperature_of_stages, pressure_of_stages = self.get_stages_temperature_and_pressure()
 
         overall_compression_ratio_stages = [self.pressure_after_boosting /
                                             pressure_of_stages[stage] for stage in range(self.num_of_stages)]
-        compression_ratio_per_stages = get_compression_ratio_stages(overall_compression_ratio_stages)
-        num_of_compression_stages = get_num_of_compression_stages(overall_compression_ratio_stages,
-                                                                  compression_ratio_per_stages)  # (int)
+        compression_ratio_per_stages = Compressor.get_compression_ratio_stages(overall_compression_ratio_stages)
+        num_of_compression_stages = Compressor.get_num_of_compression_stages(overall_compression_ratio_stages)  # (int)
 
         brake_horsepower_of_stages = []
         for (inlet_temp, inlet_press, compression_ratio,

@@ -1,6 +1,8 @@
 from opgee.core import OpgeeObject
 from opgee import ureg
 
+_power = [1, 1 / 2, 1 / 3, 1 / 4, 1 / 5]
+
 
 class Compressor(OpgeeObject):
 
@@ -41,3 +43,51 @@ class Compressor(OpgeeObject):
 
         work_sum = ureg.Quantity(work.m, "hp*day/mmscf")
         return work_sum
+
+    @staticmethod
+    def get_compression_ratio_stages(overall_compression_ratio_stages):
+        max_stages = len(_power)
+        compression_ratio_per_stages = []
+
+        for compression_ratio in overall_compression_ratio_stages:
+            for pow in _power:
+                if compression_ratio ** pow < max_stages:
+                    compression_ratio_per_stages.append(compression_ratio ** pow)
+                    break
+
+        return compression_ratio_per_stages
+
+    @staticmethod
+    def get_compression_ratio(overall_compression_ratio):
+        max_stages = len(_power)
+        result = 0
+
+        for pow in _power:
+            if overall_compression_ratio ** pow < max_stages:
+                result = overall_compression_ratio ** pow
+                return result
+
+    @staticmethod
+    def get_num_of_compression_stages(overall_compression_ratio_stages):
+        num_of_compression_stages = []
+        compression_ratio_per_stages = Compressor.get_compression_ratio_stages(overall_compression_ratio_stages)
+
+        for overall_compression_ratio, compression_ratio in \
+                zip(overall_compression_ratio_stages, compression_ratio_per_stages):
+            for pow in _power:
+                if overall_compression_ratio ** pow == compression_ratio:
+                    num_of_compression_stages.append(int(1 / pow))
+                    break
+
+        return num_of_compression_stages
+
+    @staticmethod
+    def get_num_of_compression(overall_compression_ratio):
+        result = 0
+        compression_ratio = Compressor.get_compression_ratio(overall_compression_ratio)
+
+        for pow in _power:
+            if overall_compression_ratio ** pow == compression_ratio:
+                result = int(1 / pow)
+                return result
+

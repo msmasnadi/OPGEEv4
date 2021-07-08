@@ -34,11 +34,13 @@
 
 		<Stream src="Before" dst="CrudeOilStabilization" name="before to crude oil stabilization">
 			<Contains>oil for stabilization</Contains>
-			<Component name="oil" phase="liquid">275</Component>
+			<Component name="oil" phase="liquid">276.5386546</Component>
+			<A name="temperature">90</A>
+			<A name="pressure">100</A>
 		</Stream>
 
 		<Stream src="CrudeOilStabilization" dst="CrudeOilStorage" name="crude oil stabilization to crude oil storage">
-			<Contains>oil for storage</Contains>
+			<Contains>crude oil</Contains>
 		</Stream>
 
 		<Stream src="CrudeOilStabilization" dst="Environment" name="gas fugitives from stabilization">

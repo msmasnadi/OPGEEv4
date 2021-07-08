@@ -16,7 +16,6 @@ from .error import OpgeeException
 from .log import getLogger
 from .utils import getBooleanXML, coercible
 
-
 _logger = getLogger(__name__)
 
 # constants to use instead of strings
@@ -272,6 +271,16 @@ class Stream(XmlInstantiable, AttributeMixin):
     def set_solid_flow_rate(self, name, rate):
         """Calls ``self.set_flow_rate(name, PHASE_SOLID, rate)``"""
         return self.set_flow_rate(name, PHASE_SOLID, rate)
+
+    def set_rates_from_series(self, series, phase):
+        """
+        set rates from pandas series given phase
+
+        :param series:
+        :param phase:
+        :return:
+        """
+        self.components.loc[series.index, phase] = series
 
     def set_temperature_and_pressure(self, t, p):
         self.temperature = t
