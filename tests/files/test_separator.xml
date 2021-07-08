@@ -43,6 +43,20 @@
 			<Produces>water</Produces>
 		</Process>
 
+		<Process class="CrudeOilStabilization" enabled="false">
+			<Consumes>oil for stabilization</Consumes>
+		</Process>
+
+		<Process class="HeavyOilUpgrading" enabled="false">
+			<Consumes>oil for upgrader</Consumes>
+		</Process>
+
+		<Process class="HeavyOilDilution" enabled="false">
+			<Consumes>oil for dilution</Consumes>
+		</Process>
+
+		<Process class="CrudeOilStorage" enabled="false"/>
+
 		<Process class="ProducedWaterTreatment">
 			<Consumes>water</Consumes>
 			<Produces>water</Produces>
@@ -57,17 +71,19 @@
 			<Contains>water</Contains>
 		</Stream>
 
-<!--		<Stream src="CrudeOilDewatering" dst="After" name="crude oil dewatering to after">-->
-<!--			<Contains>oil for storage</Contains>-->
-<!--		</Stream>-->
-
-		<Stream src="CrudeOilDewatering" dst="After" name="crude oil dewatering to stabilization">
+		<Stream src="CrudeOilDewatering" dst="After" name="stabilization">
 			<Contains>oil for stabilization</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="After" name="crude oil dewatering to after">
+		<Stream src="CrudeOilDewatering" dst="After" name="upgrader">
 			<Contains>oil for upgrader</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilDewatering" dst="After" name="dilution">
 			<Contains>oil for dilution</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilDewatering" dst="After" name="storage">
 			<Contains>oil for storage</Contains>
 		</Stream>
 
@@ -81,18 +97,6 @@
 			<Contains>water for surface disposal</Contains>
 			<Contains>water for subsurface disposal</Contains>
 		</Stream>
-
-<!--		<Stream src="ProducedWaterTreatment" dst="After" name="produced water treatment to reinjection">-->
-<!--			<Contains>water for reinjection</Contains>-->
-<!--		</Stream>-->
-
-<!--		<Stream src="ProducedWaterTreatment" dst="After" name="produced water treatment to surface disposal">-->
-<!--			<Contains>water for surface disposal</Contains>-->
-<!--		</Stream>-->
-
-<!--		<Stream src="ProducedWaterTreatment" dst="After" name="produced water treatment to subsurface disposal">-->
-<!--			<Contains>water for subsurface disposal</Contains>-->
-<!--		</Stream>-->
 
 		<Stream src="Separation" dst="After" name="gas after separator">
 			<Contains>gas</Contains>

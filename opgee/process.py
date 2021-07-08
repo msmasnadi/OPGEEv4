@@ -438,7 +438,13 @@ class Process(XmlInstantiable, AttributeMixin):
                 raise OpgeeException(f"Expected one output stream with '{stream_type}'; found {len(streams)}")
             return None
 
-        return streams[0]
+        stream = streams[0]
+        if not stream.dst_proc.enabled:
+            if raiseError:
+                raise OpgeeException(f"'{stream}' is connected to a disabled process {stream.dst_proc}")
+            return None
+
+        return stream
 
     def add_output_stream(self, stream):
         self.outputs.append(stream)

@@ -15,6 +15,9 @@ class CrudeOilStabilization(Process):
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
+        if field.attr("crude_oil_dewatering_output") != self.name:
+            self.enabled = False
+            return
         self.stab_temp = self.attr("stab_temp")
         self.stab_press = self.attr("stab_press")
         self.mol_per_scf = field.model.const("mol-per-scf")

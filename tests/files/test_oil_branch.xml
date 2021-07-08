@@ -40,7 +40,23 @@
 		</Stream>
 
 		<Stream src="CrudeOilStabilization" dst="CrudeOilStorage" name="crude oil stabilization to crude oil storage">
+			<Contains>oil for stabilization</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilStorage" dst="CrudeOilTransport" name="crude oil storage to transportation">
 			<Contains>crude oil</Contains>
+		</Stream>
+		
+		<Stream src="CrudeOilStorage" dst="Environment" name="gas fugitives from crude oil storage">
+			<Contains>gas fugitives</Contains>
+		</Stream>
+		
+		<Stream src="CrudeOilStorage" dst="VRUCompressor" name="crude oil storage to VRU compressor">
+			<Contains>VRU gas</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilStorage" dst="Flare" name="crude oil storage to flare">
+			<Contains>flare gas</Contains>
 		</Stream>
 
 		<Stream src="CrudeOilStabilization" dst="Environment" name="gas fugitives from stabilization">
@@ -51,16 +67,5 @@
 			<Contains>gas from stabilization</Contains>
 		</Stream>
 
-<!--		<Stream src="After" dst="DownholePump" name="lifting gas" impute="False">-->
-<!--			<Contains>lifting gas</Contains>-->
-<!--		</Stream>-->
-
-<!--		<Stream src="After" dst="ReservoirWellInterface" name="flooding CO2" impute="False">-->
-<!--			<Contains>CO2</Contains>-->
-<!--		</Stream>-->
-
-<!--		<Stream src="After" dst="ProducedWaterTreatment" name="blowdown recycled to treatment" impute="False">-->
-<!--			<Contains>water</Contains>-->
-<!--		</Stream>-->
 	</Field>
 </Model>
