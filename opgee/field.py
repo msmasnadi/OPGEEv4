@@ -1,10 +1,10 @@
 import networkx as nx
-from .attributes import AttrDefs
+from . import ureg
 from .container import Container
 from .core import elt_name, instantiate_subelts, dict_from_list
 from .error import OpgeeException, OpgeeStopIteration
 from .log import getLogger
-from .process import Process, Environment, Reservoir, Aggregator
+from .process import Process, Environment, Reservoir, Output, Aggregator
 from .stream import Stream
 from .thermodynamics import Oil, Gas, Water
 from .utils import getBooleanXML, flatten
@@ -31,6 +31,9 @@ class Field(Container):
 
         self.environment = Environment()    # one per field
         self.reservoir   = Reservoir()      # one per field
+        self.output      = Output()
+
+        self.carbon_intensity = 0
 
         all_procs = self.collect_processes() # includes reservoir and environment
         self.process_dict = self.adopt(all_procs, asDict=True)
@@ -116,6 +119,28 @@ class Field(Container):
 
             self.iteration_reset()
             self.run_processes(analysis)
+
+    def compute_carbon_intensity(self, analysis):
+        rates = self.emissions.rates(analysis.gwp)
+        emissions = rates.loc['GHG'].sum()
+        energy = self.output.energy_flow
+
+        ci = (emissions / energy) if energy else ureg.Quantity(0, 'grams/MJ')
+        self.carbon_intensity = ci.to('grams/MJ')
+
+    def report(self, analysis):
+        name = self.name
+
+        print(f"\n*** Streams for field '{name}'")
+        for stream in self.streams():
+            print(f"{stream}\n{stream.components}\n")
+
+        # Perform aggregations required by compute_carbon_intensity()
+        self.report_energy_and_emissions(analysis)
+
+        self.compute_carbon_intensity(analysis)
+
+        print(f"Field '{name}': CI = {self.carbon_intensity}")
 
     def _is_cycle_member(self, process):
         """
@@ -307,13 +332,6 @@ class Field(Container):
     def set_extend(self, extend):
         self.extend = extend
 
-    def report(self, analysis):
-        print(f"\n*** Streams for field {self.name}")
-        for stream in self.streams():
-            print(f"{stream}\n{stream.components}\n")
-
-        self.report_energy_and_emissions(analysis)
-
     @classmethod
     def from_xml(cls, elt):
         """
@@ -357,6 +375,6 @@ class Field(Container):
                 else:
                     _collect(process_list, child)
 
-        processes = [self.environment, self.reservoir]
+        processes = [self.environment, self.reservoir, self.output]
         _collect(processes, self)
         return processes

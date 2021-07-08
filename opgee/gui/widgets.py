@@ -1,34 +1,16 @@
 import dash_core_components as dcc
 import dash_html_components as html
+from ..core import magnitude
+from ..error import OpgeeException
 
-def radio_items(title, options, default, direction='v', id=None):
-    """
-    Create dcc.RadioItems with a more convenient API.
+int_pattern = r'^\s*\d+\s*$'
+float_pattern = r'^\s*((\d+).?(\d*)|(\d*).?(\d+))\s*$'
 
-    :param title: (str) text to place above the radio buttons
-    :param options: (dict) keys are display string; values are return string
-    :param default: (str) the default value (must be one of the values in the dict)
-    :param direction: (str) 'h' for horizontal, 'v' for vertical
-    :param id: (str) id for this button array. If missing, `title` is used.
-    :return:
-    """
-    options = [dict(label=label, value=value) for label, value in options.items()]
-    label_style = {'display': 'inline-block', 'margin': '4px'} if direction == 'h' else None
+number_pattern = {'int': int_pattern, 'float': float_pattern}
 
-    id = id or title
+binary_options = [dict(label='Yes', value=1), dict(label='No', value=0)]
 
-    attr_options('Analysis')
-
-    layout = html.Div(
-        children=[
-            html.Span(title, style={'font-weight': 'bold'}),
-            dcc.RadioItems(options=options, value=default, labelStyle=label_style, persistence=True, id=id),
-        ]
-    )
-
-    return layout
-
-def attr_options(class_name, direction='h'):
+def attr_inputs(class_name, direction='h'):
     from ..attributes import AttrDefs
 
     attr_defs = AttrDefs.get_instance()
@@ -36,21 +18,77 @@ def attr_options(class_name, direction='h'):
     if not class_attrs:
         return ''
 
-    option_dict = class_attrs.option_dict
-    if len(option_dict) == 0:
-        return ''
+    attr_dict = class_attrs.attr_dict
 
-    # attr_dict   = class_attrs.attr_dict
-
-    details = html.Details([
-        html.Summary(class_name, style={'font-weight': 'bold', 'font-size': '14px'})
-    ])
-
-    layout = html.Div(
+    # noinspection PyCallingNonCallable
+    details = html.Details(
         children=[
-            # html.Div(class_name, style={'font-weight': 'bold', 'font-size': '14px'})
-            details
-        ],
+            html.Summary(class_name, style={'font-weight': 'bold', 'font-size': '14px'})
+        ]
+    )
+    det_children = details.children
+
+    radio_label_style = {'display': 'inline', 'margin-right': '8px'} if direction == 'h' else None  # , 'margin': '4px'
+
+    for attr_name in sorted(attr_dict.keys(), key=str.casefold):
+        id = f"{class_name}:{attr_name}"
+        # print(f"Layout for input '{id}'")
+
+        attr_def = attr_dict[attr_name]
+        title = attr_name
+        pytype = attr_def.pytype
+
+        if pytype == 'binary':
+            # noinspection PyCallingNonCallable
+            input = dcc.RadioItems(id=id, options=binary_options, value=attr_def.default,
+                                   labelStyle=radio_label_style,
+                                   style={'display': 'inline-block', 'width': "45%"},
+                                   persistence=True)
+
+        elif attr_def.option_set:
+            option_dict = class_attrs.option_dict
+            if len(option_dict) == 0:
+                raise OpgeeException(f'Options for option set {attr_def.option_set} are undefined')
+
+            opt = option_dict[attr_def.option_set]
+            options = [dict(label=label, value=value) for value, label, desc in opt.options]
+
+            # noinspection PyCallingNonCallable
+            input = dcc.RadioItems(id=id, options=options, value=opt.default,
+                                   labelStyle=radio_label_style,
+                                   style={'display': 'inline-block', 'width': "45%"},
+                                   persistence=True)
+
+        else:
+            input_type = 'text' if (pytype is None or pytype == 'str') else 'number'
+            # noinspection PyCallingNonCallable
+            input = dcc.Input(id=id, type=input_type, debounce=True,
+                              value=magnitude(attr_def.default),
+                              pattern=number_pattern.get(pytype))
+
+            unit = f"({attr_def.unit}) " if attr_def.unit else ''
+            title = f"{attr_name} {unit}"
+
+        # noinspection PyCallingNonCallable
+        div = html.Div(
+            children=[
+                html.Div(title, style={
+                    'font-weight': 'bold',
+                    'width': '45%',
+                    'display': 'inline-block',
+                    'text-align': 'right',
+                    'margin-right': '4px',
+                }),
+                input
+            ],
+            style={'margin-left': '4px', 'padding': '2px'}
+        )
+
+        det_children.append(div)
+
+    # noinspection PyCallingNonCallable
+    layout = html.Div(
+        children=[details],
         className='row',
         style={
             'text-align': 'left',
@@ -60,25 +98,6 @@ def attr_options(class_name, direction='h'):
             'padding': '5px',
             'margin': '2px',
         }
-
     )
-
-    label_style = {'display': 'inline-block', 'margin-left': '8px'} if direction == 'h' else None  # , 'margin': '4px'
-    children = details.children
-
-    for title, opt in option_dict.items():
-        options = [dict(label=label, value=value) for value, label, desc in opt.options]
-
-        radio = html.Div(
-            children=[
-                html.Span(title, style={'font-weight': 'bold'}),
-                dcc.RadioItems(id=title, options=options, value=opt.default,
-                               labelStyle=label_style, persistence=True),
-            ],
-            # className="one column",
-            style={'text-align': 'left', 'margin-left': '4px', 'padding': '2px'}
-        )
-        children.append(radio)
-
     return layout
 

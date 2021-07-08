@@ -15,7 +15,7 @@ from .error import OpgeeException, AbstractMethodError, OpgeeStopIteration
 from .emissions import Emissions, EM_OTHER
 from .energy import Energy
 from .log import getLogger
-from .stream import Stream
+from .stream import Stream, PHASE_LIQUID, PHASE_GAS
 from .utils import getBooleanXML
 from .drivers import Drivers
 from .combine_streams import combine_streams
@@ -770,6 +770,33 @@ class Environment(Process):
 
     def report(self, analysis):
         print(f"{self}: cumulative emissions to Environment:\n{self.emissions}")
+
+
+class Output(Process):
+    """
+    Receives all final streams from a field and performs CI calculations from them.
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__('Output', desc='Field output')
+        self.energy_flow = None
+
+    def run(self, analysis):
+        self.print_running_msg()
+
+        fn_unit  = analysis.attr_dict['functional_unit'].value
+        # en_basis = analysis.attr_dict['energy_basis'].value       # TBD: do we need to convert this or use as is?
+
+        if fn_unit == 'oil':
+            phase = PHASE_LIQUID
+            component = 'oil'
+        elif fn_unit == 'gas':
+            phase = PHASE_GAS
+            component = 'C1'        # TBD: is this right, or is it the sum of several components?
+        else:
+            raise OpgeeException(f"Unknown functional unit: '{fn_unit}'")   # should never happen
+
+        rates = [stream.flow_rate(component, phase) for stream in self.inputs]
+        self.energy_flow = sum(rates)
 
 
 class Aggregator(Container):
