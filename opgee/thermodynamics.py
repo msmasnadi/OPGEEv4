@@ -206,8 +206,9 @@ class AbstractSubstance(OpgeeObject):
         components = list(_dict_chemical.keys())
         self.component_MW = pd.Series({name: mol_weight(name, with_units=False) for name in components},
                                       dtype="pint[g/mole]")
-        self.component_LHV = pd.Series({name: LHV(name, with_units=False) for name in components},
-                                       dtype="pint[joule/mole]")
+        self.component_LHV_molar = pd.Series({name: LHV(name, with_units=False) for name in components},
+                                             dtype="pint[joule/mole]")
+        self.component_LHV_mass = self.component_LHV_molar * self.component_MW
         self.component_Cp_STP = pd.Series({name: Cp(name, 288.706, with_units=False) for name in components},
                                           dtype="pint[joule/g/kelvin]")
         self.component_Tc = pd.Series({name: Tc(name, with_units=False) for name in components},
@@ -837,7 +838,7 @@ class Gas(AbstractSubstance):
         """
         mass_flow_rate = stream.components.query("gas > 0.0").gas  # pandas.Series
         total_mass_rate = stream.total_gas_rate()
-        lhv = self.component_LHV[mass_flow_rate.index]
+        lhv = self.component_LHV_molar[mass_flow_rate.index]
         molecular_weight = self.component_MW[mass_flow_rate.index]
         mass_energy_density = (mass_flow_rate / total_mass_rate * lhv / molecular_weight).sum()
 
@@ -850,7 +851,7 @@ class Gas(AbstractSubstance):
         :return:(float) gas volume energy density (unit = btu/scf)
         """
         mass_flow_rate = stream.components.query("gas > 0.0").gas  # pandas.Series
-        lhv = self.component_LHV[mass_flow_rate.index]
+        lhv = self.component_LHV_molar[mass_flow_rate.index]
         molecular_weight = self.component_MW[mass_flow_rate.index]
         density = self.component_gas_rho_STP[mass_flow_rate.index]
         molar_fraction = self.component_molar_fractions(stream)

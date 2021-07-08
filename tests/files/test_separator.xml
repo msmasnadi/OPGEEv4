@@ -32,11 +32,6 @@
 			<Produces>gas fugitives</Produces>
 		</Process>
 
-		<Process class="After" desc="Test process 2">
-			<Consumes>crude oil</Consumes>
-			<Produces>lifting gas</Produces>
-		</Process>
-
 		<Process class="CrudeOilDewatering">
 			<Consumes>crude oil</Consumes>
 			<Produces>crude oil</Produces>
@@ -71,19 +66,19 @@
 			<Contains>water</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="After" name="stabilization">
+		<Stream src="CrudeOilDewatering" dst="Output" name="stabilization">
 			<Contains>oil for stabilization</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="After" name="upgrader">
+		<Stream src="CrudeOilDewatering" dst="Output" name="upgrader">
 			<Contains>oil for upgrader</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="After" name="dilution">
+		<Stream src="CrudeOilDewatering" dst="Output" name="dilution">
 			<Contains>oil for dilution</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="After" name="storage">
+		<Stream src="CrudeOilDewatering" dst="Output" name="storage">
 			<Contains>oil for storage</Contains>
 		</Stream>
 
@@ -91,14 +86,14 @@
 			<Contains>water</Contains>
 		</Stream>
 		
-		<Stream src="ProducedWaterTreatment" dst="After" name="produced water treatment to steam">
+		<Stream src="ProducedWaterTreatment" dst="Output" name="produced water treatment to steam">
 			<Contains>water for steam</Contains>
 			<Contains>water for reinjection</Contains>
 			<Contains>water for surface disposal</Contains>
 			<Contains>water for subsurface disposal</Contains>
 		</Stream>
 
-		<Stream src="Separation" dst="After" name="gas after separator">
+		<Stream src="Separation" dst="Output" name="gas after separator">
 			<Contains>gas</Contains>
 		</Stream>
 
@@ -122,15 +117,15 @@
 			<Contains>crude oil</Contains>
 		</Stream>
 
-		<Stream src="After" dst="DownholePump" name="lifting gas" impute="False">
+		<Stream src="Output" dst="DownholePump" name="lifting gas" impute="False">
 			<Contains>lifting gas</Contains>
 		</Stream>
 
-		<Stream src="After" dst="ReservoirWellInterface" name="flooding CO2" impute="False">
+		<Stream src="Output" dst="ReservoirWellInterface" name="flooding CO2" impute="False">
 			<Contains>CO2</Contains>
 		</Stream>
 
-		<Stream src="After" dst="ProducedWaterTreatment" name="blowdown recycled to treatment" impute="False">
+		<Stream src="Output" dst="ProducedWaterTreatment" name="blowdown recycled to treatment" impute="False">
 			<Contains>water</Contains>
 		</Stream>
 	</Field>

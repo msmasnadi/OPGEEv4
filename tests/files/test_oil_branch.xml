@@ -12,11 +12,6 @@
 	<Field name="test">
 		<A name="country">USA</A>
 
-		<Process class="After" desc="Test process 2">
-			<Consumes>crude oil</Consumes>
-			<Produces>lifting gas</Produces>
-		</Process>
-
 		<Process class="Before" desc="">
 			<Produces>oil for stabilization</Produces>
 		</Process>
@@ -27,6 +22,10 @@
 			<Produces>gas</Produces>
 			<Produces>gas fugitives</Produces>
 		</Process>
+
+<!--		<Process class="CrudeOilTransport">-->
+<!--			<-->
+<!--		</Process>-->
 
 		<Process class="CrudeOilStorage">
 			<Consumes>crude oil</Consumes>
@@ -43,27 +42,27 @@
 			<Contains>oil for stabilization</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilStorage" dst="CrudeOilTransport" name="crude oil storage to transportation">
-			<Contains>crude oil</Contains>
-		</Stream>
+<!--		<Stream src="CrudeOilStorage" dst="CrudeOilTransport" name="crude oil storage to transportation">-->
+<!--			<Contains>crude oil</Contains>-->
+<!--		</Stream>-->
 		
 		<Stream src="CrudeOilStorage" dst="Environment" name="gas fugitives from crude oil storage">
 			<Contains>gas fugitives</Contains>
 		</Stream>
 		
-		<Stream src="CrudeOilStorage" dst="VRUCompressor" name="crude oil storage to VRU compressor">
-			<Contains>VRU gas</Contains>
-		</Stream>
+<!--		<Stream src="CrudeOilStorage" dst="VRUCompressor" name="crude oil storage to VRU compressor">-->
+<!--			<Contains>VRU gas</Contains>-->
+<!--		</Stream>-->
 
-		<Stream src="CrudeOilStorage" dst="Flare" name="crude oil storage to flare">
-			<Contains>flare gas</Contains>
-		</Stream>
+<!--		<Stream src="CrudeOilStorage" dst="Flare" name="crude oil storage to flare">-->
+<!--			<Contains>flare gas</Contains>-->
+<!--		</Stream>-->
 
 		<Stream src="CrudeOilStabilization" dst="Environment" name="gas fugitives from stabilization">
 			<Contains>gas fugitives</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilStabilization" dst="After" name="gas from stabilization">
+		<Stream src="CrudeOilStabilization" dst="Output" name="gas from stabilization">
 			<Contains>gas from stabilization</Contains>
 		</Stream>
 
