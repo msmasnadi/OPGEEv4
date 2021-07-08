@@ -51,6 +51,10 @@
 			</Process>
 		</Aggregator>
 
+		<Stream	src="After" dst="Output">
+			<Contains>crude oil</Contains>
+		</Stream>
+
 		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
 			<Contains>crude oil</Contains>
 		</Stream>
