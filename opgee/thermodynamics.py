@@ -1,11 +1,12 @@
 import pandas as pd
 
-from opgee.core import OpgeeObject
 import math
 from thermosteam import Chemical, Mixture
-from opgee.stream import PHASE_LIQUID, Stream, PHASE_GAS, PHASE_SOLID
-from opgee import ureg
 from pandas import Series
+from . import ureg
+from .core import OpgeeObject
+from .error import OpgeeException
+from .stream import PHASE_LIQUID, Stream, PHASE_GAS, PHASE_SOLID
 
 
 def _get_dict_chemical():
@@ -55,23 +56,45 @@ def rho(component, temperature, pressure, phase):
     rho = _dict_chemical[component].rho(phases[phase], temperature, pressure)
     return ureg.Quantity(rho, "kg/m**3")
 
+def heating_value(component, basis='LHV', with_units=True):
+    """
+    Return the lower or higher heating value for the given component,
+    with or without Pint units.
+
+    :param component: (str) the name of a stream component
+    :param basis: (str) one of "LHV" or "HHV"
+    :return: (float) lower or higher heating value (unit = joule/mol)
+    """
+    legal = ('HHV', 'LHV')
+    if basis not in legal:
+        raise OpgeeException(f"heating_value: keyword arg 'which' must one of {legal}; got '{basis}'")
+
+    chemical = _dict_chemical[component]
+    hv = chemical.LHV if basis == 'LHV' else chemical.HHV
+
+    hv = abs(hv) if hv is not None else 0
+    if with_units:
+        hv = ureg.Quantity(hv, "joule/mol")
+
+    return hv
 
 def LHV(component, with_units=True):
     """
+    Return the lower heating value for the given component, with or without Pint units.
 
-    :param component:
-    :return: (float) low heat value (unit = joule/mol)
+    :param component: (str) the name of a stream component
+    :return: (float) lower heating value (unit = joule/mol)
     """
-    LHV = _dict_chemical[component].LHV
-    if LHV is not None:
-        lhv = abs(LHV)
-    else:
-        lhv = 0
-    if with_units:
-        lhv = ureg.Quantity(lhv, "joule/mol")
+    return heating_value(component, basis='LHV', with_units=with_units)
 
-    return lhv
+def HHV(component, with_units=True):
+    """
+    Return the lower heating value for the given component, with or without Pint units.
 
+    :param component: (str) the name of a stream component
+    :return: (float) lower heating value (unit = joule/mol)
+    """
+    return heating_value(component, basis='HHV', with_units=with_units)
 
 def Cp(component, kelvin, with_units=True):
     """
@@ -206,9 +229,15 @@ class AbstractSubstance(OpgeeObject):
         components = list(_dict_chemical.keys())
         self.component_MW = pd.Series({name: mol_weight(name, with_units=False) for name in components},
                                       dtype="pint[g/mole]")
-        self.component_LHV_molar = pd.Series({name: LHV(name, with_units=False) for name in components},
+
+        self.component_LHV_molar = pd.Series({name: heating_value(name, basis='LHV', with_units=False) for name in components},
                                              dtype="pint[joule/mole]")
-        self.component_LHV_mass = self.component_LHV_molar * self.component_MW
+        self.component_LHV_mass = self.component_LHV_molar / self.component_MW  # joule/gram
+
+        self.component_HHV_molar = pd.Series({name: heating_value(name, basis='HHV', with_units=False) for name in components},
+                                             dtype="pint[joule/mole]")
+        self.component_HHV_mass = self.component_LHV_molar / self.component_MW  # joule/gram
+
         self.component_Cp_STP = pd.Series({name: Cp(name, 288.706, with_units=False) for name in components},
                                           dtype="pint[joule/g/kelvin]")
         self.component_Tc = pd.Series({name: Tc(name, with_units=False) for name in components},
