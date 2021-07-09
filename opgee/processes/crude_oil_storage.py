@@ -8,9 +8,6 @@ class CrudeOilStorage(Process):
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
-        if field.attr("crude_oil_dewatering_output") != self.name:
-            self.enabled = False
-            return
         self.std_temp = field.model.const("std-temperature")
         self.std_press = field.model.const("std-pressure")
 
@@ -19,6 +16,10 @@ class CrudeOilStorage(Process):
 
         # mass rate
         input_stab_oil = self.find_input_stream("oil for stabilization")
+        if input_stab_oil is None:
+            pass
+        input_updated_oil = self.find_input_stream("oil for upgrader")
+        input_diluted_oil = self.find_input_stream("oil for dilution")
 
 
         # solution_GOR = oil.solution_gas_oil_ratio(stream,

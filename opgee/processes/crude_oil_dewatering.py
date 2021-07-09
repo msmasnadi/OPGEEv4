@@ -62,8 +62,6 @@ class CrudeOilDewatering(Process):
             temp = self.temperature_heater_treater if self.heater_treater else temperature
             oil_to_dilution.set_temperature_and_pressure(temp, pressure)
 
-        pass
-
         # Check
         self.set_iteration_value((oil_to_stabilization.total_flow_rate(),
                                   water_to_stabilization.total_flow_rate()))

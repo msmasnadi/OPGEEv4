@@ -140,7 +140,6 @@
       <Option desc="Combined hydroconversion and fluid coking">Combined</Option>
     </Options>
     <Options name="crude_oil_dewatering_output" default="CrudeOilStabilization">
-      <Option desc="Crude oil storage">CrudeOilStorage</Option>
       <Option desc="Heavy oil upgrading">HeavyOilUpgrading</Option>
       <Option desc="Heavy oil dilution">HeavyOilDilution</Option>
       <Option desc="Crude oil stabilization">CrudeOilStabilization</Option>
