@@ -238,6 +238,10 @@ class AbstractSubstance(OpgeeObject):
                                              dtype="pint[joule/mole]")
         self.component_HHV_mass = self.component_LHV_molar / self.component_MW  # joule/gram
 
+        # TODO: these need proper values
+        self.component_LHV_mass['oil'] = ureg.Quantity(0.0, 'joule/gram')
+        self.component_HHV_mass['oil'] = ureg.Quantity(0.0, 'joule/gram')
+
         self.component_Cp_STP = pd.Series({name: Cp(name, 288.706, with_units=False) for name in components},
                                           dtype="pint[joule/g/kelvin]")
         self.component_Tc = pd.Series({name: Tc(name, with_units=False) for name in components},

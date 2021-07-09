@@ -197,6 +197,7 @@ class Process(XmlInstantiable, AttributeMixin):
     def _after_init(self):
         self.check_attr_constraints(self.attr_dict)
         self.process_EF = self.get_process_EF()
+        self.field = self.get_field()
 
     #
     # Pass-through convenience methods for energy and emissions
@@ -274,7 +275,7 @@ class Process(XmlInstantiable, AttributeMixin):
         :return:
         """
 
-        field = self.get_field()
+        field = self.field
 
         gas_fugitives = self.find_output_stream("gas fugitives")
         gas_fugitives.copy_gas_rates_from(stream)
@@ -320,12 +321,10 @@ class Process(XmlInstantiable, AttributeMixin):
         self.visit_count = 0
 
     def get_environment(self):
-        field = self.get_field()
-        return field.environment
+        return self.field.environment
 
     def get_reservoir(self):
-        field = self.get_field()
-        return field.reservoir
+        return self.field.reservoir
 
     def find_stream(self, name, raiseError=False) -> Stream:
         """
@@ -337,8 +336,7 @@ class Process(XmlInstantiable, AttributeMixin):
         :return: (Stream or None) the requested stream, or None if not found and `raiseError` is False.
         :raises: OpgeeException if `name` is not found and `raiseError` is True
         """
-        field = self.get_field()
-        return field.find_stream(name, raiseError=raiseError)
+        return self.field.find_stream(name, raiseError=raiseError)
 
     def produces(self, stream_type):
         return stream_type in self.production
@@ -359,8 +357,7 @@ class Process(XmlInstantiable, AttributeMixin):
         :return: (Stream, list or dict of Streams) depends on various keyword args
         :raises: OpgeeException if no processes handling `stream_type` are found and `raiseError` is True
         """
-        field = self.get_field()
-        oil = field.oil
+        oil = self.field.oil
 
         if combine and as_list:
             raise OpgeeException(f"_find_streams_by_type: both 'combine' and 'as_list' cannot be True")
@@ -783,20 +780,24 @@ class Output(Process):
     def run(self, analysis):
         self.print_running_msg()
 
-        fn_unit  = analysis.attr_dict['functional_unit'].value
-        # en_basis = analysis.attr_dict['energy_basis'].value       # TBD: do we need to convert this or use as is?
+        fn_unit  = analysis.attr('functional_unit')
+        en_basis = analysis.attr('energy_basis')
+        oil = self.field.oil
+
+        heating_values = oil.component_LHV_mass if en_basis == 'LHV' else oil.component_HHV_mass
 
         if fn_unit == 'oil':
-            phase = PHASE_LIQUID
-            component = 'oil'
+            mass_rate = sum([stream.liquid_flow_rate('oil') for stream in self.inputs])
+            energy_flow = mass_rate * heating_values['oil']
+
         elif fn_unit == 'gas':
-            phase = PHASE_GAS
-            component = 'C1'        # TBD: is this right, or is it the sum of several components?
+            mass_rates = sum([stream.component[PHASE_GAS] * heating_values for stream in self.inputs])
+            energy_flow = sum(mass_rates * heating_values)
+
         else:
             raise OpgeeException(f"Unknown functional unit: '{fn_unit}'")   # should never happen
 
-        rates = [stream.flow_rate(component, phase) for stream in self.inputs]
-        self.energy_flow = sum(rates)
+        self.energy_flow = energy_flow.to("MJ/day")
 
 
 class Aggregator(Container):
