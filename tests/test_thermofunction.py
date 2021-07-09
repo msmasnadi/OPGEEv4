@@ -98,7 +98,7 @@ def test_oil_density(oil_instance):
 
 
 def test_oil_mass_energy_density(oil_instance):
-    mass_energy_density = oil_instance.mass_energy_density()
+    mass_energy_density = oil_instance.oil_LHV_mass
     assert mass_energy_density == ureg.Quantity(pytest.approx(18279.816), "btu/lb")
 
 

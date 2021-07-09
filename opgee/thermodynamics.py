@@ -56,6 +56,7 @@ def rho(component, temperature, pressure, phase):
     rho = _dict_chemical[component].rho(phases[phase], temperature, pressure)
     return ureg.Quantity(rho, "kg/m**3")
 
+
 def heating_value(component, basis='LHV', with_units=True):
     """
     Return the lower or higher heating value for the given component,
@@ -78,6 +79,7 @@ def heating_value(component, basis='LHV', with_units=True):
 
     return hv
 
+
 def LHV(component, with_units=True):
     """
     Return the lower heating value for the given component, with or without Pint units.
@@ -87,6 +89,7 @@ def LHV(component, with_units=True):
     """
     return heating_value(component, basis='LHV', with_units=with_units)
 
+
 def HHV(component, with_units=True):
     """
     Return the lower heating value for the given component, with or without Pint units.
@@ -95,6 +98,7 @@ def HHV(component, with_units=True):
     :return: (float) lower heating value (unit = joule/mol)
     """
     return heating_value(component, basis='HHV', with_units=with_units)
+
 
 def Cp(component, kelvin, with_units=True):
     """
@@ -230,17 +234,15 @@ class AbstractSubstance(OpgeeObject):
         self.component_MW = pd.Series({name: mol_weight(name, with_units=False) for name in components},
                                       dtype="pint[g/mole]")
 
-        self.component_LHV_molar = pd.Series({name: heating_value(name, basis='LHV', with_units=False) for name in components},
-                                             dtype="pint[joule/mole]")
+        self.component_LHV_molar = pd.Series(
+            {name: heating_value(name, basis='LHV', with_units=False) for name in components},
+            dtype="pint[joule/mole]")
         self.component_LHV_mass = self.component_LHV_molar / self.component_MW  # joule/gram
 
-        self.component_HHV_molar = pd.Series({name: heating_value(name, basis='HHV', with_units=False) for name in components},
-                                             dtype="pint[joule/mole]")
+        self.component_HHV_molar = pd.Series(
+            {name: heating_value(name, basis='HHV', with_units=False) for name in components},
+            dtype="pint[joule/mole]")
         self.component_HHV_mass = self.component_LHV_molar / self.component_MW  # joule/gram
-
-        # TODO: these need proper values
-        self.component_LHV_mass['oil'] = ureg.Quantity(0.0, 'joule/gram')
-        self.component_HHV_mass['oil'] = ureg.Quantity(0.0, 'joule/gram')
 
         self.component_Cp_STP = pd.Series({name: Cp(name, 288.706, with_units=False) for name in components},
                                           dtype="pint[joule/g/kelvin]")
@@ -289,6 +291,10 @@ class Oil(AbstractSubstance):
         super().__init__(field)
 
         self.API = API = field.attr("API")
+        self.oil_LHV_mass = self.mass_energy_density()
+        self.oil_HHV_mass = self.mass_energy_density(basis="HHV")
+        self.component_LHV_mass['oil'] = self.oil_LHV_mass.to("joule/gram")
+        self.component_HHV_mass['oil'] = self.oil_HHV_mass.to("joule/gram")
         self.gas_comp = field.attrs_with_prefix('gas_comp_')
         self.gas_oil_ratio = field.attr('GOR')
         self.oil_specific_gravity = ureg.Quantity(141.5 / (131.5 + API.m), "frac")
@@ -535,10 +541,12 @@ class Oil(AbstractSubstance):
         volume_flow_rate = (mass_flow_rate / density).to("bbl_oil/day")
         return volume_flow_rate
 
-    def mass_energy_density(self):
+    def mass_energy_density(self, basis="LHV", with_unit=True):
         """
 
-        :return:(float) mass energy density (unit = btu/lb)
+        :param basis: (str) LHV or HHV
+        :param with_unit: (float) lower or higher heating value (unit = btu/lb)
+        :return: heating value mass
         """
         # Oil lower heating value correlation
         oil_LHV_a1 = 16796
@@ -546,17 +554,24 @@ class Oil(AbstractSubstance):
         oil_LHV_a3 = 0.217
         oil_LHV_a4 = 0.0019
 
+        oil_HHV_a1 = 17672
+        oil_HHV_a2 = 66.6
+        oil_HHV_a3 = 0.316
+        oil_HHV_a4 = 0.0014
         API = self.API.m
 
-        result = (oil_LHV_a1 + oil_LHV_a2 * API - oil_LHV_a3 * API ** 2 - oil_LHV_a4 * API ** 3)
-        return ureg.Quantity(result, "british_thermal_unit/lb")
+        result = (oil_LHV_a1 + oil_LHV_a2 * API - oil_LHV_a3 * API ** 2 - oil_LHV_a4 * API ** 3) if basis == "LHV" \
+            else (oil_HHV_a1 + oil_HHV_a2 * API - oil_HHV_a3 * API ** 2 - oil_HHV_a4 * API ** 3)
+        result = ureg.Quantity(result, "british_thermal_unit/lb") if with_unit else result
+
+        return result
 
     def volume_energy_density(self, stream, oil_specific_gravity, gas_specific_gravity, gas_oil_ratio):
         """
 
         :return:(float) volume energy density (unit = mmBtu/bbl)
         """
-        mass_energy_density = self.mass_energy_density()
+        mass_energy_density = self.oil_LHV_mass
         density = self.density(stream,
                                oil_specific_gravity,
                                gas_specific_gravity,
@@ -572,7 +587,7 @@ class Oil(AbstractSubstance):
         """
         mass_flow_rate = stream.hydrocarbon_rate(PHASE_LIQUID)
         mass_flow_rate = mass_flow_rate.to("lb/day")
-        mass_energy_density = self.mass_energy_density()
+        mass_energy_density = self.oil_LHV_mass
 
         result = mass_energy_density * mass_flow_rate
         return result.to("mmbtu/day")
@@ -665,7 +680,7 @@ class Gas(AbstractSubstance):
         :return:
         """
         mass_flow_rate = stream.components.query("gas > 0.0").gas  # pandas.Series
-        universal_gas_constants = self.field.model.const("universal-gas-constants") # J/mol/K
+        universal_gas_constants = self.field.model.const("universal-gas-constants")  # J/mol/K
         molecular_weight = self.component_MW[mass_flow_rate.index]
         Cp = self.component_Cp_STP[mass_flow_rate.index]
         gas_constant = universal_gas_constants / molecular_weight
@@ -968,4 +983,3 @@ class Water(AbstractSubstance):
 
         heat_capacity = mass_flow_rate * specific_heat
         return heat_capacity.to("btu/degF/day")
-
