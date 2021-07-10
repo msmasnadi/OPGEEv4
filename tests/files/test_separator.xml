@@ -7,6 +7,7 @@
 	  <A name="GWP_horizon">100</A>
 	  <A name="GWP_version">AR5</A>
 		<Field name="test"/>
+<!--		<Field name="bitumen"/>-->
 	</Analysis>
 
 	<Field name="test">
@@ -129,4 +130,5 @@
 			<Contains>water</Contains>
 		</Stream>
 	</Field>
+
 </Model>
