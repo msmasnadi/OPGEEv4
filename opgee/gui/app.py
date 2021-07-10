@@ -164,7 +164,6 @@ def processes_layout(app, current_field):
                 # className="twelve columns",
                 className="row",
                 children=[
-                    # dcc.Graph(id="my-graph", figure=field_network_graph(current_field))
                     field_network_graph(current_field)
                 ],
             ),
@@ -256,6 +255,26 @@ def settings_layout(current_field):
         ),
     ], style={'textAlign': "center"},
        className="row"
+    )
+    return layout
+
+def results_layout(current_field):
+    # noinspection PyCallingNonCallable
+    layout = html.Div([
+        html.H3('Results'),
+        html.Div('', id='ci-text',
+                 className="row",
+                 # style={'textAlign': "center"},
+                 ),
+        html.Center(
+            dcc.Graph(id="ci-barchart", style={"width": "600px"}),
+        ),
+    ], className="row",
+       style={#'display': 'flex',
+              'align-items': 'center',
+              'textAlign': "center",
+                'justify-content': 'center'
+              }
     )
     return layout
 
@@ -393,24 +412,24 @@ def app_layout(app):
                 parent_className='custom-tabs',
                 className='custom-tabs-container',
                 children=[
-                    # dcc.Tab(
-                    #     children=[],        # overview_layout(app)
-                    #     label='Overview',
-                    #     value='overview',
-                    #     className='custom-tab',
-                    #     selected_className='custom-tab--selected'
-                    # ),
                     dcc.Tab(
-                        children=[],  # processes_layout(app, current_field)
+                        children=[],  # processes_layout()
                         label='Processes',
                         value='processes',
                         className='custom-tab',
                         selected_className='custom-tab--selected'
                     ),
                     dcc.Tab(
-                        children=[],  # settings_layout(app)
+                        children=[],  # settings_layout()
                         label='Settings',
                         value='settings',
+                        className='custom-tab',
+                        selected_className='custom-tab--selected'
+                    ),
+                    dcc.Tab(
+                        children=[], # results_layout()
+                        label='Results',
+                        value='results',
                         className='custom-tab',
                         selected_className='custom-tab--selected'
                     ),
@@ -545,10 +564,54 @@ def main(args):
         elif tab == 'settings':
             return settings_layout(current_field)
 
-        # elif tab == 'overview':
-        #     return overview_layout(app)
+        elif tab == 'results':
+            return results_layout(current_field)
 
     generate_settings_callback(app, current_analysis, current_field)
+
+    @app.callback(
+        Output('ci-text', 'children'),
+        Input('run-button', 'n_clicks'))
+    def ci_text(n_clicks):
+        ci = current_field.carbon_intensity.m
+        fn_unit  = current_analysis.attr('functional_unit')
+        en_basis = current_analysis.attr('energy_basis')
+        return f"CI: {ci:0.2f} g CO2e/MJ {en_basis} of {fn_unit}"
+
+    @app.callback(
+        Output('ci-barchart', 'figure'),
+        Input('run-button', 'n_clicks'))
+    def ci_barchart(n_clicks):
+        import plotly.express as px
+        import pandas as pd
+        import plotly.graph_objs as go
+
+        fn_unit  = current_analysis.attr('functional_unit')
+
+        value_col = r'$g CO_2 MJ^{-1}$'
+        df = pd.DataFrame({"category": ["Exploration", "Surface Processing", "Transportation"],
+                           "value": [1.5, 2.2, 3.1],
+                           "name": [fn_unit] * 3})
+
+        # TBD: looks too inflexible. Probably use a lower-level bar chart go.bar?
+        # import plotly.graph_objects as go
+        fn_unit_list = [fn_unit] * 3
+
+        fig = go.Figure(data=[
+            go.Bar(name='SF Zoo', x=fn_unit_list, y=[20, 14, 23]),
+            go.Bar(name='LA Zoo', x=fn_unit_list, y=[12, 18, 29])
+        ])
+
+        fig = go.Figure(data=[go.Bar(name=row.category, x=[row.name], y=[row.value]) for idx, row in df.iterrows()])
+        # Change the bar mode
+        fig.update_layout(barmode='stack',
+                          yaxis_title = "g CO2 per MJ", # doesn't render in latex: r'g CO$_2$ MJ$^{-1}$',
+                          xaxis_title = f'Carbon Intensity of {fn_unit.title()}')
+
+        # fig = px.bar(df, x="Name", y=value_col, color="Category", barmode="stack",
+        #              hover_data=[value_col],
+        #              )
+        return fig
 
     app.run_server(debug=True)
 
