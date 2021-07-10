@@ -33,7 +33,7 @@ class Field(Container):
         self.reservoir   = Reservoir()      # one per field
         self.output      = Output()
 
-        self.carbon_intensity = 0
+        self.carbon_intensity = ureg.Quantity(0.0, "g/MJ")
 
         all_procs = self.collect_processes() # includes reservoir and environment
         self.process_dict = self.adopt(all_procs, asDict=True)
@@ -142,7 +142,7 @@ class Field(Container):
 
         self.compute_carbon_intensity(analysis)
 
-        print(f"Field '{name}': CI = {self.carbon_intensity}")
+        print(f"Field '{name}': CI = {self.carbon_intensity:.2f}")
 
     def _is_cycle_member(self, process):
         """

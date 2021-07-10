@@ -38,18 +38,35 @@
 				<Consumes>crude oil</Consumes>
 				<Produces>lifting gas</Produces>
 			</Process>
-
-			<Process class="CrudeOilDewatering">
-				<Consumes>crude oil</Consumes>
-				<Produces>crude oil</Produces>
-				<Produces>water</Produces>
-			</Process>
-
-			<Process class="ProducedWaterTreatment">
-				<Consumes>water</Consumes>
-				<Produces>water</Produces>
-			</Process>
 		</Aggregator>
+
+		<Aggregator name="Surface_processing">
+			<Process class="CrudeOilDewatering"/>
+			<Process class="ProducedWaterTreatment"/>
+			<Process class="CrudeOilStabilization" enabled="false"/>
+			<Process class="HeavyOilUpgrading" enabled="false"/>
+			<Process class="HeavyOilDilution" enabled="false"/>
+			<Process class="CrudeOilStorage" enabled="false"/>
+		</Aggregator>
+
+		<Stream src="CrudeOilDewatering" dst="ProducedWaterTreatment">
+			<Contains>crude oil</Contains>
+			<Contains>water</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilDewatering" dst="Output" name="stabilization">
+			<Contains>oil for stabilization</Contains>
+		</Stream>
+
+<!--		<Stream src="CrudeOilDewatering" dst="Output" name="upgrader">-->
+<!--			<Contains>oil for upgrader</Contains>-->
+<!--		</Stream>-->
+
+<!--		<Stream src="CrudeOilDewatering" dst="Output" name="dilution">-->
+<!--			<Contains>oil for dilution</Contains>-->
+<!--		</Stream>-->
+
+<!-- -->
 
 		<Stream	src="After" dst="Output">
 			<Contains>crude oil</Contains>
@@ -57,11 +74,6 @@
 
 		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
 			<Contains>crude oil</Contains>
-		</Stream>
-
-		<Stream src="CrudeOilDewatering" dst="ProducedWaterTreatment" name="crude oil dewatering to produced water treatment">
-			<Contains>crude oil</Contains>
-			<Contains>water</Contains>
 		</Stream>
 
 		<Stream src="Separation" dst="ProducedWaterTreatment" name="separator to produced water treatment">

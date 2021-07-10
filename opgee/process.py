@@ -786,12 +786,15 @@ class Output(Process):
 
         heating_values = oil.component_LHV_mass if en_basis == 'LHV' else oil.component_HHV_mass
 
+        inputs = self.inputs
+        zero_mass_rate = None if inputs else ureg.Quantity(0.0, Stream._units)
+
         if fn_unit == 'oil':
-            mass_rate = sum([stream.liquid_flow_rate('oil') for stream in self.inputs])
+            mass_rate = sum([stream.liquid_flow_rate('oil') for stream in inputs]) if inputs else zero_mass_rate
             energy_flow = mass_rate * heating_values['oil']
 
         elif fn_unit == 'gas':
-            mass_rates = sum([stream.component[PHASE_GAS] * heating_values for stream in self.inputs])
+            mass_rates = sum([stream.component[PHASE_GAS] * heating_values for stream in inputs]) if inputs else zero_mass_rate
             energy_flow = sum(mass_rates * heating_values)
 
         else:
