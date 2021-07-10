@@ -66,7 +66,7 @@ class Separation(Process):
 
         # energy rate
 
-        free_gas_stages = self.get_free_gas_stages(self.field)  # (float, list) scf/bbl
+        free_gas_stages, final_SOR = self.get_free_gas_stages(self.field)  # (float, list) scf/bbl
         gas_compression_volume_stages = [(self.oil_volume_rate * free_gas).to("mmscf/day") for free_gas in free_gas_stages]
         compressor_brake_horsepower_of_stages = self.compressor_brake_horsepower_of_stages(self.field,
                                                                                            gas_after,
@@ -177,7 +177,7 @@ class Separation(Process):
             free_gas_of_stages.append(solution_gas_oil_ratio_of_stages[i - 1] -
                                       solution_gas_oil_ratio_of_stages[i])
 
-        return free_gas_of_stages
+        return free_gas_of_stages, solution_gas_oil_ratio_of_stages[-1]
 
     def compressor_brake_horsepower_of_stages(self, field, gas_stream, gas_compression_volume_stages):
         """
