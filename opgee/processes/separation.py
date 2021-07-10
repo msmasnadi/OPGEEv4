@@ -67,6 +67,7 @@ class Separation(Process):
         # energy rate
 
         free_gas_stages, final_SOR = self.get_free_gas_stages(self.field)  # (float, list) scf/bbl
+        self.field.save_process_data(separator_final_SOR=final_SOR)
         gas_compression_volume_stages = [(self.oil_volume_rate * free_gas).to("mmscf/day") for free_gas in free_gas_stages]
         compressor_brake_horsepower_of_stages = self.compressor_brake_horsepower_of_stages(self.field,
                                                                                            gas_after,

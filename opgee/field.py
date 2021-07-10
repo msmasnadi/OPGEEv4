@@ -54,6 +54,8 @@ class Field(Container):
         self.gas = Gas(self)
         self.water = Water(self)
 
+        self.process_data = {}
+
     def _after_init(self):
         self.check_attr_constraints(self.attr_dict)
 
@@ -378,3 +380,26 @@ class Field(Container):
         processes = [self.environment, self.reservoir, self.output]
         _collect(processes, self)
         return processes
+
+    def save_process_data(self, **kwargs):
+        """
+
+        :param name:
+        :param value:
+        :return:
+        """
+        for name, value in kwargs.items():
+            self.process_data[name] = value
+
+    def get_process_data(self, name):
+        """
+
+        :param name:
+        :return:
+        """
+
+        try:
+            return self.process_data[name]
+        except KeyError:
+            raise OpgeeException(f"Process data dictionary does not include {name}")
+

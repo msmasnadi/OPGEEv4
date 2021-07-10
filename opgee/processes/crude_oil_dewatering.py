@@ -35,10 +35,13 @@ class CrudeOilDewatering(Process):
         oil_rate = input.flow_rate("oil", PHASE_LIQUID)
         water_rate = input.flow_rate("H2O", PHASE_LIQUID)
 
-        oil_to_stabilization = self.find_output_stream("oil for stabilization")
-        oil_to_stabilization.set_liquid_flow_rate("oil", oil_rate)
+        separator_final_SOR = self.field.get_process_data("separator_final_SOR")
+
+        oil_to_stabilization = self.find_output_stream("oil for stabilization", raiseError=False)
         temp = self.temperature_heater_treater if self.heater_treater else temperature
-        oil_to_stabilization.set_temperature_and_pressure(temp, pressure)
+        if oil_to_stabilization is not None:
+            oil_to_stabilization.set_liquid_flow_rate("oil", oil_rate)
+            oil_to_stabilization.set_temperature_and_pressure(temp, pressure)
 
         water_to_stabilization = self.find_output_stream("water")
         water_to_stabilization.set_liquid_flow_rate("H2O", water_rate)
@@ -62,9 +65,6 @@ class CrudeOilDewatering(Process):
             temp = self.temperature_heater_treater if self.heater_treater else temperature
             oil_to_dilution.set_temperature_and_pressure(temp, pressure)
 
-        # Check
-        self.set_iteration_value((oil_to_stabilization.total_flow_rate(),
-                                  water_to_stabilization.total_flow_rate()))
         average_oil_temp = ureg.Quantity((temperature.m+self.temperature_heater_treater.m)/2, "degF")
         oil_heat_capacity = self.field.oil.specific_heat(self.field.oil.API, average_oil_temp)
         water_heat_capacity = self.field.water.specific_heat(average_oil_temp)

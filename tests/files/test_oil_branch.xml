@@ -23,9 +23,7 @@
 			<Produces>gas fugitives</Produces>
 		</Process>
 
-<!--		<Process class="CrudeOilTransport">-->
-<!--			<-->
-<!--		</Process>-->
+		<Process class="HeavyOilUpgrading"/>
 
 		<Process class="CrudeOilStorage">
 			<Consumes>crude oil</Consumes>
@@ -40,6 +38,18 @@
 
 		<Stream src="CrudeOilStabilization" dst="CrudeOilStorage" name="crude oil stabilization to crude oil storage">
 			<Contains>oil for stabilization</Contains>
+		</Stream>
+
+		<Stream src="Before" dst="CrudeOilStorage" name="before to crude oil storage">
+			<Contains>oil for storage</Contains>
+		</Stream>
+
+		<Stream src="HeavyOilUpgrading" dst="CrudeOilStorage" name="heavy oil upgrading to crude oil storage">
+			<Contains>oil for upgrader</Contains>
+		</Stream>
+
+		<Stream src="HeavyOilDilution" dst="CrudeOilStorage" name="heavy oil dilution to crude oil storage">
+			<Contains>oil for dilution</Contains>
 		</Stream>
 
 <!--		<Stream src="CrudeOilStorage" dst="CrudeOilTransport" name="crude oil storage to transportation">-->

@@ -16,15 +16,24 @@ class CrudeOilStorage(Process):
         self.print_running_msg()
 
         # mass rate
-        input_stab_oil = self.find_input_stream("oil for stabilization")
-        if input_stab_oil is None:
-            pass
-        input_updated_oil = self.find_input_stream("oil for upgrader")
-        input_diluted_oil = self.find_input_stream("oil for dilution")
+        oil_mass_rate = 0
+        input_stab_oil = self.find_input_stream("oil for stabilization", raiseError=False)
+        if input_stab_oil is not None:
+            oil_mass_rate += input_stab_oil.liquid_flow_rate("oil")
 
+        input_updated_oil = self.find_input_stream("oil for upgrader", raiseError=False)
+        if input_updated_oil is not None:
+            oil_mass_rate += input_updated_oil.liquid_flow_rate("oil")
+
+        input_diluted_oil = self.find_input_stream("oil for dilution", raiseError=False)
+        if input_diluted_oil is not None:
+            oil_mass_rate += input_diluted_oil.liquid_flow_rate("oil")
+
+        # TODO: get solution GOR inlet from separation
         stream = Stream(temperature=self.std_temp, pressure=self.std_press)
         oil = self.field.Oil
         solution_GOR_outlet = oil.solution_gas_oil_ratio(stream,
                                                          oil.oil_specific_gravity,
                                                          oil.gas_specific_gravity,
                                                          oil.gas_oil_ratio)
+
