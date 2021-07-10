@@ -549,19 +549,10 @@ class Oil(AbstractSubstance):
         :return: heating value mass
         """
         # Oil lower heating value correlation
-        oil_LHV_a1 = 16796
-        oil_LHV_a2 = 54.4
-        oil_LHV_a3 = 0.217
-        oil_LHV_a4 = 0.0019
-
-        oil_HHV_a1 = 17672
-        oil_HHV_a2 = 66.6
-        oil_HHV_a3 = 0.316
-        oil_HHV_a4 = 0.0014
+        a1, a2, a3, a4 = (16796, 54.4, 0.217, 0.0019) if basis == 'LHV' else (17672, 66.6, 0.316, 0.0014)
         API = self.API.m
 
-        result = (oil_LHV_a1 + oil_LHV_a2 * API - oil_LHV_a3 * API ** 2 - oil_LHV_a4 * API ** 3) if basis == "LHV" \
-            else (oil_HHV_a1 + oil_HHV_a2 * API - oil_HHV_a3 * API ** 2 - oil_HHV_a4 * API ** 3)
+        result = (a1 + a2 * API - a3 * API ** 2 - a4 * API ** 3)
         result = ureg.Quantity(result, "british_thermal_unit/lb") if with_unit else result
 
         return result
