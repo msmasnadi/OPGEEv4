@@ -21,9 +21,7 @@ class AfterDewatering(Process):
         self.print_running_msg()
 
 
-class HeavyOilUpgrading(Process):
-    def run(self, analysis):
-        self.print_running_msg()
+
 
 
 class HeavyOilDilution(Process):
