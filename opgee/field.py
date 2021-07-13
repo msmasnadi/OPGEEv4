@@ -383,21 +383,24 @@ class Field(Container):
 
     def save_process_data(self, **kwargs):
         """
+        Allows a Process to store arbitrary data in the field's `process_data` dictionary
+        for access by other processes.
 
-        :param name:
-        :param value:
-        :return:
+        :param name: (str) the name of the data element (the dictionary key)
+        :param value: (any) the value to store in the dictionary
+        :return: none
         """
         for name, value in kwargs.items():
             self.process_data[name] = value
 
     def get_process_data(self, name):
         """
+        Retrieve a stored value from the field's `process_data` dictionary.
 
-        :param name:
-        :return:
+        :param name: (str) the name of the data element (the dictionary key)
+        :return: (any) the value
+        :raises OpgeeException: if the name is not found in `process_data`.
         """
-
         try:
             return self.process_data[name]
         except KeyError:

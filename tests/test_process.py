@@ -111,3 +111,19 @@ def test_bad_intermediate_value(procB):
     iv = procB.iv
     with pytest.raises(OpgeeException, match=f"An intermediate value for '.*' was not found"):
         row = iv.get('non-existent')
+
+foo = 1.0
+bar = dict(x=1, y=2)
+baz = "a string"
+
+@pytest.mark.parametrize(
+    "name, value", [('foo', foo), ('bar', bar), ('baz', baz)])
+def test_process_data(procB, name, value):
+    field = procB.field
+    field.save_process_data(foo=foo, bar=bar, baz=baz)
+
+    assert field.get_process_data(name) == value
+
+def test_bad_process_data(procB):
+    with pytest.raises(OpgeeException, match='Process data dictionary does not include .*'):
+        procB.field.get_process_data("nonexistent-data-key")

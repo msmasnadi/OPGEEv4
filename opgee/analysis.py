@@ -24,7 +24,7 @@ class Analysis(Container):
     def __init__(self, name, attr_dict=None, field_names=None, groups=None):
         super().__init__(name, attr_dict=attr_dict)
 
-        self._field_names = field_names
+        self._field_names = field_names     # this list is extended in _after_init
         self.groups = groups
 
         # The following are set in _after_init()

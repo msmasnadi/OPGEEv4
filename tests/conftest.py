@@ -6,7 +6,7 @@ from opgee.process import Process
 from opgee.pkg_utils import resourceStream
 from opgee.tool import Opgee
 from .utils_for_tests import load_test_model
- 
+
 class ProcA(Process):
     def run(self, analysis):
         pass
