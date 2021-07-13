@@ -9,6 +9,15 @@
 		<Field name="test"/>
 	</Analysis>
 
+	<Analysis name="test_20_year">
+		<A name="functional_unit">oil</A>
+		<A name="energy_basis">LHV</A>
+	  <A name="GWP_horizon">20</A>
+	  <A name="GWP_version">AR5_CCF</A>
+		<Field name="test"/>
+		<Field name="test2"/>
+	</Analysis>
+
 	<Field name="test">
 		<A name="country">USA</A>
 
@@ -131,5 +140,85 @@
 		<Stream src="After" dst="ProducedWaterTreatment" name="blowdown recycled to treatment" impute="False">
 			<Contains>water</Contains>
 		</Stream>
+	</Field>
+
+	<Field name="test2">
+		<A name="country">Canada</A>
+
+		<Aggregator name="Production_and_extraction">
+			<Process class="ReservoirWellInterface"/>
+			<Process class="DownholePump"/>
+			<Process class="Separation"/>
+		</Aggregator>
+
+		<Aggregator name="Surface_processing">
+			<Process class="CrudeOilDewatering"/>
+			<Process class="ProducedWaterTreatment"/>
+			<Process class="CrudeOilStabilization" enabled="false"/>
+			<Process class="HeavyOilUpgrading" enabled="false"/>
+			<Process class="HeavyOilDilution" enabled="false"/>
+			<Process class="CrudeOilStorage" enabled="false"/>
+		</Aggregator>
+
+		<Aggregator name="EverythingElse">
+			<Process class="After"/>
+		</Aggregator>
+
+		<Stream src="Reservoir" dst="ReservoirWellInterface">
+			<Contains>crude oil</Contains>
+		</Stream>
+
+		<Stream src="ReservoirWellInterface" dst="DownholePump">
+			<Contains>crude oil</Contains>
+		</Stream>
+
+		<Stream src="DownholePump" dst="Separation">
+			<Contains>crude oil</Contains>
+		</Stream>
+
+		<Stream src="Separation" dst="ProducedWaterTreatment">
+			<Contains>water</Contains>
+		</Stream>
+
+		<Stream src="ProducedWaterTreatment" dst="After" name="produced water treatment to steam">
+			<Contains>water for steam</Contains>
+		</Stream>
+
+		<Stream src="ProducedWaterTreatment" dst="After" name="produced water treatment to reinjection">
+			<Contains>water for reinjection</Contains>
+		</Stream>
+
+		<Stream src="ProducedWaterTreatment" dst="After" name="produced water treatment to surface disposal">
+			<Contains>water for surface disposal</Contains>
+		</Stream>
+
+		<Stream src="ProducedWaterTreatment" dst="After" name="produced water treatment to subsurface disposal">
+			<Contains>water for subsurface disposal</Contains>
+		</Stream>
+
+		<Stream src="Separation" dst="After" name="gas after separator">
+			<Contains>gas</Contains>
+		</Stream>
+
+		<Stream src="Separation" dst="Environment" name="gas fugitives from separator">
+			<Contains>gas fugitives</Contains>
+		</Stream>
+
+		<Stream src="After" dst="Output">
+			<Contains>crude oil</Contains>
+		</Stream>
+
+		<Stream src="After" dst="Environment">
+			<Contains>gas fugitives</Contains>
+		</Stream>
+
+<!--		<Stream src="Separation" dst="Environment" name="gas fugitives from separator">-->
+<!--			<Contains>gas fugitives</Contains>-->
+<!--		</Stream>-->
+
+		<Stream src="DownholePump" dst="Environment" name="gas fugitives from downhole pump">
+			<Contains>gas fugitives</Contains>
+		</Stream>
+
 	</Field>
 </Model>

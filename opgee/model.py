@@ -53,12 +53,17 @@ class Model(Container):
         self.maximum_iterations = self.attr('maximum_iterations')
         self.maximum_change = self.attr('maximum_change')
 
+        self.pathname = None  # set by calling set_pathname(path)
+
     def _after_init(self):
         for obj in self.fields():
             obj._after_init()
 
         for obj in self.analyses():
             obj._after_init()
+
+    def set_pathname(self, pathname):
+        self.pathname = pathname
 
     def fields(self):
         return self.field_dict.values()
@@ -198,3 +203,7 @@ class ModelFile(XMLFile):
 
         self.root = self.tree.getroot()
         self.model = Model.from_xml(self.root)
+
+        # If we're reading a stream, we'll show that in the GUI
+        self.model.set_pathname(str(stream) if stream else filename)
+        self.model

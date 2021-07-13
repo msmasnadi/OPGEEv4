@@ -35,8 +35,8 @@ class After(Process):
 
 def field_network_graph(field):
 
-    nodes = [{'data': {'id': name, 'label':name}} for name in field.process_dict.keys()]
-    edges = [{'data': {'id': name, 'source': s.src_name, 'target': s.dst_name}} for name, s in field.stream_dict.items()]
+    nodes = [{'data': {'id': name, 'label':name}} for name in field.process_dict.keys()]        # , 'size': 150  didn't work
+    edges = [{'data': {'id': name, 'source': s.src_name, 'target': s.dst_name, 'contents': ', '.join(s.contents)}} for name, s in field.stream_dict.items()]
 
     edge_color = 'maroon'
     node_color = 'sandybrown'
@@ -51,7 +51,7 @@ def field_network_graph(field):
             autoungrabify=True,
             userPanningEnabled=False,   # may need to reconsider this when model is bigger
             userZoomingEnabled=False,   # automatic zoom when user changes browser size still works
-            style={'width': '100%', 'height': '450px'},
+            style={'width': '100%', 'height': '500px'},
             layout={
                 'name': 'breadthfirst',
                 'roots': '[id = "Reservoir"]'
@@ -62,21 +62,42 @@ def field_network_graph(field):
                     'style': {
                         'label': 'data(id)',
                         'background-color': node_color,
+                        'width': '30',
+                        'height': '30',
                     }
                 },
                 {
                     'selector': 'edge',
                     'style': {
                         'curve-style': 'bezier',
-                        'mid-target-arrow-color': edge_color,
-                        'mid-target-arrow-shape': 'triangle',
-                        'arrow-scale': 1.5,
+                        # 'mid-target-arrow-color': edge_color,
+                        # 'mid-target-arrow-shape': 'triangle',
+                        'target-arrow-color': edge_color,
+                        'target-arrow-shape': 'triangle',
+                        # 'arrow-scale': 1.5,
                         'line-color': edge_color,
+                        'line-opacity': 0.50,
+                        'width': 1,
+                        'target-distance-from-node': 1, # stop just short of the node
+                        'source-distance-from-node': 1,
+
+                        # "width": "mapData(weight, 0, 30, 1, 8)",
+                        # "content": "data(weight)",
+                        # "overlay-padding": "30px",
+                        'label': 'data(contents)',    # TBD: how to get this off the line?
+                        'text-opacity': 1.0,
+                        'text-rotation': 'autorotate',
+                        'text-margin-y': -10,
+                        'text-margin-x':  7,
+                        'text-background-color': 'blue',
+                        "font-size": "14px",
                     }
                 },
             ]
         )
     ])
+
+    # noinspection PyCallingNonCallable
     return layout
 
 # styles: for right side hover/click component
@@ -142,26 +163,12 @@ def emissions_table(analysis, procs):
     )
     return tbl
 
-# def overview_layout(app):
-#     layout = html.Div([
-#         # Title
-#         html.Div(
-#             [],
-#             className="row",
-#             style={'textAlign': "center"}
-#         ),
-#     ])
-#     return layout
-
 def processes_layout(app, current_field):
     # the main row
     # noinspection PyCallingNonCallable
     layout = html.Div([
-            # html.H3('Processes', style={'textAlign': "center"}),
-
             # graph component
             html.Div(
-                # className="twelve columns",
                 className="row",
                 children=[
                     field_network_graph(current_field)
@@ -389,25 +396,68 @@ def save_attributes(xml_path, ids, values, analysis, field):
     tree = ET.ElementTree(root)
     tree.write(xml_path, xml_declaration=True, pretty_print=True, encoding='utf-8')
 
-def app_layout(app):
+def app_layout(app, model, analysis):
+    analysis_names = [analysis.name for analysis in model.analyses()]
+
+    pulldown_style = {
+        'width': '200px',
+        'textAlign': 'center',
+        'vertical-align': 'middle',
+        'display': 'inline-block'
+    }
+
+    label_style = {
+        'font-weight': 'bold'
+    }
+
+    horiz_space = html.Span("", style={'width': '50px', 'display': 'inline-block'})
+
+
     # noinspection PyCallingNonCallable
     layout = html.Div([
+        dcc.Store(id='analysis-and-field', storage_type='session'),
+
         html.Div([
             html.H1(app.title),
 
             html.Div([
+                html.Center([
+                    html.Span("Model: ", style=label_style),
+                    html.Span(f"{model.pathname}"),
+                    horiz_space,
+
+                    html.Span("Analysis: ", style=label_style),
+                    dcc.Dropdown(
+                        id='analysis-selector',
+                        placeholder='Select analysis...',
+                        options=[{'value': name, 'label': name} for name in analysis_names],
+                        value=analysis.name,
+                        style=pulldown_style,
+                    ),
+                    horiz_space,
+
+                    html.Span('Field: ', style=label_style),
+                    dcc.Dropdown(
+                        id='field-selector',
+                        placeholder='Select field...',
+                        options=[{'value': 'none', 'label': 'none'}],
+                        value='none',
+                        style=pulldown_style,
+                    )
+                ]),
+                html.Br(),
                 html.Button('Run model', id='run-button', n_clicks=0),
-                dcc.Markdown(id='run-model-status')
+                dcc.Markdown(id='run-model-status'),
             ],
-                style={'height': '100px'}
+                style={'height': '150px'}
             ),
         ],
-            style={'textAlign': "center"}
+            style={'textAlign': 'center'}
         ),
 
         html.Div([
             dcc.Tabs(
-                id="tabs-with-classes",
+                id="tabs",
                 value='processes',
                 parent_className='custom-tabs',
                 className='custom-tabs-container',
@@ -435,7 +485,7 @@ def app_layout(app):
                     ),
                 ]
             ),
-            html.Div(id='tabs-content-classes')
+            html.Div(id='tab-content')
         ])
     ])
     return layout
@@ -468,12 +518,37 @@ def main(args):
 
     # TBD: use "app.config['suppress_callback_exceptions'] = True" to not need to call tab-layout fns in this layout def
 
-    app.layout = app_layout(app)
+    app.layout = app_layout(app, current_model, current_analysis)
 
-    # callback for right side components
+    @app.callback(
+        Output('field-selector', 'options'),
+        Input('analysis-selector', 'value')
+    )
+    def field_pulldown(analysis_name):
+        analysis = current_model.get_analysis(analysis_name)
+        field_names = [field.name for field in analysis.fields()]
+        options = [{'label': name, 'value': name} for name in field_names]
+        return options
+
+    @app.callback(
+        Output('field-selector', 'value'),
+        Input('field-selector', 'options'),
+    )
+    def field_pulldown(options):
+        value = options[0]['value']
+        return value
+
+    @app.callback(
+        Output('analysis-and-field', 'data'),
+        Input('field-selector', 'value'),
+        State('analysis-selector', 'value'),
+    )
+    def switch_fields(field_name, analysis_name):
+        return dict(analysis=analysis_name, field=field_name)
+
     @app.callback(
         Output('emissions-and-energy', 'children'),
-        [Input('network-layout', 'tapNodeData')])
+        Input('network-layout', 'tapNodeData'))
     def display_emissions_and_energy(node_data):
         if node_data:
             proc_name = node_data['id']
@@ -497,7 +572,7 @@ def main(args):
             return ''
 
     @app.callback(Output('stream-data', 'children'),
-                  [Input('network-layout', 'tapEdgeData')])
+                  Input('network-layout', 'tapEdgeData'))
     def display_edge_data(data):
         import pandas as pd
 
@@ -514,7 +589,7 @@ def main(args):
 
     @app.callback(
         Output('run-model-status', 'children'),
-        [Input('run-button', 'n_clicks')])
+        Input('run-button', 'n_clicks'))
     def update_output(n_clicks):
         if n_clicks:
             # TBD: get user selections from radio buttons and pass to run method
@@ -527,11 +602,9 @@ def main(args):
 
     @app.callback(
         Output('emissions-table', 'children'),
-        [Input('tabs-with-classes', 'value'),
-         Input('run-model-status', 'children')])
+        Input('tabs', 'value'),
+        Input('run-model-status', 'children'))
     def update_result_table(tab, status):
-        # if tab != 'processes':
-        #     return ""
 
         style = {'margin-left': '16px'}
 
@@ -550,14 +623,21 @@ def main(args):
                 elt.children.append(div)
 
         # noinspection PyCallingNonCallable
-        elt = html.Details(open=True, children=[html.Summary("Process Emissions")])
-        add_children(current_field, elt)
-        return elt
+        item = html.Details(open=True, children=[html.Summary("Process Emissions")])
+        add_children(current_field, item)
+        return item
 
     @app.callback(
-        Output('tabs-content-classes', 'children'),
-        Input('tabs-with-classes', 'value'))
-    def render_content(tab):
+        Output('tab-content', 'children'),
+        Input('tabs', 'value'),
+        Input('analysis-and-field', 'data'),
+    )
+    def render_content(tab, data):
+        analysis_name = data['analysis']
+        field_name = data['field']
+        current_analysis = current_model.get_analysis(analysis_name)
+        current_field = current_analysis.get_field(field_name)
+
         if tab == 'processes':
             return processes_layout(app, current_field)
 
@@ -582,7 +662,7 @@ def main(args):
         Output('ci-barchart', 'figure'),
         Input('run-button', 'n_clicks'))
     def ci_barchart(n_clicks):
-        import plotly.express as px
+        # import plotly.express as px
         import pandas as pd
         import plotly.graph_objs as go
 
@@ -597,10 +677,10 @@ def main(args):
         # import plotly.graph_objects as go
         fn_unit_list = [fn_unit] * 3
 
-        fig = go.Figure(data=[
-            go.Bar(name='SF Zoo', x=fn_unit_list, y=[20, 14, 23]),
-            go.Bar(name='LA Zoo', x=fn_unit_list, y=[12, 18, 29])
-        ])
+        # fig = go.Figure(data=[
+        #     go.Bar(name='SF Zoo', x=fn_unit_list, y=[20, 14, 23]),
+        #     go.Bar(name='LA Zoo', x=fn_unit_list, y=[12, 18, 29])
+        # ])
 
         fig = go.Figure(data=[go.Bar(name=row.category, x=[row.name], y=[row.value]) for idx, row in df.iterrows()])
         # Change the bar mode
