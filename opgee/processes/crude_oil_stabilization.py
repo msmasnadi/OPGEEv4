@@ -65,8 +65,12 @@ class CrudeOilStabilization(Process):
         gas_fugitives = self.find_output_stream("gas fugitives")
         gas_fugitives.copy_flow_rates_from(gas_fugitives_temp)
 
+        output = self.find_output_stream("oil for storage")
+        oil_for_storage = oil_mass_rate - output_stab_gas.total_gas_rate() - gas_fugitives.total_gas_rate()
+        output.set_liquid_flow_rate("oil", oil_for_storage, t=self.stab_temp, p=input.pressure)
+
         # energy use
-        heat_duty = oil_mass_rate * oil_specific_heat * (self.stab_temp-input.temperature)*(1 + self.eps_stab)
+        heat_duty = oil_mass_rate * oil_specific_heat * (self.stab_temp - input.temperature) * (1 + self.eps_stab)
         energy_use = self.energy
         energy_carrier = EN_NATURAL_GAS if self.prime_mover_type == "NG_engine" else EN_ELECTRICITY
         energy_consumption = heat_duty / self.eta_gas if self.prime_mover_type == "NG_engine" else heat_duty / self.eta_electricity
@@ -89,7 +93,3 @@ class CrudeOilStabilization(Process):
         emissions.add_rate(EM_COMBUSTION, "CO2", combustion_emission)
 
         emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
-
-
-
-

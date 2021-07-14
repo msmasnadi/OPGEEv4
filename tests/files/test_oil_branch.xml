@@ -29,15 +29,26 @@
 			<Consumes>crude oil</Consumes>
 		</Process>
 
+		<Process class="HeavyOilDilution"/>
+		<Process class="BitumenMining"/>
+
 		<Stream src="Before" dst="CrudeOilStabilization" name="before to crude oil stabilization">
 			<Contains>oil for stabilization</Contains>
 			<Component name="oil" phase="liquid">276.5386546</Component>
 			<A name="temperature">90</A>
 			<A name="pressure">100</A>
 		</Stream>
+		
+		<Stream src="BitumenMining" dst="HeavyOilUpgrading" name="bitumen mining to heavy oil upgrading">
+			<Contains>oil for upgrading</Contains>
+		</Stream>
+
+		<Stream src="Before" dst="HeavyOilUpgrading" name="before to heavy oil upgrading">
+			<Contains>oil for upgrading</Contains>
+		</Stream>
 
 		<Stream src="CrudeOilStabilization" dst="CrudeOilStorage" name="crude oil stabilization to crude oil storage">
-			<Contains>oil for stabilization</Contains>
+			<Contains>oil for storage</Contains>
 		</Stream>
 
 		<Stream src="Before" dst="CrudeOilStorage" name="before to crude oil storage">
@@ -45,11 +56,11 @@
 		</Stream>
 
 		<Stream src="HeavyOilUpgrading" dst="CrudeOilStorage" name="heavy oil upgrading to crude oil storage">
-			<Contains>oil for upgrader</Contains>
+			<Contains>oil for storage</Contains>
 		</Stream>
 
 		<Stream src="HeavyOilDilution" dst="CrudeOilStorage" name="heavy oil dilution to crude oil storage">
-			<Contains>oil for dilution</Contains>
+			<Contains>oil for storage</Contains>
 		</Stream>
 
 <!--		<Stream src="CrudeOilStorage" dst="CrudeOilTransport" name="crude oil storage to transportation">-->

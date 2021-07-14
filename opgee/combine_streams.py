@@ -30,9 +30,12 @@ def combine_streams(streams, API, pressure, temperature=None):
     comp_matrix = sum(matrices)
 
     non_zero_streams = [stream for stream in streams if stream.total_flow_rate() != 0]
+    if not non_zero_streams:
+        raise OpgeeException(f"combine_streams: streams are all empty")
+
     for stream in non_zero_streams:
         if stream.temperature is None:
-            raise OpgeeException(f"steam temperature of '{stream.name}' is None")
+            raise OpgeeException(f"combine_streams: steam temperature of '{stream.name}' is None")
 
     stream_temperature = pd.Series([stream.temperature.to("kelvin").m for stream in non_zero_streams],
                                    dtype="pint[kelvin]")

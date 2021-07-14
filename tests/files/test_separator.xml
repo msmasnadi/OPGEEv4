@@ -63,7 +63,6 @@
 		</Stream>
 
 		<Stream src="CrudeOilDewatering" dst="ProducedWaterTreatment" name="crude oil dewatering to produced water treatment">
-			<Contains>crude oil</Contains>
 			<Contains>water</Contains>
 		</Stream>
 
