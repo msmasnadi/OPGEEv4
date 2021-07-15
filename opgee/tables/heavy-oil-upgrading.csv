@@ -11,8 +11,8 @@ Coke yield per bbl SCO output,Fraction coke exported,0,0,0
 Coke yield per bbl SCO output,Fraction coke stockpiled,0.894002727,1,0.792652773
 Electricity intensity,,5.451180992,17.24972289,19.97630277
 Natural gas intensity (W/O cogen),,336.8621141,1078.978738,460.8543125
-Natural gas intensity (W/O cogen), Fraction NG - Heating (W/O cogen),0,0.27511462,0
-Natural gas intensity (W/O cogen), Fraction NG - H2,1,0.72488538,1
+Natural gas intensity (W/O cogen),Fraction NG - Heating (W/O cogen),0,0.27511462,0
+Natural gas intensity (W/O cogen),Fraction NG - H2,1,0.72488538,1
 Cogen turbine efficiency,,0.309562081,0.309562081,0.309562081
 Cogeneration steam efficiency,,0.4,0.4,0.4
 Steam boiler efficiency,,0.8,0.8,0.8

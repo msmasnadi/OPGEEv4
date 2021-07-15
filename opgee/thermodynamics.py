@@ -16,7 +16,7 @@ def _get_dict_chemical():
     """
     carbon_number = [f'C{n + 1}' for n in range(Stream.max_carbon_number)]
     dict_chemical = {name: Chemical(name) for name in carbon_number}
-    non_hydrocarbon_gases = ["N2", "O2", "CO2", "H2O", "CO2", "H2", "H2S", "SO2"]
+    non_hydrocarbon_gases = ["N2", "O2", "CO2", "H2O", "CO", "H2", "H2S", "SO2"]
     dict_non_hydrocarbon = {name: Chemical(name) for name in non_hydrocarbon_gases}
     dict_chemical.update(dict_non_hydrocarbon)
     return dict_chemical

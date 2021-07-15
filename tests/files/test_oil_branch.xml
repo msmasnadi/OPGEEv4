@@ -6,10 +6,11 @@
 		<A name="energy_basis">LHV</A>
 	  <A name="GWP_horizon">100</A>
 	  <A name="GWP_version">AR5</A>
-		<Field name="test"/>
+		<Field name="oil_stabilization"/>
+		<Field name="heavy_oil_upgrading"/>
 	</Analysis>
 
-	<Field name="test">
+	<Field name="oil_stabilization">
 		<A name="country">USA</A>
 
 		<Process class="Before" desc="">
@@ -30,21 +31,12 @@
 		</Process>
 
 		<Process class="HeavyOilDilution"/>
-		<Process class="BitumenMining"/>
 
 		<Stream src="Before" dst="CrudeOilStabilization" name="before to crude oil stabilization">
 			<Contains>oil for stabilization</Contains>
 			<Component name="oil" phase="liquid">276.5386546</Component>
 			<A name="temperature">90</A>
 			<A name="pressure">100</A>
-		</Stream>
-		
-		<Stream src="BitumenMining" dst="HeavyOilUpgrading" name="bitumen mining to heavy oil upgrading">
-			<Contains>oil for upgrading</Contains>
-		</Stream>
-
-		<Stream src="Before" dst="HeavyOilUpgrading" name="before to heavy oil upgrading">
-			<Contains>oil for upgrading</Contains>
 		</Stream>
 
 		<Stream src="CrudeOilStabilization" dst="CrudeOilStorage" name="crude oil stabilization to crude oil storage">
@@ -71,6 +63,99 @@
 			<Contains>gas fugitives</Contains>
 		</Stream>
 		
+<!--		<Stream src="CrudeOilStorage" dst="VRUCompressor" name="crude oil storage to VRU compressor">-->
+<!--			<Contains>VRU gas</Contains>-->
+<!--		</Stream>-->
+
+<!--		<Stream src="CrudeOilStorage" dst="Flare" name="crude oil storage to flare">-->
+<!--			<Contains>flare gas</Contains>-->
+<!--		</Stream>-->
+
+		<Stream src="CrudeOilStabilization" dst="Environment" name="gas fugitives from stabilization">
+			<Contains>gas fugitives</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilStabilization" dst="Output" name="gas from stabilization">
+			<Contains>gas from stabilization</Contains>
+		</Stream>
+
+	</Field>
+
+	<Field name="heavy_oil_upgrading">
+		<A name="country">USA</A>
+
+		<Process class="Before" desc="" impute-start="true">
+			<Produces>oil for stabilization</Produces>
+		</Process>
+
+		<Process class="CrudeOilStabilization">
+			<Consumes>crude oil</Consumes>
+			<Produces>crude oil</Produces>
+			<Produces>gas</Produces>
+			<Produces>gas fugitives</Produces>
+		</Process>
+
+		<Process class="HeavyOilUpgrading"/>
+
+		<Process class="CrudeOilStorage">
+			<Consumes>crude oil</Consumes>
+		</Process>
+
+		<Process class="HeavyOilDilution"/>
+		<Process class="BitumenMining"/>
+
+		<Stream src="Before" dst="CrudeOilStabilization" name="before to crude oil stabilization">
+			<Contains>oil for stabilization</Contains>
+		</Stream>
+
+		<Stream src="BitumenMining" dst="HeavyOilUpgrading" name="bitumen mining to heavy oil upgrading">
+			<Contains>oil for upgrading</Contains>
+
+		</Stream>
+
+		<Stream src="Before" dst="HeavyOilUpgrading" name="before to heavy oil upgrading">
+			<Contains>oil for upgrading</Contains>
+			<Component name="oil" phase="liquid">21043.6</Component>
+			<A name="temperature">165.0</A>
+			<A name="pressure">100.0</A>
+		</Stream>
+
+		<Stream src="Output" dst="HeavyOilUpgrading" name="output to heavy oil upgrading">
+			<Contains>gas for upgrading</Contains>
+			<Component name="N2" phase="gas">5.1003</Component>
+			<Component name="CO2" phase="gas">0.0416</Component>
+			<Component name="C1" phase="gas">736.7043</Component>
+			<Component name="C2" phase="gas">28.7480</Component>
+			<Component name="C3" phase="gas">19.9757</Component>
+			<Component name="C4" phase="gas">0.0244</Component>
+			<A name="temperature">90.0</A>
+			<A name="pressure">150.0</A>
+		</Stream>
+
+		<Stream src="CrudeOilStabilization" dst="CrudeOilStorage" name="crude oil stabilization to crude oil storage">
+			<Contains>oil for storage</Contains>
+		</Stream>
+
+		<Stream src="Before" dst="CrudeOilStorage" name="before to crude oil storage">
+			<Contains>oil for storage</Contains>
+		</Stream>
+
+		<Stream src="HeavyOilUpgrading" dst="CrudeOilStorage" name="heavy oil upgrading to crude oil storage">
+			<Contains>oil for storage</Contains>
+		</Stream>
+
+		<Stream src="HeavyOilDilution" dst="CrudeOilStorage" name="heavy oil dilution to crude oil storage">
+			<Contains>oil for storage</Contains>
+		</Stream>
+
+		<Stream src="HeavyOilUpgrading" dst="Output" name="heavy oil upgrading to Output">
+			<Contains>process gas</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilStorage" dst="Environment" name="gas fugitives from crude oil storage">
+			<Contains>gas fugitives</Contains>
+		</Stream>
+
 <!--		<Stream src="CrudeOilStorage" dst="VRUCompressor" name="crude oil storage to VRU compressor">-->
 <!--			<Contains>VRU gas</Contains>-->
 <!--		</Stream>-->
