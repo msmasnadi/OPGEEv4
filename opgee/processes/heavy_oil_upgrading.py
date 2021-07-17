@@ -21,6 +21,7 @@ class HeavyOilUpgrading(Process):
         self.NG_heating_value = self.model.const("NG-heating-value")
         self.petro_coke_heating_value = self.model.const("petrocoke-heating-value")
         self.mole_to_scf = self.model.const("mol-per-scf")
+        self.upgrader_type = self.field.attr("upgrader_type")
 
     def run(self, analysis):
         self.print_running_msg()
@@ -29,14 +30,13 @@ class HeavyOilUpgrading(Process):
             self.enabled = False
             return
 
-        upgrader_type = self.field.attr("upgrader_type")
-        heavy_oil_upgrading_table = self.field.model.heavy_oil_upgrading[upgrader_type]
+        heavy_oil_upgrading_table = self.field.model.heavy_oil_upgrading[self.upgrader_type]
 
         # mass rate
         input_oil = self.find_input_streams("oil for upgrading", combine=True)
         input_gas = self.find_input_stream("gas for upgrading")
 
-        upgrading_insitu = True if upgrader_type is not None and self.oil_sand_mine != "Without upgrader" else False
+        upgrading_insitu = True if self.upgrader_type is not None and self.oil_sand_mine != "Without upgrader" else False
         upgrader_process_gas_MW = (self.upgrader_gas_comp * self.oil.component_MW[self.upgrader_gas_comp.index]).sum()
         upgrader_process_gas_heating_value = (self.upgrader_gas_comp *
                                               self.oil.component_LHV_molar[self.upgrader_gas_comp.index] *
@@ -112,6 +112,6 @@ class HeavyOilUpgrading(Process):
                                  proc_gas_flared *
                                  self.mole_to_scf)
 
-        #TODO: check this with Adam. The E153 under Heavy Oil Upgrading does not seem right
+        # TODO: check this with Adam. The E153 under Heavy Oil Upgrading does not seem right
         emissions.add_from_series(EM_FLARING, proc_gas_flaring_rate)
         pass

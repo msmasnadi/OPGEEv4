@@ -65,8 +65,8 @@
 
     <Options name="oil_sands_mine_type" default="None">
       <Option>None</Option>
-      <Option>With upgrader</Option>
-      <Option>Without upgrader</Option>
+      <Option>Integrated with upgrader</Option>
+      <Option>Non-integrated with upgrader</Option>
     </Options>
     <AttrDef name="oil_sands_mine" options="oil_sands_mine_type" desc="Oil sands mine"/>
 
@@ -94,6 +94,7 @@
     <AttrDef name="offshore" type="binary" desc="Offshore?">0</AttrDef>
     <!-- Fluid properties -->
     <AttrDef name="API" desc="API gravity of produced crude" unit="degAPI" type="float">32.80</AttrDef>
+    <AttrDef name="API_bitumen" unit="degAPI" type="float" desc="API gravity of bitumen">8.0</AttrDef>
     <AttrDef name="total_dissolved_solids" desc="water total dissolved solid (TDS)" unit="mg/L" type="float">5000.0</AttrDef>
     <AttrDef name="gas_comp_N2" unit="mol_pct" type="float">2.86</AttrDef>
     <AttrDef name="gas_comp_CO2" unit="mol_pct" type="float">0.33</AttrDef>
@@ -167,7 +168,9 @@
     <AttrDef name="gas_processing_path" desc="Associated gas processing path" options="gas_processing_path" type="str"/>
     <AttrDef name="FOR" unit="scf/bbl" desc="Ratio of flaring to oil production" type="float">141.3</AttrDef>
     <AttrDef name="VOR" unit="scf/bbl" desc="Ratio of venting to oil production" type="float">5.0</AttrDef>
-    <AttrDef name="fraction_diluent" desc="Volume fraction of diluent in diluted crude" type="float">5.0</AttrDef>
+    <AttrDef name="fraction_diluent" desc="Volume fraction of diluent in diluted crude" type="float">0.0</AttrDef>
+    <AttrDef name="temperature_mined_bitumen" desc="Mined bitumen temperature" type="float">80.0</AttrDef>
+    <AttrDef name="pressure_mined_bitumen" desc="Mined bitumen pressure" type="float">80.0</AttrDef>
     <!-- LandUse impacts -->
     <Options name="ecosystem_C_richness" default="Moderate">
       <Option desc="Low carbon richness (semi-arid grasslands)">Low</Option>
@@ -332,6 +335,25 @@
     <AttrDef name="upgrader_gas_comp_H2" unit="mol_pct" type="float">33.0</AttrDef>
     <AttrDef name="upgrader_gas_comp_H2S" unit="mol_pct" type="float">2.0</AttrDef>
     <AttrDef name="upgrader_gas_comp_SO2" unit="mol_pct" type="float">0.0</AttrDef>
+  </ClassAttrs>
+
+  <ClassAttrs name="HeavyOilDilution">
+    <Options name="dilution_API" default="55.20">
+      <Option>55.20</Option>
+      <Option>23.0</Option>
+    </Options>
+    <Options name="diluent_or_dilbit" default="Diluent">
+      <Option>Diluent</Option>
+      <Option>Dilbit</Option>
+    </Options>
+    <AttrDef name="diluent_API" options="dilution_API" type="float" unit="degAPI"/>
+    <AttrDef name="dilution_type" options="diluent_or_dilbit"/>
+    <AttrDef name="diluent_temp" unit="degF" type="float" desc="Diluent temperature">60.0</AttrDef>
+    <AttrDef name="diluent_press" unit="pisa" type="float" desc="Diluent pressure">14.7</AttrDef>
+    <AttrDef name="final_mix_temp" unit="degF" type="float" desc="Final diluted crude mixture temperature">60.0</AttrDef>
+    <AttrDef name="final_mix_press" unit="pisa" type="float" desc="Final diluted crude mixture pressure">14.7</AttrDef>
+    <AttrDef name="before_diluent_temp" unit="degF" type="float" desc="Standard temperature before dilution (for calculating volume at standard temperature)">60.0</AttrDef>
+    <AttrDef name="before_diluent_press" unit="pisa" type="float" desc="Standard pressure before dilution (for calculating volume at standard temperature)">14.7</AttrDef>
   </ClassAttrs>
   <ClassAttrs name="CrudeStorage">
     <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>

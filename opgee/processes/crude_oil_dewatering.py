@@ -40,30 +40,22 @@ class CrudeOilDewatering(Process):
         oil_to_stabilization = self.find_output_stream("oil for stabilization", raiseError=False)
         temp = self.temperature_heater_treater if self.heater_treater else temperature
         if oil_to_stabilization is not None:
-            oil_to_stabilization.set_liquid_flow_rate("oil", oil_rate)
-            oil_to_stabilization.set_temperature_and_pressure(temp, pressure)
+            oil_to_stabilization.set_liquid_flow_rate("oil", oil_rate, temp, pressure)
 
         water_to_stabilization = self.find_output_stream("water")
-        water_to_stabilization.set_liquid_flow_rate("H2O", water_rate)
-        water_to_stabilization.set_temperature_and_pressure(temp, pressure)
+        water_to_stabilization.set_liquid_flow_rate("H2O", water_rate, temp, pressure)
 
         oil_to_storage = self.find_output_stream("oil for storage", raiseError=False)
         if oil_to_storage is not None:
-            oil_to_storage.set_liquid_flow_rate("oil", oil_rate)
-            temp = self.temperature_heater_treater if self.heater_treater else temperature
-            oil_to_storage.set_temperature_and_pressure(temp, pressure)
+            oil_to_storage.set_liquid_flow_rate("oil", oil_rate, temp, pressure)
 
         oil_to_upgrader = self.find_output_stream("oil for upgrader", raiseError=False)
         if oil_to_upgrader is not None:
-            oil_to_upgrader.set_liquid_flow_rate("oil", oil_rate)
-            temp = self.temperature_heater_treater if self.heater_treater else temperature
-            oil_to_upgrader.set_temperature_and_pressure(temp, pressure)
+            oil_to_upgrader.set_liquid_flow_rate("oil", oil_rate, temp, pressure)
 
         oil_to_dilution = self.find_output_stream("oil for dilution", raiseError=False)
         if oil_to_dilution is not None:
-            oil_to_dilution.set_liquid_flow_rate("oil", oil_rate)
-            temp = self.temperature_heater_treater if self.heater_treater else temperature
-            oil_to_dilution.set_temperature_and_pressure(temp, pressure)
+            oil_to_dilution.set_liquid_flow_rate("oil", oil_rate, temp, pressure)
 
         average_oil_temp = ureg.Quantity((temperature.m+self.temperature_heater_treater.m)/2, "degF")
         oil_heat_capacity = self.field.oil.specific_heat(self.field.oil.API, average_oil_temp)
