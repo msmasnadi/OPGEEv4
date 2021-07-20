@@ -193,7 +193,7 @@
 
 		<Process class="HeavyOilDilution" impute-start="true"/>
 		<Process class="BitumenMining"/>
-<!--		<Process class="DiluentTransport"/>-->
+		<Process class="DiluentTransport"/>
 
 		<Stream src="Reservoir" dst="Before"/>
 
@@ -224,9 +224,13 @@
 			<A name="pressure">100.0</A>
 		</Stream>
 		
-<!--		<Stream src="DiluentTransport" dst="HeavyOilDilution" name="dilution transport to heavy oil dilution">-->
-<!--			<Contains>oil for dilution</Contains>-->
-<!--		</Stream>-->
+		<Stream src="DiluentTransport" dst="HeavyOilDilution" name="dilution transport to heavy oil dilution">
+			<Contains>oil for dilution</Contains>
+		</Stream>
+
+		<Stream src="Before" dst="DiluentTransport" name="before to diluent transport">
+			<Contains>oil</Contains>
+		</Stream>
 
 		<Stream src="BitumenMining" dst="HeavyOilDilution" name="bitumen mining to heavy oil dilution">
 			<Contains>oil for dilution</Contains>

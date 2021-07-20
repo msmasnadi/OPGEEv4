@@ -50,6 +50,8 @@ class Model(Container):
 
         self.heavy_oil_upgrading = tbl_mgr.get_table("heavy-oil-upgrading")
 
+        self.transport_share_fuel = tbl_mgr.get_table("transport-share-fuel")
+
         # TBD: should these be settable per Analysis?
         # parameters controlling process cyclic calculations
         self.maximum_iterations = self.attr('maximum_iterations')

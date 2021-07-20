@@ -114,4 +114,4 @@ class HeavyOilUpgrading(Process):
 
         # TODO: check this with Adam. The E153 under Heavy Oil Upgrading does not seem right
         emissions.add_from_series(EM_FLARING, proc_gas_flaring_rate)
-        pass
+

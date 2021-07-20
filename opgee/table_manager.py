@@ -40,7 +40,8 @@ class TableManager(OpgeeObject):
         TableDef('stationary-application-EF', index_col=('Fuel', 'Application'), has_units=True),
         TableDef("process-specific-EF", index_col=0, has_units=True),
         TableDef("water-treatment", index_col=0, has_units=True),
-        TableDef('heavy-oil-upgrading', index_col=("Items", "Fraction"))
+        TableDef('heavy-oil-upgrading', index_col=("Items", "Fraction")),
+        TableDef("transport-share-fuel", index_col=0, has_units=True)
     ]
 
     _table_def_dict = {tbl_def.basename: tbl_def for tbl_def in table_defs}

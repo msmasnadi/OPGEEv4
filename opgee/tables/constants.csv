@@ -11,3 +11,5 @@ universal-gas-constants, 8.31446261815324, joule/mol/kelvin
 mol-per-scf, 1.1953, mol/scf
 NG-heating-value, 935.5, btu/scf
 petrocoke-heating-value, 26949429, btu/tonne
+residual-oil-LHV, 140352.522201194, btu/gal
+residual-oil-density, 3752, g/gal

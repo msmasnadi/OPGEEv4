@@ -197,6 +197,42 @@
     <AttrDef name="Oil_transport_distance_truck" unit="mi" desc="Truck transport distance (one way)" type="float">100</AttrDef>
     <AttrDef name="ocean_tanker_size" unit="tons" desc="Ocean tanker size, if applicable" type="float">250000</AttrDef>
     <AttrDef name="small_sources_adder" unit="gCO2eq/MJ" desc="Small source emissions adder" type="float">0.5</AttrDef>
+
+    <AttrDef name="barge_capacity" unit="tonne" type="float" desc="Barge capacity">22500.0</AttrDef>
+    <AttrDef name="ocean_tanker_speed" unit="mile/hr" type="float" desc="Ocean tanker speed">18.52</AttrDef>
+    <AttrDef name="barge_speed" unit="mile/hr" type="float" desc="Barge speed">5.0</AttrDef>
+    <AttrDef name="ocean_tanker_load_factor_dest" unit="frac" type="float" desc="Ocean tanker load factor (origin to destination)">0.8</AttrDef>
+    <AttrDef name="barge_load_factor_dest" unit="frac" type="float" desc="Barge load factor (origin to destination)">0.8</AttrDef>
+    <AttrDef name="ocean_tanker_load_factor_origin" unit="frac" type="float" desc="Ocean tanker load factor (destination to origin)">0.7</AttrDef>
+    <AttrDef name="barge_load_factor_origin" unit="frac" type="float" desc="Barge load factor (destination to origin)">0.6</AttrDef>
+    <AttrDef name="energy_intensity_rail_transport" unit="btu/tonne/mile" type="float" desc="Energy intensity of rail transport">370.0</AttrDef>
+    <AttrDef name="energy_intensity_truck" unit="btu/tonne/mile" type="float">969.0</AttrDef>
+    <AttrDef name="energy_intensity_pipeline_turbine" unit="btu/tonne/mile" type="float" desc="Energy intensity of pipeline transport">240.0</AttrDef>
+    <AttrDef name="energy_intensity_pipeline_engine_current" unit="btu/tonne/mile" type="float" desc="Reciprocating enginer powered (current)">270.0</AttrDef>
+    <AttrDef name="energy_intensity_pipeline_engine_future" unit="btu/tonne/mile" type="float" desc="Reciprocating engine powered (future)">260.0</AttrDef>
+    <AttrDef name="frac_power_pipeline_turbine" unit="frac" type="float" desc="Fraction of power generation technologies for pipeline pumping and compression stations">0.55</AttrDef>
+    <AttrDef name="frac_power_pipeline_engine_current" unit="frac" type="float" desc="Reciprocating enginer powered (current)">0.36</AttrDef>
+    <AttrDef name="frac_power_pipeline_engine_future" unit="frac" type="float" desc="Reciprocating engine powered (future)">0.09</AttrDef>
+    <AttrDef name="losses_feed" unit="btu/mmBtu" type="float" desc="Feed losses: btu/mmbtu fuel transported">62.0</AttrDef>
+    
+    <AttrDef name="fraction_diluent_transport_tanker" unit="frac" type="float">0.0</AttrDef>
+    <AttrDef name="fraction_diluent_transport_barge" unit="frac" type="float">0.0</AttrDef>
+    <AttrDef name="fraction_diluent_transport_pipeline" unit="frac" type="float">1.0</AttrDef>
+    <AttrDef name="fraction_diluent_transport_rail" unit="frac" type="float">0.0</AttrDef>
+    <AttrDef name="fraction_diluent_transport_truck" unit="frac" type="float">0.0</AttrDef>
+
+    <AttrDef name="diluent_transport_distance_tanker" unit="mile" type="float">0.0</AttrDef>
+    <AttrDef name="diluent_transport_distance_barge" unit="mile" type="float">0.0</AttrDef>
+    <AttrDef name="diluent_transport_distance_pipeline" unit="mile" type="float">2500.0</AttrDef>
+    <AttrDef name="diluent_transport_distance_rail" unit="mile" type="float">0.0</AttrDef>
+    <AttrDef name="diluent_transport_distance_truck" unit="mile" type="float">0.0</AttrDef>
+    <AttrDef name="ocean_tanker_size" unit="tonne" type="float">250000.0</AttrDef>
+
+    <Options name="dilution_API" default="55.20">
+      <Option>55.20</Option>
+      <Option>23.0</Option>
+    </Options>
+    <AttrDef name="diluent_API" options="dilution_API" type="float" unit="degAPI"/>
   </ClassAttrs>
   <ClassAttrs name="SurveyTruck">
     <AttrDef name="distance" type="float" desc="Distance of travel for survey" unit="mi">10000</AttrDef>
@@ -346,7 +382,7 @@
       <Option>Diluent</Option>
       <Option>Dilbit</Option>
     </Options>
-    <AttrDef name="diluent_API" options="dilution_API" type="float" unit="degAPI"/>
+
     <AttrDef name="dilution_type" options="diluent_or_dilbit"/>
     <AttrDef name="diluent_temp" unit="degF" type="float" desc="Diluent temperature">60.0</AttrDef>
     <AttrDef name="diluent_press" unit="pisa" type="float" desc="Diluent pressure">14.7</AttrDef>

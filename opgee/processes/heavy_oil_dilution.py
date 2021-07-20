@@ -22,15 +22,41 @@ class HeavyOilDilution(Process):
         self.dilution_type = self.attr("dilution_type")
         self.bitumen_temp = field.attr("temperature_mined_bitumen")
         self.bitumen_press = field.attr("pressure_mined_bitumen")
-        self.API_dilution = self.attr("diluent_API")
+        self.API_dilution = field.attr("diluent_API")
         self.dilution_SG = self.oil.specific_gravity(self.API_dilution)
         self.before_diluent_temp = self.attr("before_diluent_temp")
+        self.diluent_temp = self.attr("diluent_temp")
+        self.final_mix_temp = self.attr("final_mix_temp")
         self.before_diluent_press = self.attr("before_diluent_press")
+        self.diluent_press = self.attr("diluent_temp")
+        self.final_mix_press = self.attr("final_mix_press")
 
     def run(self, analysis):
         self.print_running_msg()
 
+        #mass rate
+        input = self.find_input_streams("oil for dilution", combine=True)
+        output = self.find_output_stream("oil for storage")
+        total_mass_rate = input.liquid_flow_rate("oil")
+        output.set_liquid_flow_rate("oil", total_mass_rate, self.final_mix_temp, self.final_mix_press)
+
+        # energy use
+        energy_use = self.energy
+
+        # emission
+        emissions = self.emissions
+
+    def impute(self):
+
+        input_streams = self.find_input_streams("oil for dilution")
+        input_bitumen = input_streams["bitumen mining to heavy oil dilution"]
+
         # mass rate
+        upgrader_type = self.field.attr("upgrader_type")
+        upgrader_mining_prod_offsite = 1 if (self.oil_sand_mine is None or self.oil_sand_mine == "Non-integrated with upgrader") \
+                                            and self.downhole_pump == 0 and upgrader_type is not None else 0
+        bitumen_mass_rate = self.oil_prod_rate * self.bitumen_SG * self.water_density if upgrader_mining_prod_offsite == 0 and self.oil_sand_mine == "Non-integrated with upgrader" else 0
+        input_bitumen.set_liquid_flow_rate("oil", bitumen_mass_rate, self.bitumen_temp, self.bitumen_press)
 
         input = self.find_input_streams("oil for dilution", combine=True)
 
@@ -53,11 +79,6 @@ class HeavyOilDilution(Process):
         diluted_oil_bitumen_SG = self.oil_SG if expected_volume_oil_bitumen <= 0 else \
             total_mass_diluted_oil / expected_volume_oil_bitumen / self.water_density
 
-        input_streams = self.find_input_streams("oil for dilution")
-        input_bitumen = input_streams["bitumen mining to heavy oil dilution"]
-        input_bitumen_mass_rate = input_bitumen.liquid_flow_rate("oil")
-        input_heavy_oil_mass_rate = total_mass_oil_bitumen_before_dilution - input_bitumen_mass_rate
-
         stream = Stream("diluent", temperature=self.before_diluent_temp, pressure=self.before_diluent_press)
         diluent_density = self.oil.density(stream, self.dilution_SG, self.oil.gas_specific_gravity,
                                            self.oil.gas_oil_ratio)
@@ -68,27 +89,14 @@ class HeavyOilDilution(Process):
         heavy_oil_energy_density_vol = heavy_oil_energy_density_mass * heavy_oil_density
 
         final_diluent_LHV_vol = diluent_energy_density_vol if self.frac_diluent == 1.0 or self.dilution_type == "Diluent" else \
-            (
-                        diluent_energy_density_vol * expected_volume_oil_bitumen - total_volume_oil_bitumen_before_dilution * heavy_oil_energy_density_vol) / required_volume_diluent
+            (diluent_energy_density_vol * expected_volume_oil_bitumen - total_volume_oil_bitumen_before_dilution * heavy_oil_energy_density_vol) / required_volume_diluent
         final_diluent_LHV_mass = diluent_energy_density_mass if self.frac_diluent == 1.0 or self.dilution_type == "Diluent" else \
-            (
-                        diluent_energy_density_vol * total_mass_diluted_oil - total_mass_oil_bitumen_before_dilution * heavy_oil_energy_density_vol) / required_mass_dilution
+            (diluent_energy_density_vol * total_mass_diluted_oil - total_mass_oil_bitumen_before_dilution * heavy_oil_energy_density_vol) / required_mass_dilution
 
-        # energy use
-        energy_use = self.energy
+        input_dilution_transport = input_streams["dilution transport to heavy oil dilution"]
+        input_dilution_transport.set_liquid_flow_rate("oil", required_mass_dilution.to("tonne/day"), self.diluent_temp,
+                                                      self.diluent_press)
 
-        # emission
-        emissions = self.emissions
+        kwag = {"final_diluent_LHV_mass": final_diluent_LHV_mass}
+        self.field.save_process_data(**kwag)
 
-    def impute(self):
-
-        input = self.find_input_streams("oil for dilution")
-        input_bitumen = input["bitumen mining to heavy oil dilution"]
-
-        # mass rate
-        upgrader_type = self.field.attr("upgrader_type")
-        upgrader_mining_prod_offsite = 1 if (
-                                                        self.oil_sand_mine is None or self.oil_sand_mine == "Non-integrated with upgrader") \
-                                            and self.downhole_pump == 0 and upgrader_type is not None else 0
-        bitumen_mass_rate = self.oil_prod_rate * self.bitumen_SG * self.water_density if upgrader_mining_prod_offsite == 0 and self.oil_sand_mine == "Non-integrated with upgrader" else 0
-        input_bitumen.set_liquid_flow_rate("oil", bitumen_mass_rate, self.bitumen_temp, self.bitumen_press)
