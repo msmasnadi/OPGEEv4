@@ -34,3 +34,9 @@ def test_run_dilution(test_oil_branch):
     analysis = test_oil_branch.get_analysis('test_oil_branch')
     field = analysis.get_field('heavy_oil_diluent')
     field.run(analysis)
+
+
+def test_run_bitumen(test_oil_branch):
+    analysis = test_oil_branch.get_analysis('test_oil_branch')
+    field = analysis.get_field('bitumen_dilution')
+    field.run(analysis)

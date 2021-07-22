@@ -97,6 +97,5 @@ class HeavyOilDilution(Process):
         input_dilution_transport.set_liquid_flow_rate("oil", required_mass_dilution.to("tonne/day"), self.diluent_temp,
                                                       self.diluent_press)
 
-        kwag = {"final_diluent_LHV_mass": final_diluent_LHV_mass}
-        self.field.save_process_data(**kwag)
+        self.field.save_process_data(final_diluent_LHV_mass=final_diluent_LHV_mass)
 

@@ -1,19 +1,19 @@
-Items,Fraction,Delayed coking,Hydroconversion,Hydroconversion and fluid coking
-API gravity of resuling upgraded product output,,33.2,31.1,31.1
-Process gas (PG) yield per bbl SCO output,,500.5450619,340.5880343,649.5242798
-Process gas (PG) yield per bbl SCO output,Fraction PG to self use - Heating (W/O cogen),0.65,0.8,0.724697591
-Process gas (PG) yield per bbl SCO output,Fraction PG to self use - H2 gen,0,0,0.21858728
-Process gas (PG) yield per bbl SCO output,Fraction PG exported,0.325,0.175,0.031715129
-Process gas (PG) yield per bbl SCO output,Fraction PG flared,0.025,0.025,0.025
-Coke yield per bbl SCO output,,42.58222028,0,30.29054931
-Coke yield per bbl SCO output,Fraction coke to self use - Heating,0.105997273,0,0.207347227
-Coke yield per bbl SCO output,Fraction coke exported,0,0,0
-Coke yield per bbl SCO output,Fraction coke stockpiled,0.894002727,1,0.792652773
-Electricity intensity,,5.451180992,17.24972289,19.97630277
-Natural gas intensity (W/O cogen),,336.8621141,1078.978738,460.8543125
-Natural gas intensity (W/O cogen),Fraction NG - Heating (W/O cogen),0,0.27511462,0
-Natural gas intensity (W/O cogen),Fraction NG - H2,1,0.72488538,1
-Cogen turbine efficiency,,0.309562081,0.309562081,0.309562081
-Cogeneration steam efficiency,,0.4,0.4,0.4
-Steam boiler efficiency,,0.8,0.8,0.8
-SCO/bitumen ratio,,0.904,1.155,0.99
+Items,Fraction,Delayed coking,Hydroconversion,Hydroconversion and fluid coking,Unit
+API gravity of resuling upgraded product output,none,33.2,31.1,31.1,deg API
+Process gas (PG) yield per bbl SCO output,total,500.5450619,340.5880343,649.5242798,scf/bbl_oil
+Process gas (PG) yield per bbl SCO output,Fraction PG to self use - Heating (W/O cogen),0.65,0.8,0.724697591,frac
+Process gas (PG) yield per bbl SCO output,Fraction PG to self use - H2 gen,0,0,0.21858728,frac
+Process gas (PG) yield per bbl SCO output,Fraction PG exported,0.325,0.175,0.031715129,frac
+Process gas (PG) yield per bbl SCO output,Fraction PG flared,0.025,0.025,0.025,frac
+Coke yield per bbl SCO output,total,42.58222028,0,30.29054931,kg/bbl_oil
+Coke yield per bbl SCO output,Fraction coke to self use - Heating,0.105997273,0,0.207347227,frac
+Coke yield per bbl SCO output,Fraction coke exported,0,0,0,frac
+Coke yield per bbl SCO output,Fraction coke stockpiled,0.894002727,1,0.792652773,frac
+Electricity intensity,none,5.451180992,17.24972289,19.97630277,kWh/bbl_oil
+Natural gas intensity (W/O cogen),total,336.8621141,1078.978738,460.8543125,scf/bbl_oil
+Natural gas intensity (W/O cogen),Fraction NG - Heating (W/O cogen),0,0.27511462,0,frac
+Natural gas intensity (W/O cogen),Fraction NG - H2,1,0.72488538,1,frac
+Cogen turbine efficiency,none,0.309562081,0.309562081,0.309562081,frac
+Cogeneration steam efficiency,none,0.4,0.4,0.4,frac
+Steam boiler efficiency,none,0.8,0.8,0.8,frac
+SCO/bitumen ratio,none,0.904,1.155,0.99,frac
