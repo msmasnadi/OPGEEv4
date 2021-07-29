@@ -61,14 +61,10 @@ class HeavyOilUpgrading(Process):
 
         coke_dict = d["Coke yield per bbl SCO output"] * SCO_output
         coke_to_stockpile_and_transport = coke_dict["Fraction coke exported"] + coke_dict["Fraction coke stockpiled"]
-        # coke_yield = ureg.Quantity(heavy_oil_upgrading_table["Coke yield per bbl SCO output"].values[0], "kg/bbl_oil")
-        # coke_generation = SCO_output * coke_yield
         coke_to_heat = coke_dict["Fraction coke to self use - Heating"]
-        # coke_to_stockpile_and_transport = coke_generation - coke_to_heat
+
 
         proc_gas_dict = d["Process gas (PG) yield per bbl SCO output"] * SCO_output
-        # proc_gas_yield = ureg.Quantity(heavy_oil_upgrading_table["Process gas (PG) yield per bbl SCO output"].values[0],
-        #                                "scf/bbl_oil")
         proc_gas_to_heat = proc_gas_dict["Fraction PG to self use - Heating (W/O cogen)"]
         proc_gas_to_H2 = proc_gas_dict["Fraction PG to self use - H2 gen"]
         proc_gas_exported = proc_gas_dict["Fraction PG exported"]

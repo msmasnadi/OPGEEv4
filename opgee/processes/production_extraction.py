@@ -14,15 +14,6 @@ class GasLiftingCompressor(Process):
         self.print_running_msg()
 
 
-class BitumenMining(Process):
-    def run(self, analysis):
-        self.print_running_msg()
-
-    def impute(self):
-        # TBD: copy from output streams to input streams
-        pass
-
-
 class WaterInjection(Process):
     def run(self, analysis):
         self.print_running_msg()

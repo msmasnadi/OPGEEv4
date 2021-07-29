@@ -166,11 +166,11 @@
     <AttrDef name="crude_oil_dewatering_output" options="crude_oil_dewatering_output" desc="process receiving crude oil from dewatering"/>
     <AttrDef name="upgrader_type" desc="Upgrader type" options="upgrader_type" type="str"/>
     <AttrDef name="gas_processing_path" desc="Associated gas processing path" options="gas_processing_path" type="str"/>
-    <AttrDef name="FOR" unit="scf/bbl" desc="Ratio of flaring to oil production" type="float">141.3</AttrDef>
-    <AttrDef name="VOR" unit="scf/bbl" desc="Ratio of venting to oil production" type="float">5.0</AttrDef>
+    <AttrDef name="FOR" unit="scf/bbl_oil" desc="Ratio of flaring to oil production" type="float">141.3</AttrDef>
+    <AttrDef name="VOR" unit="scf/bbl_oil" desc="Ratio of venting to oil production" type="float">5.0</AttrDef>
     <AttrDef name="fraction_diluent" desc="Volume fraction of diluent in diluted crude" type="float">0.0</AttrDef>
-    <AttrDef name="temperature_mined_bitumen" desc="Mined bitumen temperature" type="float">80.0</AttrDef>
-    <AttrDef name="pressure_mined_bitumen" desc="Mined bitumen pressure" type="float">80.0</AttrDef>
+    <AttrDef name="temperature_mined_bitumen" desc="Mined bitumen temperature" type="float" unit="degF">80.0</AttrDef>
+    <AttrDef name="pressure_mined_bitumen" desc="Mined bitumen pressure" type="float" unit="psia">14.70</AttrDef>
     <!-- LandUse impacts -->
     <Options name="ecosystem_C_richness" default="Moderate">
       <Option desc="Low carbon richness (semi-arid grasslands)">Low</Option>
@@ -215,17 +215,17 @@
     <AttrDef name="frac_power_pipeline_engine_future" unit="frac" type="float" desc="Reciprocating engine powered (future)">0.09</AttrDef>
     <AttrDef name="losses_feed" unit="btu/mmBtu" type="float" desc="Feed losses: btu/mmbtu fuel transported">62.0</AttrDef>
     
-    <AttrDef name="fraction_diluent_transport_tanker" unit="frac" type="float">0.0</AttrDef>
+    <AttrDef name="fraction_diluent_transport_tanker" unit="frac" type="float">1.0</AttrDef>
     <AttrDef name="fraction_diluent_transport_barge" unit="frac" type="float">0.0</AttrDef>
     <AttrDef name="fraction_diluent_transport_pipeline" unit="frac" type="float">1.0</AttrDef>
     <AttrDef name="fraction_diluent_transport_rail" unit="frac" type="float">0.0</AttrDef>
     <AttrDef name="fraction_diluent_transport_truck" unit="frac" type="float">0.0</AttrDef>
 
-    <AttrDef name="diluent_transport_distance_tanker" unit="mile" type="float">0.0</AttrDef>
-    <AttrDef name="diluent_transport_distance_barge" unit="mile" type="float">0.0</AttrDef>
-    <AttrDef name="diluent_transport_distance_pipeline" unit="mile" type="float">2500.0</AttrDef>
-    <AttrDef name="diluent_transport_distance_rail" unit="mile" type="float">0.0</AttrDef>
-    <AttrDef name="diluent_transport_distance_truck" unit="mile" type="float">0.0</AttrDef>
+    <AttrDef name="diluent_transport_distance_tanker" unit="mile" type="float">8000.0</AttrDef>
+    <AttrDef name="diluent_transport_distance_barge" unit="mile" type="float">500.0</AttrDef>
+    <AttrDef name="diluent_transport_distance_pipeline" unit="mile" type="float">1000.0</AttrDef>
+    <AttrDef name="diluent_transport_distance_rail" unit="mile" type="float">800.0</AttrDef>
+    <AttrDef name="diluent_transport_distance_truck" unit="mile" type="float">100.0</AttrDef>
     <AttrDef name="ocean_tanker_size" unit="tonne" type="float">250000.0</AttrDef>
 
     <Options name="dilution_API" default="55.20">

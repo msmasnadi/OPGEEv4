@@ -40,7 +40,7 @@ class DiluentTransport(Process):
     def run(self, analysis):
         self.print_running_msg()
 
-        input = self.find_input_stream("oil")
+        input = self.find_input_stream("oil for transport")
         oil_mass_rate = input.liquid_flow_rate("oil")
         oil_mass_energy_density = self.oil.mass_energy_density(self.API_diluent)
         oil_LHV_rate = oil_mass_rate * oil_mass_energy_density
@@ -113,7 +113,7 @@ class DiluentTransport(Process):
 
     def impute(self):
         output = self.find_output_stream("oil for dilution")
-        input = self.find_input_stream("oil")
+        input = self.find_input_stream("oil for transport")
         input.set_liquid_flow_rate("oil", output.liquid_flow_rate("oil"), output.temperature, output.pressure)
 
     def transport_energy_intensity(self, type, energy_consumption, load_factor, hp):

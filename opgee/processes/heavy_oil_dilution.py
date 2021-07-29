@@ -1,6 +1,7 @@
 from ..log import getLogger
 from ..process import Process
 from ..stream import Stream, PHASE_LIQUID
+from opgee import ureg
 
 
 class HeavyOilDilution(Process):
@@ -16,7 +17,7 @@ class HeavyOilDilution(Process):
 
         self.frac_diluent = field.attr("fraction_diluent")
         self.downhole_pump = field.attr("downhole_pump")
-        self.oil_sand_mine = self.attr("oil_sands_mine")
+        self.oil_sand_mine = field.attr("oil_sands_mine")
         self.API_bitumen = field.attr("API_bitumen")
         self.bitumen_SG = self.oil.specific_gravity(self.API_bitumen)
         self.dilution_type = self.attr("dilution_type")
@@ -55,8 +56,8 @@ class HeavyOilDilution(Process):
         upgrader_type = self.field.attr("upgrader_type")
         upgrader_mining_prod_offsite = 1 if (self.oil_sand_mine is None or self.oil_sand_mine == "Non-integrated with upgrader") \
                                             and self.downhole_pump == 0 and upgrader_type is not None else 0
-        bitumen_mass_rate = self.oil_prod_rate * self.bitumen_SG * self.water_density if upgrader_mining_prod_offsite == 0 and self.oil_sand_mine == "Non-integrated with upgrader" else 0
-        input_bitumen.set_liquid_flow_rate("oil", bitumen_mass_rate, self.bitumen_temp, self.bitumen_press)
+        bitumen_mass_rate = self.oil_prod_rate * self.bitumen_SG * self.water_density if upgrader_mining_prod_offsite == 0 and self.oil_sand_mine == "Non-integrated with upgrader" else ureg.Quantity(0, "tonne/day")
+        input_bitumen.set_liquid_flow_rate("oil", bitumen_mass_rate.to("tonne/day"), self.bitumen_temp, self.bitumen_press)
 
         input = self.find_input_streams("oil for dilution", combine=True)
 
