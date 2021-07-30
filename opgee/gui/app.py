@@ -35,6 +35,7 @@ class After(Process):
 
 def field_network_graph(field):
 
+    # TBD: check if disabled processes are being drawn.
     nodes = [{'data': {'id': name, 'label':name}} for name in field.process_dict.keys()]        # , 'size': 150  didn't work
     edges = [{'data': {'id': name, 'source': s.src_name, 'target': s.dst_name, 'contents': ', '.join(s.contents)}} for name, s in field.stream_dict.items()]
 
