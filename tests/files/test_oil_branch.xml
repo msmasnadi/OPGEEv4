@@ -30,7 +30,6 @@
 			<Consumes>crude oil</Consumes>
 		</Process>
 
-
 		<Stream src="Reservoir" dst="Before"/>
 		<Stream src="Before" dst="CrudeOilStabilization" name="before to crude oil stabilization">
 			<Contains>oil for stabilization</Contains>
@@ -170,9 +169,20 @@
 		<Process class="BitumenMining"/>
 		<Process class="DiluentTransport"/>
 		<Process class="Flaring"/>
+		<Process class="CrudeOilStorage"/>
 
-		<Stream src="HeavyOilDilution" dst="After" name="heavy oil dilution to after">
+		<Stream src="HeavyOilDilution" dst="CrudeOilStorage" name="heavy oil dilution to crude oil storage">
 			<Contains>oil for storage</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to after">
+			<Contains>oil for transport</Contains>
+			<Contains>oil for flaring</Contains>
+			<Contains>oil for VRU</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilStorage" dst="Environment" name="crude oil storage to environment">
+			<Contains>gas fugitives</Contains>
 		</Stream>
 
 		<Stream src="DiluentTransport" dst="HeavyOilDilution" name="dilution transport to heavy oil dilution">
@@ -190,7 +200,6 @@
 		<Stream src="BitumenMining" dst="HeavyOilDilution" name="bitumen mining to heavy oil dilution">
 			<Contains>oil for dilution</Contains>
 		</Stream>
-
 
 		<Stream src="BitumenMining" dst="Environment" name="bitumen mining to environment">
 			<Contains>gas fugitive</Contains>

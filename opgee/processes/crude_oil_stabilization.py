@@ -94,3 +94,5 @@ class CrudeOilStabilization(Process):
         emissions.add_rate(EM_COMBUSTION, "CO2", combustion_emission)
 
         emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
+
+        self.field.save_process_data(oil_stab_solution_GOR_outlet=solution_GOR_outlet)

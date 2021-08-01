@@ -57,7 +57,7 @@ class BitumenMining(Process):
         gas_flaring = self.find_output_stream("gas flaring")
         gas_flaring.set_rates_from_series(mine_flaring_rate, PHASE_GAS)
 
-        # eneryg-use
+        # energy-use
         energy_use = self.energy
         NG_consumption = bitumen_volume_rate * ureg.Quantity(mining_intensity_table["Natural gas use"],
                                                              unit_col["Natural gas use"]) * self.model.const(

@@ -393,7 +393,7 @@ class Field(Container):
         for name, value in kwargs.items():
             self.process_data[name] = value
 
-    def get_process_data(self, name):
+    def get_process_data(self, name, raiseError=None):
         """
         Retrieve a stored value from the field's `process_data` dictionary.
 
@@ -404,5 +404,8 @@ class Field(Container):
         try:
             return self.process_data[name]
         except KeyError:
-            raise OpgeeException(f"Process data dictionary does not include {name}")
+            if raiseError:
+                raise OpgeeException(f"Process data dictionary does not include {name}")
+            else:
+                return None
 
