@@ -194,9 +194,12 @@ class Emissions(OpgeeObject):
         :param series: (Series)
         :return: none
         """
-        self.add_rate(category, 'CO2', series['CO2'])
-        self.add_rate(category, 'CH4', series['C1'])
-        self.add_rate(category, "CO", series["CO"])
+        if "CO2" in series:
+            self.add_rate(category, 'CO2', series['CO2'])
+        if "C1" in series:
+            self.add_rate(category, 'CH4', series['C1'])
+        if "CO" in series:
+            self.add_rate(category, "CO", series["CO"])
 
         # TBD: where to get CO and N2O?
 
