@@ -201,8 +201,6 @@ class Emissions(OpgeeObject):
         if "CO" in series:
             self.add_rate(category, "CO", series["CO"])
 
-        # TBD: where to get CO and N2O?
-
         # All gas-phase hydrocarbons heavier than methane are considered VOCs
         voc_rate = series[series.index.intersection(Stream.VOCs)].sum()
         self.add_rate(category, 'VOC', voc_rate)

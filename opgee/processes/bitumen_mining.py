@@ -40,8 +40,6 @@ class BitumenMining(Process):
         bitumen_volume_rate = bitumen_mass_rate / self.bitumen_SG / self.water_density
 
         d = self.model.mining_energy_intensity
-        if self.oil_sands_mine is None:
-            raise OpgeeException(f"oil sands mine is None")
 
         mining_intensity_table = d[self.oil_sands_mine]
         unit_col = d["Units"]

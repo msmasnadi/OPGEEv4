@@ -47,8 +47,7 @@ class CrudeOilStorage(Process):
         gas_fugitive_stream.set_rates_from_series(gas_fugitives, PHASE_GAS)
         gas_fugitive_stream.set_temperature_and_pressure(self.std_temp, self.std_press)
 
-        # energy-use
-        energy_use = self.energy
+        # No energy-use for storage
 
         # emissions
         emissions = self.emissions
