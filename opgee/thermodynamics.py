@@ -16,7 +16,7 @@ def _get_dict_chemical():
     """
     carbon_number = [f'C{n + 1}' for n in range(Stream.max_carbon_number)]
     dict_chemical = {name: Chemical(name) for name in carbon_number}
-    non_hydrocarbon_gases = ["N2", "O2", "CO2", "H2O", "CO2", "H2", "H2S", "SO2"]
+    non_hydrocarbon_gases = ["N2", "O2", "CO2", "H2O", "CO", "H2", "H2S", "SO2"]
     dict_non_hydrocarbon = {name: Chemical(name) for name in non_hydrocarbon_gases}
     dict_chemical.update(dict_non_hydrocarbon)
     return dict_chemical
@@ -326,6 +326,16 @@ class Oil(AbstractSubstance):
         result = gas_oil_ratio * 1.1618
         return result
 
+    @staticmethod
+    def specific_gravity(API_grav):
+        """
+        Calculate specific gravity of crude oil using the API standard SG at 60C = 141.5/(API+131.5)
+        :param API_grav:
+        :return:
+        """
+        result = 141.5 / (API_grav.m + 131.5)
+        return ureg.Quantity(result, "frac")
+
     def reservoir_solution_GOR(self):
         """
         The solution gas oil ratio (GOR) at resevoir condition is
@@ -541,7 +551,7 @@ class Oil(AbstractSubstance):
         volume_flow_rate = (mass_flow_rate / density).to("bbl_oil/day")
         return volume_flow_rate
 
-    def mass_energy_density(self, basis="LHV", with_unit=True):
+    def mass_energy_density(self, API=None, basis="LHV", with_unit=True):
         """
 
         :param basis: (str) LHV or HHV
@@ -550,7 +560,7 @@ class Oil(AbstractSubstance):
         """
         # Oil lower heating value correlation
         a1, a2, a3, a4 = (16796, 54.4, 0.217, 0.0019) if basis == 'LHV' else (17672, 66.6, 0.316, 0.0014)
-        API = self.API.m
+        API = self.API.m if API is None else API.m
 
         result = (a1 + a2 * API - a3 * API ** 2 - a4 * API ** 3)
         result = ureg.Quantity(result, "british_thermal_unit/lb") if with_unit else result
@@ -929,8 +939,8 @@ class Water(AbstractSubstance):
         :return: (float) water density (unit = kg/m3)
         """
 
-        temp = temperature if temperature is not None else self.std_temp
-        press = pressure if pressure is not None else self.std_press
+        temp = temperature if temperature is not None else self.field.model.const("std-temperature")
+        press = pressure if pressure is not None else self.field.model.const("std-pressure")
 
         specifc_gravity = self.specific_gravity
         water_density_STP = rho("H2O", temp, press, PHASE_LIQUID)

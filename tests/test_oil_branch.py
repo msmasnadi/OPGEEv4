@@ -18,22 +18,25 @@ def test_oil_branch(configure_logging_for_tests):
     return load_test_model('test_oil_branch.xml')
 
 
-def test_run(test_oil_branch):
+def test_run_stab(test_oil_branch):
     analysis = test_oil_branch.get_analysis('test_oil_branch')
-    field = analysis.get_field('test')
+    field = analysis.get_field('oil_stabilization')
     field.run(analysis)
 
 
-# def test_run_steam(test_oil_branch):
-#     analysis = test_oil_branch.get_analysis('test_oil_branch')
-#     field = analysis.get_field('test')
-#     field.set_attr("steam_flooding", 1)
-#     field.run(analysis)
-#
-#
-# def test_run_heater(test_oil_branch):
-#     analysis = test_oil_branch.get_analysis('test_oil_branch')
-#     field = analysis.get_field('test')
-#     field.set_attr("heater_treater", 1)
-#     field.run(analysis)
+def test_run_upgrading(test_oil_branch):
+    analysis = test_oil_branch.get_analysis('test_oil_branch')
+    field = analysis.get_field('heavy_oil_upgrading')
+    field.run(analysis)
 
+
+def test_run_dilution(test_oil_branch):
+    analysis = test_oil_branch.get_analysis('test_oil_branch')
+    field = analysis.get_field('heavy_oil_diluent')
+    field.run(analysis)
+
+
+def test_run_bitumen(test_oil_branch):
+    analysis = test_oil_branch.get_analysis('test_oil_branch')
+    field = analysis.get_field('bitumen_dilution')
+    field.run(analysis)

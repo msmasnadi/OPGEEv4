@@ -287,6 +287,22 @@ class Process(XmlInstantiable, AttributeMixin):
 
         return gas_fugitives
 
+    def get_water_transport_energy_consumption(self, load_factor, type):
+        """
+        calculate the water transport energy consumption
+
+        :param type: (str) "tanker" or "barge"
+        :param load_factor:
+        :return: (float) energy consumption (unit = btu/hp/hr)
+        """
+
+        residual_oil_LHV = self.model.const("residual-oil-LHV")
+        residual_oil_density = self.model.const("residual-oil-density")
+        const = 150 if type == "tanker" else 350
+
+        result = (14.42/load_factor.m + const) * 0.735 * residual_oil_LHV.m / residual_oil_density.m
+        return ureg.Quantity(result, "btu/hp/hr")
+
     @property
     def model(self):
         """

@@ -1,6 +1,8 @@
 from ..process import Process
 from ..log import getLogger
-from ..stream import Stream
+from ..stream import Stream, PHASE_LIQUID, PHASE_GAS
+from ..emissions import EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
+from opgee import ureg
 
 _logger = getLogger(__name__)
 
@@ -11,19 +13,43 @@ class CrudeOilStorage(Process):
         self.field = field = self.get_field()
         self.std_temp = field.model.const("std-temperature")
         self.std_press = field.model.const("std-pressure")
+        self.storage_gas_comp = self.attrs_with_prefix("storage_gas_comp_")
+        self.CH4_comp = self.attr("storage_gas_comp_C1")
+        self.f_FG_CS_VRU = self.attr("f_FG_CS_VRU")
+        self.f_FG_CS_FL = self.attr("f_FG_CS_FL")
+        self.oil_sands_mine = field.attr("oil_sands_mine")
 
     def run(self, analysis):
         self.print_running_msg()
 
-        # mass rate
-        oil_mass_rate = 0
-        input = self.find_input_streams("oil for storage", combine=True)
+        #TODO: LPG to blend with crude oil need to be implement after gas branch
 
-        # TODO: get solution GOR inlet from separation
-        stream = Stream(name="outlet_stream", temperature=self.std_temp, pressure=self.std_press)
-        oil = self.field.oil
-        solution_GOR_outlet = oil.solution_gas_oil_ratio(stream,
-                                                         oil.oil_specific_gravity,
-                                                         oil.gas_specific_gravity,
-                                                         oil.gas_oil_ratio)
+        # mass rate
+        input = self.find_input_streams("oil for storage", combine=True)
+        oil_mass_rate = input.liquid_flow_rate("oil")
+        # TODO: loss rate need to be replaced by VF-component
+        loss_rate = self.venting_fugitive_rate()
+        gas_exsolved_upon_flashing = oil_mass_rate * loss_rate / self.CH4_comp if self.oil_sands_mine == "None" else ureg.Quantity(0, "tonne/day")
+
+        vapor_to_flare = self.f_FG_CS_FL * gas_exsolved_upon_flashing * self.storage_gas_comp
+        vapor_to_VRU = self.f_FG_CS_VRU * gas_exsolved_upon_flashing * self.storage_gas_comp
+        gas_fugitives = (1 - self.f_FG_CS_VRU - self.f_FG_CS_FL) * gas_exsolved_upon_flashing * self.storage_gas_comp
+
+        output_flare = self.find_output_stream("oil for flaring")
+        output_flare.set_rates_from_series(vapor_to_flare, PHASE_GAS)
+        output_flare.set_temperature_and_pressure(self.std_temp, self.std_press)
+
+        output_VRU = self.find_output_stream("oil for VRU")
+        output_VRU.set_rates_from_series(vapor_to_VRU, PHASE_GAS)
+        output_VRU.set_temperature_and_pressure(self.std_temp, self.std_press)
+
+        gas_fugitive_stream = self.find_output_stream("gas fugitives")
+        gas_fugitive_stream.set_rates_from_series(gas_fugitives, PHASE_GAS)
+        gas_fugitive_stream.set_temperature_and_pressure(self.std_temp, self.std_press)
+
+        # No energy-use for storage
+
+        # emissions
+        emissions = self.emissions
+        emissions.add_from_stream(EM_FUGITIVES, gas_fugitive_stream)
 

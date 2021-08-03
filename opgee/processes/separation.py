@@ -88,6 +88,8 @@ class Separation(Process):
 
         emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
 
+        self.field.save_process_data(separation_solution_GOR=final_SOR)
+
     def impute(self):
         oil = self.field.oil
 

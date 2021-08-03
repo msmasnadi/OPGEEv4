@@ -183,5 +183,26 @@ class Emissions(OpgeeObject):
         # All gas-phase hydrocarbons heavier than methane are considered VOCs
         voc_rate = stream.components.loc[Stream.VOCs, PHASE_GAS].sum()
         self.add_rate(category, 'VOC', voc_rate)
-        GHG = self.data[EM_FUGITIVES].sum()
+        GHG = self.data[category].sum()
+        self.add_rate(category, "GHG", GHG)
+
+    def add_from_series(self, category, series):
+        """
+        Add emission flow rates from a Series instance to the given emissions category.
+
+        :param category: (str) one of the defined emissions categories
+        :param series: (Series)
+        :return: none
+        """
+        if "CO2" in series:
+            self.add_rate(category, 'CO2', series['CO2'])
+        if "C1" in series:
+            self.add_rate(category, 'CH4', series['C1'])
+        if "CO" in series:
+            self.add_rate(category, "CO", series["CO"])
+
+        # All gas-phase hydrocarbons heavier than methane are considered VOCs
+        voc_rate = series[series.index.intersection(Stream.VOCs)].sum()
+        self.add_rate(category, 'VOC', voc_rate)
+        GHG = self.data[category].sum()
         self.add_rate(category, "GHG", GHG)

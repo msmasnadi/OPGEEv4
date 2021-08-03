@@ -33,9 +33,7 @@ class GasTransmissionCompressors(Process):
     def run(self, analysis):
         self.print_running_msg()
 
-class DiluentTransport(Process):
-    def run(self, analysis):
-        self.print_running_msg()
+
 
 class PetcokeTransport(Process):
     def run(self, analysis):
