@@ -380,11 +380,11 @@
 
     <AttrDef name="dilution_type" options="diluent_or_dilbit"/>
     <AttrDef name="diluent_temp" unit="degF" type="float" desc="Diluent temperature">60.0</AttrDef>
-    <AttrDef name="diluent_press" unit="pisa" type="float" desc="Diluent pressure">14.7</AttrDef>
+    <AttrDef name="diluent_press" unit="psia" type="float" desc="Diluent pressure">14.7</AttrDef>
     <AttrDef name="final_mix_temp" unit="degF" type="float" desc="Final diluted crude mixture temperature">60.0</AttrDef>
-    <AttrDef name="final_mix_press" unit="pisa" type="float" desc="Final diluted crude mixture pressure">14.7</AttrDef>
+    <AttrDef name="final_mix_press" unit="psia" type="float" desc="Final diluted crude mixture pressure">14.7</AttrDef>
     <AttrDef name="before_diluent_temp" unit="degF" type="float" desc="Standard temperature before dilution (for calculating volume at standard temperature)">60.0</AttrDef>
-    <AttrDef name="before_diluent_press" unit="pisa" type="float" desc="Standard pressure before dilution (for calculating volume at standard temperature)">14.7</AttrDef>
+    <AttrDef name="before_diluent_press" unit="psia" type="float" desc="Standard pressure before dilution (for calculating volume at standard temperature)">14.7</AttrDef>
   </ClassAttrs>
   <ClassAttrs name="CrudeOilStorage">
     <AttrDef name="storage_gas_comp_CO2" unit="mol_pct" type="float">10.0</AttrDef>

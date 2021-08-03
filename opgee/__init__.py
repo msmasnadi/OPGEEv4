@@ -11,11 +11,11 @@ pint.set_application_registry(ureg)
 from .processes import *
 
 
-# class Before(Process):
-#     def run(self, analysis):
-#         pass
-#
-#
-# class After(Process):
-#     def run(self, analysis):
-#         pass
+class Before(Process):
+    def run(self, analysis):
+        pass
+
+
+class After(Process):
+    def run(self, analysis):
+        pass
