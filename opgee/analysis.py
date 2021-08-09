@@ -86,6 +86,9 @@ class Analysis(Container):
         """
         return self.field_dict.values()  # N.B. returns an iterator
 
+    def first_field(self):
+        return self.get_field(self._field_names[0])
+
     def _children(self):
         """
         Return an iterator of all children Fields. External callers should use children() instead,
