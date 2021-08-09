@@ -463,21 +463,21 @@ def app_layout(app, model, analysis):
                 className='custom-tabs-container',
                 children=[
                     dcc.Tab(
-                        children=[],  # processes_layout()
+                        children=[],  # see processes_layout()
                         label='Processes',
                         value='processes',
                         className='custom-tab',
                         selected_className='custom-tab--selected'
                     ),
                     dcc.Tab(
-                        children=[],  # settings_layout()
+                        children=[],  # see settings_layout()
                         label='Settings',
                         value='settings',
                         className='custom-tab',
                         selected_className='custom-tab--selected'
                     ),
                     dcc.Tab(
-                        children=[], # results_layout()
+                        children=[], # see results_layout()
                         label='Results',
                         value='results',
                         className='custom-tab',

@@ -9,7 +9,8 @@
 }
 
 .custom-tab {
-    color:#586069;
+    color: slategray; /* text color */
+    /*#586069;*/
     border-top-left-radius: 3px;
     border-top-right-radius: 3px;
     border-top: 3px solid transparent !important;
@@ -18,15 +19,16 @@
     border-bottom: 0px !important;
     background-color: #fafbfc;
     padding: 12px !important;
-    font-family: "system-ui";
+    font-family: sans-serif;
+    font-size: 14px;
     display: flex !important;
     align-items: center;
     justify-content: center;
 }
 .custom-tab--selected {
-    color: black;
+    color: darkgreen;
     box-shadow: 1px 1px 0px white;
     border-left: 1px solid lightgrey !important;
     border-right: 1px solid lightgrey !important;
-    border-top: 3px solid #e36209 !important;
+    border-top: 3px solid darkgreen !important;
 }
