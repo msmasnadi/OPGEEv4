@@ -354,7 +354,7 @@ class Oil(AbstractSubstance):
             oil_SG ** (-self.pbub_a1 / self.pbub_a2) *
             math.exp(self.pbub_a3 / self.pbub_a2 * gas_SG * oil_SG) /
             (res_temperature * gas_SG),
-            gor_bubble])
+            gor_bubble.m])
         result = ureg.Quantity(result, "scf/bbl_oil")
         return result
 
@@ -396,7 +396,7 @@ class Oil(AbstractSubstance):
                      math.pow(oil_SG, -self.pbub_a1 / self.pbub_a2) *
                      math.exp(self.pbub_a3 / self.pbub_a2 * gas_SG * oil_SG) *
                      1 / (stream_temp * gas_SG),
-                     gor_bubble)
+                     gor_bubble.m)
         result = ureg.Quantity(result, "scf/bbl_oil")
         return result
 
@@ -526,13 +526,13 @@ class Oil(AbstractSubstance):
         solution_gor = self.solution_gas_oil_ratio(stream,
                                                    oil_specific_gravity,
                                                    gas_specific_gravity,
-                                                   gas_oil_ratio).m
+                                                   gas_oil_ratio)
         volume_factor = self.formation_volume_factor(stream,
                                                      oil_specific_gravity,
                                                      gas_specific_gravity,
-                                                     gas_oil_ratio).m
+                                                     gas_oil_ratio)
 
-        result = (62.42796 * oil_SG + 0.0136 * gas_SG * solution_gor) / volume_factor
+        result = (62.42796 * oil_SG + 0.0136 * gas_SG * solution_gor.m) / volume_factor.m
         return ureg.Quantity(result, "lb/ft**3")
 
     def volume_flow_rate(self, stream, oil_specific_gravity, gas_specific_gravity, gas_oil_ratio):
