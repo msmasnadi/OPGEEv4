@@ -35,6 +35,7 @@ class After(Process):
 
 def field_network_graph(field):
 
+    # TBD: check if disabled processes are being drawn.
     nodes = [{'data': {'id': name, 'label':name}} for name in field.process_dict.keys()]        # , 'size': 150  didn't work
     edges = [{'data': {'id': name, 'source': s.src_name, 'target': s.dst_name, 'contents': ', '.join(s.contents)}} for name, s in field.stream_dict.items()]
 
@@ -163,7 +164,7 @@ def emissions_table(analysis, procs):
     )
     return tbl
 
-def processes_layout(app, current_field):
+def processes_layout(app, field):
     # the main row
     # noinspection PyCallingNonCallable
     layout = html.Div([
@@ -171,7 +172,7 @@ def processes_layout(app, current_field):
             html.Div(
                 className="row",
                 children=[
-                    field_network_graph(current_field)
+                    field_network_graph(field)
                 ],
             ),
 
@@ -235,8 +236,8 @@ def processes_layout(app, current_field):
     )
     return layout
 
-def settings_layout(current_field):
-    proc_names = sorted([proc.name for proc in current_field.processes()])
+def settings_layout(field):
+    proc_names = sorted([proc.name for proc in field.processes()])
     proc_sections = [attr_inputs(proc_name) for proc_name in proc_names]
 
     sections = [
@@ -265,7 +266,7 @@ def settings_layout(current_field):
     )
     return layout
 
-def results_layout(current_field):
+def results_layout(field):
     # noinspection PyCallingNonCallable
     layout = html.Div([
         html.H3('Results'),
@@ -288,7 +289,7 @@ def results_layout(current_field):
 #
 # TBD: Really only works on a current field.
 #
-def generate_settings_callback(app, current_analysis, current_field):
+def generate_settings_callback(app, analysis, field):
     """
     Generate a callback for all the inputs in the Settings tab by walking the
     attribute definitions dictionary. Each attribute `attr_name` in class
@@ -300,7 +301,7 @@ def generate_settings_callback(app, current_analysis, current_field):
     """
     from lxml import etree as ET
 
-    class_names = ['Model', 'Analysis', 'Field'] + [proc.name for proc in current_field.processes()]
+    class_names = ['Model', 'Analysis', 'Field'] + [proc.name for proc in field.processes()]
 
     attr_defs = AttrDefs.get_instance()
     class_dict = attr_defs.classes
@@ -324,7 +325,7 @@ def generate_settings_callback(app, current_analysis, current_field):
         if n_clicks == 0 or not values or not xml_path:
             return 'Save attributes to an xml file'
         else:
-            save_attributes(xml_path, ids, values, current_analysis, current_field)
+            save_attributes(xml_path, ids, values, analysis, field)
             return f"Attributes saved to '{xml_path}'"
 
     app.callback(Output('save-button-status', 'children'),
@@ -490,18 +491,23 @@ def app_layout(app, model, analysis):
     ])
     return layout
 
+def get_analysis_and_field(current_model, data):
+    analysis = current_model.get_analysis(data['analysis'])
+    field = analysis.get_field(data['field'], raiseError=False) or analysis.first_field()
+
+    return analysis, field
+
 def main(args):
     from ..version import VERSION
 
     mf = ModelFile(args.modelFile, add_stream_components=args.add_stream_components, use_class_path=args.use_class_path)
-    current_model = mf.model
-
-    field_name = args.field
-    field = current_model.get_field(field_name)
+    model = mf.model
 
     analysis_name = args.analysis
-    current_analysis = current_model.get_analysis(analysis_name)
-    current_field = field
+    field_name = args.field
+
+    initial_analysis = model.get_analysis(analysis_name)
+    initial_field = model.get_field(field_name)             # deprecated?
 
     # import the css template, and pass the css template into dash
     external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
@@ -514,18 +520,16 @@ def main(args):
     #   - dcc.Upload allows a file to be uploaded. Could be useful in the future.
     # - add dcc.Dropdown from Analyses in a model or to run just one field
     #
-    # Note: dcc.Store provides a browser-side caching mechanism
-
     # TBD: use "app.config['suppress_callback_exceptions'] = True" to not need to call tab-layout fns in this layout def
 
-    app.layout = app_layout(app, current_model, current_analysis)
+    app.layout = app_layout(app, model, initial_analysis)
 
     @app.callback(
         Output('field-selector', 'options'),
         Input('analysis-selector', 'value')
     )
     def field_pulldown(analysis_name):
-        analysis = current_model.get_analysis(analysis_name)
+        analysis = model.get_analysis(analysis_name)
         field_names = [field.name for field in analysis.fields()]
         options = [{'label': name, 'value': name} for name in field_names]
         return options
@@ -541,29 +545,35 @@ def main(args):
     @app.callback(
         Output('analysis-and-field', 'data'),
         Input('field-selector', 'value'),
-        State('analysis-selector', 'value'),
+        Input('analysis-selector', 'value'),
     )
     def switch_fields(field_name, analysis_name):
+        analysis = model.get_analysis(analysis_name)
+        field = analysis.get_field(field_name, raiseError=False) or analysis.first_field()
+        generate_settings_callback(app, analysis, field)
         return dict(analysis=analysis_name, field=field_name)
 
     @app.callback(
         Output('emissions-and-energy', 'children'),
-        Input('network-layout', 'tapNodeData'))
-    def display_emissions_and_energy(node_data):
+        Input('network-layout', 'tapNodeData'),
+        State('analysis-and-field', 'data'))
+    def display_emissions_and_energy(node_data, analysis_and_field):
         if node_data:
+            analysis, field = get_analysis_and_field(model, analysis_and_field)
+
             proc_name = node_data['id']
-            proc = current_field.find_process(proc_name)
+            proc = field.find_process(proc_name)
             digits = 2
 
             header = f"Process: {proc_name}\n"
 
             # display values without all the Series stuff
-            rates = proc.get_emission_rates(current_analysis)
+            rates = proc.get_emission_rates(analysis)
             emissions_str = f"\nEmissions: (tonne/day)\n{rates.astype(float)}"
             # values = '\n'.join([f"{name:4s} {round(value.m, digits)}" for name, value in rates.items()])
             # emissions_str = f"\nEmissions: (tonne/day)\n{values}"
 
-            rates = proc.get_energy_rates(current_analysis)
+            rates = proc.get_energy_rates(analysis)
             values = '\n'.join([f"{name:19s} {round(value.m, digits)}" for name, value in rates.items()])
             energy_str = f"\n\nEnergy use: (mmbtu/day)\n{values}"
 
@@ -572,13 +582,16 @@ def main(args):
             return ''
 
     @app.callback(Output('stream-data', 'children'),
-                  Input('network-layout', 'tapEdgeData'))
-    def display_edge_data(data):
+                  Input('network-layout', 'tapEdgeData'),
+                  State('analysis-and-field', 'data'))
+    def display_edge_data(data, analysis_and_field):
         import pandas as pd
 
         if data:
+            analysis, field = get_analysis_and_field(model, analysis_and_field)
+
             name = data['id']
-            stream = current_field.find_stream(name)
+            stream = field.find_stream(name)
             with pd.option_context('display.max_rows', None,
                                    'precision', 3):
                     nonzero = stream.components.query('solid > 0 or liquid > 0 or gas > 0')
@@ -589,13 +602,15 @@ def main(args):
 
     @app.callback(
         Output('run-model-status', 'children'),
-        Input('run-button', 'n_clicks'))
-    def update_output(n_clicks):
+        Input('run-button', 'n_clicks'),
+        State('analysis-and-field', 'data'))
+    def update_output(n_clicks, analysis_and_field):
         if n_clicks:
+            analysis, field = get_analysis_and_field(model, analysis_and_field)
             # TBD: get user selections from radio buttons and pass to run method
             # TBD: have run method take optional args for all the run parameters, defaulting to what's in the model file
-            current_field.run(current_analysis)
-            current_field.report(current_analysis)
+            field.run(analysis)
+            field.report(analysis)
             return "Model has been run"
         else:
             return "Model has not been run"
@@ -603,8 +618,10 @@ def main(args):
     @app.callback(
         Output('emissions-table', 'children'),
         Input('tabs', 'value'),
-        Input('run-model-status', 'children'))
-    def update_result_table(tab, status):
+        Input('run-model-status', 'children'),
+        Input('analysis-and-field', 'data'))
+    def update_result_table(tab, status, analysis_and_field):
+        analysis, field = get_analysis_and_field(model, analysis_and_field)
 
         style = {'margin-left': '16px'}
 
@@ -619,12 +636,12 @@ def main(args):
             if container.procs:
                 # noinspection PyCallingNonCallable
                 div = html.Div(style=style,
-                               children=[emissions_table(current_analysis, container.procs)])
+                               children=[emissions_table(analysis, container.procs)])
                 elt.children.append(div)
 
         # noinspection PyCallingNonCallable
         item = html.Details(open=True, children=[html.Summary("Process Emissions")])
-        add_children(current_field, item)
+        add_children(field, item)
         return item
 
     @app.callback(
@@ -632,41 +649,42 @@ def main(args):
         Input('tabs', 'value'),
         Input('analysis-and-field', 'data'),
     )
-    def render_content(tab, data):
-        analysis_name = data['analysis']
-        field_name = data['field']
-        current_analysis = current_model.get_analysis(analysis_name)
-        current_field = current_analysis.get_field(field_name)
+    def render_content(tab, analysis_and_field):
+        analysis, field = get_analysis_and_field(model, analysis_and_field)
 
         if tab == 'processes':
-            return processes_layout(app, current_field)
+            return processes_layout(app, field)
 
         elif tab == 'settings':
-            return settings_layout(current_field)
+            return settings_layout(field)
 
         elif tab == 'results':
-            return results_layout(current_field)
-
-    generate_settings_callback(app, current_analysis, current_field)
+            return results_layout(field)
 
     @app.callback(
         Output('ci-text', 'children'),
-        Input('run-button', 'n_clicks'))
-    def ci_text(n_clicks):
-        ci = current_field.carbon_intensity.m
-        fn_unit  = current_analysis.attr('functional_unit')
-        en_basis = current_analysis.attr('energy_basis')
+        Input('run-button', 'n_clicks'),
+        Input('analysis-and-field', 'data'))
+    def ci_text(n_clicks, analysis_and_field):
+        analysis, field = get_analysis_and_field(model, analysis_and_field)
+
+        ci = field.carbon_intensity.m
+        fn_unit  = analysis.attr('functional_unit')
+        en_basis = analysis.attr('energy_basis')
         return f"CI: {ci:0.2f} g CO2e/MJ {en_basis} of {fn_unit}"
 
     @app.callback(
         Output('ci-barchart', 'figure'),
-        Input('run-button', 'n_clicks'))
-    def ci_barchart(n_clicks):
+        Input('run-button', 'n_clicks'),
+        Input('analysis-and-field', 'data'))
+    def ci_barchart(n_clicks, analysis_and_field):
         # import plotly.express as px
         import pandas as pd
         import plotly.graph_objs as go
 
-        fn_unit  = current_analysis.attr('functional_unit')
+        analysis, field = get_analysis_and_field(model, analysis_and_field)
+
+        fn_unit  = analysis.attr('functional_unit')
 
         value_col = r'$g CO_2 MJ^{-1}$'
         df = pd.DataFrame({"category": ["Exploration", "Surface Processing", "Transportation"],
