@@ -95,6 +95,7 @@
 		<Process class="Before" desc="" impute-start="true">
 			<Produces>oil for stabilization</Produces>
 		</Process>
+		<Process class="After"/>
 
 		<Process class="CrudeOilStabilization" enabled="false">
 			<Consumes>crude oil</Consumes>
@@ -104,11 +105,11 @@
 		</Process>
 
 		<Process class="HeavyOilUpgrading"/>
-
+		<Process class="CrudeOilStorage"/>
 		<Process class="HeavyOilDilution" enabled="false"/>
 		<Process class="BitumenMining" enabled="false"/>
 
-		<Stream src="Reservoir" dst="Before"/>
+<!--		<Stream src="Reservoir" dst="Before"/>-->
 
 		<Stream src="Before" dst="HeavyOilUpgrading" name="before to heavy oil upgrading">
 			<Contains>oil for upgrading</Contains>
@@ -131,6 +132,20 @@
 
 		<Stream src="HeavyOilUpgrading" dst="Output" name="heavy oil upgrading to Output">
 			<Contains>process gas</Contains>
+		</Stream>
+
+		<Stream src="HeavyOilUpgrading" dst="CrudeOilStorage" name="heavy oil upgrading to crude oil storage">
+			<Contains>oil for storage</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to after">
+			<Contains>oil for transport</Contains>
+			<Contains>oil for flaring</Contains>
+			<Contains>oil for VRU</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilStorage" dst="Environment" name="crude oil storage to environment">
+			<Contains>gas fugitives</Contains>
 		</Stream>
 
 	</Field>

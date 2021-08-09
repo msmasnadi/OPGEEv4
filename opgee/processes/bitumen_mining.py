@@ -1,15 +1,27 @@
 from ..process import Process
 from ..log import getLogger
-from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_UPG_PROC_GAS, EN_PETCOKE, EN_DIESEL
-from ..emissions import EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
-from ..error import OpgeeException, AbstractMethodError, OpgeeStopIteration
+from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
+from ..emissions import EM_COMBUSTION, EM_FUGITIVES
+from ..error import OpgeeException
 from opgee import ureg
-from ..stream import PHASE_LIQUID, PHASE_GAS
+from ..stream import PHASE_GAS
 
 _logger = getLogger(__name__)
 
 
 class BitumenMining(Process):
+    """
+    This process takes ... do ...
+
+    input streams:
+        - (optional)
+
+    output streams:
+        - (optional)
+
+    field data stored:
+        -
+    """
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
