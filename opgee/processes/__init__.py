@@ -17,4 +17,5 @@ from .heavy_oil_upgrading import HeavyOilUpgrading
 from .heavy_oil_dilution import HeavyOilDilution
 from .dilution_transport import DiluentTransport
 from .bitumen_mining import BitumenMining
+from .steam_generation import SteamGeneration
 

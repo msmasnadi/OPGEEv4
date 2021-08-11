@@ -10,11 +10,6 @@ class MakeupWaterTreatment(Process):
         self.print_running_msg()
 
 
-class SteamGeneration(Process):
-    def run(self, analysis):
-        self.print_running_msg()
-
-
 # A temporary "end process" for testing. Used in opgee.xml.
 class AfterDewatering(Process):
     def run(self, analysis):
