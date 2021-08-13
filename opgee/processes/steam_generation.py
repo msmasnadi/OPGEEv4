@@ -12,6 +12,7 @@ class SteamGeneration(Process):
 
     def run(self, analysis):
         self.print_running_msg()
+        self.set_iteration_value(0)     # use a constant to end cycle after one iteration
 
     def impute(self):
         pass
