@@ -115,6 +115,22 @@ def Cp(component, kelvin, with_units=True):
     return cp
 
 
+def Tsat(component, Psat, with_units=True):
+    """
+
+    :param Psat: saturated pressure (unit in Pa)
+    :param component:
+    :param with_units:
+    :return:
+    """
+
+    Tsat = _dict_chemical[component].Tsat(Psat)
+    if with_units:
+        Tsat = ureg.Quantity(Tsat, "kelvin")
+
+    return Tsat
+
+
 def Tc(component, with_units=True):
     """
 
@@ -984,3 +1000,16 @@ class Water(AbstractSubstance):
 
         heat_capacity = mass_flow_rate * specific_heat
         return heat_capacity.to("btu/degF/day")
+
+    @staticmethod
+    def saturated_temperature(saturated_pressure):
+        """
+        calculate water saturated temperature given the saturated pressure
+
+        :param saturated_pressure:
+        :return: (float) water saturated temperature (unit = degF)
+        """
+
+        Psat = saturated_pressure.to("Pa").m
+        saturated_temp = Tsat("H2O", Psat, with_units=True)
+        return saturated_temp

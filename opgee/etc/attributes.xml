@@ -396,6 +396,22 @@
     <AttrDef name="f_FG_CS_VRU" unit="percent" type="float" desc="storage gas recovery fraction">6.0</AttrDef>
     <AttrDef name="f_FG_CS_FL" unit="percent" type="float" desc="storage gas flare fraction">43.0</AttrDef>
   </ClassAttrs>
+
+  <ClassAttrs name="SteamGeneration">
+    <AttrDef name="imported_gas_comp_N2" unit="mol_pct" type="float">0.004</AttrDef>
+    <AttrDef name="imported_gas_comp_C1" unit="mol_pct" type="float">0.966</AttrDef>
+    <AttrDef name="imported_gas_comp_C2" unit="mol_pct" type="float">0.02</AttrDef>
+    <AttrDef name="imported_gas_comp_C3" unit="mol_pct" type="float">0.01</AttrDef>
+    <AttrDef name="NG_fuel_share_OTSG_produced" type="float" unit="frac" desc="Fraction produced gas of OTSG gaseous fuels share">0.0</AttrDef>
+    <AttrDef name="NG_fuel_share_HRSG_produced" type="float" unit="frac" desc="Fraction product gas of GT fuel input type">0.0</AttrDef>
+    <AttrDef name="steam_quality_outlet" type="float" unit="frac" desc="Steam quality at generator outlet">0.7</AttrDef>
+    <AttrDef name="steam_quality_after_blowdown" type="float" desc="Desired steam quality after blowdown and recycle (if any)">0.7</AttrDef>
+    <AttrDef name="fraction_blowdown_recycled" type="float" desc="Percentage of blowdown water recycled ">0.7</AttrDef>
+    <AttrDef name="waste_water_reinjection_temp" type="float" unit="degF" desc="Waste water rejection temperature">150.0</AttrDef>
+    <AttrDef name="waste_water_reinjection_press" type="float" unit="psia" desc="Waste water rejection pressure">14.67</AttrDef>
+    <AttrDef name="friction_loss_stream_distr" type="float" unit="frac" desc="Frictional losses in steam distribution and injection lines">1.1</AttrDef>
+    <AttrDef name="pressure_loss_choke_wellhead" type="float" unit="frac" desc="Choke pressure drop at wellhead">1.7</AttrDef>
+  </ClassAttrs>
   <ClassAttrs name="BitumentUpgradingOrDilution">
     <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
   </ClassAttrs>

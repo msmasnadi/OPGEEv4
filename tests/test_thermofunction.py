@@ -298,3 +298,9 @@ def test_water_heat_capacity(water_instance):
     stream.set_flow_rate("H2O", "liquid", 1962.61672)
     heat_capacity = water_instance.heat_capacity(stream)
     assert heat_capacity == ureg.Quantity(pytest.approx(1949220.72), "btu/degF/day")
+
+
+def test_water_saturated_temperature(water_instance):
+    Psat = ureg.Quantity(1122.00, "psia")
+    Tsat = water_instance.saturated_temperature(Psat)
+    assert Tsat.to("degC") == ureg.Quantity(pytest.approx(292.660571), "degC")

@@ -72,6 +72,8 @@
 		</Process>
 
 		<Process class="SteamGeneration"/>
+		<Process class="MakeupWaterTreatment"/>
+
 
 		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
 			<Contains>crude oil</Contains>
@@ -108,11 +110,23 @@
 		</Stream>
 
 		<Stream src="ProducedWaterTreatment" dst="SteamGeneration" name="produced water treatment to steam generation">
-			<Contains>water for steam</Contains>
+			<Contains>water for steam generation</Contains>
 		</Stream>
 
-		<Stream src="SteamGeneration" dst="ProducedWaterTreatment" name="steam generation to produced water treatment" impute="False">
-			<Contains>water</Contains>
+		<Stream src="MakeupWaterTreatment" dst="SteamGeneration" name="makeup water treatment to steam generation">
+			<Contains>water for steam generation</Contains>
+		</Stream>
+
+		<Stream src="SteamGeneration" dst="ProducedWaterTreatment" name="steam generation to produced water treatment">
+			<Contains>water for produced water treatment</Contains>
+		</Stream>
+
+		<Stream src="SteamGeneration" dst="Output" name="steam generation to waste water">
+			<Contains>waste water</Contains>
+		</Stream>
+
+		<Stream src="SteamGeneration" dst="Reservoir" name="steam generation to reservoir">
+			<Contains>water for steam injection</Contains>
 		</Stream>
 
 		<Stream src="Separation" dst="Output" name="gas after separator">

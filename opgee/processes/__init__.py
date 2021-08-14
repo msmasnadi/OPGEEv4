@@ -18,4 +18,5 @@ from .heavy_oil_dilution import HeavyOilDilution
 from .dilution_transport import DiluentTransport
 from .bitumen_mining import BitumenMining
 from .steam_generation import SteamGeneration
+from .makeup_water_treatment import MakeupWaterTreatment
 
