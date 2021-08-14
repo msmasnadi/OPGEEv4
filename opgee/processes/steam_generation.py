@@ -43,6 +43,7 @@ class SteamGeneration(Process):
 
     def run(self, analysis):
         self.print_running_msg()
+        self.set_iteration_value(0)
 
     def impute(self):
 
