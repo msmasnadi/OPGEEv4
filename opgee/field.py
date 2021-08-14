@@ -225,8 +225,8 @@ class Field(Container):
                             unvisited.remove(proc)
                             ordered_cycle.append(proc)
 
-                        for successor in proc.successors():
-                            process_successors(successor)
+                            for successor in proc.successors():
+                                process_successors(successor)
 
                 process_successors(start_procs[0])
             else:
