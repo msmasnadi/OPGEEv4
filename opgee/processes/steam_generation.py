@@ -39,6 +39,7 @@ class SteamGeneration(Process):
         self.res_press = field.attr("res_press")
         self.steam_press_upper = field.model.const("steam-press-upper-limit")
         self.steam_generator_press_outlet = max((self.res_press + 100)*self.friction_loss_stream_distr*self.pressure_loss_choke_wellhead, self.steam_press_upper)
+        self.steam_generator_temp_outlet = self.water.saturated_temperature(self.steam_generator_press_outlet)
 
     def run(self, analysis):
         self.print_running_msg()
@@ -58,7 +59,7 @@ class SteamGeneration(Process):
         output_recycled_blowdown_water.set_liquid_flow_rate("H2O", recycled_blowdown_water.to("tonne/day"), self.waste_water_reinjection_temp, self.waste_water_reinjection_press)
 
         output_steam_injection = self.find_output_stream("water for steam injection")
-        output_steam_injection.set_liquid_flow_rate("H2O", water_mass_rate_for_injection.to("tonne/day"))
+        output_steam_injection.set_liquid_flow_rate("H2O", water_mass_rate_for_injection.to("tonne/day"), self.steam_generator_temp_outlet, self.steam_generator_press_outlet)
 
         input = self.find_input_streams("water for steam")
         input_produced_water = input["produced water treatment to steam generation"]

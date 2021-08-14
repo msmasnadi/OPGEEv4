@@ -117,6 +117,10 @@
 			<Contains>water for steam generation</Contains>
 		</Stream>
 
+		<Stream src="MakeupWaterTreatment" dst="WaterInjection" name="make up water treatment to water injection">
+			<Contains>water for water injection</Contains>
+		</Stream>
+
 		<Stream src="SteamGeneration" dst="ProducedWaterTreatment" name="steam generation to produced water treatment">
 			<Contains>water for produced water treatment</Contains>
 		</Stream>
