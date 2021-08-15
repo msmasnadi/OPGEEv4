@@ -3,7 +3,7 @@ from .exploration import Exploration, SurveyShip, SurveyTruck
 from .liquefied_natural_gas import LNGLiquefaction, LNGTransport, LNGRegasification
 from .other import *
 from .production_extraction import *
-from .produced_water_treatment import ProducedWaterTreatment
+from .water_treatment import WaterTreatment
 from .surface_processing import *
 from .separation import Separation
 from .transport_storage import *
@@ -18,5 +18,5 @@ from .heavy_oil_dilution import HeavyOilDilution
 from .dilution_transport import DiluentTransport
 from .bitumen_mining import BitumenMining
 from .steam_generation import SteamGeneration
-from .makeup_water_treatment import MakeupWaterTreatment
+from .water_injection import WaterInjection
 

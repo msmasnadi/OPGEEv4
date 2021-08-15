@@ -53,7 +53,7 @@
 
 		<Process class="CrudeOilStorage" enabled="false"/>
 
-		<Process class="ProducedWaterTreatment">
+		<Process class="WaterTreatment">
 			<Consumes>water</Consumes>
 			<Produces>water</Produces>
 		</Process>
@@ -62,7 +62,7 @@
 			<Contains>crude oil</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="ProducedWaterTreatment" name="crude oil dewatering to produced water treatment">
+		<Stream src="CrudeOilDewatering" dst="WaterTreatment" name="crude oil dewatering to produced water treatment">
 			<Contains>water</Contains>
 		</Stream>
 
@@ -82,12 +82,12 @@
 			<Contains>oil for storage</Contains>
 		</Stream>
 
-		<Stream src="Separation" dst="ProducedWaterTreatment" name="separator to produced water treatment">
+		<Stream src="Separation" dst="WaterTreatment" name="separator to produced water treatment">
 			<Contains>water</Contains>
 		</Stream>
 		
-		<Stream src="ProducedWaterTreatment" dst="Output" name="produced water treatment to steam">
-			<Contains>water for steam</Contains>
+		<Stream src="WaterTreatment" dst="Output" name="produced water treatment to steam">
+			<Contains>water for steam generation</Contains>
 			<Contains>water for reinjection</Contains>
 			<Contains>water for surface disposal</Contains>
 			<Contains>water for subsurface disposal</Contains>
@@ -125,7 +125,7 @@
 			<Contains>CO2</Contains>
 		</Stream>
 
-		<Stream src="Output" dst="ProducedWaterTreatment" name="blowdown recycled to treatment" impute="False">
+		<Stream src="Output" dst="WaterTreatment" name="blowdown recycled to treatment" impute="False">
 			<Contains>water</Contains>
 		</Stream>
 	</Field>

@@ -38,14 +38,15 @@ class SteamGeneration(Process):
 
         self.res_press = field.attr("res_press")
         self.steam_press_upper = field.model.const("steam-press-upper-limit")
-        self.steam_generator_press_outlet = max((self.res_press + 100)*self.friction_loss_stream_distr*self.pressure_loss_choke_wellhead, self.steam_press_upper)
+        self.steam_injection_delta_press = self.attr("steam_injection_delta_press")
+        self.steam_generator_press_outlet = min((self.res_press+self.steam_injection_delta_press)*
+                                                self.friction_loss_stream_distr*
+                                                self.pressure_loss_choke_wellhead, self.steam_press_upper)
         self.steam_generator_temp_outlet = self.water.saturated_temperature(self.steam_generator_press_outlet)
 
     def run(self, analysis):
         self.print_running_msg()
         self.set_iteration_value(0)
-
-    def impute(self):
 
         # mass rate
         steam_injection_volume_rate = self.SOR * self.oil_volume_rate
@@ -56,14 +57,12 @@ class SteamGeneration(Process):
 
         output_waster_water = self.find_output_stream("waste water")
         output_waster_water.set_liquid_flow_rate("H2O", waste_water_from_blowdown.to("tonne/day"), self.waste_water_reinjection_temp, self.waste_water_reinjection_press)
-        output_recycled_blowdown_water = self.find_output_stream("water for produced water treatment")
+        output_recycled_blowdown_water = self.find_output_stream("blowdown water")
         output_recycled_blowdown_water.set_liquid_flow_rate("H2O", recycled_blowdown_water.to("tonne/day"), self.waste_water_reinjection_temp, self.waste_water_reinjection_press)
 
-        output_steam_injection = self.find_output_stream("water for steam injection")
-        output_steam_injection.set_liquid_flow_rate("H2O", water_mass_rate_for_injection.to("tonne/day"), self.steam_generator_temp_outlet, self.steam_generator_press_outlet)
+        # output_steam_injection = self.find_output_stream("water for steam injection")
+        # output_steam_injection.set_liquid_flow_rate("H2O", water_mass_rate_for_injection.to("tonne/day"), self.steam_generator_temp_outlet, self.steam_generator_press_outlet)
 
-        input = self.find_input_streams("water for steam")
-        input_produced_water = input["produced water treatment to steam generation"]
-        makeup_water_mass_rate = input_produced_water.liquid_flow_rate("H20") - water_mass_rate_for_injection - blowdown_water_mass_rate
-        input["makeup water treatment to steam generation"].set_liquid_flow_rate("H2O", makeup_water_mass_rate, self.std_temp, self.std_press)
+        input_prod_water = self.find_input_stream("produced water for steam generation")
+        input_makeup_water = self.find_input_stream("makeup water for steam generation")
 

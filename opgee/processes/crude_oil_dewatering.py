@@ -42,8 +42,8 @@ class CrudeOilDewatering(Process):
         if oil_to_stabilization is not None:
             oil_to_stabilization.set_liquid_flow_rate("oil", oil_rate, temp, pressure)
 
-        water_to_stabilization = self.find_output_stream("water")
-        water_to_stabilization.set_liquid_flow_rate("H2O", water_rate, temp, pressure)
+        water_to_treatment = self.find_output_stream("water")
+        water_to_treatment.set_liquid_flow_rate("H2O", water_rate, temp, pressure)
 
         oil_to_storage = self.find_output_stream("oil for storage", raiseError=False)
         if oil_to_storage is not None:

@@ -66,8 +66,8 @@ class Separation(Process):
 
         # energy rate
 
-        free_gas_stages, final_SOR = self.get_free_gas_stages(self.field)  # (float, list) scf/bbl
-        self.field.save_process_data(separator_final_SOR=final_SOR)
+        free_gas_stages, final_GOR = self.get_free_gas_stages(self.field)  # (float, list) scf/bbl
+        self.field.save_process_data(separator_final_SOR=final_GOR)
         gas_compression_volume_stages = [(self.oil_volume_rate * free_gas).to("mmscf/day") for free_gas in free_gas_stages]
         compressor_brake_horsepower_of_stages = self.compressor_brake_horsepower_of_stages(self.field,
                                                                                            gas_after,
@@ -88,7 +88,7 @@ class Separation(Process):
 
         emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
 
-        self.field.save_process_data(separation_solution_GOR=final_SOR)
+        self.field.save_process_data(separation_solution_GOR=final_GOR)
 
     def impute(self):
         oil = self.field.oil

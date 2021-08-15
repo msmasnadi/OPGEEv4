@@ -25,6 +25,7 @@
 		<A name="SOR">4.21</A>
 		<A name="fraction_steam_cogen">1.0</A>
 		<A name="FOR">5.0</A>
+		<A name="prod_index">6.8</A>
 		<Process class="Separation" impute-start="true">
 			<Consumes>crude oil</Consumes>
 			<Produces>crude oil</Produces>
@@ -66,20 +67,20 @@
 
 		<Process class="CrudeOilStorage" enabled="false"/>
 
-		<Process class="ProducedWaterTreatment">
+		<Process class="WaterTreatment">
 			<Consumes>water</Consumes>
 			<Produces>water</Produces>
 		</Process>
 
 		<Process class="SteamGeneration"/>
-		<Process class="MakeupWaterTreatment"/>
+		<Process class="WaterInjection"/>
 
 
 		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
 			<Contains>crude oil</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="ProducedWaterTreatment" name="crude oil dewatering to produced water treatment">
+		<Stream src="CrudeOilDewatering" dst="WaterTreatment" name="crude oil dewatering to produced water treatment">
 			<Contains>water</Contains>
 		</Stream>
 
@@ -99,39 +100,40 @@
 			<Contains>oil for storage</Contains>
 		</Stream>
 
-		<Stream src="Separation" dst="ProducedWaterTreatment" name="separator to produced water treatment">
+		<Stream src="Separation" dst="WaterTreatment" name="separator to produced water treatment">
 			<Contains>water</Contains>
 		</Stream>
 		
-		<Stream src="ProducedWaterTreatment" dst="Output" name="produced water treatment to output">
-			<Contains>water for reinjection</Contains>
+		<Stream src="WaterTreatment" dst="Output" name="produced water treatment to output">
 			<Contains>water for surface disposal</Contains>
 			<Contains>water for subsurface disposal</Contains>
 		</Stream>
 
-		<Stream src="ProducedWaterTreatment" dst="SteamGeneration" name="produced water treatment to steam generation">
-			<Contains>water for steam generation</Contains>
+		<Stream src="Output" dst="WaterTreatment" name="output to produced water treatment">
+			<Contains>makeup water</Contains>
 		</Stream>
 
-		<Stream src="MakeupWaterTreatment" dst="SteamGeneration" name="makeup water treatment to steam generation">
-			<Contains>water for steam generation</Contains>
+		<Stream src="WaterTreatment" dst="SteamGeneration" name="water treatment to steam generation">
+			<Contains>produced water for steam generation</Contains>
+			<Contains>makeup water for steam generation</Contains>
 		</Stream>
 
-		<Stream src="MakeupWaterTreatment" dst="WaterInjection" name="make up water treatment to water injection">
-			<Contains>water for water injection</Contains>
+		<Stream src="WaterTreatment" dst="WaterInjection" name="water treatment to water injection">
+			<Contains>produced water for water injection</Contains>
+			<Contains>makeup water for water injection</Contains>
 		</Stream>
 
-		<Stream src="SteamGeneration" dst="ProducedWaterTreatment" name="steam generation to produced water treatment">
-			<Contains>water for produced water treatment</Contains>
+		<Stream src="SteamGeneration" dst="WaterTreatment" name="steam generation to produced water treatment">
+			<Contains>blowdown water</Contains>
 		</Stream>
 
 		<Stream src="SteamGeneration" dst="Output" name="steam generation to waste water">
 			<Contains>waste water</Contains>
 		</Stream>
 
-		<Stream src="SteamGeneration" dst="Reservoir" name="steam generation to reservoir">
-			<Contains>water for steam injection</Contains>
-		</Stream>
+<!--		<Stream src="SteamGeneration" dst="Reservoir" name="steam generation to reservoir" impute="0">-->
+<!--			<Contains>water for steam injection</Contains>-->
+<!--		</Stream>-->
 
 		<Stream src="Separation" dst="Output" name="gas after separator">
 			<Contains>gas</Contains>
@@ -165,7 +167,7 @@
 			<Contains>CO2</Contains>
 		</Stream>
 
-		<Stream src="Output" dst="ProducedWaterTreatment" name="blowdown recycled to treatment" impute="False">
+		<Stream src="Output" dst="WaterTreatment" name="blowdown recycled to treatment" impute="False">
 			<Contains>water</Contains>
 		</Stream>
 	</Field>

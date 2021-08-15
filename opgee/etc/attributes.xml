@@ -90,7 +90,7 @@
     <AttrDef name="res_thickness" unit="ft" desc="Average reservoir thickness" type="float">50</AttrDef>
     <AttrDef name="res_perm" unit="mD" desc="Reservoir permeability" type="float">100</AttrDef>
     <AttrDef name="wellhead_pressure" type="float" unit="psia" >500</AttrDef>
-    <AttrDef name="wellhead_temperature" type="float" unit="degF" >150</AttrDef>
+    <AttrDef name="wellhead_temperature" type="float" unit="degF" >80</AttrDef>
     <AttrDef name="offshore" type="binary" desc="Offshore?">0</AttrDef>
     <!-- Fluid properties -->
     <AttrDef name="API" desc="API gravity of produced crude" unit="degAPI" type="float">32.80</AttrDef>
@@ -338,10 +338,13 @@
     <AttrDef name="eta_gas" type="float" unit="frac" desc="heater fuel use efficiency - gas">0.80</AttrDef>
     <AttrDef name="eta_electricity" type="float" unit="kWh/btu" desc="heater fuel use efficiency electricity">0.0004</AttrDef>
   </ClassAttrs>
-  <ClassAttrs name="ProducedWaterTreatment">
+  <ClassAttrs name="WaterTreatment">
     <AttrDef name="fraction_disp_water_subsurface" unit="frac" type="float" desc="Fraction of excess water disposed in sub-surface">1.0</AttrDef>
     <AttrDef name="fraction_disp_water_surface" unit="frac" type="float" desc="Fraction of excess water disposed in surface waters">0.0</AttrDef>
     <AttrDef name="number_of_stages" type="int" desc="water treatment stages">4</AttrDef>
+    <AttrDef name="makeup_water_treatment_table" type="binary" desc="is makeup water treatment same as produced water treatment">1</AttrDef>
+    <AttrDef name="makeup_water_temp" type="float" unit="degF" desc="Temperature_makeup_H2O">60.0</AttrDef>
+    <AttrDef name="makeup_water_press" type="float" unit="psia" desc="Pressure_makeup_H2O">90.0</AttrDef>
   </ClassAttrs>
   <ClassAttrs name="CrudeOilStabilization">
     <Options name="prime_mover_type" default="NG_engine">
@@ -411,6 +414,7 @@
     <AttrDef name="waste_water_reinjection_press" type="float" unit="psia" desc="Waste water rejection pressure">14.67</AttrDef>
     <AttrDef name="friction_loss_stream_distr" type="float" unit="frac" desc="Frictional losses in steam distribution and injection lines">1.1</AttrDef>
     <AttrDef name="pressure_loss_choke_wellhead" type="float" unit="frac" desc="Choke pressure drop at wellhead">1.7</AttrDef>
+    <AttrDef name="steam_injection_delta_press" type="float" unit="psia" desc="steam_injection_delta_press">100.0</AttrDef>
   </ClassAttrs>
   <ClassAttrs name="BitumentUpgradingOrDilution">
     <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
