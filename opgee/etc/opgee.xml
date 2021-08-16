@@ -89,7 +89,7 @@
 				<Produces>crude oil</Produces>
 			</Process>
 
-			<Process class="ProducedWaterTreatment" desc="Produced water treatment">
+			<Process class="WaterTreatment">
 				<Consumes>water</Consumes>
 				<Produces>water</Produces>
 			</Process>
@@ -237,8 +237,8 @@
 		</Aggregator>
 		<Aggregator name="Surface_processing">
 			<Process class="SeparationTemporary" desc="Separation"/>
-			<Process class="ProducedWaterTreatment" desc="Produced Water Treatment"/>
-			<Process class="MakeupWaterTreatment" desc="Makeup Water Treatment"/>
+			<Process class="WaterTreatment"/>
+			<Process class="WaterInjection"/>
 			<Process class="SteamGeneration" desc="Steam Generation"/>
 			<Process class="CrudeOilDewatering" desc="Crude oil dewatering"/>
 			<Process class="CrudeOilStabilization" desc="Crude oil stabilization"/>
