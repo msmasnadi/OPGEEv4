@@ -44,6 +44,22 @@ class SteamGeneration(Process):
                                                 self.pressure_loss_choke_wellhead, self.steam_press_upper)
         self.steam_generator_temp_outlet = self.water.saturated_temperature(self.steam_generator_press_outlet)
 
+        self.fraction_steam_cogen = field.attr("fraction_steam_cogen")
+        self.fraction_steam_solar = field.attr("fraction_steam_solar")
+        self.fraction_OTSG = 1 - self.fraction_steam_cogen - self.fraction_steam_solar
+
+        self.prod_water_inlet_temp = self.attr("prod_water_inlet_temp")
+        self.prod_water_inlet_press = self.attr("prod_water_inlet_press")
+        self.makeup_water_inlet_temp = self.attr("makeup_water_inlet_temp")
+        self.makeup_water_inlet_press = self.attr("makeup_water_inlet_press")
+
+        self.imported_fuel_gas_comp = self.attrs_with_prefix("imported_fuel_gas_comp_")
+        self.processed_prod_gas_comp = self.attrs_with_prefix("processed_prod_gas_comp_")
+        self.inlet_air_comp = self.attrs_with_prefix("air_comp_")
+
+        self.OTSG_frac_import_gas = self.attr("OTSG_frac_import_gas")
+        self.OTSG_frac_prod_gas = self.attr("OTSG_frac_prod_gas")
+
     def run(self, analysis):
         self.print_running_msg()
         self.set_iteration_value(0)
@@ -56,13 +72,30 @@ class SteamGeneration(Process):
         recycled_blowdown_water = blowdown_water_mass_rate * self.fraction_blowdown_recycled
 
         output_waster_water = self.find_output_stream("waste water")
-        output_waster_water.set_liquid_flow_rate("H2O", waste_water_from_blowdown.to("tonne/day"), self.waste_water_reinjection_temp, self.waste_water_reinjection_press)
+        output_waster_water.set_liquid_flow_rate("H2O",
+                                                 waste_water_from_blowdown.to("tonne/day"),
+                                                 self.waste_water_reinjection_temp,
+                                                 self.waste_water_reinjection_press)
         output_recycled_blowdown_water = self.find_output_stream("blowdown water")
-        output_recycled_blowdown_water.set_liquid_flow_rate("H2O", recycled_blowdown_water.to("tonne/day"), self.waste_water_reinjection_temp, self.waste_water_reinjection_press)
+        output_recycled_blowdown_water.set_liquid_flow_rate("H2O", recycled_blowdown_water.to("tonne/day"),
+                                                            self.waste_water_reinjection_temp,
+                                                            self.waste_water_reinjection_press)
 
         # output_steam_injection = self.find_output_stream("water for steam injection")
         # output_steam_injection.set_liquid_flow_rate("H2O", water_mass_rate_for_injection.to("tonne/day"), self.steam_generator_temp_outlet, self.steam_generator_press_outlet)
 
         input_prod_water = self.find_input_stream("produced water for steam generation")
+        prod_water_mass_rate = input_prod_water.liquid_flow_rate("H2O")
         input_makeup_water = self.find_input_stream("makeup water for steam generation")
+        makeup_water_mass_rate = input_makeup_water.liquid_flow_rate("H2O")
+
+        # OTSG combustion
+        OTSG_gaseous_fuel = (self.imported_fuel_gas_comp * self.OTSG_frac_import_gas +
+                             self.processed_prod_gas_comp * self.OTSG_frac_prod_gas)
+
+
+
+
+
+
 

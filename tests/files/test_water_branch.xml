@@ -23,7 +23,7 @@
 		<A name="GOR">25.0</A>
 		<A name="WOR">3.0</A>
 		<A name="SOR">4.21</A>
-		<A name="fraction_steam_cogen">1.0</A>
+		<A name="fraction_steam_cogen">0.5</A>
 		<A name="FOR">5.0</A>
 		<A name="prod_index">6.8</A>
 		<Process class="Separation" impute-start="true">
@@ -113,13 +113,19 @@
 			<Contains>makeup water</Contains>
 		</Stream>
 
-		<Stream src="WaterTreatment" dst="SteamGeneration" name="water treatment to steam generation">
+		<Stream src="WaterTreatment" dst="SteamGeneration" name="produced water treatment to steam generation">
 			<Contains>produced water for steam generation</Contains>
+		</Stream>
+
+		<Stream src="WaterTreatment" dst="SteamGeneration" name="makeup water treatment to steam generation">
 			<Contains>makeup water for steam generation</Contains>
 		</Stream>
 
-		<Stream src="WaterTreatment" dst="WaterInjection" name="water treatment to water injection">
+		<Stream src="WaterTreatment" dst="WaterInjection" name="produced water treatment to water injection">
 			<Contains>produced water for water injection</Contains>
+		</Stream>
+
+		<Stream src="WaterTreatment" dst="WaterInjection" name="makeup water treatment to water injection">
 			<Contains>makeup water for water injection</Contains>
 		</Stream>
 

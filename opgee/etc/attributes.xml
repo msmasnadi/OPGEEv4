@@ -233,6 +233,25 @@
       <Option>23.0</Option>
     </Options>
     <AttrDef name="diluent_API" options="dilution_API" type="float" unit="degAPI"/>
+
+    <AttrDef name="imported_fuel_gas_comp_N2" unit="mol_pct" type="float">0.4</AttrDef>
+    <AttrDef name="imported_fuel_gas_comp_C1" unit="mol_pct" type="float">96.6</AttrDef>
+    <AttrDef name="imported_fuel_gas_comp_C2" unit="mol_pct" type="float">2.0</AttrDef>
+    <AttrDef name="imported_fuel_gas_comp_C3" unit="mol_pct" type="float">1.0</AttrDef>
+
+    <AttrDef name="processed_prod_gas_comp_N2" unit="mol_pct" type="float">0.4</AttrDef>
+    <AttrDef name="processed_prod_gas_comp_C1" unit="mol_pct" type="float">96.6</AttrDef>
+    <AttrDef name="processed_prod_gas_comp_C2" unit="mol_pct" type="float">2.0</AttrDef>
+    <AttrDef name="processed_prod_gas_comp_C3" unit="mol_pct" type="float">1.0</AttrDef>
+
+    <AttrDef name="air_comp_N2" unit="mol_pct" type="float">77.4396</AttrDef>
+    <AttrDef name="air_comp_O2" unit="mol_pct" type="float">20.531</AttrDef>
+    <AttrDef name="air_comp_CO2" unit="mol_pct" type="float">0.0294</AttrDef>
+    <AttrDef name="air_comp_H2O" unit="mol_pct" type="float">2.0</AttrDef>
+
+<!--    OTSG-->
+    <AttrDef name="OTSG_frac_import_gas" unit="frac" type="float" desc="OTSG gaseous fuels share for natural gas">1.0</AttrDef>
+    <AttrDef name="OTSG_frac_prod_gas" unit="frac" type="float" desc="OTSG gaseous fuels share for produced gas">0.0</AttrDef>
   </ClassAttrs>
   <ClassAttrs name="SurveyTruck">
     <AttrDef name="distance" type="float" desc="Distance of travel for survey" unit="mi">10000</AttrDef>
@@ -415,6 +434,10 @@
     <AttrDef name="friction_loss_stream_distr" type="float" unit="frac" desc="Frictional losses in steam distribution and injection lines">1.1</AttrDef>
     <AttrDef name="pressure_loss_choke_wellhead" type="float" unit="frac" desc="Choke pressure drop at wellhead">1.7</AttrDef>
     <AttrDef name="steam_injection_delta_press" type="float" unit="psia" desc="steam_injection_delta_press">100.0</AttrDef>
+    <AttrDef name="prod_water_inlet_temp" type="float" unit="degF" desc="Recycled produced water inlet temperature">140</AttrDef>
+    <AttrDef name="makeup_water_inlet_temp" type="float" unit="degF" desc="Makeup water inlet temperature">60.0</AttrDef>
+    <AttrDef name="prod_water_inlet_press" type="float" unit="psia" desc="Recycled produced water inlet pressure">200.0</AttrDef>
+    <AttrDef name="makeup_water_inlet_press" type="float" unit="psia" desc="Makeup water inlet pressure">14.70</AttrDef>
   </ClassAttrs>
   <ClassAttrs name="BitumentUpgradingOrDilution">
     <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
