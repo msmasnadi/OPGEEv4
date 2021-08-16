@@ -60,6 +60,9 @@ class SteamGeneration(Process):
         self.OTSG_frac_import_gas = self.attr("OTSG_frac_import_gas")
         self.OTSG_frac_prod_gas = self.attr("OTSG_frac_prod_gas")
 
+        self.prod_combustion_coeff = field.model.prod_combustion_coeff
+        self.reaction_combustion_coeff = field.model.reaction_combustion_coeff
+
     def run(self, analysis):
         self.print_running_msg()
         self.set_iteration_value(0)
