@@ -244,6 +244,11 @@
     <AttrDef name="processed_prod_gas_comp_C2" unit="mol_pct" type="float">2.0</AttrDef>
     <AttrDef name="processed_prod_gas_comp_C3" unit="mol_pct" type="float">1.0</AttrDef>
 
+    <AttrDef name="imported_gas_comp_N2" unit="mol_pct" type="float">0.004</AttrDef>
+    <AttrDef name="imported_gas_comp_C1" unit="mol_pct" type="float">0.966</AttrDef>
+    <AttrDef name="imported_gas_comp_C2" unit="mol_pct" type="float">0.02</AttrDef>
+    <AttrDef name="imported_gas_comp_C3" unit="mol_pct" type="float">0.01</AttrDef>
+
     <AttrDef name="air_comp_N2" unit="mol_pct" type="float">77.4396</AttrDef>
     <AttrDef name="air_comp_O2" unit="mol_pct" type="float">20.531</AttrDef>
     <AttrDef name="air_comp_CO2" unit="mol_pct" type="float">0.0294</AttrDef>
@@ -303,7 +308,7 @@
     <AttrDef name="timeframe_land_use" desc="Timeframe of land use analysis" unit="years" options="timeframe_land_use">1</AttrDef>
     <AttrDef name="flaring_fracturing_flowback" desc="Fracturing flowback flared?" type="binary">0</AttrDef>
     <AttrDef name="REC_fracturing_flowback" desc="Fracturing flowback captured with reduced emissons completions?" type="binary">1</AttrDef>
-    <AttrDef name="number_well_workovers" desc="Workovers needed over lifetime of well" type="float">4</AttrDef>
+    <AttrDef name="number_well_workovers" desc="Workovers needed over lifetime of well" type="float">4.0</AttrDef>
   </ClassAttrs>
   <ClassAttrs name="DownholePump">
     <Options name="prime_mover_type" default="NG_engine">
@@ -420,10 +425,7 @@
   </ClassAttrs>
 
   <ClassAttrs name="SteamGeneration">
-    <AttrDef name="imported_gas_comp_N2" unit="mol_pct" type="float">0.004</AttrDef>
-    <AttrDef name="imported_gas_comp_C1" unit="mol_pct" type="float">0.966</AttrDef>
-    <AttrDef name="imported_gas_comp_C2" unit="mol_pct" type="float">0.02</AttrDef>
-    <AttrDef name="imported_gas_comp_C3" unit="mol_pct" type="float">0.01</AttrDef>
+
     <AttrDef name="NG_fuel_share_OTSG_produced" type="float" unit="frac" desc="Fraction produced gas of OTSG gaseous fuels share">0.0</AttrDef>
     <AttrDef name="NG_fuel_share_HRSG_produced" type="float" unit="frac" desc="Fraction product gas of GT fuel input type">0.0</AttrDef>
     <AttrDef name="steam_quality_outlet" type="float" unit="frac" desc="Steam quality at generator outlet">0.7</AttrDef>
@@ -438,6 +440,13 @@
     <AttrDef name="makeup_water_inlet_temp" type="float" unit="degF" desc="Makeup water inlet temperature">60.0</AttrDef>
     <AttrDef name="prod_water_inlet_press" type="float" unit="psia" desc="Recycled produced water inlet pressure">200.0</AttrDef>
     <AttrDef name="makeup_water_inlet_press" type="float" unit="psia" desc="Makeup water inlet pressure">14.70</AttrDef>
+    <AttrDef name="O2_excess_OTSG" type="float" unit="frac" desc="OTSG excess air in combustion, unit=mol O2 real/mol O2 stoichiometric">1.2</AttrDef>
+    
+    <Options name="OTSG_fuel_type" default="Gas">
+      <Option>Gas</Option>
+      <Option>Oil</Option>
+    </Options>
+    <AttrDef name="fuel_input_type_OTSG" options="OTSG_fuel_type"/>
   </ClassAttrs>
   <ClassAttrs name="BitumentUpgradingOrDilution">
     <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>

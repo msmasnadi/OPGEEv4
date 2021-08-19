@@ -53,25 +53,29 @@ class WaterTreatment(Process):
         else:
             if self.water_flooding:
                 total_water_inj_demand = self.oil_volume_rate * self.WIR
-        makeup_water_volume_reinjeciton = max(total_water_inj_demand - prod_water_volume, ureg.Quantity(0, "barrel_water/day"))
-        makeup_water_mass_reinjeciton = makeup_water_volume_reinjeciton * water_density
+        makeup_water_volume_reinjection = max(total_water_inj_demand - prod_water_volume, ureg.Quantity(0.0, "barrel_water/day"))
+        makeup_water_mass_reinjection = makeup_water_volume_reinjection * water_density
 
         if self.steam_flooding:
             total_steam_inj_demand = self.oil_volume_rate * self.SOR
         else:
-            total_steam_inj_demand = ureg.Quantity(0, "m**3/day")
-        makeup_water_volume_steam = max(total_steam_inj_demand - prod_water_volume, ureg.Quantity(0, "barrel_water/day"))
+            total_steam_inj_demand = ureg.Quantity(0.0, "m**3/day")
+        makeup_water_volume_steam = max(total_steam_inj_demand - prod_water_volume, ureg.Quantity(0.0, "barrel_water/day"))
         makeup_water_mass_steam = makeup_water_volume_steam * water_density
 
-        total_makeup_water_volume = makeup_water_volume_steam + makeup_water_volume_reinjeciton
+        total_makeup_water_volume = makeup_water_volume_steam + makeup_water_volume_reinjection
 
         makeup_water_to_reinjection = self.find_output_stream("makeup water for water injection", raiseError=False)
         if makeup_water_to_reinjection is not None:
-            makeup_water_to_reinjection.set_liquid_flow_rate("H2O", makeup_water_mass_reinjeciton.to("tonne/day"), self.makeup_water_temp, self.makeup_water_press)
+            makeup_water_to_reinjection.set_liquid_flow_rate("H2O",
+                                                             makeup_water_mass_reinjection.to("tonne/day"),
+                                                             self.makeup_water_temp,
+                                                             self.makeup_water_press)
 
         makeup_water_to_steam = self.find_output_stream("makeup water for steam generation", raiseError=False)
         if makeup_water_to_steam is not None:
-            makeup_water_to_steam.set_liquid_flow_rate("H2O", makeup_water_mass_steam.to("tonne/day"), self.makeup_water_temp, self.makeup_water_press)
+            makeup_water_to_steam.set_liquid_flow_rate("H2O", makeup_water_mass_steam.to("tonne/day"),
+                                                       self.makeup_water_temp, self.makeup_water_press)
 
         # produced water stream
         prod_water_to_reinjection = self.find_output_stream("produced water for water injection", raiseError=False)
@@ -122,7 +126,7 @@ class WaterTreatment(Process):
         stages = sorted(water_treatment_table.index.unique())
 
         if self.num_stages > len(stages) or self.num_stages < 0:
-            raise OpgeeException(f"water treatment: number of stages must be <= {len(stages)}")
+            raise OpgeeException(f"water treatment: number of stages ({self.num_stages}) must be > 0 and <= {len(stages)}")
 
         for stage in stages[:self.num_stages]:
             stage_row = water_treatment_table.loc[stage]

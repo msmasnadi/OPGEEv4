@@ -1,3 +1,4 @@
+import pandas as pd
 import pytest
 from opgee.thermodynamics import Oil, Gas, Water
 from opgee.stream import Stream
@@ -138,6 +139,12 @@ def test_oil_heat_capacity(oil_instance):
     API = oil_instance.API
     heat_capacity = oil_instance.specific_heat(API, temp)
     assert heat_capacity == ureg.Quantity(pytest.approx(0.48734862), "btu/lb/degF")
+
+
+def test_liquid_fuel_comp(oil_instance):
+    API = ureg.Quantity(10, "degAPI")
+    liquid_fuel_comp = oil_instance.liquid_fuel_composition(API)
+    assert liquid_fuel_comp["C"] == ureg.Quantity(pytest.approx(71.432), "mol/kg")
 
 
 @pytest.fixture

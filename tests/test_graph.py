@@ -4,6 +4,7 @@ from opgee.config import IsWindows
 
 DEVNULL = 'nul' if IsWindows else '/dev/null'
 
+
 @pytest.mark.parametrize(
     "args", [
         ['graph', '--classes', 'core', '--classes_output', DEVNULL],
@@ -20,6 +21,7 @@ def test_graphing(opgee, args):
         good = False
 
     assert good
+
 
 def test_unknown_field(opgee):
     with pytest.raises(CommandlineError, match=r"Field name .* was not found in model"):

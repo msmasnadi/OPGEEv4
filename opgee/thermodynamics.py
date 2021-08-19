@@ -625,6 +625,35 @@ class Oil(AbstractSubstance):
         heat_capacity = (-1.39e-6 * temperature + 1.847e-3) * API + 6.32e-4 * temperature + 0.352
         return ureg.Quantity(heat_capacity, "btu/lb/degF")
 
+    # Combustion properties as a fuel
+
+    @staticmethod
+    def liquid_fuel_composition(API):
+        """
+        calculate Carbon, Hydrogen, Sulfur, Nitrogen mol per crude oil
+        reference: Fuel Specs, Table Crude oil chemical composition
+
+        :return:(float) liquid fuel composition (unit = mol/kg)
+        """
+
+        if API.m < 4 or API.m > 45:
+            raise OpgeeException(f"{API.m} is less than 4 or greater than 45")
+
+        nitrogen_weight_percent = ureg.Quantity(0.2, "percent")
+        sulfur_weight_percent = ureg.Quantity(-0.121 * API.m + 5.4293, "percent")
+        hydrogen_weight_percent = ureg.Quantity(0.111 * API.m + 8.7523, "percent")
+        carbon_weight_percent = ureg.Quantity(100, "percent") - \
+                                nitrogen_weight_percent - \
+                                sulfur_weight_percent - \
+                                hydrogen_weight_percent
+        nitrogen_mol_percent = nitrogen_weight_percent / ureg.Quantity(14, "g/mol")
+        sulfur_mol_percent = sulfur_weight_percent / ureg.Quantity(32, "g/mol")
+        hydrogen_mol_percent = hydrogen_weight_percent / ureg.Quantity(1, "g/mol")
+        carbon_mol_percent = carbon_weight_percent / ureg.Quantity(12, "g/mol")
+
+        return pd.Series([carbon_mol_percent, sulfur_mol_percent, hydrogen_mol_percent, nitrogen_mol_percent],
+                         index=["C", "S", "H", "N"], dtype="pint[mol/kg]")
+
 
 class Gas(AbstractSubstance):
     """
