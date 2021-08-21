@@ -1,6 +1,8 @@
 from ..log import getLogger
 from ..process import Process
-from ..stream import PHASE_LIQUID
+from ..stream import PHASE_LIQUID, Stream
+import pandas as pd
+from opgee import ureg
 
 _logger = getLogger(__name__)
 
@@ -28,8 +30,10 @@ class SteamGeneration(Process):
         self.pressure_loss_choke_wellhead = self.attr("pressure_loss_choke_wellhead")
         self.API = field.attr("API")
 
-        self.water = self.field.water
+        self.water = field.water
         self.water_density = self.water.density()
+        self.oil = field.oil
+        self.gas = field.gas
 
         self.std_temp = field.model.const("std-temperature")
         self.std_press = field.model.const("std-pressure")
@@ -50,15 +54,20 @@ class SteamGeneration(Process):
         self.prod_water_inlet_press = self.attr("prod_water_inlet_press")
         self.makeup_water_inlet_temp = self.attr("makeup_water_inlet_temp")
         self.makeup_water_inlet_press = self.attr("makeup_water_inlet_press")
+        self.temperature_inlet_air_OTSG = self.attr("temperature_inlet_air_OTSG")
+        self.temperature_outlet_exhaust_OTSG_before_economizer = self.attr("temperature_outlet_exhaust_OTSG_before_economizer")
 
         self.imported_fuel_gas_comp = field.attrs_with_prefix("imported_gas_comp_")
         self.processed_prod_gas_comp = field.attrs_with_prefix("processed_prod_gas_comp_")
         self.inlet_air_comp = field.attrs_with_prefix("air_comp_")
 
-        self.OTSG_frac_import_gas = self.attr("OTSG_frac_import_gas")
-        self.OTSG_frac_prod_gas = self.attr("OTSG_frac_prod_gas")
+        self.OTSG_frac_import_gas = field.attr("OTSG_frac_import_gas")
+        self.OTSG_frac_prod_gas = field.attr("OTSG_frac_prod_gas")
         self.O2_excess_OTSG = self.attr("O2_excess_OTSG")
-        self.OTSG_fuel_type = self.attr("OTSG_fuel_type")
+        self.OTSG_fuel_type = self.attr("fuel_input_type_OTSG")
+        self.loss_shell_OTSG = self.attr("loss_shell_OTSG")
+        self.loss_gaseous_OTSG = self.attr("loss_gaseous_OTSG")
+        self.loss_liquid_OTSG = self.attr("loss_liquid_OTSG")
 
         self.prod_combustion_coeff = field.model.prod_combustion_coeff
         self.reaction_combustion_coeff = field.model.reaction_combustion_coeff
@@ -94,19 +103,59 @@ class SteamGeneration(Process):
         input_makeup_water = self.find_input_stream("makeup water for steam generation")
         makeup_water_mass_rate = input_makeup_water.liquid_flow_rate("H2O")
 
+        OTSG_steam_mass_rate = (water_mass_rate_for_injection + blowdown_water_mass_rate) * (self.fraction_OTSG)
+        OTSG_desired_steam_mass_rate = water_mass_rate_for_injection * self.fraction_OTSG
+
         # OTSG combustion
-        OTSG_gaseous_fuel = (self.imported_fuel_gas_comp * self.OTSG_frac_import_gas +
-                             self.processed_prod_gas_comp * self.OTSG_frac_prod_gas)
+        gas_combusted_in_OTSG = (self.imported_fuel_gas_comp * self.OTSG_frac_import_gas +
+                                 self.processed_prod_gas_comp * self.OTSG_frac_prod_gas)
+        gas_MW_combust_OTSG = self.gas.molar_weight_from_molar_fracs(gas_combusted_in_OTSG)
+        gas_LHV_OTSG = self.gas.mass_energy_density_from_molar_fracs(gas_combusted_in_OTSG)
+
         prod_gas_reactants_comp = self.get_combustion_comp(self.reaction_combustion_coeff, self.processed_prod_gas_comp)
         prod_gas_products_comp = self.get_combustion_comp(self.prod_combustion_coeff, self.processed_prod_gas_comp)
-        import_gas_reactants_comp = self.get_combustion_comp(self.reaction_combustion_coeff, self.imported_fuel_gas_comp)
-        import_gas_products_comp = self.get_combustion_comp(self.prod_combustion_coeff,
+        import_gas_reactants_comp = self.get_combustion_comp(self.reaction_combustion_coeff,
                                                              self.imported_fuel_gas_comp)
+        import_gas_products_comp = self.get_combustion_comp(self.prod_combustion_coeff,
+                                                            self.imported_fuel_gas_comp)
+        if self.OTSG_fuel_type == "Gas":
+            air_requirement_fuel = (self.OTSG_frac_import_gas * import_gas_reactants_comp
+                                    + self.OTSG_frac_prod_gas * prod_gas_reactants_comp) * self.O2_excess_OTSG
+        else:
+            air_requirement_fuel = (self.liquid_fuel_comp["C"] + 0.25 * self.liquid_fuel_comp["H"] +
+                                    self.liquid_fuel_comp["S"]) * self.O2_excess_OTSG / self.inlet_air_comp[
+                                       "O2"] * self.inlet_air_comp
+
+        air_requirement_fuel_sum = ureg.Quantity(air_requirement_fuel.sum(), "percent")
+        air_requirement_fuel["C1"] = 100
+        air_requirement_fuel = pd.Series(air_requirement_fuel, dtype="pint[percent]")
+        air_requirement_MW = self.gas.molar_weight_from_molar_fracs(air_requirement_fuel) / air_requirement_fuel.sum()
+        air_requirement_LHV_fuel = (air_requirement_fuel * self.gas.combustion_enthalpy(air_requirement_fuel, self.temperature_inlet_air_OTSG)).sum() / gas_MW_combust_OTSG
+        air_requirement_LHV_stream = (air_requirement_fuel * self.gas.combustion_enthalpy(air_requirement_fuel, self.temperature_inlet_air_OTSG)).sum() / air_requirement_MW / air_requirement_fuel_sum
 
         if self.OTSG_fuel_type == "Gas":
-            air_requirement_fuel = (self.OTSG_frac_import_gas * import_gas_reactants_comp + self.OTSG_frac_prod_gas * prod_gas_reactants_comp) * self.O2_excess_OTSG
+            exhaust_consump_before_economizer = (self.OTSG_frac_import_gas * import_gas_products_comp + self.OTSG_frac_prod_gas * prod_gas_products_comp
+                                                 + (self.O2_excess_OTSG-1)/self.O2_excess_OTSG) * air_requirement_fuel
         else:
-            air_requirement_fuel = (self.liquid_fuel_comp["C"] + 0.25*self.liquid_fuel_comp["H"] + self.liquid_fuel_comp["S"]) * self.O2_excess_OTSG / self.inlet_air_comp["O2"] * self.inlet_air_comp
+            exhaust_consump_before_economizer = air_requirement_fuel + 0.5*self.liquid_fuel_comp
+            exhaust_consump_before_economizer["O2"] = air_requirement_fuel["O2"] - self.liquid_fuel_comp["C"] - 0.25*self.liquid_fuel_comp["H"]-self.liquid_fuel_comp["S"]
+            exhaust_consump_before_economizer["CO2"] = air_requirement_fuel["CO2"] + self.liquid_fuel_comp["C"]
+        exhaust_consump_before_economizer["C1"] = 0
+        exhaust_consump_before_economizer_sum = ureg.Quantity(exhaust_consump_before_economizer.sum(), "percent")
+        exhaust_consump_before_economizer["C1"] = 100
+        exhaust_consump_before_economizer = pd.Series(exhaust_consump_before_economizer, dtype="pint[percent]")
+        exhaust_consump_before_economizer_MW = self.gas.molar_weight_from_molar_fracs(exhaust_consump_before_economizer) / exhaust_consump_before_economizer.sum()
+        exhaust_consump_before_economizer_LHV_fuel = (exhaust_consump_before_economizer * self.gas.combustion_enthalpy(exhaust_consump_before_economizer,
+                                                                                        self.temperature_outlet_exhaust_OTSG_before_economizer)).sum() / gas_MW_combust_OTSG
+        exhaust_consump_before_economizer_LHV_stream = (exhaust_consump_before_economizer * self.gas.combustion_enthalpy(exhaust_consump_before_economizer,
+                                                                                          self.temperature_outlet_exhaust_OTSG_before_economizer)).sum() / exhaust_consump_before_economizer_MW / exhaust_consump_before_economizer_sum
+
+        OTSG_input_enthalpy_per_unit_fuel = self.oil.mass_energy_density() - air_requirement_LHV_fuel - exhaust_consump_before_economizer_LHV_fuel
+        OTSG_shell_loss_per_unit_fuel = self.loss_shell_OTSG * gas_LHV_OTSG if self.OTSG_fuel_type == "Gas" else self.loss_shell_OTSG * self.oil.mass_energy_density()
+        OTSG_other_loss_per_unit_fuel = self.loss_gaseous_OTSG / gas_MW_combust_OTSG if self.OTSG_fuel_type == "Gas" else self.loss_liquid_OTSG
+        OTSG_available_enthalpy = max(OTSG_input_enthalpy_per_unit_fuel - OTSG_shell_loss_per_unit_fuel - OTSG_other_loss_per_unit_fuel, 0)
+
+
 
     @staticmethod
     def get_combustion_comp(coeff_table, gas_comp):

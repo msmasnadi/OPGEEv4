@@ -115,6 +115,31 @@ def Cp(component, kelvin, with_units=True):
     return cp
 
 
+def Enthalpy(component, kelvin, phase=PHASE_GAS, with_units=True):
+    """
+    calculate enthalpy of component given temperature and phase
+
+    :param component:
+    :param kelvin:
+    :param with_units:
+    :return: (float) enthalpy (unit = joule/mole)
+    """
+
+    if not isinstance(kelvin, float):
+        kelvin = kelvin.to("kelvin")
+        kelvin = kelvin.m
+
+    if phase == PHASE_GAS:
+        H = _dict_chemical[component].H(phase="g", T=kelvin)
+    else:
+        H = _dict_chemical[component].H(phase="l", T=kelvin)
+
+    if with_units:
+        H = ureg.Quantity(H, "joule/mol")
+
+    return H
+
+
 def Tsat(component, Psat, with_units=True):
     """
 
@@ -708,6 +733,18 @@ class Gas(AbstractSubstance):
         result = pd.Series(result, dtype="pint[fraction]")  # convert units
         return result
 
+    def component_mass_fractions(self, molar_fracs):
+        """
+        generate moss fractions from molar fractions
+
+        :param molar_fracs:
+        :return:
+        """
+        molar_weight = self.molar_weight_from_molar_fracs(molar_fracs)
+        mass_frac = molar_fracs * self.component_MW[molar_fracs.index] / molar_weight
+
+        return mass_frac
+
     def specific_gravity(self, stream):
         """
 
@@ -912,6 +949,17 @@ class Gas(AbstractSubstance):
 
         return molar_weight.to("g/mol")
 
+    def molar_weight_from_molar_fracs(self, molar_fracs):
+        """
+        calculate molar weight from molar fraction, where molar fraction is stored in Pandas Series
+
+        :param molar_fracs:
+        :return: (float) molar weight (unit = g/mol)
+        """
+        molar_weight = (self.component_MW[molar_fracs.index] * molar_fracs).sum()
+
+        return molar_weight.to("g/mol")
+
     def volume_flow_rate(self, stream):
         """
 
@@ -937,6 +985,39 @@ class Gas(AbstractSubstance):
         mass_energy_density = (mass_flow_rate / total_mass_rate * lhv / molecular_weight).sum()
 
         return mass_energy_density.to("MJ/kg")
+
+    def mass_energy_density_from_molar_fracs(self, molar_fracs):
+        """
+        calculate gas mass energy density from series
+
+        :param series:
+        :return: (float) gas mass energy density (unit = MJ/kg)
+        """
+
+        lhv = self.component_LHV_molar[molar_fracs.index]
+        molecular_weight = self.component_MW[molar_fracs.index]
+        mass_energy_density = (lhv * molar_fracs / molecular_weight).sum()
+
+        return mass_energy_density.to("MJ/kg")
+
+    @staticmethod
+    def combustion_enthalpy(molar_fracs, temperature):
+        """
+        calculate OTSG/HRSG combustion enthalpy
+
+        :param molar_fracs:
+        :param temperature:
+        :return:
+        """
+
+        latent_heat_water = Chemical("water").Hvap(T=273.15)
+        latent_heat_water = ureg.Quantity(latent_heat_water, "joule/mole")
+        enthalpy = pd.Series(
+            {name: Enthalpy(name, temperature, phase=PHASE_GAS, with_units=False) for name in molar_fracs.index},
+            dtype="pint[joule/mole]")
+        enthalpy["H2O"] = max(enthalpy["H2O"]-latent_heat_water, ureg.Quantity(0.0,"joule/mole"))
+
+        return enthalpy
 
     def volume_energy_density(self, stream):
         """

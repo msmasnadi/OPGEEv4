@@ -182,6 +182,13 @@ def test_component_molar_fraction_C1(gas_instance, stream):
     assert component_molar_fraction == ureg.Quantity(pytest.approx(0.891799149), "frac")
 
 
+def test_component_mass_fraction(gas_instance, stream):
+    molar_fracs = pd.Series([0.004, 0.9666, 0.02, 0.01],
+                            index=["N2", "C1", "C2", "C3"], dtype="pint[mol/mol]")
+    mass_fracs = gas_instance.component_mass_fractions(molar_fracs)
+    assert mass_fracs["C1"] == ureg.Quantity(pytest.approx(0.9307131413113588))
+
+
 def test_specific_gravity(gas_instance, stream):
     specific_gravity = gas_instance.specific_gravity(stream)
     assert specific_gravity == ureg.Quantity(pytest.approx(0.62300076), "frac")
@@ -254,6 +261,13 @@ def test_molar_weight(gas_instance, stream):
     assert mol_weight == ureg.Quantity(pytest.approx(17.97378), "g/mol")
 
 
+def test_molar_weight_from_molar_fracs(gas_instance, stream):
+    molar_fracs = pd.Series([0.004, 0.9666, 0.02, 0.01],
+                            index=["N2", "C1", "C2", "C3"], dtype="pint[mol/mol]")
+    mol_weight = gas_instance.molar_weight_from_molar_fracs(molar_fracs)
+    assert mol_weight == ureg.Quantity(pytest.approx(16.6610324), "g/mol")
+
+
 def test_gas_volume_flow_rate(gas_instance, stream):
     vol_flow_rate = gas_instance.volume_flow_rate(stream)
     assert vol_flow_rate == ureg.Quantity(pytest.approx(1587.9851), "m**3/day")
@@ -262,6 +276,21 @@ def test_gas_volume_flow_rate(gas_instance, stream):
 def test_gas_mass_energy_density(gas_instance, stream):
     mass_energy_density = gas_instance.mass_energy_density(stream)
     assert mass_energy_density == ureg.Quantity(pytest.approx(46.9246768), "MJ/kg")
+
+
+def test_gas_mass_energy_density_from_molar_fracs(gas_instance, stream):
+    molar_fracs = pd.Series([0.004, 0.9666, 0.02, 0.01],
+                            index=["N2", "C1", "C2", "C3"], dtype="pint[mol/mol]")
+    mass_energy_density = gas_instance.mass_energy_density_from_molar_fracs(molar_fracs)
+    assert mass_energy_density == ureg.Quantity(pytest.approx(49.7703477), "MJ/kg")
+
+
+def test_combustion_enthalpy(gas_instance, stream):
+    molar_fracs = pd.Series([9.2878, 2.4624, 0.0035, 0.2399],
+                            index=["N2", "O2", "CO2", "H2O"], dtype="pint[mol/mol]")
+    temperature = ureg.Quantity(80.33, "degF")
+    enthalpy = gas_instance.combustion_enthalpy(molar_fracs, temperature)
+    assert enthalpy["H2O"] == ureg.Quantity(pytest.approx(0.0), "joule/mole")
 
 
 def test_volume_energy_density(gas_instance, stream):

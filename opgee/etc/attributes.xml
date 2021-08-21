@@ -244,10 +244,10 @@
     <AttrDef name="processed_prod_gas_comp_C2" unit="mol_pct" type="float">2.0</AttrDef>
     <AttrDef name="processed_prod_gas_comp_C3" unit="mol_pct" type="float">1.0</AttrDef>
 
-    <AttrDef name="imported_gas_comp_N2" unit="mol_pct" type="float">0.004</AttrDef>
-    <AttrDef name="imported_gas_comp_C1" unit="mol_pct" type="float">0.966</AttrDef>
-    <AttrDef name="imported_gas_comp_C2" unit="mol_pct" type="float">0.02</AttrDef>
-    <AttrDef name="imported_gas_comp_C3" unit="mol_pct" type="float">0.01</AttrDef>
+    <AttrDef name="imported_gas_comp_N2" unit="mol_pct" type="float">0.4</AttrDef>
+    <AttrDef name="imported_gas_comp_C1" unit="mol_pct" type="float">96.6</AttrDef>
+    <AttrDef name="imported_gas_comp_C2" unit="mol_pct" type="float">2.0</AttrDef>
+    <AttrDef name="imported_gas_comp_C3" unit="mol_pct" type="float">1.0</AttrDef>
 
     <AttrDef name="air_comp_N2" unit="mol_pct" type="float">77.4396</AttrDef>
     <AttrDef name="air_comp_O2" unit="mol_pct" type="float">20.531</AttrDef>
@@ -441,6 +441,13 @@
     <AttrDef name="prod_water_inlet_press" type="float" unit="psia" desc="Recycled produced water inlet pressure">200.0</AttrDef>
     <AttrDef name="makeup_water_inlet_press" type="float" unit="psia" desc="Makeup water inlet pressure">14.70</AttrDef>
     <AttrDef name="O2_excess_OTSG" type="float" unit="frac" desc="OTSG excess air in combustion, unit=mol O2 real/mol O2 stoichiometric">1.2</AttrDef>
+    <AttrDef name="temperature_inlet_air_OTSG" type="float" unit="degF" desc="OTSG inlet air temperature">80.33</AttrDef>
+    <AttrDef name="temperature_outlet_exhaust_OTSG_before_economizer" type="float" unit="degF" desc="OTSG outlet exhaust temperature before economizer">350.0</AttrDef>
+    <AttrDef name="temperature_outlet_exhaust_OTSG" type="float" unit="degF" desc="Temperature_outlet_exhaust_OTSG">350.0</AttrDef>
+    <AttrDef name="temperature_outlet_exhaust_OTSG_before_preheater" type="float" unit="degF" desc="Temperature_outlet_exhaust_OTSG_before_preheater">350.0</AttrDef>
+    <AttrDef name="loss_shell_OTSG" type="float" unit="frac" desc="OTSG shell loss inefficiency">0.02</AttrDef>
+    <AttrDef name="loss_gaseous_OTSG" type="float" unit="btu/mol" desc="OTSG other loss - Gaseous fuels">11.02</AttrDef>
+    <AttrDef name="loss_liquid_OTSG" type="float" unit="btu/lbm" desc="OTSG other loss - Liquid fuels">250.0</AttrDef>
     
     <Options name="OTSG_fuel_type" default="Gas">
       <Option>Gas</Option>
