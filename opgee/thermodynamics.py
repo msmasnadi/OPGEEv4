@@ -7,6 +7,9 @@ from . import ureg
 from .core import OpgeeObject
 from .error import OpgeeException
 from .stream import PHASE_LIQUID, Stream, PHASE_GAS, PHASE_SOLID
+from pyXSteam.XSteam import XSteam
+
+ndigit = 2
 
 
 def _get_dict_chemical():
@@ -28,14 +31,15 @@ _dict_chemical = _get_dict_chemical()
 def mol_weight(component, with_units=True):
     """
     Return the molecular weight of a Stream `component` (chemical)
+    :param with_units:
     :param component: (str) the name of a Stream `component`
     :return: (Quantity) molecular weight
     """
-    mol_weight = _dict_chemical[component].MW
+    result = _dict_chemical[component].MW
     if with_units:
-        mol_weight = ureg.Quantity(mol_weight, "g/mol")
+        result = ureg.Quantity(result, "g/mol")
 
-    return mol_weight
+    return result
 
 
 def rho(component, temperature, pressure, phase):
@@ -53,8 +57,8 @@ def rho(component, temperature, pressure, phase):
     pressure = pressure.to("Pa").m
     phases = {PHASE_GAS: "g", PHASE_LIQUID: "l", PHASE_SOLID: "s"}
 
-    rho = _dict_chemical[component].rho(phases[phase], temperature, pressure)
-    return ureg.Quantity(rho, "kg/m**3")
+    result = _dict_chemical[component].rho(phases[phase], temperature, pressure)
+    return ureg.Quantity(result, "kg/m**3")
 
 
 def heating_value(component, basis='LHV', with_units=True):
@@ -62,6 +66,7 @@ def heating_value(component, basis='LHV', with_units=True):
     Return the lower or higher heating value for the given component,
     with or without Pint units.
 
+    :param with_units:
     :param component: (str) the name of a stream component
     :param basis: (str) one of "LHV" or "HHV"
     :return: (float) lower or higher heating value (unit = joule/mol)
@@ -84,6 +89,7 @@ def LHV(component, with_units=True):
     """
     Return the lower heating value for the given component, with or without Pint units.
 
+    :param with_units:
     :param component: (str) the name of a stream component
     :return: (float) lower heating value (unit = joule/mol)
     """
@@ -94,6 +100,7 @@ def HHV(component, with_units=True):
     """
     Return the lower heating value for the given component, with or without Pint units.
 
+    :param with_units:
     :param component: (str) the name of a stream component
     :return: (float) lower heating value (unit = joule/mol)
     """
@@ -103,7 +110,7 @@ def HHV(component, with_units=True):
 def Cp(component, kelvin, with_units=True):
     """
 
-    :param temperature: unit in Kelvin
+    :param kelvin: unit in Kelvin
     :param component:
     :param with_units:
     :return: (float) specific heat in standard condition (unit = joule/g/kelvin)
@@ -119,6 +126,7 @@ def Enthalpy(component, kelvin, phase=PHASE_GAS, with_units=True):
     """
     calculate enthalpy of component given temperature and phase
 
+    :param phase:
     :param component:
     :param kelvin:
     :param with_units:
@@ -149,11 +157,11 @@ def Tsat(component, Psat, with_units=True):
     :return:
     """
 
-    Tsat = _dict_chemical[component].Tsat(Psat)
+    result = _dict_chemical[component].Tsat(Psat)
     if with_units:
-        Tsat = ureg.Quantity(Tsat, "kelvin")
+        result = ureg.Quantity(result, "kelvin")
 
-    return Tsat
+    return result
 
 
 def Tc(component, with_units=True):
@@ -178,7 +186,7 @@ def Pc(component, with_units=True):
     """
     pc = _dict_chemical[component].Pc
     if with_units:
-        tc = ureg.Quantity(pc, "Pa")
+        pc = ureg.Quantity(pc, "Pa")
     return pc
 
 
@@ -202,8 +210,8 @@ class Air(OpgeeObject):
         self.mixture = Mixture.from_chemicals(self.components)
 
     def mol_weight(self):
-        mol_weight = self.mixture.MW(self.mol_fraction)
-        return ureg.Quantity(mol_weight, "g/mol")
+        result = self.mixture.MW(self.mol_fraction)
+        return ureg.Quantity(result, "g/mol")
 
     def density(self):
         """
@@ -212,8 +220,8 @@ class Air(OpgeeObject):
         """
         std_temp = self.field.model.const("std-temperature").to("kelvin")
         std_press = self.field.model.const("std-pressure").to("Pa")
-        rho = self.mixture.rho("g", self.mol_fraction, std_temp.m, std_press.m)
-        return ureg.Quantity(rho, "kg/m**3")
+        result = self.mixture.rho("g", self.mol_fraction, std_temp.m, std_press.m)
+        return ureg.Quantity(result, "kg/m**3")
 
 
 class WetAir(Air):
@@ -595,6 +603,7 @@ class Oil(AbstractSubstance):
     def mass_energy_density(self, API=None, basis="LHV", with_unit=True):
         """
 
+        :param API:
         :param basis: (str) LHV or HHV
         :param with_unit: (float) lower or higher heating value (unit = btu/lb)
         :return: heating value mass
@@ -640,6 +649,7 @@ class Oil(AbstractSubstance):
         Campbell specific heat capacity of oil
         Campbell equation from Manning and Thompson (1991). cp = (-1.39e-6 * T + 1.847e-3)*API+6.32e-4*T+0.352
 
+        :param API:
         :param temperature:
         :return:(float) specific heat capacity of crude oil (unit = btu/lb/degF)
         """
@@ -990,7 +1000,7 @@ class Gas(AbstractSubstance):
         """
         calculate gas mass energy density from series
 
-        :param series:
+        :param molar_fracs:
         :return: (float) gas mass energy density (unit = MJ/kg)
         """
 
@@ -1015,7 +1025,7 @@ class Gas(AbstractSubstance):
         enthalpy = pd.Series(
             {name: Enthalpy(name, temperature, phase=PHASE_GAS, with_units=False) for name in molar_fracs.index},
             dtype="pint[joule/mole]")
-        enthalpy["H2O"] = max(enthalpy["H2O"]-latent_heat_water, ureg.Quantity(0.0,"joule/mole"))
+        enthalpy["H2O"] = max(enthalpy["H2O"] - latent_heat_water, ureg.Quantity(0.0, "joule/mole"))
 
         return enthalpy
 
@@ -1057,6 +1067,7 @@ class Water(AbstractSubstance):
         self.TDS = field.attr("total_dissolved_solids")  # mg/L
         # TODO: this can be improved by adding ions in the H2O in the solution
         self.specific_gravity = ureg.Quantity(1 + self.TDS.m * 0.695 * 1e-6, "frac")
+        self.steam_table = XSteam(XSteam.UNIT_SYSTEM_FLS)
 
     def density(self, temperature=None, pressure=None):
         """
@@ -1123,3 +1134,41 @@ class Water(AbstractSubstance):
         Psat = saturated_pressure.to("Pa").m
         saturated_temp = Tsat("H2O", Psat, with_units=True)
         return saturated_temp
+
+    def enthalpy_PT(self, pressure, temperature, mass_rate):
+        """
+        calculate water enthalpy given pressure and temperature
+
+        :param pressure:
+        :param temperature:
+        :param mass_rate:
+        :return: (float) total water enthalpy (unit = MJ/day)
+        """
+        pressure = pressure.to("psia").m
+        temperature = temperature.to("degF").m
+
+        enthalpy = self.steam_table.h_pt(round(pressure, ndigit), round(temperature, ndigit))
+        enthalpy = ureg.Quantity(enthalpy, "btu/lb")
+
+        result = enthalpy * mass_rate
+        return result.to("MJ/day")
+
+    def steam_enthalpy(self, pressure, steam_quality, mass_rate):
+        """
+        calculate steam enthalpy from steam quality
+
+        :param pressure:
+        :param steam_quality:
+        :param mass_rate:
+        :return:
+        """
+        pressure = pressure.to("psia").m
+        vapor_enthalpy = self.steam_table.hV_p(round(pressure, ndigit))
+        vapor_enthalpy = ureg.Quantity(vapor_enthalpy, "btu/lb")
+        liquid_enthalpy = self.steam_table.hL_p(round(pressure, ndigit))
+        liquid_enthalpy = ureg.Quantity(liquid_enthalpy, "btu/lb")
+
+        result = vapor_enthalpy * steam_quality + liquid_enthalpy * (1 - steam_quality)
+        result = mass_rate * result
+        return result.to("MJ/day")
+

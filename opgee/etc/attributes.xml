@@ -440,14 +440,21 @@
     <AttrDef name="makeup_water_inlet_temp" type="float" unit="degF" desc="Makeup water inlet temperature">60.0</AttrDef>
     <AttrDef name="prod_water_inlet_press" type="float" unit="psia" desc="Recycled produced water inlet pressure">200.0</AttrDef>
     <AttrDef name="makeup_water_inlet_press" type="float" unit="psia" desc="Makeup water inlet pressure">14.70</AttrDef>
+    <AttrDef name="waste_water_temp" type="float" unit="degF" desc="Waste water rejection temperature">150.0</AttrDef>
     <AttrDef name="O2_excess_OTSG" type="float" unit="frac" desc="OTSG excess air in combustion, unit=mol O2 real/mol O2 stoichiometric">1.2</AttrDef>
     <AttrDef name="temperature_inlet_air_OTSG" type="float" unit="degF" desc="OTSG inlet air temperature">80.33</AttrDef>
-    <AttrDef name="temperature_outlet_exhaust_OTSG_before_economizer" type="float" unit="degF" desc="OTSG outlet exhaust temperature before economizer">350.0</AttrDef>
-    <AttrDef name="temperature_outlet_exhaust_OTSG" type="float" unit="degF" desc="Temperature_outlet_exhaust_OTSG">350.0</AttrDef>
-    <AttrDef name="temperature_outlet_exhaust_OTSG_before_preheater" type="float" unit="degF" desc="Temperature_outlet_exhaust_OTSG_before_preheater">350.0</AttrDef>
+    <AttrDef name="OTSG_exhaust_temp_outlet_before_economizer" type="float" unit="degF" desc="OTSG outlet exhaust temperature before economizer">350.0</AttrDef>
+    <AttrDef name="OTSG_exhaust_temp_outlet" type="float" unit="degF" desc="Temperature_outlet_exhaust_OTSG">350.0</AttrDef>
+    <AttrDef name="OTSG_exhaust_temp_outlet_before_preheater" type="float" unit="degF" desc="Temperature_outlet_exhaust_OTSG_before_preheater">350.0</AttrDef>
     <AttrDef name="loss_shell_OTSG" type="float" unit="frac" desc="OTSG shell loss inefficiency">0.02</AttrDef>
     <AttrDef name="loss_gaseous_OTSG" type="float" unit="btu/mol" desc="OTSG other loss - Gaseous fuels">11.02</AttrDef>
     <AttrDef name="loss_liquid_OTSG" type="float" unit="btu/lbm" desc="OTSG other loss - Liquid fuels">250.0</AttrDef>
+    <AttrDef name="blowdown_heat_recovery" type="binary" desc="blowdown heat recovery availability">1</AttrDef>
+    <AttrDef name="eta_blowdown_heat_rec_OTSG" type="float" unit="frac" desc="OTSG heat recovery efficiency from blowdown rejected (for steam quality in excess of 80%)">0.95</AttrDef>
+    <AttrDef name="economizer_OTSG" type="binary" desc="economizer availability">0</AttrDef>
+    <AttrDef name="preheater_OTSG" type="binary" desc="preheater availability">0</AttrDef>
+    <AttrDef name="eta_economizer_heat_rec_OTSG" type="float" unit="frac" desc="OTSG economizer recovery efficiency from exhaust">0.95</AttrDef>
+    <AttrDef name="eta_preheater_heat_rec_OTSG" type="float" unit="frac" desc="OTSG preheater recovery efficiency from exhaust">0.9</AttrDef>
     
     <Options name="OTSG_fuel_type" default="Gas">
       <Option>Gas</Option>

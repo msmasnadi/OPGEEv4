@@ -1,10 +1,10 @@
 colour
-dash
-numpy
-pandas
-pint
+dash~=1.16.3
+numpy~=1.19.1
+pandas~=1.3.0rc1
+pint~=0.17
 pint-pandas
-pytest
+pytest~=6.2.4
 scipy
 pytest-cov
 codecov
@@ -19,3 +19,10 @@ sphinx-argparse==0.2.5
 sphinx-rtd-theme==0.4.2
 thermosteam==0.25.4
 dash-cytoscape==0.2.0
+
+sphinx_rtd_theme~=0.4.3
+opgee~=4.0a0
+networkx~=2.5
+configparser~=5.0.1
+pyxsteam~=0.4.8
+setuptools~=50.3.0

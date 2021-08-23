@@ -340,3 +340,19 @@ def test_water_saturated_temperature(water_instance):
     Psat = ureg.Quantity(1122.00, "psia")
     Tsat = water_instance.saturated_temperature(Psat)
     assert Tsat.to("degC") == ureg.Quantity(pytest.approx(292.660571), "degC")
+
+
+def test_water_enthalpy_PT(water_instance):
+    press = ureg.Quantity(13.7895, "bar")
+    temp = ureg.Quantity(60.0, "degC")
+    mass_rate = ureg.Quantity(3.94E7, "kg/day")
+    enthalpy = water_instance.enthalpy_PT(press, temp, mass_rate)
+    assert enthalpy == ureg.Quantity(pytest.approx(9940445.92), "MJ/day")
+
+
+def test_steam_enthalpy(water_instance):
+    press = ureg.Quantity(77.359177, "bar")
+    steam_quality = ureg.Quantity(0.7, "frac")
+    mass_rate = ureg.Quantity(5.52E7, "kg/day")
+    enthalpy = water_instance.steam_enthalpy(press, steam_quality, mass_rate)
+    assert enthalpy == ureg.Quantity(pytest.approx(1.28341315e+08), "MJ/day")
