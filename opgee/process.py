@@ -579,6 +579,13 @@ class Process(XmlInstantiable, AttributeMixin):
         """
         raise AbstractMethodError(type(self), 'Process.run_internal')
 
+    def check_balances(self):
+        """
+
+        :return:
+        """
+        pass
+
     def run_or_bypass(self, analysis):
         """
         If the Process is enabled, run the process, otherwise bypass it, i.e., copy

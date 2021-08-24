@@ -9,6 +9,7 @@ from .error import OpgeeException
 from .stream import PHASE_LIQUID, Stream, PHASE_GAS, PHASE_SOLID
 from pyXSteam.XSteam import XSteam
 
+# ndigit is required for the lookup steam table, which has a max of 2 digits.
 ndigit = 2
 
 

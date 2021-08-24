@@ -3,6 +3,7 @@ from ..process import Process
 from ..stream import PHASE_LIQUID, Stream
 import pandas as pd
 from opgee import ureg
+from ..error import BalanceError
 
 _logger = getLogger(__name__)
 
@@ -63,8 +64,10 @@ class SteamGeneration(Process):
         self.processed_prod_gas_comp = field.attrs_with_prefix("processed_prod_gas_comp_")
         self.inlet_air_comp = field.attrs_with_prefix("air_comp_")
 
-        self.OTSG_frac_import_gas = field.attr("OTSG_frac_import_gas")
-        self.OTSG_frac_prod_gas = field.attr("OTSG_frac_prod_gas")
+        self.OTSG_frac_import_gas = self.attr("OTSG_frac_import_gas")
+        self.OTSG_frac_prod_gas = self.attr("OTSG_frac_prod_gas")
+        self.HRSG_frac_import_gas = self.attr("HRSG_frac_import_gas")
+        self.HRSG_frac_prod_gas = self.attr("HRSG_frac_prod_gas")
         self.O2_excess_OTSG = self.attr("O2_excess_OTSG")
         self.OTSG_fuel_type = self.attr("fuel_input_type_OTSG")
         self.loss_shell_OTSG = self.attr("loss_shell_OTSG")
@@ -83,6 +86,22 @@ class SteamGeneration(Process):
 
         self.eta_economizer_heat_rec_OTSG = self.attr("eta_economizer_heat_rec_OTSG")
         self.eta_preheater_heat_rec_OTSG = self.attr("eta_preheater_heat_rec_OTSG")
+
+        # These are needed for balance check
+        self.air_requirement_fuel = None
+        self.air_requirement_MW = None
+        self.fuel_consumption_for_steam_generation = None
+        self.exhaust_consump_sum = None
+        self.exhaust_consump_MW = None
+        self.gas_MW_combust_OTSG = None
+        self.prod_water_mass_rate = None
+        self.prod_water_enthalpy_rate = None
+        self.makeup_water_mass_rate = None
+        self.makeup_water_enthalpy_rate = None
+        self.OTSG_steam_out_enthalpy_rate = None
+        self.gas_LHV_OTSG = None
+        self.air_requirement_LHV_stream = None
+        self.LHV_stream = None
 
     def run(self, analysis):
         self.print_running_msg()
@@ -161,7 +180,8 @@ class SteamGeneration(Process):
         air_requirement_fuel_sum = ureg.Quantity(air_requirement_fuel.sum(), "percent")
         air_requirement_fuel["C1"] = 100
         air_requirement_fuel = pd.Series(air_requirement_fuel, dtype="pint[percent]")
-        air_requirement_MW = self.gas.molar_weight_from_molar_fracs(air_requirement_fuel.drop(labels=["C1"])) / air_requirement_fuel.drop(labels=["C1"]).sum()
+        air_requirement_MW = self.gas.molar_weight_from_molar_fracs(
+            air_requirement_fuel.drop(labels=["C1"])) / air_requirement_fuel.drop(labels=["C1"]).sum()
         air_requirement_LHV_fuel = (air_requirement_fuel * self.gas.combustion_enthalpy(air_requirement_fuel,
                                                                                         self.temperature_inlet_air_OTSG)).sum() / gas_MW_combust_OTSG
         air_requirement_LHV_stream = (air_requirement_fuel * self.gas.combustion_enthalpy(air_requirement_fuel,
@@ -170,7 +190,8 @@ class SteamGeneration(Process):
 
         if self.OTSG_fuel_type == "Gas":
             exhaust_consump = (self.OTSG_frac_import_gas * import_gas_products_comp +
-                               self.OTSG_frac_prod_gas * prod_gas_products_comp) + (self.O2_excess_OTSG - 1) / self.O2_excess_OTSG * air_requirement_fuel
+                               self.OTSG_frac_prod_gas * prod_gas_products_comp) + (
+                                      self.O2_excess_OTSG - 1) / self.O2_excess_OTSG * air_requirement_fuel
         else:
             exhaust_consump = air_requirement_fuel + 0.5 * self.liquid_fuel_comp
             exhaust_consump["O2"] = air_requirement_fuel["O2"] - self.liquid_fuel_comp["C"] - 0.25 * \
@@ -179,7 +200,8 @@ class SteamGeneration(Process):
         exhaust_consump_sum = exhaust_consump.sum()
         exhaust_consump["C1"] = ureg.Quantity(100, "percent")
         exhaust_consump = pd.Series(exhaust_consump, dtype="pint[percent]")
-        exhaust_consump_MW = self.gas.molar_weight_from_molar_fracs(exhaust_consump.drop(labels=["C1"])) / exhaust_consump.drop(labels=["C1"]).sum()
+        exhaust_consump_MW = self.gas.molar_weight_from_molar_fracs(
+            exhaust_consump.drop(labels=["C1"])) / exhaust_consump.drop(labels=["C1"]).sum()
 
         LHV_fuel, LHV_stream = self.get_LHV_fuel_and_stream_series(exhaust_consump,
                                                                    self.OTSG_exhaust_temp_series,
@@ -187,7 +209,8 @@ class SteamGeneration(Process):
                                                                    exhaust_consump_sum,
                                                                    exhaust_consump_MW)
         exhaust_consump = exhaust_consump.drop(labels=["C1"])
-        OTSG_input_enthalpy_per_unit_fuel = (gas_LHV_OTSG + air_requirement_LHV_fuel - LHV_fuel["outlet_before_economizer"])
+        OTSG_input_enthalpy_per_unit_fuel = (
+                gas_LHV_OTSG + air_requirement_LHV_fuel - LHV_fuel["outlet_before_economizer"])
         OTSG_shell_loss_per_unit_fuel = self.loss_shell_OTSG * gas_LHV_OTSG if self.OTSG_fuel_type == "Gas" else self.loss_shell_OTSG * self.oil.mass_energy_density()
         OTSG_other_loss_per_unit_fuel = self.loss_gaseous_OTSG / gas_MW_combust_OTSG if self.OTSG_fuel_type == "Gas" else self.loss_liquid_OTSG
         OTSG_available_enthalpy = max(OTSG_input_enthalpy_per_unit_fuel -
@@ -206,39 +229,69 @@ class SteamGeneration(Process):
 
         eta_1 = self.eta_economizer_heat_rec_OTSG
         eta_2 = self.eta_preheater_heat_rec_OTSG
+        denominator = (1 - eta_1 * eta_2 * (constant_before_preheater - constant_before_economizer) * (
+                    constant_outlet - constant_before_preheater) /
+                       (
+                                   OTSG_available_enthalpy - eta_1 * constant_before_preheater + eta_1 * constant_before_economizer) /
+                       (OTSG_available_enthalpy - eta_2 * constant_outlet + eta_2 * constant_before_preheater))
         recoverable_heat_before_economizer = ureg.Quantity(0, "MJ/day") if not self.economizer_OTSG else \
-            eta_1 * (constant_before_preheater - constant_before_economizer) * OTSG_available_enthalpy * delta_H / \
-            (OTSG_available_enthalpy - constant_before_preheater + constant_before_economizer) / \
-            (OTSG_available_enthalpy - constant_outlet + constant_before_preheater)
-        recoverable_heat_before_preheater = ureg.Quantity(0, "MJ/day") if not self.preheater_OTSG else \
-            total_recoverable_heat - recoverable_heat_before_economizer
+            eta_1 * (constant_before_economizer - constant_before_preheater) * OTSG_available_enthalpy * delta_H / \
+            (OTSG_available_enthalpy - eta_1 * constant_before_preheater + eta_1 * constant_before_economizer) / \
+            (OTSG_available_enthalpy - eta_2 * constant_outlet + eta_2 * constant_before_preheater) / denominator
+        recoverable_heat_before_preheater = ureg.Quantity(0, "MJ/day") if not self.economizer_OTSG else \
+            eta_2 * (constant_before_preheater - constant_outlet) * OTSG_available_enthalpy * delta_H / \
+            (OTSG_available_enthalpy - eta_1 * constant_before_preheater + eta_1 * constant_before_economizer) / \
+            (OTSG_available_enthalpy - eta_2 * constant_outlet + eta_2 * constant_before_preheater) / denominator
 
         fuel_demand_for_steam_enthalpy_change = delta_H - recoverable_heat_before_economizer - recoverable_heat_before_preheater
         fuel_consumption_for_steam_generation = fuel_demand_for_steam_enthalpy_change / OTSG_available_enthalpy
 
-        # balance check
+        self.air_requirement_fuel = air_requirement_fuel
+        self.air_requirement_MW = air_requirement_MW
+        self.fuel_consumption_for_steam_generation = fuel_consumption_for_steam_generation
+        self.exhaust_consump_sum = exhaust_consump_sum
+        self.exhaust_consump_MW = exhaust_consump_MW
+        self.gas_MW_combust_OTSG = gas_MW_combust_OTSG
+        self.prod_water_mass_rate = prod_water_mass_rate
+        self.prod_water_enthalpy_rate = prod_water_enthalpy_rate
+        self.makeup_water_mass_rate = makeup_water_mass_rate
+        self.makeup_water_enthalpy_rate = makeup_water_enthalpy_rate
+        self.OTSG_steam_out_enthalpy_rate = OTSG_steam_out_enthalpy_rate
+        self.gas_LHV_OTSG = gas_LHV_OTSG
+        self.air_requirement_LHV_stream = air_requirement_LHV_stream
+        self.LHV_stream = LHV_stream
 
-        air_in_mass_rate = air_requirement_fuel * self.gas.molar_weight_from_molar_fracs(self.inlet_air_comp) * fuel_consumption_for_steam_generation
-        air_in_mass_rate = air_in_mass_rate / air_requirement_MW if self.OTSG_fuel_type == "Gas" else air_in_mass_rate
+        # GT + HRSG combustion
+        gas_combusted_in_GT = (self.imported_fuel_gas_comp * self.HRSG_frac_import_gas +
+                               self.processed_prod_gas_comp * self.HRSG_frac_prod_gas)
+        gas_MW_combust_GT = self.gas.molar_weight_from_molar_fracs(gas_combusted_in_GT)
+        gas_LHV_GT = self.gas.mass_energy_density_from_molar_fracs(gas_combusted_in_GT)
 
-        OTSG_outlet_exhaust_mass = exhaust_consump_sum * exhaust_consump_MW * fuel_consumption_for_steam_generation
-        OTSG_outlet_exhaust_mass = OTSG_outlet_exhaust_mass / gas_MW_combust_OTSG if self.OTSG_fuel_type == "Gas" else OTSG_outlet_exhaust_mass
 
-        OTSG_prod_water_mass_rate = prod_water_mass_rate * self.fraction_OTSG
-        OTSG_makup_water_mass_rate = makeup_water_mass_rate * self.fraction_OTSG
 
-        OTSG_mass_in = fuel_consumption_for_steam_generation + air_in_mass_rate + \
+
+    def check_balances(self):
+
+        air_in_mass_rate = self.air_requirement_fuel * self.gas.molar_weight_from_molar_fracs(
+            self.inlet_air_comp) * self.fuel_consumption_for_steam_generation
+        air_in_mass_rate = air_in_mass_rate / self.air_requirement_MW if self.OTSG_fuel_type == "Gas" else air_in_mass_rate
+
+        OTSG_outlet_exhaust_mass = self.exhaust_consump_sum * self.exhaust_consump_MW * self.fuel_consumption_for_steam_generation
+        OTSG_outlet_exhaust_mass = OTSG_outlet_exhaust_mass / self.gas_MW_combust_OTSG if self.OTSG_fuel_type == "Gas" else OTSG_outlet_exhaust_mass
+
+        OTSG_prod_water_mass_rate = self.prod_water_mass_rate * self.fraction_OTSG
+        OTSG_makup_water_mass_rate = self.makeup_water_mass_rate * self.fraction_OTSG
+
+        OTSG_mass_in = self.fuel_consumption_for_steam_generation + air_in_mass_rate + \
                        OTSG_prod_water_mass_rate + OTSG_makup_water_mass_rate
-        OTSG_mass_out = OTSG_steam_out_enthalpy_rate + OTSG_outlet_exhaust_mass
+        OTSG_mass_out = self.OTSG_steam_out_enthalpy_rate + OTSG_outlet_exhaust_mass
 
-        OTSG_energy_in = fuel_consumption_for_steam_generation * gas_LHV_OTSG + \
-                         air_in_mass_rate * air_requirement_LHV_stream + \
-                         prod_water_enthalpy_rate + makeup_water_enthalpy_rate
-        OTSG_energy_out = OTSG_outlet_exhaust_mass * LHV_stream["outlet"]
+        OTSG_energy_in = self.fuel_consumption_for_steam_generation * self.gas_LHV_OTSG + \
+                         air_in_mass_rate * self.air_requirement_LHV_stream + \
+                         self.prod_water_enthalpy_rate + self.makeup_water_enthalpy_rate
+        OTSG_energy_out = OTSG_outlet_exhaust_mass * self.LHV_stream["outlet"]
 
-
-
-
+        # raise BalanceError(self.name, "OTSG_mass")
 
     @staticmethod
     def get_combustion_comp(coeff_table, gas_comp):

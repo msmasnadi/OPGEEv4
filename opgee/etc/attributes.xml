@@ -254,9 +254,6 @@
     <AttrDef name="air_comp_CO2" unit="mol_pct" type="float">0.0294</AttrDef>
     <AttrDef name="air_comp_H2O" unit="mol_pct" type="float">2.0</AttrDef>
 
-<!--    OTSG-->
-    <AttrDef name="OTSG_frac_import_gas" unit="frac" type="float" desc="OTSG gaseous fuels share for natural gas">1.0</AttrDef>
-    <AttrDef name="OTSG_frac_prod_gas" unit="frac" type="float" desc="OTSG gaseous fuels share for produced gas">0.0</AttrDef>
   </ClassAttrs>
   <ClassAttrs name="SurveyTruck">
     <AttrDef name="distance" type="float" desc="Distance of travel for survey" unit="mi">10000</AttrDef>
@@ -455,6 +452,10 @@
     <AttrDef name="preheater_OTSG" type="binary" desc="preheater availability">0</AttrDef>
     <AttrDef name="eta_economizer_heat_rec_OTSG" type="float" unit="frac" desc="OTSG economizer recovery efficiency from exhaust">0.95</AttrDef>
     <AttrDef name="eta_preheater_heat_rec_OTSG" type="float" unit="frac" desc="OTSG preheater recovery efficiency from exhaust">0.9</AttrDef>
+    <AttrDef name="OTSG_frac_import_gas" unit="frac" type="float" desc="OTSG gaseous fuels share for natural gas">1.0</AttrDef>
+    <AttrDef name="OTSG_frac_prod_gas" unit="frac" type="float" desc="OTSG gaseous fuels share for produced gas">0.0</AttrDef>
+    <AttrDef name="HRSG_frac_import_gas" unit="frac" type="float" desc="HRSG gaseous fuels share for natural gas">1.0</AttrDef>
+    <AttrDef name="HRSG_frac_prod_gas" unit="frac" type="float" desc="HRSG gaseous fuels share for produced gas">0.0</AttrDef>
     
     <Options name="OTSG_fuel_type" default="Gas">
       <Option>Gas</Option>

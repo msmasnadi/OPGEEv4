@@ -1,0 +1,6 @@
+,Turbine exhaust temp.,Turbine efficiency,Turbine specific power,Turbine excess air,Turbine loss
+,degF,frac,btu/lb,frac,frac
+A,932.0,0.227,69.5,4.16,0.041
+B,947.9,0.262,85.4,3.90,0.036
+C,950.0,0.310,108.0,3.65,0.032
+D,1074.1,0.358,155.7,2.93,0.027

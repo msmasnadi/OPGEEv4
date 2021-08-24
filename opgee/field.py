@@ -121,6 +121,11 @@ class Field(Container):
 
             self.iteration_reset()
             self.run_processes(analysis)
+            self.check_balances()
+
+    def check_balances(self):
+        for p in self.processes():
+            p.check_balances()
 
     def compute_carbon_intensity(self, analysis):
         rates = self.emissions.rates(analysis.gwp)

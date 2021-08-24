@@ -5,8 +5,10 @@
    See the https://opensource.org/licenses/MIT for license details.
 '''
 
+
 class OpgeeException(Exception):
     pass
+
 
 # Thrown when iterations have reached Model's max_iterations or a Process's
 # change variable has changed less than Model's iteration_epsilon between runs.
@@ -32,6 +34,7 @@ class AttributeError(OpgeeException):
     def __str__(self):
         return f"Attribute {self.dict_name} for '{self.key}' was not found"
 
+
 # Deprecated
 # class FileMissingError(OpgeeException):
 #     """
@@ -50,8 +53,10 @@ class FileFormatError(OpgeeException):
     """
     pass
 
+
 class XmlFormatError(FileFormatError):
     pass
+
 
 # Deprecated
 # class FileExistsError(OpgeeException):
@@ -70,8 +75,24 @@ class ConfigFileError(FileFormatError):
     """
     pass
 
+
 class CommandlineError(OpgeeException):
     """
     Command-line arguments were missing or incorrectly specified.
     """
     pass
+
+
+class BalanceError(OpgeeException):
+    """
+    Mass or Energy balances are fail
+    """
+
+    def __init__(self, proc_name, mass_or_energy, message=None):
+        self.proc_name = proc_name
+        self.mass_or_energy = mass_or_energy
+        self.message = message
+
+    def __str__(self):
+        return f"{self.mass_or_energy} is not balanced in {self.proc_name}" + \
+               (f": {self.message}" if self.message else "")
