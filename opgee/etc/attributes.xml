@@ -254,6 +254,66 @@
     <AttrDef name="air_comp_CO2" unit="mol_pct" type="float">0.0294</AttrDef>
     <AttrDef name="air_comp_H2O" unit="mol_pct" type="float">2.0</AttrDef>
 
+       <AttrDef name="NG_fuel_share_OTSG_produced" type="float" unit="frac" desc="Fraction produced gas of OTSG gaseous fuels share">0.0</AttrDef>
+    <AttrDef name="NG_fuel_share_HRSG_produced" type="float" unit="frac" desc="Fraction product gas of GT fuel input type">0.0</AttrDef>
+    <AttrDef name="steam_quality_outlet" type="float" unit="frac" desc="Steam quality at generator outlet">0.7</AttrDef>
+    <AttrDef name="steam_quality_after_blowdown" type="float" desc="Desired steam quality after blowdown and recycle (if any)">0.7</AttrDef>
+    <AttrDef name="fraction_blowdown_recycled" type="float" desc="Percentage of blowdown water recycled ">0.7</AttrDef>
+    <AttrDef name="waste_water_reinjection_temp" type="float" unit="degF" desc="Waste water rejection temperature">150.0</AttrDef>
+    <AttrDef name="waste_water_reinjection_press" type="float" unit="psia" desc="Waste water rejection pressure">14.67</AttrDef>
+    <AttrDef name="friction_loss_stream_distr" type="float" unit="frac" desc="Frictional losses in steam distribution and injection lines">1.1</AttrDef>
+    <AttrDef name="pressure_loss_choke_wellhead" type="float" unit="frac" desc="Choke pressure drop at wellhead">1.7</AttrDef>
+    <AttrDef name="steam_injection_delta_press" type="float" unit="psia" desc="steam_injection_delta_press">100.0</AttrDef>
+    <AttrDef name="prod_water_inlet_temp" type="float" unit="degF" desc="Recycled produced water inlet temperature">140</AttrDef>
+    <AttrDef name="makeup_water_inlet_temp" type="float" unit="degF" desc="Makeup water inlet temperature">60.0</AttrDef>
+    <AttrDef name="prod_water_inlet_press" type="float" unit="psia" desc="Recycled produced water inlet pressure">200.0</AttrDef>
+    <AttrDef name="makeup_water_inlet_press" type="float" unit="psia" desc="Makeup water inlet pressure">14.70</AttrDef>
+    <AttrDef name="waste_water_temp" type="float" unit="degF" desc="Waste water rejection temperature">150.0</AttrDef>
+    <AttrDef name="O2_excess_OTSG" type="float" unit="frac" desc="OTSG excess air in combustion, unit=mol O2 real/mol O2 stoichiometric">1.2</AttrDef>
+    <AttrDef name="temperature_inlet_air_OTSG" type="float" unit="degF" desc="OTSG inlet air temperature">80.33</AttrDef>
+    <AttrDef name="OTSG_exhaust_temp_outlet_before_economizer" type="float" unit="degF" desc="OTSG outlet exhaust temperature before economizer">350.0</AttrDef>
+    <AttrDef name="OTSG_exhaust_temp_outlet" type="float" unit="degF" desc="Temperature_outlet_exhaust_OTSG">350.0</AttrDef>
+    <AttrDef name="OTSG_exhaust_temp_outlet_before_preheater" type="float" unit="degF" desc="Temperature_outlet_exhaust_OTSG_before_preheater">350.0</AttrDef>
+    <AttrDef name="loss_shell_OTSG" type="float" unit="frac" desc="OTSG shell loss inefficiency">0.02</AttrDef>
+    <AttrDef name="loss_shell_HRSG" type="float" unit="frac" desc="HRSG shell loss inefficiency">0.02</AttrDef>
+    <AttrDef name="loss_gaseous_OTSG" type="float" unit="btu/mol" desc="OTSG other loss - Gaseous fuels">11.02</AttrDef>
+    <AttrDef name="loss_liquid_OTSG" type="float" unit="btu/lbm" desc="OTSG other loss - Liquid fuels">250.0</AttrDef>
+    <AttrDef name="blowdown_heat_recovery" type="binary" desc="blowdown heat recovery availability">1</AttrDef>
+    <AttrDef name="eta_blowdown_heat_rec_OTSG" type="float" unit="frac" desc="OTSG heat recovery efficiency from blowdown rejected (for steam quality in excess of 80%)">0.95</AttrDef>
+    <AttrDef name="eta_blowdown_heat_rec_HRSG" type="float" unit="frac" desc="HRSG heat recovery efficiency from blowdown rejected (for steam quality in excess of 80%)">0.95</AttrDef>
+    <AttrDef name="economizer_OTSG" type="binary" desc="economizer availability in OTSG">0</AttrDef>
+    <AttrDef name="preheater_OTSG" type="binary" desc="preheater availability in OTSG">0</AttrDef>
+    <AttrDef name="economizer_HRSG" type="binary" desc="economizer availability in HRSG">0</AttrDef>
+    <AttrDef name="preheater_HRSG" type="binary" desc="preheater availability in HRSG">0</AttrDef>
+    <AttrDef name="eta_economizer_heat_rec_OTSG" type="float" unit="frac" desc="OTSG economizer recovery efficiency from exhaust">0.95</AttrDef>
+    <AttrDef name="eta_preheater_heat_rec_OTSG" type="float" unit="frac" desc="OTSG preheater recovery efficiency from exhaust">0.9</AttrDef>
+    <AttrDef name="eta_economizer_heat_rec_HRSG" type="float" unit="frac" desc="HRSG economizer recovery efficiency from exhaust">0.95</AttrDef>
+    <AttrDef name="eta_preheater_heat_rec_HRSG" type="float" unit="frac" desc="HRSG preheater recovery efficiency from exhaust">0.9</AttrDef>
+    <AttrDef name="OTSG_frac_import_gas" unit="frac" type="float" desc="OTSG gaseous fuels share for natural gas">1.0</AttrDef>
+    <AttrDef name="OTSG_frac_prod_gas" unit="frac" type="float" desc="OTSG gaseous fuels share for produced gas">0.0</AttrDef>
+    <AttrDef name="HRSG_frac_import_gas" unit="frac" type="float" desc="HRSG gaseous fuels share for natural gas">1.0</AttrDef>
+    <AttrDef name="HRSG_frac_prod_gas" unit="frac" type="float" desc="HRSG gaseous fuels share for produced gas">0.0</AttrDef>
+    <AttrDef name="duct_firing" type="binary" desc="Duct_firing_HRSG">0</AttrDef>
+
+
+    <AttrDef name="HRSG_exhaust_temp_outlet_before_economizer" type="float" unit="degF" desc="HRSG outlet exhaust temperature before economizer">350.0</AttrDef>
+    <AttrDef name="HRSG_exhaust_temp_outlet" type="float" unit="degF" desc="Temperature_outlet_exhaust_HRSG">350.0</AttrDef>
+    <AttrDef name="HRSG_exhaust_temp_outlet_before_preheater" type="float" unit="degF" desc="Temperature_outlet_exhaust_HRSG_before_preheater">350.0</AttrDef>
+
+    <Options name="OTSG_fuel_type" default="Gas">
+      <Option>Gas</Option>
+      <Option>Oil</Option>
+    </Options>
+    <AttrDef name="fuel_input_type_OTSG" options="OTSG_fuel_type"/>
+
+    <Options name="gas_turbine_type" default="C">
+      <Option>A</Option>
+      <Option>B</Option>
+      <Option>C</Option>
+      <Option>D</Option>
+    </Options>
+    <AttrDef name="gas_turbine_type" options="gas_turbine_type"/>
+
   </ClassAttrs>
   <ClassAttrs name="SurveyTruck">
     <AttrDef name="distance" type="float" desc="Distance of travel for survey" unit="mi">10000</AttrDef>
@@ -423,45 +483,7 @@
 
   <ClassAttrs name="SteamGeneration">
 
-    <AttrDef name="NG_fuel_share_OTSG_produced" type="float" unit="frac" desc="Fraction produced gas of OTSG gaseous fuels share">0.0</AttrDef>
-    <AttrDef name="NG_fuel_share_HRSG_produced" type="float" unit="frac" desc="Fraction product gas of GT fuel input type">0.0</AttrDef>
-    <AttrDef name="steam_quality_outlet" type="float" unit="frac" desc="Steam quality at generator outlet">0.7</AttrDef>
-    <AttrDef name="steam_quality_after_blowdown" type="float" desc="Desired steam quality after blowdown and recycle (if any)">0.7</AttrDef>
-    <AttrDef name="fraction_blowdown_recycled" type="float" desc="Percentage of blowdown water recycled ">0.7</AttrDef>
-    <AttrDef name="waste_water_reinjection_temp" type="float" unit="degF" desc="Waste water rejection temperature">150.0</AttrDef>
-    <AttrDef name="waste_water_reinjection_press" type="float" unit="psia" desc="Waste water rejection pressure">14.67</AttrDef>
-    <AttrDef name="friction_loss_stream_distr" type="float" unit="frac" desc="Frictional losses in steam distribution and injection lines">1.1</AttrDef>
-    <AttrDef name="pressure_loss_choke_wellhead" type="float" unit="frac" desc="Choke pressure drop at wellhead">1.7</AttrDef>
-    <AttrDef name="steam_injection_delta_press" type="float" unit="psia" desc="steam_injection_delta_press">100.0</AttrDef>
-    <AttrDef name="prod_water_inlet_temp" type="float" unit="degF" desc="Recycled produced water inlet temperature">140</AttrDef>
-    <AttrDef name="makeup_water_inlet_temp" type="float" unit="degF" desc="Makeup water inlet temperature">60.0</AttrDef>
-    <AttrDef name="prod_water_inlet_press" type="float" unit="psia" desc="Recycled produced water inlet pressure">200.0</AttrDef>
-    <AttrDef name="makeup_water_inlet_press" type="float" unit="psia" desc="Makeup water inlet pressure">14.70</AttrDef>
-    <AttrDef name="waste_water_temp" type="float" unit="degF" desc="Waste water rejection temperature">150.0</AttrDef>
-    <AttrDef name="O2_excess_OTSG" type="float" unit="frac" desc="OTSG excess air in combustion, unit=mol O2 real/mol O2 stoichiometric">1.2</AttrDef>
-    <AttrDef name="temperature_inlet_air_OTSG" type="float" unit="degF" desc="OTSG inlet air temperature">80.33</AttrDef>
-    <AttrDef name="OTSG_exhaust_temp_outlet_before_economizer" type="float" unit="degF" desc="OTSG outlet exhaust temperature before economizer">350.0</AttrDef>
-    <AttrDef name="OTSG_exhaust_temp_outlet" type="float" unit="degF" desc="Temperature_outlet_exhaust_OTSG">350.0</AttrDef>
-    <AttrDef name="OTSG_exhaust_temp_outlet_before_preheater" type="float" unit="degF" desc="Temperature_outlet_exhaust_OTSG_before_preheater">350.0</AttrDef>
-    <AttrDef name="loss_shell_OTSG" type="float" unit="frac" desc="OTSG shell loss inefficiency">0.02</AttrDef>
-    <AttrDef name="loss_gaseous_OTSG" type="float" unit="btu/mol" desc="OTSG other loss - Gaseous fuels">11.02</AttrDef>
-    <AttrDef name="loss_liquid_OTSG" type="float" unit="btu/lbm" desc="OTSG other loss - Liquid fuels">250.0</AttrDef>
-    <AttrDef name="blowdown_heat_recovery" type="binary" desc="blowdown heat recovery availability">1</AttrDef>
-    <AttrDef name="eta_blowdown_heat_rec_OTSG" type="float" unit="frac" desc="OTSG heat recovery efficiency from blowdown rejected (for steam quality in excess of 80%)">0.95</AttrDef>
-    <AttrDef name="economizer_OTSG" type="binary" desc="economizer availability">0</AttrDef>
-    <AttrDef name="preheater_OTSG" type="binary" desc="preheater availability">0</AttrDef>
-    <AttrDef name="eta_economizer_heat_rec_OTSG" type="float" unit="frac" desc="OTSG economizer recovery efficiency from exhaust">0.95</AttrDef>
-    <AttrDef name="eta_preheater_heat_rec_OTSG" type="float" unit="frac" desc="OTSG preheater recovery efficiency from exhaust">0.9</AttrDef>
-    <AttrDef name="OTSG_frac_import_gas" unit="frac" type="float" desc="OTSG gaseous fuels share for natural gas">1.0</AttrDef>
-    <AttrDef name="OTSG_frac_prod_gas" unit="frac" type="float" desc="OTSG gaseous fuels share for produced gas">0.0</AttrDef>
-    <AttrDef name="HRSG_frac_import_gas" unit="frac" type="float" desc="HRSG gaseous fuels share for natural gas">1.0</AttrDef>
-    <AttrDef name="HRSG_frac_prod_gas" unit="frac" type="float" desc="HRSG gaseous fuels share for produced gas">0.0</AttrDef>
-    
-    <Options name="OTSG_fuel_type" default="Gas">
-      <Option>Gas</Option>
-      <Option>Oil</Option>
-    </Options>
-    <AttrDef name="fuel_input_type_OTSG" options="OTSG_fuel_type"/>
+
   </ClassAttrs>
   <ClassAttrs name="BitumentUpgradingOrDilution">
     <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>

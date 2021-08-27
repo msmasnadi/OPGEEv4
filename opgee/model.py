@@ -57,6 +57,8 @@ class Model(Container):
         self.prod_combustion_coeff = tbl_mgr.get_table("product-combustion-coeff")
         self.reaction_combustion_coeff = tbl_mgr.get_table("reaction-combustion-coeff")
 
+        self.gas_turbine_tbl = tbl_mgr.get_table("gas-turbine-specs")
+
         # TBD: should these be settable per Analysis?
         # parameters controlling process cyclic calculations
         self.maximum_iterations = self.attr('maximum_iterations')
