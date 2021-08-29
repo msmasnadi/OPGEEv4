@@ -25,7 +25,12 @@ def test_water_branch(configure_logging_for_tests):
 
 
 def test_run(test_water_branch):
-    analysis = test_water_branch.get_analysis('test_water_branch')
+    analysis = test_water_branch.get_analysis('test_steam_generation')
     field = analysis.get_field('test')
     field.run(analysis)
 
+
+def test_run(test_water_branch):
+    analysis = test_water_branch.get_analysis('test_water_injection')
+    field = analysis.get_field('test')
+    field.run(analysis)

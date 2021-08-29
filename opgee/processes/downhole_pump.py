@@ -22,7 +22,7 @@ class DownholePump(Process):
         self.prod_tubing_diam = field.attr("well_diam")
         self.prod_tubing_radius = self.prod_tubing_diam / 2
         self.depth = field.attr("depth")
-        self.friction_factor = self.attr("friction_factor")
+        self.friction_factor = field.attr("friction_factor")
         self.num_prod_wells = field.attr("num_prod_wells")
         self.prod_tubing_xsection_area = np.pi * self.prod_tubing_radius ** 2
         self.gravitational_acceleration = field.model.const("gravitational-acceleration")

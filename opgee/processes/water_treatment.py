@@ -41,6 +41,7 @@ class WaterTreatment(Process):
 
         # mass rate
         input = self.find_input_streams("water", combine=True)
+        # input = self.find_input_streams("water")
         prod_water_mass_rate = input.liquid_flow_rate("H2O")
 
         water = self.field.water

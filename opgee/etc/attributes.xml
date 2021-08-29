@@ -120,7 +120,7 @@
     </Options>
     <AttrDef name="GOR" desc="Gas-to-oil ratio" unit="scf/bbl_oil" type="float">2429.3</AttrDef>
     <AttrDef name="WOR" desc="Water-to-oil ratio" unit="bbl_water/bbl_oil" type="float">6.0</AttrDef>
-    <AttrDef name="WIR" desc="Water injection ratio" unit="bbl_water/bbl" type="float">7.0</AttrDef>
+    <AttrDef name="WIR" desc="Water injection ratio" unit="bbl_water/bbl_oil" type="float">7.0</AttrDef>
     <AttrDef name="GLIR" desc="Gas lifting injection ratio" unit="scf/bbl_liquid" type="float">364.0</AttrDef>
     <AttrDef name="GFIR" desc="Gas flooding injection ratio" unit="scf/bbl_oil" type="float">3644.0</AttrDef>
     <AttrDef name="flood_gas_type" desc="Flood gas" options="Flood gases" type="str"/>
@@ -138,6 +138,9 @@
     <AttrDef name="temperature_outlet" type="float" unit="degF" desc="Separator temperature (final if multi-stage)">90.0</AttrDef>
     <AttrDef name="gas_pressure_after_boosting" type="float" unit="psia" desc="Separator gas outlet pressure after boosting compressors">500</AttrDef>
     <AttrDef name="eta_compressor" type="float" unit="percent" desc="Compressor efficiency">75.0</AttrDef>
+    <AttrDef name="friction_factor" type="float" unit="frac" desc="wellbore friction factor">0.02</AttrDef>
+    <AttrDef name="press_water_reinj_pump" type="float" unit="psia" desc="Water reinjection pump characteristics Suction pressure">0.0</AttrDef>
+    <AttrDef name="eta_water_reinj_pump" type="float" unit="percent" desc="Water reinjection pump characteristics Pump efficiency ">60.0</AttrDef>
     <!-- Processing practices -->
     <Options name="upgrader_type" default="None">
       <Option>None</Option>
@@ -381,8 +384,18 @@
       <Option>NG_turbine</Option>
     </Options>
 
-    <AttrDef name="friction_factor" type="float" unit="frac" desc="wellbore friction factor">0.02</AttrDef>
+
     <AttrDef name="eta_pump_well" type="float" unit="percent" desc="pump efficiency">65</AttrDef>
+    <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
+  </ClassAttrs>
+  <ClassAttrs name="WaterInjection">
+    <Options name="prime_mover_type" default="NG_engine">
+      <Option>NG_engine</Option>
+      <Option>Electric_motor</Option>
+      <Option>Diesel_engine</Option>
+      <Option>NG_turbine</Option>
+    </Options>
+
     <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
   </ClassAttrs>
   <ClassAttrs name="FluidProduction">
