@@ -4,10 +4,7 @@ import pandas as pd
 
 
 class SteamGenerator(OpgeeObject):
-    pass
-
     def __init__(self, field):
-        self.field = field
         self.frac_steam_cogen = field.attr("fraction_steam_cogen")
         self.frac_steam_solar = field.attr("fraction_steam_solar")
         self.SOR = field.attr("SOR")
@@ -21,21 +18,9 @@ class SteamGenerator(OpgeeObject):
         self.pressure_loss_choke_wellhead = field.attr("pressure_loss_choke_wellhead")
         self.API = field.attr("API")
 
-        self.water = field.water
-        self.water_density = self.water.density()
-        self.oil = field.oil
-        self.gas = field.gas
-
-        self.std_temp = field.model.const("std-temperature")
-        self.std_press = field.model.const("std-pressure")
-
         self.res_press = field.attr("res_press")
-        self.steam_press_upper = field.model.const("steam-press-upper-limit")
         self.steam_injection_delta_press = field.attr("steam_injection_delta_press")
-        self.steam_generator_press_outlet = min((self.res_press + self.steam_injection_delta_press) *
-                                                self.friction_loss_stream_distr *
-                                                self.pressure_loss_choke_wellhead, self.steam_press_upper)
-        self.steam_generator_temp_outlet = self.water.saturated_temperature(self.steam_generator_press_outlet)
+
 
         self.fraction_steam_cogen = field.attr("fraction_steam_cogen")
         self.fraction_steam_solar = field.attr("fraction_steam_solar")
@@ -66,11 +51,6 @@ class SteamGenerator(OpgeeObject):
         self.loss_gaseous_OTSG = field.attr("loss_gaseous_OTSG")
         self.loss_liquid_OTSG = field.attr("loss_liquid_OTSG")
 
-        self.prod_combustion_coeff = field.model.prod_combustion_coeff
-        self.reaction_combustion_coeff = field.model.reaction_combustion_coeff
-        self.gas_turbine_tlb = field.model.gas_turbine_tbl
-        self.liquid_fuel_comp = field.oil.liquid_fuel_composition(self.API)
-
         self.blowdown_heat_recovery = field.attr("blowdown_heat_recovery")
         self.eta_blowdown_heat_rec_OTSG = field.attr("eta_blowdown_heat_rec_OTSG")
         self.eta_blowdown_heat_rec_HRSG = field.attr("eta_blowdown_heat_rec_HRSG")
@@ -88,6 +68,27 @@ class SteamGenerator(OpgeeObject):
 
         self.gas_turbine_type = field.attr("gas_turbine_type")
         self.duct_firing = field.attr("duct_firing")
+        self.field = field
+
+
+
+
+    def _after_init(self):
+        self.water = self.field.water
+        self.oil = self.field.oil
+        self.gas = self.field.gas
+
+        self.prod_combustion_coeff = self.field.model.prod_combustion_coeff
+        self.reaction_combustion_coeff = self.field.model.reaction_combustion_coeff
+        self.gas_turbine_tlb = self.field.model.gas_turbine_tbl
+        self.liquid_fuel_comp = self.field.oil.liquid_fuel_composition(self.API)
+        self.steam_press_upper = self.field.model.const("steam-press-upper-limit")
+        self.steam_generator_press_outlet = min((self.res_press + self.steam_injection_delta_press) *
+                                                self.friction_loss_stream_distr *
+                                                self.pressure_loss_choke_wellhead, self.steam_press_upper)
+
+        self.steam_generator_temp_outlet = self.water.saturated_temperature(self.steam_generator_press_outlet)
+        self.O2_excess_HRSG = self.gas_turbine_tlb["Turbine excess air"][self.gas_turbine_type]
 
         self.prod_gas_reactants_comp = self.get_combustion_comp(self.reaction_combustion_coeff,
                                                                 self.processed_prod_gas_comp)
@@ -96,7 +97,6 @@ class SteamGenerator(OpgeeObject):
                                                                   self.imported_fuel_gas_comp)
         self.import_gas_products_comp = self.get_combustion_comp(self.prod_combustion_coeff,
                                                                  self.imported_fuel_gas_comp)
-        self.O2_excess_HRSG = self.gas_turbine_tlb["Turbine excess air"][self.gas_turbine_type]
 
     def once_through_SG(self,
                         prod_water_mass_rate,
@@ -134,8 +134,8 @@ class SteamGenerator(OpgeeObject):
 
         air_requirement_fuel, air_requirement_MW, air_requirement_LHV_fuel, air_requirement_LHV_stream = \
             self.get_air_requirement(gas_MW_combust, "OTSG")
-        exhaust_consump, exhaust_consump_sum, exhaust_consump_MW = self.get_combustion_comp(
-            air_requirement_fuel, "HRSG")
+        exhaust_consump, exhaust_consump_sum, exhaust_consump_MW = self.get_exhaust_parameters(
+            air_requirement_fuel, "OTSG")
 
         LHV_fuel, LHV_stream = self.get_LHV_fuel_and_stream_series(exhaust_consump,
                                                                    self.OTSG_exhaust_temp_series,
@@ -154,10 +154,10 @@ class SteamGenerator(OpgeeObject):
         # calculate recoverable heat
         delta_H = steam_out_enthalpy_rate - prod_water_enthalpy_rate - makeup_water_enthalpy_rate - recoverable_enthalpy_blowdown_water
         constant_before_economizer = exhaust_consump_sum * exhaust_consump_MW / \
-                                     gas_MW_combust * LHV_stream["outlet_before_economizer"]
+                                     gas_MW_combust * LHV_stream["outlet_before_economizer"] / available_enthalpy
         constant_before_preheater = exhaust_consump_sum * exhaust_consump_MW / \
-                                    gas_MW_combust * LHV_stream["outlet_before_preheater"]
-        constant_outlet = exhaust_consump_sum * exhaust_consump_MW / gas_MW_combust * LHV_stream["outlet"]
+                                    gas_MW_combust * LHV_stream["outlet_before_preheater"] / available_enthalpy
+        constant_outlet = exhaust_consump_sum * exhaust_consump_MW / gas_MW_combust * LHV_stream["outlet"] / available_enthalpy
 
         eta_eco = self.eta_economizer_heat_rec_OTSG
         eta_heater = self.eta_preheater_heat_rec_OTSG
@@ -179,9 +179,9 @@ class SteamGenerator(OpgeeObject):
         fuel_consumption_for_steam_generation_energy = fuel_consumption_for_steam_generation_mass * fuel_LHV
 
         # mass and energy balance
-        air_in_mass_rate = air_requirement_fuel * self.gas.molar_weight_from_molar_fracs(
-            self.inlet_air_comp) * self.fuel_consumption_for_steam_generation_mass
-        air_in_mass_rate = air_in_mass_rate / air_requirement_MW if self.OTSG_fuel_type == "Gas" else air_in_mass_rate
+        air_in_mass_rate = air_requirement_fuel.sum() * self.gas.molar_weight_from_molar_fracs(
+            self.inlet_air_comp) * fuel_consumption_for_steam_generation_mass
+        air_in_mass_rate = air_in_mass_rate / gas_MW_combust if self.OTSG_fuel_type == "Gas" else air_in_mass_rate
 
         outlet_exhaust_mass = exhaust_consump_sum * exhaust_consump_MW * fuel_consumption_for_steam_generation_mass
         outlet_exhaust_mass = outlet_exhaust_mass / gas_MW_combust if self.OTSG_fuel_type == "Gas" else outlet_exhaust_mass
@@ -193,15 +193,15 @@ class SteamGenerator(OpgeeObject):
 
         mass_in = fuel_consumption_for_steam_generation_mass + air_in_mass_rate + \
                   prod_water_mass_rate + makeup_water_mass_rate
-        mass_out = steam_out_enthalpy_rate + outlet_exhaust_mass
+        mass_out = prod_water_mass_rate + makeup_water_mass_rate + outlet_exhaust_mass
 
         energy_in = fuel_consumption_for_steam_generation_mass * gas_LHV + \
                     air_in_mass_rate * air_requirement_LHV_stream + \
                     prod_water_enthalpy_rate + makeup_water_enthalpy_rate
-        energy_out = outlet_exhaust_mass * LHV_stream["outlet"] + (
-                H_heater - H_outlet - recoverable_heat_before_preheater) + \
-                     (
-                             H_eco - H_heater - recoverable_heat_before_economizer) + fuel_consumption_for_steam_generation_mass * other_loss_per_unit_fuel + \
+        energy_out = outlet_exhaust_mass * LHV_stream["outlet"] + \
+                     (H_heater - H_outlet - recoverable_heat_before_preheater) + \
+                     (H_eco - H_heater - recoverable_heat_before_economizer) + \
+                     fuel_consumption_for_steam_generation_mass * other_loss_per_unit_fuel + \
                      fuel_consumption_for_steam_generation_mass * shell_loss_per_unit_fuel + desired_steam_enthalpy_rate + \
                      (blowdown_before_heat_recovery_enthalpy_rate - recoverable_enthalpy_blowdown_water)
 
@@ -245,7 +245,7 @@ class SteamGenerator(OpgeeObject):
 
         air_requirement_fuel, air_requirement_MW, air_requirement_LHV_fuel, air_requirement_LHV_stream = \
             self.get_air_requirement(gas_MW_combust, "HRSG")
-        exhaust_consump, exhaust_consump_sum, exhaust_consump_MW = self.get_combustion_comp(
+        exhaust_consump, exhaust_consump_sum, exhaust_consump_MW = self.get_exhaust_parameters(
             air_requirement_fuel, "HRSG")
 
         temp = exhaust_consump * \
@@ -279,7 +279,7 @@ class SteamGenerator(OpgeeObject):
         eta_eco = self.eta_economizer_heat_rec_HRSG
         eta_heater = self.eta_preheater_heat_rec_HRSG
         frac_loss = self.loss_shell_HRSG * (inlet_LHV_stream - LHV_stream["outlet_before_economizer"]) / \
-                    LHV_stream["outlet_before_economizer"]
+                    inlet_LHV_stream
         frac_exhaust = LHV_stream["outlet_before_economizer"] / inlet_LHV_stream
         frac_steam = 1 - frac_loss - frac_exhaust
         const_eco = LHV_stream["outlet_before_economizer"] / inlet_LHV_stream / frac_steam
@@ -312,7 +312,6 @@ class SteamGenerator(OpgeeObject):
         # balance check
         mass_air_GT = mass_exhaust_GT - mass_fuel_inlet_GT
         H_air_GT = mass_air_GT * air_requirement_LHV_stream
-        H_loss_GT = H_exhaust_GT / GT_frac_thermal * GT_frac_loss
         mass_in = mass_air_GT + mass_fuel_inlet_GT + mass_fuel_inlet_HRSG + prod_water_mass_rate + makeup_water_mass_rate
         mass_out = mass_exhaust_GT + mass_fuel_inlet_HRSG + prod_water_mass_rate + makeup_water_mass_rate
         energy_in = H_air_GT + H_fuel_inlet_GT + recoverable_heat_before_preheater + \

@@ -1,11 +1,14 @@
 from ..log import getLogger
 from ..process import Process
-from ..stream import PHASE_LIQUID, Stream
-import pandas as pd
-from opgee import ureg
 from ..error import BalanceError
+from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_UPG_PROC_GAS, EN_PETCOKE
+from ..emissions import EM_COMBUSTION
 
 _logger = getLogger(__name__)
+
+# the tolerance is used for checking mass and energy balance
+# (input - output) / input < tolerance
+tolerance = 0.01
 
 
 class SteamGeneration(Process):
@@ -18,8 +21,6 @@ class SteamGeneration(Process):
             self.enabled = False
             return
 
-        self.frac_steam_cogen = field.attr("fraction_steam_cogen")
-        self.frac_steam_solar = field.attr("fraction_steam_solar")
         self.SOR = field.attr("SOR")
         self.oil_volume_rate = field.attr("oil_prod")
         self.steam_quality_outlet = field.attr("steam_quality_outlet")
@@ -29,16 +30,8 @@ class SteamGeneration(Process):
         self.waste_water_reinjection_press = field.attr("waste_water_reinjection_press")
         self.friction_loss_stream_distr = field.attr("friction_loss_stream_distr")
         self.pressure_loss_choke_wellhead = field.attr("pressure_loss_choke_wellhead")
-        self.API = field.attr("API")
-
         self.water = field.water
         self.water_density = self.water.density()
-        self.oil = field.oil
-        self.gas = field.gas
-
-        self.std_temp = field.model.const("std-temperature")
-        self.std_press = field.model.const("std-pressure")
-
         self.res_press = field.attr("res_press")
         self.steam_press_upper = field.model.const("steam-press-upper-limit")
         self.steam_injection_delta_press = field.attr("steam_injection_delta_press")
@@ -46,81 +39,13 @@ class SteamGeneration(Process):
                                                 self.friction_loss_stream_distr *
                                                 self.pressure_loss_choke_wellhead, self.steam_press_upper)
         self.steam_generator_temp_outlet = self.water.saturated_temperature(self.steam_generator_press_outlet)
-
-        self.fraction_steam_cogen = field.attr("fraction_steam_cogen")
-        self.fraction_steam_solar = field.attr("fraction_steam_solar")
-        self.fraction_OTSG = 1 - self.fraction_steam_cogen - self.fraction_steam_solar
-
-        self.prod_water_inlet_temp = field.attr("prod_water_inlet_temp")
         self.prod_water_inlet_press = field.attr("prod_water_inlet_press")
-        self.makeup_water_inlet_temp = field.attr("makeup_water_inlet_temp")
         self.makeup_water_inlet_press = field.attr("makeup_water_inlet_press")
-        self.temperature_inlet_air_OTSG = field.attr("temperature_inlet_air_OTSG")
-        self.OTSG_exhaust_temp_outlet_before_economizer = field.attr(
-            "OTSG_exhaust_temp_outlet_before_economizer")
-        self.OTSG_exhaust_temp_series = field.attrs_with_prefix("OTSG_exhaust_temp_")
-        self.HRSG_exhaust_temp_series = field.attrs_with_prefix("HRSG_exhaust_temp_")
-
-        self.imported_fuel_gas_comp = field.attrs_with_prefix("imported_gas_comp_")
-        self.processed_prod_gas_comp = field.attrs_with_prefix("processed_prod_gas_comp_")
-        self.inlet_air_comp = field.attrs_with_prefix("air_comp_")
-
-        self.OTSG_frac_import_gas = field.attr("OTSG_frac_import_gas")
-        self.OTSG_frac_prod_gas = field.attr("OTSG_frac_prod_gas")
-        self.HRSG_frac_import_gas = field.attr("HRSG_frac_import_gas")
-        self.HRSG_frac_prod_gas = field.attr("HRSG_frac_prod_gas")
-        self.O2_excess_OTSG = field.attr("O2_excess_OTSG")
-        self.OTSG_fuel_type = field.attr("fuel_input_type_OTSG")
-        self.loss_shell_OTSG = field.attr("loss_shell_OTSG")
-        self.loss_shell_HRSG = field.attr("loss_shell_HRSG")
-        self.loss_gaseous_OTSG = field.attr("loss_gaseous_OTSG")
-        self.loss_liquid_OTSG = field.attr("loss_liquid_OTSG")
-
-        self.prod_combustion_coeff = field.model.prod_combustion_coeff
-        self.reaction_combustion_coeff = field.model.reaction_combustion_coeff
-        self.gas_turbine_tlb = field.model.gas_turbine_tbl
-        self.liquid_fuel_comp = field.oil.liquid_fuel_composition(self.API)
-
-        self.blowdown_heat_recovery = field.attr("blowdown_heat_recovery")
-        self.eta_blowdown_heat_rec_OTSG = field.attr("eta_blowdown_heat_rec_OTSG")
-        self.eta_blowdown_heat_rec_HRSG = field.attr("eta_blowdown_heat_rec_HRSG")
-
-        self.economizer_OTSG = field.attr("economizer_OTSG")
-        self.preheater_OTSG = field.attr("preheater_OTSG")
-        self.economizer_HRSG = field.attr("economizer_HRSG")
-        self.preheater_HRSG = field.attr("preheater_HRSG")
-
-        self.eta_economizer_heat_rec_OTSG = field.attr("eta_economizer_heat_rec_OTSG")
-        self.eta_preheater_heat_rec_OTSG = field.attr("eta_preheater_heat_rec_OTSG")
-
-        self.eta_economizer_heat_rec_HRSG = field.attr("eta_economizer_heat_rec_HRSG")
-        self.eta_preheater_heat_rec_HRSG = field.attr("eta_preheater_heat_rec_HRSG")
-
-        self.gas_turbine_type = field.attr("gas_turbine_type")
-        self.duct_firing = field.attr("duct_firing")
-
-        # These are needed for balance check
-        self.air_requirement_fuel = None
-        self.air_requirement_MW = None
-        self.fuel_consumption_for_steam_generation = None
-        self.exhaust_consump_sum = None
-        self.exhaust_consump_MW = None
-        self.gas_MW_combust_OTSG = None
-        self.prod_water_mass_rate = None
-        self.prod_water_enthalpy_rate = None
-        self.makeup_water_mass_rate = None
-        self.makeup_water_enthalpy_rate = None
-        self.OTSG_steam_out_enthalpy_rate = None
-        self.gas_LHV_OTSG = None
-        self.air_requirement_LHV_stream = None
-        self.LHV_stream = None
-        self.O2_excess_HRSG = None
-        self.import_gas_products_comp = None
-        self.prod_gas_products_comp = None
-        self.exhaust_consump_GT = None
-        self.exhaust_consump_GT_LHV_fuel = None
-        self.gas_MW_combust_GT = None
-        self.gas_LHV_GT = None
+        self.eta_displacementpump_steamgen = field.attr("eta_displacementpump_steamgen")
+        self.eta_air_blower_OTSG = field.attr("eta_air_blower_OTSG")
+        self.eta_air_blower_HRSG = field.attr("eta_air_blower_HRSG")
+        self.eta_air_blower_solar = field.attr("eta_air_blower_solar")
+        self.steam_generator = field.steam_generator
 
     def run(self, analysis):
         self.print_running_msg()
@@ -150,11 +75,59 @@ class SteamGeneration(Process):
         input_makeup_water = self.find_input_stream("makeup water for steam generation")
         makeup_water_mass_rate = input_makeup_water.liquid_flow_rate("H2O")
 
-        pass
+        makeup_water_to_prod_water_frac = makeup_water_mass_rate / prod_water_mass_rate
 
-    def check_balances(self):
-        pass
+        fuel_consumption_OTSG, mass_in_OTSG, mass_out_OTSG, energy_in_OTSG, energy_out_OTSG = \
+            self.steam_generator.once_through_SG(prod_water_mass_rate,
+                                                 makeup_water_mass_rate,
+                                                 water_mass_rate_for_injection,
+                                                 blowdown_water_mass_rate)
+        fuel_consumption_HRSG, electricity_HRSG, mass_in_HRSG, mass_out_HRSG, energy_in_HRSG, energy_out_HRSG = \
+            self.steam_generator.heat_recovery_SG(prod_water_mass_rate,
+                                                  makeup_water_mass_rate,
+                                                  water_mass_rate_for_injection,
+                                                  blowdown_water_mass_rate)
 
+        fuel_consumption_solar = self.steam_generator.solar_SG(prod_water_mass_rate, makeup_water_mass_rate)
 
+        # check balance
+        if abs(mass_in_OTSG.to("kg/day").m - mass_out_OTSG.to("kg/day").m) / mass_in_OTSG.to("kg/day").m > tolerance:
+            raise BalanceError(self.name, "OTSG_mass")
+        elif abs(mass_in_HRSG.to("kg/day").m - mass_out_HRSG.to("kg/day").m) / mass_in_HRSG.to("kg/day").m > tolerance:
+            raise BalanceError(self.name, "HRSG_mass")
+        elif abs(energy_in_OTSG.to("MJ/day").m - energy_out_OTSG.to("MJ/day").m) / energy_in_OTSG.to(
+                "MJ/day").m > tolerance:
+            raise BalanceError(self.name, "OTSG_energy")
+        elif abs(energy_in_HRSG.to("MJ/day").m - energy_out_HRSG.to("MJ/day").m) / energy_in_HRSG.to(
+                "MJ/day").m > tolerance:
+            raise BalanceError(self.name, "HRSG_energy")
 
-        # raise BalanceError(self.name, "OTSG_mass")
+        # energy use
+        energy_use = self.energy
+        NG_consumption = fuel_consumption_OTSG + fuel_consumption_HRSG + fuel_consumption_solar
+        energy_use.set_rate(EN_NATURAL_GAS, NG_consumption.to("mmBtu/day"))
+
+        water_pump_hp = self.get_feedwater_horsepower(steam_injection_volume_rate, makeup_water_to_prod_water_frac)
+        water_pump_power = self.get_energy_consumption("Electric_motor", water_pump_hp)
+        OTSG_air_blower = self.get_energy_consumption("Electric_motor",
+                                                      fuel_consumption_OTSG * self.eta_air_blower_OTSG)
+        HRSG_air_blower = self.get_energy_consumption("Electric_motor",
+                                                      fuel_consumption_HRSG * self.eta_air_blower_HRSG)
+        solar_thermal_pumping = self.get_energy_consumption("Electric_motor",
+                                                            fuel_consumption_solar * self.eta_air_blower_solar)
+        total_power_required = water_pump_power + OTSG_air_blower + HRSG_air_blower + solar_thermal_pumping
+        energy_use.set_rate(EN_ELECTRICITY, total_power_required - electricity_HRSG.to("mmBtu/day"))
+
+        emissions = self.emissions
+        energy_for_combustion = energy_use.data.drop("Electricity")
+        combustion_emission = (energy_for_combustion * self.process_EF).sum()
+        emissions.add_rate(EM_COMBUSTION, "CO2", combustion_emission)
+
+    def get_feedwater_horsepower(self, steam_injection_volume_rate, makeup_water_to_prod_water_frac):
+        result = steam_injection_volume_rate * makeup_water_to_prod_water_frac * (
+                self.steam_generator_press_outlet - self.makeup_water_inlet_press) + \
+                 steam_injection_volume_rate * (1 - makeup_water_to_prod_water_frac) * (
+                         self.steam_generator_press_outlet - self.prod_water_inlet_press)
+        result /= self.eta_displacementpump_steamgen
+
+        return result

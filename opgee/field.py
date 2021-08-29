@@ -7,6 +7,7 @@ from .log import getLogger
 from .process import Process, Environment, Reservoir, Output, Aggregator
 from .stream import Stream
 from .thermodynamics import Oil, Gas, Water
+from .steam_generator import SteamGenerator
 from .utils import getBooleanXML, flatten
 
 _logger = getLogger(__name__)
@@ -53,6 +54,7 @@ class Field(Container):
         self.oil = Oil(self)
         self.gas = Gas(self)
         self.water = Water(self)
+        self.steam_generator = SteamGenerator(self)
 
         self.process_data = {}
 
@@ -61,7 +63,7 @@ class Field(Container):
 
         self.model = self.find_parent('Model')
 
-        for iterator in [self.processes(), self.streams(), [self.oil, self.gas, self.water]]:
+        for iterator in [self.processes(), self.streams(), [self.oil, self.gas, self.water, self.steam_generator]]:
             for obj in iterator:
                 obj._after_init()
 

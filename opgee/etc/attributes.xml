@@ -299,6 +299,12 @@
     <AttrDef name="HRSG_exhaust_temp_outlet_before_economizer" type="float" unit="degF" desc="HRSG outlet exhaust temperature before economizer">350.0</AttrDef>
     <AttrDef name="HRSG_exhaust_temp_outlet" type="float" unit="degF" desc="Temperature_outlet_exhaust_HRSG">350.0</AttrDef>
     <AttrDef name="HRSG_exhaust_temp_outlet_before_preheater" type="float" unit="degF" desc="Temperature_outlet_exhaust_HRSG_before_preheater">350.0</AttrDef>
+    
+    <AttrDef name="eta_displacementpump_steamgen" type="float" unit="frac" desc="Positive displacement pump efficiency">0.87</AttrDef>
+    <AttrDef name="eta_air_blower_OTSG" type="float" unit="hp*day/mmbtu" desc="Air blower energy consumption for OTSG">0.139</AttrDef>
+    <AttrDef name="eta_air_blower_HRSG" type="float" unit="hp*day/mmbtu" desc="Air blower energy consumption for HRSG">0.0</AttrDef>
+    <AttrDef name="eta_air_blower_solar" type="float" unit="hp*day/mmbtu" desc="Air blower energy consumption for solar Thermal">0.139</AttrDef>
+
 
     <Options name="OTSG_fuel_type" default="Gas">
       <Option>Gas</Option>
