@@ -1,9 +1,9 @@
+from opgee import ureg
+from ..emissions import Emissions
+from ..energy import Energy, EN_ELECTRICITY
+from ..error import OpgeeException
 from ..log import getLogger
 from ..process import Process
-from ..energy import EN_ELECTRICITY
-from ..stream import Stream, PHASE_GAS, PHASE_LIQUID, PHASE_SOLID
-from ..error import OpgeeException
-from opgee import ureg
 
 _logger = getLogger(__name__)
 
@@ -35,6 +35,9 @@ class WaterTreatment(Process):
         self.num_stages = self.attr("number_of_stages")
         self.makeup_water_temp = self.attr("makeup_water_temp")
         self.makeup_water_press = self.attr("makeup_water_press")
+
+        self.intermediate_results = {"Produced Water": (Energy(), Emissions()),
+                                     "Makeup Water": (Energy(), Emissions())}
 
     def run(self, analysis):
         self.print_running_msg()
@@ -113,13 +116,13 @@ class WaterTreatment(Process):
             else:
                 makeup_water_table = self.makeup_water_treatment
         makeup_water_elec = self.get_water_treatment_elec(makeup_water_table, total_makeup_water_volume)
-        electricity = prod_water_elec + makeup_water_elec
-            
-        energy_use = self.energy
-        energy_use.set_rate(EN_ELECTRICITY, electricity.to("mmBtu/day"))
 
-        # emission
-        emissions = self.emissions
+        energy_use_prod, emissions_prod = self.intermediate_results["Produced Water"]
+        energy_use_makeup, emissions_makeup = self.intermediate_results["Makeup Water"]
+        energy_use_prod.set_rate(EN_ELECTRICITY, prod_water_elec.to("mmBtu/day"))
+        energy_use_makeup.set_rate(EN_ELECTRICITY, makeup_water_elec.to("mmBtu/day"))
+
+        self.sum_intermediate_results()
 
     def get_water_treatment_elec(self, water_treatment_table, water_volume_rate):
 

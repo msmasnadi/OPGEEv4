@@ -206,3 +206,12 @@ class Emissions(OpgeeObject):
         self.add_rate(category, 'VOC', voc_rate)
         GHG = self.data[category].sum()
         self.add_rate(category, "GHG", GHG)
+
+    def add_rates_from(self, emissions):
+        """
+        Add rates from emissions instance
+
+        :param emissions:
+        :return:
+        """
+        self.data += emissions.data

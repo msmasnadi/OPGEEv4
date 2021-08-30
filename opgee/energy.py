@@ -108,3 +108,17 @@ class Energy(OpgeeObject):
         """
         for carrier, rate in dictionary.items():
             self.add_rate(carrier, rate)
+
+    def add_rates_from(self, energy):
+        """
+        Add rates from energy instance
+
+        :param energy:
+        :return:
+        """
+        self.data += energy.data
+
+        # for carrier in self.carriers:
+        #     self.add_rate(energy.data[carrier])
+
+

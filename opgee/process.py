@@ -183,6 +183,8 @@ class Process(XmlInstantiable, AttributeMixin):
         self.energy = Energy()
         self.emissions = Emissions()
 
+        self.intermediate_results = None
+
         self.iv = IntermediateValues()
 
         # Support for cycles
@@ -655,6 +657,29 @@ class Process(XmlInstantiable, AttributeMixin):
         energy_consumption = (brake_horsepower * eff).to("mmBtu/day")
 
         return energy_consumption
+
+    def get_intermediate_results(self):
+        """
+        This will be overridden in the water treatment subprocess
+
+        :return: A dictionary of energy and emission instances or None
+        """
+
+        return self.intermediate_results
+
+    def sum_intermediate_results(self):
+        """
+
+        :return:
+        """
+
+        if self.intermediate_results is None:
+            return
+
+        for key, (energy, emission) in self.intermediate_results.items():
+            self.energy.add_rates_from(energy)
+            self.emissions.add_rates_from(emission)
+
 
     # Deprecated
     # def venting_fugitive_rate(self, trial=None):
