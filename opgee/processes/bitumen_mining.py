@@ -25,14 +25,16 @@ class BitumenMining(Process):
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
+        self.oil_sands_mine = field.attr("oil_sands_mine")
+        if self.oil_sands_mine == "None":
+            self.enabled = False
+            return
         self.oil = field.oil
         self.API_bitumen = field.attr("API_bitumen")
         self.bitumen_SG = self.oil.specific_gravity(self.API_bitumen)
         self.temperature_mined_bitumen = field.attr("temperature_mined_bitumen")
         self.pressure_mined_bitumen = field.attr("pressure_mined_bitumen")
-        self.oil_sands_mine = field.attr("oil_sands_mine")
         self.gas_comp = field.attrs_with_prefix("gas_comp_")
-
         self.FOR = field.attr("FOR")
         self.VOR = field.attr("VOR")
 
@@ -42,9 +44,7 @@ class BitumenMining(Process):
     def run(self, analysis):
         self.print_running_msg()
 
-        if self.oil_sands_mine == "None":
-            self.enabled = False
-            return
+
 
         # mass rate
         input = self.find_input_stream("oil")
@@ -64,7 +64,7 @@ class BitumenMining(Process):
         gas_fugitives = self.find_output_stream("gas fugitive")
         gas_fugitives.set_rates_from_series(mine_offgas_rate, PHASE_GAS)
 
-        gas_flaring = self.find_output_stream("gas flaring")
+        gas_flaring = self.find_output_stream("gas")
         gas_flaring.set_rates_from_series(mine_flaring_rate, PHASE_GAS)
 
         # energy-use

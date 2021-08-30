@@ -134,6 +134,10 @@
 			<Contains>process gas</Contains>
 		</Stream>
 
+		<Stream src="HeavyOilUpgrading" dst="Flaring" name="heavy oil upgrading to flaring">
+			<Contains>flaring gas</Contains>
+		</Stream>
+
 		<Stream src="HeavyOilUpgrading" dst="CrudeOilStorage" name="heavy oil upgrading to crude oil storage">
 			<Contains>oil for storage</Contains>
 		</Stream>

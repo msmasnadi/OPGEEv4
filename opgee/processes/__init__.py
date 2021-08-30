@@ -19,4 +19,5 @@ from .dilution_transport import DiluentTransport
 from .bitumen_mining import BitumenMining
 from .steam_generation import SteamGeneration
 from .water_injection import WaterInjection
+from .flaring import Flaring
 

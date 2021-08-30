@@ -70,7 +70,7 @@ class WaterInjection(Process):
         energy_for_combustion = energy_use.data.drop("Electricity")
         combusion_emission = (energy_for_combustion * self.process_EF).sum()
         emissions.add_rate(EM_COMBUSTION, "CO2", combusion_emission)
-        pass
+
 
 
 

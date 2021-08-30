@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
+
+	<Analysis name="test_gas_branch">
+		<A name="functional_unit">oil</A>
+		<A name="energy_basis">LHV</A>
+	  <A name="GWP_horizon">100</A>
+	  <A name="GWP_version">AR5</A>
+		<Field name="test"/>
+	</Analysis>
+
+	<Field name="test">
+		<A name="country">USA</A>
+		<Process class="Separation" impute-start="true">
+			<Consumes>crude oil</Consumes>
+			<Produces>crude oil</Produces>
+			<Produces>water</Produces>
+			<Produces>natural gas</Produces>
+			<Produces>gas fugitives</Produces>
+		</Process>
+
+		<Process class="ReservoirWellInterface" cycle-start="true">
+			<Consumes>crude oil</Consumes>
+			<Consumes>flooding CO2</Consumes>
+			<Produces>crude oil</Produces>
+		</Process>
+
+		<Process class="DownholePump">
+			<Consumes>crude oil</Consumes>
+			<Consumes>lifting gas</Consumes>
+			<Produces>crude oil</Produces>
+			<Produces>gas fugitives</Produces>
+		</Process>
+
+		<Process class="CrudeOilDewatering">
+			<Consumes>crude oil</Consumes>
+			<Produces>crude oil</Produces>
+			<Produces>water</Produces>
+		</Process>
+
+		<Process class="Flaring"/>
+		<Process class="Venting"/>
+		<Process class="BitumenMining"/>
+
+		<Process class="CrudeOilStabilization" enabled="false">
+			<Consumes>oil for stabilization</Consumes>
+		</Process>
+
+		<Process class="HeavyOilUpgrading"/>
+
+		<Process class="HeavyOilDilution" enabled="false">
+			<Consumes>oil for dilution</Consumes>
+		</Process>
+
+		<Process class="CrudeOilStorage" enabled="false"/>
+
+		<Process class="WaterTreatment">
+			<Consumes>water</Consumes>
+			<Produces>water</Produces>
+		</Process>
+
+		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
+			<Contains>crude oil</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilDewatering" dst="WaterTreatment" name="crude oil dewatering to produced water treatment">
+			<Contains>water</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilDewatering" dst="Output" name="stabilization">
+			<Contains>oil for stabilization</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilDewatering" dst="HeavyOilUpgrading" name="upgrader">
+			<Contains>oil for upgrader</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilDewatering" dst="Output" name="dilution">
+			<Contains>oil for dilution</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilDewatering" dst="Output" name="storage">
+			<Contains>oil for storage</Contains>
+		</Stream>
+
+		<Stream src="Separation" dst="WaterTreatment" name="separator to produced water treatment">
+			<Contains>water</Contains>
+		</Stream>
+		
+		<Stream src="WaterTreatment" dst="Output" name="produced water treatment to steam">
+			<Contains>water for steam generation</Contains>
+			<Contains>water for reinjection</Contains>
+			<Contains>water for surface disposal</Contains>
+			<Contains>water for subsurface disposal</Contains>
+		</Stream>
+
+		<Stream src="Separation" dst="Flaring" name="separation to flaring">
+			<Contains>gas</Contains>
+		</Stream>
+
+		<Stream src="Flaring" dst="Venting" name="flaring to venting">
+			<Contains>gas</Contains>
+		</Stream>
+
+		<Stream src="Separation" dst="Environment" name="gas fugitives from separator">
+			<Contains>gas fugitives</Contains>
+		</Stream>
+
+		<Stream src="DownholePump" dst="Environment" name="gas fugitives from downhole pump">
+			<Contains>gas fugitives</Contains>
+		</Stream>
+
+		<Stream src="ReservoirWellInterface" dst="DownholePump" name="reservoir well interface to downhole pump">
+			<Contains>crude oil</Contains>
+		</Stream>
+
+		<Stream src="Reservoir" dst="ReservoirWellInterface" name="reservoir to reservoir well interface">
+			<Contains>crude oil</Contains>
+		</Stream>
+
+		<Stream src="DownholePump" dst="Separation" name="downhole pump to separator">
+			<Contains>crude oil</Contains>
+		</Stream>
+
+		<Stream src="Output" dst="DownholePump" name="lifting gas" impute="False">
+			<Contains>lifting gas</Contains>
+		</Stream>
+
+		<Stream src="Output" dst="ReservoirWellInterface" name="flooding CO2" impute="False">
+			<Contains>CO2</Contains>
+		</Stream>
+
+		<Stream src="Output" dst="WaterTreatment" name="blowdown recycled to treatment" impute="False">
+			<Contains>water</Contains>
+		</Stream>
+
+		<Stream src="BitumenMining" dst="Flaring" name="bitumen mining to flaring">
+			<Contains>gas</Contains>
+		</Stream>
+
+		<Stream src="HeavyOilUpgrading" dst="Flaring" name="heavy oil upgrading to flaring">
+			<Contains>gas</Contains>
+		</Stream>
+	</Field>
+
+</Model>

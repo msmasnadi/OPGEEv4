@@ -733,7 +733,7 @@ class Gas(AbstractSubstance):
         """
 
         :param stream:
-        :return:
+        :return:(float) Panda Series component molar fractions
         """
         total_molar_flow_rate = self.total_molar_flow_rate(stream)
         gas_flow_rates = stream.components.query("gas > 0.0").gas

@@ -91,6 +91,13 @@ class HeavyOilUpgrading(Process):
                           heavy_oil_upgrading_table["Cogeneration steam efficiency"]
         NG_to_heat = max(NG_dict["Fraction NG - Heating (W/O cogen)"] - heat_from_cogen / upgrader_process_gas_heating_value, 0)
 
+        proc_gas_flaring_rate = (self.upgrader_gas_comp *
+                                 self.oil.component_MW[self.upgrader_gas_comp.index] *
+                                 proc_gas_flared *
+                                 self.mole_to_scf)
+        flaring_gas = self.find_output_stream("gas")
+        flaring_gas.set_rates_from_series(proc_gas_flaring_rate, PHASE_GAS)
+
         # energy use
         energy_use = self.energy
         NG_consumption = (NG_to_cogen + NG_to_H2 + NG_to_heat) * self.NG_heating_value
@@ -106,12 +113,9 @@ class HeavyOilUpgrading(Process):
         energy_for_combustion = energy_use.data.drop("Electricity")
         combusion_emission = (energy_for_combustion * self.process_EF).sum()
         emissions.add_rate(EM_COMBUSTION, "CO2", combusion_emission)
-        proc_gas_flaring_rate = (self.upgrader_gas_comp *
-                                 self.oil.component_MW[self.upgrader_gas_comp.index] *
-                                 proc_gas_flared *
-                                 self.mole_to_scf)
+
 
         # TODO: check this with Adam. The E153 under Heavy Oil Upgrading does not seem right
-        emissions.add_from_series(EM_FLARING, proc_gas_flaring_rate)
+        # emissions.add_from_series(EM_FLARING, proc_gas_flaring_rate)
         pass
 
