@@ -105,6 +105,20 @@ class Field(Container):
         except OpgeeStopIteration as e:
             raise OpgeeException("Impute failed due to a process loop. Use Stream attribute impute='0' to break cycle.")
 
+    # TBD: still deciding how to implement this
+    @classmethod
+    def set_smart_default(cls, attr_def, attr_dict):
+        name = attr_def.name
+
+        if name == 'API':
+            value = 47.0 if attr_dict['GOR'].value > 10000 else 32.8
+            attr_def.set_default(value)
+        if name == 'GOR':
+            pass
+            # TBD
+        else:
+            raise OpgeeException(f"No smart default for {cls} attribute '{name}'")
+
     def run(self, analysis):
         """
         Run all Processes defined for this Field, in the order computed from the graph

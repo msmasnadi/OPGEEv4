@@ -13,7 +13,7 @@ from .error import OpgeeException, AttributeError
 from .log import getLogger
 from .pkg_utils import resourceStream
 from .XMLFile import XMLFile
-from .utils import coercible
+from .utils import coercible, getBooleanXML
 
 _logger = getLogger(__name__)
 
@@ -32,15 +32,21 @@ class Options(XmlInstantiable):
 
 class AttrDef(XmlInstantiable):
     def __init__(self, name, value=None, pytype=None, option_set=None, unit=None,
+                 has_smart_default=False, requires=None,
                  constraints=None, exclusive=None, synchronized=None):
         super().__init__(name)
         self.default = None
         self.option_set = option_set        # the name of the option set, if any
         self.unit = unit
         self.pytype = pytype
+        self.has_smart_default = has_smart_default
+        self.requires = requires
         self.constraints = constraints      # range constraints
         self.synchronized = synchronized
         self.exclusive = exclusive
+
+        if requires:
+            pass
 
         if value is not None:               # if value is None, we set default later
             self.set_default(value)
@@ -79,12 +85,16 @@ class AttrDef(XmlInstantiable):
         ops = ('GT', 'GE', 'LT', 'LE')
         constraints = [(op, coercible(a[op], float)) for op in ops if a.get(op)]
 
+        requires = [node.text for node in elt.findall('Requires')]
+
         # if elt.text is None, we supply the default later in __init__()
         obj = AttrDef(a['name'],
                       value=elt.text,
                       pytype=a.get('type'),
                       unit=a.get('unit'),
                       option_set=a.get('options'),
+                      has_smart_default=getBooleanXML(a.get('has_smart_default')),
+                      requires=requires,
                       constraints=constraints,
                       exclusive=a.get('exclusive'),
                       synchronized=a.get('synchronized'))
@@ -156,9 +166,6 @@ class ClassAttrs(XmlInstantiable):
 
             if attr.exclusive:
                 excludes[attr.exclusive].append(attr)
-
-
-
 
     @staticmethod
     def _lookup(obj, dict_name, key, raiseError=True):
@@ -241,7 +248,6 @@ class AttributeMixin():
     Consolidates attribute-related code shared by `Container` and `Process` classes.
     Note: must be mixed into classes that have both self.attr_dict and self.attr_defs.
     """
-
     def __init__(self):
         self.attr_dict = None
 
@@ -286,8 +292,8 @@ class AttributeMixin():
         attr_defs = AttrDefs.get_instance()
         attr_dict = {}
 
-        # TBD:   To avoid an import loop, we don't import Process from process.py. This
-        # TBD:   works, but it's a bit of a hack. There might be a better way...
+        # TBD: To avoid an import loop, we don't import Process from process.py. This
+        # TBD: works, but it's a bit of a hack. There might be a better way...
         if str(cls.__mro__[1]) == "<class 'opgee.process.Process'>":
             attr_defs = AttrDefs.get_instance()
             # i.e., isinstance(cls, Process)
@@ -311,13 +317,80 @@ class AttributeMixin():
             if unknown_attrs:
                 raise OpgeeException(f"Attributes {unknown_attrs} in model XML for '{classname}' lack metadata")
 
+            # TBD: For smart_defaults, we'd have to do these in topologically sorted order. Could sort the list
+            # TBD: into those with smart defaults (need sorting) and the rest. Then do the smart ones in order.
+            ordered = cls.sort_attributes(combined_dict)
+
             # set up all attributes with default values
-            for name, attr_def in combined_dict.items():
+            # for name, attr_def in combined_dict.items():
+            for name in ordered:
+                attr_def = combined_dict[name]
                 user_value = user_values.get(name)
+
+                if not user_value and attr_def.has_smart_default:
+                    cls.set_smart_default(name, attr_dict)
+
                 value = user_value or attr_def.default
+
                 attr_dict[name] = A(name, value=value, pytype=attr_def.pytype, unit=attr_def.unit)
 
         return attr_dict
+
+    @classmethod
+    def sort_attributes(cls, attr_def_dict):
+        """
+        Sort attributes in `attr_dict` so that those with smart defaults are processed after their requirements.
+        This is done by creating a directed graph and sorting it topologically by "Requires" dependencies
+        indicated in the XML.
+
+        :param attr_def_dict: (dict of AttrDef) dictionary of attribute definitions for a Process or Field
+        :return: (list of str) list of attributes
+        """
+        import networkx as nx
+
+        g = nx.DiGraph()
+
+        independent = []
+
+        for name, attr_def in attr_def_dict.items():
+            if attr_def.has_smart_default and attr_def.requires:
+                for required in attr_def.requires:
+                    g.add_edge(required, name)
+            else:
+                independent.append(name)
+
+        ordered = list(nx.topological_sort(g)) + independent
+        return ordered
+
+    # Deprecated?
+    # @classmethod
+    # def set_smart_defaults(cls, attr_dict):
+    #     """
+    #     Set smart defaults for all attributes in `attr_dict` that require it. This is done by creating
+    #     a directed graph and sorting it topologically by "Requires" dependencies indicated in the XML.
+    #
+    #     :param attr_dict: (dict of AttrDef) attribute dictionary for a Process or Field
+    #     :return: (list of str) list of attributes
+    #     """
+    #     import networkx as nx
+    #
+    #     g = nx.DiGraph()
+    #
+    #     independent = []
+    #
+    #     for name, attr_def in attr_dict.items():
+    #         if attr_def.has_smart_default:
+    #             if attr_def.requires:
+    #                 for required in attr_def.requires:
+    #                     g.add_edge(required, name)
+    #             else:
+    #                 independent.append(name)    # has smart default but no dependencies. (Is this a real use case?)
+    #
+    #     ordered = list(nx.topological_sort(g)) + independent
+    #
+    #     for name in ordered:
+    #         attr_def = attr_dict[name]
+    #         cls.set_smart_default(attr_def, attr_dict)
 
     @classmethod
     def check_attr_constraints(cls, attr_dict):

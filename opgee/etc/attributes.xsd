@@ -35,7 +35,7 @@
         </xs:complexType>
     </xs:element>
 
-    <xs:element name="Requires"/>
+    <xs:element name="Requires"/>   <!-- defines dependencies for SmartDefaults -->
 
     <xs:element name='AttrDef'>
         <xs:complexType mixed='true'>
@@ -49,6 +49,7 @@
             <xs:attribute name='unit'/>
             <xs:attribute name='exclusive'/>      <!-- exclusive attributes -->
             <xs:attribute name='synchronized'/>   <!-- synchronized attributes -->
+            <xs:attribute name='has_smart_default' type='xs:boolean'/>
 
             <!-- Numeric constraints -->
             <xs:attribute name="GT" type="xs:decimal"/>
