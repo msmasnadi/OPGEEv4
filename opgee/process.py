@@ -669,6 +669,7 @@ class Process(XmlInstantiable, AttributeMixin):
 
     def sum_intermediate_results(self):
         """
+        Sum intermediate energy and emission results
 
         :return:
         """

@@ -24,13 +24,13 @@ def test_water_branch(configure_logging_for_tests):
     return load_test_model('test_water_branch.xml')
 
 
-def test_run(test_water_branch):
+def test_steam(test_water_branch):
     analysis = test_water_branch.get_analysis('test_steam_generation')
-    field = analysis.get_field('test')
+    field = analysis.get_field('test_steam')
     field.run(analysis)
 
 
-def test_run(test_water_branch):
+def test_water(test_water_branch):
     analysis = test_water_branch.get_analysis('test_water_injection')
-    field = analysis.get_field('test')
+    field = analysis.get_field('test_water')
     field.run(analysis)

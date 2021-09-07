@@ -51,3 +51,5 @@ ppm = 1e-6 fraction
 # permeability
 Darcy = 9.869233E-13 * meter**2
 mD = Darcy / 1000
+
+lbm = lb

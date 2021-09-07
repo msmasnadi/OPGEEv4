@@ -21,10 +21,11 @@ class SteamGenerator(OpgeeObject):
         self.res_press = field.attr("res_press")
         self.steam_injection_delta_press = field.attr("steam_injection_delta_press")
 
-
+        # TODO: check fraction of OTSG is positive or zero
         self.fraction_steam_cogen = field.attr("fraction_steam_cogen")
         self.fraction_steam_solar = field.attr("fraction_steam_solar")
         self.fraction_OTSG = 1 - self.fraction_steam_cogen - self.fraction_steam_solar
+
 
         self.prod_water_inlet_temp = field.attr("prod_water_inlet_temp")
         self.prod_water_inlet_press = field.attr("prod_water_inlet_press")
@@ -69,9 +70,6 @@ class SteamGenerator(OpgeeObject):
         self.gas_turbine_type = field.attr("gas_turbine_type")
         self.duct_firing = field.attr("duct_firing")
         self.field = field
-
-
-
 
     def _after_init(self):
         self.water = self.field.water
@@ -157,7 +155,8 @@ class SteamGenerator(OpgeeObject):
                                      gas_MW_combust * LHV_stream["outlet_before_economizer"] / available_enthalpy
         constant_before_preheater = exhaust_consump_sum * exhaust_consump_MW / \
                                     gas_MW_combust * LHV_stream["outlet_before_preheater"] / available_enthalpy
-        constant_outlet = exhaust_consump_sum * exhaust_consump_MW / gas_MW_combust * LHV_stream["outlet"] / available_enthalpy
+        constant_outlet = exhaust_consump_sum * exhaust_consump_MW / gas_MW_combust * LHV_stream[
+            "outlet"] / available_enthalpy
 
         eta_eco = self.eta_economizer_heat_rec_OTSG
         eta_heater = self.eta_preheater_heat_rec_OTSG

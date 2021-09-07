@@ -91,16 +91,21 @@ class SteamGeneration(Process):
         fuel_consumption_solar = self.steam_generator.solar_SG(prod_water_mass_rate, makeup_water_mass_rate)
 
         # check balance
-        if abs(mass_in_OTSG.to("kg/day").m - mass_out_OTSG.to("kg/day").m) / mass_in_OTSG.to("kg/day").m > tolerance:
-            raise BalanceError(self.name, "OTSG_mass")
-        elif abs(mass_in_HRSG.to("kg/day").m - mass_out_HRSG.to("kg/day").m) / mass_in_HRSG.to("kg/day").m > tolerance:
-            raise BalanceError(self.name, "HRSG_mass")
-        elif abs(energy_in_OTSG.to("MJ/day").m - energy_out_OTSG.to("MJ/day").m) / energy_in_OTSG.to(
-                "MJ/day").m > tolerance:
-            raise BalanceError(self.name, "OTSG_energy")
-        elif abs(energy_in_HRSG.to("MJ/day").m - energy_out_HRSG.to("MJ/day").m) / energy_in_HRSG.to(
-                "MJ/day").m > tolerance:
-            raise BalanceError(self.name, "HRSG_energy")
+        # if abs(mass_in_OTSG.to("kg/day").m - mass_out_OTSG.to("kg/day").m) / mass_in_OTSG.to("kg/day").m > tolerance:
+        #     raise BalanceError(self.name, "OTSG_mass")
+        # elif abs(mass_in_HRSG.to("kg/day").m - mass_out_HRSG.to("kg/day").m) / mass_in_HRSG.to("kg/day").m > tolerance:
+        #     raise BalanceError(self.name, "HRSG_mass")
+        # elif abs(energy_in_OTSG.to("MJ/day").m - energy_out_OTSG.to("MJ/day").m) / energy_in_OTSG.to(
+        #         "MJ/day").m > tolerance:
+        #     raise BalanceError(self.name, "OTSG_energy")
+        # elif abs(energy_in_HRSG.to("MJ/day").m - energy_out_HRSG.to("MJ/day").m) / energy_in_HRSG.to(
+        #         "MJ/day").m > tolerance:
+        #     raise BalanceError(self.name, "HRSG_energy")
+
+        self.check_balance(mass_in_OTSG, mass_out_OTSG, "OTSG_mass")
+        self.check_balance(mass_in_HRSG, mass_out_HRSG, "HRSG_mass")
+        self.check_balance(energy_in_OTSG, energy_out_OTSG, "OTSG_energy")
+        self.check_balance(energy_in_HRSG, energy_out_HRSG, "HRSG_energy")
 
         # energy use
         energy_use = self.energy
@@ -131,3 +136,18 @@ class SteamGeneration(Process):
         result /= self.eta_displacementpump_steamgen
 
         return result
+
+    def check_balance(self, input, output, label):
+        """
+
+        :param input:
+        :param output:
+        :param label:
+        :return:
+        """
+
+        unit = input.units
+        if abs(input.m - output.to(unit).m) / input.m > tolerance:
+            raise BalanceError(self.name, label)
+
+

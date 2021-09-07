@@ -56,6 +56,4 @@ class VRUCompressor(Process):
         self.print_running_msg()
 
 
-class Venting(Process):
-    def run(self, analysis):
-        self.print_running_msg()
+

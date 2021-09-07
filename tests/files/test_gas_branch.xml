@@ -101,6 +101,20 @@
 		<Stream src="Flaring" dst="Venting" name="flaring to venting">
 			<Contains>gas</Contains>
 		</Stream>
+		
+		<Stream src="Flaring" dst="Environment" name="flaring to environment">
+			<Contains>gas flaring</Contains>
+			<Contains>methane slip</Contains>
+		</Stream>
+		
+		<Stream src="Venting" dst="GasGathering" name="venting to gas gathering">
+			<Contains>gas</Contains>
+		</Stream>
+		
+		<Stream src="Venting" dst="Environment" name="venting to environment">
+			<Contains>gas venting</Contains>
+			<Contains>gas fugitives</Contains>
+		</Stream>
 
 		<Stream src="Separation" dst="Environment" name="gas fugitives from separator">
 			<Contains>gas fugitives</Contains>

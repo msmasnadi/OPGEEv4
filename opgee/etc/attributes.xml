@@ -280,7 +280,7 @@
     <AttrDef name="loss_shell_OTSG" type="float" unit="frac" desc="OTSG shell loss inefficiency">0.02</AttrDef>
     <AttrDef name="loss_shell_HRSG" type="float" unit="frac" desc="HRSG shell loss inefficiency">0.02</AttrDef>
     <AttrDef name="loss_gaseous_OTSG" type="float" unit="btu/mol" desc="OTSG other loss - Gaseous fuels">11.02</AttrDef>
-    <AttrDef name="loss_liquid_OTSG" type="float" unit="btu/lbm" desc="OTSG other loss - Liquid fuels">250.0</AttrDef>
+    <AttrDef name="loss_liquid_OTSG" type="float" unit="btu/lb" desc="OTSG other loss - Liquid fuels">250.0</AttrDef>
     <AttrDef name="blowdown_heat_recovery" type="binary" desc="blowdown heat recovery availability">1</AttrDef>
     <AttrDef name="eta_blowdown_heat_rec_OTSG" type="float" unit="frac" desc="OTSG heat recovery efficiency from blowdown rejected (for steam quality in excess of 80%)">0.95</AttrDef>
     <AttrDef name="eta_blowdown_heat_rec_HRSG" type="float" unit="frac" desc="HRSG heat recovery efficiency from blowdown rejected (for steam quality in excess of 80%)">0.95</AttrDef>
@@ -324,6 +324,8 @@
     <AttrDef name="gas_turbine_type" options="gas_turbine_type"/>
 
     <AttrDef name="combusted_gas_frac" type="float" unit="percent" desc="Combusted gas total fraction">93.0</AttrDef>
+    <AttrDef name="surface_piping_leakage" type="float" unit="kg/day" desc="Surface piping leakage for venting kg CH4/d">0.0</AttrDef>
+
 
   </ClassAttrs>
   <ClassAttrs name="SurveyTruck">
