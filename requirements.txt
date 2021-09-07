@@ -19,7 +19,6 @@ sphinx-argparse==0.2.5
 sphinx-rtd-theme==0.4.2
 thermosteam==0.25.4
 dash-cytoscape==0.2.0
-
 sphinx_rtd_theme~=0.4.3
 opgee~=4.0a0
 networkx~=2.5
