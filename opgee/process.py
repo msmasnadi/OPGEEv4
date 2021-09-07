@@ -684,6 +684,8 @@ class Process(XmlInstantiable, AttributeMixin):
 
         if self.intermediate_results is None:
             return
+        self.energy.reset()
+        self.emissions.reset()
 
         for key, (energy, emission) in self.intermediate_results.items():
             self.energy.add_rates_from(energy)

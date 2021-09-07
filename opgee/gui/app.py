@@ -8,8 +8,8 @@ import dash_cytoscape as cyto
 from dash.dependencies import Input, Output, State
 import dash_table
 from pathlib import Path
-#import json
-#import plotly.graph_objs as go
+# import json
+# import plotly.graph_objs as go
 from textwrap import dedent as d
 
 from .. import Process
@@ -22,6 +22,7 @@ from ..utils import mkdirs
 
 _logger = getLogger(__name__)
 
+
 # Required to load separator_model.xml
 class After(Process):
     def run(self, analysis):
@@ -30,14 +31,15 @@ class After(Process):
     def impute(self):
         pass
 
+
 # Load extra layouts
 # cyto.load_extra_layouts()   # required for cose-bilkent
 
 def field_network_graph(field):
-
     # TBD: check if disabled processes are being drawn.
-    nodes = [{'data': {'id': name, 'label':name}} for name in field.process_dict.keys()]        # , 'size': 150  didn't work
-    edges = [{'data': {'id': name, 'source': s.src_name, 'target': s.dst_name, 'contents': ', '.join(s.contents)}} for name, s in field.stream_dict.items()]
+    nodes = [{'data': {'id': name, 'label': name}} for name in field.process_dict.keys()]  # , 'size': 150  didn't work
+    edges = [{'data': {'id': name, 'source': s.src_name, 'target': s.dst_name, 'contents': ', '.join(s.contents)}} for
+             name, s in field.stream_dict.items()]
 
     edge_color = 'maroon'
     node_color = 'sandybrown'
@@ -47,11 +49,11 @@ def field_network_graph(field):
         cyto.Cytoscape(
             id='network-layout',
             responsive=True,
-            elements=nodes+edges,
+            elements=nodes + edges,
             autounselectify=False,
             autoungrabify=True,
-            userPanningEnabled=False,   # may need to reconsider this when model is bigger
-            userZoomingEnabled=False,   # automatic zoom when user changes browser size still works
+            userPanningEnabled=False,  # may need to reconsider this when model is bigger
+            userZoomingEnabled=False,  # automatic zoom when user changes browser size still works
             style={'width': '100%', 'height': '500px'},
             layout={
                 'name': 'breadthfirst',
@@ -79,17 +81,17 @@ def field_network_graph(field):
                         'line-color': edge_color,
                         'line-opacity': 0.50,
                         'width': 1,
-                        'target-distance-from-node': 1, # stop just short of the node
+                        'target-distance-from-node': 1,  # stop just short of the node
                         'source-distance-from-node': 1,
 
                         # "width": "mapData(weight, 0, 30, 1, 8)",
                         # "content": "data(weight)",
                         # "overlay-padding": "30px",
-                        'label': 'data(contents)',    # TBD: how to get this off the line?
+                        'label': 'data(contents)',  # TBD: how to get this off the line?
                         'text-opacity': 1.0,
                         'text-rotation': 'autorotate',
                         'text-margin-y': -10,
-                        'text-margin-x':  7,
+                        'text-margin-x': 7,
                         'text-background-color': 'blue',
                         "font-size": "14px",
                     }
@@ -101,6 +103,7 @@ def field_network_graph(field):
     # noinspection PyCallingNonCallable
     return layout
 
+
 # styles: for right side hover/click component
 styles = {
     'pre': {
@@ -108,6 +111,7 @@ styles = {
         'overflowX': 'scroll'
     }
 }
+
 
 def emissions_table(analysis, procs):
     import pandas as pd
@@ -164,87 +168,89 @@ def emissions_table(analysis, procs):
     )
     return tbl
 
+
 def processes_layout(app, field):
     # the main row
     # noinspection PyCallingNonCallable
     layout = html.Div([
-            # graph component
-            html.Div(
-                className="row",
-                children=[
-                    field_network_graph(field)
-                ],
-            ),
+        # graph component
+        html.Div(
+            className="row",
+            children=[
+                field_network_graph(field)
+            ],
+        ),
 
-            html.Div(
-                children=[],
-                className="row",
-                id='emissions-table',
-                style = {
-                    'background-color': 'aliceblue',
-                    'border-radius': '4px',
-                    'border': '1px solid',
-                }
-            ),
+        html.Div(
+            children=[],
+            className="row",
+            id='emissions-table',
+            style={
+                'background-color': 'aliceblue',
+                'border-radius': '4px',
+                'border': '1px solid',
+            }
+        ),
 
-            html.Br(),
+        html.Br(),
 
-            # output components
-            html.Div(
-                className="twelve columns",
-                children=[
-                    html.Div(
-                        className='six columns',
-                        children=[
-                            dcc.Markdown(d("""
+        # output components
+        html.Div(
+            className="twelve columns",
+            children=[
+                html.Div(
+                    className='six columns',
+                    children=[
+                        dcc.Markdown(d("""
                             **Emissions and energy use**
                             """), style={'margin-left': '4px'}),
-                            html.Pre(id='emissions-and-energy',
-                                     style={'margin-left': '8px'})
-                        ],
-                        style={
-                            # 'height': '400px',
-                            'display': 'inline-block',
-                            'background-color': 'aliceblue',
-                            'border-radius': '4px',
-                            'border': '1px solid',
-                        }),
+                        html.Pre(id='emissions-and-energy',
+                                 style={'margin-left': '8px'})
+                    ],
+                    style={
+                        # 'height': '400px',
+                        'display': 'inline-block',
+                        'background-color': 'aliceblue',
+                        'border-radius': '4px',
+                        'border': '1px solid',
+                    }),
 
-                    html.Div(
-                        className='six columns',
-                        children=[
-                            dcc.Markdown(d("""
+                html.Div(
+                    className='six columns',
+                    children=[
+                        dcc.Markdown(d("""
                             **Stream Data**
                             """), style={'margin-left': '8px'}),
-                            html.Div(
-                                children=[],
-                                id='stream-data',
-                                style={'margin-left': '8px'},
-                            )
-                        ],
-                        style={
-                            # 'height': '400px',
-                            'display': 'inline-block',
-                            'background-color': 'aliceblue',
-                            'border-radius': '4px',
-                            'border': '1px solid',
-                        })
-                ],
-                style={'height': '400px', 'display': 'inline-block'})
-        ],
+                        html.Div(
+                            children=[],
+                            id='stream-data',
+                            style={'margin-left': '8px'},
+                        )
+                    ],
+                    style={
+                        # 'height': '400px',
+                        'display': 'inline-block',
+                        'background-color': 'aliceblue',
+                        'border-radius': '4px',
+                        'border': '1px solid',
+                    })
+            ],
+            style={'height': '400px', 'display': 'inline-block'})
+    ],
         className="row",
     )
     return layout
+
 
 def settings_layout(field):
     proc_names = sorted([proc.name for proc in field.processes()])
     proc_sections = [attr_inputs(proc_name) for proc_name in proc_names]
 
     sections = [
-        attr_inputs('Model'),
-        attr_inputs('Analysis'),
-        attr_inputs('Field'),
-    ] + proc_sections
+                   attr_inputs('Model'),
+                   attr_inputs('Analysis'),
+                   attr_inputs('Field'),
+               ] + proc_sections
 
     attributes_xml = getParam('OPGEE.UserAttributesFile') or ''
 
@@ -259,12 +265,13 @@ def settings_layout(field):
         ],
             style={'height': '100px'}),
         html.Div(sections,
-            className="row",
-        ),
+                 className="row",
+                 ),
     ], style={'textAlign': "center"},
-       className="row"
+        className="row"
     )
     return layout
+
 
 def results_layout(field):
     # noinspection PyCallingNonCallable
@@ -278,13 +285,14 @@ def results_layout(field):
             dcc.Graph(id="ci-barchart", style={"width": "600px"}),
         ),
     ], className="row",
-       style={#'display': 'flex',
-              'align-items': 'center',
-              'textAlign': "center",
-                'justify-content': 'center'
-              }
+        style={  # 'display': 'flex',
+            'align-items': 'center',
+            'textAlign': "center",
+            'justify-content': 'center'
+        }
     )
     return layout
+
 
 #
 # TBD: Really only works on a current field.
@@ -332,6 +340,7 @@ def generate_settings_callback(app, analysis, field):
                  Input('save-settings-button', 'n_clicks'),
                  Input('settings-filename', 'value'),
                  state=state_list)(func)
+
 
 def save_attributes(xml_path, ids, values, analysis, field):
     """
@@ -397,6 +406,7 @@ def save_attributes(xml_path, ids, values, analysis, field):
     tree = ET.ElementTree(root)
     tree.write(xml_path, xml_declaration=True, pretty_print=True, encoding='utf-8')
 
+
 def app_layout(app, model, analysis):
     analysis_names = [analysis.name for analysis in model.analyses()]
 
@@ -412,7 +422,6 @@ def app_layout(app, model, analysis):
     }
 
     horiz_space = html.Span("", style={'width': '50px', 'display': 'inline-block'})
-
 
     # noinspection PyCallingNonCallable
     layout = html.Div([
@@ -478,7 +487,7 @@ def app_layout(app, model, analysis):
                         selected_className='custom-tab--selected'
                     ),
                     dcc.Tab(
-                        children=[], # see results_layout()
+                        children=[],  # see results_layout()
                         label='Results',
                         value='results',
                         className='custom-tab',
@@ -491,11 +500,13 @@ def app_layout(app, model, analysis):
     ])
     return layout
 
+
 def get_analysis_and_field(current_model, data):
     analysis = current_model.get_analysis(data['analysis'])
     field = analysis.get_field(data['field'], raiseError=False) or analysis.first_field()
 
     return analysis, field
+
 
 def main(args):
     from ..version import VERSION
@@ -507,13 +518,13 @@ def main(args):
     field_name = args.field
 
     initial_analysis = model.get_analysis(analysis_name)
-    initial_field = model.get_field(field_name)             # deprecated?
+    initial_field = model.get_field(field_name)  # deprecated?
 
     # import the css template, and pass the css template into dash
     external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
     app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
     app.config['suppress_callback_exceptions'] = True
-    app.title = "OPGEEv" + VERSION # OPGEEv4.0a0
+    app.title = "OPGEEv" + VERSION  # OPGEEv4.0a0
 
     # TBD:
     # - text field (or Open panel) to select a model XML file to run? Or select this from command-line?
@@ -609,8 +620,8 @@ def main(args):
             stream = field.find_stream(name)
             with pd.option_context('display.max_rows', None,
                                    'precision', 3):
-                    nonzero = stream.components.query('solid > 0 or liquid > 0 or gas > 0')
-                    components = str(nonzero.astype(float)) if len(nonzero) else None
+                nonzero = stream.components.query('solid > 0 or liquid > 0 or gas > 0')
+                components = str(nonzero.astype(float)) if len(nonzero) else None
 
             text = f"{name} (tonne/day)\n{components}" if components else f"{name}:\n<empty stream>"
             return html.Pre(text)
@@ -684,7 +695,7 @@ def main(args):
         analysis, field = get_analysis_and_field(model, analysis_and_field)
 
         ci = field.carbon_intensity.m
-        fn_unit  = analysis.attr('functional_unit')
+        fn_unit = analysis.attr('functional_unit')
         en_basis = analysis.attr('energy_basis')
         return f"CI: {ci:0.2f} g CO2e/MJ {en_basis} of {fn_unit}"
 
@@ -699,7 +710,7 @@ def main(args):
 
         analysis, field = get_analysis_and_field(model, analysis_and_field)
 
-        fn_unit  = analysis.attr('functional_unit')
+        fn_unit = analysis.attr('functional_unit')
 
         value_col = r'$g CO_2 MJ^{-1}$'
         df = pd.DataFrame({"category": ["Exploration", "Surface Processing", "Transportation"],
@@ -718,8 +729,8 @@ def main(args):
         fig = go.Figure(data=[go.Bar(name=row.category, x=[row.name], y=[row.value]) for idx, row in df.iterrows()])
         # Change the bar mode
         fig.update_layout(barmode='stack',
-                          yaxis_title = "g CO2 per MJ", # doesn't render in latex: r'g CO$_2$ MJ$^{-1}$',
-                          xaxis_title = f'Carbon Intensity of {fn_unit.title()}')
+                          yaxis_title="g CO2 per MJ",  # doesn't render in latex: r'g CO$_2$ MJ$^{-1}$',
+                          xaxis_title=f'Carbon Intensity of {fn_unit.title()}')
 
         # fig = px.bar(df, x="Name", y=value_col, color="Category", barmode="stack",
         #              hover_data=[value_col],
@@ -727,4 +738,3 @@ def main(args):
         return fig
 
     app.run_server(debug=True)
-

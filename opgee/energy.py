@@ -121,4 +121,12 @@ class Energy(OpgeeObject):
         # for carrier in self.carriers:
         #     self.add_rate(energy.data[carrier])
 
+    def reset(self):
+        """
+        Reset energy instance
+
+        :return:
+        """
+        self.data[:] = 0.0
+
 
