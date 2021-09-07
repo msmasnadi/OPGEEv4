@@ -36,8 +36,7 @@ class WaterTreatment(Process):
         self.makeup_water_temp = self.attr("makeup_water_temp")
         self.makeup_water_press = self.attr("makeup_water_press")
 
-        self.intermediate_results = {"Produced Water": (Energy(), Emissions()),
-                                     "Makeup Water": (Energy(), Emissions())}
+        self.init_intermediate_results(["Produced Water", "Makeup Water"])
 
     def run(self, analysis):
         self.print_running_msg()
