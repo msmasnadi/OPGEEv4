@@ -658,6 +658,9 @@ class Process(XmlInstantiable, AttributeMixin):
 
         return energy_consumption
 
+    def init_intermediate_results(self, names):
+        self.intermediate_results = {name : (Energy(), Emissions()) for name in names}
+
     def get_intermediate_results(self):
         """
         This will be overridden in the water treatment subprocess
