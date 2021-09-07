@@ -577,7 +577,22 @@ def main(args):
             values = '\n'.join([f"{name:19s} {round(value.m, digits)}" for name, value in rates.items()])
             energy_str = f"\n\nEnergy use: (mmbtu/day)\n{values}"
 
-            return header + emissions_str + energy_str
+            # display intermediate results
+            intermediate_str = ''
+            intermediate = proc.get_intermediate_results()
+            if intermediate is not None:
+                intermediate_str += '\n\n** Intermediate results **'
+                for key, (energy, emissions) in intermediate.items():
+                    rates = emissions.rates(gwp=analysis.gwp)
+                    em_str = f"\nEmissions: (tonne/day)\n{rates.astype(float)}"
+
+                    rates = energy.rates()
+                    values = '\n'.join([f"{name:19s} {round(value.m, digits)}" for name, value in rates.items()])
+                    en_str = f"\nEnergy use: (mmbtu/day)\n{values}"
+
+                    intermediate_str += f"\n\n{key}:\n{em_str}\n{en_str}"
+
+            return header + emissions_str + energy_str + intermediate_str
         else:
             return ''
 
