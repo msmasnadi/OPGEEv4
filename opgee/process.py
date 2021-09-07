@@ -125,7 +125,7 @@ def run_corr_eqns(x1, x2, x3, x4, x5, coef_df):
     x = pd.Series(
         data=[1, x1, x2, x3, x4, x5, x1 * x2, x1 * x3, x1 * x4, x1 * x5, x2 * x3, x2 * x4, x2 * x5, x3 * x4,
               x3 * x5, x4 * x5, x1 ** 2, x2 ** 2, x3 ** 2, x4 ** 2, x5 ** 2], index=coef_df.index)
-    df = coef_df.mul(x, axis = 0)
+    df = coef_df.mul(x, axis=0)
     result = df.sum(axis="rows")
     return result
 
@@ -302,7 +302,7 @@ class Process(XmlInstantiable, AttributeMixin):
         residual_oil_density = self.model.const("residual-oil-density")
         const = 150 if type == "tanker" else 350
 
-        result = (14.42/load_factor.m + const) * 0.735 * residual_oil_LHV.m / residual_oil_density.m
+        result = (14.42 / load_factor.m + const) * 0.735 * residual_oil_LHV.m / residual_oil_density.m
         return ureg.Quantity(result, "btu/hp/hr")
 
     @property
@@ -659,7 +659,12 @@ class Process(XmlInstantiable, AttributeMixin):
         return energy_consumption
 
     def init_intermediate_results(self, names):
-        self.intermediate_results = {name : (Energy(), Emissions()) for name in names}
+        """
+
+        :param names:
+        :return:
+        """
+        self.intermediate_results = {name: (Energy(), Emissions()) for name in names}
 
     def get_intermediate_results(self):
         """
@@ -683,7 +688,6 @@ class Process(XmlInstantiable, AttributeMixin):
         for key, (energy, emission) in self.intermediate_results.items():
             self.energy.add_rates_from(energy)
             self.emissions.add_rates_from(emission)
-
 
     # Deprecated
     # def venting_fugitive_rate(self, trial=None):
@@ -825,6 +829,7 @@ class Output(Process):
     """
     Receives all final streams from a field and performs CI calculations from them.
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__('Output', desc='Field output')
         self.energy_flow = None
@@ -832,7 +837,7 @@ class Output(Process):
     def run(self, analysis):
         self.print_running_msg()
 
-        fn_unit  = analysis.attr('functional_unit')
+        fn_unit = analysis.attr('functional_unit')
         en_basis = analysis.attr('energy_basis')
         oil = self.field.oil
 
@@ -846,11 +851,12 @@ class Output(Process):
             energy_flow = mass_rate * heating_values['oil']
 
         elif fn_unit == 'gas':
-            mass_rates = sum([stream.component[PHASE_GAS] * heating_values for stream in inputs]) if inputs else zero_mass_rate
+            mass_rates = sum(
+                [stream.component[PHASE_GAS] * heating_values for stream in inputs]) if inputs else zero_mass_rate
             energy_flow = sum(mass_rates * heating_values)
 
         else:
-            raise OpgeeException(f"Unknown functional unit: '{fn_unit}'")   # should never happen
+            raise OpgeeException(f"Unknown functional unit: '{fn_unit}'")  # should never happen
 
         self.energy_flow = energy_flow.to("MJ/day")
 
