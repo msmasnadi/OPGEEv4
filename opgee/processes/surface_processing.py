@@ -11,10 +11,6 @@ class AfterDewatering(Process):
         self.print_running_msg()
 
 
-class GasGathering(Process):
-    def run(self, analysis):
-        self.print_running_msg()
-
 
 class GasDehydration(Process):
     def run(self, analysis):
@@ -51,9 +47,7 @@ class RyanHolmes(Process):
         self.print_running_msg()
 
 
-class VRUCompressor(Process):
-    def run(self, analysis):
-        self.print_running_msg()
+
 
 
 

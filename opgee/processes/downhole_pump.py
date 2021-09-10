@@ -14,6 +14,7 @@ class DownholePump(Process):
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
+        self.downhole_pump = field.attr("downhole_pump")
         self.res_temp = field.attr("res_temp")
         self.wellhead_press = field.attr("wellhead_pressure")
         self.wellhead_temp = field.attr("wellhead_temperature")
@@ -47,6 +48,9 @@ class DownholePump(Process):
         output.copy_flow_rates_from(input)
         output.subtract_gas_rates_from(gas_fugitives)
         output.set_temperature_and_pressure(self.wellhead_temp, self.wellhead_press)
+
+        if self.downhole_pump != 1:
+            return
 
         # energy use
         oil = self.field.oil
@@ -130,8 +134,8 @@ class DownholePump(Process):
         # emission
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")
-        combusion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.add_rate(EM_COMBUSTION, "CO2", combusion_emission)
+        combustion_emission = (energy_for_combustion * self.process_EF).sum()
+        emissions.add_rate(EM_COMBUSTION, "CO2", combustion_emission)
 
         emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
 

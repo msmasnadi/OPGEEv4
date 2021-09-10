@@ -1,13 +1,12 @@
-import pandas as pd
-
 import math
-from thermosteam import Chemical, Mixture
+import pandas as pd
 from pandas import Series
+from pyXSteam.XSteam import XSteam
+from thermosteam import Chemical, Mixture
 from . import ureg
 from .core import OpgeeObject
 from .error import OpgeeException
 from .stream import PHASE_LIQUID, Stream, PHASE_GAS, PHASE_SOLID
-from pyXSteam.XSteam import XSteam
 
 # ndigit is required for the lookup steam table, which has a max of 2 digits.
 ndigit = 2
@@ -41,6 +40,10 @@ def mol_weight(component, with_units=True):
         result = ureg.Quantity(result, "g/mol")
 
     return result
+
+_components = list(_dict_chemical.keys())
+component_MW = pd.Series({name: mol_weight(name, with_units=False) for name in _components},
+                          dtype="pint[g/mole]")
 
 
 def rho(component, temperature, pressure, phase):
@@ -263,6 +266,10 @@ class AbstractSubstance(OpgeeObject):
     """
     OilGasWater class contains Oil, Gas and Water class
     """
+    # #TODO: the emissions.py call this
+    # components = list(_dict_chemical.keys())
+    # component_MW = pd.Series({name: mol_weight(name, with_units=False) for name in components},
+    #                          dtype="pint[g/mole]")
 
     def __init__(self, field):
         """
@@ -281,8 +288,7 @@ class AbstractSubstance(OpgeeObject):
         self.std_temp = self.std_press = None
 
         components = list(_dict_chemical.keys())
-        self.component_MW = pd.Series({name: mol_weight(name, with_units=False) for name in components},
-                                      dtype="pint[g/mole]")
+        self.component_MW = component_MW
 
         self.component_LHV_molar = pd.Series(
             {name: heating_value(name, basis='LHV', with_units=False) for name in components},
@@ -983,6 +989,16 @@ class Gas(AbstractSubstance):
         volume_flow_rate = total_mass_rate / density
         return volume_flow_rate
 
+    def volume_flow_rate_STP(self, stream):
+        """
+
+        :param stream:
+        :return: Gas volume flow rate at standard temp and press (unit = m3/day)
+        """
+        total_molar_flow_rate = self.total_molar_flow_rate(stream)
+        result = total_molar_flow_rate / self.field.model.const("mol-per-scf")
+        return result.to("mmscf/day")
+
     def mass_energy_density(self, stream):
         """
 
@@ -1172,4 +1188,3 @@ class Water(AbstractSubstance):
         result = vapor_enthalpy * steam_quality + liquid_enthalpy * (1 - steam_quality)
         result = mass_rate * result
         return result.to("MJ/day")
-

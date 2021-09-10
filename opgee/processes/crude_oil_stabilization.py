@@ -80,8 +80,8 @@ class CrudeOilStabilization(Process):
         overall_compression_ratio = self.stab_gas_press / input.pressure
         compression_ratio_per_stage = Compressor.get_compression_ratio(overall_compression_ratio)
         num_of_compression = Compressor.get_num_of_compression(overall_compression_ratio)
-        work_sum = Compressor.get_compressor_work(self.field, input.temperature, input.pressure,
-                                                  output_stab_gas, compression_ratio_per_stage, num_of_compression)
+        work_sum, _ = Compressor.get_compressor_work_temp(self.field, input.temperature, input.pressure,
+                                                       output_stab_gas, compression_ratio_per_stage, num_of_compression)
         horsepower = work_sum * gas_removed_by_stabilizer
         brake_horsepower = horsepower / self.compressor_eff
         energy_consumption += self.get_energy_consumption(self.prime_mover_type, brake_horsepower)

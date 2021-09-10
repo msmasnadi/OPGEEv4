@@ -10,7 +10,7 @@ class Compressor(OpgeeObject):
         self.field = field
 
     @staticmethod
-    def get_compressor_work(field, inlet_temp, inlet_press, gas_stream, compression_ratio, num_of_compression):
+    def get_compressor_work_temp(field, inlet_temp, inlet_press, gas_stream, compression_ratio, num_of_compression):
         """
 
         :param field:
@@ -42,7 +42,7 @@ class Compressor(OpgeeObject):
                            inlet_press * compression_ratio * num_of_compression)
 
         work_sum = ureg.Quantity(work.m, "hp*day/mmscf")
-        return work_sum
+        return work_sum, inlet_temp
 
     @staticmethod
     def get_compression_ratio_stages(overall_compression_ratio_stages):

@@ -20,4 +20,7 @@ from .bitumen_mining import BitumenMining
 from .steam_generation import SteamGeneration
 from .water_injection import WaterInjection
 from .flaring import Flaring
+from .venting import Venting
+from .VRU_compressor import VRUCompressor
+from .gas_gathering import GasGathering
 

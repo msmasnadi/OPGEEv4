@@ -207,8 +207,8 @@ class Separation(Process):
                        compression_ratio_per_stages,
                        gas_compression_volume_stages,
                        num_of_compression_stages):
-            work_sum = Compressor.get_compressor_work(field, inlet_temp, inlet_press,
-                                                      gas_stream, compression_ratio, num_of_compression)
+            work_sum, _ = Compressor.get_compressor_work_temp(field, inlet_temp, inlet_press,
+                                                           gas_stream, compression_ratio, num_of_compression)
             horsepower = work_sum * gas_compression_volume
             brake_horsepower = horsepower / self.compressor_eff
             brake_horsepower_of_stages.append(brake_horsepower)

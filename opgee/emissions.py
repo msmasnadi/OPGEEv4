@@ -11,6 +11,7 @@ from .core import OpgeeObject, magnitude
 from .error import OpgeeException
 from .stream import Stream, PHASE_GAS
 from .log import getLogger
+from .thermodynamics import component_MW
 
 _logger = getLogger(__name__)
 
@@ -166,7 +167,7 @@ class Emissions(OpgeeObject):
         for gas, rate in kwargs.items():
             self.add_rate(category, gas, rate)
 
-    def add_from_stream(self, category, stream):
+    def add_from_stream(self, category, stream, type="Non_Combustion"):
         """
         Add emission flow rates from a Stream instance to the given emissions category.
 
@@ -183,6 +184,10 @@ class Emissions(OpgeeObject):
         # All gas-phase hydrocarbons heavier than methane are considered VOCs
         voc_rate = stream.components.loc[Stream.VOCs, PHASE_GAS].sum()
         self.add_rate(category, 'VOC', voc_rate)
+        if type == "Combustion":
+            GHG = stream.total_gases_rates() / component_MW[stream.emission_comp] * component_MW["CO2"]
+        # else:
+        #     GHG =
         GHG = self.data[category].sum()
         self.add_rate(category, "GHG", GHG)
 

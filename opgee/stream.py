@@ -85,11 +85,13 @@ class Stream(XmlInstantiable, AttributeMixin):
     # All hydrocarbon gases other than methane (C1) are considered VOCs.
     VOCs = _hydrocarbons[1:]
 
+
     _solids = ['PC']  # petcoke
     _liquids = ['oil']
     # _hc_molecules = ['CH4', 'C2H6', 'C3H8', 'C4H10']
     _gases = ['N2', 'O2', 'CO2', 'H2O', 'H2', 'H2S', 'SO2', "CO"]
     _other = ['Na+', 'Cl-', 'Si-']
+    emission_comp = _hydrocarbons + _gases
 
     #: The stream components tracked by OPGEE. This list can be extended by calling ``Stream.extend_components(names)``,
     #: or more simply by defining configuration file variable ``OPGEE.StreamComponents``.

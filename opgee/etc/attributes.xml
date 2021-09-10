@@ -257,7 +257,7 @@
     <AttrDef name="air_comp_CO2" unit="mol_pct" type="float">0.0294</AttrDef>
     <AttrDef name="air_comp_H2O" unit="mol_pct" type="float">2.0</AttrDef>
 
-       <AttrDef name="NG_fuel_share_OTSG_produced" type="float" unit="frac" desc="Fraction produced gas of OTSG gaseous fuels share">0.0</AttrDef>
+    <AttrDef name="NG_fuel_share_OTSG_produced" type="float" unit="frac" desc="Fraction produced gas of OTSG gaseous fuels share">0.0</AttrDef>
     <AttrDef name="NG_fuel_share_HRSG_produced" type="float" unit="frac" desc="Fraction product gas of GT fuel input type">0.0</AttrDef>
     <AttrDef name="steam_quality_outlet" type="float" unit="frac" desc="Steam quality at generator outlet">0.7</AttrDef>
     <AttrDef name="steam_quality_after_blowdown" type="float" desc="Desired steam quality after blowdown and recycle (if any)">0.7</AttrDef>
@@ -325,6 +325,25 @@
 
     <AttrDef name="combusted_gas_frac" type="float" unit="percent" desc="Combusted gas total fraction">93.0</AttrDef>
     <AttrDef name="surface_piping_leakage" type="float" unit="kg/day" desc="Surface piping leakage for venting kg CH4/d">0.0</AttrDef>
+    <AttrDef name="eta_compressor_lifting" type="float" unit="percent" desc="Gas lifting compressor parameters (1-5 stages) - compressor efficiency">75.0</AttrDef>
+    <Options name="prime_mover_type_gas_lifting" default="NG_engine">
+      <Option>NG_engine</Option>
+      <Option>Electric_motor</Option>
+      <Option>Diesel_engine</Option>
+      <Option>NG_turbine</Option>
+    </Options>
+
+    <AttrDef name="prime_mover_type_gas_lifting" type="str" options="prime_mover_type_gas_lifting">NG_engine</AttrDef>
+    <AttrDef name="VRU_discharge_press" type="float" unit="psia" desc="VRU compressor discharge pressure">500.0</AttrDef>
+        <Options name="prime_mover_type_VRU" default="NG_engine">
+      <Option>NG_engine</Option>
+      <Option>Electric_motor</Option>
+      <Option>Diesel_engine</Option>
+      <Option>NG_turbine</Option>
+    </Options>
+
+    <AttrDef name="prime_mover_type_VRU" type="str" options="prime_mover_type_VRU">NG_engine</AttrDef>
+    <AttrDef name="eta_compressor_VRU" type="float" unit="percent" desc="VRU compressor efficiency">75.0</AttrDef>
 
 
   </ClassAttrs>
