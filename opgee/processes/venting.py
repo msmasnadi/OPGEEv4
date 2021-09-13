@@ -70,14 +70,17 @@ class Venting(Process):
         gas_to_vent = self.find_output_stream("gas venting")
         gas_to_vent.copy_flow_rates_from(input)
         gas_to_vent.multiply_flow_rates(venting_frac.m)
+        gas_to_vent.set_temperature_and_pressure(self.amb_temp, self.amb_press)
 
         gas_fugitives = self.find_output_stream("gas fugitives")
         gas_fugitives.copy_flow_rates_from(input)
         gas_fugitives.multiply_flow_rates(fugitive_frac.m)
+        gas_fugitives.set_temperature_and_pressure(self.amb_temp, self.amb_press)
 
-        gas_to_gathering = self.find_output_stream("gas gathering")
+        gas_to_gathering = self.find_output_stream("gas for gas gathering")
         gas_to_gathering.copy_flow_rates_from(input)
         gas_to_gathering.multiply_flow_rates(1 - venting_frac.m - fugitive_frac.m)
+        gas_to_gathering.set_temperature_and_pressure(input.temperature, input.pressure)
 
         self.set_iteration_value(gas_to_vent.total_flow_rate() +
                                  gas_fugitives.total_flow_rate() +

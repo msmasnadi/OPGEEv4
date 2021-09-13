@@ -59,6 +59,8 @@ class Model(Container):
 
         self.gas_turbine_tbl = tbl_mgr.get_table("gas-turbine-specs")
 
+        self.gas_dehydration_tbl = tbl_mgr.get_table("gas-dehydration")
+
         # TBD: should these be settable per Analysis?
         # parameters controlling process cyclic calculations
         self.maximum_iterations = self.attr('maximum_iterations')

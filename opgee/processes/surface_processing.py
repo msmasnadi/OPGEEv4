@@ -12,14 +12,7 @@ class AfterDewatering(Process):
 
 
 
-class GasDehydration(Process):
-    def run(self, analysis):
-        self.print_running_msg()
 
-
-class AcidGasRemoval(Process):
-    def run(self, analysis):
-        self.print_running_msg()
 
 
 class Demethanizer(Process):

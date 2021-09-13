@@ -174,6 +174,7 @@
     <AttrDef name="fraction_diluent" desc="Volume fraction of diluent in diluted crude" type="float">0.0</AttrDef>
     <AttrDef name="temperature_mined_bitumen" desc="Mined bitumen temperature" type="float" unit="degF">80.0</AttrDef>
     <AttrDef name="pressure_mined_bitumen" desc="Mined bitumen pressure" type="float" unit="psia">14.70</AttrDef>
+    <AttrDef name="stabilizer_column" type="binary" desc="stabilizer colume">1</AttrDef>
     <!-- LandUse impacts -->
     <Options name="ecosystem_C_richness" default="Moderate">
       <Option desc="Low carbon richness (semi-arid grasslands)">Low</Option>
@@ -344,7 +345,13 @@
 
     <AttrDef name="prime_mover_type_VRU" type="str" options="prime_mover_type_VRU">NG_engine</AttrDef>
     <AttrDef name="eta_compressor_VRU" type="float" unit="percent" desc="VRU compressor efficiency">75.0</AttrDef>
-
+    <AttrDef name="reflux_ratio" type="float" unit="frac" desc="gas dehydration reflux ratio">2.25</AttrDef>
+    <AttrDef name="regeneration_feed_temp" type="float" unit="degF" desc="gas dehydration regeneration feed temperature">200.0</AttrDef>
+    <AttrDef name="eta_reboiler_dehydrator" type="float" unit="frac" desc="Reboiler heater fuel use efficiency">1.25</AttrDef>
+    <AttrDef name="air_cooler_delta_T" type="float" unit="delta_degF" desc="gas dehydration air cooler delta T, air side">40.0</AttrDef>
+    <AttrDef name="air_cooler_press_drop" type="float" unit="inch" desc="gas dehydration air cooler pressure drop">0.6</AttrDef>
+    <AttrDef name="air_cooler_fan_eff" type="float" unit="percent" desc="gas dehydration air cooler fan efficiency">70.0</AttrDef>
+    <AttrDef name="air_cooler_speed_reducer_eff" type="float" unit="percent" desc="gas dehydration air cooler speed reducer efficiency">92.0</AttrDef>
 
   </ClassAttrs>
   <ClassAttrs name="SurveyTruck">

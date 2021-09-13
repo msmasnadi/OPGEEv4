@@ -55,7 +55,7 @@ class Flaring(Process):
         energy_use = self.energy
         # emissions
         emissions = self.emissions
-        emissions.add_from_stream(EM_FLARING, gas_to_flare)
+        emissions.add_from_stream(EM_FLARING, self.combust_stream(gas_to_flare))
         emissions.add_from_stream(EM_FLARING, methane_slip)
 
 

@@ -42,7 +42,8 @@ class TableManager(OpgeeObject):
         TableDef("transport-share-fuel", index_col=0, has_units=True),
         TableDef("reaction-combustion-coeff", index_col=0, has_units=True),
         TableDef("product-combustion-coeff", index_col=0, has_units=True),
-        TableDef("gas-turbine-specs", index_col=0, has_units=True)
+        TableDef("gas-turbine-specs", index_col=0, has_units=True),
+        TableDef("gas-dehydration", index_col=0)
     ]
 
     _table_def_dict = {tbl_def.basename: tbl_def for tbl_def in table_defs}

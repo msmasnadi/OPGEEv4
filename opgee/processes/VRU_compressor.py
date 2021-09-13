@@ -67,4 +67,3 @@ class VRUCompressor(Process):
         emissions.add_rate(EM_COMBUSTION, "CO2", combustion_emission)
 
         emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
-        pass

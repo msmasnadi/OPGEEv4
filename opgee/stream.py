@@ -82,6 +82,8 @@ class Stream(XmlInstantiable, AttributeMixin):
     max_carbon_number = 50
     _hydrocarbons = [f'C{n}' for n in range(1, max_carbon_number + 1)]
 
+
+
     # All hydrocarbon gases other than methane (C1) are considered VOCs.
     VOCs = _hydrocarbons[1:]
 
@@ -92,6 +94,11 @@ class Stream(XmlInstantiable, AttributeMixin):
     _gases = ['N2', 'O2', 'CO2', 'H2O', 'H2', 'H2S', 'SO2', "CO"]
     _other = ['Na+', 'Cl-', 'Si-']
     emission_comp = _hydrocarbons + _gases
+    _carbon_number_dict = {f'C{n}': n for n in range(1, max_carbon_number + 1)}
+    for gas in _gases:
+        _carbon_number_dict[gas] = 1 if gas[0] == "C" else 0
+    carbon_number = pd.Series(_carbon_number_dict, dtype="pint[dimensionless]")
+
 
     #: The stream components tracked by OPGEE. This list can be extended by calling ``Stream.extend_components(names)``,
     #: or more simply by defining configuration file variable ``OPGEE.StreamComponents``.

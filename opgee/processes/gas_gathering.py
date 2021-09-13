@@ -28,6 +28,7 @@ class GasGathering(Process):
         gas_to_dehydration = self.find_output_stream("gas")
         gas_to_dehydration.copy_flow_rates_from(input)
         gas_to_dehydration.subtract_gas_rates_from(gas_fugitives)
+        gas_to_dehydration.set_temperature_and_pressure(input.temperature, input.pressure)
 
         # emissions
         emissions = self.emissions

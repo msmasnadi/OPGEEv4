@@ -4,6 +4,7 @@ from opgee.energy import EN_NATURAL_GAS, EN_CRUDE_OIL
 from opgee.emissions import EM_FLARING
 from opgee.error import OpgeeException
 from opgee.process import Process, _get_subclass, Environment, Reservoir
+from opgee.stream import Stream
 
 
 class NotProcess(): pass
@@ -148,3 +149,13 @@ def test_process_data(procB, name, value):
 def test_bad_process_data(procB):
     with pytest.raises(OpgeeException, match='Process data dictionary does not include .*'):
         procB.field.get_process_data("nonexistent-data-key", raiseError=True)
+
+
+def test_combust_stream(procB):
+    stream = Stream("test_stream", temperature=ureg.Quantity(100, "degF"), pressure=ureg.Quantity(100, "psia"))
+    stream.set_gas_flow_rate("C1", ureg.Quantity(10, "tonne/day"))
+    stream.set_gas_flow_rate("C2", ureg.Quantity(20, "tonne/day"))
+    stream.set_gas_flow_rate("N2", ureg.Quantity(15, "tonne/day"))
+
+    result = procB.combust_stream(stream)
+    assert result.gas_flow_rate("CO2") == ureg.Quantity(1, "tonne/day")

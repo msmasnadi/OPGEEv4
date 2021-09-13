@@ -74,7 +74,12 @@
 
 		<Process class="GasGathering"/>
 		<Process class="CrudeOilStabilization"/>
-		<Process class="VRUcompressor"/>
+		<Process class="VRUCompressor"/>
+		<Process class="GasDehydration"/>
+		<Process class="CrudeOilStorage"/>
+		<Process class="HeavyOilDilution"/>
+		<Process class="HeavyOilUpgrading"/>
+		<Process class="AcidGasRemoval"/>
 
 
 		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
@@ -85,27 +90,27 @@
 			<Contains>water</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="Output" name="stabilization">
+		<Stream src="CrudeOilDewatering" dst="CrudeOilStabilization" name="crude oil dewatering to crude oil stabilization">
 			<Contains>oil for stabilization</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="HeavyOilUpgrading" name="upgrader">
+		<Stream src="CrudeOilDewatering" dst="HeavyOilUpgrading" name="crude oil dewatering to heavy oil upgrading">
 			<Contains>oil for upgrader</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="Output" name="dilution">
+		<Stream src="CrudeOilDewatering" dst="HeavyOilDilution" name="crude oil dewatering to heavy oil dilution">
 			<Contains>oil for dilution</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="Output" name="storage">
+		<Stream src="CrudeOilDewatering" dst="CrudeOilStorage" name="crude oil dewatering to crude oil storage">
 			<Contains>oil for storage</Contains>
 		</Stream>
 
-		<Stream src="Separation" dst="WaterTreatment" name="separator to produced water treatment">
+		<Stream src="Separation" dst="WaterTreatment" name="separator to water treatment">
 			<Contains>water</Contains>
 		</Stream>
 		
-		<Stream src="WaterTreatment" dst="Output" name="produced water treatment to steam">
+		<Stream src="WaterTreatment" dst="Output" name="water treatment to steam">
 			<Contains>water for steam generation</Contains>
 			<Contains>water for reinjection</Contains>
 			<Contains>water for surface disposal</Contains>
@@ -136,8 +141,28 @@
 			<Contains>gas for gas gathering</Contains>
 		</Stream>
 
-		<Stream src="VRUcompressor" dst="GasGathering" name="VRU compressor to gas gathering">
+		<Stream src="VRUCompressor" dst="GasGathering" name="VRU compressor to gas gathering">
 			<Contains>gas for gas gathering</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilStabilization" dst="CrudeOilStorage" name="crude oil stabilization to crude oil storage">
+			<Contains>oil for storage</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilStabilization" dst="Environment" name="crude oil stabilization to environment">
+			<Contains>gas fugitives</Contains>
+		</Stream>
+
+		<Stream src="HeavyOilUpgrading" dst="CrudeOilStorage" name="crude oil upgrading to crude oil storage">
+			<Contains>oil for storage</Contains>
+		</Stream>
+
+		<Stream src="HeavyOilDilution" dst="CrudeOilStorage" name="crude oil dilution to crude oil storage">
+			<Contains>oil for storage</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilStorage" dst="Environment" name="crude oil storage to environment">
+			<Contains>gas fugitives</Contains>
 		</Stream>
 
 		<Stream src="GasGathering" dst="Environment" name="gas gathering to environment">
@@ -146,6 +171,22 @@
 
 		<Stream src="GasGathering" dst="GasDehydration" name="gas gathering to gas dehydration">
 			<Contains>gas</Contains>
+		</Stream>
+		
+		<Stream src="GasDehydration" dst="Environment" name="gas dehydration to environment">
+			<Contains>gas fugitives</Contains>
+		</Stream>
+
+		<Stream src="GasDehydration" dst="AcidGasRemoval" name="gas dehydration to acid gas removal">
+			<Contains>gas for AGR</Contains>
+		</Stream>
+
+		<Stream src="VRUCompressor" dst="Environment" name="VRU compressor to environment">
+			<Contains>gas fugitives</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilStorage" dst="VRUCompressor" name="crude oil storage to VRU compressor">
+			<Contains>gas for VRU</Contains>
 		</Stream>
 		
 		<Stream src="Venting" dst="Environment" name="venting to environment">
@@ -186,6 +227,10 @@
 
 		<Stream src="Output" dst="WaterTreatment" name="blowdown recycled to treatment" impute="False">
 			<Contains>water</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilStorage" dst="Flaring" name="crude oil storage to flaring">
+			<Contains>gas for flaring</Contains>
 		</Stream>
 
 		<Stream src="BitumenMining" dst="Flaring" name="bitumen mining to flaring">

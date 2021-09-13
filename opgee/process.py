@@ -19,6 +19,7 @@ from .stream import Stream, PHASE_LIQUID, PHASE_GAS
 from .utils import getBooleanXML
 from .drivers import Drivers
 from .combine_streams import combine_streams
+from .thermodynamics import component_MW
 
 _logger = getLogger(__name__)
 
@@ -118,7 +119,7 @@ def run_corr_eqns(x1, x2, x3, x4, x5, coef_df):
     :param x3:
     :param x4:
     :param x5:
-    :param coef_df:
+    :param coef_df: Pandas.Dataframe
     :return: Pandas Series
     """
 
@@ -753,6 +754,23 @@ class Process(XmlInstantiable, AttributeMixin):
         emission_series = pd.Series({fuel: process_EF_df.loc[name, fuel] for fuel in process_EF_df.columns},
                                     dtype="pint[g/mmBtu]")
         return emission_series
+
+    @staticmethod
+    def combust_stream(stream):
+        """
+        combust the carbon containing gas and returning the new stream with only CO2
+
+        :return: (Stream)
+        """
+
+        result = Stream("combusted_stream", temperature=stream.temperature, pressure=stream.pressure)
+        CO2 = (stream.components.loc[stream.emission_comp, PHASE_GAS] /
+               component_MW[stream.emission_comp] *
+               Stream.carbon_number *
+               component_MW["CO2"]).sum()
+
+        result.set_gas_flow_rate("CO2", CO2)
+        return result
 
     @classmethod
     def from_xml(cls, elt):

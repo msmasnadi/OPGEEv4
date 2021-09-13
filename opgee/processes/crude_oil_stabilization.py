@@ -57,7 +57,7 @@ class CrudeOilStabilization(Process):
         gas_removed_molar_rate = gas_removed_by_stabilizer * self.mol_per_scf * oil.gas_comp  # Pandas Series
         gas_removed_mass_rate = oil.component_MW[gas_removed_molar_rate.index] * gas_removed_molar_rate
 
-        output_stab_gas = self.find_output_stream("gas from stabilization")
+        output_stab_gas = self.find_output_stream("gas for gas gathering")
         output_stab_gas.set_temperature_and_pressure(self.stab_temp, self.stab_gas_press)
         output_stab_gas.set_rates_from_series(gas_removed_mass_rate, PHASE_GAS)
 

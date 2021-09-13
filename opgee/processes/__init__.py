@@ -23,4 +23,6 @@ from .flaring import Flaring
 from .venting import Venting
 from .VRU_compressor import VRUCompressor
 from .gas_gathering import GasGathering
+from .gas_dehydration import GasDehydration
+from .acid_gas_removal import AcidGasRemoval
 
