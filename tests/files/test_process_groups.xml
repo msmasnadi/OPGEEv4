@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
+
+	<Analysis name="test">
+		<A name="functional_unit">oil</A>
+		<A name="energy_basis">LHV</A>
+	  <A name="GWP_horizon">100</A>
+	  <A name="GWP_version">AR5</A>
+		<Field name="test"/>
+	</Analysis>
+
+	<Field name="test">
+		<A name="country">USA</A>
+    <ProcessChoice name="Gas processing path" extend="false" default="None">
+      <!-- Identify a set of mutually-exclusive ProcessGroup alternatives -->
+      <ProcessGroup name="None"/>
+      <ProcessGroup name="Minimal">
+        <ProcessRef name="GasDehydration"/>
+      </ProcessGroup>
+      <ProcessGroup name="Acid Gas">
+        <ProcessRef name="GasDehydration"/>
+        <ProcessRef name="AcidGasRemoval"/>
+        <StreamRef name="s1"/>
+      </ProcessGroup>
+      <ProcessGroup name="Acid Wet Gas">
+        <ProcessRef name="bar"/>
+        <ProcessRef name="baz"/>
+        <StreamRef name="s2"/>
+      </ProcessGroup>
+      <ProcessGroup name="Wet Gas">
+        <ProcessRef name="yyy"/>
+        <ProcessRef name="zzz"/>
+        <StreamRef name="s3"/>
+      </ProcessGroup>
+      <ProcessGroup name="Dry Gas">
+        <ProcessRef name="uuu"/>
+        <ProcessRef name="www"/>
+        <ProcessRef name="zzz"/>
+        <StreamRef name="s4"/>
+        <StreamRef name="s5"/>
+      </ProcessGroup>
+      <ProcessGroup name="Sour Gas Reinjection">
+        <ProcessRef name="abc"/>
+        <ProcessRef name="def"/>
+        <StreamRef name="s6"/>
+      </ProcessGroup>
+      <ProcessGroup name="CO2-EOR Membrane">
+        <ProcessRef name="ghi"/>
+        <ProcessRef name="jkl"/>
+        <ProcessRef name="mmm"/>
+        <StreamRef name="s7"/>
+        <StreamRef name="s8"/>
+      </ProcessGroup>
+      <ProcessGroup name="CO2-EOR Ryan Holmes">
+        <ProcessRef name="mno"/>
+        <ProcessRef name="pqr"/>
+        <StreamRef name="s9"/>
+      </ProcessGroup>
+    </ProcessChoice>
+  </Field>
+</Model>

@@ -49,6 +49,7 @@
         <xs:element minOccurs='0' ref='Group'/>       <!-- groups this field belongs to -->
         <xs:element minOccurs='0' ref='Aggregator'/>
 				<xs:element minOccurs='0' ref='Process'/>
+  			<xs:element minOccurs='0' ref='ProcessChoice'/>
 				<xs:element ref='Stream'/>
       </xs:choice>
 			<xs:attribute name='name' use='required' type='xs:NCName'/>
@@ -75,6 +76,7 @@
 			<xs:element name="Aggregator" type="AggregatorType"/>
 			<xs:element minOccurs='0' ref='A'/>
 			<xs:element minOccurs='0' ref='Process'/>
+			<xs:element minOccurs='0' ref='ProcessChoice'/>
 		</xs:choice>
 		<xs:attribute name='name' type='xs:NCName'/>
 		<xs:attribute name='enabled' default='1' type='xs:boolean'/>
@@ -150,5 +152,46 @@
       <xs:attribute name='cycle-start' default='0' type='xs:boolean'/>
     </xs:complexType>
 	</xs:element>
+
+	<xs:element name='ProcessChoice'>
+    <xs:complexType>
+      <xs:choice maxOccurs='unbounded'>
+ 				<xs:element minOccurs='1' ref='ProcessGroup'/>
+      </xs:choice>
+			<xs:attribute name='name' use='required' type='xs:string'/>
+			<xs:attribute name='extend' default='0' type='xs:boolean'/>
+			<xs:attribute name='default' type='xs:string'/>
+    </xs:complexType>
+  </xs:element>
+
+	<xs:element name='ProcessGroup'>
+    <xs:complexType>
+      <xs:choice maxOccurs='unbounded'>
+ 				<xs:element minOccurs='1' ref='ProcessRef'/>
+				<xs:element minOccurs='0' ref='StreamRef'/>
+      </xs:choice>
+			<xs:attribute name='name' use='required' type='xs:string'/>
+    </xs:complexType>
+  </xs:element>
+
+	<xs:element name='ProcessRef'>
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base='xs:string'>
+          <xs:attribute name='name' use='required' type='xs:string'/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name='StreamRef'>
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base='xs:string'>
+          <xs:attribute name='name' use='required' type='xs:string'/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
 
 </xs:schema>
