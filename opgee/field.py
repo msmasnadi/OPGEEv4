@@ -22,7 +22,7 @@ class Field(Container):
     the process structure.
     """
     def __init__(self, name, attr_dict=None, aggs=None, procs=None, streams=None, group_names=None,
-                 process_choices=None):
+                 process_choice_dict=None):
         # Note that `procs` include only Processes defined at the top-level of the field.
         # Other Processes maybe defined within the Aggregators in `aggs`.
         super().__init__(name, attr_dict=attr_dict, aggs=aggs, procs=procs)
@@ -32,7 +32,7 @@ class Field(Container):
         self.group_names = group_names
         self.stream_dict = dict_from_list(streams)
 
-        self.process_choices = process_choices
+        self.process_choice_dict = process_choice_dict
 
         self.environment = Environment()    # one per field
         self.reservoir   = Reservoir()      # one per field
@@ -377,13 +377,15 @@ class Field(Container):
         procs   = instantiate_subelts(elt, Process)
         streams = instantiate_subelts(elt, Stream)
 
-        process_choices = instantiate_subelts(elt, ProcessChoice)
+        choices = instantiate_subelts(elt, ProcessChoice)
+        # Convert to lowercase to avoid simple lookup errors
+        process_choice_dict = {choice.name.lower() : choice for choice in choices}
 
         group_names = [node.text for node in elt.findall('Group')]
 
         obj = Field(name, attr_dict=attr_dict, aggs=aggs, procs=procs,
                     streams=streams, group_names=group_names,
-                    process_choices=process_choices)
+                    process_choice_dict=process_choice_dict)
 
         attrib = elt.attrib
         obj.set_enabled(getBooleanXML(attrib.get('enabled', '1')))
@@ -438,4 +440,40 @@ class Field(Container):
                 raise OpgeeException(f"Process data dictionary does not include {name}")
             else:
                 return None
+
+    def resolve_process_choices(self):
+        """
+        Disable all processes referenced in a `ProcessChoice`, then enable only the processes
+        in the selected `ProcessGroup`. The name of each `ProcessChoice` must also identify an
+        field-level attribute, whose value indicates the user's choice of `ProcessGroup`.
+
+        :return: None
+        """
+        attr_dict = self.attr_dict
+
+        #
+        # Turn off all processes identified in groups, then turn on those in the selected groups.
+        #
+        for choice_name, choice in self.process_choice_dict.items():
+            attr = attr_dict.get(choice_name)
+            if attr is None:
+                raise OpgeeException(f"ProcessChoice '{choice_name}' has no corresponding attribute in field '{self.name}'")
+
+            to_enable = []
+            selected_group_name = attr.value.lower()
+
+            for group_name, group in choice.groups_dict.items():
+                procs, streams = group.processes_and_streams(self)
+
+                if group_name == selected_group_name:   # remember the ones to turn back on
+                    to_enable.extend(procs)
+                    to_enable.extend(streams)
+
+                # disable all object in all groups
+                for obj in procs + streams:
+                    obj.set_enabled(False)
+
+            # enable the chosen procs and streams
+            for obj in to_enable:
+                obj.set_enabled(True)
 

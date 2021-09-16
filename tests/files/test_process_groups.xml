@@ -11,7 +11,7 @@
 
 	<Field name="test">
 		<A name="country">USA</A>
-    <ProcessChoice name="Gas processing path" extend="false" default="None">
+    <ProcessChoice name="gas_processing_path" extend="false" default="None">
       <!-- Identify a set of mutually-exclusive ProcessGroup alternatives -->
       <ProcessGroup name="None"/>
       <ProcessGroup name="Minimal">
