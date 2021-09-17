@@ -32,4 +32,5 @@ def test_gas_path_1(test_gas_branch):
 def test_gas_path_2(test_gas_branch):
     analysis = test_gas_branch.get_analysis('test_gas_path_2')
     field = analysis.get_field('test_gas_path_2')
+    field.resolve_process_choices()
     field.run(analysis)

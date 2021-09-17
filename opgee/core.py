@@ -197,8 +197,7 @@ class XmlInstantiable(OpgeeObject):
     def __str__(self):
         type_str = type(self).__name__
         name_str = f' name="{self.name}"' if self.name else ''
-        enabled_str = '' if self.enabled else f' enabled="0"'
-        return f'<{type_str}{name_str}{enabled_str}>'
+        return f'<{type_str}{name_str} enabled={self.enabled}>'
 
     def is_enabled(self):
         return self.enabled

@@ -159,7 +159,7 @@
       <Option desc="Dehydrator + Amine Process">Acid Gas</Option>
       <Option desc="Dehydrator + Demethanizer">Wet Gas</Option>
       <Option desc="Dehydrator + Amine Process + Demethanizer">Acid Wet Gas</Option>
-      <Option desc="Dehydration then direct injection of sour CO2-rich stream">Sour gas reinjection</Option>
+      <Option desc="Dehydration then direct injection of sour CO2-rich stream">Sour Gas Reinjection</Option>
       <Option desc="Dehydrator + Compressor + Membrane + Amine Process + Demethanizer">CO2-EOR Membrane</Option>
       <Option desc="Dehydrator + Ryan Holmes Process (Demethanizer Included)">CO2-EOR Ryan Holmes</Option>
     </Options>

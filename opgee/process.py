@@ -382,7 +382,7 @@ class Process(XmlInstantiable, AttributeMixin):
             raise OpgeeException(f"_find_streams_by_type: both 'combine' and 'as_list' cannot be True")
 
         stream_list = self.inputs if direction == self.INPUT else self.outputs
-        streams = [stream for stream in stream_list if stream.contains(stream_type)]
+        streams = [stream for stream in stream_list if stream.enabled and stream.contains(stream_type)]
 
         if not streams and raiseError:
             raise OpgeeException(f"{self}: no {direction} streams contain '{stream_type}'")

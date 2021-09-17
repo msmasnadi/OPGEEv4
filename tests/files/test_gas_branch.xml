@@ -267,7 +267,6 @@
 		<A name="WIR">0.5</A>
 		<A name="FOR">38.92</A>
 		<A name="flood_gas_type">"Carbon dioxide"</A>
-
 		<A name="gas_comp_N2" >2.55</A>
 		<A name="gas_comp_CO2">11.0</A>
 		<A name="gas_comp_C1" >79.63</A>
@@ -275,6 +274,22 @@
 		<A name="gas_comp_C3" >1.45</A>
 		<A name="gas_comp_C4" >0.63</A>
 		<A name="gas_comp_H2S" >0.0</A>
+
+		<ProcessChoice name="gas_processing_path">
+			<ProcessGroup name="Acid Wet Gas">
+				<ProcessRef name="PreMembraneChiller"/>
+				<ProcessRef name="PreMembraneCompressor"/>
+				<ProcessRef name="CO2Membrane"/>
+				<ProcessRef name="AcidGasRemoval"/>
+				<StreamRef name='pre membrane compressor to CO2 membrane'/>
+			</ProcessGroup>
+			<ProcessGroup name="Acid Gas">
+				<ProcessRef name="AcidGasRemoval"/>
+<!--				<ProcessRef name="CO2Membrane"/>-->
+<!--				<StreamRef name='pre membrane compressor to CO2 membrane'/>-->
+			</ProcessGroup>
+		</ProcessChoice>
+
 		<Process class="Separation" impute-start="true">
 			<Consumes>crude oil</Consumes>
 			<Produces>crude oil</Produces>

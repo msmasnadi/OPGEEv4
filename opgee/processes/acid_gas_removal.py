@@ -81,10 +81,10 @@ class AcidGasRemoval(Process):
         condensor_thermal_load = ureg.Quantity(max(0, corr_result_df["Condenser"] * gas_multiplier), "kW")
         cooler_thermal_load = ureg.Quantity(max(0, corr_result_df["Cooler"]), "kW")
 
-        reboiler_fuel_use = reboiler_heavy_duty * self.eta_reboiler_AGR
-        blower_air_quantity = condensor_thermal_load / self.air_elevation_const / self.air_cooler_delta_T
-        blower_CFM = blower_air_quantity / self.air_density_ratio
-        blower_delivered_hp = blower_CFM * self.water_press / self.air_cooler_fan_eff
-        blower_fan_motor_hp = blower_delivered_hp / self.air_cooler_speed_reducer_eff
-        air_cooler_energy_consumption = self.get_energy_consumption("Electric_motor", blower_fan_motor_hp)
+        # reboiler_fuel_use = reboiler_heavy_duty * self.eta_reboiler_AGR
+        # blower_air_quantity = condensor_thermal_load / self.air_elevation_const / self.air_cooler_delta_T
+        # blower_CFM = blower_air_quantity / self.air_density_ratio
+        # blower_delivered_hp = blower_CFM * self.water_press / self.air_cooler_fan_eff
+        # blower_fan_motor_hp = blower_delivered_hp / self.air_cooler_speed_reducer_eff
+        # air_cooler_energy_consumption = self.get_energy_consumption("Electric_motor", blower_fan_motor_hp)
         pass
