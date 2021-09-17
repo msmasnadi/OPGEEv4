@@ -25,4 +25,7 @@ from .VRU_compressor import VRUCompressor
 from .gas_gathering import GasGathering
 from .gas_dehydration import GasDehydration
 from .acid_gas_removal import AcidGasRemoval
+from .pre_membrane_chiller import PreMembraneChiller
+from .pre_membrane_compressor import PreMembraneCompressor
+from .CO2_membrane import CO2Membrane
 

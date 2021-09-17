@@ -25,14 +25,17 @@ class GasDehydration(Process):
         self.air_density_ratio = field.model.const("air-density-ratio")
         self.reflux_ratio = field.attr("reflux_ratio")
         self.regeneration_feed_temp = field.attr("regeneration_feed_temp")
-        self.eta_reboiler_dehydrator = field.attr("eta_reboiler_dehydrator")
-        self.air_cooler_delta_T = field.attr("air_cooler_delta_T")
-        self.air_cooler_press_drop = field.attr("air_cooler_press_drop")
-        self.air_cooler_fan_eff = field.attr("air_cooler_fan_eff")
-        self.air_cooler_speed_reducer_eff = field.attr("air_cooler_speed_reducer_eff")
+        self.eta_reboiler_dehydrator = self.attr("eta_reboiler_dehydrator")
+        self.air_cooler_delta_T = self.attr("air_cooler_delta_T")
+        self.air_cooler_press_drop = self.attr("air_cooler_press_drop")
+        self.air_cooler_fan_eff = self.attr("air_cooler_fan_eff")
+        self.air_cooler_speed_reducer_eff = self.attr("air_cooler_speed_reducer_eff")
         self.water_press = field.water.density() * \
                            self.air_cooler_press_drop * \
                            field.model.const("gravitational-acceleration")
+
+        #TODO: gas path ???
+        self.gas_path = field.attr("gas_path")
 
     def run(self, analysis):
         self.print_running_msg()
@@ -47,14 +50,17 @@ class GasDehydration(Process):
         gas_fugitives.set_temperature_and_pressure(self.std_temp, self.std_press)
 
         # TODO: gas path will be added here
-        gas_to_AGR = self.find_output_stream("gas for AGR")
-        gas_to_AGR.copy_flow_rates_from(input)
-        gas_to_AGR.subtract_gas_rates_from(gas_fugitives)
+
+        output_gas = (self.find_output_stream("gas for AGR")
+                      if self.gas_path != "7" else self.find_output_stream("gas for chiller"))
+        output_gas.copy_flow_rates_from(input)
+        output_gas.subtract_gas_rates_from(gas_fugitives)
+        output_gas.set_temperature_and_pressure(input.temperature, input.pressure)
 
         feed_gas_press = input.pressure
         feed_gas_temp = input.temperature
 
-        # how much moister in gas
+        # how much moisture in gas
         water_critical_temp = self.gas.component_Tc["H2O"]
         water_critical_press = self.gas.component_Pc["H2O"]
         tau = ureg.Quantity(1 - feed_gas_temp.to("kelvin").m / water_critical_temp.to("kelvin").m, "dimensionless")

@@ -24,13 +24,12 @@ def test_gas_branch(configure_logging_for_tests):
     return load_test_model('test_gas_branch.xml')
 
 
-def test_run(test_gas_branch):
-    analysis = test_gas_branch.get_analysis('test_gas_branch')
-    field = analysis.get_field('test')
+def test_gas_path_1(test_gas_branch):
+    analysis = test_gas_branch.get_analysis('test_gas_path_1')
+    field = analysis.get_field('test_gas_path_1')
     field.run(analysis)
 
-#
-# def test_run(test_water_branch):
-#     analysis = test_water_branch.get_analysis('test_water_injection')
-#     field = analysis.get_field('test')
-#     field.run(analysis)
+def test_gas_path_2(test_gas_branch):
+    analysis = test_gas_branch.get_analysis('test_gas_path_2')
+    field = analysis.get_field('test_gas_path_2')
+    field.run(analysis)

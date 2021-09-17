@@ -15,9 +15,10 @@ class TableDef(object):
     Holds meta-data for built-in tables (CSV files loaded into `pandas.DataFrames`).
     """
 
-    def __init__(self, basename, index_col=None, has_units=None, fillna=None): # skiprows=0, units=None
+    def __init__(self, basename, index_col=None, index_row=None, has_units=None, fillna=None):
         self.basename = basename
         self.index_col = index_col
+        self.index_row = index_row
         self.has_units = has_units
         self.fillna = fillna
 
@@ -43,7 +44,8 @@ class TableManager(OpgeeObject):
         TableDef("reaction-combustion-coeff", index_col=0, has_units=True),
         TableDef("product-combustion-coeff", index_col=0, has_units=True),
         TableDef("gas-turbine-specs", index_col=0, has_units=True),
-        TableDef("gas-dehydration", index_col=0)
+        TableDef("gas-dehydration", index_col=0),
+        TableDef("acid-gas-removal", index_col=0, index_row=[0,1])
     ]
 
     _table_def_dict = {tbl_def.basename: tbl_def for tbl_def in table_defs}
@@ -82,7 +84,8 @@ class TableManager(OpgeeObject):
                 df[unitful_cols] = df_units[unitful_cols]
                 df.columns = df.columns.droplevel(1)        # drop the units from the column index
             else:
-                df = pd.read_csv(s, index_col=tbl_def.index_col) #, skiprows=tbl_def.skiprows)
+                df = pd.read_csv(s, index_col=tbl_def.index_col) if tbl_def.index_row is None \
+                    else pd.read_csv(s, index_col=tbl_def.index_col, header=tbl_def.index_row)
 
             if tbl_def.fillna is not None:
                 # df.reset_index(inplace=True)

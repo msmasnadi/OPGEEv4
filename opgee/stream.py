@@ -291,6 +291,16 @@ class Stream(XmlInstantiable, AttributeMixin):
         """
         self.components.loc[series.index, phase] = series
 
+    def multiply_factor_from_series(self, series, phase):
+        """
+        multiply from series
+
+        :param series:
+        :param phase:
+        :return:
+        """
+        self.components.loc[series.index, phase] = series * self.components.loc[series.index, phase]
+
     def set_temperature_and_pressure(self, t, p):
         self.temperature = t
         self.pressure = p

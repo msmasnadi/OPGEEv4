@@ -57,8 +57,8 @@ class Venting(Process):
             energy_consumption = self.get_energy_consumption(self.prime_mover_type_gas_lifting, brake_horse_power)
             energy_content_imported_gas = self.gas.mass_energy_density(gas_stream) * gas_stream.total_gas_rate()
             frac_imported_gas_consumed = energy_consumption / energy_content_imported_gas
-            loss_rate = ureg.Quantity(0,
-                                      "frac") if gas_lifting_fugitive_loss_rate is None else gas_lifting_fugitive_loss_rate
+            loss_rate = (ureg.Quantity(0,"frac")
+                         if gas_lifting_fugitive_loss_rate is None else gas_lifting_fugitive_loss_rate)
             factor = 1 - loss_rate - frac_imported_gas_consumed
             gas_stream.multiply_flow_rates(factor.m)
             methane_lifting = gas_stream.gas_flow_rate("C1")

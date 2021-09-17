@@ -60,6 +60,7 @@ class Model(Container):
         self.gas_turbine_tbl = tbl_mgr.get_table("gas-turbine-specs")
 
         self.gas_dehydration_tbl = tbl_mgr.get_table("gas-dehydration")
+        self.AGR_tbl = tbl_mgr.get_table("acid-gas-removal")
 
         # TBD: should these be settable per Analysis?
         # parameters controlling process cyclic calculations
