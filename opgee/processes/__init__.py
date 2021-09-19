@@ -33,4 +33,6 @@ from .gas_partition import GasPartition
 from .natural_gas_liquid import NGL
 from .CO2_reinjection_compressor import CO2ReinjectionCompressor
 from .CO2_injection_well import CO2InjectionWell
+from .sour_gas_compressor import SourGasCompressor
+from .sour_gas_injection import SourGasInjection
 

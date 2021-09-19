@@ -55,6 +55,8 @@ class GasDehydration(Process):
             output_gas = self.find_output_stream("gas for chiller")
         elif self.gas_path == "CO2-EOR Ryan Holmes":
             output_gas = self.find_output_stream("gas for Ryan Holmes")
+        elif self.gas_path == "Sour Gas Reinjection":
+            output_gas = self.find_output_stream("gas for sour gas compressor")
 
         output_gas.copy_flow_rates_from(input)
         output_gas.subtract_gas_rates_from(gas_fugitives)

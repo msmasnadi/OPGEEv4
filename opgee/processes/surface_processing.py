@@ -23,9 +23,7 @@ class Demethanizer(Process):
 
 
 
-class PreMembraneCompressor(Process):
-    def run(self, analysis):
-        self.print_running_msg()
+
 
 
 
