@@ -20,9 +20,7 @@ class Demethanizer(Process):
         self.print_running_msg()
 
 
-class Chiller(Process):
-    def run(self, analysis):
-        self.print_running_msg()
+
 
 
 class PreMembraneCompressor(Process):
@@ -30,14 +28,10 @@ class PreMembraneCompressor(Process):
         self.print_running_msg()
 
 
-class CO2Membrane(Process):
-    def run(self, analysis):
-        self.print_running_msg()
 
 
-class RyanHolmes(Process):
-    def run(self, analysis):
-        self.print_running_msg()
+
+
 
 
 

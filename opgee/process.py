@@ -676,6 +676,30 @@ class Process(XmlInstantiable, AttributeMixin):
 
         return self.intermediate_results
 
+    def predict_blower_energy_use(self,
+                                  thermal_load,
+                                  air_cooler_delta_T,
+                                  water_press,
+                                  air_cooler_fan_eff,
+                                  air_cooler_speed_reducer_eff):
+        """
+        predict blower energy use per day.
+
+        :param air_cooler_speed_reducer_eff:
+        :param air_cooler_fan_eff:
+        :param water_press:
+        :param air_cooler_delta_T:
+        :param thermal_load: (float) thermal load (unit = btu/hr)
+        :return: (float) air cooling fan energy consumption (unit = "kWh/day)
+        """
+        field = self.field
+        blower_air_quantity = thermal_load / field.model.const("air-elevation-corr") / air_cooler_delta_T
+        blower_CFM = blower_air_quantity / field.model.const("air-density-ratio")
+        blower_delivered_hp = blower_CFM * water_press / air_cooler_fan_eff
+        blower_fan_motor_hp = blower_delivered_hp / air_cooler_speed_reducer_eff
+        air_cooler_energy_consumption = self.get_energy_consumption("Electric_motor", blower_fan_motor_hp)
+        return air_cooler_energy_consumption.to("kWh/day")
+
     def sum_intermediate_results(self):
         """
         Sum intermediate energy and emission results

@@ -27,4 +27,5 @@ class Drivers(OpgeeObject):
             efficiency = 2967 * brake_horsepower.m ** (-0.018) if brake_horsepower != 0.0 else 3038
         else:
             efficiency = cls.slope[prime_mover_type] * brake_horsepower.m + cls.intercept[prime_mover_type]
+        efficiency = max(efficiency, 6000)
         return ureg.Quantity(efficiency, "btu/horsepower/hour")

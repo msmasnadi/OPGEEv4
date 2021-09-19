@@ -274,6 +274,7 @@
 		<A name="gas_comp_C3" >1.45</A>
 		<A name="gas_comp_C4" >0.63</A>
 		<A name="gas_comp_H2S" >0.0</A>
+		<A name="gas_processing_path">CO2-EOR Ryan Holmes</A>
 
 		<ProcessChoice name="gas_processing_path">
 			<ProcessGroup name="Acid Wet Gas">
@@ -281,12 +282,12 @@
 				<ProcessRef name="PreMembraneCompressor"/>
 				<ProcessRef name="CO2Membrane"/>
 				<ProcessRef name="AcidGasRemoval"/>
-				<StreamRef name='pre membrane compressor to CO2 membrane'/>
 			</ProcessGroup>
 			<ProcessGroup name="Acid Gas">
 				<ProcessRef name="AcidGasRemoval"/>
-<!--				<ProcessRef name="CO2Membrane"/>-->
-<!--				<StreamRef name='pre membrane compressor to CO2 membrane'/>-->
+			</ProcessGroup>
+			<ProcessGroup name="CO2-EOR Ryan Holmes">
+				<ProcessRef name="RyanHolmes"/>
 			</ProcessGroup>
 		</ProcessChoice>
 
@@ -351,7 +352,10 @@
 		<Process class="CO2Membrane"/>
 		<Process class="CO2ReinjectionCompressor"/>
 		<Process class="Demethanizer"/>
-
+		<Process class="RyanHolmes"/>
+		<Process class="NGL"/>
+		<Process class="GasPartition"/>
+		<Process class="CO2InjectionWell"/>
 
 
 		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
@@ -551,6 +555,34 @@
 		
 		<Stream src="AcidGasRemoval" dst="Demethanizer" name="acid gas removal to demethanizer">
 			<Contains>gas for demethanizer</Contains>
+		</Stream>
+		
+		<Stream src="GasDehydration" dst="RyanHolmes" name="gas dehydration to Ryan-Holmes">
+			<Contains>gas for Ryan Holmes</Contains>
+		</Stream>
+		
+		<Stream src="RyanHolmes" dst="Environment" name="Ryan-Holmes to environment">
+			<Contains>gas fugitives</Contains>
+		</Stream>
+
+		<Stream src="RyanHolmes" dst="GasPartition" name="Ryan-Holmes to gas partition">
+			<Contains>gas for gas partition</Contains>
+		</Stream>
+
+		<Stream src="RyanHolmes" dst="NGL" name="Ryan-Holmes to NGL">
+			<Contains>gas for NGL</Contains>
+		</Stream>
+
+		<Stream src="RyanHolmes" dst="CO2ReinjectionCompressor" name="Ryan-Holmes to CO2 reinjection compressor">
+			<Contains>gas for CO2 compressor</Contains>
+		</Stream>
+		
+		<Stream src="CO2ReinjectionCompressor" dst="CO2InjectionWell" name="CO2 reinjection compressor to CO2 injection well">
+			<Contains>gas for CO2 injection well</Contains>
+		</Stream>
+
+		<Stream src="CO2ReinjectionCompressor" dst="Environment" name="CO2 reinjection compressor to environment">
+			<Contains>gas fugitives</Contains>
 		</Stream>
 	</Field>
 

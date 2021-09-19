@@ -35,7 +35,7 @@ class GasDehydration(Process):
                            field.model.const("gravitational-acceleration")
 
         #TODO: gas path ???
-        self.gas_path = field.attr("gas_path")
+        self.gas_path = field.attr("gas_processing_path")
 
     def run(self, analysis):
         self.print_running_msg()
@@ -49,10 +49,13 @@ class GasDehydration(Process):
         gas_fugitives.copy_flow_rates_from(gas_fugitives_temp)
         gas_fugitives.set_temperature_and_pressure(self.std_temp, self.std_press)
 
-        # TODO: gas path will be added here
+        if self.gas_path == "AGR":
+            output_gas = self.find_output_stream("gas for AGR")
+        elif self.gas_path == "CO2-EOR Membrane":
+            output_gas = self.find_output_stream("gas for chiller")
+        elif self.gas_path == "CO2-EOR Ryan Holmes":
+            output_gas = self.find_output_stream("gas for Ryan Holmes")
 
-        output_gas = (self.find_output_stream("gas for AGR")
-                      if self.gas_path != "7" else self.find_output_stream("gas for chiller"))
         output_gas.copy_flow_rates_from(input)
         output_gas.subtract_gas_rates_from(gas_fugitives)
         output_gas.set_temperature_and_pressure(input.temperature, input.pressure)
