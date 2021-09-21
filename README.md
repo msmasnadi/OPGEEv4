@@ -19,11 +19,7 @@
 * TBD
 
 ## To Do
-* Finish testing process loops
-
 * Finish developing facility merge user model/attribute defs with default (or other) defs.
-
-* Finish integrating pint units (including offset conversions like psia/psig and API gravity)
 
 * Test / report on mass balances
 
@@ -31,7 +27,7 @@
   * Exchanges of energy carriers from outside system boundary
   * Add a Natural Gas Pipeline process: exports generate a credit (depends on functional unit)
   
-* [postponed] Develop simple GUI using dash
+* Improve the GUI
 
 
 # Release Notes
