@@ -1,5 +1,4 @@
 from opgee.config import *
-from semver import Version
 
 def test_unixpath():
     assert unixPath(r"\Users\foo\bar") == "/Users/foo/bar"

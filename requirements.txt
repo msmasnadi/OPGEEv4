@@ -14,13 +14,10 @@ lxml==4.6.3
 matplotlib==3.4.2
 pydot==1.4.1
 python-dateutil==2.8.1
-semver==3.0.0.dev2
 sphinx-argparse==0.2.5
-sphinx-rtd-theme==0.4.2
+sphinx_rtd_theme~=0.4.3
 thermosteam==0.25.4
 dash-cytoscape==0.2.0
-sphinx_rtd_theme~=0.4.3
-opgee~=4.0a0
 networkx~=2.5
 configparser~=5.0.1
 pyxsteam~=0.4.8
