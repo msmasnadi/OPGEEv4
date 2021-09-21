@@ -153,7 +153,7 @@
       <Option desc="Heavy oil dilution">HeavyOilDilution</Option>
       <Option desc="Crude oil stabilization">CrudeOilStabilization</Option>
     </Options>
-    <Options name="gas_processing_path" default="Acid wet gas">
+    <Options name="gas_processing_path" default="Acid gas">
       <Option>None</Option>
       <Option desc="Dehydrator">Minimal</Option>
       <Option desc="Dehydrator + Amine Process">Acid Gas</Option>
@@ -351,16 +351,16 @@
     <AttrDef name="chiller_outlet_temp" type="float" unit="degF" desc="pre membrane chiller outlet temperature">35.0</AttrDef>
     <AttrDef name="fug_emissions_chiller" type="float" unit="percent" desc="pre membrane chiller fugitive emissions rate">0.0</AttrDef>
 
-    <AttrDef name="gas_path" type="str" options="gas_path">7</AttrDef>
-    <Options name="gas_path" default="7">
-      <Option>1</Option>
-      <Option>2</Option>
-      <Option>3</Option>
-      <Option>4</Option>
-      <Option>5</Option>
-      <Option>6</Option>
-      <Option>7</Option>
-    </Options>
+<!--    <AttrDef name="gas_path" type="str" options="gas_path">7</AttrDef>-->
+<!--    <Options name="gas_path" default="7">-->
+<!--      <Option>1</Option>-->
+<!--      <Option>2</Option>-->
+<!--      <Option>3</Option>-->
+<!--      <Option>4</Option>-->
+<!--      <Option>5</Option>-->
+<!--      <Option>6</Option>-->
+<!--      <Option>7</Option>-->
+<!--    </Options>-->
 
     <AttrDef name="PMC_discharge_press" type="float" unit="psia" desc="pre-membrane compressor discharge pressure">500.0</AttrDef>
     <AttrDef name="eta_compressor_PMC" type="float" unit="precent" desc="pre-membrane compressor compressor efficiency">75.0</AttrDef>
@@ -590,6 +590,34 @@
     <AttrDef name="air_cooler_fan_eff" type="float" unit="percent" desc="AGR air cooler fan efficiency">70.0</AttrDef>
     <AttrDef name="air_cooler_press_drop" type="float" unit="inch" desc="AGR air cooler pressure drop">0.6</AttrDef>
     <AttrDef name="air_cooler_speed_reducer_eff" type="float" unit="percent" desc="AGR air cooler speed reducer efficiency">92.0</AttrDef>
+    <AttrDef name="eta_compressor_AGR" type="float" unit="frac" desc="AGR compressor efficiency">75.0</AttrDef>
+    <Options name="prime_mover_type" default="Electric_motor">
+      <Option>NG_engine</Option>
+      <Option>Electric_motor</Option>
+    </Options>
+    <AttrDef name="prime_mover_type_AGR" type="str" options="prime_mover_type">Electric_motor</AttrDef>
+  </ClassAttrs>
+
+  <ClassAttrs name="RyanHolmes">
+    <AttrDef name="daily_use_engine" type="float" unit="hr/day" desc="Backup diesel engine daily usage">2.63</AttrDef>
+  </ClassAttrs>
+
+  <ClassAttrs name="CO2ReinjectionCompressor">
+    <AttrDef name="eta_compressor" type="float" unit="percent" desc="CO2 injection compressor efficiency">75.0</AttrDef>
+    <Options name="prime_mover_type" default="NG_engine">
+      <Option>NG_engine</Option>
+      <Option>Electric_motor</Option>
+    </Options>
+    <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
+  </ClassAttrs>
+
+  <ClassAttrs name="SourGasCompressor">
+    <AttrDef name="eta_compressor" type="float" unit="percent" desc="sour gas injection compressor efficiency">75.0</AttrDef>
+    <Options name="prime_mover_type" default="NG_engine">
+      <Option>NG_engine</Option>
+      <Option>Electric_motor</Option>
+    </Options>
+    <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
   </ClassAttrs>
 
   <ClassAttrs name="BitumentUpgradingOrDilution">

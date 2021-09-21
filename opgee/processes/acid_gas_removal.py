@@ -3,6 +3,9 @@ from ..process import Process
 from ..stream import PHASE_LIQUID
 from ..process import run_corr_eqns
 from opgee import ureg
+from ..compressor import Compressor
+from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
+from ..emissions import Emissions, EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
 
 _logger = getLogger(__name__)
 
@@ -18,7 +21,7 @@ class AcidGasRemoval(Process):
         self.ratio_reflux_reboiler_AGR = field.attr("ratio_reflux_reboiler_AGR")
         self.feed_press_AGR = field.attr("feed_press_AGR")
         self.regeneration_AGR_temp = field.attr("regeneration_AGR_temp")
-        self.eta_reboiler_AGR = field.attr("eta_reboiler_AGR")
+        self.eta_reboiler_AGR = self.attr("eta_reboiler_AGR")
         self.air_cooler_delta_T = self.attr("air_cooler_delta_T")
         self.air_cooler_press_drop = self.attr("air_cooler_press_drop")
         self.air_elevation_const = field.model.const("air-elevation-corr")
@@ -29,6 +32,8 @@ class AcidGasRemoval(Process):
         self.air_cooler_fan_eff = self.attr("air_cooler_fan_eff")
         self.air_cooler_speed_reducer_eff = self.attr("air_cooler_speed_reducer_eff")
         self.AGR_table = field.model.AGR_tbl
+        self.eta_compressor_AGR = self.attr("eta_compressor_AGR")
+        self.prime_mover_type_AGR = self.attr("prime_mover_type_AGR")
 
     def run(self, analysis):
         self.print_running_msg()
@@ -49,12 +54,14 @@ class AcidGasRemoval(Process):
         gas_to_demethanizer = self.find_output_stream("gas for demethanizer")
         gas_to_demethanizer.copy_flow_rates_from(input)
         gas_to_demethanizer.set_gas_flow_rate("CO2", CO2_to_demethanizer)
+        gas_to_demethanizer.subtract_gas_rates_from(gas_fugitives)
         gas_to_demethanizer.set_temperature_and_pressure(input.temperature, input.pressure)
 
         gas_to_CO2_reinjection = self.find_output_stream("gas for CO2 compressor")
         # TODO: check the following gas path
         gas_to_CO2_reinjection.copy_flow_rates_from(input)
         gas_to_CO2_reinjection.subtract_gas_rates_from(gas_to_demethanizer)
+        gas_to_CO2_reinjection.subtract_gas_rates_from(gas_fugitives)
         gas_to_CO2_reinjection.set_temperature_and_pressure(input.temperature, input.pressure)
 
         # AGR modeling based on Aspen HYSYS
@@ -78,13 +85,51 @@ class AcidGasRemoval(Process):
         corr_result_df = run_corr_eqns(x1, x2, x3, x4, x5, self.AGR_table.loc[:, self.type_amine_AGR])
         reboiler_heavy_duty = ureg.Quantity(max(0, corr_result_df["Reboiler"] * gas_multiplier), "kW")
         pump_duty = ureg.Quantity(max(0, corr_result_df["Pump"] * gas_multiplier), "kW")
-        condensor_thermal_load = ureg.Quantity(max(0, corr_result_df["Condenser"] * gas_multiplier), "kW")
-        cooler_thermal_load = ureg.Quantity(max(0, corr_result_df["Cooler"]), "kW")
+        condenser_thermal_load = ureg.Quantity(max(0, corr_result_df["Condenser"] * gas_multiplier), "kW")
+        cooler_thermal_load = ureg.Quantity(max(0, corr_result_df["Cooler"] * gas_multiplier), "kW")
+        reboiler_fuel_use = reboiler_heavy_duty * self.eta_reboiler_AGR
 
-        # reboiler_fuel_use = reboiler_heavy_duty * self.eta_reboiler_AGR
-        # blower_air_quantity = condensor_thermal_load / self.air_elevation_const / self.air_cooler_delta_T
-        # blower_CFM = blower_air_quantity / self.air_density_ratio
-        # blower_delivered_hp = blower_CFM * self.water_press / self.air_cooler_fan_eff
-        # blower_fan_motor_hp = blower_delivered_hp / self.air_cooler_speed_reducer_eff
-        # air_cooler_energy_consumption = self.get_energy_consumption("Electric_motor", blower_fan_motor_hp)
+        condenser_energy_consumption = self.predict_blower_energy_use(condenser_thermal_load,
+                                                                      self.air_cooler_delta_T,
+                                                                      self.water_press,
+                                                                      self.air_cooler_fan_eff,
+                                                                      self.air_cooler_speed_reducer_eff)
+        amine_cooler_energy_consumption = self.predict_blower_energy_use(cooler_thermal_load,
+                                                                         self.air_cooler_delta_T,
+                                                                         self.water_press,
+                                                                         self.air_cooler_fan_eff,
+                                                                         self.air_cooler_speed_reducer_eff)
+
+        overall_compression_ratio = ureg.Quantity(feed_gas_press, "psia") / input.pressure
+        compression_ratio = Compressor.get_compression_ratio(overall_compression_ratio)
+        num_stages = Compressor.get_num_of_compression(overall_compression_ratio)
+        total_work, _ = Compressor.get_compressor_work_temp(self.field,
+                                                            input.temperature,
+                                                            input.pressure,
+                                                            gas_to_demethanizer,
+                                                            compression_ratio,
+                                                            num_stages)
+        volume_flow_rate_STP = self.gas.volume_flow_rate_STP(gas_to_demethanizer)
+        total_energy = total_work * volume_flow_rate_STP
+        brake_horse_power = total_energy / self.eta_compressor_AGR
+        compressor_energy_consumption = self.get_energy_consumption(self.prime_mover_type_AGR, brake_horse_power)
+
+        # energy-use
+        energy_use = self.energy
+        if self.prime_mover_type_AGR == "NG_engine" or "NG_turbine":
+            energy_carrier = EN_NATURAL_GAS
+        elif self.prime_mover_type_AGR == "Electric_motor":
+            energy_carrier = EN_ELECTRICITY
+        else:
+            energy_carrier = EN_DIESEL
+        energy_use.set_rate(energy_carrier, compressor_energy_consumption)
+        energy_use.set_rate(EN_NATURAL_GAS, reboiler_fuel_use)
+
+        # emissions
+        emissions = self.emissions
+        energy_for_combustion = energy_use.data.drop("Electricity")
+        combustion_emission = (energy_for_combustion * self.process_EF).sum()
+        emissions.add_rate(EM_COMBUSTION, "CO2", combustion_emission)
+
+        emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
         pass

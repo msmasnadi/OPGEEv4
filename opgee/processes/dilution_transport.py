@@ -110,7 +110,6 @@ class DiluentTransport(Process):
         combusion_emission = (energy_for_combustion * self.process_EF).sum()
         emissions.add_rate(EM_COMBUSTION, "CO2", combusion_emission)
 
-
     def impute(self):
         output = self.find_output_stream("oil for dilution")
         input = self.find_input_stream("oil for transport")

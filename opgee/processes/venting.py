@@ -43,21 +43,21 @@ class Venting(Process):
         methane_lifting = self.field.get_process_data(
             "methane from gas lifting") if self.gas_lifting else ureg.Quantity(0, "tonne/day")
         gas_lifting_fugitive_loss_rate = self.field.get_process_data("gas_lifting_compressor_loss_rate")
+        gas_stream = self.generate_gas_lifting_stream(temp, press)
         if methane_lifting is None:
-            gas_stream = self.generate_gas_lifting_stream(temp, press)
             discharge_press = (self.res_press + press) / 2 + ureg.Quantity(100, "psi")
             overall_compression_ratio = discharge_press / press
             compression_ratio = Compressor.get_compression_ratio(overall_compression_ratio)
             num_stages = Compressor.get_num_of_compression(overall_compression_ratio)
-            total_work, _= Compressor.get_compressor_work_temp(self.field, temp, press, gas_stream, compression_ratio,
-                                                             num_stages)
+            total_work, _ = Compressor.get_compressor_work_temp(self.field, temp, press, gas_stream, compression_ratio,
+                                                                num_stages)
             volume_flow_rate_STP = self.gas.volume_flow_rate_STP(gas_stream)
             total_energy = total_work * volume_flow_rate_STP
             brake_horse_power = total_energy / self.eta_compressor_lifting
             energy_consumption = self.get_energy_consumption(self.prime_mover_type_gas_lifting, brake_horse_power)
             energy_content_imported_gas = self.gas.mass_energy_density(gas_stream) * gas_stream.total_gas_rate()
             frac_imported_gas_consumed = energy_consumption / energy_content_imported_gas
-            loss_rate = (ureg.Quantity(0,"frac")
+            loss_rate = (ureg.Quantity(0, "frac")
                          if gas_lifting_fugitive_loss_rate is None else gas_lifting_fugitive_loss_rate)
             factor = 1 - loss_rate - frac_imported_gas_consumed
             gas_stream.multiply_flow_rates(factor.m)
@@ -66,6 +66,9 @@ class Venting(Process):
         methane_to_venting = (input.gas_flow_rate("C1") - methane_lifting) * self.VOR_over_GOR
         venting_frac = methane_to_venting / input.gas_flow_rate("C1")
         fugitive_frac = self.pipe_leakage / input.gas_flow_rate("C1")
+
+        if self.field.get_process_data("gas_lifting_stream") is None:
+            self.field.save_process_data(gas_lifting_stream=gas_stream)
 
         gas_to_vent = self.find_output_stream("gas venting")
         gas_to_vent.copy_flow_rates_from(input)
