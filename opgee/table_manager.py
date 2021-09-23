@@ -46,7 +46,8 @@ class TableManager(OpgeeObject):
         TableDef("gas-turbine-specs", index_col=0, has_units=True),
         TableDef("gas-dehydration", index_col=0),
         TableDef("acid-gas-removal", index_col=0, index_row=[0,1]),
-        TableDef("ryan-holmes-process", index_col=0, has_units=True)
+        TableDef("ryan-holmes-process", index_col=0, has_units=True),
+        TableDef("demethanizer", index_col=0, index_row=[0,1])
     ]
 
     _table_def_dict = {tbl_def.basename: tbl_def for tbl_def in table_defs}

@@ -35,4 +35,6 @@ from .CO2_reinjection_compressor import CO2ReinjectionCompressor
 from .CO2_injection_well import CO2InjectionWell
 from .sour_gas_compressor import SourGasCompressor
 from .sour_gas_injection import SourGasInjection
+from .demethanizer import Demethanizer
+from .gas_lifting_compressor import GasLiftingCompressor
 

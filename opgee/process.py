@@ -387,7 +387,7 @@ class Process(XmlInstantiable, AttributeMixin):
         if not streams and raiseError:
             raise OpgeeException(f"{self}: no {direction} streams contain '{stream_type}'")
 
-        return combine_streams(streams, oil.API, streams[0].pressure) if combine else (
+        return combine_streams(streams, oil.API) if combine else (
             streams if as_list else {s.name: s for s in streams})
 
     def find_input_streams(self, stream_type, combine=False, as_list=False, raiseError=True):
@@ -788,8 +788,8 @@ class Process(XmlInstantiable, AttributeMixin):
         """
 
         result = Stream("combusted_stream", temperature=stream.temperature, pressure=stream.pressure)
-        CO2 = (stream.components.loc[stream.emission_comp, PHASE_GAS] /
-               component_MW[stream.emission_comp] *
+        CO2 = (stream.components.loc[stream.emission_composition, PHASE_GAS] /
+               component_MW[stream.emission_composition] *
                Stream.carbon_number *
                component_MW["CO2"]).sum()
 

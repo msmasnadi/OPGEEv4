@@ -172,6 +172,11 @@ def test_total_molar_flow_rate(gas_instance, stream):
     assert total_molar_flow_rate == ureg.Quantity(pytest.approx(6122349.16), "mol/day")
 
 
+def test_molar_flow_rate(gas_instance, stream):
+    molar_flow_rate = gas_instance.molar_flow_rate(stream, "C1")
+    assert molar_flow_rate == ureg.Quantity(pytest.approx(5459905.78), "mol/day")
+
+
 def test_component_molar_fraction_N2(gas_instance, stream):
     component_molar_fraction = gas_instance.component_molar_fraction("N2", stream)
     assert component_molar_fraction == ureg.Quantity(pytest.approx(0.0285991048), "frac")
@@ -279,7 +284,7 @@ def test_gas_volume_flow_rate_STP(gas_instance):
     s.set_flow_rate("C1", "gas", 147.1241)
     s.set_flow_rate("C2", "gas", 5.7095)
     s.set_flow_rate("C3", "gas", 4.1863)
-    vol_flow_rate_STP = gas_instance.volume_flow_rate_STP(s)
+    vol_flow_rate_STP = gas_instance.tot_volume_flow_rate_STP(s)
     assert vol_flow_rate_STP == ureg.Quantity(pytest.approx(7.94253339), "mmscf/day")
 
 

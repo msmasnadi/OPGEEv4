@@ -274,27 +274,37 @@
 		<A name="gas_comp_C3" >1.45</A>
 		<A name="gas_comp_C4" >0.63</A>
 		<A name="gas_comp_H2S" >0.0</A>
-		<A name="gas_processing_path">Sour Gas Reinjection</A>
+		<A name="gas_processing_path">Wet Gas</A>
 
 		<ProcessChoice name="gas_processing_path">
 			<ProcessGroup name="Acid Wet Gas">
+				<ProcessRef name="AcidGasRemoval"/>
+				<ProcessRef name="Demethanizer"/>
+			</ProcessGroup>
+			<ProcessGroup name="Acid Gas">
+				<ProcessRef name="AcidGasRemoval"/>
+			</ProcessGroup>
+			<ProcessGroup name="Wet Gas">
+				<ProcessRef name="Demethanizer"/>
+			</ProcessGroup>
+			<ProcessGroup name="CO2-EOR Ryan Holmes">
+				<ProcessRef name="RyanHolmes"/>
+				<ProcessRef name="CO2ReinjectionCompressor"/>
+				<ProcessRef name="CO2InjectionWell"/>
+			</ProcessGroup>
+			<ProcessGroup name="Sour Gas Reinjection">
+				<ProcessRef name="SourGasCompressor"/>
+				<ProcessRef name="SourGasInjection"/>
+			</ProcessGroup>
+
+			<ProcessGroup name="CO2-EOR Membrane">
 				<ProcessRef name="PreMembraneChiller"/>
 				<ProcessRef name="PreMembraneCompressor"/>
 				<ProcessRef name="CO2Membrane"/>
 				<ProcessRef name="AcidGasRemoval"/>
 				<ProcessRef name="CO2ReinjectionCompressor"/>
 				<ProcessRef name="CO2InjectionWell"/>
-<!--				<ProcessRef name="Demethanizer"/>-->
-			</ProcessGroup>
-			<ProcessGroup name="Acid Gas">
-				<ProcessRef name="AcidGasRemoval"/>
-			</ProcessGroup>
-			<ProcessGroup name="CO2-EOR Ryan Holmes">
-				<ProcessRef name="RyanHolmes"/>
-			</ProcessGroup>
-			<ProcessGroup name="Sour Gas Reinjection">
-				<ProcessRef name="SourGasCompressor"/>
-				<ProcessRef name="SourGasInjection"/>
+				<ProcessRef name="Demethanizer"/>
 			</ProcessGroup>
 		</ProcessChoice>
 
@@ -365,6 +375,7 @@
 		<Process class="CO2InjectionWell"/>
 		<Process class="SourGasCompressor"/>
 		<Process class="SourGasInjection"/>
+		<Process class="GasLiftingCompressor"/>
 
 
 		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
@@ -612,6 +623,34 @@
 
 		<Stream src="SourGasCompressor" dst="SourGasInjection" name="sour gas compressor to sour gas injection">
 			<Contains>gas for sour gas injection</Contains>
+		</Stream>
+
+		<Stream src="SourGasInjection" dst="Environment" name="sour gas injection to environment">
+			<Contains>gas fugitives</Contains>
+		</Stream>
+
+		<Stream src="SourGasInjection" dst="Output" name="sour gas injection to reservoir">
+			<Contains>gas for reservoir</Contains>
+		</Stream>
+
+		<Stream src="Demethanizer" dst="GasPartition" name="demethanizer to gas partition">
+			<Contains>gas for gas partition</Contains>
+		</Stream>
+
+		<Stream src="Demethanizer" dst="Environment" name="demethanizer to environment">
+			<Contains>gas fugitives</Contains>
+		</Stream>
+
+		<Stream src="Demethanizer" dst="NGL" name="demethanizer to NGL">
+			<Contains>gas for NGL</Contains>
+		</Stream>
+
+		<Stream src="GasDehydration" dst="Demethanizer" name="gas dehydration to demethanizer">
+			<Contains>gas for demethanizer</Contains>
+		</Stream>
+
+		<Stream src="GasPartition" dst="GasLiftingCompressor" name="gas partition to gas lifting compressor">
+			<Contains>gas for compressor</Contains>
 		</Stream>
 	</Field>
 

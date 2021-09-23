@@ -43,8 +43,14 @@ class DownholePump(Process):
         gas_fugitives.copy_flow_rates_from(gas_fugitives_temp)
 
         output = self.find_output_stream("crude oil")
+
         # Check
-        self.set_iteration_value(output.total_flow_rate())
+        # self.set_iteration_value(output.total_flow_rate())
+        def test_diff(input, output, name):
+            diff = output.gas_flow_rate(name) - input.gas_flow_rate(name)
+            return diff if diff.m >= 0 else 0
+
+        self.set_iteration_value([test_diff(input, output, name) for name in Stream.emission_composition])
         output.copy_flow_rates_from(input)
         output.subtract_gas_rates_from(gas_fugitives)
         output.set_temperature_and_pressure(self.wellhead_temp, self.wellhead_press)
