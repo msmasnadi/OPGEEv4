@@ -248,7 +248,7 @@
 			<Process class="GasDehydration" desc="Gas dehydration"/>
 			<Process class="AcidGasRemoval" desc="Acid Gas Removal"/>
 			<Process class="Demethanizer" desc="Demethanizer"/>
-			<Process class="Chiller" desc="Chiller"/>
+			<Process class="PreMembraneChiller" desc="Pre-membrane Chiller"/>
 			<Process class="PreMembraneCompressor" desc="Pre-membrane Compressor"/>
 			<Process class="CO2Membrane" desc="CO2 Membrane"/>
 			<Process class="RyanHolmes" desc="Ryan-Holmes"/>
