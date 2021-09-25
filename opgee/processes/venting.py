@@ -51,7 +51,7 @@ class Venting(Process):
             num_stages = Compressor.get_num_of_compression(overall_compression_ratio)
             total_work, _ = Compressor.get_compressor_work_temp(self.field, temp, press, gas_stream, compression_ratio,
                                                                 num_stages)
-            volume_flow_rate_STP = self.gas.volume_flow_rate_STP(gas_stream)
+            volume_flow_rate_STP = self.gas.tot_volume_flow_rate_STP(gas_stream)
             total_energy = total_work * volume_flow_rate_STP
             brake_horse_power = total_energy / self.eta_compressor_lifting
             energy_consumption = self.get_energy_consumption(self.prime_mover_type_gas_lifting, brake_horse_power)

@@ -74,7 +74,7 @@ class AcidGasRemoval(Process):
         regen_temp = min(max(self.regeneration_AGR_temp.to("degF").m, 190.0), 220.0)
         feed_gas_press = min(max(self.feed_press_AGR.to("psia").m, 14.7), 514.7)
 
-        gas_volume_rate = self.gas.volume_flow_rate_STP(input)
+        gas_volume_rate = self.gas.tot_volume_flow_rate_STP(input)
         gas_multiplier = gas_volume_rate.to("mmscf/day").m / 1.0897  # multiplier for gas load in correlation equation
 
         x1 = mol_frac_CO2
@@ -109,7 +109,7 @@ class AcidGasRemoval(Process):
                                                             gas_to_demethanizer,
                                                             compression_ratio,
                                                             num_stages)
-        volume_flow_rate_STP = self.gas.volume_flow_rate_STP(gas_to_demethanizer)
+        volume_flow_rate_STP = self.gas.tot_volume_flow_rate_STP(gas_to_demethanizer)
         total_energy = total_work * volume_flow_rate_STP
         brake_horse_power = total_energy / self.eta_compressor_AGR
         compressor_energy_consumption = self.get_energy_consumption(self.prime_mover_type_AGR, brake_horse_power)
@@ -123,7 +123,7 @@ class AcidGasRemoval(Process):
         else:
             energy_carrier = EN_DIESEL
         energy_use.set_rate(energy_carrier, compressor_energy_consumption)
-        energy_use.set_rate(EN_NATURAL_GAS, reboiler_fuel_use)
+        energy_use.add_rate(EN_NATURAL_GAS, reboiler_fuel_use)
 
         # emissions
         emissions = self.emissions

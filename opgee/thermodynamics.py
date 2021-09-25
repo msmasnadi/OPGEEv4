@@ -720,6 +720,21 @@ class Gas(AbstractSubstance):
 
         return total_molar_flow_rate
 
+    def molar_flow_rate(self, stream, name):
+        """
+        get molar flow rate from stream
+
+        :param stream:
+        :param name:
+        :return: (float) molar flow rate (unit = mol/day)
+        """
+
+        mass_flow_rate = stream.components.loc[name, PHASE_GAS]
+        molar_flow_rate = (mass_flow_rate / self.component_MW[name]).to("mol/day")
+
+        return molar_flow_rate
+
+
     def component_molar_fraction(self, name, stream):
         """
 
@@ -989,7 +1004,7 @@ class Gas(AbstractSubstance):
         volume_flow_rate = total_mass_rate / density
         return volume_flow_rate
 
-    def volume_flow_rate_STP(self, stream):
+    def tot_volume_flow_rate_STP(self, stream):
         """
 
         :param stream:

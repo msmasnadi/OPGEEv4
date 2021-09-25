@@ -62,6 +62,7 @@ class Model(Container):
         self.gas_dehydration_tbl = tbl_mgr.get_table("gas-dehydration")
         self.AGR_tbl = tbl_mgr.get_table("acid-gas-removal")
         self.ryan_holmes_process_tbl = tbl_mgr.get_table("ryan-holmes-process")
+        self.demethanizer = tbl_mgr.get_table("demethanizer")
 
         # TBD: should these be settable per Analysis?
         # parameters controlling process cyclic calculations

@@ -93,7 +93,7 @@ class Stream(XmlInstantiable, AttributeMixin):
     # _hc_molecules = ['CH4', 'C2H6', 'C3H8', 'C4H10']
     _gases = ['N2', 'O2', 'CO2', 'H2O', 'H2', 'H2S', 'SO2', "CO"]
     _other = ['Na+', 'Cl-', 'Si-']
-    emission_comp = _hydrocarbons + _gases
+    emission_composition = _hydrocarbons + _gases
     _carbon_number_dict = {f'C{n}': n for n in range(1, max_carbon_number + 1)}
     for gas in _gases:
         _carbon_number_dict[gas] = 1 if gas[0] == "C" else 0

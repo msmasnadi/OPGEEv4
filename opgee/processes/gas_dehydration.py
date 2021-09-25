@@ -57,6 +57,8 @@ class GasDehydration(Process):
             output_gas = self.find_output_stream("gas for Ryan Holmes")
         elif self.gas_path == "Sour Gas Reinjection":
             output_gas = self.find_output_stream("gas for sour gas compressor")
+        elif self.gas_path == "Wet Gas":
+            output_gas = self.find_output_stream("gas for demethanizer")
 
         output_gas.copy_flow_rates_from(input)
         output_gas.subtract_gas_rates_from(gas_fugitives)
@@ -75,7 +77,7 @@ class GasDehydration(Process):
         water_content = 47430 * pseudo_pressure.m / feed_gas_press.to("Pa").m + B
         water_content = ureg.Quantity(water_content, "lb/mmscf")
 
-        gas_volume_rate = self.gas.volume_flow_rate_STP(input)
+        gas_volume_rate = self.gas.tot_volume_flow_rate_STP(input)
         gas_multiplier = gas_volume_rate.to("mmscf/day").m / 1.0897  # multiplier for gas load in correlation equation
         water_content_volume = water_content * gas_volume_rate / component_MW["H2O"] / self.mol_to_scf
         water_content_volume = water_content_volume / gas_multiplier
