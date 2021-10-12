@@ -756,9 +756,12 @@ class Gas(AbstractSubstance):
         :param stream:
         :return:(float) Panda Series component molar fractions
         """
+
         total_molar_flow_rate = self.total_molar_flow_rate(stream)
         gas_flow_rates = stream.components.query("gas > 0.0").gas
 
+        if len(gas_flow_rates) == 0:
+            raise OpgeeException("Can't compute molar fractions on an empty stream")
         molar_flow_rate = gas_flow_rates / self.component_MW[gas_flow_rates.index]
 
         result = molar_flow_rate / total_molar_flow_rate
@@ -1018,8 +1021,10 @@ class Gas(AbstractSubstance):
         """
 
         :param stream:
-        :return: (float) gas mass energy density (unit = MJ/kg)
+        :return: (float) gas mass energy density (unit = MJ/kg); None if the stream is empty
         """
+        if len(stream.components.query("gas > 0.0")) == 0:
+            return ureg.Quantity(0, "MJ/kg")
         mass_flow_rate = stream.components.query("gas > 0.0").gas  # pandas.Series
         total_mass_rate = stream.total_gas_rate()
         lhv = self.component_LHV_molar[mass_flow_rate.index]

@@ -61,6 +61,19 @@ class Energy(OpgeeObject):
         """
         return self.data
 
+    def get_rate(self, carrier):
+        """
+        Get the rate of energy use for a single carrier
+
+        :param carrier: (str) one of the defined energy carriers (values of Energy.carriers)
+        :return: (float) the rate of use (e.g., mmbtu/day (LHV) for all but electricity,
+            which is in units of kWh/day.
+        """
+        if carrier not in self._carrier_set:
+            raise OpgeeException(f"Energy.set_rate: Unrecognized carrier '{carrier}'")
+
+        return self.data[carrier]
+
     def set_rate(self, carrier, rate):
         """
         Set the rate of energy use for a single carrier.
@@ -128,5 +141,3 @@ class Energy(OpgeeObject):
         :return:
         """
         self.data[:] = 0.0
-
-

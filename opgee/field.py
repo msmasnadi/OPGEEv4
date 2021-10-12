@@ -4,12 +4,13 @@ from .container import Container
 from .core import elt_name, instantiate_subelts, dict_from_list
 from .error import OpgeeException, OpgeeStopIteration
 from .log import getLogger
-from .process import Process, Environment, Reservoir, Output, Aggregator
+from .process import Process, Environment, Reservoir, Output, Aggregator, SurfaceSource
 from .process_groups import ProcessChoice
 from .stream import Stream
 from .thermodynamics import Oil, Gas, Water
 from .steam_generator import SteamGenerator
 from .utils import getBooleanXML, flatten
+from .energy import Energy
 
 _logger = getLogger(__name__)
 
@@ -36,7 +37,8 @@ class Field(Container):
 
         self.environment = Environment()    # one per field
         self.reservoir   = Reservoir()      # one per field
-        self.output      = Output()
+        self.surface_source = SurfaceSource() # one per field
+        self.output = Output()
 
         self.carbon_intensity = ureg.Quantity(0.0, "g/MJ")
 
@@ -409,7 +411,7 @@ class Field(Container):
                 else:
                     _collect(process_list, child)
 
-        processes = [self.environment, self.reservoir, self.output]
+        processes = [self.environment, self.reservoir, self.surface_source, self.output]
         _collect(processes, self)
         return processes
 
@@ -476,4 +478,15 @@ class Field(Container):
             # enable the chosen procs and streams
             for obj in to_enable:
                 obj.set_enabled(True)
+
+    def sum_process_energy(self, processes_to_exclude=None) -> Energy:
+
+        total = Energy()
+        processes_to_exclude = processes_to_exclude or []
+        for proc in self.processes():
+            if proc.enabled and proc.name not in processes_to_exclude:
+                total.add_rates_from(proc.energy)
+
+        return total
+
 

@@ -305,14 +305,20 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.temperature = t
         self.pressure = p
 
-    def copy_flow_rates_from(self, stream):
+    def copy_flow_rates_from(self, stream, phase=None):
         """
         Copy all mass flow rates from `stream` to `self`
 
+        :param phase: solid, liquid and gas phase
         :param stream: (Stream) to copy
+
         :return: none
         """
-        self.components[:] = stream.components
+        if phase:
+            self.components[phase] = stream.components[phase]
+        else:
+            self.components[:] = stream.components
+        pass
 
     def copy_gas_rates_from(self, stream):
         """
@@ -341,6 +347,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         """
         self.components *= magnitude(factor, 'fraction')
 
+    # Deprecated
     def add_flow_rates_from(self, stream):
         """
         Add the mass flow rates from `stream` to our own.

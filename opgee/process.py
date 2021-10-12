@@ -529,14 +529,21 @@ class Process(XmlInstantiable, AttributeMixin):
             if type(prior_value) != type(value):
                 raise OpgeeException(f"Type of iterator value changed; was: {type(prior_value)} is: {type(value)}")
 
-            pairs = zip(prior_value, value) if isinstance(value, (tuple, list)) \
-                else [(prior_value, value)]  # make a list of the one pair
+            # TODO: we expect the series to have no units
+            if isinstance(value, pd.Series):
+                diff = abs(value - prior_value)
+                if all(diff <= m.maximum_change):
+                    self.iteration_converged = True
+                    self.check_iterator_convergence()
+            else:
+                pairs = zip(prior_value, value) if isinstance(value, (tuple, list)) \
+                    else [(prior_value, value)]  # make a list of the one pair
 
-            if all([converged(old, new) for old, new in pairs]):
-                self.iteration_converged = True
-                # Raise OpgeeStopIteration exception if all process's
-                # iterator values have converged.
-                self.check_iterator_convergence()
+                if all([converged(old, new) for old, new in pairs]):
+                    self.iteration_converged = True
+                    # Raise OpgeeStopIteration exception if all process's
+                    # iterator values have converged.
+                    self.check_iterator_convergence()
 
         self.iteration_value = value
 
@@ -658,6 +665,27 @@ class Process(XmlInstantiable, AttributeMixin):
         energy_consumption = (brake_horsepower * eff).to("mmBtu/day")
 
         return energy_consumption
+
+    def get_gas_lifting_init_stream(self,
+                                    imported_fuel_gas_comp,
+                                    imported_fuel_gas_mass_fracs,
+                                    GLIR, oil_prod, water_prod, temp, press):
+        """
+        generate inital gas stream for lifting
+
+        :param imported_fuel_gas_comp: (float) Pandas Series imported fuel gas composition
+        :param imported_fuel_gas_mass_fracs: (float) Pandas.Series imported fuel gas mass fractions
+        :param GLIR: (float) gas lifting injection ratio
+        :param oil_prod: (float) oil production volume rate
+        :param water_prod: (float) water production volume rate
+        :return: (Stream) initial gas lifting stream
+        """
+        gas = self.field.gas
+        stream = Stream("gas lifting stream", temperature=temp, pressure=press)
+        gas_lifting_series = imported_fuel_gas_mass_fracs * GLIR * (oil_prod + water_prod) \
+                             * gas.component_gas_rho_STP[imported_fuel_gas_comp.index]
+        stream.set_rates_from_series(gas_lifting_series, PHASE_GAS)
+        return stream
 
     def init_intermediate_results(self, names):
         """
@@ -829,12 +857,25 @@ class Process(XmlInstantiable, AttributeMixin):
 
 class Reservoir(Process):
     """
-    Reservoir represents natural resources such as oil and gas reservoirs, and water sources.
+    Reservoir represents natural resources such as oil and gas reservoirs, and water sources in the subsurface.
     Each Field object holds a single Reservoir instance.
     """
 
     def __init__(self, *args, **kwargs):
         super().__init__("Reservoir", desc='The Reservoir')
+
+    def run(self, analysis):
+        self.print_running_msg()
+
+
+class SurfaceSource(Process):
+    """
+    SurfaceSource represents oil, gas and water source in the surface.
+    Each Field object holds a single SurfaceSource instance.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__("SurfaceSource", desc='The Surface Source')
 
     def run(self, analysis):
         self.print_running_msg()

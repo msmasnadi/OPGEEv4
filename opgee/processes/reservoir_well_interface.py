@@ -1,7 +1,9 @@
 import numpy as np
-from ..process import Process
-from ..log import getLogger
+
 from opgee import ureg
+from ..log import getLogger
+from ..process import Process
+from ..stream import Stream, PHASE_GAS
 
 _logger = getLogger(__name__)  # data logging
 
@@ -32,8 +34,11 @@ class ReservoirWellInterface(Process):
         output = self.find_output_stream("crude oil")
         # Check
         self.set_iteration_value(output.total_flow_rate())
-        output.copy_flow_rates_from(input)
-        output.add_flow_rates_from(flooding_CO2)
+        reset_stream = Stream(name="reset_stream", temperature=input.temperature, pressure=input.pressure)
+        reset_stream.copy_flow_rates_from(input)
+        reset_stream.add_flow_rates_from(flooding_CO2)
+
+        output.copy_flow_rates_from(reset_stream)
 
         # bottom hole flowing pressure
         bottomhole_flowing_press = self.get_bottomhole_press(input)
@@ -43,7 +48,7 @@ class ReservoirWellInterface(Process):
         output = self.find_output_stream("crude oil")
 
         input = self.find_input_stream("crude oil")
-        input.add_flow_rates_from(output)
+        input.copy_flow_rates_from(output)
 
     def get_bottomhole_press(self, input_stream):
         """
