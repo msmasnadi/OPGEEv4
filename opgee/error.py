@@ -10,12 +10,20 @@ class OpgeeException(Exception):
     pass
 
 
-# Thrown when iterations have reached Model's max_iterations or a Process's
-# change variable has changed less than Model's iteration_epsilon between runs.
+# Parent of the two exceptions thrown to stop process cycles
 class OpgeeStopIteration(Exception):
     def __init__(self, reason):
         self.reason = reason
 
+class OpgeeMaxIterationsReached(OpgeeStopIteration):
+    """Thrown when iterations have reached Model's ``max_iterations``"""
+    pass
+
+class OpgeeIterationConverged(OpgeeStopIteration):
+    """Thrown when a Process's change variables have all changed less than Model's
+       ``iteration_epsilon`` between runs.
+    """
+    pass
 
 class AbstractMethodError(OpgeeException):
     def __init__(self, cls, method):
