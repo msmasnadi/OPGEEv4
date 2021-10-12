@@ -35,7 +35,10 @@ class DownholePump(Process):
         # mass rate
         input = self.find_input_stream("crude oil")
         lift_gas = self.find_input_stream('lifting gas')
-        input.add_flow_rates_from(lift_gas)
+        reset_stream = Stream(name="reset_stream", temperature=input.temperature, pressure=input.pressure)
+        reset_stream.copy_flow_rates_from(input)
+        reset_stream.add_flow_rates_from(lift_gas)
+        input.copy_flow_rates_from(reset_stream)
 
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
@@ -45,17 +48,12 @@ class DownholePump(Process):
         output = self.find_output_stream("crude oil")
 
         # Check
-        # self.set_iteration_value(output.total_flow_rate())
-        def test_diff(input, output, name):
-            diff = output.gas_flow_rate(name) - input.gas_flow_rate(name)
-            return diff if diff.m >= 0 else 0
-
-        self.set_iteration_value([test_diff(input, output, name) for name in Stream.emission_composition])
+        self.set_iteration_value(output.total_flow_rate())
         output.copy_flow_rates_from(input)
         output.subtract_gas_rates_from(gas_fugitives)
         output.set_temperature_and_pressure(self.wellhead_temp, self.wellhead_press)
 
-        if self.downhole_pump != 1:
+        if not self.downhole_pump:
             return
 
         # energy use

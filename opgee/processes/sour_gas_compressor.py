@@ -53,6 +53,8 @@ class SourGasCompressor(Process):
 
         gas_to_injection.set_temperature_and_pressure(temp, input.pressure)
 
+        self.field.save_process_data(CO2_injection_rate=gas_to_injection.gas_flow_rate("CO2"))
+
         # energy-use
         energy_use = self.energy
         if self.prime_mover_type == "NG_engine" or "NG_turbine":

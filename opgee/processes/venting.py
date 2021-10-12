@@ -41,10 +41,13 @@ class Venting(Process):
 
         # TODO: in the gas lifting compressor process, please add the following two items
         methane_lifting = self.field.get_process_data(
-            "methane from gas lifting") if self.gas_lifting else ureg.Quantity(0, "tonne/day")
+            "methane_from_gas_lifting") if self.gas_lifting else None
         gas_lifting_fugitive_loss_rate = self.field.get_process_data("gas_lifting_compressor_loss_rate")
-        gas_stream = self.generate_gas_lifting_stream(temp, press)
-        if methane_lifting is None:
+        gas_stream = self.get_gas_lifting_init_stream(self.imported_fuel_gas_comp,
+                                                      self.imported_fuel_gas_mass_fracs,
+                                                      self.GLIR, self.oil_prod,
+                                                      self.water_prod, temp, press)
+        if methane_lifting is None and len(gas_stream.components.query("gas > 0.0")) > 0:
             discharge_press = (self.res_press + press) / 2 + ureg.Quantity(100, "psi")
             overall_compression_ratio = discharge_press / press
             compression_ratio = Compressor.get_compression_ratio(overall_compression_ratio)
@@ -94,16 +97,16 @@ class Venting(Process):
         emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
         emissions.add_from_stream(EM_VENTING, gas_to_vent)
 
-    def generate_gas_lifting_stream(self, temp, press):
-        """
-
-        :param temp:
-        :param press:
-        :return:
-        """
-        stream = Stream("gas lifting stream", temperature=temp, pressure=press)
-        gas_lifting_series = self.imported_fuel_gas_mass_fracs * \
-                             self.GLIR * (self.oil_prod + self.water_prod) \
-                             * self.gas.component_gas_rho_STP[self.imported_fuel_gas_comp.index]
-        stream.set_rates_from_series(gas_lifting_series, PHASE_GAS)
-        return stream
+    # def generate_gas_lifting_stream(self, temp, press):
+    #     """
+    #
+    #     :param temp:
+    #     :param press:
+    #     :return:
+    #     """
+    #     stream = Stream("gas lifting stream", temperature=temp, pressure=press)
+    #     gas_lifting_series = self.imported_fuel_gas_mass_fracs * \
+    #                          self.GLIR * (self.oil_prod + self.water_prod) \
+    #                          * self.gas.component_gas_rho_STP[self.imported_fuel_gas_comp.index]
+    #     stream.set_rates_from_series(gas_lifting_series, PHASE_GAS)
+    #     return stream

@@ -49,7 +49,7 @@ class GasDehydration(Process):
         gas_fugitives.copy_flow_rates_from(gas_fugitives_temp)
         gas_fugitives.set_temperature_and_pressure(self.std_temp, self.std_press)
 
-        if self.gas_path == "AGR":
+        if self.gas_path == "AGR" or self.gas_path == "Acid Wet Gas":
             output_gas = self.find_output_stream("gas for AGR")
         elif self.gas_path == "CO2-EOR Membrane":
             output_gas = self.find_output_stream("gas for chiller")
