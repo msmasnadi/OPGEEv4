@@ -23,6 +23,9 @@ class GasPartition(Process):
         self.gas_lifting = field.attr("gas_lifting")
         self.imported_fuel_gas_comp = field.attrs_with_prefix("imported_gas_comp_")
         self.imported_fuel_gas_mass_fracs = field.gas.component_mass_fractions(self.imported_fuel_gas_comp)
+        self.imported_gas_stream = Stream("imported_gas", temperature=self.std_temp, pressure=self.std_press)
+        self.imported_gas_stream.set_rates_from_series(self.imported_fuel_gas_mass_fracs * ureg.Quantity(1, "tonne/day"),
+                                                  phase=PHASE_GAS)
         self.GLIR = field.attr("GLIR")
         self.oil_prod = field.attr("oil_prod")
         self.WOR = field.attr("WOR")
@@ -75,12 +78,20 @@ class GasPartition(Process):
         excluded = [s.strip() for s in getParam("OPGEE.ExcludeFromReinjectionEnergySummary").split(",")]
         energy_sum = self.field.sum_process_energy(processes_to_exclude=excluded)
         NG_energy_sum = energy_sum.get_rate(EN_NATURAL_GAS)
-        NG_LHV = self.gas.mass_energy_density(gas_to_reinjection) # TODO: use imported gas frac when gas to reinjection stream is empty
+
+        NG_LHV = self.gas.mass_energy_density(gas_to_reinjection)
+        is_gas_to_reinjection_empty = False
+        if NG_LHV.m == 0:
+            is_gas_to_reinjection_empty = True
+            NG_LHV = self.gas.mass_energy_density(self.imported_gas_stream)
         NG_mass = NG_energy_sum / NG_LHV
         NG_consumption_stream = Stream(name="NG_consump_stream",
                                        temperature=gas_to_reinjection.temperature,
                                        pressure=gas_to_reinjection.pressure)
-        NG_consumption_series = self.gas.component_mass_fractions(self.gas.component_molar_fractions(gas_to_reinjection)) * NG_mass
+        if is_gas_to_reinjection_empty:
+            NG_consumption_series = self.imported_fuel_gas_mass_fracs * NG_mass
+        else:
+            NG_consumption_series = self.gas.component_mass_fractions(self.gas.component_molar_fractions(gas_to_reinjection)) * NG_mass
         NG_consumption_stream.set_rates_from_series(NG_consumption_series, PHASE_GAS)
 
         exported_gas.copy_flow_rates_from(gas_to_reinjection)
