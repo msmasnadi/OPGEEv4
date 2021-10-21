@@ -2,7 +2,7 @@ import networkx as nx
 from . import ureg
 from .container import Container
 from .core import elt_name, instantiate_subelts, dict_from_list
-from .error import OpgeeException, OpgeeStopIteration
+from .error import OpgeeException, OpgeeStopIteration, OpgeeMaxIterationsReached
 from .log import getLogger
 from .process import Process, Environment, Reservoir, Output, Aggregator, SurfaceSource
 from .process_groups import ProcessChoice
@@ -84,7 +84,7 @@ class Field(Container):
             # recurse upstream, calling impute()
             if proc:
                 if proc.visit() >= max_iter:
-                    raise OpgeeStopIteration(f"Maximum iterations ({max_iter}) reached in {self}")
+                    raise OpgeeMaxIterationsReached(f"Maximum iterations ({max_iter}) reached in {self}")
 
                 proc.impute()
 
@@ -110,7 +110,7 @@ class Field(Container):
 
         try:
             _impute_upstream(start_proc)
-        except OpgeeStopIteration as e:
+        except OpgeeStopIteration:
             raise OpgeeException("Impute failed due to a process loop. Use Stream attribute impute='0' to break cycle.")
 
     def run(self, analysis):

@@ -1,10 +1,10 @@
-from opgee.stream import PHASE_LIQUID, Stream, PHASE_GAS, PHASE_SOLID
-from statistics import mean
-from .thermodynamics import Oil, Gas, Water
-from .log import getLogger
 # from . import ureg
 import pandas as pd
-from .error import OpgeeException, AbstractMethodError, OpgeeStopIteration
+
+from opgee.stream import PHASE_LIQUID, Stream
+from .error import OpgeeException
+from .log import getLogger
+from .thermodynamics import Oil, Gas, Water
 
 _logger = getLogger(__name__)
 

@@ -19,20 +19,43 @@
 * TBD
 
 ## To Do
-* Finish testing process loops
-
 * Finish developing facility merge user model/attribute defs with default (or other) defs.
-
-* Finish integrating pint units (including offset conversions like psia/psig and API gravity)
-
-* Test / report on mass balances
 
 * Handle Fuel Gas Imports
   * Exchanges of energy carriers from outside system boundary
   * Add a Natural Gas Pipeline process: exports generate a credit (depends on functional unit)
-  
-* [postponed] Develop simple GUI using dash
 
+
+* Design
+    * How best to show results
+
+* Rich
+    * Smart defaults
+    * MCS
+    * GUI development
+        * Graphing
+        * dynamic changes to settings -> re-run
+        * can we keep display mostly consistent between structures?
+    * Save and reload (.opg file format)
+
+* Adam
+    * Legal conversation: licensing / flavor of open source
+        * Keeping Rich's code open source
+
+* Wennan
+    * outstanding procecesses
+    * better treatment of fugitives
+    * incorporate external developments
+        * Jeff's fugitives model
+        * John Chan's flaring model
+    * streams that leave system boundary
+    * generic mass balance check
+    * documentation
+    * TODOs 
+    
+* Someday maybe
+    * Conversion of R code that builds the database into something managable
+    * Creation XML from 300 fields in OPGEEv3
 
 # Release Notes
 

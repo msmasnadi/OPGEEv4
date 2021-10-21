@@ -11,11 +11,11 @@ from . import ureg
 from .attributes import AttrDefs, AttributeMixin
 from .core import OpgeeObject, XmlInstantiable, elt_name, instantiate_subelts, magnitude
 from .container import Container
-from .error import OpgeeException, AbstractMethodError, OpgeeStopIteration
+from .error import OpgeeException, AbstractMethodError, OpgeeIterationConverged, OpgeeMaxIterationsReached
 from .emissions import Emissions, EM_OTHER
 from .energy import Energy
 from .log import getLogger
-from .stream import Stream, PHASE_LIQUID, PHASE_GAS
+from .stream import Stream, PHASE_GAS
 from .utils import getBooleanXML
 from .drivers import Drivers
 from .combine_streams import combine_streams
@@ -133,20 +133,21 @@ def run_corr_eqns(x1, x2, x3, x4, x5, coef_df):
 
 class Process(XmlInstantiable, AttributeMixin):
     """
-    The "leaf" node in the container/process hierarchy. Process is an abstract superclass: actual runnable Process
-    instances must be of subclasses of Process, defined either in `opgee/processes/*.py` or in the user's files,
+    The "leaf" node in the container/process hierarchy. ``Process`` is an abstract superclass: actual runnable Process
+    instances must be of subclasses of ``Process``, defined either in `opgee/processes/*.py` or in the user's files,
     provided in the configuration file in the variable ``OPGEE.ClassPath``.
 
     Each Process subclass must implement the ``run`` and ``bypass`` methods, described below.
 
     If a model contains process loops (cycles), one or more of the processes can call the method
-    ``set_iteration_value()`` to store the value of a designated variable that is checked on each call to see if the
-    change from the prior iteration is <= the value of Model attribute "maximum_change". If so,
-    an ``OpgeeStopIteration`` exception is raised to terminate the run. In addition, a "visit" counter in each
-    `Process` is incremented each time the process is run (or bypassed) and if the count >= the Model's
-    "maximum_iterations" attribute, ``OpgeeStopIteration`` is likewise raised. Whichever limit is reached first
-    will cause iterations to stop. Between model runs, the method ``iteration_reset()`` is called for all processes
-    to clear the visited counters and reset the iteration value to None.
+    ``set_iteration_value()`` to store the value(s) of a designated variable(s) to be checked on each call to see
+    if the change from the prior iteration is <= the value of Model attribute "maximum_change". If so,
+    an ``OpgeeIterationConverged`` exception is raised to terminate the run.
+
+    In addition to testing for convergence, a "visit" counter in each ``Process`` is incremented each time the process
+    is run (or bypassed) and if the count >= the Model's "maximum_iterations" attribute, ``OpgeeMaxIterationsReached``
+    is likewise raised. Whichever limit is reached first will cause iterations to stop. Between model runs, the method
+    ``iteration_reset()`` is called for all processes to clear the visited counters and reset the iteration value to None.
     """
 
     # Constants to support stream "finding" methods
@@ -498,15 +499,15 @@ class Process(XmlInstantiable, AttributeMixin):
         change in each value is less than the model's `maximum_change`, the
         run loop is terminated by throwing an OpgeeStopIteration exception.
 
-        :param value: (float or tuple of floats) the values of designated
-            'change' variables to compare each iteration. If a tuple is passed,
-            all values in the tuple must be within `maximum_change` of the
-            previously stored value.
+        :param value: (float, list/tuple of floats, pandas.Series) the values of
+            designated 'change' variables to compare each iteration. If a list, tuple,
+            or Series is used, all values contained therein must be within `maximum_change`
+            of the previously stored value.
         :return: none
-        :raises: OpgeeStopIteration if the change in `value` (versus the
+        :raises: OpgeeIterationConverged if the change in `value` (versus the
             previously stored value) is less than the `maximum_change`
-            attribute for the model. If a tuple of floats is passed in `value`,
-            all of them must pass this test.
+            attribute for the model. If a list/tuple/Series of floats is passed in
+            `value`, all of the contained values must pass this test.
         """
         print(f"{self.name}:count = {self.visit_count}")
         if self.iteration_converged:
@@ -560,10 +561,10 @@ class Process(XmlInstantiable, AttributeMixin):
         stop when one converges but others have yet to do so.
 
         :return: none.
-        :raises OpgeeStopIteration: if all processes have converged.
+        :raises OpgeeIterationConverged: if all processes have converged.
         """
         if all([proc.iteration_converged for proc in cls.iterating_processes]):
-            raise OpgeeStopIteration(f"Change <= maximum_change in all iterating processes")
+            raise OpgeeIterationConverged(f"Change <= maximum_change in all iterating processes")
 
     @classmethod
     def reset_all_iteration(cls):
@@ -612,7 +613,7 @@ class Process(XmlInstantiable, AttributeMixin):
 
         m = self.model
         if self.visit() >= m.maximum_iterations:
-            raise OpgeeStopIteration(f"Maximum iterations ({m.maximum_iterations}) reached in {self}")
+            raise OpgeeMaxIterationsReached(f"Maximum iterations ({m.maximum_iterations}) reached in {self}")
 
     # TBD: Can we create a generic method for passing inputs to outputs when disabled?
     # TBD: If not, this will become an abstract method.

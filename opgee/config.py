@@ -7,7 +7,6 @@
 '''
 import os
 import platform
-import re
 import configparser
 
 from .error import ConfigFileError, OpgeeException
