@@ -9,7 +9,7 @@
 <AttrDefs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="attributes.xsd">
   <ClassAttrs name="Model">
     <!-- Maximum number of iterations for process loops -->
-    <AttrDef name="maximum_iterations" type="int">10</AttrDef>
+    <AttrDef name="maximum_iterations" type="int">20</AttrDef>
 
     <!-- Change threshold for iteration loops. Requires a Process to set a change variable. -->
     <AttrDef name="maximum_change" type="float">0.001</AttrDef>
@@ -654,6 +654,15 @@
       <Option>Electric_motor</Option>
     </Options>
     <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
+  </ClassAttrs>
+
+  <ClassAttrs name="GasReinjectionCompressor">
+    <Options name="prime_mover_type" default="NG_engine">
+      <Option>NG_engine</Option>
+      <Option>Electric_motor</Option>
+    </Options>
+    <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
+    <AttrDef name="eta_compressor" type="float" unit="percent" desc="gas reinjection compressor efficiency">75.0</AttrDef>
   </ClassAttrs>
 
   <ClassAttrs name="BitumentUpgradingOrDilution">

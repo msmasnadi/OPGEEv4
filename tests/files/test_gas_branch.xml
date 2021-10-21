@@ -405,6 +405,7 @@
 		<Process class="GasReinjectionCompressor"/>
 		<Process class="GasFloodingCompressor"/>
 		<Process class="After"/>
+		<Process class="GasReinjectionWell"/>
 
 
 
@@ -689,6 +690,14 @@
 
 		<Stream src="GasPartition" dst="GasReinjectionCompressor" name="gas partition to gas reinjection compressor">
 			<Contains>gas for gas reinjection compressor</Contains>
+		</Stream>
+
+		<Stream src="GasReinjectionCompressor" dst="GasReinjectionWell" name="gas reinjection compressor to gas reinjection well">
+			<Contains>gas for gas reinjection well</Contains>
+		</Stream>
+
+		<Stream src="GasReinjectionCompressor" dst="Environment" name="gas reinjection compressor to environment">
+			<Contains>gas fugitives</Contains>
 		</Stream>
 
 		<Stream src="GasPartition" dst="After" name="gas partition to after">
