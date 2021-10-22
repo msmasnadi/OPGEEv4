@@ -5,7 +5,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_cytoscape as cyto
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output, State, ClientsideFunction
 import dash_table
 from pathlib import Path
 # import json
@@ -44,61 +44,69 @@ def field_network_graph(field):
     edge_color = 'maroon'
     node_color = 'sandybrown'
 
-    # noinspection PyCallingNonCallable
-    layout = html.Div([
-        cyto.Cytoscape(
-            id='network-layout',
-            responsive=True,
-            elements=nodes + edges,
-            autounselectify=False,
-            autoungrabify=True,
-            userPanningEnabled=False,  # may need to reconsider this when model is bigger
-            userZoomingEnabled=False,  # automatic zoom when user changes browser size still works
-            style={'width': '100%', 'height': '500px'},
-            layout={
-                'name': 'breadthfirst',
-                'roots': '[id = "Reservoir"]'
+    layout = cyto.Cytoscape(
+        id='network-layout',
+        responsive=True,
+        elements=nodes + edges,
+        autounselectify=False,
+        autoungrabify=True,
+        userPanningEnabled=True, # False,  # may need to reconsider this when model is bigger
+        userZoomingEnabled=True, # False,  # automatic zoom when user changes browser size still works
+        style={'width': '100%',
+               # 'height': '100%',
+               'height': '600px',
+               # not sure any of this really works
+               'autosize': 'true',
+               'resize': 'inherit',
+               'overflow': 'auto',
+               'display' : 'flex',
+               },
+        # style={'width': '100%', 'height': '500px', 'resize': 'inherit'},
+        layout={
+            'name': 'breadthfirst',
+            'roots': '[id = "Reservoir"]'
+        },
+        stylesheet=[
+            {
+                'selector': 'node',
+                'style': {
+                    'label': 'data(id)',
+                    'background-color': node_color,
+                    'width': '30',
+                    'height': '30',
+                }
             },
-            stylesheet=[
-                {
-                    'selector': 'node',
-                    'style': {
-                        'label': 'data(id)',
-                        'background-color': node_color,
-                        'width': '30',
-                        'height': '30',
-                    }
-                },
-                {
-                    'selector': 'edge',
-                    'style': {
-                        'curve-style': 'bezier',
-                        # 'mid-target-arrow-color': edge_color,
-                        # 'mid-target-arrow-shape': 'triangle',
-                        'target-arrow-color': edge_color,
-                        'target-arrow-shape': 'triangle',
-                        # 'arrow-scale': 1.5,
-                        'line-color': edge_color,
-                        'line-opacity': 0.50,
-                        'width': 1,
-                        'target-distance-from-node': 1,  # stop just short of the node
-                        'source-distance-from-node': 1,
+            {
+                'selector': 'edge',
+                'style': {
+                    'curve-style': 'bezier',
+                    # 'mid-target-arrow-color': edge_color,
+                    # 'mid-target-arrow-shape': 'triangle',
+                    'target-arrow-color': edge_color,
+                    'target-arrow-shape': 'triangle',
+                    # 'arrow-scale': 1.5,
+                    'line-color': edge_color,
+                    'line-opacity': 0.50,
+                    'width': 1,
+                    'target-distance-from-node': 1,  # stop just short of the node
+                    'source-distance-from-node': 1,
 
-                        # "width": "mapData(weight, 0, 30, 1, 8)",
-                        # "content": "data(weight)",
-                        # "overlay-padding": "30px",
-                        'label': 'data(contents)',  # TBD: how to get this off the line?
-                        'text-opacity': 1.0,
-                        'text-rotation': 'autorotate',
-                        'text-margin-y': -10,
-                        'text-margin-x': 7,
-                        'text-background-color': 'blue',
-                        "font-size": "14px",
-                    }
-                },
-            ]
-        )
-    ])
+                    # "width": "mapData(weight, 0, 30, 1, 8)",
+                    # "content": "data(weight)",
+                    # "overlay-padding": "30px",
+                    'label': 'data(contents)',  # TBD: how to get this off the line?
+                    'text-opacity': 1.0,
+                    'text-rotation': 'autorotate',
+                    'text-margin-y': -10,
+                    'text-margin-x': 7,
+                    'text-background-color': 'blue',
+                    "font-size": "14px",
+                }
+            },
+        ]
+    )
+    node_color = 'sandybrown'
+
 
     # noinspection PyCallingNonCallable
     return layout
@@ -126,7 +134,9 @@ def emissions_table(analysis, procs):
         return s
 
     df = pd.DataFrame(data=[series_for_df(proc) for proc in procs])
-    df.loc['Total', :] = df.sum(axis='rows')
+    totals = df.sum(axis='rows')
+    totals.name = 'Total'
+    df.append(totals)
     df.reset_index(inplace=True)
     df.rename({'index': 'Name'}, axis='columns', inplace=True)
 
@@ -173,12 +183,21 @@ def processes_layout(app, field):
     # the main row
     # noinspection PyCallingNonCallable
     layout = html.Div([
+
         # graph component
         html.Div(
             className="row",
             children=[
                 field_network_graph(field)
             ],
+            style={
+                'resize': 'vertical',
+                'overflow': 'auto',
+                'height' : '35%',
+
+                'autosize': 'true',
+                'display': 'flex',
+            }
         ),
 
         html.Div(
@@ -427,6 +446,10 @@ def app_layout(app, model, analysis):
     layout = html.Div([
         dcc.Store(id='analysis-and-field', storage_type='session'),
 
+        # TBD: Experiment to see if client-side function fixes graph resizing problem, per
+        # https://stackoverflow.com/questions/55462861/dash-dynamic-layout-does-not-propagate-resized-graph-dimensions-until-window-i
+        html.Div(id="output-clientside"),
+
         html.Div([
             html.H1(app.title),
 
@@ -518,7 +541,7 @@ def main(args):
     field_name = args.field
 
     initial_analysis = model.get_analysis(analysis_name)
-    initial_field = model.get_field(field_name)  # deprecated?
+    # initial_field = model.get_field(field_name)  # deprecated?
 
     # import the css template, and pass the css template into dash
     external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
@@ -534,6 +557,13 @@ def main(args):
     # TBD: use "app.config['suppress_callback_exceptions'] = True" to not need to call tab-layout fns in this layout def
 
     app.layout = app_layout(app, model, initial_analysis)
+
+    # per https://stackoverflow.com/questions/55462861/dash-dynamic-layout-does-not-propagate-resized-graph-dimensions-until-window-i
+    app.clientside_callback(
+        ClientsideFunction(namespace="clientside", function_name="resize"),
+        Output("output-clientside", "children"),
+        [Input("network-layout", "figure")],
+    )
 
     @app.callback(
         Output('field-selector', 'options'),
