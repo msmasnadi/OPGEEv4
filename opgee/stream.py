@@ -94,7 +94,7 @@ class Stream(XmlInstantiable, AttributeMixin):
     _gases = ['N2', 'O2', 'CO2', 'H2O', 'H2', 'H2S', 'SO2', "CO"]
     _other = ['Na+', 'Cl-', 'Si-']
     emission_composition = _hydrocarbons + _gases
-    _carbon_number_dict = {f'C{n}': n for n in range(1, max_carbon_number + 1)}
+    _carbon_number_dict = {f'C{n}': float(n) for n in range(1, max_carbon_number + 1)}
     for gas in _gases:
         _carbon_number_dict[gas] = 1 if gas[0] == "C" else 0
     carbon_number = pd.Series(_carbon_number_dict, dtype="pint[dimensionless]")
