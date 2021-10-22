@@ -34,11 +34,12 @@ class ReservoirWellInterface(Process):
         output = self.find_output_stream("crude oil")
         # Check
         self.set_iteration_value(output.total_flow_rate())
-        reset_stream = Stream(name="reset_stream", temperature=input.temperature, pressure=input.pressure)
-        reset_stream.copy_flow_rates_from(input)
-        reset_stream.add_flow_rates_from(flooding_CO2)
-
-        output.copy_flow_rates_from(reset_stream)
+        output.add_flow_rates_from(flooding_CO2)
+        # reset_stream = Stream(name="reset_stream", temperature=input.temperature, pressure=input.pressure)
+        # reset_stream.copy_flow_rates_from(input)
+        # reset_stream.add_flow_rates_from(flooding_CO2)
+        #
+        # output.copy_flow_rates_from(reset_stream)
 
         # bottom hole flowing pressure
         bottomhole_flowing_press = self.get_bottomhole_press(input)

@@ -39,4 +39,6 @@ from .demethanizer import Demethanizer
 from .gas_lifting_compressor import GasLiftingCompressor
 from .gas_flooding_compressor import GasFloodingCompressor
 from .gas_reinjection_compressor import GasReinjectionCompressor
+from .gas_reinjection_well import GasReinjectionWell
+
 

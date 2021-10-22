@@ -509,6 +509,7 @@ class Process(XmlInstantiable, AttributeMixin):
             attribute for the model. If a list/tuple/Series of floats is passed in
             `value`, all of the contained values must pass this test.
         """
+        print(f"{self.name}:count = {self.visit_count}")
         if self.iteration_converged:
             return  # nothing left to do
 

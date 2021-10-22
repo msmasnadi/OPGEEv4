@@ -347,7 +347,6 @@ class Stream(XmlInstantiable, AttributeMixin):
         """
         self.components *= magnitude(factor, 'fraction')
 
-    # Deprecated
     def add_flow_rates_from(self, stream):
         """
         Add the mass flow rates from `stream` to our own.
