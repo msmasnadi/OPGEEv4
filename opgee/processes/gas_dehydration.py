@@ -8,6 +8,7 @@ from ..thermodynamics import component_MW
 from ..process import run_corr_eqns
 from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY
 from ..emissions import Emissions, EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
+from ..error import OpgeeException
 
 _logger = getLogger(__name__)
 
@@ -59,6 +60,8 @@ class GasDehydration(Process):
             output_gas = self.find_output_stream("gas for sour gas compressor")
         elif self.gas_path == "Wet Gas":
             output_gas = self.find_output_stream("gas for demethanizer")
+        else:
+            raise OpgeeException(f"{self.name} gas path is not recognized:{self.gas_path}")
 
         output_gas.copy_flow_rates_from(input)
         output_gas.subtract_gas_rates_from(gas_fugitives)

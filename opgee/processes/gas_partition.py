@@ -34,6 +34,9 @@ class GasPartition(Process):
         self.water_prod = self.oil_prod * self.WOR
         self.is_first_loop = True
 
+    def _reset_before_iteration(self):
+        self.is_first_loop = True
+
     def run(self, analysis):
         self.print_running_msg()
 

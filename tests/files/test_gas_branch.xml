@@ -296,6 +296,7 @@
 		<A name="FOR">218.27</A>
 		<A name="VOR">5.0</A>
 		<A name="gas_processing_path">Acid Wet Gas</A>
+		<A name="upgrader_type">Delayed coking</A>
 
 		<ProcessChoice name="gas_processing_path">
 			<ProcessGroup name="Acid Wet Gas">
@@ -625,7 +626,7 @@
 		</Stream>
 
 		<Stream src="CO2ReinjectionCompressor" dst="CO2InjectionWell" name="CO2 reinjection compressor to CO2 injection well">
-			<Contains>gas for CO2 injection</Contains>
+			<Contains>gas for CO2 injection well</Contains>
 		</Stream>
 
 		<Stream src="CO2ReinjectionCompressor" dst="Environment" name="CO2 reinjection compressor to environment">
