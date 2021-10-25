@@ -51,9 +51,6 @@ class GasPartition(Process):
                                                                self.water_prod, temp, press)
                 gas_lifting.copy_flow_rates_from(init_stream)
                 self.is_first_loop = False
-            else:
-                gas_lifting.copy_flow_rates_from(input)
-                self.field.save_process_data(methane_from_gas_lifting=gas_lifting.gas_flow_rate("C1"))
 
         gas_lifting.set_temperature_and_pressure(input.temperature, input.pressure)
 
@@ -63,6 +60,8 @@ class GasPartition(Process):
         self.set_iteration_value(iteration_series)
 
         if not self.iteration_converged:
+            gas_lifting.copy_flow_rates_from(input)
+            self.field.save_process_data(methane_from_gas_lifting=gas_lifting.gas_flow_rate("C1"))
             return
         gas_to_reinjection = self.find_output_stream("gas for gas reinjection compressor")
         gas_to_reinjection.copy_flow_rates_from(input)

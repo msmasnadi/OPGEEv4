@@ -2,7 +2,7 @@ import networkx as nx
 from . import ureg
 from .container import Container
 from .core import elt_name, instantiate_subelts, dict_from_list
-from .error import OpgeeException, OpgeeStopIteration, OpgeeMaxIterationsReached
+from .error import OpgeeException, OpgeeStopIteration, OpgeeMaxIterationsReached, OpgeeIterationConverged
 from .log import getLogger
 from .process import Process, Environment, Reservoir, Output, Aggregator, SurfaceSource
 from .process_groups import ProcessChoice
@@ -254,7 +254,7 @@ class Field(Container):
                     for proc in ordered_cycle:
                         proc.run_or_bypass(analysis)
 
-                except OpgeeStopIteration as e:
+                except OpgeeIterationConverged as e:
                     _logger.info(e)
                     break
 

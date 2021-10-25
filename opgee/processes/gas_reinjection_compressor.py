@@ -50,6 +50,7 @@ class GasReinjectionCompressor(Process):
         gas_to_well.copy_flow_rates_from(input)
         gas_to_well.subtract_gas_rates_from(gas_fugitives)
 
-        incoming_gas_consumed = self.gas.energy_flow_rate(input) / energy_consumption
+        incoming_gas_consumed = energy_consumption / self.gas.energy_flow_rate(input)
+        gas_to_well.multiply_flow_rates(1-incoming_gas_consumed.m)
         pass
 

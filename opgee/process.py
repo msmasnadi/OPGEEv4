@@ -525,7 +525,12 @@ class Process(XmlInstantiable, AttributeMixin):
         # helper function to check for convergence of each element of a tuple
         def converged(prior_value, value):
             delta = magnitude(abs(value - prior_value))
-            return delta <= m.maximum_change
+            is_converged = delta <= m.maximum_change
+            if not is_converged:
+                print(f"process: {self.name}")
+                print(f"current value is {value}")
+                print(f"prior value is {prior_value}")
+            return is_converged
 
         if prior_value is not None:
             if type(prior_value) != type(value):
@@ -537,6 +542,10 @@ class Process(XmlInstantiable, AttributeMixin):
                 if all(diff <= m.maximum_change):
                     self.iteration_converged = True
                     self.check_iterator_convergence()
+                else:
+                    print(f"process: {self.name}")
+                    print(f"current value is {value}")
+                    print(f"prior value is {prior_value}")
             else:
                 pairs = zip(prior_value, value) if isinstance(value, (tuple, list)) \
                     else [(prior_value, value)]  # make a list of the one pair

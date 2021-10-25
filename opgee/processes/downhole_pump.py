@@ -35,11 +35,12 @@ class DownholePump(Process):
         # mass rate
         input = self.find_input_stream("crude oil")
         lift_gas = self.find_input_stream('lifting gas')
-        input.add_flow_rates_from(lift_gas)
-        # reset_stream = Stream(name="reset_stream", temperature=input.temperature, pressure=input.pressure)
-        # reset_stream.copy_flow_rates_from(input)
-        # reset_stream.add_flow_rates_from(lift_gas)
-        # input.copy_flow_rates_from(reset_stream)
+        # input.add_flow_rates_from(lift_gas)
+        # print(f"proccess:{self.name}, input stream:\n{input.components}")
+        reset_stream = Stream(name="reset_stream", temperature=input.temperature, pressure=input.pressure)
+        reset_stream.copy_flow_rates_from(input)
+        reset_stream.add_flow_rates_from(lift_gas)
+        input.copy_flow_rates_from(reset_stream)
 
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
