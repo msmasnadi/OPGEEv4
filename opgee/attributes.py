@@ -51,7 +51,7 @@ class AttrDef(XmlInstantiable):
 
         unit_obj = validate_unit(self.unit)
 
-        self.default = value if unit_obj is None else ureg.Quantity(value, unit_obj)
+        self.default = value if unit_obj is None else ureg.Quantity(float(value), unit_obj)
 
     def __str__(self):
         type_str = type(self).__name__

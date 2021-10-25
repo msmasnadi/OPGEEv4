@@ -589,6 +589,16 @@ class Process(XmlInstantiable, AttributeMixin):
         self.clear_visit_count()
         self.iteration_value = None
         self.iteration_converged = False
+        self._reset_before_iteration()
+
+    def _reset_before_iteration(self):
+        """
+        Optional method to allow iterating processes to reset any state before
+        a new iteration cycle begins.
+
+        :return: none
+        """
+        pass
 
     def run(self, analysis):
         """
