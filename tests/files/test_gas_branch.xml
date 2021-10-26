@@ -24,6 +24,8 @@
 		<A name="downhole_pump">0</A>
 		<A name="GLIR">30.26</A>
 		<A name="FOR">218.0</A>
+		<A name="gas_processing_path">Acid Wet Gas</A>
+
 		<Process class="Separation" impute-start="true">
 			<Consumes>crude oil</Consumes>
 			<Produces>crude oil</Produces>
@@ -109,7 +111,7 @@
 		<Stream src="Separation" dst="WaterTreatment" name="separator to water treatment">
 			<Contains>water</Contains>
 		</Stream>
-		
+
 		<Stream src="WaterTreatment" dst="Output" name="water treatment to steam">
 			<Contains>water for steam generation</Contains>
 			<Contains>water for reinjection</Contains>
@@ -124,7 +126,7 @@
 		<Stream src="Flaring" dst="Venting" name="flaring to venting">
 			<Contains>gas</Contains>
 		</Stream>
-		
+
 		<Stream src="Flaring" dst="Environment" name="flaring to environment - flaring">
 			<Contains>gas flaring</Contains>
 		</Stream>
@@ -132,11 +134,11 @@
 		<Stream src="Flaring" dst="Environment" name="flaring to environment - methane">
 			<Contains>methane slip</Contains>
 		</Stream>
-		
+
 		<Stream src="Venting" dst="GasGathering" name="venting to gas gathering">
 			<Contains>gas for gas gathering</Contains>
 		</Stream>
-		
+
 		<Stream src="CrudeOilStabilization" dst="GasGathering" name="crude oil stabilization to gas gathering">
 			<Contains>gas for gas gathering</Contains>
 		</Stream>
@@ -172,7 +174,7 @@
 		<Stream src="GasGathering" dst="GasDehydration" name="gas gathering to gas dehydration">
 			<Contains>gas</Contains>
 		</Stream>
-		
+
 		<Stream src="GasDehydration" dst="Environment" name="gas dehydration to environment">
 			<Contains>gas fugitives</Contains>
 		</Stream>
@@ -188,7 +190,7 @@
 		<Stream src="CrudeOilStorage" dst="VRUCompressor" name="crude oil storage to VRU compressor">
 			<Contains>gas for VRU</Contains>
 		</Stream>
-		
+
 		<Stream src="Venting" dst="Environment" name="venting to environment">
 			<Contains>gas venting</Contains>
 		</Stream>
@@ -328,11 +330,7 @@
 				<ProcessRef name="CO2InjectionWell"/>
 				<ProcessRef name="Demethanizer"/>
 			</ProcessGroup>
-
-			<ProcessGroup name="Acid Wet Gas">
-				<ProcessRef name="AcidGasRemoval"/>
-				<ProcessRef name="Demethanizer"></ProcessRef>
-			</ProcessGroup>
+			
 		</ProcessChoice>
 
 		<Process class="Separation" impute-start="true">
