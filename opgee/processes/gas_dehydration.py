@@ -35,8 +35,15 @@ class GasDehydration(Process):
                            self.air_cooler_press_drop * \
                            field.model.const("gravitational-acceleration")
 
-        #TODO: gas path ???
         self.gas_path = field.attr("gas_processing_path")
+        self.gas_path_dict = {"Acid Gas": "gas for AGR",
+                              "Acid Wet Gas": "gas for AGR",
+                              "CO2-EOR Membrane": "gas for chiller",
+                              "CO2-EOR Ryan Holmes": "gas for Ryan Holmes",
+                              "Sour Gas Reinjection": "gas for sour gas compressor",
+                              "Wet Gas": "gas for demethanizer"}
+
+
 
     def run(self, analysis):
         self.print_running_msg()
@@ -50,18 +57,25 @@ class GasDehydration(Process):
         gas_fugitives.copy_flow_rates_from(gas_fugitives_temp)
         gas_fugitives.set_temperature_and_pressure(self.std_temp, self.std_press)
 
-        if self.gas_path == "AGR" or self.gas_path == "Acid Wet Gas":
-            output_gas = self.find_output_stream("gas for AGR")
-        elif self.gas_path == "CO2-EOR Membrane":
-            output_gas = self.find_output_stream("gas for chiller")
-        elif self.gas_path == "CO2-EOR Ryan Holmes":
-            output_gas = self.find_output_stream("gas for Ryan Holmes")
-        elif self.gas_path == "Sour Gas Reinjection":
-            output_gas = self.find_output_stream("gas for sour gas compressor")
-        elif self.gas_path == "Wet Gas":
-            output_gas = self.find_output_stream("gas for demethanizer")
-        else:
-            raise OpgeeException(f"{self.name} gas path is not recognized:{self.gas_path}")
+        # if self.gas_path == "Acid Gas" or self.gas_path == "Acid Wet Gas":
+        #     output_gas = self.find_output_stream("gas for AGR")
+        # elif self.gas_path == "CO2-EOR Membrane":
+        #     output_gas = self.find_output_stream("gas for chiller")
+        # elif self.gas_path == "CO2-EOR Ryan Holmes":
+        #     output_gas = self.find_output_stream("gas for Ryan Holmes")
+        # elif self.gas_path == "Sour Gas Reinjection":
+        #     output_gas = self.find_output_stream("gas for sour gas compressor")
+        # elif self.gas_path == "Wet Gas":
+        #     output_gas = self.find_output_stream("gas for demethanizer")
+        # else:
+        #     raise OpgeeException(f"{self.name} gas path is not recognized:{self.gas_path}")
+
+        try:
+            output = self.gas_path_dict[self.gas_path]
+            output_gas = self.find_output_stream(output)
+        except:
+            raise OpgeeException(f"{self.name} gas path is not recognized:{self.gas_path}. "
+                                 f"Must be one of {list(self.gas_path_dict.keys())}")
 
         output_gas.copy_flow_rates_from(input)
         output_gas.subtract_gas_rates_from(gas_fugitives)

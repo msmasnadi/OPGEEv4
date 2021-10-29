@@ -153,7 +153,7 @@
       <Option desc="Heavy oil dilution">HeavyOilDilution</Option>
       <Option desc="Crude oil stabilization">CrudeOilStabilization</Option>
     </Options>
-    <Options name="gas_processing_path" default="Acid gas">
+    <Options name="gas_processing_path" default="Acid Gas">
       <Option>None</Option>
       <Option desc="Dehydrator">Minimal</Option>
       <Option desc="Dehydrator + Amine Process">Acid Gas</Option>
