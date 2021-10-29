@@ -43,8 +43,6 @@ class GasDehydration(Process):
                               "Sour Gas Reinjection": "gas for sour gas compressor",
                               "Wet Gas": "gas for demethanizer"}
 
-
-
     def run(self, analysis):
         self.print_running_msg()
 
@@ -56,19 +54,6 @@ class GasDehydration(Process):
         gas_fugitives = self.find_output_stream("gas fugitives")
         gas_fugitives.copy_flow_rates_from(gas_fugitives_temp)
         gas_fugitives.set_temperature_and_pressure(self.std_temp, self.std_press)
-
-        # if self.gas_path == "Acid Gas" or self.gas_path == "Acid Wet Gas":
-        #     output_gas = self.find_output_stream("gas for AGR")
-        # elif self.gas_path == "CO2-EOR Membrane":
-        #     output_gas = self.find_output_stream("gas for chiller")
-        # elif self.gas_path == "CO2-EOR Ryan Holmes":
-        #     output_gas = self.find_output_stream("gas for Ryan Holmes")
-        # elif self.gas_path == "Sour Gas Reinjection":
-        #     output_gas = self.find_output_stream("gas for sour gas compressor")
-        # elif self.gas_path == "Wet Gas":
-        #     output_gas = self.find_output_stream("gas for demethanizer")
-        # else:
-        #     raise OpgeeException(f"{self.name} gas path is not recognized:{self.gas_path}")
 
         try:
             output = self.gas_path_dict[self.gas_path]
@@ -129,8 +114,6 @@ class GasDehydration(Process):
         emissions.add_rate(EM_COMBUSTION, "CO2", combustion_emission)
 
         emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
-
-
 
     @staticmethod
     def pseudo_pressure(tau, Tc_over_T, critical_pressure):
