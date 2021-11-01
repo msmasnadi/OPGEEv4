@@ -13,7 +13,7 @@ class After(Process):
         pass
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def test_oil_branch(configure_logging_for_tests):
     return load_test_model('test_oil_branch.xml')
 
