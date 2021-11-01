@@ -54,7 +54,7 @@
 			<Consumes>crude oil</Consumes>
 		</Process>
 		<Process class="VRUCompressor"/>
-		<Process class="GasGathering"/>
+<!--		<Process class="GasGathering"/>-->
 		<Process class="HeavyOilUpgrading" enabled="false"/>
 		<Process class="HeavyOilDilution" enabled="false"/>
 		<Process class="Separation" enabled="false"/>
@@ -90,8 +90,8 @@
 			<Contains>gas fugitives</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilStabilization" dst="Output" name="gas from stabilization">
-			<Contains>gas from stabilization</Contains>
+		<Stream src="CrudeOilStabilization" dst="After" name="gas from stabilization">
+			<Contains>gas for gas gathering</Contains>
 		</Stream>
 
 		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to after">
@@ -107,7 +107,7 @@
 			<Contains>gas fugitives</Contains>
 		</Stream>
 
-		<Stream src="VRUCompressor" dst="GasGathering" name="VRU compressor to gas gathering">
+		<Stream src="VRUCompressor" dst="After" name="VRU compressor to gas gathering">
 			<Contains>gas for gas gathering</Contains>
 		</Stream>
 

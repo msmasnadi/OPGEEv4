@@ -82,7 +82,7 @@ class Field(Container):
         # recursive helper function
         def _impute_upstream(proc):
             # recurse upstream, calling impute()
-            if proc:
+            if proc and proc.enabled:
                 if proc.visit() >= max_iter:
                     raise OpgeeMaxIterationsReached(f"Maximum iterations ({max_iter}) reached in {self}")
 

@@ -95,7 +95,7 @@ class HeavyOilUpgrading(Process):
                                  self.oil.component_MW[self.upgrader_gas_comp.index] *
                                  proc_gas_flared *
                                  self.mole_to_scf)
-        flaring_gas = self.find_output_stream("gas")
+        flaring_gas = self.find_output_stream("gas for flaring")
         flaring_gas.set_rates_from_series(proc_gas_flaring_rate, PHASE_GAS)
 
         # energy use
