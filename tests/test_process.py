@@ -158,4 +158,4 @@ def test_combust_stream(procB):
     stream.set_gas_flow_rate("N2", ureg.Quantity(15, "tonne/day"))
 
     result = procB.combust_stream(stream)
-    assert result.gas_flow_rate("CO2") == ureg.Quantity(1, "tonne/day")
+    assert result.gas_flow_rate("CO2") == ureg.Quantity(85.97773950086344, "tonne/day")
