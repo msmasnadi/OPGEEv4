@@ -3,6 +3,8 @@ from ..process import Process
 from ..stream import PHASE_LIQUID
 from opgee import ureg
 from ..compressor import Compressor
+from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
+from ..emissions import Emissions, EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
 
 
 _logger = getLogger(__name__)
@@ -26,7 +28,7 @@ class GasReinjectionCompressor(Process):
         temp = input.temperature
         press = input.pressure
 
-        if input.total_flow_rate().m == 0:
+        if input.total_flow_rate().m == 0 or self.enabled == False:
             return
 
         loss_rate = self.venting_fugitive_rate()
@@ -52,5 +54,22 @@ class GasReinjectionCompressor(Process):
 
         incoming_gas_consumed = energy_consumption / self.gas.energy_flow_rate(input)
         gas_to_well.multiply_flow_rates(1-incoming_gas_consumed.m)
-        pass
+
+        # energy-use
+        energy_use = self.energy
+        if self.prime_mover_type == "NG_engine" or "NG_turbine":
+            energy_carrier = EN_NATURAL_GAS
+        elif self.prime_mover_type == "Electric_motor":
+            energy_carrier = EN_ELECTRICITY
+        else:
+            energy_carrier = EN_DIESEL
+        energy_use.set_rate(energy_carrier, energy_consumption)
+
+        # emissions
+        emissions = self.emissions
+        energy_for_combustion = energy_use.data.drop("Electricity")
+        combustion_emission = (energy_for_combustion * self.process_EF).sum()
+        emissions.add_rate(EM_COMBUSTION, "CO2", combustion_emission)
+
+        emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
 
