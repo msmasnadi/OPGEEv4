@@ -452,7 +452,7 @@ class Field(Container):
         :return: None
         """
         attr_dict = self.attr_dict
-
+        self.dump()
         #
         # Turn off all processes identified in groups, then turn on those in the selected groups.
         #
@@ -489,4 +489,32 @@ class Field(Container):
 
         return total
 
+    def dump(self):
+        """
+        Print out a representation of the field's processes and streams for debugging.
 
+        :return: none
+        """
+        import logging
+
+        visited = {}    # traverse a process only the first time it's encountered
+
+        def debug(msg):
+            print(msg)
+
+        def visit(process):
+            visited[process] = True
+            next = []
+
+            debug(f"\n> {process} outputs:")
+            for stream in process.outputs:
+                debug(f"  * {stream}")
+                dst = stream.dst_proc
+                if not dst in visited:
+                    next.append(dst)
+
+            for proc in next:
+                visit(proc)
+
+        debug(f"\n{self}:")
+        visit(self.reservoir)
