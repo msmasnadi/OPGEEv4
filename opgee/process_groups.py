@@ -99,21 +99,3 @@ class ProcessGroup(XmlInstantiable):
         stream_refs  = [elt_name(node) for node in elt.findall('StreamRef')]
 
         return ProcessGroup(name, process_refs, stream_refs)
-
-#
-# Deprecated. Probably doesn't require a class, just the string name.
-#
-# class ProcessRef(XmlInstantiable):
-#     """
-#     Names a `Process` to include in a `ProcessGroup`.
-#     """
-#     def __init__(self, name):
-#         super().__init__(name)
-#
-#
-# class StreamRef(XmlInstantiable):
-#     """
-#     Names a `Stream` to include in a `ProcessGroup`.
-#     """
-#     def __init__(self, name):
-#         super().__init__(name)

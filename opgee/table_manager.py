@@ -90,9 +90,7 @@ class TableManager(OpgeeObject):
                     else pd.read_csv(s, index_col=tbl_def.index_col, header=tbl_def.index_row)
 
             if tbl_def.fillna is not None:
-                # df.reset_index(inplace=True)
                 df.fillna(tbl_def.fillna, inplace=True)
-                # df.set_index(list(tbl_def.index_col), inplace=True)
 
             self.table_dict[name] = df
 
