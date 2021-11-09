@@ -16,7 +16,7 @@ from .. import Process
 from ..attributes import AttrDefs
 from ..config import getParam
 from ..model import ModelFile
-from ..gui.widgets import attr_inputs
+from ..gui.widgets import attr_inputs, gui_switches
 from ..log import getLogger
 from ..utils import mkdirs
 
@@ -35,12 +35,15 @@ class After(Process):
 # Load extra layouts
 # cyto.load_extra_layouts()   # required for cose-bilkent
 
-def field_network_graph(field):
-    # TBD: check if disabled processes are being drawn.
+def field_network_graph(field, show_streams_to_env=False, show_stream_contents=False, show_disabled_procs=False):
     nodes = [{'data': {'id': name, 'label': name}} for name, proc in field.process_dict.items()
-             if proc.enabled]  # , 'size': 150  didn't work
+             if show_disabled_procs or proc.enabled]  # , 'size': 150  didn't work
+
     edges = [{'data': {'id': name, 'source': s.src_name, 'target': s.dst_name, 'contents': ', '.join(s.contents)}} for
-             name, s in field.stream_dict.items() if s.dst_name != "Environment" and s.dst_proc.enabled and s.src_proc.enabled]
+             name, s in field.stream_dict.items() if (
+                     (show_streams_to_env or s.dst_name != "Environment") and
+                     (show_disabled_procs or (s.dst_proc.enabled and s.src_proc.enabled))
+             )]
 
     edge_color = 'maroon'
     node_color = 'sandybrown'
@@ -65,7 +68,6 @@ def field_network_graph(field):
         # style={'width': '100%', 'height': '500px', 'resize': 'inherit'},
         layout={
             'name': 'breadthfirst',
-            # 'name': 'circle',
             'roots': '[id = "Reservoir"]'
         },
         stylesheet=[
@@ -96,8 +98,8 @@ def field_network_graph(field):
                     # "width": "mapData(weight, 0, 30, 1, 8)",
                     # "content": "data(weight)",
                     # "overlay-padding": "30px",
-                    'label': 'data(contents)',  # TBD: how to get this off the line?
-                    'text-opacity': 0.0,
+                    'label': 'data(contents)',
+                    'text-opacity': 0.5 if show_stream_contents else 0.0,
                     'text-rotation': 'autorotate',
                     'text-margin-y': -10,
                     'text-margin-x': 7,
@@ -181,16 +183,30 @@ def emissions_table(analysis, procs):
     return tbl
 
 
-def processes_layout(app, field):
+def processes_layout(app, field, show_streams_to_env=False, show_stream_contents=False, show_disabled_procs=False):
     # the main row
     # noinspection PyCallingNonCallable
     layout = html.Div([
 
+        html.Center(
+            html.Div(
+                className="row",
+                children=[
+                    gui_switches(),
+                    html.Br(),
+                ]
+            ),
+        ),
+
         # graph component
         html.Div(
+            id='field-network-graph-div',
             className="row",
             children=[
-                field_network_graph(field)
+                field_network_graph(field,
+                                    show_streams_to_env=show_streams_to_env,
+                                    show_stream_contents=show_stream_contents,
+                                    show_disabled_procs=show_disabled_procs)
             ],
             style={
                 'resize': 'vertical',
@@ -328,8 +344,6 @@ def generate_settings_callback(app, analysis, field):
     :param ids: (list(str)) ids of Dropdown controllers to generate callbacks for.
     :return: none
     """
-    from lxml import etree as ET
-
     class_names = ['Model', 'Analysis', 'Field'] + [proc.name for proc in field.processes()]
 
     attr_defs = AttrDefs.get_instance()
@@ -484,8 +498,8 @@ def app_layout(app, model, analysis):
                 html.Button('Run model', id='run-button', n_clicks=0),
                 dcc.Markdown(id='run-model-status'),
             ],
-                style={'height': '150px'}
-            ),
+            # style = {'height': '130px'}
+    ),
         ],
             style={'textAlign': 'center'}
         ),
@@ -701,6 +715,21 @@ def main(args):
         item = html.Details(open=True, children=[html.Summary("Process Emissions")])
         add_children(field, item)
         return item
+
+    @app.callback(
+        Output('field-network-graph-div', 'children'),
+        Input('show-streams-to-env', 'value'),
+        Input('show-stream-contents', 'value'),
+        Input('show-disabled-procs', 'value'),
+        State('analysis-and-field', 'data'),
+    )
+    def redraw_network_graph(show_streams_to_env, show_stream_contents, show_disabled_procs,
+                             analysis_and_field):
+        analysis, field = get_analysis_and_field(model, analysis_and_field)
+        return field_network_graph(field,
+                                   show_streams_to_env=show_streams_to_env,
+                                   show_stream_contents=show_stream_contents,
+                                   show_disabled_procs=show_disabled_procs)
 
     @app.callback(
         Output('tab-content', 'children'),
