@@ -37,9 +37,10 @@ class After(Process):
 
 def field_network_graph(field):
     # TBD: check if disabled processes are being drawn.
-    nodes = [{'data': {'id': name, 'label': name}} for name in field.process_dict.keys()]  # , 'size': 150  didn't work
+    nodes = [{'data': {'id': name, 'label': name}} for name, proc in field.process_dict.items()
+             if proc.enabled]  # , 'size': 150  didn't work
     edges = [{'data': {'id': name, 'source': s.src_name, 'target': s.dst_name, 'contents': ', '.join(s.contents)}} for
-             name, s in field.stream_dict.items()]
+             name, s in field.stream_dict.items() if s.dst_name != "Environment" and s.dst_proc.enabled and s.src_proc.enabled]
 
     edge_color = 'maroon'
     node_color = 'sandybrown'
@@ -64,6 +65,7 @@ def field_network_graph(field):
         # style={'width': '100%', 'height': '500px', 'resize': 'inherit'},
         layout={
             'name': 'breadthfirst',
+            # 'name': 'circle',
             'roots': '[id = "Reservoir"]'
         },
         stylesheet=[
@@ -95,7 +97,7 @@ def field_network_graph(field):
                     # "content": "data(weight)",
                     # "overlay-padding": "30px",
                     'label': 'data(contents)',  # TBD: how to get this off the line?
-                    'text-opacity': 1.0,
+                    'text-opacity': 0.0,
                     'text-rotation': 'autorotate',
                     'text-margin-y': -10,
                     'text-margin-x': 7,
