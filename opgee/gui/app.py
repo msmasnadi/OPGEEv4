@@ -36,7 +36,8 @@ class After(Process):
 # cyto.load_extra_layouts()   # required for cose-bilkent
 
 def field_network_graph(field, show_streams_to_env=False, show_stream_contents=False, show_disabled_procs=False):
-    nodes = [{'data': {'id': name, 'label': name}} for name, proc in field.process_dict.items()
+    nodes = [{'data': {'id': name, 'label': name},
+              'classes': ('enabled' if proc.enabled else 'disabled')} for name, proc in field.process_dict.items()
              if show_disabled_procs or proc.enabled]  # , 'size': 150  didn't work
 
     edges = [{'data': {'id': name, 'source': s.src_name, 'target': s.dst_name, 'contents': ', '.join(s.contents)}} for
@@ -78,6 +79,12 @@ def field_network_graph(field, show_streams_to_env=False, show_stream_contents=F
                     'background-color': node_color,
                     'width': '30',
                     'height': '30',
+                }
+            },
+            {
+                'selector': '.disabled',
+                'style': {
+                    'background-color': 'gray',
                 }
             },
             {
