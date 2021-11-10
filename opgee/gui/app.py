@@ -37,10 +37,11 @@ class After(Process):
 
 def field_network_graph(field, show_streams_to_env=False, show_stream_contents=False, show_disabled_procs=False):
     nodes = [{'data': {'id': name, 'label': name},
-              'classes': ('enabled' if proc.enabled else 'disabled')} for name, proc in field.process_dict.items()
+              'classes': ('enabled-node' if proc.enabled else 'disabled-node')} for name, proc in field.process_dict.items()
              if show_disabled_procs or proc.enabled]  # , 'size': 150  didn't work
 
-    edges = [{'data': {'id': name, 'source': s.src_name, 'target': s.dst_name, 'contents': ', '.join(s.contents)}} for
+    edges = [{'data': {'id': name, 'source': s.src_name, 'target': s.dst_name, 'contents': ', '.join(s.contents)},
+              'classes': ('enabled-edge' if (s.dst_proc.enabled and s.src_proc.enabled) else 'disabled-edge')} for
              name, s in field.stream_dict.items() if (
                      (show_streams_to_env or s.dst_name != "Environment") and
                      (show_disabled_procs or (s.dst_proc.enabled and s.src_proc.enabled))
@@ -82,36 +83,41 @@ def field_network_graph(field, show_streams_to_env=False, show_stream_contents=F
                 }
             },
             {
-                'selector': '.disabled',
+                'selector': '.disabled-node',
                 'style': {
-                    'background-color': 'gray',
+                    'background-color': 'lightgray',
                 }
             },
             {
                 'selector': 'edge',
                 'style': {
                     'curve-style': 'bezier',
+                    # 'arrow-scale': 1.5,
                     # 'mid-target-arrow-color': edge_color,
                     # 'mid-target-arrow-shape': 'triangle',
-                    'target-arrow-color': edge_color,
                     'target-arrow-shape': 'triangle',
-                    # 'arrow-scale': 1.5,
+                    'target-arrow-color': edge_color,
                     'line-color': edge_color,
-                    'line-opacity': 0.50,
+                    'line-opacity': 0.60,
                     'width': 1,
                     'target-distance-from-node': 1,  # stop just short of the node
                     'source-distance-from-node': 1,
 
-                    # "width": "mapData(weight, 0, 30, 1, 8)",
-                    # "content": "data(weight)",
                     # "overlay-padding": "30px",
                     'label': 'data(contents)',
-                    'text-opacity': 0.5 if show_stream_contents else 0.0,
+                    'text-opacity': 0.6 if show_stream_contents else 0.0,
                     'text-rotation': 'autorotate',
                     'text-margin-y': -10,
                     'text-margin-x': 7,
                     'text-background-color': 'blue',
                     "font-size": "14px",
+                },
+            },
+            {
+                'selector': '.disabled-edge',
+                'style': {
+                    'target-arrow-color': 'gray',
+                    'line-color': 'gray',
                 }
             },
         ]
@@ -263,7 +269,7 @@ def processes_layout(app, field, show_streams_to_env=False, show_stream_contents
                     className='six columns',
                     children=[
                         dcc.Markdown(d("""
-                            **Stream Data**
+                            **Stream Data** (tonne/day)
                             """), style={'margin-left': '8px'}),
                         html.Div(
                             children=[],
@@ -674,9 +680,10 @@ def main(args):
             with pd.option_context('display.max_rows', None,
                                    'precision', 3):
                 nonzero = stream.components.query('solid > 0 or liquid > 0 or gas > 0')
-                components = str(nonzero.astype(float)) if len(nonzero) else None
+                components = str(nonzero.astype(float)) if len(nonzero) else '<empty stream>'
 
-            text = f"{name} (tonne/day)\n{components}" if components else f"{name}:\n<empty stream>"
+            contents = '\n          '.join(stream.contents)
+            text = f"Name: {name}\nContains: {contents}\n{components}"
             return html.Pre(text)
 
     @app.callback(
@@ -755,6 +762,14 @@ def main(args):
         elif tab == 'results':
             return results_layout(field)
 
+    # @app.callback(
+    #     Output('tbd', 'children'),
+    #     Input('network-layout', 'mouseoverEdgeData')
+    # )
+    # def mouseoverStream(data):
+    #     if data:
+    #         return 'whatever'
+
     @app.callback(
         Output('ci-text', 'children'),
         Input('run-button', 'n_clicks'),
@@ -780,7 +795,7 @@ def main(args):
 
         fn_unit = analysis.attr('functional_unit')
 
-        value_col = r'$g CO_2 MJ^{-1}$'
+        # value_col = r'$g CO_2 MJ^{-1}$'
         df = pd.DataFrame({"category": ["Exploration", "Surface Processing", "Transportation"],
                            "value": [1.5, 2.2, 3.1],
                            "name": [fn_unit] * 3})
