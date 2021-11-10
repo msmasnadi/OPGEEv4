@@ -124,12 +124,17 @@ class Field(Container):
         if self.is_enabled():
             _logger.debug(f"Running '{self}'")
 
+            self.reset_streams()
             self.iteration_reset()
             self._impute()
 
             self.iteration_reset()
             self.run_processes(analysis)
             self.check_balances()
+
+    def reset_streams(self):
+        for stream in self.streams():
+            stream.reset(self.model)
 
     def check_balances(self):
         for p in self.processes():
