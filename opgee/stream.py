@@ -82,19 +82,19 @@ class Stream(XmlInstantiable, AttributeMixin):
     max_carbon_number = 50
     _hydrocarbons = [f'C{n}' for n in range(1, max_carbon_number + 1)]
 
-
-
     # All hydrocarbon gases other than methane (C1) are considered VOCs.
     VOCs = _hydrocarbons[1:]
 
-
     _solids = ['PC']  # petcoke
     _liquids = ['oil']
+
     # _hc_molecules = ['CH4', 'C2H6', 'C3H8', 'C4H10']
     _gases = ['N2', 'O2', 'CO2', 'H2O', 'H2', 'H2S', 'SO2', "CO"]
     _other = ['Na+', 'Cl-', 'Si-']
+
     emission_composition = _hydrocarbons + _gases
     _carbon_number_dict = {f'C{n}': float(n) for n in range(1, max_carbon_number + 1)}
+
     for gas in _gases:
         _carbon_number_dict[gas] = 1 if gas[0] == "C" else 0
     carbon_number = pd.Series(_carbon_number_dict, dtype="pint[dimensionless]")
@@ -129,12 +129,26 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.impute = impute
         self.has_exogenous_data = False
 
+        self.dirty = False  # indicates whether any data have been written to the stream yet
+
     def _after_init(self):
         self.check_attr_constraints(self.attr_dict)
 
     def __str__(self):
         number_str = f" #{self.number}" if self.number else ''
         return f"<Stream '{self.name}'{number_str}>"
+
+    def reset(self, model):
+        """
+        Reset an existing `Stream` to a state suitable for re-running the model.
+
+        :param model: (opgee.Model) the model this stream is part of
+        :return: none
+        """
+        self.components = self.create_component_matrix()
+        self.temperature = model.const("std-temperature")
+        self.pressure = model.const("std-pressure")
+        self.dirty = False
 
     @classmethod
     def units(cls):
@@ -176,6 +190,9 @@ class Stream(XmlInstantiable, AttributeMixin):
         :return: (pandas.DataFrame) Zero-filled stream DataFrame
         """
         return pd.DataFrame(data=0.0, index=cls.components, columns=cls._phases, dtype='pint[tonne/day]')
+
+    def is_empty(self):
+        return not self.dirty
 
     def component_phases(self, name):
         """
@@ -249,6 +266,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         # TBD: it's currently not possible to assign a Quantity to a DataFrame even if
         # TBD: the units match. It's magnitude must be extracted. We check the units first...
         self.components.loc[name, phase] = magnitude(rate, units=self.units())
+        self.dirty = True
 
     #
     # Convenience functions
@@ -267,6 +285,7 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     def set_gas_flow_rate(self, name, rate):
         """Calls ``self.set_flow_rate(name, PHASE_GAS, rate)``"""
+        self.dirty = True
         return self.set_flow_rate(name, PHASE_GAS, rate)
 
     def set_liquid_flow_rate(self, name, rate, t=None, p=None):
@@ -275,10 +294,13 @@ class Stream(XmlInstantiable, AttributeMixin):
             self.temperature = t
         if p is not None:
             self.pressure = p
+
+        self.dirty = True
         return self.set_flow_rate(name, PHASE_LIQUID, rate)
 
     def set_solid_flow_rate(self, name, rate):
         """Calls ``self.set_flow_rate(name, PHASE_SOLID, rate)``"""
+        self.dirty = True
         return self.set_flow_rate(name, PHASE_SOLID, rate)
 
     def set_rates_from_series(self, series, phase):
@@ -289,6 +311,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param phase:
         :return:
         """
+        self.dirty = True
         self.components.loc[series.index, phase] = series
 
     def multiply_factor_from_series(self, series, phase):
@@ -299,6 +322,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param phase:
         :return:
         """
+        self.dirty = True
         self.components.loc[series.index, phase] = series * self.components.loc[series.index, phase]
 
     def set_temperature_and_pressure(self, t, p):
@@ -318,7 +342,9 @@ class Stream(XmlInstantiable, AttributeMixin):
             self.components[phase] = stream.components[phase]
         else:
             self.components[:] = stream.components
-        pass
+
+        self.dirty = True
+
 
     def copy_gas_rates_from(self, stream):
         """
@@ -327,6 +353,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param stream: (Stream) to copy
         :return: none
         """
+        self.dirty = True
         self.components[PHASE_GAS] = stream.components[PHASE_GAS]
 
     def copy_liquid_rates_from(self, stream):
@@ -336,6 +363,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param stream: (Stream) to copy
         :return: none
         """
+        self.dirty = True
         self.components[PHASE_LIQUID] = stream.components[PHASE_LIQUID]
 
     def multiply_flow_rates(self, factor):
@@ -345,6 +373,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param factor: (float) what to multiply by
         :return: none
         """
+        self.dirty = True
         self.components *= magnitude(factor, 'fraction')
 
     def add_flow_rates_from(self, stream):
@@ -354,6 +383,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param stream: (Stream) the source of the rates to add
         :return: none
         """
+        self.dirty = True
         self.components += stream.components
 
     def subtract_gas_rates_from(self, stream):
@@ -363,6 +393,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param stream: (Stream) the source of the rates to subtract
         :return: none
         """
+        self.dirty = True
         self.components[PHASE_GAS] -= stream.components[PHASE_GAS]
 
     # @classmethod

@@ -132,20 +132,6 @@ class Model(Container):
         # TBD: validate all attributes of classes Field, Process, etc.
         pass
 
-        # show_streams = False
-        #
-        # if show_streams:
-        #     for field in self.fields():
-        #         print(f"Processes for field {field.name}")
-        #         for proc in field.processes():
-        #             print(f"  {proc}")
-        #
-        #         print(f"\nStreams for field {field.name}")
-        #         for stream in field.streams():
-        #             print(f"  {stream}")
-        #
-        #     print("")
-
     @classmethod
     def from_xml(cls, elt):
         """

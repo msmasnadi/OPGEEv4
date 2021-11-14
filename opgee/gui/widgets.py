@@ -20,7 +20,6 @@ def attr_inputs(class_name, direction='h'):
 
     attr_dict = class_attrs.attr_dict
 
-    # noinspection PyCallingNonCallable
     details = html.Details(
         children=[
             html.Summary(class_name, style={'font-weight': 'bold', 'font-size': '14px'})
@@ -101,3 +100,38 @@ def attr_inputs(class_name, direction='h'):
     )
     return layout
 
+def gui_switches():
+    radio_label_style = {'display': 'inline', 'margin-right': '2px'}
+    radio_options = [dict(label='Show', value=1), dict(label='Hide', value=0)]
+
+    options = [
+        ('Streams to Environment', 'show-streams-to-env', 0),
+        ('Stream contents', 'show-stream-contents', 0),
+        ('Disabled procs', 'show-disabled-procs', 0)
+    ]
+
+    outer_div = html.Div(children=[])
+    children = outer_div.children
+
+    # noinspection PyCallingNonCallable
+    for title, id, value in options:
+        span = html.Span(
+            children=[
+                html.Div(title + ':', style={
+                    'font-weight': 'bold',
+                    'display': 'inline',
+                    'text-align': 'right',
+                    'margin-left': '15px',
+                }),
+
+                dcc.RadioItems(id=id, options=radio_options, value=value,
+                               labelStyle=radio_label_style,
+                               style={'display': 'inline'},
+                               persistence=True)
+            ],
+            # style={'padding': '1px'}
+        )
+
+        children.append(span)
+
+    return outer_div
