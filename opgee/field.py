@@ -145,8 +145,9 @@ class Field(Container):
         emissions = rates.loc['GHG'].sum()
         energy = self.output.energy_flow
 
-        ci = (emissions / energy) if energy else ureg.Quantity(0, 'grams/MJ')
-        self.carbon_intensity = ci.to('grams/MJ')
+        ci = ureg.Quantity((emissions / energy) if energy else 0, 'grams/MJ')
+        self.carbon_intensity = ci
+        return ci
 
     def report(self, analysis):
         name = self.name
