@@ -219,17 +219,17 @@
 			<Contains>crude oil</Contains>
 		</Stream>
 
-		<Stream src="Output" dst="DownholePump" name="lifting gas" impute="False">
-			<Contains>lifting gas</Contains>
-		</Stream>
+<!--		<Stream src="Output" dst="DownholePump" name="lifting gas" impute="False">-->
+<!--			<Contains>lifting gas</Contains>-->
+<!--		</Stream>-->
 
-		<Stream src="Output" dst="ReservoirWellInterface" name="flooding CO2" impute="False">
-			<Contains>CO2</Contains>
-		</Stream>
+<!--		<Stream src="Output" dst="ReservoirWellInterface" name="flooding CO2" impute="False">-->
+<!--			<Contains>CO2</Contains>-->
+<!--		</Stream>-->
 
-		<Stream src="Output" dst="WaterTreatment" name="blowdown recycled to treatment" impute="False">
-			<Contains>water</Contains>
-		</Stream>
+<!--		<Stream src="Output" dst="WaterTreatment" name="blowdown recycled to treatment" impute="False">-->
+<!--			<Contains>water</Contains>-->
+<!--		</Stream>-->
 
 		<Stream src="CrudeOilStorage" dst="Flaring" name="crude oil storage to flaring">
 			<Contains>gas for flaring</Contains>
@@ -543,13 +543,13 @@
 			<Contains>crude oil</Contains>
 		</Stream>
 
-		<Stream src="Output" dst="ReservoirWellInterface" name="flooding CO2" impute="False">
+		<Stream src="CO2InjectionWell" dst="ReservoirWellInterface" name="flooding CO2" impute="False">
 			<Contains>CO2</Contains>
 		</Stream>
 
-		<Stream src="Output" dst="WaterTreatment" name="blowdown recycled to treatment" impute="False">
-			<Contains>water</Contains>
-		</Stream>
+<!--		<Stream src="Output" dst="WaterTreatment" name="blowdown recycled to treatment" impute="False">-->
+<!--			<Contains>water</Contains>-->
+<!--		</Stream>-->
 
 		<Stream src="CrudeOilStorage" dst="Flaring" name="crude oil storage to flaring">
 			<Contains>gas for flaring</Contains>
