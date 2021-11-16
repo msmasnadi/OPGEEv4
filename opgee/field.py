@@ -224,7 +224,7 @@ class Field(Container):
             sg = self.graph.subgraph(processes)
             run_order = nx.topological_sort(sg)
             for proc in run_order:
-                proc.run_or_bypass(analysis)
+                proc.run_if_enabled(analysis)
 
         # run all the cycle-independent nodes in topological order
         run_procs_in_order(cycle_independent)
@@ -263,7 +263,7 @@ class Field(Container):
             while True:
                 try:
                     for proc in ordered_cycle:
-                        proc.run_or_bypass(analysis)
+                        proc.run_if_enabled(analysis)
 
                 except OpgeeIterationConverged as e:
                     _logger.info(e)

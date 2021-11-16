@@ -476,20 +476,20 @@ class Process(XmlInstantiable, AttributeMixin):
         """
         Return a Process's immediate precedent Processes.
 
-        :return: (list of Process) the Processes that are the sources of
+        :return: (set of Process) the Processes that are the sources of
            Streams connected to `process`.
         """
-        procs = [stream.src_proc for stream in self.inputs]
+        procs = set([stream.src_proc for stream in self.inputs])
         return procs
 
     def successors(self):
         """
         Return a Process's immediately following Processes.
 
-        :return: (list of Process) the Processes that are the destinations
+        :return: (set of Process) the Processes that are the destinations
            of Streams connected to `process`.
         """
-        procs = [stream.dst_proc for stream in self.outputs]
+        procs = set([stream.dst_proc for stream in self.outputs])
         return procs
 
     def set_iteration_value(self, value):
@@ -617,33 +617,19 @@ class Process(XmlInstantiable, AttributeMixin):
         """
         pass
 
-    def run_or_bypass(self, analysis):
+    def run_if_enabled(self, analysis):
         """
-        If the Process is enabled, run the process, otherwise bypass it, i.e., copy
-        input streams to output streams.
+        If the Process is enabled, run the process, otherwise do nothing.
 
         :param analysis: (Analysis) the repository of analysis-specific settings
         :return: None
         """
         if self.enabled:
             self.run(analysis)
-        else:
-            self.bypass()
 
-        m = self.model
-        if self.visit() >= m.maximum_iterations:
-            raise OpgeeMaxIterationsReached(f"Maximum iterations ({m.maximum_iterations}) reached in {self}")
-
-    # TBD: Can we create a generic method for passing inputs to outputs when disabled?
-    # TBD: If not, this will become an abstract method.
-    def bypass(self):
-        """
-        This method is called if a `Process` is disabled, allowing it to pass data from
-        all input streams to output streams, effectively bypassing the disabled element.
-
-        :return: none
-        """
-        pass
+            m = self.model
+            if self.visit() >= m.maximum_iterations:
+                raise OpgeeMaxIterationsReached(f"Maximum iterations ({m.maximum_iterations}) reached in {self}")
 
     def impute(self):
         """
