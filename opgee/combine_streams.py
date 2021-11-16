@@ -29,27 +29,27 @@ def combine_streams(streams, API, pressure=None, temperature=None):
 
     comp_matrix = sum(matrices)
 
-    non_zero_streams = [stream for stream in streams if not stream.is_empty()]
-                        # if stream.total_flow_rate() != 0 and stream.temperature.m != 0 and stream.pressure.m != 0]
+    non_empty_streams = [stream for stream in streams if not stream.is_empty()]
 
-    if not non_zero_streams:
+    if not non_empty_streams:
         raise OpgeeException(f"combine_streams: streams are all empty")
 
-    for stream in non_zero_streams:
-        if stream.temperature.m == 0:
-            raise OpgeeException(f"combine_streams: steam temperature of '{stream.name}' is Zero")
+    # TODO: This block might not be necessary
+    for stream in non_empty_streams:
+        if stream.pressure.m == 0:
+            raise OpgeeException(f"combine_streams: steam pressure of '{stream.name}' is Zero")
 
-    first_non_zero_stream = non_zero_streams[0]
-    stream_temperature = pd.Series([stream.temperature.to("kelvin").m for stream in non_zero_streams],
+    first_non_empty_stream = non_empty_streams[0]
+    stream_temperature = pd.Series([stream.temperature.to("kelvin").m for stream in non_empty_streams],
                                    dtype="pint[kelvin]")
-    stream_mass_rate = pd.Series([stream.total_flow_rate().m for stream in non_zero_streams],
+    stream_mass_rate = pd.Series([stream.total_flow_rate().m for stream in non_empty_streams],
                                  dtype="pint[tonne/day]")
-    stream_Cp = pd.Series([mixture_heat_capacity(API, stream).m for stream in non_zero_streams],
+    stream_Cp = pd.Series([mixture_heat_capacity(API, stream).m for stream in non_empty_streams],
                           dtype="pint[btu/degF/day]")
     stream_specific_heat = stream_mass_rate * stream_Cp
     temperature = (stream_temperature * stream_specific_heat).sum() / stream_specific_heat.sum()
     temperature = temperature.to("degF")
-    stream = Stream('combined', temperature=temperature, pressure=first_non_zero_stream.pressure, comp_matrix=comp_matrix)
+    stream = Stream('combined', temperature=temperature, pressure=first_non_empty_stream.pressure, comp_matrix=comp_matrix)
     return stream
 
 

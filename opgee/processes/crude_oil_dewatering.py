@@ -48,14 +48,14 @@ class CrudeOilDewatering(Process):
         oil_to_storage = self.find_output_stream("oil for storage", raiseError=False)
         if oil_to_storage is not None:
             oil_to_storage.set_liquid_flow_rate("oil", oil_rate, temp, pressure)
-
-        oil_to_upgrader = self.find_output_stream("oil for upgrader", raiseError=False)
-        if oil_to_upgrader is not None:
-            oil_to_upgrader.set_liquid_flow_rate("oil", oil_rate, temp, pressure)
-
-        oil_to_dilution = self.find_output_stream("oil for dilution", raiseError=False)
-        if oil_to_dilution is not None:
-            oil_to_dilution.set_liquid_flow_rate("oil", oil_rate, temp, pressure)
+        else:
+            oil_to_upgrader = self.find_output_stream("oil for upgrader", raiseError=False)
+            if oil_to_upgrader is not None:
+                oil_to_upgrader.set_liquid_flow_rate("oil", oil_rate, temp, pressure)
+            else:
+                oil_to_dilution = self.find_output_stream("oil for dilution", raiseError=False)
+                if oil_to_dilution is not None:
+                    oil_to_dilution.set_liquid_flow_rate("oil", oil_rate, temp, pressure)
 
         average_oil_temp = ureg.Quantity((temperature.m+self.temperature_heater_treater.m)/2, "degF")
         oil_heat_capacity = self.field.oil.specific_heat(self.field.oil.API, average_oil_temp)

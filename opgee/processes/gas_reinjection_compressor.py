@@ -28,7 +28,7 @@ class GasReinjectionCompressor(Process):
         temp = input.temperature
         press = input.pressure
 
-        if input.total_flow_rate().m == 0 or not self.enabled:
+        if input.is_empty():
             return
 
         loss_rate = self.venting_fugitive_rate()

@@ -59,15 +59,15 @@ class SteamGeneration(Process):
         waste_water_from_blowdown = blowdown_water_mass_rate * (1 - self.fraction_blowdown_recycled)
         recycled_blowdown_water = blowdown_water_mass_rate * self.fraction_blowdown_recycled
 
-        output_waster_water = self.find_output_stream("waste water")
-        output_waster_water.set_liquid_flow_rate("H2O",
-                                                 waste_water_from_blowdown.to("tonne/day"),
-                                                 self.waste_water_reinjection_temp,
-                                                 self.waste_water_reinjection_press)
+        output_waste_water = self.find_output_stream("waste water")
+        output_waste_water.set_liquid_flow_rate("H2O",
+                                                waste_water_from_blowdown.to("tonne/day"),
+                                                t=self.waste_water_reinjection_temp,
+                                                p=self.waste_water_reinjection_press)
         output_recycled_blowdown_water = self.find_output_stream("blowdown water")
         output_recycled_blowdown_water.set_liquid_flow_rate("H2O", recycled_blowdown_water.to("tonne/day"),
-                                                            self.waste_water_reinjection_temp,
-                                                            self.waste_water_reinjection_press)
+                                                            t=self.waste_water_reinjection_temp,
+                                                            p=self.waste_water_reinjection_press)
 
         input_prod_water = self.find_input_stream("produced water for steam generation")
         prod_water_mass_rate = input_prod_water.liquid_flow_rate("H2O")
@@ -89,18 +89,6 @@ class SteamGeneration(Process):
                                                   blowdown_water_mass_rate)
 
         fuel_consumption_solar = self.steam_generator.solar_SG(prod_water_mass_rate, makeup_water_mass_rate)
-
-        # check balance
-        # if abs(mass_in_OTSG.to("kg/day").m - mass_out_OTSG.to("kg/day").m) / mass_in_OTSG.to("kg/day").m > tolerance:
-        #     raise BalanceError(self.name, "OTSG_mass")
-        # elif abs(mass_in_HRSG.to("kg/day").m - mass_out_HRSG.to("kg/day").m) / mass_in_HRSG.to("kg/day").m > tolerance:
-        #     raise BalanceError(self.name, "HRSG_mass")
-        # elif abs(energy_in_OTSG.to("MJ/day").m - energy_out_OTSG.to("MJ/day").m) / energy_in_OTSG.to(
-        #         "MJ/day").m > tolerance:
-        #     raise BalanceError(self.name, "OTSG_energy")
-        # elif abs(energy_in_HRSG.to("MJ/day").m - energy_out_HRSG.to("MJ/day").m) / energy_in_HRSG.to(
-        #         "MJ/day").m > tolerance:
-        #     raise BalanceError(self.name, "HRSG_energy")
 
         self.check_balance(mass_in_OTSG, mass_out_OTSG, "OTSG_mass")
         self.check_balance(mass_in_HRSG, mass_out_HRSG, "HRSG_mass")
@@ -149,5 +137,3 @@ class SteamGeneration(Process):
         unit = input.units
         if abs(input.m - output.to(unit).m) / input.m > tolerance:
             raise BalanceError(self.name, label)
-
-

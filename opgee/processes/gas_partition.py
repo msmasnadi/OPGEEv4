@@ -40,6 +40,11 @@ class GasPartition(Process):
     def run(self, analysis):
         self.print_running_msg()
 
+        input_streams = self.find_input_streams("gas for gas partition")
+        for stream in input_streams.values():
+            if stream.src_proc.enabled and stream.is_empty():
+                return
+
         input = self.find_input_streams("gas for gas partition", combine=True)
         temp = input.temperature
         press = input.pressure
