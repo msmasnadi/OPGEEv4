@@ -138,16 +138,15 @@ class Stream(XmlInstantiable, AttributeMixin):
         number_str = f" #{self.number}" if self.number else ''
         return f"<Stream '{self.name}'{number_str}>"
 
-    def reset(self, model):
+    def reset(self):
         """
         Reset an existing `Stream` to a state suitable for re-running the model.
 
-        :param model: (opgee.Model) the model this stream is part of
         :return: none
         """
         self.components = self.create_component_matrix()
-        self.temperature = model.const("std-temperature")
-        self.pressure = model.const("std-pressure")
+        self.temperature = ureg.Quantity(0.0, "degF")
+        self.pressure = ureg.Quantity(0.0, "psia")
         self.dirty = False
 
     @classmethod
@@ -328,6 +327,7 @@ class Stream(XmlInstantiable, AttributeMixin):
     def set_temperature_and_pressure(self, t, p):
         self.temperature = t
         self.pressure = p
+        self.dirty = True
 
     def copy_flow_rates_from(self, stream, phase=None):
         """

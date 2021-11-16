@@ -134,7 +134,7 @@ class Field(Container):
 
     def reset_streams(self):
         for stream in self.streams():
-            stream.reset(self.model)
+            stream.reset()
 
     def check_balances(self):
         for p in self.processes():
