@@ -134,6 +134,11 @@ class Field(Container):
 
     def reset_streams(self):
         for stream in self.streams():
+            # If a stream is disabled, leave it so. Otherwise disable it if either of
+            # its source or destination processes is disabled.
+            if stream.is_enabled():
+                stream.set_enabled(stream.src_proc.is_enabled() and stream.dst_proc.is_enabled())
+
             stream.reset()
 
     def check_balances(self):
