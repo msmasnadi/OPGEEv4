@@ -29,8 +29,9 @@ def combine_streams(streams, API, pressure=None, temperature=None):
 
     comp_matrix = sum(matrices)
 
-    non_zero_streams = [stream for stream in streams
-                        if stream.total_flow_rate() != 0 and stream.temperature.m != 0 and stream.pressure.m != 0]
+    non_zero_streams = [stream for stream in streams if not stream.is_empty()]
+                        # if stream.total_flow_rate() != 0 and stream.temperature.m != 0 and stream.pressure.m != 0]
+
     if not non_zero_streams:
         raise OpgeeException(f"combine_streams: streams are all empty")
 

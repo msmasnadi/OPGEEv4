@@ -38,7 +38,6 @@ def attr_inputs(class_name, direction='h'):
         pytype = attr_def.pytype
 
         if pytype == 'binary':
-            # noinspection PyCallingNonCallable
             input = dcc.RadioItems(id=id, options=binary_options, value=attr_def.default,
                                    labelStyle=radio_label_style,
                                    style={'display': 'inline-block', 'width': "45%"},
@@ -52,7 +51,6 @@ def attr_inputs(class_name, direction='h'):
             opt = option_dict[attr_def.option_set]
             options = [dict(label=label, value=value) for value, label, desc in opt.options]
 
-            # noinspection PyCallingNonCallable
             input = dcc.RadioItems(id=id, options=options, value=opt.default,
                                    labelStyle=radio_label_style,
                                    style={'display': 'inline-block', 'width': "45%"},
@@ -60,7 +58,6 @@ def attr_inputs(class_name, direction='h'):
 
         else:
             input_type = 'text' if (pytype is None or pytype == 'str') else 'number'
-            # noinspection PyCallingNonCallable
             input = dcc.Input(id=id, type=input_type, debounce=True,
                               value=magnitude(attr_def.default),
                               pattern=number_pattern.get(pytype))
@@ -68,7 +65,6 @@ def attr_inputs(class_name, direction='h'):
             unit = f"({attr_def.unit}) " if attr_def.unit else ''
             title = f"{attr_name} {unit}"
 
-        # noinspection PyCallingNonCallable
         div = html.Div(
             children=[
                 html.Div(title, style={
@@ -85,7 +81,6 @@ def attr_inputs(class_name, direction='h'):
 
         det_children.append(div)
 
-    # noinspection PyCallingNonCallable
     layout = html.Div(
         children=[details],
         className='row',
@@ -101,7 +96,7 @@ def attr_inputs(class_name, direction='h'):
     return layout
 
 def gui_switches():
-    radio_label_style = {'display': 'inline', 'margin-right': '2px'}
+    label_style = {'display': 'inline', 'margin-right': '2px'}
     radio_options = [dict(label='Show', value=1), dict(label='Hide', value=0)]
 
     options = [
@@ -113,7 +108,6 @@ def gui_switches():
     outer_div = html.Div(children=[])
     children = outer_div.children
 
-    # noinspection PyCallingNonCallable
     for title, id, value in options:
         span = html.Span(
             children=[
@@ -125,7 +119,7 @@ def gui_switches():
                 }),
 
                 dcc.RadioItems(id=id, options=radio_options, value=value,
-                               labelStyle=radio_label_style,
+                               labelStyle=label_style,
                                style={'display': 'inline'},
                                persistence=True)
             ],
@@ -133,5 +127,36 @@ def gui_switches():
         )
 
         children.append(span)
+
+    # dropdown of graph layout alternatives
+    default_layout = 'breadthfirst'
+    layout_names = (default_layout, 'circle', 'concentric', 'cose', 'grid',
+                    # extra layouts don't seem to work as documented...
+                    # 'cose-bilkent', 'cola', 'euler', 'spread', 'dagre', 'klay'
+                    )
+
+    span = html.Span(
+        children=[
+            html.Div("Layout: ", style={
+                'font-weight': 'bold',
+                'display': 'inline',
+                'text-align': 'right',
+                'margin-left': '15px',
+            }),
+
+            dcc.Dropdown(
+                id='graph-layout-selector',
+                # placeholder='Select layout...',
+                options=[{'value': name, 'label': name} for name in layout_names],
+                value=default_layout,
+                style={
+                    'width': '130px',
+                    'textAlign': 'center',
+                    'vertical-align': 'middle',
+                    'display': 'inline-block'
+                }
+            )
+        ])
+    children.append(span)
 
     return outer_div

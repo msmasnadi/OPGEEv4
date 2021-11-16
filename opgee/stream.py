@@ -129,7 +129,8 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.impute = impute
         self.has_exogenous_data = False
 
-        self.dirty = False  # indicates whether any data have been written to the stream yet
+        # indicates whether any data have been written to the stream yet
+        self.dirty = comp_matrix is not None
 
     def _after_init(self):
         self.check_attr_constraints(self.attr_dict)

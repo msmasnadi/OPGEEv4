@@ -35,7 +35,7 @@ class After(Process):
 # Load extra layouts
 # cyto.load_extra_layouts()   # required for cose-bilkent
 
-def field_network_graph(field, show_streams_to_env=False, show_stream_contents=False, show_disabled_procs=False):
+def field_network_graph(field, show_streams_to_env=False, show_stream_contents=False, show_disabled_procs=False, layout_name='breadthfirst'):
     nodes = [{'data': {'id': name, 'label': name},
               'classes': ('enabled-node' if proc.enabled else 'disabled-node')} for name, proc in field.process_dict.items()
              if show_disabled_procs or proc.enabled]  # , 'size': 150  didn't work
@@ -69,7 +69,7 @@ def field_network_graph(field, show_streams_to_env=False, show_stream_contents=F
                },
         # style={'width': '100%', 'height': '500px', 'resize': 'inherit'},
         layout={
-            'name': 'breadthfirst',
+            'name': layout_name,
             'roots': '[id = "Reservoir"]'
         },
         stylesheet=[
@@ -196,7 +196,7 @@ def emissions_table(analysis, procs):
     return tbl
 
 
-def processes_layout(app, field, show_streams_to_env=False, show_stream_contents=False, show_disabled_procs=False):
+def processes_layout(app, field, show_streams_to_env=False, show_stream_contents=False, show_disabled_procs=False, layout_name='breadthfirst'):
     # the main row
     # noinspection PyCallingNonCallable
     layout = html.Div([
@@ -219,7 +219,8 @@ def processes_layout(app, field, show_streams_to_env=False, show_stream_contents
                 field_network_graph(field,
                                     show_streams_to_env=show_streams_to_env,
                                     show_stream_contents=show_stream_contents,
-                                    show_disabled_procs=show_disabled_procs)
+                                    show_disabled_procs=show_disabled_procs,
+                                    layout_name=layout_name)
             ],
             style={
                 'resize': 'vertical',
@@ -735,15 +736,17 @@ def main(args):
         Input('show-streams-to-env', 'value'),
         Input('show-stream-contents', 'value'),
         Input('show-disabled-procs', 'value'),
+        Input('graph-layout-selector', 'value'),
         State('analysis-and-field', 'data'),
     )
     def redraw_network_graph(show_streams_to_env, show_stream_contents, show_disabled_procs,
-                             analysis_and_field):
+                             layout_name, analysis_and_field):
         analysis, field = get_analysis_and_field(model, analysis_and_field)
         return field_network_graph(field,
                                    show_streams_to_env=show_streams_to_env,
                                    show_stream_contents=show_stream_contents,
-                                   show_disabled_procs=show_disabled_procs)
+                                   show_disabled_procs=show_disabled_procs,
+                                   layout_name=layout_name)
 
     @app.callback(
         Output('tab-content', 'children'),
@@ -777,7 +780,7 @@ def main(args):
     def ci_text(n_clicks, analysis_and_field):
         analysis, field = get_analysis_and_field(model, analysis_and_field)
 
-        ci = field.carbon_intensity.m
+        ci = field.compute_carbon_intensity(analysis).m
         fn_unit = analysis.attr('functional_unit')
         en_basis = analysis.attr('energy_basis')
         return f"CI: {ci:0.2f} g CO2e/MJ {en_basis} of {fn_unit}"
