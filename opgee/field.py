@@ -136,8 +136,8 @@ class Field(Container):
         for stream in self.streams():
             # If a stream is disabled, leave it so. Otherwise disable it if either of
             # its source or destination processes is disabled.
-            if stream.is_enabled():
-                stream.set_enabled(stream.src_proc.is_enabled() and stream.dst_proc.is_enabled())
+            if stream.enabled and not (stream.src_proc.enabled and stream.dst_proc.enabled):
+                stream.set_enabled(False)
 
             stream.reset()
 
