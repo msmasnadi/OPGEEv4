@@ -157,8 +157,7 @@ class Process(XmlInstantiable, AttributeMixin):
     # the processes that have set iteration values
     iterating_processes = []
 
-    def __init__(self, name, desc=None, consumes=None, produces=None, attr_dict=None,
-                 cycle_start=False, impute_start=False):
+    def __init__(self, name, desc=None, attr_dict=None, cycle_start=False, impute_start=False):
         name = name or self.__class__.__name__
         super().__init__(name)
 
@@ -170,9 +169,6 @@ class Process(XmlInstantiable, AttributeMixin):
         self.desc = desc or name
         self.impute_start = getBooleanXML(impute_start)
         self.cycle_start = getBooleanXML(cycle_start)
-
-        self.production = set(produces) if produces else {}
-        self.consumption = set(consumes) if consumes else {}
 
         self.extend = False
         self.field = None  # the Field we're part of, set on first lookup
@@ -357,12 +353,6 @@ class Process(XmlInstantiable, AttributeMixin):
         :raises: OpgeeException if `name` is not found and `raiseError` is True
         """
         return self.field.find_stream(name, raiseError=raiseError)
-
-    def produces(self, stream_type):
-        return stream_type in self.production
-
-    def consumes(self, stream_type):
-        return stream_type in self.consumption
 
     def find_streams_by_type(self, direction, stream_type, combine=False, as_list=False, raiseError=True) -> Stream:
         """
@@ -849,11 +839,7 @@ class Process(XmlInstantiable, AttributeMixin):
         subclass = _get_subclass(Process, classname)
         attr_dict = subclass.instantiate_attrs(elt)
 
-        # Deprecated, probably (TBD)
-        produces = [node.text for node in elt.findall('Produces')]
-        consumes = [node.text for node in elt.findall('Consumes')]
-
-        obj = subclass(name, desc=desc, attr_dict=attr_dict, produces=produces, consumes=consumes,
+        obj = subclass(name, desc=desc, attr_dict=attr_dict,
                        cycle_start=cycle_start, impute_start=impute_start)
 
         obj.set_enabled(getBooleanXML(a.get('enabled', '1')))
