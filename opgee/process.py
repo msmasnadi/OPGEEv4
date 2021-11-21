@@ -860,7 +860,6 @@ class Process(XmlInstantiable, AttributeMixin):
                 return False
         return True
 
-
     @classmethod
     def from_xml(cls, elt):
         """

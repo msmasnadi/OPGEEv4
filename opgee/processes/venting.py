@@ -39,7 +39,9 @@ class Venting(Process):
         temp = input.temperature
         press = input.pressure
 
-        # TODO: in the gas lifting compressor process, please add the following two items
+        if input.is_empty():
+            return
+
         methane_lifting = self.field.get_process_data(
             "methane_from_gas_lifting") if self.gas_lifting else None
         gas_lifting_fugitive_loss_rate = self.field.get_process_data("gas_lifting_compressor_loss_rate")

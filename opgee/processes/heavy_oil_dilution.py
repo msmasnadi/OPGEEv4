@@ -60,6 +60,10 @@ class HeavyOilDilution(Process):
     def impute(self):
 
         input_streams = self.find_input_streams("oil for dilution")
+
+        if "bitumen mining to heavy oil dilution" not in input_streams:
+            return
+
         input_bitumen = input_streams["bitumen mining to heavy oil dilution"]
 
         if input_bitumen.is_empty():

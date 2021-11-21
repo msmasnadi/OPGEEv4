@@ -42,7 +42,7 @@ class DiluentTransport(Process):
 
         input = self.find_input_stream("oil for transport")
 
-        if input.total_flow_rate().m == 0:
+        if input.is_empty():
             return
 
         oil_mass_rate = input.liquid_flow_rate("oil")
@@ -117,7 +117,8 @@ class DiluentTransport(Process):
     def impute(self):
         output = self.find_output_stream("oil for dilution")
         input = self.find_input_stream("oil for transport")
-        input.set_liquid_flow_rate("oil", output.liquid_flow_rate("oil"), output.temperature, output.pressure)
+        input.copy_flow_rates_from(output)
+        input.set_temperature_and_pressure(output.temperature, output.pressure)
 
     def transport_energy_intensity(self, type, energy_consumption, load_factor, hp):
         """

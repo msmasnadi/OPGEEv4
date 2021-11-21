@@ -22,6 +22,7 @@ class Field(Container):
     of `Reservoir` and `Environment`, which are sources and sinks, respectively, in
     the process structure.
     """
+
     def __init__(self, name, attr_dict=None, aggs=None, procs=None, streams=None, group_names=None,
                  process_choice_dict=None):
         # Note that `procs` include only Processes defined at the top-level of the field.
@@ -35,14 +36,14 @@ class Field(Container):
 
         self.process_choice_dict = process_choice_dict
 
-        self.environment = Environment()    # one per field
-        self.reservoir   = Reservoir()      # one per field
-        self.surface_source = SurfaceSource() # one per field
+        self.environment = Environment()  # one per field
+        self.reservoir = Reservoir()  # one per field
+        self.surface_source = SurfaceSource()  # one per field
         self.output = Output()
 
         self.carbon_intensity = ureg.Quantity(0.0, "g/MJ")
 
-        all_procs = self.collect_processes() # includes reservoir and environment
+        all_procs = self.collect_processes()  # includes reservoir and environment
         self.process_dict = self.adopt(all_procs, asDict=True)
 
         self.extend = False
@@ -103,7 +104,8 @@ class Field(Container):
         start_procs = {p for p in self.processes() if p.impute_start} or {stream.src_proc for stream in start_streams}
 
         if len(start_procs) != 1:
-            raise OpgeeException(f"Expected one start process upstream from start streams, got {len(start_procs)}: {start_procs}")
+            raise OpgeeException(
+                f"Expected one start process upstream from start streams, got {len(start_procs)}: {start_procs}")
 
         start_proc = start_procs.pop()
         _logger.info(f"Running impute() methods for {start_proc}")
@@ -228,7 +230,8 @@ class Field(Container):
         # find a process with cycle-independent processes as inputs, and start there.
         start_procs = [proc for proc in procs_in_cycles if proc.cycle_start]
         if len(start_procs) > 1:
-            raise OpgeeException(f"""Only one process per cycle can have cycle-start="true"; found {len(start_procs)}: {start_procs}""")
+            raise OpgeeException(
+                f"""Only one process per cycle can have cycle-start="true"; found {len(start_procs)}: {start_procs}""")
 
         if procs_in_cycles:
             # Walk the cycle, starting at the indicated start process to generate an ordered list
@@ -308,7 +311,6 @@ class Field(Container):
         """
         return self.process_dict.values()
 
-
     def process_choice_node(self, name, raiseError=True):
         """
         Find a `ProcessChoice` instance by name.
@@ -381,13 +383,13 @@ class Field(Container):
         # TBD: fill in Smart Defaults here, or assume they've been filled already?
         attr_dict = cls.instantiate_attrs(elt)
 
-        aggs    = instantiate_subelts(elt, Aggregator)
-        procs   = instantiate_subelts(elt, Process)
+        aggs = instantiate_subelts(elt, Aggregator)
+        procs = instantiate_subelts(elt, Process)
         streams = instantiate_subelts(elt, Stream)
 
         choices = instantiate_subelts(elt, ProcessChoice)
         # Convert to lowercase to avoid simple lookup errors
-        process_choice_dict = {choice.name.lower() : choice for choice in choices}
+        process_choice_dict = {choice.name.lower(): choice for choice in choices}
 
         group_names = [node.text for node in elt.findall('Group')]
 
@@ -410,6 +412,7 @@ class Field(Container):
         :return: (list of instances of Process subclasses) the processes
            defined for this field
         """
+
         def _collect(process_list, obj):
             for child in obj.children():
                 if isinstance(child, Process):
@@ -465,7 +468,8 @@ class Field(Container):
         for choice_name, choice in self.process_choice_dict.items():
             attr = attr_dict.get(choice_name)
             if attr is None:
-                raise OpgeeException(f"ProcessChoice '{choice_name}' has no corresponding attribute in field '{self.name}'")
+                raise OpgeeException(
+                    f"ProcessChoice '{choice_name}' has no corresponding attribute in field '{self.name}'")
 
             to_enable = []
             selected_group_name = attr.value.lower()
@@ -473,7 +477,7 @@ class Field(Container):
             for group_name, group in choice.groups_dict.items():
                 procs, streams = group.processes_and_streams(self)
 
-                if group_name == selected_group_name:   # remember the ones to turn back on
+                if group_name == selected_group_name:  # remember the ones to turn back on
                     to_enable.extend(procs)
                     to_enable.extend(streams)
 
@@ -503,7 +507,7 @@ class Field(Container):
         """
         import logging
 
-        visited = {}    # traverse a process only the first time it's encountered
+        visited = {}  # traverse a process only the first time it's encountered
 
         def debug(msg):
             print(msg)
