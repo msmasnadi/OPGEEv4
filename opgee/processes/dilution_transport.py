@@ -41,6 +41,10 @@ class DiluentTransport(Process):
         self.print_running_msg()
 
         input = self.find_input_stream("oil for transport")
+
+        if input.total_flow_rate().m == 0:
+            return
+
         oil_mass_rate = input.liquid_flow_rate("oil")
         oil_mass_energy_density = self.oil.mass_energy_density(self.API_diluent)
         oil_LHV_rate = oil_mass_rate * oil_mass_energy_density

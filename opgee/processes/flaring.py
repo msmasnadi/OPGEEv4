@@ -21,6 +21,9 @@ class Flaring(Process):
     def run(self, analysis):
         self.print_running_msg()
 
+        if not self.all_streams_ready("gas"):
+            return
+
         # mass rate
         input = self.find_input_streams("gas", combine=True)
 

@@ -40,10 +40,8 @@ class GasPartition(Process):
     def run(self, analysis):
         self.print_running_msg()
 
-        input_streams = self.find_input_streams("gas for gas partition")
-        for stream in input_streams.values():
-            if stream.src_proc.enabled and stream.is_empty():
-                return
+        if not self.all_streams_ready("gas for gas partition"):
+            return
 
         input = self.find_input_streams("gas for gas partition", combine=True)
         temp = input.temperature
@@ -67,7 +65,7 @@ class GasPartition(Process):
         iteration_series[iteration_series < 0] = 0
         self.set_iteration_value(iteration_series)
 
-        if not self.iteration_converged:
+        if sum(iteration_series) != 0.0:
             gas_lifting.copy_flow_rates_from(input)
             self.field.save_process_data(methane_from_gas_lifting=gas_lifting.gas_flow_rate("C1"))
             return
