@@ -361,6 +361,9 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param stream: (Stream) to copy
         :return: none
         """
+        if stream.is_empty():
+            return
+
         self.dirty = True
         self.components[PHASE_GAS] = stream.components[PHASE_GAS]
 
@@ -371,6 +374,9 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param stream: (Stream) to copy
         :return: none
         """
+        if stream.is_empty():
+            return
+
         self.dirty = True
         self.components[PHASE_LIQUID] = stream.components[PHASE_LIQUID]
 
@@ -391,6 +397,9 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param stream: (Stream) the source of the rates to add
         :return: none
         """
+        if stream.is_empty():
+            return
+
         self.dirty = True
         self.components += stream.components
 
@@ -401,6 +410,9 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param stream: (Stream) the source of the rates to subtract
         :return: none
         """
+        if stream.is_empty():
+            return
+
         self.dirty = True
         self.components[PHASE_GAS] -= stream.components[PHASE_GAS]
 
