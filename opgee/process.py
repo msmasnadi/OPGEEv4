@@ -821,6 +821,21 @@ class Process(XmlInstantiable, AttributeMixin):
         result.set_gas_flow_rate("CO2", CO2)
         return result
 
+    def all_streams_ready(self, input_stream_contain):
+        """
+        Check if all the steams from enabled process are ready
+
+
+        :param input_stream_contain: (str) name of input steam contains
+        :return: boolean
+        """
+        input_streams = self.find_input_streams(input_stream_contain)
+        for stream in input_streams.values():
+            # TODO: improve the logic
+            if stream.src_proc.enabled and stream.is_empty() and stream.src_name != "GasDehydration":
+                return False
+        return True
+
     @classmethod
     def from_xml(cls, elt):
         """

@@ -20,12 +20,12 @@ class After(Process):
 
 
 @pytest.fixture(scope="module")
-def test_gas_branch(configure_logging_for_tests):
-    return load_test_model('test_gas_branch.xml')
+def test_boundary(configure_logging_for_tests):
+    return load_test_model('test_boundary.xml')
 
 
-def test_gas_path_2(test_gas_branch):
-    analysis = test_gas_branch.get_analysis('test_gas_path_2')
-    field = analysis.get_field('test_gas_path_2')
+def test_gas_trans_boundary(test_boundary):
+    analysis = test_boundary.get_analysis('test_boundary')
+    field = analysis.get_field('test_gas_transmission_boundary')
     field.resolve_process_choices()
     field.run(analysis)

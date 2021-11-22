@@ -38,8 +38,14 @@ class AcidGasRemoval(Process):
     def run(self, analysis):
         self.print_running_msg()
 
+        if not self.all_streams_ready("gas for AGR"):
+            return
+
         # mass rate
         input = self.find_input_streams("gas for AGR", combine=True)
+
+        if input.is_empty():
+            return
 
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
@@ -133,4 +139,3 @@ class AcidGasRemoval(Process):
         emissions.add_rate(EM_COMBUSTION, "CO2", combustion_emission)
 
         emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
-        pass

@@ -326,6 +326,10 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.components.loc[series.index, phase] = series * self.components.loc[series.index, phase]
 
     def set_temperature_and_pressure(self, t, p):
+
+        if p.m == 0:
+            return
+
         self.temperature = t
         self.pressure = p
         self.dirty = True
@@ -339,6 +343,9 @@ class Stream(XmlInstantiable, AttributeMixin):
 
         :return: none
         """
+        if stream.is_empty():
+            return
+
         if phase:
             self.components[phase] = stream.components[phase]
         else:

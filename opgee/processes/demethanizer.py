@@ -39,6 +39,9 @@ class Demethanizer(Process):
     def run(self, analysis):
         self.print_running_msg()
 
+        if not self.all_streams_ready("gas for demethanizer"):
+            return
+
         # mass rate
         input = self.find_input_streams("gas for demethanizer", combine=True)
 

@@ -26,8 +26,15 @@ class CrudeOilStorage(Process):
 
         #TODO: LPG to blend with crude oil need to be implement after gas branch
 
+        if not self.all_streams_ready("oil for storage"):
+            return
+
         # mass rate
         input = self.find_input_streams("oil for storage", combine=True)
+
+        if input.is_empty():
+            return
+
         oil_mass_rate = input.liquid_flow_rate("oil")
         # TODO: loss rate need to be replaced by VF-component
         loss_rate = self.venting_fugitive_rate()

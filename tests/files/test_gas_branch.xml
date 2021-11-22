@@ -1,249 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
 
-	<Analysis name="test_gas_path_1">
-		<A name="functional_unit">oil</A>
-		<A name="energy_basis">LHV</A>
-	  <A name="GWP_horizon">100</A>
-	  <A name="GWP_version">AR5</A>
-		<Field name="test_gas_path_1"/>
-	</Analysis>
-
-	<Field name="test_gas_path_1">
-		<A name="country">USA</A>
-		<A name="gas_lifting">1</A>
-		<A name="depth">3937.0</A>
-		<A name="oil_prod">175000.0</A>
-		<A name="well_diam">8.0</A>
-		<A name="prod_index">90.90</A>
-		<A name="res_press">3655.0</A>
-		<A name="API">32.0</A>
-		<A name="GOR">584.29</A>
-		<A name="WOR">0.5</A>
-		<A name="WIR"></A>
-		<A name="downhole_pump">0</A>
-		<A name="GLIR">30.26</A>
-		<A name="FOR">218.0</A>
-		<A name="gas_processing_path">Acid Wet Gas</A>
-
-		<Process class="Separation" impute-start="true">
-			<Consumes>crude oil</Consumes>
-			<Produces>crude oil</Produces>
-			<Produces>water</Produces>
-			<Produces>natural gas</Produces>
-			<Produces>gas fugitives</Produces>
-		</Process>
-
-		<Process class="ReservoirWellInterface" cycle-start="true">
-			<Consumes>crude oil</Consumes>
-			<Consumes>flooding CO2</Consumes>
-			<Produces>crude oil</Produces>
-		</Process>
-
-		<Process class="DownholePump">
-			<Consumes>crude oil</Consumes>
-			<Consumes>lifting gas</Consumes>
-			<Produces>crude oil</Produces>
-			<Produces>gas fugitives</Produces>
-		</Process>
-
-		<Process class="CrudeOilDewatering">
-			<Consumes>crude oil</Consumes>
-			<Produces>crude oil</Produces>
-			<Produces>water</Produces>
-		</Process>
-
-		<Process class="Flaring"/>
-		<Process class="Venting"/>
-		<Process class="BitumenMining"/>
-
-		<Process class="CrudeOilStabilization" enabled="false">
-			<Consumes>oil for stabilization</Consumes>
-		</Process>
-
-		<Process class="HeavyOilUpgrading"/>
-
-		<Process class="HeavyOilDilution" enabled="false">
-			<Consumes>oil for dilution</Consumes>
-		</Process>
-
-		<Process class="CrudeOilStorage" enabled="false"/>
-
-		<Process class="WaterTreatment">
-			<Consumes>water</Consumes>
-			<Produces>water</Produces>
-		</Process>
-
-		<Process class="GasGathering"/>
-		<Process class="CrudeOilStabilization"/>
-		<Process class="VRUCompressor"/>
-		<Process class="GasDehydration"/>
-		<Process class="CrudeOilStorage"/>
-		<Process class="HeavyOilDilution"/>
-		<Process class="HeavyOilUpgrading"/>
-		<Process class="AcidGasRemoval"/>
-
-
-		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
-			<Contains>crude oil</Contains>
-		</Stream>
-
-		<Stream src="CrudeOilDewatering" dst="WaterTreatment" name="crude oil dewatering to produced water treatment">
-			<Contains>water</Contains>
-		</Stream>
-
-		<Stream src="CrudeOilDewatering" dst="CrudeOilStabilization" name="crude oil dewatering to crude oil stabilization">
-			<Contains>oil for stabilization</Contains>
-		</Stream>
-
-		<Stream src="CrudeOilDewatering" dst="HeavyOilUpgrading" name="crude oil dewatering to heavy oil upgrading">
-			<Contains>oil for upgrader</Contains>
-		</Stream>
-
-		<Stream src="CrudeOilDewatering" dst="HeavyOilDilution" name="crude oil dewatering to heavy oil dilution">
-			<Contains>oil for dilution</Contains>
-		</Stream>
-
-		<Stream src="CrudeOilDewatering" dst="CrudeOilStorage" name="crude oil dewatering to crude oil storage">
-			<Contains>oil for storage</Contains>
-		</Stream>
-
-		<Stream src="Separation" dst="WaterTreatment" name="separator to water treatment">
-			<Contains>water</Contains>
-		</Stream>
-
-		<Stream src="WaterTreatment" dst="Output" name="water treatment to steam">
-			<Contains>water for steam generation</Contains>
-			<Contains>water for reinjection</Contains>
-			<Contains>water for surface disposal</Contains>
-			<Contains>water for subsurface disposal</Contains>
-		</Stream>
-
-		<Stream src="Separation" dst="Flaring" name="separation to flaring">
-			<Contains>gas</Contains>
-		</Stream>
-
-		<Stream src="Flaring" dst="Venting" name="flaring to venting">
-			<Contains>gas</Contains>
-		</Stream>
-
-		<Stream src="Flaring" dst="Environment" name="flaring to environment - flaring">
-			<Contains>gas flaring</Contains>
-		</Stream>
-
-		<Stream src="Flaring" dst="Environment" name="flaring to environment - methane">
-			<Contains>methane slip</Contains>
-		</Stream>
-
-		<Stream src="Venting" dst="GasGathering" name="venting to gas gathering">
-			<Contains>gas for gas gathering</Contains>
-		</Stream>
-
-		<Stream src="CrudeOilStabilization" dst="GasGathering" name="crude oil stabilization to gas gathering">
-			<Contains>gas for gas gathering</Contains>
-		</Stream>
-
-		<Stream src="VRUCompressor" dst="GasGathering" name="VRU compressor to gas gathering">
-			<Contains>gas for gas gathering</Contains>
-		</Stream>
-
-		<Stream src="CrudeOilStabilization" dst="CrudeOilStorage" name="crude oil stabilization to crude oil storage">
-			<Contains>oil for storage</Contains>
-		</Stream>
-
-		<Stream src="CrudeOilStabilization" dst="Environment" name="crude oil stabilization to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
-
-		<Stream src="HeavyOilUpgrading" dst="CrudeOilStorage" name="crude oil upgrading to crude oil storage">
-			<Contains>oil for storage</Contains>
-		</Stream>
-
-		<Stream src="HeavyOilDilution" dst="CrudeOilStorage" name="crude oil dilution to crude oil storage">
-			<Contains>oil for storage</Contains>
-		</Stream>
-
-		<Stream src="CrudeOilStorage" dst="Environment" name="crude oil storage to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
-
-		<Stream src="GasGathering" dst="Environment" name="gas gathering to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
-
-		<Stream src="GasGathering" dst="GasDehydration" name="gas gathering to gas dehydration">
-			<Contains>gas</Contains>
-		</Stream>
-
-		<Stream src="GasDehydration" dst="Environment" name="gas dehydration to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
-
-		<Stream src="GasDehydration" dst="AcidGasRemoval" name="gas dehydration to acid gas removal">
-			<Contains>gas for AGR</Contains>
-		</Stream>
-
-		<Stream src="VRUCompressor" dst="Environment" name="VRU compressor to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
-
-		<Stream src="CrudeOilStorage" dst="VRUCompressor" name="crude oil storage to VRU compressor">
-			<Contains>gas for VRU</Contains>
-		</Stream>
-
-		<Stream src="Venting" dst="Environment" name="venting to environment">
-			<Contains>gas venting</Contains>
-		</Stream>
-
-		<Stream src="Venting" dst="Environment" name="gas fugitive to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
-
-		<Stream src="Separation" dst="Environment" name="gas fugitives from separator">
-			<Contains>gas fugitives</Contains>
-		</Stream>
-
-		<Stream src="DownholePump" dst="Environment" name="gas fugitives from downhole pump">
-			<Contains>gas fugitives</Contains>
-		</Stream>
-
-		<Stream src="ReservoirWellInterface" dst="DownholePump" name="reservoir well interface to downhole pump">
-			<Contains>crude oil</Contains>
-		</Stream>
-
-		<Stream src="Reservoir" dst="ReservoirWellInterface" name="reservoir to reservoir well interface">
-			<Contains>crude oil</Contains>
-		</Stream>
-
-		<Stream src="DownholePump" dst="Separation" name="downhole pump to separator">
-			<Contains>crude oil</Contains>
-		</Stream>
-
-<!--		<Stream src="Output" dst="DownholePump" name="lifting gas" impute="False">-->
-<!--			<Contains>lifting gas</Contains>-->
-<!--		</Stream>-->
-
-<!--		<Stream src="Output" dst="ReservoirWellInterface" name="flooding CO2" impute="False">-->
-<!--			<Contains>CO2</Contains>-->
-<!--		</Stream>-->
-
-<!--		<Stream src="Output" dst="WaterTreatment" name="blowdown recycled to treatment" impute="False">-->
-<!--			<Contains>water</Contains>-->
-<!--		</Stream>-->
-
-		<Stream src="CrudeOilStorage" dst="Flaring" name="crude oil storage to flaring">
-			<Contains>gas for flaring</Contains>
-		</Stream>
-
-		<Stream src="BitumenMining" dst="Flaring" name="bitumen mining to flaring">
-			<Contains>gas</Contains>
-		</Stream>
-
-		<Stream src="HeavyOilUpgrading" dst="Flaring" name="heavy oil upgrading to flaring">
-			<Contains>gas</Contains>
-		</Stream>
-	</Field>
-
 	<Analysis name="test_gas_path_2">
 		<A name="functional_unit">oil</A>
 		<A name="energy_basis">LHV</A>
@@ -252,32 +9,9 @@
 		<Field name="test_gas_path_2"/>
 	</Analysis>
 
+<!--	test gas lifting case-->
 	<Field name="test_gas_path_2">
 		<A name="country">USA</A>
-<!--		<A name="gas_flooding">1</A>-->
-<!--		<A name="depth">19737.0</A>-->
-<!--		<A name="oil_prod">1050000.0</A>-->
-<!--		<A name="num_prod_wells">6</A>-->
-<!--		<A name="num_water_inj_wells">1</A>-->
-<!--		<A name="well_diam">7.78</A>-->
-<!--		<A name="prod_index">36.80</A>-->
-<!--		<A name="res_press">8000.0</A>-->
-<!--		<A name="res_temp">380.0</A>-->
-<!--		<A name="API">28.8</A>-->
-<!--		<A name="GOR">1419.0</A>-->
-<!--		<A name="WOR">0.1</A>-->
-<!--		<A name="WIR">0.5</A>-->
-<!--		<A name="FOR">38.92</A>-->
-<!--		<A name="flood_gas_type">"Carbon dioxide"</A>-->
-<!--		<A name="gas_comp_N2" >2.55</A>-->
-<!--		<A name="gas_comp_CO2">11.0</A>-->
-<!--		<A name="gas_comp_C1" >79.63</A>-->
-<!--		<A name="gas_comp_C2" >4.73</A>-->
-<!--		<A name="gas_comp_C3" >1.45</A>-->
-<!--		<A name="gas_comp_C4" >0.63</A>-->
-<!--		<A name="gas_comp_H2S" >0.0</A>-->
-<!--		<A name="gas_processing_path">Wet Gas</A>-->
-
 		<A name="water_reinjection">1</A>
 		<A name="downhole_pump">0</A>
 		<A name="natural_gas_reinjection">1</A>
@@ -368,7 +102,7 @@
 			<Consumes>oil for stabilization</Consumes>
 		</Process>
 
-		<Process class="HeavyOilUpgrading"/>
+		<Process class="HeavyOilUpgrading" enabled="false"/>
 
 		<Process class="HeavyOilDilution" enabled="false">
 			<Consumes>oil for dilution</Consumes>
@@ -386,8 +120,6 @@
 		<Process class="VRUCompressor"/>
 		<Process class="GasDehydration"/>
 		<Process class="CrudeOilStorage"/>
-		<Process class="HeavyOilDilution"/>
-		<Process class="HeavyOilUpgrading"/>
 		<Process class="AcidGasRemoval"/>
 		<Process class="PreMembraneChiller"/>
 		<Process class="PreMembraneCompressor"/>
@@ -405,7 +137,8 @@
 		<Process class="GasFloodingCompressor"/>
 		<Process class="After"/>
 		<Process class="GasReinjectionWell"/>
-
+		<Process class="GasProductionSiteBoundary"/>
+		<Process class="TransmissionCompressor"/>
 
 
 		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
@@ -420,13 +153,13 @@
 			<Contains>oil for stabilization</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="HeavyOilUpgrading" name="crude oil dewatering to heavy oil upgrading">
-			<Contains>oil for upgrader</Contains>
-		</Stream>
+<!--		<Stream src="CrudeOilDewatering" dst="HeavyOilUpgrading" name="crude oil dewatering to heavy oil upgrading">-->
+<!--			<Contains>oil for upgrader</Contains>-->
+<!--		</Stream>-->
 
-		<Stream src="CrudeOilDewatering" dst="HeavyOilDilution" name="crude oil dewatering to heavy oil dilution">
-			<Contains>oil for dilution</Contains>
-		</Stream>
+<!--		<Stream src="CrudeOilDewatering" dst="HeavyOilDilution" name="crude oil dewatering to heavy oil dilution">-->
+<!--			<Contains>oil for dilution</Contains>-->
+<!--		</Stream>-->
 
 		<Stream src="CrudeOilDewatering" dst="CrudeOilStorage" name="crude oil dewatering to crude oil storage">
 			<Contains>oil for storage</Contains>
@@ -479,13 +212,13 @@
 			<Contains>gas fugitives</Contains>
 		</Stream>
 
-		<Stream src="HeavyOilUpgrading" dst="CrudeOilStorage" name="crude oil upgrading to crude oil storage">
-			<Contains>oil for storage</Contains>
-		</Stream>
+<!--		<Stream src="HeavyOilUpgrading" dst="CrudeOilStorage" name="crude oil upgrading to crude oil storage">-->
+<!--			<Contains>oil for storage</Contains>-->
+<!--		</Stream>-->
 
-		<Stream src="HeavyOilDilution" dst="CrudeOilStorage" name="crude oil dilution to crude oil storage">
-			<Contains>oil for storage</Contains>
-		</Stream>
+<!--		<Stream src="HeavyOilDilution" dst="CrudeOilStorage" name="crude oil dilution to crude oil storage">-->
+<!--			<Contains>oil for storage</Contains>-->
+<!--		</Stream>-->
 
 		<Stream src="CrudeOilStorage" dst="Environment" name="crude oil storage to environment">
 			<Contains>gas fugitives</Contains>
@@ -559,9 +292,9 @@
 			<Contains>gas</Contains>
 		</Stream>
 
-		<Stream src="HeavyOilUpgrading" dst="Flaring" name="heavy oil upgrading to flaring">
-			<Contains>gas</Contains>
-		</Stream>
+<!--		<Stream src="HeavyOilUpgrading" dst="Flaring" name="heavy oil upgrading to flaring">-->
+<!--			<Contains>gas</Contains>-->
+<!--		</Stream>-->
 
 		<Stream src="GasDehydration" dst="PreMembraneChiller" name="gas dehydration to pre membrane chiller">
 			<Contains>gas for chiller</Contains>
@@ -575,21 +308,21 @@
 			<Contains>gas fugitives</Contains>
 		</Stream>
 
-		<Stream src="PreMembraneCompressor" dst="CO2Membrane" name="pre membrane compressor to CO2 membrane">
-			<Contains>gas for CO2 membrane</Contains>
-		</Stream>
+<!--		<Stream src="PreMembraneCompressor" dst="CO2Membrane" name="pre membrane compressor to CO2 membrane">-->
+<!--			<Contains>gas for CO2 membrane</Contains>-->
+<!--		</Stream>-->
 
 		<Stream src="PreMembraneCompressor" dst="Environment" name="pre membrane compressor to environment">
 			<Contains>gas fugitives</Contains>
 		</Stream>
 
-		<Stream src="CO2Membrane" dst="AcidGasRemoval" name="CO2 membrane to acid gas removal">
-			<Contains>gas for AGR</Contains>
-		</Stream>
+<!--		<Stream src="CO2Membrane" dst="AcidGasRemoval" name="CO2 membrane to acid gas removal">-->
+<!--			<Contains>gas for AGR</Contains>-->
+<!--		</Stream>-->
 
-		<Stream src="CO2Membrane" dst="CO2ReinjectionCompressor" name="CO2 membrane to CO2 reinjection compressor">
-			<Contains>gas for CO2 compressor</Contains>
-		</Stream>
+<!--		<Stream src="CO2Membrane" dst="CO2ReinjectionCompressor" name="CO2 membrane to CO2 reinjection compressor">-->
+<!--			<Contains>gas for CO2 compressor</Contains>-->
+<!--		</Stream>-->
 
 		<Stream src="AcidGasRemoval" dst="Environment" name="acid gas removal to environment">
 			<Contains>gas fugitives</Contains>
@@ -635,7 +368,7 @@
 			<Contains>gas fugitives</Contains>
 		</Stream>
 
-		<Stream src="CO2InjectionWell" dst="Output" name="CO2 injection well to reservoir">
+		<Stream src="CO2InjectionWell" dst="Reservoir" name="CO2 injection well to reservoir" impute="false">
 			<Contains>gas for reservoir</Contains>
 		</Stream>
 
@@ -655,7 +388,7 @@
 			<Contains>gas fugitives</Contains>
 		</Stream>
 
-		<Stream src="SourGasInjection" dst="Output" name="sour gas injection to reservoir">
+		<Stream src="SourGasInjection" dst="Reservoir" name="sour gas injection to reservoir" impute="false">
 			<Contains>gas for reservoir</Contains>
 		</Stream>
 
@@ -671,6 +404,7 @@
 			<Contains>gas for NGL</Contains>
 		</Stream>
 
+<!--		Turn on the following path when AGR is not needed-->
 		<Stream src="GasDehydration" dst="Demethanizer" name="gas dehydration to demethanizer">
 			<Contains>gas for demethanizer</Contains>
 		</Stream>
@@ -695,16 +429,28 @@
 			<Contains>gas for gas reinjection well</Contains>
 		</Stream>
 
+		<Stream src="GasReinjectionWell" dst="Environment" name="gas reinjection well to environment">
+			<Contains>gas fugitives</Contains>
+		</Stream>
+
+		<Stream src="GasReinjectionWell" dst="Reservoir" name="gas reinjection well to reservoir" impute="false">
+			<Contains>gas for reservoir</Contains>
+		</Stream>
+
 		<Stream src="GasReinjectionCompressor" dst="Environment" name="gas reinjection compressor to environment">
 			<Contains>gas fugitives</Contains>
 		</Stream>
 
-		<Stream src="GasPartition" dst="After" name="gas partition to after">
-			<Contains>gas for export</Contains>
+		<Stream src="GasPartition" dst="GasProductionSiteBoundary" name="gas partition to production site boundary">
+			<Contains>gas for production site boundary</Contains>
 		</Stream>
 
 		<Stream src="SurfaceSource" dst="GasFloodingCompressor" name="surface source to gas flooding compressor">
 			<Contains>gas for gas flooding</Contains>
+		</Stream>
+
+		<Stream src="GasProductionSiteBoundary" dst="TransmissionCompressor" name="production site boundary to transmission compressor">
+			<Contains>gas for transmission compressor</Contains>
 		</Stream>
 	</Field>
 

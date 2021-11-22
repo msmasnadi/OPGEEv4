@@ -40,10 +40,8 @@ class GasPartition(Process):
     def run(self, analysis):
         self.print_running_msg()
 
-        input_streams = self.find_input_streams("gas for gas partition")
-        for stream in input_streams.values():
-            if stream.src_proc.enabled and stream.is_empty():
-                return
+        if not self.all_streams_ready("gas for gas partition"):
+            return
 
         input = self.find_input_streams("gas for gas partition", combine=True)
         temp = input.temperature
@@ -67,7 +65,7 @@ class GasPartition(Process):
         iteration_series[iteration_series < 0] = 0
         self.set_iteration_value(iteration_series)
 
-        if not self.iteration_converged:
+        if sum(iteration_series) != 0.0:
             gas_lifting.copy_flow_rates_from(input)
             self.field.save_process_data(methane_from_gas_lifting=gas_lifting.gas_flow_rate("C1"))
             return
@@ -76,7 +74,7 @@ class GasPartition(Process):
         gas_to_reinjection.subtract_gas_rates_from(gas_lifting)
 
         # exported gas can have negative flow rates which means the imported gas
-        exported_gas = self.find_output_stream("gas for export")
+        exported_gas = self.find_output_stream("gas for production site boundary")
 
         excluded = [s.strip() for s in getParam("OPGEE.ExcludeFromReinjectionEnergySummary").split(",")]
         energy_sum = self.field.sum_process_energy(processes_to_exclude=excluded)
@@ -98,9 +96,11 @@ class GasPartition(Process):
                 self.gas.component_molar_fractions(gas_to_reinjection)) * NG_mass
         NG_consumption_stream.set_rates_from_series(NG_consumption_series, PHASE_GAS)
 
-        exported_gas.copy_flow_rates_from(gas_to_reinjection)
-        exported_gas.subtract_gas_rates_from(NG_consumption_stream)
-        tot_exported_mass = exported_gas.total_gas_rate()
+        tot_exported_mass = gas_to_reinjection.total_flow_rate() - NG_consumption_stream.total_flow_rate()
+        if tot_exported_mass.m >= 0:
+            exported_gas.copy_flow_rates_from(gas_to_reinjection)
+            exported_gas.subtract_gas_rates_from(NG_consumption_stream)
+            exported_gas.set_temperature_and_pressure(temp, press)
 
         if is_gas_to_reinjection_empty is False and tot_exported_mass.m >= 0:
             gas_to_reinjection.subtract_gas_rates_from(exported_gas)

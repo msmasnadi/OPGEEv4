@@ -38,8 +38,15 @@ class HeavyOilDilution(Process):
         if self.frac_diluent == 0.0:
             return
 
+        if not self.all_streams_ready("oil for dilution"):
+            return
+
         #mass rate
         input = self.find_input_streams("oil for dilution", combine=True)
+
+        if input.is_empty():
+            return
+
         output = self.find_output_stream("oil for storage")
         total_mass_rate = input.liquid_flow_rate("oil")
         output.set_liquid_flow_rate("oil", total_mass_rate, self.final_mix_temp, self.final_mix_press)
@@ -53,7 +60,14 @@ class HeavyOilDilution(Process):
     def impute(self):
 
         input_streams = self.find_input_streams("oil for dilution")
+
+        if "bitumen mining to heavy oil dilution" not in input_streams:
+            return
+
         input_bitumen = input_streams["bitumen mining to heavy oil dilution"]
+
+        if input_bitumen.is_empty():
+            return
 
         # mass rate
         upgrader_type = self.field.attr("upgrader_type")

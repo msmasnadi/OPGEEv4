@@ -70,6 +70,13 @@
     </Options>
     <AttrDef name="oil_sands_mine" options="oil_sands_mine_type" desc="Oil sands mine"/>
 
+    <Options name="gas_boundary_type" default="Production site boundary">
+      <Option>Production site boundary</Option>
+      <Option>Post transport and storage boundary</Option>
+      <Option>Distribution boundary</Option>
+    </Options>
+    <AttrDef name="gas_boundary" options="gas_boundary_type" desc="gas boundary"/>
+
 
     <!-- synchronized - these are just for testing purposes -->
     <AttrDef name="sync_attr_1" type="binary" synchronized="sync_test">0</AttrDef>
@@ -92,6 +99,8 @@
     <AttrDef name="wellhead_pressure" type="float" unit="psia" >500</AttrDef>
     <AttrDef name="wellhead_temperature" type="float" unit="degF" >80</AttrDef>
     <AttrDef name="offshore" type="binary" desc="Offshore?">0</AttrDef>
+
+
     <!-- Fluid properties -->
     <AttrDef name="API" desc="API gravity of produced crude" unit="degAPI" type="float">32.80</AttrDef>
     <AttrDef name="API_bitumen" unit="degAPI" type="float" desc="API gravity of bitumen">8.0</AttrDef>
@@ -665,9 +674,16 @@
     <AttrDef name="eta_compressor" type="float" unit="percent" desc="gas reinjection compressor efficiency">75.0</AttrDef>
   </ClassAttrs>
 
-  <ClassAttrs name="BitumentUpgradingOrDilution">
-    <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
+  <ClassAttrs name="TransmissionCompressor">
+    <AttrDef name="press_drop_per_dist" type="float" unit="kPa/km" desc="Pressure drop per unit distance">15.67</AttrDef>
+    <AttrDef name="transmission_dist" type="float" unit="mile" desc="Gas transmission distance">680.0</AttrDef>
+    <AttrDef name="transmission_freq" type="float" unit="mile" desc="Frequency of gas transmission compressors"> 200.0</AttrDef>
+    <AttrDef name="transmission_inlet_press" type="float" unit="psia" desc="First compressor stage inlet pressure">1015.26</AttrDef>
+
   </ClassAttrs>
+
+
+
   <ClassAttrs name="WasteTreatmentAndDisposal">
     <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
   </ClassAttrs>

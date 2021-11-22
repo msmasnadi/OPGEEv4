@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
+
+	<Analysis name="test_boundary">
+		<A name="functional_unit">oil</A>
+		<A name="energy_basis">LHV</A>
+	  <A name="GWP_horizon">100</A>
+	  <A name="GWP_version">AR5</A>
+		<Field name="test_gas_transmission_boundary"/>
+	</Analysis>
+    
+    <Field name="test_gas_transmission_boundary">
+
+		<Process class="Before"/>
+        <Process class="GasProductionSiteBoundary"/>
+        <Process class="TransmissionCompressor"/>
+        
+        <Stream src="Before" dst="GasProductionSiteBoundary" name="before to production site boundary">
+            <Component name="N2" phase="gas">25.7</Component>
+			<Component name="CO2" phase="gas">0.2</Component>
+			<Component name="C1" phase="gas">435.0</Component>
+			<Component name="C2" phase="gas">51.3</Component>
+			<Component name="C3" phase="gas">5.3</Component>
+			<Component name="C4" phase="gas">1.4</Component>
+			<A name="temperature">90.0</A>
+			<A name="pressure">500.0</A>
+			<Contains>gas for production site boundary</Contains>
+		</Stream>
+        
+        <Stream src="GasProductionSiteBoundary" dst="TransmissionCompressor" name="production site boundary to transmission compressor">
+			<Contains>gas for transmission compressor</Contains>
+		</Stream>
+    
+    
+    </Field>
+
+</Model>

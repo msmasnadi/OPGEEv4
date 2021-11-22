@@ -1,10 +1,10 @@
 import pandas as pd
 
-from ..process import Process
-from ..log import getLogger
 from .. import ureg
-from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_UPG_PROC_GAS, EN_PETCOKE, EN_DIESEL, EN_RESID
-from ..emissions import EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
+from ..emissions import EM_COMBUSTION
+from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL, EN_RESID
+from ..log import getLogger
+from ..process import Process
 
 _logger = getLogger(__name__)
 
@@ -41,6 +41,10 @@ class DiluentTransport(Process):
         self.print_running_msg()
 
         input = self.find_input_stream("oil for transport")
+
+        if input.is_empty():
+            return
+
         oil_mass_rate = input.liquid_flow_rate("oil")
         oil_mass_energy_density = self.oil.mass_energy_density(self.API_diluent)
         oil_LHV_rate = oil_mass_rate * oil_mass_energy_density
@@ -113,7 +117,8 @@ class DiluentTransport(Process):
     def impute(self):
         output = self.find_output_stream("oil for dilution")
         input = self.find_input_stream("oil for transport")
-        input.set_liquid_flow_rate("oil", output.liquid_flow_rate("oil"), output.temperature, output.pressure)
+        input.copy_flow_rates_from(output)
+        input.set_temperature_and_pressure(output.temperature, output.pressure)
 
     def transport_energy_intensity(self, type, energy_consumption, load_factor, hp):
         """

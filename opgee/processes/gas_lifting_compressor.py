@@ -41,8 +41,6 @@ class GasLiftingCompressor(Process):
 
         lifting_gas = self.find_output_stream("lifting gas")
         lifting_gas.copy_flow_rates_from(input)
-        if len(lifting_gas.components.query("gas > 0.0")):
-            return
 
         discharge_press = (self.res_press + press) / 2 + ureg.Quantity(100, "psi")
         overall_compression_ratio = discharge_press / press
