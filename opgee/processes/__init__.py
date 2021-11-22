@@ -41,4 +41,5 @@ from .gas_flooding_compressor import GasFloodingCompressor
 from .gas_reinjection_compressor import GasReinjectionCompressor
 from .gas_reinjection_well import GasReinjectionWell
 from .gas_production_site_boundary import GasProductionSiteBoundary
+from .trasmission_compressor import TransmissionCompressor
 

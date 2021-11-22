@@ -138,6 +138,7 @@
 		<Process class="After"/>
 		<Process class="GasReinjectionWell"/>
 		<Process class="GasProductionSiteBoundary"/>
+		<Process class="TransmissionCompressor"/>
 
 
 		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
@@ -446,6 +447,10 @@
 
 		<Stream src="SurfaceSource" dst="GasFloodingCompressor" name="surface source to gas flooding compressor">
 			<Contains>gas for gas flooding</Contains>
+		</Stream>
+
+		<Stream src="GasProductionSiteBoundary" dst="TransmissionCompressor" name="production site boundary to transmission compressor">
+			<Contains>gas for transmission compressor</Contains>
 		</Stream>
 	</Field>
 

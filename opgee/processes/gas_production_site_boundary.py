@@ -13,7 +13,6 @@ class GasProductionSiteBoundary(Process):
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
-        self.gas = field.gas
         self.gas_boundary = field.attr("gas_boundary")
 
     def run(self, analysis):
@@ -21,7 +20,7 @@ class GasProductionSiteBoundary(Process):
 
         input = self.find_input_stream("gas for production site boundary")
 
-        if input.is_empty() or self.gas_boundary == "Production site boundary":
+        if self.gas_boundary == "Production site boundary" or input.is_empty():
             return
 
         output = self.find_output_stream("gas for transmission compressor")

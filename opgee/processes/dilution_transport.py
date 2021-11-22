@@ -1,10 +1,10 @@
 import pandas as pd
 
-from ..process import Process
-from ..log import getLogger
 from .. import ureg
-from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_UPG_PROC_GAS, EN_PETCOKE, EN_DIESEL, EN_RESID
-from ..emissions import EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
+from ..emissions import EM_COMBUSTION
+from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL, EN_RESID
+from ..log import getLogger
+from ..process import Process
 
 _logger = getLogger(__name__)
 

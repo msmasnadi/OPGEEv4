@@ -96,9 +96,11 @@ class GasPartition(Process):
                 self.gas.component_molar_fractions(gas_to_reinjection)) * NG_mass
         NG_consumption_stream.set_rates_from_series(NG_consumption_series, PHASE_GAS)
 
-        exported_gas.copy_flow_rates_from(gas_to_reinjection)
-        exported_gas.subtract_gas_rates_from(NG_consumption_stream)
-        tot_exported_mass = exported_gas.total_gas_rate()
+        tot_exported_mass = gas_to_reinjection.total_flow_rate() - NG_consumption_stream.total_flow_rate()
+        if tot_exported_mass.m >= 0:
+            exported_gas.copy_flow_rates_from(gas_to_reinjection)
+            exported_gas.subtract_gas_rates_from(NG_consumption_stream)
+            exported_gas.set_temperature_and_pressure(temp, press)
 
         if is_gas_to_reinjection_empty is False and tot_exported_mass.m >= 0:
             gas_to_reinjection.subtract_gas_rates_from(exported_gas)
