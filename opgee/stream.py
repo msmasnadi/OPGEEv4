@@ -127,10 +127,9 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.contents = contents or []
 
         self.impute = impute
-        self.has_exogenous_data = False
 
         # indicates whether any data have been written to the stream yet
-        self.dirty = comp_matrix is not None
+        self.has_exogenous_data = self.dirty = comp_matrix is not None
 
     def _after_init(self):
         self.check_attr_constraints(self.attr_dict)
@@ -416,53 +415,6 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.dirty = True
         self.components[PHASE_GAS] -= stream.components[PHASE_GAS]
 
-    # @classmethod
-    # def combine(cls, streams, temperature=None, pressure=None):
-    #     """
-    #     Thermodynamically combine multiple streams' components into a new
-    #     anonymous Stream. This is used on input streams since it makes no
-    #     sense for output streams.
-    #
-    #     :param streams: (list of Streams) the Streams to combine
-    #     :return: (Stream) if len(streams) > 1, returns a new Stream. If
-    #        len(streams) == 1, the original stream is returned.
-    #     """
-    #     from statistics import mean
-    #
-    #     if len(streams) == 1:  # corner case
-    #         return streams[0]
-    #
-    #     matrices = [stream.components for stream in streams]
-    #
-    #     comp_matrix = sum(matrices)
-    #     numerator = 0
-    #     denumerator = 0
-    #     for stream in streams:
-    #         total_mass_rate = stream.components.sum().sum()
-    #         numerator += stream.temperature * total_mass_rate * cls.mixture_heat_capacity(stream)
-    #         denumerator += total_mass_rate * cls.mixture_heat_capacity(stream)
-    #     temperature = numerator / denumerator
-    #     pressure = pressure if pressure is not None else mean([stream.pressure for stream in streams])
-    #     stream = Stream('-', temperature=temperature, pressure=pressure, comp_matrix=comp_matrix)
-    #     return stream
-    #
-    # @staticmethod
-    # def mixture_heat_capacity(stream):
-    #     """
-    #     cp_mix = (mass_1/mass_mix)cp_1 + (mass_2/mass_mix)cp_2 + ...
-    #
-    #     :param stream:
-    #     :return: (float) heat capacity of mixture (unit = btu/degF/day)
-    #     """
-    #     temperature = stream.temperature
-    #     total_mass_rate = stream.components.sum().sum()
-    #     oil_heat_capacity = stream.hydrocarbon_rate(PHASE_LIQUID) * Oil().specific_heat(temperature)
-    #     water_heat_capacity = Water().heat_capacity(stream)
-    #     gas_heat_capacity = Gas().heat_capacity(stream)
-    #
-    #     heat_capacity = (oil_heat_capacity + water_heat_capacity + gas_heat_capacity) / total_mass_rate
-    #     return heat_capacity
-
     def contains(self, stream_type):
         """
         Return whether `stream_type` is one of named contents of `stream`.
@@ -501,29 +453,34 @@ class Stream(XmlInstantiable, AttributeMixin):
 
         contents = [node.text for node in elt.findall('Contains')]
 
-        obj = Stream(name, number=number, temperature=temp, pressure=pres,
-                     src_name=src, dst_name=dst, contents=contents, impute=impute)
-        comp_df = obj.components  # this is an empty DataFrame; it is filled in below or at runtime
-
-        # Set up the stream component info
+        # Set up the stream component info, if provided
         comp_elts = elt.findall('Component')
-        obj.has_exogenous_data = len(comp_elts) > 0
+        has_exogenous_data = len(comp_elts) > 0
 
-        for comp_elt in comp_elts:
-            a = comp_elt.attrib
-            comp_name = elt_name(comp_elt)
-            rate = coercible(comp_elt.text, float)
-            phase = a['phase']  # required by XML schema to be one of the 3 legal values
+        if has_exogenous_data:
+            matrix = cls.create_component_matrix()
 
-            # convert hydrocarbon molecule name to carbon number format
-            if is_hydrocarbon(comp_name):
-                comp_name = molecule_to_carbon(comp_name)
+            for comp_elt in comp_elts:
+                a = comp_elt.attrib
+                comp_name = elt_name(comp_elt)
+                rate = coercible(comp_elt.text, float)
+                phase = a['phase']  # required by XML schema to be one of the 3 legal values
 
-            if comp_name not in comp_df.index:
-                raise OpgeeException(f"Unrecognized stream component name '{comp_name}'.")
+                # convert hydrocarbon molecule name to carbon number format
+                if is_hydrocarbon(comp_name):
+                    comp_name = molecule_to_carbon(comp_name)
 
-            # TBD: if stream is to include electricity, it will be in MWh/day
-            comp_df.loc[comp_name, phase] = rate
+                if comp_name not in matrix.index:
+                    raise OpgeeException(f"Unrecognized stream component name '{comp_name}'.")
+
+                # TBD: if stream is to include electricity, it will be in MWh/day
+                matrix.loc[comp_name, phase] = rate
+
+        else:
+            matrix = None  # let the stream create it
+
+        obj = Stream(name, number=number, temperature=temp, pressure=pres, comp_matrix=matrix,
+                     src_name=src, dst_name=dst, contents=contents, impute=impute)
 
         return obj
 
