@@ -57,14 +57,14 @@ class AcidGasRemoval(Process):
         CH4_feed_mass_rate = input.gas_flow_rate("C1")
         CO2_to_demethanizer = min(0.05 * CO2_feed_mass_rate, 0.001 * CH4_feed_mass_rate)
 
-        gas_to_demethanizer = self.find_output_stream("gas for demethanizer", raiseError=None)
+        gas_to_demethanizer = self.find_output_stream("gas for demethanizer", raiseError=False)
         if gas_to_demethanizer is not None:
             gas_to_demethanizer.copy_flow_rates_from(input)
             gas_to_demethanizer.set_gas_flow_rate("CO2", CO2_to_demethanizer)
             gas_to_demethanizer.subtract_gas_rates_from(gas_fugitives)
             gas_to_demethanizer.set_temperature_and_pressure(input.temperature, input.pressure)
 
-        gas_to_CO2_reinjection = self.find_output_stream("gas for CO2 compressor", raiseError=None)
+        gas_to_CO2_reinjection = self.find_output_stream("gas for CO2 compressor", raiseError=False)
         if gas_to_CO2_reinjection is not None:
             gas_to_CO2_reinjection.copy_flow_rates_from(input)
             gas_to_CO2_reinjection.subtract_gas_rates_from(gas_to_demethanizer)

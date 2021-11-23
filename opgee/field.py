@@ -136,6 +136,11 @@ class Field(Container):
 
     def reset_streams(self):
         for stream in self.streams():
+            # If a stream is disabled, leave it so. Otherwise disable it if either of
+            # its source or destination processes is disabled.
+            if stream.enabled and not (stream.src_proc.enabled and stream.dst_proc.enabled):
+                stream.set_enabled(False)
+
             stream.reset()
 
     def check_balances(self):
@@ -221,7 +226,7 @@ class Field(Container):
             sg = self.graph.subgraph(processes)
             run_order = nx.topological_sort(sg)
             for proc in run_order:
-                proc.run_or_bypass(analysis)
+                proc.run_if_enabled(analysis)
 
         # run all the cycle-independent nodes in topological order
         run_procs_in_order(cycle_independent)
@@ -261,7 +266,7 @@ class Field(Container):
             while True:
                 try:
                     for proc in ordered_cycle:
-                        proc.run_or_bypass(analysis)
+                        proc.run_if_enabled(analysis)
 
                 except OpgeeIterationConverged as e:
                     _logger.info(e)

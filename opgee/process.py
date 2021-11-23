@@ -157,8 +157,7 @@ class Process(XmlInstantiable, AttributeMixin):
     # the processes that have set iteration values
     iterating_processes = []
 
-    def __init__(self, name, desc=None, consumes=None, produces=None, attr_dict=None,
-                 cycle_start=False, impute_start=False):
+    def __init__(self, name, desc=None, attr_dict=None, cycle_start=False, impute_start=False):
         name = name or self.__class__.__name__
         super().__init__(name)
 
@@ -170,9 +169,6 @@ class Process(XmlInstantiable, AttributeMixin):
         self.desc = desc or name
         self.impute_start = getBooleanXML(impute_start)
         self.cycle_start = getBooleanXML(cycle_start)
-
-        self.production = set(produces) if produces else {}
-        self.consumption = set(consumes) if consumes else {}
 
         self.extend = False
         self.field = None  # the Field we're part of, set on first lookup
@@ -358,12 +354,6 @@ class Process(XmlInstantiable, AttributeMixin):
         """
         return self.field.find_stream(name, raiseError=raiseError)
 
-    def produces(self, stream_type):
-        return stream_type in self.production
-
-    def consumes(self, stream_type):
-        return stream_type in self.consumption
-
     def find_streams_by_type(self, direction, stream_type, combine=False, as_list=False, raiseError=True) -> Stream:
         """
         Find the input or output streams (indicated by `direction`) that contain the indicated
@@ -476,20 +466,20 @@ class Process(XmlInstantiable, AttributeMixin):
         """
         Return a Process's immediate precedent Processes.
 
-        :return: (list of Process) the Processes that are the sources of
+        :return: (set of Process) the Processes that are the sources of
            Streams connected to `process`.
         """
-        procs = [stream.src_proc for stream in self.inputs]
+        procs = set([stream.src_proc for stream in self.inputs])
         return procs
 
     def successors(self):
         """
         Return a Process's immediately following Processes.
 
-        :return: (list of Process) the Processes that are the destinations
+        :return: (set of Process) the Processes that are the destinations
            of Streams connected to `process`.
         """
-        procs = [stream.dst_proc for stream in self.outputs]
+        procs = set([stream.dst_proc for stream in self.outputs])
         return procs
 
     def set_iteration_value(self, value):
@@ -617,33 +607,19 @@ class Process(XmlInstantiable, AttributeMixin):
         """
         pass
 
-    def run_or_bypass(self, analysis):
+    def run_if_enabled(self, analysis):
         """
-        If the Process is enabled, run the process, otherwise bypass it, i.e., copy
-        input streams to output streams.
+        If the Process is enabled, run the process, otherwise do nothing.
 
         :param analysis: (Analysis) the repository of analysis-specific settings
         :return: None
         """
         if self.enabled:
             self.run(analysis)
-        else:
-            self.bypass()
 
-        m = self.model
-        if self.visit() >= m.maximum_iterations:
-            raise OpgeeMaxIterationsReached(f"Maximum iterations ({m.maximum_iterations}) reached in {self}")
-
-    # TBD: Can we create a generic method for passing inputs to outputs when disabled?
-    # TBD: If not, this will become an abstract method.
-    def bypass(self):
-        """
-        This method is called if a `Process` is disabled, allowing it to pass data from
-        all input streams to output streams, effectively bypassing the disabled element.
-
-        :return: none
-        """
-        pass
+            m = self.model
+            if self.visit() >= m.maximum_iterations:
+                raise OpgeeMaxIterationsReached(f"Maximum iterations ({m.maximum_iterations}) reached in {self}")
 
     def impute(self):
         """
@@ -878,11 +854,7 @@ class Process(XmlInstantiable, AttributeMixin):
         subclass = _get_subclass(Process, classname)
         attr_dict = subclass.instantiate_attrs(elt)
 
-        # Deprecated, probably (TBD)
-        produces = [node.text for node in elt.findall('Produces')]
-        consumes = [node.text for node in elt.findall('Consumes')]
-
-        obj = subclass(name, desc=desc, attr_dict=attr_dict, produces=produces, consumes=consumes,
+        obj = subclass(name, desc=desc, attr_dict=attr_dict,
                        cycle_start=cycle_start, impute_start=impute_start)
 
         obj.set_enabled(getBooleanXML(a.get('enabled', '1')))
