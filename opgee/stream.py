@@ -110,6 +110,8 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     _units = ureg.Unit('tonne/day')
 
+    boundary_dict = {}      # records streams that declare themselves as boundaries
+
     def __init__(self, name, number=0, temperature=None, pressure=None,
                  src_name=None, dst_name=None, comp_matrix=None,
                  contents=None, impute=True, boundary=None):
@@ -126,6 +128,14 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.dst_proc = None
 
         self.boundary = boundary    # indicates name of boundary this stream crosses, or None
+        if boundary:
+            stream = self.boundary_dict.get(boundary)
+            if stream:
+                raise OpgeeException(f"Duplicate declaration of boundary '{boundary}' in streams {stream} and {self}")
+
+            self.boundary_dict[boundary] = self
+            _logger.debug(f"{self} defines boundary '{boundary}'")
+
         self.contents = contents or []
 
         self.impute = impute
@@ -150,6 +160,17 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.temperature = ureg.Quantity(0.0, "degF")
         self.pressure = ureg.Quantity(0.0, "psia")
         self.dirty = False
+
+    @classmethod
+    def boundary_stream(cls, boundary):
+        try:
+            return cls.boundary_dict[boundary]
+        except KeyError:
+            raise OpgeeException(f"boundary_stream: boundary '{boundary}' has not been declared.")
+
+    @classmethod
+    def boundaries(cls):
+        return cls.boundary_dict.keys()
 
     @classmethod
     def units(cls):

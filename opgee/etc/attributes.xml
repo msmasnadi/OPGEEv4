@@ -70,12 +70,12 @@
     </Options>
     <AttrDef name="oil_sands_mine" options="oil_sands_mine_type" desc="Oil sands mine"/>
 
-    <Options name="gas_boundary_type" default="Production site boundary">
-      <Option>Production site boundary</Option>
-      <Option>Post transport and storage boundary</Option>
-      <Option>Distribution boundary</Option>
+    <Options name="gas_boundaries" default="Production">
+      <Option>Production</Option>
+      <Option>Transport and Storage</Option>
+      <Option>Distribution</Option>
     </Options>
-    <AttrDef name="gas_boundary" options="gas_boundary_type" desc="gas boundary"/>
+    <AttrDef name="gas_boundary" options="gas_boundaries" desc="The user-selected system boundary for analysis of gas fields"/>
 
 
     <!-- synchronized - these are just for testing purposes -->
@@ -100,7 +100,6 @@
     <AttrDef name="wellhead_temperature" type="float" unit="degF" >80</AttrDef>
     <AttrDef name="offshore" type="binary" desc="Offshore?">0</AttrDef>
 
-
     <!-- Fluid properties -->
     <AttrDef name="API" desc="API gravity of produced crude" unit="degAPI" type="float">32.80</AttrDef>
     <AttrDef name="API_bitumen" unit="degAPI" type="float" desc="API gravity of bitumen">8.0</AttrDef>
@@ -112,21 +111,25 @@
     <AttrDef name="gas_comp_C3" unit="mol_pct" type="float">1.62</AttrDef>
     <AttrDef name="gas_comp_C4" unit="mol_pct" type="float">0.71</AttrDef>
     <AttrDef name="gas_comp_H2S" unit="mol_pct" type="float">0.0</AttrDef>    <!-- TODO: needs a default value -->
+
     <!-- Production practices -->
     <Options name="Flood gases" default="NG">
       <Option desc="Natural gas">NG</Option>
       <Option desc="Nitrogen">N2</Option>
       <Option desc="Carbon dioxide">CO2</Option>
     </Options>
+
     <Options name="Liquids unloading" default="None">
       <Option>Plunger</Option>
       <Option>No plunger</Option>
       <Option>None</Option>
     </Options>
+
     <Options name="source_CO2" default="reservoir">
       <Option desc="natural subsurface reservoir">Reservoir</Option>
       <Option>Anthropogenic</Option>
     </Options>
+
     <AttrDef name="GOR" desc="Gas-to-oil ratio" unit="scf/bbl_oil" type="float">2429.3</AttrDef>
     <AttrDef name="WOR" desc="Water-to-oil ratio" unit="bbl_water/bbl_oil" type="float">6.0</AttrDef>
     <AttrDef name="WIR" desc="Water injection ratio" unit="bbl_water/bbl_oil" type="float">7.0</AttrDef>
@@ -150,6 +153,7 @@
     <AttrDef name="friction_factor" type="float" unit="frac" desc="wellbore friction factor">0.02</AttrDef>
     <AttrDef name="press_water_reinj_pump" type="float" unit="psia" desc="Water reinjection pump characteristics Suction pressure">0.0</AttrDef>
     <AttrDef name="eta_water_reinj_pump" type="float" unit="percent" desc="Water reinjection pump characteristics Pump efficiency ">60.0</AttrDef>
+
     <!-- Processing practices -->
     <Options name="upgrader_type" default="None">
       <Option>None</Option>
@@ -184,6 +188,7 @@
     <AttrDef name="temperature_mined_bitumen" desc="Mined bitumen temperature" type="float" unit="degF">80.0</AttrDef>
     <AttrDef name="pressure_mined_bitumen" desc="Mined bitumen pressure" type="float" unit="psia">14.70</AttrDef>
     <AttrDef name="stabilizer_column" type="binary" desc="stabilizer colume">1</AttrDef>
+
     <!-- LandUse impacts -->
     <Options name="ecosystem_C_richness" default="Moderate">
       <Option desc="Low carbon richness (semi-arid grasslands)">Low</Option>
@@ -197,6 +202,7 @@
     </Options>
     <AttrDef name="ecosystem_richness" options="ecosystem_C_richness" desc="Ecosystem carbon richness" type="str"/>
     <AttrDef name="field_development_intensity" options="field_development_intensity" desc="Field development intensity" type="str"/>
+
     <!-- name="Transport_and_storage -->
     <AttrDef name="Fraction_oil_transport_tanker" desc="Fraction  of oil transported by ocean tanker" type="float">1</AttrDef>
     <AttrDef name="Fraction_oil_transport_barge" desc="Fraction of oil transported by barge" type="float">0</AttrDef>
@@ -317,7 +323,6 @@
     <AttrDef name="eta_air_blower_OTSG" type="float" unit="hp*day/mmbtu" desc="Air blower energy consumption for OTSG">0.139</AttrDef>
     <AttrDef name="eta_air_blower_HRSG" type="float" unit="hp*day/mmbtu" desc="Air blower energy consumption for HRSG">0.0</AttrDef>
     <AttrDef name="eta_air_blower_solar" type="float" unit="hp*day/mmbtu" desc="Air blower energy consumption for solar Thermal">0.139</AttrDef>
-
 
     <Options name="OTSG_fuel_type" default="Gas">
       <Option>Gas</Option>
@@ -495,6 +500,7 @@
   <ClassAttrs name="MaintenanceAndWorkovers">
     <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
   </ClassAttrs>
+
   <!-- Surface processing-->
   <ClassAttrs name="Separation">
     <Options name="prime_mover_type" default="NG_engine">
@@ -682,11 +688,10 @@
 
   </ClassAttrs>
 
-
-
   <ClassAttrs name="WasteTreatmentAndDisposal">
     <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
   </ClassAttrs>
+
   <!-- Transport -->
   <ClassAttrs name="CrudeTransport">
     <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>

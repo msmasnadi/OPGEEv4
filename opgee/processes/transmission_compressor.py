@@ -19,7 +19,7 @@ class TransmissionCompressor(Process):
         super()._after_init()
         self.field = field = self.get_field()
         self.gas = field.gas
-        self.gas_boundary = field.attr("gas_boundary")
+        # self.gas_boundary = field.attr("gas_boundary")
         self.press_drop_per_dist = self.attr("press_drop_per_dist")
         self.transmission_dist = self.attr("transmission_dist")
         self.transmission_freq = self.attr("transmission_freq")
@@ -30,8 +30,9 @@ class TransmissionCompressor(Process):
 
         input = self.find_input_stream("gas")
 
-        if self.gas_boundary == "Production site boundary" or input.is_empty():
-            return
+        # if self.gas_boundary == "Production site boundary" or input.is_empty():
+        if input.is_empty():
+                return
 
         # Transmission system properties
         station_outlet_press = self.press_drop_per_dist * self.transmission_freq + self.transmission_inlet_press
