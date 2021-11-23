@@ -119,30 +119,10 @@
     </xs:complexType>
   </xs:element>
 
-	<xs:element name='Produces'>
-    <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base='xs:string'>
-        </xs:extension>
-      </xs:simpleContent>
-    </xs:complexType>
-  </xs:element>
-
-	<xs:element name='Consumes'>
-    <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base='xs:string'>
-        </xs:extension>
-      </xs:simpleContent>
-    </xs:complexType>
-  </xs:element>
-
 	<xs:element name='Process'>
     <xs:complexType>
 			<xs:choice maxOccurs="unbounded">
         <xs:element minOccurs='0' ref='A'/>
-				<xs:element minOccurs='0' ref='Produces'/>
-				<xs:element minOccurs='0' ref='Consumes'/>
       </xs:choice>
       <xs:attribute name='class' use='required'/>
       <xs:attribute name='name' type='xs:NCName'/>

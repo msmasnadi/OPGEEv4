@@ -20,25 +20,10 @@
 		<A name="res_temp">70.84</A>
 		<A name="GOR">1205.4</A>
 
-		<Process class="Impute1" desc="Test process 1">
-			<Produces>crude oil</Produces>
-		</Process>
-
-		<Process class="Impute2" desc="Test process 2">
-			<Consumes>crude oil</Consumes>
-			<Consumes>hydrogen</Consumes>
-			<Produces>natural gas</Produces>
-		</Process>
-
-		<Process class="Impute3" desc="Test process 3">
-			<Consumes>natural gas</Consumes>
-			<Produces>hydrogen</Produces>
-			<Produces>CO2</Produces>
-		</Process>
-
-		<Process class="Impute4" desc="Test process 4">
-			<Consumes>CO2</Consumes>
-		</Process>
+		<Process class="Impute1" desc="Test process 1"/>
+		<Process class="Impute2" desc="Test process 2"/>
+		<Process class="Impute3" desc="Test process 3"/>
+		<Process class="Impute4" desc="Test process 4"/>
 
 		<Stream src="Impute1" dst="Impute2"/>
 

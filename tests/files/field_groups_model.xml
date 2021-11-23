@@ -1,64 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Working draft of XML file format -->
-<!-- This file contains the standard OPGEEv4 LCA model. The metadata describing fields, options,
-     and default values is found in attributes.xml. When creating a new model, the user can start
-     with the standard model and add/delete/alter elements in a separate file, or simply save copy
-     and modify this file. We also (will) support site- and user-specific XML template files that
-     define custom starting points.
-     -->
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
 
 	<Analysis name="test">
-		<A name="functional_unit">oil</A>
-		<A name="energy_basis">LHV</A>
+	  <A name="functional_unit">oil</A>
+	  <A name="energy_basis">LHV</A>
 	  <A name="GWP_horizon">100</A>
 	  <A name="GWP_version">AR5</A>
-		<Group regex="1">.*Foo.*</Group>
+	  <Group regex="1">.*Foo.*</Group>
 	</Analysis>
 
 	<Field name="test1">
 		<Group>Foo</Group>
 		<A name="country">USA</A>
 
-		<Process class="ProcA" desc="Test process 1">
-			<Produces>crude oil</Produces>
-		</Process>
-
-		<Process class="ProcB" desc="Test process 2">
-			<Consumes>crude oil</Consumes>
-			<Consumes>hydrogen</Consumes>
-			<Produces>natural gas</Produces>
-		</Process>
+		<Process class="ProcA" desc="Test process 1"/>
+		<Process class="ProcB" desc="Test process 2"/>
 	</Field>
 
 	<Field name="test2">
 		<Group>MatchesFooAlso</Group>
 		<A name="country">USA</A>
 
-		<Process class="ProcA" desc="Test process 1">
-			<Produces>crude oil</Produces>
-		</Process>
-
-		<Process class="ProcB" desc="Test process 2">
-			<Consumes>crude oil</Consumes>
-			<Consumes>hydrogen</Consumes>
-			<Produces>natural gas</Produces>
-		</Process>
+		<Process class="ProcA" desc="Test process 1"/>
+		<Process class="ProcB" desc="Test process 2"/>
 	</Field>
 
 	<Field name="test3">
 		<Group>Bar</Group>
 		<A name="country">USA</A>
 
-		<Process class="ProcA" desc="Test process 1">
-			<Produces>crude oil</Produces>
-		</Process>
-
-		<Process class="ProcB" desc="Test process 2">
-			<Consumes>crude oil</Consumes>
-			<Consumes>hydrogen</Consumes>
-			<Produces>natural gas</Produces>
-		</Process>
+		<Process class="ProcA" desc="Test process 1"/>
+		<Process class="ProcB" desc="Test process 2"/>
 	</Field>
 
 </Model>

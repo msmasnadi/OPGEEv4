@@ -22,31 +22,11 @@
 		<A name="country">USA</A>
 
 		<Aggregator name="Production_and_extraction">
-			<Process class="Separation" impute-start="true">
-				<Consumes>crude oil</Consumes>
-				<Produces>crude oil</Produces>
-				<Produces>water</Produces>
-				<Produces>natural gas</Produces>
-				<Produces>gas fugitives</Produces>
-			</Process>
+		  <Process class="Separation" impute-start="true"/>
+		  <Process class="ReservoirWellInterface" cycle-start="true"/>
 
-			<Process class="ReservoirWellInterface" cycle-start="true">
-				<Consumes>crude oil</Consumes>
-				<Consumes>flooding CO2</Consumes>
-				<Produces>crude oil</Produces>
-			</Process>
-
-			<Process class="DownholePump">
-				<Consumes>crude oil</Consumes>
-				<Consumes>lifting gas</Consumes>
-				<Produces>crude oil</Produces>
-				<Produces>gas fugitives</Produces>
-			</Process>
-
-			<Process class="After" desc="Test process 2">
-				<Consumes>crude oil</Consumes>
-				<Produces>lifting gas</Produces>
-			</Process>
+		  <Process class="DownholePump"/>
+		  <Process class="After" desc="Test process 2"/>
 		</Aggregator>
 
 		<Aggregator name="Surface_processing">

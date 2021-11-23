@@ -47,59 +47,20 @@
 
 		<Aggregator name="Production_and_extraction">
 			<Process class="Reservoir" desc="Oil reservoir">
-				<Produces>crude oil</Produces>
-				<Produces>untreated water</Produces>
 				<A name="leak_rate">0.0025</A>
 			</Process>
 
-			<Process class="ReservoirWellInterface">
-				<Consumes>crude oil</Consumes>
-				<Consumes>flooding CO2</Consumes>
-				<Produces>crude oil</Produces>
-			</Process>
-
-			<Process class="DownholePump">
-				<Consumes>crude oil</Consumes>
-				<Consumes>lifting gas</Consumes>
-				<Produces>crude oil</Produces>
-				<Produces>gas fugitives</Produces>
-			</Process>
-
-			<Process class="Separation" impute-start="true">
-				<Consumes>crude oil</Consumes>
-				<Produces>crude oil</Produces>
-				<Produces>water</Produces>
-				<Produces>natural gas</Produces>
-				<Produces>gas fugitives</Produces>
-			</Process>
-
-			<Process class="CrudeOilDewatering" desc="Crude oil dewatering">
-				<Consumes>crude oil</Consumes>
-				<Produces>water</Produces>
-				<Produces>crude oil</Produces>
-			</Process>
-
-			<Process class="AfterDewatering" desc="Temporary end process">
-				<Consumes>crude oil</Consumes>
-				<Consumes>water</Consumes>
-			</Process>
-
-			<Process class="CrudeOilStabilization" desc="Crude oil stabilization">
-				<Consumes>crude oil</Consumes>
-				<Produces>crude oil</Produces>
-			</Process>
-
-			<Process class="WaterTreatment">
-				<Consumes>water</Consumes>
-				<Produces>water</Produces>
-			</Process>
+			<Process class="ReservoirWellInterface"/>
+			<Process class="DownholePump"/>
+			<Process class="Separation" impute-start="true"/>
+			<Process class="CrudeOilDewatering" desc="Crude oil dewatering"/>
+			<Process class="AfterDewatering" desc="Temporary end process"/>
+			<Process class="CrudeOilStabilization" desc="Crude oil stabilization"/>
+			<Process class="WaterTreatment"/>
 		</Aggregator>
 
 		<Aggregator name="Transport_and_storage">
-			<Process class="CrudeOilTransport">
-				<Consumes>crude oil</Consumes>
-				<Produces>crude oil</Produces>
-			</Process>
+			<Process class="CrudeOilTransport"/>
 		</Aggregator>
 
 		<Stream src="Separation" dst="CrudeOilDewatering" name="oil after separator">
@@ -171,7 +132,6 @@
 		<A name="GOR">1205.4</A>
 
 		<Process class="Reservoir" desc="Oil reservoir">
-			<Produces>crude oil</Produces>
 			<A name="leak_rate">0.0022</A>
 		</Process>
 		<Stream number="1" name="oil in reservoir" src="Reservoir" dst="ReservoirWellInterface">

@@ -2,11 +2,11 @@
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
 
 	<Analysis name="Analysis1">
-		<A name="functional_unit">oil</A>
-		<A name="energy_basis">LHV</A>
+	  <A name="functional_unit">oil</A>
+	  <A name="energy_basis">LHV</A>
 	  <A name="GWP_horizon">100</A>
 	  <A name="GWP_version">AR5</A>
-		<Field name="Field1"/>
+          <Field name="Field1"/>
 	</Analysis>
 
 	<Field name="Field1">
@@ -31,15 +31,8 @@
 		<A name="gas_comp_H2S">0.0</A>
 		<A name="API">32.8</A>
 
-		<Process class="UserProcess1" desc="Test process 1">
-			<Produces>crude oil</Produces>
-		</Process>
-
-		<Process class="UserProcess2" desc="Test process 2">
-			<Consumes>crude oil</Consumes>
-			<Consumes>hydrogen</Consumes>
-			<Produces>natural gas</Produces>
-		</Process>
+		<Process class="UserProcess1" desc="Test process 1"/>
+		<Process class="UserProcess2" desc="Test process 2"/>
 
 		<Stream src="UserProcess1" dst="UserProcess2">
 			<A name="temperature">90.0</A>

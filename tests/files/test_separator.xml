@@ -2,61 +2,28 @@
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
 
 	<Analysis name="test_separator">
-		<A name="functional_unit">oil</A>
-		<A name="energy_basis">LHV</A>
+	  <A name="functional_unit">oil</A>
+	  <A name="energy_basis">LHV</A>
 	  <A name="GWP_horizon">100</A>
 	  <A name="GWP_version">AR5</A>
-		<Field name="test"/>
-<!--		<Field name="bitumen"/>-->
+	  <Field name="test"/>
+<!--		<Field name="bitumen"/> -->
 	</Analysis>
 
 	<Field name="test">
 		<A name="country">USA</A>
-		<Process class="Separation" impute-start="true">
-			<Consumes>crude oil</Consumes>
-			<Produces>crude oil</Produces>
-			<Produces>water</Produces>
-			<Produces>natural gas</Produces>
-			<Produces>gas fugitives</Produces>
-		</Process>
+		<Process class="Separation" impute-start="true"/>
+		<Process class="ReservoirWellInterface" cycle-start="true"/>
 
-		<Process class="ReservoirWellInterface" cycle-start="true">
-			<Consumes>crude oil</Consumes>
-			<Consumes>flooding CO2</Consumes>
-			<Produces>crude oil</Produces>
-		</Process>
+		<Process class="DownholePump"/>
+		<Process class="CrudeOilDewatering"/>
 
-		<Process class="DownholePump">
-			<Consumes>crude oil</Consumes>
-			<Consumes>lifting gas</Consumes>
-			<Produces>crude oil</Produces>
-			<Produces>gas fugitives</Produces>
-		</Process>
-
-		<Process class="CrudeOilDewatering">
-			<Consumes>crude oil</Consumes>
-			<Produces>crude oil</Produces>
-			<Produces>water</Produces>
-		</Process>
-
-		<Process class="CrudeOilStabilization" enabled="false">
-			<Consumes>oil for stabilization</Consumes>
-		</Process>
-
-		<Process class="HeavyOilUpgrading" enabled="false">
-			<Consumes>oil for upgrader</Consumes>
-		</Process>
-
-		<Process class="HeavyOilDilution" enabled="false">
-			<Consumes>oil for dilution</Consumes>
-		</Process>
-
+		<Process class="CrudeOilStabilization" enabled="false"/>
+		<Process class="HeavyOilUpgrading" enabled="false"/>
+		<Process class="HeavyOilDilution" enabled="false"/>
 		<Process class="CrudeOilStorage" enabled="false"/>
 
-		<Process class="WaterTreatment">
-			<Consumes>water</Consumes>
-			<Produces>water</Produces>
-		</Process>
+		<Process class="WaterTreatment"/>
 
 		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
 			<Contains>crude oil</Contains>
@@ -129,5 +96,4 @@
 			<Contains>water</Contains>
 		</Stream>
 	</Field>
-
 </Model>

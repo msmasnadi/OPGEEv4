@@ -20,17 +20,8 @@
 		<!-- fails constraint LT="250" -->
 		<A name="age">300</A>
 
-		<Process class="ProcA" desc="Test process 1">
-			<Produces>crude oil</Produces>
-			<Produces>water</Produces>
-			<Consumes>crude oil</Consumes>
-		</Process>
-
-		<Process class="ProcB" desc="Test process 2">
-			<Consumes>crude oil</Consumes>
-			<Consumes>hydrogen</Consumes>
-			<Produces>natural gas</Produces>
-		</Process>
+		<Process class="ProcA" desc="Test process 1"/>
+		<Process class="ProcB" desc="Test process 2"/>
 
 		<Stream src="ProcA" dst="ProcB">
 			<A name="temperature">90.0</A>

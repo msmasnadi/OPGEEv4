@@ -67,54 +67,22 @@
 
 		</ProcessChoice>
 
-		<Process class="Separation" impute-start="true">
-			<Consumes>crude oil</Consumes>
-			<Produces>crude oil</Produces>
-			<Produces>water</Produces>
-			<Produces>natural gas</Produces>
-			<Produces>gas fugitives</Produces>
-		</Process>
+		<Process class="Separation" impute-start="true"/>
 
-		<Process class="ReservoirWellInterface" cycle-start="true">
-			<Consumes>crude oil</Consumes>
-			<Consumes>flooding CO2</Consumes>
-			<Produces>crude oil</Produces>
-		</Process>
+		<Process class="ReservoirWellInterface" cycle-start="true"/>
 
-		<Process class="DownholePump">
-			<Consumes>crude oil</Consumes>
-			<Consumes>lifting gas</Consumes>
-			<Produces>crude oil</Produces>
-			<Produces>gas fugitives</Produces>
-		</Process>
-
-		<Process class="CrudeOilDewatering">
-			<Consumes>crude oil</Consumes>
-			<Produces>crude oil</Produces>
-			<Produces>water</Produces>
-		</Process>
-
+		<Process class="DownholePump"/>
+		<Process class="CrudeOilDewatering"/>
 		<Process class="Flaring"/>
 		<Process class="Venting"/>
 		<Process class="BitumenMining"/>
 
-		<Process class="CrudeOilStabilization" enabled="false">
-			<Consumes>oil for stabilization</Consumes>
-		</Process>
-
+		<Process class="CrudeOilStabilization" enabled="false"/>
 		<Process class="HeavyOilUpgrading" enabled="false"/>
-
-		<Process class="HeavyOilDilution" enabled="false">
-			<Consumes>oil for dilution</Consumes>
-		</Process>
-
+		<Process class="HeavyOilDilution" enabled="false"/>
 		<Process class="CrudeOilStorage" enabled="false"/>
 
-		<Process class="WaterTreatment">
-			<Consumes>water</Consumes>
-			<Produces>water</Produces>
-		</Process>
-
+		<Process class="WaterTreatment"/>
 		<Process class="GasGathering"/>
 		<Process class="CrudeOilStabilization"/>
 		<Process class="VRUCompressor"/>

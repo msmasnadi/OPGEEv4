@@ -37,24 +37,14 @@
 	<Field name="oil_stabilization">
 		<A name="country">USA</A>
 
-		<Process class="Before" desc="">
-			<Produces>oil for stabilization</Produces>
-		</Process>
-
+		<Process class="Before" desc=""/>
 		<Process class="After"/>
 		
-		<Process class="CrudeOilStabilization">
-			<Consumes>crude oil</Consumes>
-			<Produces>crude oil</Produces>
-			<Produces>gas</Produces>
-			<Produces>gas fugitives</Produces>
-		</Process>
-
-		<Process class="CrudeOilStorage">
-			<Consumes>crude oil</Consumes>
-		</Process>
+		<Process class="CrudeOilStabilization"/>
+		<Process class="CrudeOilStorage"/>
 		<Process class="VRUCompressor"/>
 <!--		<Process class="GasGathering"/>-->
+
 		<Process class="HeavyOilUpgrading" enabled="false"/>
 		<Process class="HeavyOilDilution" enabled="false"/>
 		<Process class="Separation" enabled="false"/>
@@ -120,15 +110,10 @@
 		<A name="upgrader_type">Delayed coking</A>
 
 		<Process class="Before" desc="" impute-start="true">
-			<Produces>oil for stabilization</Produces>
 		</Process>
 		<Process class="After"/>
 
 		<Process class="CrudeOilStabilization" enabled="false">
-			<Consumes>crude oil</Consumes>
-			<Produces>crude oil</Produces>
-			<Produces>gas</Produces>
-			<Produces>gas fugitives</Produces>
 		</Process>
 
 		<Process class="HeavyOilUpgrading"/>
@@ -198,10 +183,7 @@
 		<A name="fraction_diluent">0.398</A>
 		<A name="crude_oil_dewatering_output">HeavyOilDilution</A>
 
-		<Process class="Before">
-			<Produces>oil for stabilization</Produces>
-		</Process>
-
+		<Process class="Before"/>
 		<Process class="After"/>
 
 		<Process class="HeavyOilDilution" impute-start="true"/>
@@ -247,7 +229,6 @@
 		<A name="VOR">5.0</A>
 
 		<Process class="Before"/>
-
 		<Process class="After"/>
 
 		<Process class="HeavyOilDilution" impute-start="true"/>
@@ -301,7 +282,5 @@
 		<Stream src="BitumenMining" dst="After" name="bitumen mining to flaring">
 			<Contains>gas for flaring</Contains>
 		</Stream>
-
-
 	</Field>
 </Model>

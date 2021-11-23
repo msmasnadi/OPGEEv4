@@ -20,25 +20,10 @@
 		<A name="res_temp">70.84</A>
 		<A name="GOR">1205.4</A>
 
-		<Process class="Proc1" desc="Test process 1">
-			<Produces>crude oil</Produces>
-		</Process>
-
-		<Process class="Proc2" desc="Test process 2">
-			<Consumes>crude oil</Consumes>
-			<Consumes>hydrogen</Consumes>
-			<Produces>natural gas</Produces>
-		</Process>
-
-		<Process class="Proc3" desc="Test process 3">
-			<Consumes>natural gas</Consumes>
-			<Produces>hydrogen</Produces>
-			<Produces>CO2</Produces>
-		</Process>
-
-		<Process class="Proc4" desc="Test process 4">
-			<Consumes>CO2</Consumes>
-		</Process>
+		<Process class="Proc1" desc="Test process 1"/>
+		<Process class="Proc2" desc="Test process 2"/>
+		<Process class="Proc3" desc="Test process 3"/>
+		<Process class="Proc4" desc="Test process 4"/>
 
 		<Stream src="Proc1" dst="Proc2">
 			<A name="temperature">90.0</A>
