@@ -64,7 +64,7 @@
 				<ProcessRef name="CO2InjectionWell"/>
 				<ProcessRef name="Demethanizer"/>
 			</ProcessGroup>
-			
+
 		</ProcessChoice>
 
 		<Process class="Separation" impute-start="true">
@@ -441,7 +441,8 @@
 			<Contains>gas fugitives</Contains>
 		</Stream>
 
-		<Stream src="GasPartition" dst="GasProductionSiteBoundary" name="gas partition to production site boundary">
+		<Stream src="GasPartition" dst="GasProductionSiteBoundary" name="gas partition to production site boundary"
+				    boundary="production site">
 			<Contains>gas</Contains>
 		</Stream>
 

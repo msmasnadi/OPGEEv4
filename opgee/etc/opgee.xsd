@@ -104,6 +104,7 @@
       <xs:attribute name='src' use='required'/>
       <xs:attribute name='dst' use='required'/>
       <xs:attribute name="impute" default="1"/>        <!-- if false, don't traverse during impute() processing -->
+      <xs:attribute name="boundary" type='xs:string'/>
     </xs:complexType>
   </xs:element>
 

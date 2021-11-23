@@ -111,7 +111,8 @@ class Stream(XmlInstantiable, AttributeMixin):
     _units = ureg.Unit('tonne/day')
 
     def __init__(self, name, number=0, temperature=None, pressure=None,
-                 src_name=None, dst_name=None, comp_matrix=None, contents=None, impute=True):
+                 src_name=None, dst_name=None, comp_matrix=None,
+                 contents=None, impute=True, boundary=None):
         super().__init__(name)
 
         self.components = self.create_component_matrix() if comp_matrix is None else comp_matrix
@@ -124,6 +125,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.src_proc = None  # set in Field.connect_processes()
         self.dst_proc = None
 
+        self.boundary = boundary    # indicates name of boundary this stream crosses, or None
         self.contents = contents or []
 
         self.impute = impute
@@ -441,6 +443,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         # The following are optional
         number_str = a.get('number')
         number = coercible(number_str, int, raiseError=False) if number_str else None
+        boundary = a.get('boundary')
 
         # There should be 2 attributes: temperature and pressure
         attr_dict = cls.instantiate_attrs(elt)
@@ -479,8 +482,9 @@ class Stream(XmlInstantiable, AttributeMixin):
         else:
             matrix = None  # let the stream create it
 
-        obj = Stream(name, number=number, temperature=temp, pressure=pres, comp_matrix=matrix,
-                     src_name=src, dst_name=dst, contents=contents, impute=impute)
+        obj = Stream(name, number=number, temperature=temp, pressure=pres,
+                     comp_matrix=matrix, src_name=src, dst_name=dst,
+                     contents=contents, impute=impute, boundary=boundary)
 
         return obj
 
