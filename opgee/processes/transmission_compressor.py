@@ -28,7 +28,7 @@ class TransmissionCompressor(Process):
     def run(self, analysis):
         self.print_running_msg()
 
-        input = self.find_input_stream("gas for transmission compressor")
+        input = self.find_input_stream("gas")
 
         if self.gas_boundary == "Production site boundary" or input.is_empty():
             return

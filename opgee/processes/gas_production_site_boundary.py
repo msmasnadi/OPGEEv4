@@ -18,11 +18,11 @@ class GasProductionSiteBoundary(Process):
     def run(self, analysis):
         self.print_running_msg()
 
-        input = self.find_input_stream("gas for production site boundary")
+        input = self.find_input_stream("gas")
 
         if self.gas_boundary == "Production site boundary" or input.is_empty():
             return
 
-        output = self.find_output_stream("gas for transmission compressor")
+        output = self.find_output_stream("gas")
         output.copy_flow_rates_from(input)
         output.set_temperature_and_pressure(input.temperature, input.pressure)

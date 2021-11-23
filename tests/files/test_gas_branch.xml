@@ -442,7 +442,7 @@
 		</Stream>
 
 		<Stream src="GasPartition" dst="GasProductionSiteBoundary" name="gas partition to production site boundary">
-			<Contains>gas for production site boundary</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="SurfaceSource" dst="GasFloodingCompressor" name="surface source to gas flooding compressor">
@@ -450,7 +450,7 @@
 		</Stream>
 
 		<Stream src="GasProductionSiteBoundary" dst="TransmissionCompressor" name="production site boundary to transmission compressor">
-			<Contains>gas for transmission compressor</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 	</Field>
 
