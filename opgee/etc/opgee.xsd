@@ -78,7 +78,7 @@
 			<xs:element minOccurs='0' ref='Process'/>
 			<xs:element minOccurs='0' ref='ProcessChoice'/>
 		</xs:choice>
-		<xs:attribute name='name' type='xs:NCName'/>
+		<xs:attribute name='name' type='xs:string'/>
 		<xs:attribute name='enabled' default='1' type='xs:boolean'/>
 	</xs:complexType>
 

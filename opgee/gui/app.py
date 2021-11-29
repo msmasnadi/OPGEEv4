@@ -715,18 +715,15 @@ def main(args):
         # recursively create expanding aggregator structure with emissions (table, eventually)
         def add_children(container, elt):
             for agg in container.aggs:
-                # noinspection PyCallingNonCallable
                 details = html.Details(children=[html.Summary(html.B(agg.name))], style=style)
                 elt.children.append(details)
                 add_children(agg, details)
 
             if container.procs:
-                # noinspection PyCallingNonCallable
                 div = html.Div(style=style,
                                children=[emissions_table(analysis, container.procs)])
                 elt.children.append(div)
 
-        # noinspection PyCallingNonCallable
         item = html.Details(open=True, children=[html.Summary("Process Emissions")])
         add_children(field, item)
         return item
@@ -790,7 +787,6 @@ def main(args):
         Input('run-button', 'n_clicks'),
         Input('analysis-and-field', 'data'))
     def ci_barchart(n_clicks, analysis_and_field):
-        # import plotly.express as px
         import pandas as pd
         import plotly.graph_objs as go
 
@@ -798,29 +794,22 @@ def main(args):
 
         fn_unit = analysis.attr('functional_unit')
 
-        # value_col = r'$g CO_2 MJ^{-1}$'
-        df = pd.DataFrame({"category": ["Exploration", "Surface Processing", "Transportation"],
-                           "value": [1.5, 2.2, 3.1],
-                           "name": [fn_unit] * 3})
+        def total_ghgs(obj):
+            return obj.emissions.data.sum(axis='columns')['GHG']
 
-        # TBD: looks too inflexible. Probably use a lower-level bar chart go.bar?
-        # import plotly.graph_objects as go
-        fn_unit_list = [fn_unit] * 3
+        # Show results for top-level aggregators and procs for the selected field
+        top_level = [(obj.name, total_ghgs(obj)) for obj in field.aggs + field.procs]
 
-        # fig = go.Figure(data=[
-        #     go.Bar(name='SF Zoo', x=fn_unit_list, y=[20, 14, 23]),
-        #     go.Bar(name='LA Zoo', x=fn_unit_list, y=[12, 18, 29])
-        # ])
+        df = pd.DataFrame({"category": [pair[0] for pair in top_level],
+                           "value"   : [pair[1] for pair in top_level],
+                           "unit"    : [fn_unit] * len(top_level)})
 
-        fig = go.Figure(data=[go.Bar(name=row.category, x=[row.name], y=[row.value]) for idx, row in df.iterrows()])
-        # Change the bar mode
-        fig.update_layout(barmode='stack',
-                          yaxis_title="g CO2 per MJ",  # doesn't render in latex: r'g CO$_2$ MJ$^{-1}$',
+        fig = go.Figure(data=[go.Bar(name=row.category, x=[row.unit], y=[row.value]) for idx, row in df.iterrows()],
+                        layout=go.Layout(barmode='stack'))
+
+        fig.update_layout(yaxis_title="g CO2 per MJ",  # doesn't render in latex: r'g CO$_2$ MJ$^{-1}$',
                           xaxis_title=f'Carbon Intensity of {fn_unit.title()}')
 
-        # fig = px.bar(df, x="Name", y=value_col, color="Category", barmode="stack",
-        #              hover_data=[value_col],
-        #              )
         return fig
 
     app.run_server(debug=True)

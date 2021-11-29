@@ -12,18 +12,26 @@
 
 	<Field name="test">
 		<A name="country">USA</A>
-		<Process class="Separation" impute-start="true"/>
-		<Process class="ReservoirWellInterface" cycle-start="true"/>
 
-		<Process class="DownholePump"/>
-		<Process class="CrudeOilDewatering"/>
+		<Aggregator name="Production">
+			<Process class="ReservoirWellInterface" cycle-start="true"/>
+			<Process class="DownholePump"/>
+		</Aggregator>
 
-		<Process class="CrudeOilStabilization" enabled="false"/>
-		<Process class="HeavyOilUpgrading" enabled="false"/>
-		<Process class="HeavyOilDilution" enabled="false"/>
+		<Aggregator name="Surface Processing">
+			<Process class="Separation" impute-start="true"/>
+			<Process class="CrudeOilDewatering"/>
+			<Process class="CrudeOilStabilization" enabled="false"/>
+			<Process class="WaterTreatment"/>
+		</Aggregator>
+
+		<Aggregator name="Heavy oil processing">
+			<Process class="HeavyOilUpgrading" enabled="false"/>
+			<Process class="HeavyOilDilution" enabled="false"/>
+		</Aggregator>
+
 		<Process class="CrudeOilStorage" enabled="false"/>
 
-		<Process class="WaterTreatment"/>
 
 		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
 			<Contains>crude oil</Contains>
@@ -52,7 +60,7 @@
 		<Stream src="Separation" dst="WaterTreatment" name="separator to produced water treatment">
 			<Contains>water</Contains>
 		</Stream>
-		
+
 		<Stream src="WaterTreatment" dst="Output" name="produced water treatment to steam">
 			<Contains>water for steam generation</Contains>
 			<Contains>water for reinjection</Contains>

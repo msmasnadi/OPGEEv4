@@ -1,7 +1,4 @@
 import re
-
-import pandas as pd
-
 from .core import elt_name, OpgeeObject
 from .container import Container
 from .error import OpgeeException
@@ -9,7 +6,6 @@ from .emissions import Emissions
 from .field import Field
 from .log import getLogger
 from .utils import getBooleanXML
-from .stream import Stream, carbon_to_molecule
 
 _logger = getLogger(__name__)
 
