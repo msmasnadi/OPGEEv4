@@ -2,6 +2,28 @@ import dash_core_components as dcc
 import dash_html_components as html
 from ..core import magnitude
 from ..error import OpgeeException
+from ..log import getLogger
+
+_logger = getLogger(__name__)
+
+class OpgeePane(object):
+    def __init__(self, app, model):
+        self.app = app
+        self.model = model
+        self.add_callbacks()
+
+    def get_layout(self, field, **kwargs):
+        pass
+
+    def add_callbacks(self):
+        pass
+
+
+def get_analysis_and_field(current_model, data):
+    analysis = current_model.get_analysis(data['analysis'])
+    field = analysis.get_field(data['field'], raiseError=False) or analysis.first_field()
+
+    return analysis, field
 
 int_pattern = r'^\s*\d+\s*$'
 float_pattern = r'^\s*((\d+).?(\d*)|(\d*).?(\d+))\s*$'
