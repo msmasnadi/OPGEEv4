@@ -149,7 +149,7 @@
 			<Contains>water for subsurface disposal</Contains>
 		</Stream>
 
-		<Stream src="Separation" dst="Flaring" name="separation to flaring">
+		<Stream src="Separation" dst="Flaring" name="separation to flaring" boundary="Production">
 			<Contains>gas</Contains>
 		</Stream>
 
@@ -414,8 +414,7 @@
 			<Contains>gas fugitives</Contains>
 		</Stream>
 
-		<Stream src="GasPartition" dst="TransmissionCompressor" name="gas partition to production site boundary"
-				    boundary="production site">
+		<Stream src="GasPartition" dst="TransmissionCompressor" name="gas partition to production site boundary">
 			<Contains>gas</Contains>
 		</Stream>
 

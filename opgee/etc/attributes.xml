@@ -72,7 +72,7 @@
 
     <Options name="gas_boundaries" default="Production">
       <Option>Production</Option>
-      <Option>Transport and Storage</Option>
+      <Option>Transportation</Option>
       <Option>Distribution</Option>
     </Options>
     <AttrDef name="gas_boundary" options="gas_boundaries" desc="The user-selected system boundary for analysis of gas fields"/>

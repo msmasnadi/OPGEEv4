@@ -150,9 +150,15 @@ class Field(Container):
     def compute_carbon_intensity(self, analysis):
         rates = self.emissions.rates(analysis.gwp)
         emissions = rates.loc['GHG'].sum()
-        energy = self.output.energy_flow
+        # energy = self.output.energy_flow
+        boundary = "Production" #TODO: use attribute
+        boundary_stream = Stream.boundary_stream(boundary)
+        energy = self.gas.energy_flow_rate(boundary_stream) #TODO: use attribute for lhv and hhv
 
-        ci = ureg.Quantity((emissions / energy) if energy else 0, 'grams/MJ')
+        if energy.m == 0:
+            raise OpgeeException(f"compute CI has zero energy flow rate at boundary {boundary}")
+
+        ci = (emissions / energy).to('grams/MJ')
         self.carbon_intensity = ci
         return ci
 
@@ -166,9 +172,9 @@ class Field(Container):
         # Perform aggregations required by compute_carbon_intensity()
         self.report_energy_and_emissions(analysis)
 
-        self.compute_carbon_intensity(analysis)
-
-        print(f"Field '{name}': CI = {self.carbon_intensity:.2f}")
+        # self.compute_carbon_intensity(analysis)
+        #
+        # print(f"Field '{name}': CI = {self.carbon_intensity:.2f}")
 
     def _is_cycle_member(self, process):
         """
