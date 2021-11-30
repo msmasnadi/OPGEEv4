@@ -3,7 +3,7 @@ from opgee.model import ModelFile
 from opgee.process import Process
 from .utils_for_tests import path_to_test_file
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def field_groups_model(configure_logging_for_tests):
     xml_path = path_to_test_file('field_groups_model.xml')
     mf = ModelFile(xml_path, add_stream_components=False, use_class_path=False)

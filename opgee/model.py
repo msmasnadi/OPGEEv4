@@ -157,7 +157,7 @@ class ModelFile(XMLFile):
     Represents the overall parameters.xml file.
     """
 
-    def __init__(self, filename, stream=None, add_stream_components=True, use_class_path=True):
+    def __init__(self, filename, stream=None, add_stream_components=True, use_class_path=True, forget_boundaries=True):
         """
         Several steps are performed, some of which are dependent on the function's parameters:
 
@@ -171,7 +171,9 @@ class ModelFile(XMLFile):
         "OPGEE.ClassPath". Note that all classes referenced by the XML must be defined internally
         by opgee, or in the user's files indicated by "OPGEE.ClassPath".
 
-        4. Construct the model data structure from the input XML file and store the result in `self.model`.
+        4. If `forget_boundaries` is True, Stream's dictionary of system boundaries is cleared.
+
+        5. Construct the model data structure from the input XML file and store the result in `self.model`.
 
         :param filename: (str) the name of the file to read, if `stream` is None, else the description
            of the file, e.g., "[opgee package]/etc/opgee.xml".
@@ -185,6 +187,9 @@ class ModelFile(XMLFile):
             if extra_components:
                 names = splitAndStrip(extra_components, ',')
                 Stream.extend_components(names)
+
+        if forget_boundaries:
+            Stream.forget_boundaries()
 
         # We expect a single 'Analysis' element below Model
         _logger.debug("Loading model file: %s", filename)
