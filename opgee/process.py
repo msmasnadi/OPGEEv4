@@ -917,7 +917,7 @@ class Environment(Process):
     def report(self, analysis):
         print(f"{self}: cumulative emissions to Environment:\n{self.emissions}")
 
-
+# Deprecated -- or should be. Use Stream boundary declarations instead.
 class Output(Process):
     """
     Receives all final streams from a field and performs CI calculations from them.

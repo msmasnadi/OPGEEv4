@@ -41,10 +41,10 @@ class ResultsPane(OpgeePane):
         def ci_text(n_clicks, analysis_and_field):
             analysis, field = get_analysis_and_field(model, analysis_and_field)
 
-            ci = field.compute_carbon_intensity(analysis).m
+            ci = field.compute_carbon_intensity(analysis)
             fn_unit = analysis.attr('functional_unit')
             en_basis = analysis.attr('energy_basis')
-            return f"CI: {ci:0.2f} g CO2e/MJ {en_basis} of {fn_unit}"
+            return f"CI: {ci.m:0.2f} g CO2e/MJ {en_basis} of {fn_unit}"
 
         @app.callback(
             Output('ci-barchart', 'figure'),

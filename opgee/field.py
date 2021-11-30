@@ -22,7 +22,6 @@ class Field(Container):
     of `Reservoir` and `Environment`, which are sources and sinks, respectively, in
     the process structure.
     """
-
     def __init__(self, name, attr_dict=None, aggs=None, procs=None, streams=None, group_names=None,
                  process_choice_dict=None):
         # Note that `procs` include only Processes defined at the top-level of the field.
@@ -39,14 +38,15 @@ class Field(Container):
         self.environment = Environment()  # one per field
         self.reservoir = Reservoir()  # one per field
         self.surface_source = SurfaceSource()  # one per field
-        self.output = Output()
+        self.output = Output()  # Deprecated?
 
-        self.carbon_intensity = ureg.Quantity(0.0, "g/MJ")
-
+        self.builtin_procs = [self.environment, self.reservoir, self.surface_source, self.output]
         all_procs = self.collect_processes()  # includes reservoir and environment
         self.process_dict = self.adopt(all_procs, asDict=True)
 
         self.extend = False
+
+        self.carbon_intensity = ureg.Quantity(0.0, "g/MJ")
 
         # we use networkx to reason about the directed graph of Processes (nodes)
         # and Streams (edges).
@@ -281,7 +281,6 @@ class Field(Container):
 
         :return: (networkx.DiGraph) a directed graph representing the processes and streams.
         """
-        # g = nx.DiGraph()
         g = nx.MultiDiGraph()  # allows parallel edges
 
         # first add all defined Processes since some (Exploration, Development & Drilling)
@@ -411,8 +410,7 @@ class Field(Container):
     def collect_processes(self):
         """
         Recursively descend the Field's Aggregators to create a list of all
-        processes defined for this field. Includes Field's environment and reservoir
-        automatically.
+        processes defined for this field. Includes Field's builtin processes.
 
         :return: (list of instances of Process subclasses) the processes
            defined for this field
@@ -425,7 +423,7 @@ class Field(Container):
                 else:
                     _collect(process_list, child)
 
-        processes = [self.environment, self.reservoir, self.surface_source, self.output]
+        processes = self.builtin_procs.copy()   # copy since we're appending to this list recursively
         _collect(processes, self)
         return processes
 

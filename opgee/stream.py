@@ -110,7 +110,16 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     _units = ureg.Unit('tonne/day')
 
-    boundary_dict = {}      # records streams that declare themselves as boundaries
+    # Names of known system boundaries for use in computing CI
+    # TBD: maybe allow these to be extended in opgee.cfg
+    _known_boundaries_by_type = {'oil': ('Production Site', 'Post-transport'),
+                                 'gas': ('Production Site', 'Post-transport and Storage', 'Distribution')}
+
+    _all_known_boundaries = set().union(*list(_known_boundaries_by_type.values()))
+
+    # Remember streams that declare themselves as system boundaries. Keys must be one of the
+    # values in the tuples in the _known_boundaries dictionary above.
+    boundary_dict = {}
 
     def __init__(self, name, number=0, temperature=None, pressure=None,
                  src_name=None, dst_name=None, comp_matrix=None,
@@ -171,6 +180,16 @@ class Stream(XmlInstantiable, AttributeMixin):
     @classmethod
     def boundaries(cls):
         return cls.boundary_dict.keys()
+
+    @classmethod
+    def valid_boundary(cls, name, fn_unit=None):
+        try:
+            valid_names = cls._known_boundaries_by_type[fn_unit] if fn_unit else cls._all_known_boundaries
+        except KeyError as e:
+             fn_units = list(cls._known_boundaries_by_type.keys())
+             raise OpgeeException(f"valid_boundary: Unknown functional unit {fn_unit}; valid values are {fn_units}")
+
+        return name in valid_names
 
     @classmethod
     def units(cls):
