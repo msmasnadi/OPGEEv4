@@ -182,6 +182,15 @@ class Stream(XmlInstantiable, AttributeMixin):
         return cls.boundary_dict.keys()
 
     @classmethod
+    def forget_boundaries(cls):
+        """
+        Empties Stream's boundary_dict before loading a different model.
+
+        :return: none
+        """
+        cls.boundary_dict.clear()
+
+    @classmethod
     def valid_boundary(cls, name, fn_unit=None):
         try:
             valid_names = cls._known_boundaries_by_type[fn_unit] if fn_unit else cls._all_known_boundaries
