@@ -12,10 +12,9 @@
     <Field name="test_gas_transmission_boundary">
 
 		<Process class="Before"/>
-        <Process class="GasProductionSiteBoundary"/>
         <Process class="TransmissionCompressor"/>
         
-        <Stream src="Before" dst="GasProductionSiteBoundary" name="before to production site boundary">
+        <Stream src="Before" dst="TransmissionCompressor" name="before to production site boundary" boundary="Production">
             <Component name="N2" phase="gas">25.7</Component>
 			<Component name="CO2" phase="gas">0.2</Component>
 			<Component name="C1" phase="gas">435.0</Component>
@@ -24,11 +23,7 @@
 			<Component name="C4" phase="gas">1.4</Component>
 			<A name="temperature">90.0</A>
 			<A name="pressure">500.0</A>
-			<Contains>gas for production site boundary</Contains>
-		</Stream>
-        
-        <Stream src="GasProductionSiteBoundary" dst="TransmissionCompressor" name="production site boundary to transmission compressor">
-			<Contains>gas for transmission compressor</Contains>
+			<Contains>gas</Contains>
 		</Stream>
     
     

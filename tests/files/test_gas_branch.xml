@@ -105,7 +105,6 @@
 		<Process class="GasFloodingCompressor"/>
 		<Process class="After"/>
 		<Process class="GasReinjectionWell"/>
-		<Process class="GasProductionSiteBoundary"/>
 		<Process class="TransmissionCompressor"/>
 
 
@@ -409,7 +408,7 @@
 			<Contains>gas fugitives</Contains>
 		</Stream>
 
-		<Stream src="GasPartition" dst="GasProductionSiteBoundary" name="gas partition to production site boundary"
+		<Stream src="GasPartition" dst="TransmissionCompressor" name="gas partition to production site boundary"
 				    boundary="production site">
 			<Contains>gas</Contains>
 		</Stream>
@@ -418,9 +417,6 @@
 			<Contains>gas for gas flooding</Contains>
 		</Stream>
 
-		<Stream src="GasProductionSiteBoundary" dst="TransmissionCompressor" name="production site boundary to transmission compressor">
-			<Contains>gas</Contains>
-		</Stream>
 	</Field>
 
 </Model>
