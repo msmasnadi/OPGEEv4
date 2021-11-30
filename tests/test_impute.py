@@ -21,11 +21,11 @@ class Impute2(CopyingProcess): pass
 class Impute3(CopyingProcess): pass
 class Impute4(CopyingProcess): pass
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def good_model(configure_logging_for_tests):
     return load_test_model('test_impute_model_good.xml')
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def bad_model(configure_logging_for_tests):
     return load_test_model('test_impute_model_bad.xml')
 
