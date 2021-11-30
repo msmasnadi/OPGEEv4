@@ -197,6 +197,7 @@ def main(args):
             analysis, field = get_analysis_and_field(model, analysis_and_field)
             # TBD: get user selections from radio buttons and pass to run method
             # TBD: have run method take optional args for all the run parameters, defaulting to what's in the model file
+            field.resolve_process_choices()
             field.run(analysis)
             field.report(analysis)
             return "Model has been run"

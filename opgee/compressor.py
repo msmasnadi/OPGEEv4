@@ -1,6 +1,7 @@
 from opgee.core import OpgeeObject
 from opgee import ureg
 from .error import OpgeeException
+from .process import Process
 
 _power = [1, 1 / 2, 1 / 3, 1 / 4, 1 / 5]
 
@@ -99,4 +100,42 @@ class Compressor(OpgeeObject):
             if overall_compression_ratio ** pow == compression_ratio:
                 result = int(1 / pow)
                 return result
+
+    @staticmethod
+    def get_compressor_energy_consumption(field,
+                                          prime_mover_type,
+                                          eta_compressor,
+                                          overall_compression_ratio,
+                                          inlet_stream,
+                                          inlet_temp=None,
+                                          inlet_pressure=None):
+        """
+        Calculate compressor energy consumption
+
+        :param field:
+        :param prime_mover_type:
+        :param eta_compressor:
+        :param overall_compression_ratio:
+        :param inlet_stream:
+        :param inlet_temp:
+        :param inlet_pressure:
+        :return:
+        """
+
+        compression_ratio = Compressor.get_compression_ratio(overall_compression_ratio)
+        num_stages = Compressor.get_num_of_compression(overall_compression_ratio)
+        inlet_temp = inlet_stream.temperature if inlet_temp is None else inlet_temp
+        inlet_press = inlet_stream.pressure if inlet_pressure is None else inlet_pressure
+        total_work, outlet_temp = Compressor.get_compressor_work_temp(field,
+                                                                      inlet_temp,
+                                                                      inlet_press,
+                                                                      inlet_stream,
+                                                                      compression_ratio,
+                                                                      num_stages)
+        volume_flow_rate_STP = field.gas.tot_volume_flow_rate_STP(inlet_stream)
+        total_energy = total_work * volume_flow_rate_STP
+        brake_horse_power = total_energy / eta_compressor
+        energy_consumption = Process.get_energy_consumption(prime_mover_type, brake_horse_power)
+
+        return energy_consumption
 

@@ -14,7 +14,7 @@
 		<Process class="Before"/>
         <Process class="TransmissionCompressor"/>
         
-        <Stream src="Before" dst="TransmissionCompressor" name="before to production site boundary" boundary="Production">
+        <Stream src="Before" dst="TransmissionCompressor" name="before to transmission compressor" boundary="Production">
             <Component name="N2" phase="gas">25.7</Component>
 			<Component name="CO2" phase="gas">0.2</Component>
 			<Component name="C1" phase="gas">435.0</Component>
@@ -25,8 +25,7 @@
 			<A name="pressure">500.0</A>
 			<Contains>gas</Contains>
 		</Stream>
-    
-    
+
     </Field>
 
 </Model>

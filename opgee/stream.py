@@ -112,8 +112,8 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     # Names of known system boundaries for use in computing CI
     # TBD: maybe allow these to be extended in opgee.cfg
-    _known_boundaries_by_type = {'oil': ('Production Site', 'Post-transport'),
-                                 'gas': ('Production Site', 'Post-transport and Storage', 'Distribution')}
+    _known_boundaries_by_type = {'oil': ('Production', 'Transportation'),
+                                 'gas': ('Production', 'Transportation', 'Distribution')}
 
     _all_known_boundaries = set().union(*list(_known_boundaries_by_type.values()))
 
@@ -127,6 +127,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         super().__init__(name)
 
         self.components = self.create_component_matrix() if comp_matrix is None else comp_matrix
+        self.xml_data = comp_matrix
         self.number = number
         self.temperature = temperature if isinstance(temperature, pint.Quantity) else ureg.Quantity(temperature, "degF")
         self.pressure = pressure if isinstance(pressure, pint.Quantity) else ureg.Quantity(pressure, "psi")
@@ -165,7 +166,7 @@ class Stream(XmlInstantiable, AttributeMixin):
 
         :return: none
         """
-        self.components = self.create_component_matrix()
+        self.components = self.xml_data if self.xml_data is not None else self.create_component_matrix()
         self.temperature = ureg.Quantity(0.0, "degF")
         self.pressure = ureg.Quantity(0.0, "psia")
         self.dirty = False
