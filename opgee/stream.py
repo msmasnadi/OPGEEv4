@@ -111,7 +111,7 @@ class Stream(XmlInstantiable, AttributeMixin):
     _units = ureg.Unit('tonne/day')
 
     # Names of known system boundaries for use in computing CI
-    # TBD: maybe allow these to be extended in opgee.cfg
+    # TBD: populate this from system.cfg as in Field.py compute_carbon_intensity()
     _known_boundaries_by_type = {'oil': ('Production', 'Transportation'),
                                  'gas': ('Production', 'Transportation', 'Distribution')}
 
@@ -192,14 +192,15 @@ class Stream(XmlInstantiable, AttributeMixin):
         cls.boundary_dict.clear()
 
     @classmethod
-    def valid_boundary(cls, name, fn_unit=None):
+    def validate_boundary(cls, name, fn_unit):
         try:
-            valid_names = cls._known_boundaries_by_type[fn_unit] if fn_unit else cls._all_known_boundaries
-        except KeyError as e:
+            valid_names = cls._known_boundaries_by_type[fn_unit]
+        except KeyError:
              fn_units = list(cls._known_boundaries_by_type.keys())
-             raise OpgeeException(f"valid_boundary: Unknown functional unit {fn_unit}; valid values are {fn_units}")
+             raise OpgeeException(f"validate_boundary: Unknown functional unit '{fn_unit}'; valid values are {fn_units}")
 
-        return name in valid_names
+        if not name in valid_names:
+            raise OpgeeException(f"validate_boundary: '{name}' is not a known system boundary for functional unit '{fn_unit}'")
 
     @classmethod
     def units(cls):

@@ -1081,7 +1081,7 @@ class Gas(AbstractSubstance):
 
         return volume_energy_density.to("Btu/ft**3")
 
-    def energy_flow_rate(self, stream):
+    def energy_flow_rate(self, stream, energy_basis='LHV'): # TODO: pass energy_basis to all methods as needed
         """
 
         :param stream:

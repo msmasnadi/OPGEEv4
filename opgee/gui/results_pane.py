@@ -57,12 +57,15 @@ class ResultsPane(OpgeePane):
             analysis, field = get_analysis_and_field(model, analysis_and_field)
 
             fn_unit = analysis.attr('functional_unit')
+            energy = field.boundary_energy_flow
 
-            def total_ghgs(obj):
-                return obj.emissions.data.sum(axis='columns')['GHG']
+            def partial_ci(obj):
+                ghgs = obj.emissions.data.sum(axis='columns')['GHG']
+                ci = ghgs / energy
+                return ci.to('grams/MJ')
 
             # Show results for top-level aggregators and procs for the selected field
-            top_level = [(obj.name, total_ghgs(obj)) for obj in field.aggs + field.procs]
+            top_level = [(obj.name, partial_ci(obj)) for obj in field.aggs + field.procs]
 
             df = pd.DataFrame({"category": [pair[0] for pair in top_level],
                                "value": [pair[1] for pair in top_level],

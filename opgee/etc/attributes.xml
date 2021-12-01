@@ -70,6 +70,12 @@
     </Options>
     <AttrDef name="oil_sands_mine" options="oil_sands_mine_type" desc="Oil sands mine"/>
 
+    <Options name="oil_boundaries" default="Production">
+      <Option>Production</Option>
+      <Option>Transportation</Option>
+    </Options>
+    <AttrDef name="oil_boundary" options="oil_boundaries" desc="The user-selected system boundary for analysis of oil fields"/>
+
     <Options name="gas_boundaries" default="Production">
       <Option>Production</Option>
       <Option>Transportation</Option>
