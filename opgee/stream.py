@@ -11,6 +11,7 @@ import re
 
 from . import ureg
 from .attributes import AttributeMixin
+from .config import getParamAsSequence
 from .core import XmlInstantiable, elt_name, magnitude
 from .error import OpgeeException
 from .log import getLogger
@@ -112,8 +113,18 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     # Names of known system boundaries for use in computing CI
     # TBD: populate this from system.cfg as in Field.py compute_carbon_intensity()
-    _known_boundaries_by_type = {'oil': ('Production', 'Transportation'),
-                                 'gas': ('Production', 'Transportation', 'Distribution')}
+    fn_units = getParamAsSequence('OPGEE.FunctionalUnits')
+    _known_boundaries_by_type = {}
+    for fn_unit in fn_units:
+        # Each fn unit, e.g., 'gas' and 'oil', must have corresponding config var with
+        # values, e.g., "OPGEE.GasBoundaries" and "OPGEE.OilBoundaries".
+        var_name = 'OPGEE.' + fn_unit.capitalize() + 'Boundaries'
+        boundaries = getParamAsSequence(var_name)
+        _known_boundaries_by_type[fn_unit] = boundaries
+
+        # Should end up with a dictionary like this, but not hardcoded:
+        # _known_boundaries_by_type = {'oil': ('Production', 'Transportation'),
+        #                              'gas': ('Production', 'Transportation', 'Distribution')}
 
     _all_known_boundaries = set().union(*list(_known_boundaries_by_type.values()))
 

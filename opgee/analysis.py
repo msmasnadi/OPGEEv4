@@ -1,5 +1,5 @@
 import re
-from .config import getParam
+from .config import getParam, getParamAsSequence
 from .container import Container
 from .core import elt_name, OpgeeObject
 from .error import OpgeeException
@@ -65,17 +65,9 @@ class Analysis(Container):
 
         self.use_GWP(gwp_horizon, gwp_version)
 
-        def set_from_config_var(var_name):
-            value = getParam(var_name)
-            values = [s.strip() for s in value.split(',')]
-            return set(values)
-
         # Create validation sets from system.cfg to avoid hardcoding these
-        self.functional_units = set_from_config_var('OPGEE.FunctionalUnits')
-        self.energy_bases     = set_from_config_var('OPGEE.EnergyBases')
-        self.oil_boundaries   = set_from_config_var('OPGEE.OilBoundaries')      # should this be in Stream?
-        self.gas_boundaries   = set_from_config_var('OPGEE.GasBoundaries')
-
+        self.functional_units = getParamAsSequence('OPGEE.FunctionalUnits', return_type='set')
+        self.energy_bases     = getParamAsSequence('OPGEE.EnergyBases', return_type='set')
 
     def get_field(self, name, raiseError=True) -> Field:
         """
