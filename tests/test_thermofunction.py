@@ -29,9 +29,9 @@ def test_oil_specific_gravity(oil_instance):
     assert oil_SG == ureg.Quantity(pytest.approx(oil_instance.oil_specific_gravity.m), "frac")
 
 
-def test_reservoir_solution_GOR(oil_instance):
-    res_GOR = oil_instance.reservoir_solution_GOR()
-    assert res_GOR == ureg.Quantity(pytest.approx(291.334541), "scf/bbl_oil")
+# def test_reservoir_solution_GOR(oil_instance):
+#     res_GOR = oil_instance.reservoir_solution_GOR()
+#     assert res_GOR == ureg.Quantity(pytest.approx(291.334541), "scf/bbl_oil")
 
 
 def test_bubble_point_pressure(oil_instance):
