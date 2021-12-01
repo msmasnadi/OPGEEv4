@@ -1,4 +1,5 @@
 import pytest
+import pandas as pd
 from opgee import ureg
 from opgee.emissions import Emissions, EM_FUGITIVES, EM_FLARING, EM_LAND_USE, EmissionsError
 from opgee.error import OpgeeException
@@ -79,3 +80,13 @@ def test_use_GWP_error(test_model):
         analysis = test_model.get_analysis('test')
         analysis.use_GWP(20, 'AR4_CCF')
 
+def test_units():
+    Emissions._units == ureg.Unit("tonne/day")
+
+def test_add_from_series():
+    em = Emissions()
+    d = {'CO': 1.0, 'C1': 2.0, 'CO2': 3.0}
+    s = pd.Series(d, dtype="pint[tonne/day]")
+    em.add_from_series(EM_FLARING, s)
+    for series_name, em_name in (('CO', 'CO'), ('C1', 'CH4'), ('CO2', 'CO2')):
+        assert em.data.loc[em_name, EM_FLARING] == ureg.Quantity(d[series_name], 'tonne/day')

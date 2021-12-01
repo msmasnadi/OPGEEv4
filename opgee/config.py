@@ -72,8 +72,8 @@ def pathjoin(*elements, **kwargs):
     if kwargs.get('abspath'):
         path = os.path.abspath(path)
 
-    if kwargs.get('normpath'):
-        path = os.path.normpath(path)
+    # if kwargs.get('normpath'):
+    #     path = os.path.normpath(path)
 
     if kwargs.get('realpath'):
         path = os.path.realpath(path)
