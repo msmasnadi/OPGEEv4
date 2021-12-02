@@ -204,8 +204,10 @@ class Emissions(OpgeeObject):
         # All gas-phase hydrocarbons heavier than methane are considered VOCs
         voc_rate = series[series.index.intersection(Stream.VOCs)].sum()
         self.add_rate(category, 'VOC', voc_rate)
-        GHG = self.data[category].sum()
-        self.add_rate(category, "GHG", GHG)
+
+        # TODO: this is incorrect since not weighted by GWP
+        # GHG = self.data[category].sum()
+        # self.add_rate(category, "GHG", GHG)
 
     def add_rates_from(self, emissions):
         """

@@ -11,6 +11,8 @@ def process_loop_model(configure_logging_for_tests):
     mf = ModelFile(xml_path, add_stream_components=False, use_class_path=False)
     return mf.model
 
+class After(Process): pass
+
 class Proc1(Process):
     def run(self, analysis):
         # find appropriate streams by checking connected processes' capabilities

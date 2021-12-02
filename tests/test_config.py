@@ -1,7 +1,21 @@
+import os
 from opgee.config import *
 
 def test_unixpath():
     assert unixPath(r"\Users\foo\bar") == "/Users/foo/bar"
+
+def test_expanduser():
+    home = os.getenv('HOME')
+    assert pathjoin("~", "foo", expanduser=True) == f"{home}/foo"
+
+def test_abspath():
+    home = os.getenv('HOME')
+    os.chdir(home)
+    assert pathjoin("foo", "bar", abspath=True) == f"{home}/foo/bar"
+
+def test_reload():
+    getConfig()
+    getConfig(reload=True) # just making sure it runs
 
 # @pytest.mark.parametrize(
 #     "vers, expected",

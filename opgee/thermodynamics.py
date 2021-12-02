@@ -41,9 +41,10 @@ def mol_weight(component, with_units=True):
 
     return result
 
+
 _components = list(_dict_chemical.keys())
 component_MW = pd.Series({name: mol_weight(name, with_units=False) for name in _components},
-                          dtype="pint[g/mole]")
+                         dtype="pint[g/mole]")
 
 
 def rho(component, temperature, pressure, phase):
@@ -266,6 +267,7 @@ class AbstractSubstance(OpgeeObject):
     """
     OilGasWater class contains Oil, Gas and Water class
     """
+
     # #TODO: the emissions.py call this
     # components = list(_dict_chemical.keys())
     # component_MW = pd.Series({name: mol_weight(name, with_units=False) for name in components},
@@ -399,18 +401,17 @@ class Oil(AbstractSubstance):
 
         :return: (float) solution gas oil ratio at resevoir condition (unit = scf/bbl)
         """
-        oil_SG = self.oil_specific_gravity
+        oil_SG = self.oil_specific_gravity.m
         res_temperature = self.res_temp.to("rankine").m
-        res_pressure = self.res_press.m
-        gas_SG = self.gas_specific_gravity
-        gor_bubble = self.bubble_point_solution_GOR(self.gas_oil_ratio)
+        res_pressure = self.res_press.to("psia").m
+        gas_SG = self.gas_specific_gravity.to("frac").m
+        gor_bubble = self.bubble_point_solution_GOR(self.gas_oil_ratio).m
 
-        result = min([
-            res_pressure ** (1 / self.pbub_a2) *
-            oil_SG ** (-self.pbub_a1 / self.pbub_a2) *
-            math.exp(self.pbub_a3 / self.pbub_a2 * gas_SG * oil_SG) /
-            (res_temperature * gas_SG),
-            gor_bubble.m])
+        empirical_res = (res_pressure ** (1 / self.pbub_a2) *
+                         oil_SG ** (-self.pbub_a1 / self.pbub_a2) *
+                         math.exp(self.pbub_a3 / self.pbub_a2 * gas_SG * oil_SG) /
+                         (res_temperature * gas_SG))
+        result = min([empirical_res, gor_bubble])
         result = ureg.Quantity(result, "scf/bbl_oil")
         return result
 
@@ -734,7 +735,6 @@ class Gas(AbstractSubstance):
 
         return molar_flow_rate
 
-
     def component_molar_fraction(self, name, stream):
         """
 
@@ -1017,7 +1017,7 @@ class Gas(AbstractSubstance):
         result = total_molar_flow_rate / self.field.model.const("mol-per-scf")
         return result.to("mmscf/day")
 
-    def mass_energy_density(self, stream):
+    def mass_energy_density(self, stream, IsLHV=True):
         """
 
         :param stream:
