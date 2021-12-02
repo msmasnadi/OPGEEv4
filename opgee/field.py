@@ -46,6 +46,7 @@ class Field(Container):
 
         self.extend = False
 
+        self.boundary_energy_flow = None
         self.carbon_intensity = ureg.Quantity(0.0, "g/MJ")
 
         # we use networkx to reason about the directed graph of Processes (nodes)
@@ -150,16 +151,28 @@ class Field(Container):
     def compute_carbon_intensity(self, analysis):
         rates = self.emissions.rates(analysis.gwp)
         emissions = rates.loc['GHG'].sum()
-        # energy = self.output.energy_flow
-        boundary = "Production" #TODO: use attribute
+
+        def check_value(attr_name, choices):
+            value = analysis.attr(attr_name)
+            if not value in choices:
+                raise OpgeeException(f"compute_carbon_intensity: {attr_name} is {value}; must be one of {choices}")
+
+            return value
+
+        fn_unit = check_value("functional_unit", analysis.functional_units)
+        energy_basis = check_value("energy_basis", analysis.energy_bases)
+
+        boundary_attr = fn_unit + '_boundary'       # {oil_boundary, gas_boundary}
+        boundary = self.attr(boundary_attr)         # {Production, Transportation, Distribution}
+        Stream.validate_boundary(boundary, fn_unit=fn_unit)
+
         boundary_stream = Stream.boundary_stream(boundary)
-        energy = self.gas.energy_flow_rate(boundary_stream) #TODO: use attribute for lhv and hhv
+        self.boundary_energy_flow = energy = self.gas.energy_flow_rate(boundary_stream, energy_basis)
 
         if energy.m == 0:
-            raise OpgeeException(f"compute CI has zero energy flow rate at boundary {boundary}")
+            raise OpgeeException(f"compute_carbon_intensity: zero energy flow rate in {boundary} boundary stream {boundary_stream}")
 
-        ci = (emissions / energy).to('grams/MJ')
-        self.carbon_intensity = ci
+        self.carbon_intensity = ci = (emissions / energy).to('grams/MJ')
         return ci
 
     def report(self, analysis):
@@ -171,10 +184,6 @@ class Field(Container):
 
         # Perform aggregations required by compute_carbon_intensity()
         self.report_energy_and_emissions(analysis)
-
-        # self.compute_carbon_intensity(analysis)
-        #
-        # print(f"Field '{name}': CI = {self.carbon_intensity:.2f}")
 
     def _is_cycle_member(self, process):
         """

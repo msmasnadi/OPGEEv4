@@ -1,6 +1,7 @@
 import re
-from .core import elt_name, OpgeeObject
+from .config import getParam, getParamAsSequence
 from .container import Container
+from .core import elt_name, OpgeeObject
 from .error import OpgeeException
 from .emissions import Emissions
 from .field import Field
@@ -26,6 +27,12 @@ class Analysis(Container):
         # The following are set in _after_init()
         self.model = None
         self.field_dict = None
+
+        self.functional_units = None
+        self.energy_bases = None
+
+        self.oil_boundaries = None      # should this be in Stream?
+        self.gas_boundaries = None
 
         # This is set in _after_init() to a pandas.Series holding the current values in use,
         # indexed by gas name. Must be set after initialization since we reference the Model
@@ -58,8 +65,9 @@ class Analysis(Container):
 
         self.use_GWP(gwp_horizon, gwp_version)
 
-        # self.gwp_series = pd.Series({name: self.GWP(name) for name in Stream.components},
-        #                             dtype="pint[frac]")
+        # Create validation sets from system.cfg to avoid hardcoding these
+        self.functional_units = getParamAsSequence('OPGEE.FunctionalUnits', return_type='set')
+        self.energy_bases     = getParamAsSequence('OPGEE.EnergyBases', return_type='set')
 
     def get_field(self, name, raiseError=True) -> Field:
         """

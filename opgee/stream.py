@@ -11,6 +11,7 @@ import re
 
 from . import ureg
 from .attributes import AttributeMixin
+from .config import getParamAsSequence
 from .core import XmlInstantiable, elt_name, magnitude
 from .error import OpgeeException
 from .log import getLogger
@@ -111,9 +112,19 @@ class Stream(XmlInstantiable, AttributeMixin):
     _units = ureg.Unit('tonne/day')
 
     # Names of known system boundaries for use in computing CI
-    # TBD: maybe allow these to be extended in opgee.cfg
-    _known_boundaries_by_type = {'oil': ('Production', 'Transportation'),
-                                 'gas': ('Production', 'Transportation', 'Distribution')}
+    # TBD: populate this from system.cfg as in Field.py compute_carbon_intensity()
+    fn_units = getParamAsSequence('OPGEE.FunctionalUnits')
+    _known_boundaries_by_type = {}
+    for fn_unit in fn_units:
+        # Each fn unit, e.g., 'gas' and 'oil', must have corresponding config var with
+        # values, e.g., "OPGEE.GasBoundaries" and "OPGEE.OilBoundaries".
+        var_name = 'OPGEE.' + fn_unit.capitalize() + 'Boundaries'
+        boundaries = getParamAsSequence(var_name)
+        _known_boundaries_by_type[fn_unit] = boundaries
+
+        # Should end up with a dictionary like this, but not hardcoded:
+        # _known_boundaries_by_type = {'oil': ('Production', 'Transportation'),
+        #                              'gas': ('Production', 'Transportation', 'Distribution')}
 
     _all_known_boundaries = set().union(*list(_known_boundaries_by_type.values()))
 
@@ -192,14 +203,15 @@ class Stream(XmlInstantiable, AttributeMixin):
         cls.boundary_dict.clear()
 
     @classmethod
-    def valid_boundary(cls, name, fn_unit=None):
+    def validate_boundary(cls, name, fn_unit):
         try:
-            valid_names = cls._known_boundaries_by_type[fn_unit] if fn_unit else cls._all_known_boundaries
-        except KeyError as e:
+            valid_names = cls._known_boundaries_by_type[fn_unit]
+        except KeyError:
              fn_units = list(cls._known_boundaries_by_type.keys())
-             raise OpgeeException(f"valid_boundary: Unknown functional unit {fn_unit}; valid values are {fn_units}")
+             raise OpgeeException(f"validate_boundary: Unknown functional unit '{fn_unit}'; valid values are {fn_units}")
 
-        return name in valid_names
+        if not name in valid_names:
+            raise OpgeeException(f"validate_boundary: '{name}' is not a known system boundary for functional unit '{fn_unit}'")
 
     @classmethod
     def units(cls):

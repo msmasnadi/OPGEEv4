@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
+	<Analysis name="test">
+		<A name="functional_unit">oil</A>
+		<A name="energy_basis">LHV</A>
+		<Field name="test"/>
+	</Analysis>
+
+	<Field name="test">
+		<A name="country">USA</A>
+		<A name="offshore">0</A>
+		<A name="age">86</A>
+		<A name="depth">4936</A>
+		<A name="oil_prod">101295</A>
+		<A name="num_prod_wells">41539</A>
+		<A name="num_water_inj_wells">34426</A>
+		<A name="well_diam">3.01</A>
+		<A name="prod_index">37.53</A>
+		<A name="res_press">887.31</A>
+		<A name="res_temp">70.84</A>
+		<A name="GOR">1205.4</A>
+
+		<Process class="Proc1" desc="Test process 1"/>
+		<Process class="Proc2" desc="Test process 2"/>
+		<Process class="Proc3" desc="Test process 3"/>
+		<Process class="Proc4" desc="Test process 4"/>
+
+		<Stream src="Proc1" dst="Proc2" name="stream1">
+			<Contains>crude oil</Contains>
+		</Stream>
+
+		<!-- Creates a process loop -->
+		<Stream src="Proc2" dst="Proc3">
+			<Contains>natural gas</Contains>
+		</Stream>
+
+		<Stream src="Proc3" dst="Proc2">
+			<Contains>hydrogen</Contains>
+		</Stream>
+
+		<Stream src="Proc3" dst="Proc4">
+			<Contains>CO2</Contains>
+			<Contains>hydrogen</Contains>
+		</Stream>
+	</Field>
+</Model>

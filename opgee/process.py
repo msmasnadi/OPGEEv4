@@ -6,6 +6,7 @@
 '''
 import pandas as pd
 import pint
+from typing import Union
 
 from . import ureg
 from .attributes import AttrDefs, AttributeMixin
@@ -354,7 +355,7 @@ class Process(XmlInstantiable, AttributeMixin):
         """
         return self.field.find_stream(name, raiseError=raiseError)
 
-    def find_streams_by_type(self, direction, stream_type, combine=False, as_list=False, raiseError=True) -> Stream:
+    def _find_streams_by_type(self, direction, stream_type, combine=False, as_list=False, raiseError=True) -> Union[Stream, list]:
         """
         Find the input or output streams (indicated by `direction`) that contain the indicated
         `stream_type`, e.g., 'crude oil', 'raw water' and so on.
@@ -367,23 +368,22 @@ class Process(XmlInstantiable, AttributeMixin):
         :return: (Stream, list or dict of Streams) depends on various keyword args
         :raises: OpgeeException if no processes handling `stream_type` are found and `raiseError` is True
         """
-        oil = self.field.oil
-
         if combine and as_list:
             raise OpgeeException(f"_find_streams_by_type: both 'combine' and 'as_list' cannot be True")
 
+        assert direction in {self.INPUT, self.OUTPUT}
         stream_list = self.inputs if direction == self.INPUT else self.outputs
         streams = [stream for stream in stream_list if stream.enabled and stream.contains(stream_type)]
 
         if not streams and raiseError:
             raise OpgeeException(f"{self}: no {direction} streams contain '{stream_type}'")
 
-        return combine_streams(streams, oil.API) if combine else (
+        return combine_streams(streams, self.field.oil.API) if combine else (
             streams if as_list else {s.name: s for s in streams})
 
-    def find_input_streams(self, stream_type, combine=False, as_list=False, raiseError=True):
+    def find_input_streams(self, stream_type, combine=False, as_list=False, raiseError=True) -> list:
         """
-        Convenience method to call `find_streams_by_type` with direction "input"
+        Convenience method to call `_find_streams_by_type` with direction "input"
 
         :param stream_type: (str) the generic type of stream a process can handle.
         :param combine: (bool) whether to (thermodynamically) combine multiple Streams into a single one
@@ -392,12 +392,12 @@ class Process(XmlInstantiable, AttributeMixin):
         :return: (Stream, list or dict of Streams) depends on various keyword args
         :raises: OpgeeException if no processes handling `stream_type` are found and `raiseError` is True
         """
-        return self.find_streams_by_type(self.INPUT, stream_type, combine=combine, as_list=as_list,
-                                         raiseError=raiseError)
+        return self._find_streams_by_type(self.INPUT, stream_type, combine=combine, as_list=as_list,
+                                          raiseError=raiseError)
 
-    def find_output_streams(self, stream_type, combine=False, as_list=False, raiseError=True):
+    def find_output_streams(self, stream_type, combine=False, as_list=False, raiseError=True) -> list:
         """
-        Convenience method to call `find_streams_by_type` with direction "output"
+        Convenience method to call `_find_streams_by_type` with direction "output"
 
         :param stream_type: (str) the generic type of stream a process can handle.
         :param combine: (bool) whether to (thermodynamically) combine multiple Streams into a single one
@@ -406,10 +406,10 @@ class Process(XmlInstantiable, AttributeMixin):
         :return: (Stream, list or dict of Streams) depends on various keyword args
         :raises: OpgeeException if no processes handling `stream_type` are found and `raiseError` is True
         """
-        return self.find_streams_by_type(self.OUTPUT, stream_type, combine=combine, as_list=as_list,
-                                         raiseError=raiseError)
+        return self._find_streams_by_type(self.OUTPUT, stream_type, combine=combine, as_list=as_list,
+                                          raiseError=raiseError)
 
-    def find_input_stream(self, stream_type, raiseError=True) -> Stream:
+    def find_input_stream(self, stream_type, raiseError=True) -> Union[Stream, None]:
         """
         Find exactly one input stream connected to a downstream Process that produces the indicated
         `stream_type`, e.g., 'crude oil', 'raw water' and so on.
@@ -428,7 +428,7 @@ class Process(XmlInstantiable, AttributeMixin):
 
         return streams[0]
 
-    def find_output_stream(self, stream_type, raiseError=True) -> Stream:
+    def find_output_stream(self, stream_type, raiseError=True) -> Union[Stream, None]:
         """
         Find exactly one output stream connected to a downstream Process that consumes the indicated
         `stream_type`, e.g., 'crude oil', 'raw water' and so on.
@@ -462,7 +462,7 @@ class Process(XmlInstantiable, AttributeMixin):
     def set_extend(self, extend):
         self.extend = extend
 
-    def predecessors(self):
+    def predecessors(self) -> set:
         """
         Return a Process's immediate precedent Processes.
 
@@ -472,7 +472,7 @@ class Process(XmlInstantiable, AttributeMixin):
         procs = set([stream.src_proc for stream in self.inputs])
         return procs
 
-    def successors(self):
+    def successors(self) -> set:
         """
         Return a Process's immediately following Processes.
 
