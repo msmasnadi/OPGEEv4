@@ -328,14 +328,14 @@ def water_instance(test_model):
 
 def test_water_density(water_instance):
     density = water_instance.density()
-    assert density == ureg.Quantity(pytest.approx(1004.12839), "kg/m**3")
+    assert density == ureg.Quantity(pytest.approx(1004.12839, rel=1e-5), "kg/m**3")
 
 
 def test_water_volume_rate(water_instance):
     stream = Stream("water stream", temperature=200, pressure=1556.6)
     stream.set_flow_rate("H2O", "liquid", 1962.61672)
     volume_flow_rate = water_instance.volume_flow_rate(stream)
-    assert volume_flow_rate == ureg.Quantity(pytest.approx(12293.734), "bbl_water/day")
+    assert volume_flow_rate == ureg.Quantity(pytest.approx(12293.734, rel=1e-5), "bbl_water/day")
 
 
 def test_water_specific_heat(water_instance):

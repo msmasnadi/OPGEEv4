@@ -65,23 +65,23 @@ class TransmissionCompressor(Process):
         # Along-pipeline booster compressor properties
 
 
-        # energy-use
-        energy_use = self.energy
-        if self.prime_mover_type == "NG_engine" or "NG_turbine":
-            energy_carrier = EN_NATURAL_GAS
-        elif self.prime_mover_type == "Electric_motor":
-            energy_carrier = EN_ELECTRICITY
-        else:
-            energy_carrier = EN_DIESEL
-        energy_use.set_rate(energy_carrier, energy_consumption)
+        # # energy-use
+        # energy_use = self.energy
+        # if self.prime_mover_type == "NG_engine" or "NG_turbine":
+        #     energy_carrier = EN_NATURAL_GAS
+        # elif self.prime_mover_type == "Electric_motor":
+        #     energy_carrier = EN_ELECTRICITY
+        # else:
+        #     energy_carrier = EN_DIESEL
+        # energy_use.set_rate(energy_carrier, energy_consumption)
 
-        # emissions
-        emissions = self.emissions
-        energy_for_combustion = energy_use.data.drop("Electricity")
-        combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.add_rate(EM_COMBUSTION, "CO2", combustion_emission)
-
-        # emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
+        # # emissions
+        # emissions = self.emissions
+        # energy_for_combustion = energy_use.data.drop("Electricity")
+        # combustion_emission = (energy_for_combustion * self.process_EF).sum()
+        # emissions.add_rate(EM_COMBUSTION, "CO2", combustion_emission)
+        #
+        # # emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
 
 
 

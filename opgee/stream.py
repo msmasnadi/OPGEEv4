@@ -79,7 +79,7 @@ class Stream(XmlInstantiable, AttributeMixin):
     _phases = [PHASE_SOLID, PHASE_LIQUID, PHASE_GAS]
 
     # HCs with 1-60 carbon atoms, i.e., C1, C2, ..., C50
-    max_carbon_number = 50
+    max_carbon_number = 10
     _hydrocarbons = [f'C{n}' for n in range(1, max_carbon_number + 1)]
 
     # All hydrocarbon gases other than methane (C1) are considered VOCs.

@@ -15,7 +15,7 @@ dependencies:
   - lxml>=4.6.1
   - llvmlite
   - networkx
-  - numba>=0.51.2
+  - numba>=0.53.1
   - numpy>=1.9.1
   - pandas>=1.1.3
   - pint
@@ -33,6 +33,7 @@ dependencies:
   - traitlets
   - urllib3
   - pip:
-    - thermosteam==0.25.4
+    - thermosteam>=0.25.4
     - semver>=3.0.0.dev2
     - dash-cytoscape==0.2.0
+    - pyXSteam
