@@ -359,7 +359,7 @@ def _main(argv=None):
         if ns.projectName:        # add these back in for the batch script
             otherArgs = ['+P', ns.projectName] + otherArgs
 
-        tool.runBatch(otherArgs, run=run)
+        tool.runBatch(otherArgs, run=run)   # type: ignore
     else:
         tool.shellArgs = otherArgs  # save for project run method to use in "distribute" mode
         args = tool.parser.parse_args(args=otherArgs)

@@ -534,8 +534,6 @@ class Field(Container):
 
         :return: none
         """
-        import logging
-
         visited = {}  # traverse a process only the first time it's encountered
 
         def debug(msg):

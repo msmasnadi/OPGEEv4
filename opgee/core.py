@@ -243,8 +243,6 @@ class A(OpgeeObject):
         conversion and `unit` to define a pint `Quantity`, if given.
 
         :param value: (str, numerical, or pint.Quantity) the value to possibly convert
-        :param pytype: (type) a Python type
-        :param unit: (str) a pint unit name
         :return: the value, converted to `pytype`, and with `unit`, if specified.
         """
         if value is None:

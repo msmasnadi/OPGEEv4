@@ -8,7 +8,6 @@
 '''
 import pkgutil
 import io
-import os
 from .error import OpgeeException
 
 DFLT_ENCODING = 'utf-8'
