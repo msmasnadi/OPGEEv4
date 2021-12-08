@@ -1,5 +1,18 @@
 from opgee.config import pathjoin
 from opgee.model import ModelFile
+from opgee.process import Process
+
+class ProcA(Process):
+    def run(self, analysis):
+        pass
+
+class ProcB(Process):
+    def run(self, analysis):
+        pass
+
+class ProcC(Process):
+    def run(self, analysis):
+        pass
 
 def path_to_test_file(filename):
     path = pathjoin(__file__, '..', f'files/{filename}', abspath=True)

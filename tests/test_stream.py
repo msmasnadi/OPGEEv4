@@ -1,14 +1,25 @@
 import pytest
 from opgee.error import OpgeeException
 from opgee.process import Process
-from opgee.stream import Stream
 
 from .utils_for_tests import load_test_model
 
-class Proc1(Process): pass
-class Proc2(Process): pass
-class Proc3(Process): pass
-class Proc4(Process): pass
+class Proc1(Process):
+    def run(self, analysis):
+        pass
+
+class Proc2(Process):
+    def run(self, analysis):
+        pass
+
+class Proc3(Process):
+    def run(self, analysis):
+        pass
+
+class Proc4(Process):
+    def run(self, analysis):
+        pass
+
 
 @pytest.fixture(scope="function")
 def stream_model(configure_logging_for_tests):

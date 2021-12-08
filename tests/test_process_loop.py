@@ -5,15 +5,14 @@ from opgee.stream import Stream
 from opgee.process import Process
 from .utils_for_tests import path_to_test_file
 
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def process_loop_model(configure_logging_for_tests):
     xml_path = path_to_test_file('test_process_loop_model.xml')
     mf = ModelFile(xml_path, add_stream_components=False, use_class_path=False)
     return mf.model
 
-class After(Process): pass
 
-class Proc1(Process):
+class LoopProc1(Process):
     def run(self, analysis):
         # find appropriate streams by checking connected processes' capabilities
         oil_flow_rate = ureg.Quantity(100.0, Stream.units())
@@ -22,7 +21,7 @@ class Proc1(Process):
         out_stream.set_liquid_flow_rate('oil', oil_flow_rate)
 
 
-class Proc2(Process):
+class LoopProc2(Process):
     def run(self, analysis):
         h2_stream  = self.find_input_stream('hydrogen')
         h2_rate = h2_stream.gas_flow_rate('H2')
@@ -35,7 +34,7 @@ class Proc2(Process):
         self.set_iteration_value(ng_rate)
 
 
-class Proc3(Process):
+class LoopProc3(Process):
     def run(self, analysis):
         ng_stream = self.find_input_stream('natural gas')
         ng_rate = ng_stream.gas_flow_rate('C1')
@@ -52,7 +51,7 @@ class Proc3(Process):
         self.set_iteration_value((h2_rate, co2_rate)) # test multiple values
 
 
-class Proc4(Process):
+class LoopProc4(Process):
     def run(self, analysis):
         from opgee.emissions import EM_FLARING
         co2_stream = self.find_input_stream('CO2')
@@ -61,7 +60,6 @@ class Proc4(Process):
         self.add_emission_rate(EM_FLARING, 'CO2', co2_rate)
 
 def test_process_loop(process_loop_model):
-    process_loop_model.validate()
     analysis = process_loop_model.get_analysis('test')
     field = analysis.get_field('test')
     field.run(analysis)

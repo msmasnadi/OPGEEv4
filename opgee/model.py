@@ -154,7 +154,7 @@ class Model(Container):
 
 class ModelFile(XMLFile):
     """
-    Represents the overall parameters.xml file.
+    Represents the overall opgee.xml file.
     """
 
     def __init__(self, filename, stream=None, add_stream_components=True, use_class_path=True, forget_boundaries=True):

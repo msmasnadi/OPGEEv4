@@ -4,13 +4,13 @@ from opgee import Process
 from opgee import Stream
 from .utils_for_tests import load_test_model
 
-class ProcA(Process):
+class BoundaryStreamsProcA(Process):
     pass
 
-class ProcB(Process):
+class BoundaryStreamsProcB(Process):
     pass
 
-class ProcC(Process):
+class BoundaryStreamsProcC(Process):
     pass
 
 @pytest.fixture(scope="module")
@@ -19,8 +19,7 @@ def boundary_model(configure_logging_for_tests):
 
 def test_boundary_streams(boundary_model):
     analysis = boundary_model.get_analysis('test_boundary_streams')
-    field = analysis.get_field('field1')
-    field.resolve_process_choices()
+    # field = analysis.get_field('field1')
 
     boundaries = Stream.boundaries()
 

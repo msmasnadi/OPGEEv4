@@ -32,5 +32,3 @@ def test_missing_group(gas_paths):
     with pytest.raises(OpgeeException, match="Process choice '.*' not found in field '.*'"):
         gas_paths.get_group('non-existent-group')
 
-# def test_resolve_choices(test_field):
-#     test_field.resolve_process_choices()

@@ -148,7 +148,7 @@ class Process(XmlInstantiable, AttributeMixin):
     In addition to testing for convergence, a "visit" counter in each ``Process`` is incremented each time the process
     is run (or bypassed) and if the count >= the Model's "maximum_iterations" attribute, ``OpgeeMaxIterationsReached``
     is likewise raised. Whichever limit is reached first will cause iterations to stop. Between model runs, the method
-    ``iteration_reset()`` is called for all processes to clear the visited counters and reset the iteration value to None.
+    ``field.reset()`` is called for all processes to clear the visited counters and reset the iteration value to None.
     """
 
     # Constants to support stream "finding" methods
@@ -199,6 +199,11 @@ class Process(XmlInstantiable, AttributeMixin):
         self.check_attr_constraints(self.attr_dict)
         self.process_EF = self.get_process_EF()
         self.field = self.get_field()
+
+    def reset(self):
+        self.energy.reset()
+        self.emissions.reset()
+        self.reset_iteration()
 
     #
     # Pass-through convenience methods for energy and emissions
@@ -568,7 +573,7 @@ class Process(XmlInstantiable, AttributeMixin):
     @classmethod
     def reset_all_iteration(cls):
         """
-        Reset the iteration value and counter in all interating processes.
+        Reset the iteration value and counter in all iterating processes.
 
         :return: none
         """
@@ -598,7 +603,7 @@ class Process(XmlInstantiable, AttributeMixin):
         :param analysis: (Analysis) the `Analysis` used to retrieve global settings
         :return: None
         """
-        raise AbstractMethodError(type(self), 'Process.run_internal')
+        raise AbstractMethodError(Process, 'Process.run')
 
     def check_balances(self):
         """
@@ -734,6 +739,7 @@ class Process(XmlInstantiable, AttributeMixin):
 
         if self.intermediate_results is None:
             return
+
         self.energy.reset()
         self.emissions.reset()
 
