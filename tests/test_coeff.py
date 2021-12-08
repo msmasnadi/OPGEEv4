@@ -2,7 +2,6 @@ import pytest
 import pandas as pd
 from opgee.process import run_corr_eqns
 
-
 def test_run_corr_eqns():
     df = pd.DataFrame(index=["intercept", 'x1', 'x2', 'x3', 'x4', 'x5', 'x1*x2', 'x1*x3',
                              'x1*x4', 'x1*x5', 'x2*x3', 'x2*x4', 'x2*x5', 'x3*x4',

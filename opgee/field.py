@@ -116,7 +116,7 @@ class Field(Container):
         except OpgeeStopIteration:
             raise OpgeeException("Impute failed due to a process loop. Use Stream attribute impute='0' to break cycle.")
 
-    def run(self, analysis):
+    def run(self, analysis, resolve_process_choices=True):
         """
         Run all Processes defined for this Field, in the order computed from the graph
         characteristics, using the settings in `analysis` (e.g., GWP).
@@ -127,13 +127,28 @@ class Field(Container):
         if self.is_enabled():
             _logger.debug(f"Running '{self}'")
 
-            self.reset_streams()
-            self.iteration_reset()
+            if resolve_process_choices:
+                self.resolve_process_choices()
+
+            self.reset()
             self._impute()
 
-            self.iteration_reset()
+            self.reset_iteration()
             self.run_processes(analysis)
+
             self.check_balances()
+
+    def reset(self):
+        self.reset_streams()
+        self.reset_processes()
+
+    def reset_iteration(self):
+        for proc in self.processes():
+            proc.reset_iteration()
+
+    def reset_processes(self):
+        for proc in self.processes():
+            proc.reset()    # also resets iteration
 
     def reset_streams(self):
         for stream in self.streams():
@@ -343,10 +358,6 @@ class Field(Container):
             raise OpgeeException(f"Process choice '{name}' not found in field '{self.name}'")
 
         return choice_node
-
-    def iteration_reset(self):
-        for proc in self.processes():
-            proc.reset_iteration()
 
     def find_stream(self, name, raiseError=True):
         """

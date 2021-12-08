@@ -1,4 +1,3 @@
-from ..error import AbstractMethodError
 from ..process import Process
 from ..log import getLogger
 
