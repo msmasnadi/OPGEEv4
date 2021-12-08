@@ -10,6 +10,7 @@ from typing import Union, Optional
 
 from . import ureg
 from .attributes import AttrDefs, AttributeMixin
+from .config import getParamAsBoolean
 from .core import OpgeeObject, XmlInstantiable, elt_name, instantiate_subelts, magnitude
 from .container import Container
 from .error import OpgeeException, AbstractMethodError, OpgeeIterationConverged, OpgeeMaxIterationsReached
@@ -38,16 +39,21 @@ def _subclass_dict(superclass):
 
     :return: (dict) subclasses keyed by name
     """
+    allow_redef = getParamAsBoolean('OPGEE.AllowProcessRedefinition')
+
     d = {}
-    classes = list(get_subclasses(superclass))
-    for cls in classes:
+
+    for cls in get_subclasses(superclass):
         name = cls.__name__
         if name in d:
-            print(f"Class '{name}' is defined by both {cls} and {d[name]}")
+            msg = f"Class '{name}' is defined by both {cls} and {d[name]}"
+            if allow_redef:
+                print(msg)
+            else:
+                raise OpgeeException(msg)
         else:
             d[name] = cls
 
-    # d = {cls.__name__: cls for cls in get_subclasses(superclass)}
     return d
 
 
