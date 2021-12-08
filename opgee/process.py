@@ -38,7 +38,16 @@ def _subclass_dict(superclass):
 
     :return: (dict) subclasses keyed by name
     """
-    d = {cls.__name__: cls for cls in get_subclasses(superclass)}
+    d = {}
+    classes = list(get_subclasses(superclass))
+    for cls in classes:
+        name = cls.__name__
+        if name in d:
+            print(f"Class '{name}' is defined by both {cls} and {d[name]}")
+        else:
+            d[name] = cls
+
+    # d = {cls.__name__: cls for cls in get_subclasses(superclass)}
     return d
 
 

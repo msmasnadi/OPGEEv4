@@ -3,15 +3,7 @@ from opgee import Process
 from .utils_for_tests import load_test_model
 
 
-class Before(Process):
-    def run(self, analysis):
-        pass
-
-    def impute(self):
-        pass
-
-
-class After(Process):
+class BoundaryBefore(Process):
     def run(self, analysis):
         pass
 
