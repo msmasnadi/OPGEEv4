@@ -2,7 +2,7 @@ from lxml import etree as ET
 import os
 import pkg_resources as pkg
 
-from .config import getConfigDict, getParam, stringTrue
+from .config import getConfigDict, getParam
 from .log import getLogger
 from .error import XmlFormatError
 

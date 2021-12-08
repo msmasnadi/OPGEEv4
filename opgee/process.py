@@ -6,10 +6,11 @@
 '''
 import pandas as pd
 import pint
-from typing import Union
+from typing import Union, Optional
 
 from . import ureg
 from .attributes import AttrDefs, AttributeMixin
+from .config import getParamAsBoolean
 from .core import OpgeeObject, XmlInstantiable, elt_name, instantiate_subelts, magnitude
 from .container import Container
 from .error import OpgeeException, AbstractMethodError, OpgeeIterationConverged, OpgeeMaxIterationsReached
@@ -38,14 +39,28 @@ def _subclass_dict(superclass):
 
     :return: (dict) subclasses keyed by name
     """
-    d = {cls.__name__: cls for cls in get_subclasses(superclass)}
+    allow_redef = getParamAsBoolean('OPGEE.AllowProcessRedefinition')
+
+    d = {}
+
+    for cls in get_subclasses(superclass):
+        name = cls.__name__
+        if name in d:
+            msg = f"Class '{name}' is defined by both {cls} and {d[name]}"
+            if allow_redef:
+                print(msg)
+            else:
+                raise OpgeeException(msg)
+        else:
+            d[name] = cls
+
     return d
 
 
 #
 # Cache of known subclasses of Aggregator and Process
 #
-_Subclass_dict = None
+_Subclass_dict : Optional[dict] = None
 
 
 def reload_subclass_dict():
@@ -360,7 +375,7 @@ class Process(XmlInstantiable, AttributeMixin):
         """
         return self.field.find_stream(name, raiseError=raiseError)
 
-    def _find_streams_by_type(self, direction, stream_type, combine=False, as_list=False, raiseError=True) -> Union[Stream, list]:
+    def _find_streams_by_type(self, direction, stream_type, combine=False, as_list=False, raiseError=True) -> Union[Stream, list, dict]:
         """
         Find the input or output streams (indicated by `direction`) that contain the indicated
         `stream_type`, e.g., 'crude oil', 'raw water' and so on.
@@ -386,7 +401,7 @@ class Process(XmlInstantiable, AttributeMixin):
         return combine_streams(streams, self.field.oil.API) if combine else (
             streams if as_list else {s.name: s for s in streams})
 
-    def find_input_streams(self, stream_type, combine=False, as_list=False, raiseError=True) -> list:
+    def find_input_streams(self, stream_type, combine=False, as_list=False, raiseError=True) -> Union[list, dict]:
         """
         Convenience method to call `_find_streams_by_type` with direction "input"
 
@@ -400,7 +415,7 @@ class Process(XmlInstantiable, AttributeMixin):
         return self._find_streams_by_type(self.INPUT, stream_type, combine=combine, as_list=as_list,
                                           raiseError=raiseError)
 
-    def find_output_streams(self, stream_type, combine=False, as_list=False, raiseError=True) -> list:
+    def find_output_streams(self, stream_type, combine=False, as_list=False, raiseError=True) -> Union[list, dict]:
         """
         Convenience method to call `_find_streams_by_type` with direction "output"
 
@@ -419,7 +434,6 @@ class Process(XmlInstantiable, AttributeMixin):
         Find exactly one input stream connected to a downstream Process that produces the indicated
         `stream_type`, e.g., 'crude oil', 'raw water' and so on.
 
-        :param direction: (str) 'input' or 'output'
         :param stream_type: (str) the generic type of stream a process can handle.
         :param raiseError: (bool) whether to raise an error if no handlers of `stream_type` are found.
         :return: (Streams or None)
@@ -438,7 +452,6 @@ class Process(XmlInstantiable, AttributeMixin):
         Find exactly one output stream connected to a downstream Process that consumes the indicated
         `stream_type`, e.g., 'crude oil', 'raw water' and so on.
 
-        :param direction: (str) 'input' or 'output'
         :param stream_type: (str) the generic type of stream a process can handle.
         :param raiseError: (bool) whether to raise an error if no handlers of `stream_type` are found.
         :return: (Streams or None)
@@ -533,7 +546,7 @@ class Process(XmlInstantiable, AttributeMixin):
 
             # TODO: we expect the series to have no units
             if isinstance(value, pd.Series):
-                diff = abs(value - prior_value)
+                diff = abs(value - prior_value) # type: pd.Series
                 if all(diff <= m.maximum_change):
                     self.iteration_converged = True
                     self.check_iterator_convergence()

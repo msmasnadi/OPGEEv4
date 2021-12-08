@@ -1,5 +1,5 @@
 import re
-from .config import getParam, getParamAsSequence
+from .config import getParamAsSequence
 from .container import Container
 from .core import elt_name, OpgeeObject
 from .error import OpgeeException

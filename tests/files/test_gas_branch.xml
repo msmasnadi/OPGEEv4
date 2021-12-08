@@ -109,7 +109,6 @@
 		<Process class="GasLiftingCompressor"/>
 		<Process class="GasReinjectionCompressor"/>
 		<Process class="GasFloodingCompressor"/>
-		<Process class="After"/>
 		<Process class="GasReinjectionWell"/>
 		<Process class="TransmissionCompressor"/>
 

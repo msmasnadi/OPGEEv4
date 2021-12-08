@@ -213,4 +213,3 @@ class ModelFile(XMLFile):
 
         # If we're reading a stream, we'll show that in the GUI
         self.model.set_pathname(str(stream) if stream else filename)
-        self.model

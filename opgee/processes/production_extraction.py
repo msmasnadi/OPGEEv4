@@ -9,31 +9,6 @@ class CrudeStorage(Process):
         self.print_running_msg()
 
 
-class GasLiftingCompressor(Process):
-    def run(self, analysis):
-        self.print_running_msg()
-
-
-class WaterInjection(Process):
-    def run(self, analysis):
-        self.print_running_msg()
-
-
-class GasReinjectionCompressor(Process):
-    def run(self, analysis):
-        self.print_running_msg()
-
-
-class GasFloodingCompressor(Process):
-    def run(self, analysis):
-        self.print_running_msg()
-
-
-class CO2ReinjectionCompressor(Process):
-    def run(self, analysis):
-        self.print_running_msg()
-
-
 class SourGasReinjectionCompressor(Process):
     def run(self, analysis):
         self.print_running_msg()
@@ -58,8 +33,4 @@ class SteamInjectionWells(Process):
     def run(self, analysis):
         self.print_running_msg()
 
-
-class Flaring(Process):
-    def run(self, analysis):
-        self.print_running_msg()
 
