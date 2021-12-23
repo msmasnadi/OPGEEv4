@@ -1,6 +1,6 @@
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 from ..log import getLogger
 
 from .widgets import get_analysis_and_field, OpgeePane
@@ -18,7 +18,12 @@ class ResultsPane(OpgeePane):
                      # style={'textAlign': "center"},
                      ),
             html.Center(
-                dcc.Graph(id="ci-barchart", style={"width": "600px"}),
+                # "Summary GHG intensity"
+                dcc.Graph(id="ci-barchart",     style={"width": "440px"}),
+                html.Span("", style={'width': '50px', 'display': 'inline-block'}),
+
+                # "Summary energy consumption"
+                dcc.Graph(id="energy-barchart", style={"width": "440px"})
             ),
         ], className="row",
             style={  # 'display': 'flex',
@@ -48,9 +53,42 @@ class ResultsPane(OpgeePane):
 
         @app.callback(
             Output('ci-barchart', 'figure'),
+            Input('ci-text', 'children'),           # ensures that we run after ci_text
+            State('analysis-and-field', 'data'))
+        def ci_barchart(ci_text, analysis_and_field):
+            import pandas as pd
+            import plotly.graph_objs as go
+
+            analysis, field = get_analysis_and_field(model, analysis_and_field)
+
+            fn_unit = analysis.attr('functional_unit')
+            energy = field.boundary_energy_flow
+
+            def partial_ci(obj):
+                ghgs = obj.emissions.data.sum(axis='columns')['GHG']
+                ci = ghgs / energy
+                return ci.to('grams/MJ')
+
+            # Show results for top-level aggregators and procs for the selected field
+            top_level = [(obj.name, partial_ci(obj)) for obj in field.aggs + field.procs]
+
+            df = pd.DataFrame({"category": [pair[0] for pair in top_level],
+                               "value": [pair[1] for pair in top_level],
+                               "unit": [fn_unit] * len(top_level)})
+
+            fig = go.Figure(data=[go.Bar(name=row.category, x=[row.unit], y=[row.value], width=[0.7]) for idx, row in df.iterrows()],
+                            layout=go.Layout(barmode='stack'))
+
+            fig.update_layout(yaxis_title="g CO2 per MJ",  # doesn't render in latex: r'g CO$_2$ MJ$^{-1}$',
+                              xaxis_title=f'Carbon Intensity of {fn_unit.title()}')
+
+            return fig
+
+        @app.callback(
+            Output('energy-barchart', 'figure'),
             Input('run-button', 'n_clicks'),
             Input('analysis-and-field', 'data'))
-        def ci_barchart(n_clicks, analysis_and_field):
+        def energy_barchart(n_clicks, analysis_and_field):
             import pandas as pd
             import plotly.graph_objs as go
 

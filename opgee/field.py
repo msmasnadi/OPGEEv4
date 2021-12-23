@@ -163,29 +163,52 @@ class Field(Container):
         for p in self.processes():
             p.check_balances()
 
-    def compute_carbon_intensity(self, analysis):
-        rates = self.emissions.rates(analysis.gwp)
-        emissions = rates.loc['GHG'].sum()
+    def energy_flow_rate(self, analysis, raiseError=True):
+        """
+        Return the energy flow rate for the user's chosen system boundary, functional
+        unit (oil vs gas), and energy basis (LHV vs HHV)
 
-        def check_value(attr_name, choices):
+        :param analysis: (opgee.Analysis) the chosen `Analysis` object
+        :param raiseError: (bool) whether to raise an error if the energy flow is zero at the boundary
+        :return: (pint.Quantity) the energy flow at the boundary
+        """
+
+        def _check_value(attr_name, choices):
             value = analysis.attr(attr_name)
             if not value in choices:
                 raise OpgeeException(f"compute_carbon_intensity: {attr_name} is {value}; must be one of {choices}")
 
             return value
 
-        fn_unit = check_value("functional_unit", analysis.functional_units)
-        energy_basis = check_value("energy_basis", analysis.energy_bases)
+        fn_unit = _check_value("functional_unit", analysis.functional_units) # {oil, gas}
+        use_LHV = _check_value("energy_basis", analysis.energy_bases) == 'LHV'
 
         boundary_attr = fn_unit + '_boundary'       # {oil_boundary, gas_boundary}
         boundary = self.attr(boundary_attr)         # {Production, Transportation, Distribution}
         Stream.validate_boundary(boundary, fn_unit=fn_unit)
 
         boundary_stream = Stream.boundary_stream(boundary)
-        self.boundary_energy_flow = energy = self.gas.energy_flow_rate(boundary_stream, energy_basis)
+
+        obj = self.oil if fn_unit == 'oil' else self.gas
+        energy = obj.energy_flow_rate(boundary_stream, use_LHV=use_LHV)
 
         if energy.m == 0:
-            raise OpgeeException(f"compute_carbon_intensity: zero energy flow rate in {boundary} boundary stream {boundary_stream}")
+            msg = f"energy_flow_rate: zero energy flow rate for {boundary} boundary stream {boundary_stream}"
+            if raiseError:
+                raise OpgeeException(msg)
+            else:
+                _logger.warning(msg)
+
+        self.boundary_energy_flow = energy
+        return energy
+
+    def compute_carbon_intensity(self, analysis):
+        rates = self.emissions.rates(analysis.gwp)
+        emissions = rates.loc['GHG'].sum()
+        energy = self.energy_flow_rate(analysis, raiseError=False)
+
+        if energy.m == 0:
+            raise OpgeeException(f"compute_carbon_intensity: zero energy flow rate at boundary stream")
 
         self.carbon_intensity = ci = (emissions / energy).to('grams/MJ')
         return ci

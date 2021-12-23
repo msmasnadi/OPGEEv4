@@ -80,11 +80,11 @@ class GasPartition(Process):
         energy_sum = self.field.sum_process_energy(processes_to_exclude=excluded)
         NG_energy_sum = energy_sum.get_rate(EN_NATURAL_GAS)
 
-        NG_LHV = self.gas.mass_energy_density(gas_to_reinjection)
+        NG_LHV = self.gas.mass_energy_density(gas_to_reinjection, use_LHV=True)
         is_gas_to_reinjection_empty = False
         if NG_LHV.m == 0:
             is_gas_to_reinjection_empty = True
-            NG_LHV = self.gas.mass_energy_density(self.imported_gas_stream)
+            NG_LHV = self.gas.mass_energy_density(self.imported_gas_stream, use_LHV=True)
         NG_mass = NG_energy_sum / NG_LHV
         NG_consumption_stream = Stream(name="NG_consump_stream",
                                        temperature=gas_to_reinjection.temperature,
