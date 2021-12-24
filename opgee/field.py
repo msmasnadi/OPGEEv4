@@ -163,37 +163,54 @@ class Field(Container):
         for p in self.processes():
             p.check_balances()
 
+    # TODO: maybe move to Analysis
+    @staticmethod
+    def _check_attr_value(analysis, attr_name, choices):
+        value = analysis.attr(attr_name)
+        if not value in choices:
+            raise OpgeeException(f"compute_carbon_intensity: {attr_name} is {value}; must be one of {choices}")
+
+        return value
+
+    def _boundary_name(self, analysis):
+        fn_unit = analysis.functional_unit
+
+        boundary_attr = fn_unit + '_boundary'       # {oil_boundary, gas_boundary}
+        boundary_name = self.attr(boundary_attr)    # {Production, Transportation, Distribution}
+
+        Stream.validate_boundary(boundary_name, fn_unit=fn_unit)
+
+        return boundary_name
+
+    # TODO: this seems a bit wrong: An analysis with multiple fields will have a boundary stream for each field.
+    def boundary_stream(self, analysis) -> Stream:
+        """
+        Return the currently chosen boundary stream.
+
+        :return: (opgee.Stream) the currently chosen boundary stream
+        """
+        boundary_name = self._boundary_name(analysis)
+        boundary_stream = Stream.boundary_stream(boundary_name)
+        return boundary_stream
+
     def energy_flow_rate(self, analysis, raiseError=True):
         """
-        Return the energy flow rate for the user's chosen system boundary, functional
-        unit (oil vs gas), and energy basis (LHV vs HHV)
+        Return the energy flow rate for the user's chosen system boundary, functional unit
+        (oil vs gas), and energy basis (LHV vs HHV)
 
         :param analysis: (opgee.Analysis) the chosen `Analysis` object
         :param raiseError: (bool) whether to raise an error if the energy flow is zero at the boundary
         :return: (pint.Quantity) the energy flow at the boundary
         """
-
-        def _check_value(attr_name, choices):
-            value = analysis.attr(attr_name)
-            if not value in choices:
-                raise OpgeeException(f"compute_carbon_intensity: {attr_name} is {value}; must be one of {choices}")
-
-            return value
-
-        fn_unit = _check_value("functional_unit", analysis.functional_units) # {oil, gas}
-        use_LHV = _check_value("energy_basis", analysis.energy_bases) == 'LHV'
-
-        boundary_attr = fn_unit + '_boundary'       # {oil_boundary, gas_boundary}
-        boundary = self.attr(boundary_attr)         # {Production, Transportation, Distribution}
-        Stream.validate_boundary(boundary, fn_unit=fn_unit)
-
-        boundary_stream = Stream.boundary_stream(boundary)
+        fn_unit = analysis.functional_unit
+        boundary_stream = self.boundary_stream(analysis)
+        boundary_name = boundary_stream.boundary
 
         obj = self.oil if fn_unit == 'oil' else self.gas
-        energy = obj.energy_flow_rate(boundary_stream, use_LHV=use_LHV)
+        energy = obj.energy_flow_rate(boundary_stream, use_LHV=analysis.use_LHV)
 
         if energy.m == 0:
-            msg = f"energy_flow_rate: zero energy flow rate for {boundary} boundary stream {boundary_stream}"
+            msg = f"energy_flow_rate: zero energy flow rate for {boundary_name} boundary stream {boundary_stream}"
             if raiseError:
                 raise OpgeeException(msg)
             else:

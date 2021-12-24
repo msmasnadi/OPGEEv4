@@ -148,7 +148,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.src_proc = None  # set in Field.connect_processes()
         self.dst_proc = None
 
-        self.boundary = boundary    # indicates name of boundary this stream crosses, or None
+        self.boundary = boundary    # the name of the boundary this stream defines, or None
         if boundary:
             stream = self.boundary_dict.get(boundary)
             if stream:
@@ -212,6 +212,50 @@ class Stream(XmlInstantiable, AttributeMixin):
 
         if not name in valid_names:
             raise OpgeeException(f"validate_boundary: '{name}' is not a known system boundary for functional unit '{fn_unit}'")
+
+    def within_boundary(self):
+        """
+        If `self` is a boundary stream, return the list of processes within the boundary.
+        The boundary stream must not be in a cycle.
+        """
+        if self.boundary is None:
+            raise OpgeeException(f"within_boundary: '{self}' is not a boundary stream.")
+
+        visited = dict()
+
+        def _visit(proc):
+            if proc is None or visited.get(id(proc), False):
+                return
+
+            visited[id(proc)] = proc
+
+            for p in proc.predecessors():
+                _visit(p)
+
+        _visit(self.src_proc)
+        return set(visited)
+
+    def beyond_boundary(self):
+        """
+        If `self` is a boundary stream, return the list of processes beyond the boundary.
+        The boundary stream must not be in a cycle.
+        """
+        if self.boundary is None:
+            raise OpgeeException(f"beyond_boundary: '{self}' is not a boundary stream.")
+
+        visited = dict()
+
+        def _visit(proc):
+            if proc is None or visited.get(id(proc), False):
+                return
+
+            visited[id(proc)] = proc
+
+            for p in proc.successors():
+                _visit(p)
+
+        _visit(self.dst_proc)
+        return set(visited)
 
     @classmethod
     def units(cls):

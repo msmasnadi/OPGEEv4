@@ -1,12 +1,14 @@
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
+from ..error import OpgeeException
 from ..log import getLogger
 
-from .widgets import get_analysis_and_field, OpgeePane
+from .widgets import get_analysis_and_field, OpgeePane, horiz_space
 
 _logger = getLogger(__name__)
 
+barchart_style = {"width": "440px", 'display': 'inline-block'}
 
 class ResultsPane(OpgeePane):
 
@@ -17,13 +19,11 @@ class ResultsPane(OpgeePane):
                      className="row",
                      # style={'textAlign': "center"},
                      ),
-            html.Center(
-                # "Summary GHG intensity"
-                dcc.Graph(id="ci-barchart",     style={"width": "440px"}),
-                html.Span("", style={'width': '50px', 'display': 'inline-block'}),
-
-                # "Summary energy consumption"
-                dcc.Graph(id="energy-barchart", style={"width": "440px"})
+            html.Center([
+                dcc.Graph(id="ci-barchart",     style=barchart_style),
+                horiz_space,
+                dcc.Graph(id="energy-barchart", style=barchart_style)
+                ]
             ),
         ], className="row",
             style={  # 'display': 'flex',
@@ -46,7 +46,13 @@ class ResultsPane(OpgeePane):
         def ci_text(n_clicks, analysis_and_field):
             analysis, field = get_analysis_and_field(model, analysis_and_field)
 
-            ci = field.compute_carbon_intensity(analysis)
+            try:
+                ci = field.compute_carbon_intensity(analysis)
+            except OpgeeException as e:
+                from .. import ureg
+                _logger.warning(f"ci_text: {e}")
+                ci = ureg.Quantity(0, "grams/MJ")
+
             fn_unit = analysis.attr('functional_unit')
             en_basis = analysis.attr('energy_basis')
             return f"CI: {ci.m:0.2f} g CO2e/MJ {en_basis} of {fn_unit}"
@@ -62,7 +68,7 @@ class ResultsPane(OpgeePane):
             analysis, field = get_analysis_and_field(model, analysis_and_field)
 
             fn_unit = analysis.attr('functional_unit')
-            energy = field.boundary_energy_flow
+            energy = field.energy_flow_rate(analysis)
 
             def partial_ci(obj):
                 ghgs = obj.emissions.data.sum(axis='columns')['GHG']
@@ -76,11 +82,11 @@ class ResultsPane(OpgeePane):
                                "value": [pair[1] for pair in top_level],
                                "unit": [fn_unit] * len(top_level)})
 
-            fig = go.Figure(data=[go.Bar(name=row.category, x=[row.unit], y=[row.value], width=[0.7]) for idx, row in df.iterrows()],
+            fig = go.Figure(data=[go.Bar(name=row.category, x=[row.unit], y=[row.value.m], width=[0.7]) for idx, row in df.iterrows()],
                             layout=go.Layout(barmode='stack'))
 
-            fig.update_layout(yaxis_title="g CO2 per MJ",  # doesn't render in latex: r'g CO$_2$ MJ$^{-1}$',
-                              xaxis_title=f'Carbon Intensity of {fn_unit.title()}')
+            fig.update_layout(yaxis_title=f"g CO2 per MJ of {fn_unit.title()}",  # doesn't render in latex: r'g CO$_2$ MJ$^{-1}$',
+                              xaxis_title='Carbon Intensity')
 
             return fig
 
@@ -95,24 +101,29 @@ class ResultsPane(OpgeePane):
             analysis, field = get_analysis_and_field(model, analysis_and_field)
 
             fn_unit = analysis.attr('functional_unit')
-            energy = field.boundary_energy_flow
 
-            def partial_ci(obj):
-                ghgs = obj.emissions.data.sum(axis='columns')['GHG']
-                ci = ghgs / energy
-                return ci.to('grams/MJ')
+            # TBD: need to identify procs / aggs outside the boundary of interest
+            #      and subtract their energy use from total.
+            # TBD: this raises a point about a "properly defined field", which we should
+            #      clearly document. System boundaries cannot be in loops; they must
+            #      cleanly divide the network into parts before it and parts after it.
+            #      No aggregator should contain procs within *and* beyond the current boundary.
+            #      Add these checks as Field.validation(). All XmlInstantiables implement validate()?
+            energy = field.energy_flow_rate(analysis)
+            boundary_stream = field.boundary_stream(analysis)
+            beyond = boundary_stream.beyond_boundary()
 
-            # Show results for top-level aggregators and procs for the selected field
-            top_level = [(obj.name, partial_ci(obj)) for obj in field.aggs + field.procs]
+            # Show results for top-level aggregators and procs for the selected field that are within the boundary
+            top_level = [(obj.name, obj.energy.data.sum()/energy) for obj in field.aggs + field.procs if obj not in beyond]
 
             df = pd.DataFrame({"category": [pair[0] for pair in top_level],
                                "value": [pair[1] for pair in top_level],
                                "unit": [fn_unit] * len(top_level)})
 
-            fig = go.Figure(data=[go.Bar(name=row.category, x=[row.unit], y=[row.value]) for idx, row in df.iterrows()],
+            fig = go.Figure(data=[go.Bar(name=row.category, x=[row.unit], y=[row.value], width=[0.7]) for idx, row in df.iterrows()],
                             layout=go.Layout(barmode='stack'))
 
-            fig.update_layout(yaxis_title="g CO2 per MJ",  # doesn't render in latex: r'g CO$_2$ MJ$^{-1}$',
-                              xaxis_title=f'Carbon Intensity of {fn_unit.title()}')
+            fig.update_layout(yaxis_title=f"MJ per MJ of {fn_unit.title()}",
+                              xaxis_title='Energy consumption')
 
             return fig

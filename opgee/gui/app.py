@@ -7,7 +7,7 @@ from dash.dependencies import Input, Output, State, ClientsideFunction
 from ..model import ModelFile
 from ..log import getLogger
 
-from .widgets import get_analysis_and_field
+from .widgets import get_analysis_and_field, horiz_space, pulldown_style, label_style
 
 _logger = getLogger(__name__)
 
@@ -22,19 +22,6 @@ _logger = getLogger(__name__)
 
 def app_layout(app, model, analysis):
     analysis_names = [analysis.name for analysis in model.analyses()]
-
-    pulldown_style = {
-        'width': '200px',
-        'textAlign': 'center',
-        'vertical-align': 'middle',
-        'display': 'inline-block'
-    }
-
-    label_style = {
-        'font-weight': 'bold'
-    }
-
-    horiz_space = html.Span("", style={'width': '50px', 'display': 'inline-block'})
 
     # noinspection PyCallingNonCallable
     layout = html.Div([
@@ -116,9 +103,6 @@ def app_layout(app, model, analysis):
         ])
     ])
     return layout
-
-
-
 
 
 def main(args):

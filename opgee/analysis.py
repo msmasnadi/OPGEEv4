@@ -31,6 +31,9 @@ class Analysis(Container):
         self.functional_units = None
         self.energy_bases = None
 
+        self.functional_unit = None
+        self.use_LHV = None            # set from attribute in _after_init()
+
         self.oil_boundaries = None      # should this be in Stream?
         self.gas_boundaries = None
 
@@ -68,6 +71,9 @@ class Analysis(Container):
         # Create validation sets from system.cfg to avoid hardcoding these
         self.functional_units = getParamAsSequence('OPGEE.FunctionalUnits', return_type='set')
         self.energy_bases     = getParamAsSequence('OPGEE.EnergyBases', return_type='set')
+
+        self.functional_unit = self.attr("functional_unit")
+        self.use_LHV = self.attr("energy_basis") == 'LHV'
 
     def get_field(self, name, raiseError=True) -> Field:
         """

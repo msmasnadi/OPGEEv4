@@ -949,28 +949,33 @@ class Output(Process):
     def run(self, analysis):
         self.print_running_msg()
 
-        fn_unit = analysis.attr('functional_unit')
-        en_basis = analysis.attr('energy_basis')
-        oil = self.field.oil
-
-        heating_values = oil.component_LHV_mass if en_basis == 'LHV' else oil.component_HHV_mass
-
-        inputs = self.inputs
-        zero_mass_rate = None if inputs else ureg.Quantity(0.0, Stream._units)
-
-        if fn_unit == 'oil':
-            mass_rate = sum([stream.liquid_flow_rate('oil') for stream in inputs]) if inputs else zero_mass_rate
-            energy_flow = mass_rate * heating_values['oil']
-
-        elif fn_unit == 'gas':
-            mass_rates = sum(
-                [stream.component[PHASE_GAS] * heating_values for stream in inputs]) if inputs else zero_mass_rate
-            energy_flow = sum(mass_rates * heating_values)
-
-        else:
-            raise OpgeeException(f"Unknown functional unit: '{fn_unit}'")  # should never happen
-
-        self.energy_flow = energy_flow.to("MJ/day")
+        # fn_unit = analysis.attr('functional_unit')
+        # en_basis = analysis.attr('energy_basis')
+        # oil = self.field.oil
+        #
+        # # TODO: Wennan, is this correct for gas as well?
+        # heating_values = oil.component_LHV_mass if en_basis == 'LHV' else oil.component_HHV_mass
+        #
+        # inputs = self.inputs
+        #
+        # if not inputs:
+        #     return ureg.Quantity(0.0, "MJ/day")
+        #
+        # # zero_mass_rate = None if inputs else ureg.Quantity(0.0, Stream._units)
+        #
+        # if fn_unit == 'oil':
+        #     mass_rate = sum([stream.liquid_flow_rate('oil') for stream in inputs])
+        #     energy_flow = mass_rate * heating_values['oil']
+        #
+        # elif fn_unit == 'gas':
+        #     mass_rates = sum([stream.components.loc[heating_values.index, PHASE_GAS] * heating_values
+        #                       for stream in inputs])
+        #     energy_flow = sum(mass_rates * heating_values)
+        #
+        # else:
+        #     raise OpgeeException(f"Unknown functional unit: '{fn_unit}'")  # should never happen
+        #
+        # self.energy_flow = energy_flow.to("MJ/day")
 
 
 class Aggregator(Container):
