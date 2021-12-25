@@ -719,30 +719,6 @@ class Process(XmlInstantiable, AttributeMixin):
 
         return self.intermediate_results
 
-    def predict_blower_energy_use(self,
-                                  thermal_load,
-                                  air_cooler_delta_T,
-                                  water_press,
-                                  air_cooler_fan_eff,
-                                  air_cooler_speed_reducer_eff):
-        """
-        predict blower energy use per day.
-
-        :param air_cooler_speed_reducer_eff:
-        :param air_cooler_fan_eff:
-        :param water_press:
-        :param air_cooler_delta_T:
-        :param thermal_load: (float) thermal load (unit = btu/hr)
-        :return: (float) air cooling fan energy consumption (unit = "kWh/day)
-        """
-        field = self.field
-        blower_air_quantity = thermal_load / field.model.const("air-elevation-corr") / air_cooler_delta_T
-        blower_CFM = blower_air_quantity / field.model.const("air-density-ratio")
-        blower_delivered_hp = blower_CFM * water_press / air_cooler_fan_eff
-        blower_fan_motor_hp = blower_delivered_hp / air_cooler_speed_reducer_eff
-        air_cooler_energy_consumption = self.get_energy_consumption("Electric_motor", blower_fan_motor_hp)
-        return air_cooler_energy_consumption.to("kWh/day")
-
     def sum_intermediate_results(self):
         """
         Sum intermediate energy and emission results
@@ -949,12 +925,11 @@ class Output(Process):
     def run(self, analysis):
         self.print_running_msg()
 
-        # fn_unit = analysis.attr('functional_unit')
-        # en_basis = analysis.attr('energy_basis')
+        # fn_unit = analysis.fn_unit
         # oil = self.field.oil
         #
         # # TODO: Wennan, is this correct for gas as well?
-        # heating_values = oil.component_LHV_mass if en_basis == 'LHV' else oil.component_HHV_mass
+        # heating_values = oil.component_LHV_mass if analysis.use_LHV else oil.component_HHV_mass
         #
         # inputs = self.inputs
         #
@@ -977,7 +952,10 @@ class Output(Process):
         #
         # self.energy_flow = energy_flow.to("MJ/day")
 
-
+#
+# This class is defined here rather than in container.py to avoid import loops and to
+# allow the reference to Aggregator above.
+#
 class Aggregator(Container):
     def __init__(self, name, attr_dict=None, aggs=None, procs=None):
         super().__init__(name, attr_dict=attr_dict, aggs=aggs, procs=procs)

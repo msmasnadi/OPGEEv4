@@ -6,6 +6,7 @@ from opgee import ureg
 from ..compressor import Compressor
 from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
 from ..emissions import Emissions, EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
+from .shared import predict_blower_energy_use, get_energy_carrier
 
 _logger = getLogger(__name__)
 
@@ -91,21 +92,14 @@ class AcidGasRemoval(Process):
         x5 = feed_gas_press
         corr_result_df = run_corr_eqns(x1, x2, x3, x4, x5, self.AGR_table.loc[:, self.type_amine_AGR])
         reboiler_heavy_duty = ureg.Quantity(max(0, corr_result_df["Reboiler"] * gas_multiplier), "kW")
-        pump_duty = ureg.Quantity(max(0, corr_result_df["Pump"] * gas_multiplier), "kW")
         condenser_thermal_load = ureg.Quantity(max(0, corr_result_df["Condenser"] * gas_multiplier), "kW")
         cooler_thermal_load = ureg.Quantity(max(0, corr_result_df["Cooler"] * gas_multiplier), "kW")
         reboiler_fuel_use = reboiler_heavy_duty * self.eta_reboiler_AGR
 
-        condenser_energy_consumption = self.predict_blower_energy_use(condenser_thermal_load,
-                                                                      self.air_cooler_delta_T,
-                                                                      self.water_press,
-                                                                      self.air_cooler_fan_eff,
-                                                                      self.air_cooler_speed_reducer_eff)
-        amine_cooler_energy_consumption = self.predict_blower_energy_use(cooler_thermal_load,
-                                                                         self.air_cooler_delta_T,
-                                                                         self.water_press,
-                                                                         self.air_cooler_fan_eff,
-                                                                         self.air_cooler_speed_reducer_eff)
+        # TODO: Wennan, are these variables needed? They are currently unused.
+        pump_duty = ureg.Quantity(max(0, corr_result_df["Pump"] * gas_multiplier), "kW")
+        condenser_energy_consumption = predict_blower_energy_use(self, condenser_thermal_load)
+        amine_cooler_energy_consumption = predict_blower_energy_use(self, cooler_thermal_load)
 
         overall_compression_ratio = ureg.Quantity(feed_gas_press, "psia") / input.pressure
         compression_ratio = Compressor.get_compression_ratio(overall_compression_ratio)
@@ -122,13 +116,8 @@ class AcidGasRemoval(Process):
         compressor_energy_consumption = self.get_energy_consumption(self.prime_mover_type_AGR, brake_horse_power)
 
         # energy-use
+        energy_carrier = get_energy_carrier(self.prime_mover_type_AGR)
         energy_use = self.energy
-        if self.prime_mover_type_AGR == "NG_engine" or "NG_turbine":
-            energy_carrier = EN_NATURAL_GAS
-        elif self.prime_mover_type_AGR == "Electric_motor":
-            energy_carrier = EN_ELECTRICITY
-        else:
-            energy_carrier = EN_DIESEL
         energy_use.set_rate(energy_carrier, compressor_energy_consumption)
         energy_use.add_rate(EN_NATURAL_GAS, reboiler_fuel_use)
 

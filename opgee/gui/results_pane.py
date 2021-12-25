@@ -53,9 +53,8 @@ class ResultsPane(OpgeePane):
                 _logger.warning(f"ci_text: {e}")
                 ci = ureg.Quantity(0, "grams/MJ")
 
-            fn_unit = analysis.attr('functional_unit')
-            en_basis = analysis.attr('energy_basis')
-            return f"CI: {ci.m:0.2f} g CO2e/MJ {en_basis} of {fn_unit}"
+            en_basis = "LHV" if analysis.use_LHV else "HHV"
+            return f"CI: {ci.m:0.2f} g CO2e/MJ {en_basis} of {analysis.fn_unit}"
 
         @app.callback(
             Output('ci-barchart', 'figure'),
@@ -67,7 +66,7 @@ class ResultsPane(OpgeePane):
 
             analysis, field = get_analysis_and_field(model, analysis_and_field)
 
-            fn_unit = analysis.attr('functional_unit')
+            fn_unit = analysis.fn_unit.title()
             energy = field.energy_flow_rate(analysis)
 
             def partial_ci(obj):
@@ -85,7 +84,7 @@ class ResultsPane(OpgeePane):
             fig = go.Figure(data=[go.Bar(name=row.category, x=[row.unit], y=[row.value.m], width=[0.7]) for idx, row in df.iterrows()],
                             layout=go.Layout(barmode='stack'))
 
-            fig.update_layout(yaxis_title=f"g CO2 per MJ of {fn_unit.title()}",  # doesn't render in latex: r'g CO$_2$ MJ$^{-1}$',
+            fig.update_layout(yaxis_title=f"g CO2 per MJ of {fn_unit}",  # doesn't render in latex: r'g CO$_2$ MJ$^{-1}$',
                               xaxis_title='Carbon Intensity')
 
             return fig
@@ -100,15 +99,10 @@ class ResultsPane(OpgeePane):
 
             analysis, field = get_analysis_and_field(model, analysis_and_field)
 
-            fn_unit = analysis.attr('functional_unit')
+            fn_unit = analysis.fn_unit.title()
 
             # TBD: need to identify procs / aggs outside the boundary of interest
             #      and subtract their energy use from total.
-            # TBD: this raises a point about a "properly defined field", which we should
-            #      clearly document. System boundaries cannot be in loops; they must
-            #      cleanly divide the network into parts before it and parts after it.
-            #      No aggregator should contain procs within *and* beyond the current boundary.
-            #      Add these checks as Field.validation(). All XmlInstantiables implement validate()?
             energy = field.energy_flow_rate(analysis)
             boundary_stream = field.boundary_stream(analysis)
             beyond = boundary_stream.beyond_boundary()
@@ -123,7 +117,7 @@ class ResultsPane(OpgeePane):
             fig = go.Figure(data=[go.Bar(name=row.category, x=[row.unit], y=[row.value], width=[0.7]) for idx, row in df.iterrows()],
                             layout=go.Layout(barmode='stack'))
 
-            fig.update_layout(yaxis_title=f"MJ per MJ of {fn_unit.title()}",
+            fig.update_layout(yaxis_title=f"MJ per MJ of {fn_unit}",
                               xaxis_title='Energy consumption')
 
             return fig

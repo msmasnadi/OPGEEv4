@@ -2,7 +2,7 @@ import re
 from .config import getParamAsSequence
 from .container import Container
 from .core import elt_name, OpgeeObject
-from .error import OpgeeException
+from .error import OpgeeException, ModelValidationError
 from .emissions import Emissions
 from .field import Field
 from .log import getLogger
@@ -18,30 +18,46 @@ class Group(OpgeeObject):
 
 
 class Analysis(Container):
+    """
+    Describes a single `Analysis`, which can contain multiple `Fields`, including
+    several attributes common to an analysis, including:
+
+    - functional unit (oil or gas),
+
+    - system boundary (e.g., Production, Distribution),
+
+    - energy basis (LHV or HHV),
+
+    - time horizon for GWPs (20 or 100 year), and
+
+    - which IPCC assessment report to use for CO2-equivalence values (AR4, AR5, AR5 with C-cycle feedback, or AR6).
+    """
     def __init__(self, name, attr_dict=None, field_names=None, groups=None):
         super().__init__(name, attr_dict=attr_dict)
 
         self._field_names = field_names     # this list is extended in _after_init
         self.groups = groups
 
-        # The following are set in _after_init()
+        # The following are set from attributes or config info in _after_init()
         self.model = None
         self.field_dict = None
 
         self.functional_units = None
         self.energy_bases = None
 
-        self.functional_unit = None
-        self.use_LHV = None            # set from attribute in _after_init()
+        self.fn_unit = None
+        self.use_LHV = None
 
-        self.oil_boundaries = None      # should this be in Stream?
-        self.gas_boundaries = None
+        self.boundary_name = None
+
+        # Deprecated? Never used.
+        # self.oil_boundaries = None      # should this be in Stream?
+        # self.gas_boundaries = None
 
         # This is set in _after_init() to a pandas.Series holding the current values in use,
         # indexed by gas name. Must be set after initialization since we reference the Model
         # object which isn't fully instantiated until after we are.
         self.gwp = None
-
 
     def _after_init(self):
         self.check_attr_constraints(self.attr_dict)
@@ -72,8 +88,21 @@ class Analysis(Container):
         self.functional_units = getParamAsSequence('OPGEE.FunctionalUnits', return_type='set')
         self.energy_bases     = getParamAsSequence('OPGEE.EnergyBases', return_type='set')
 
-        self.functional_unit = self.attr("functional_unit")
         self.use_LHV = self.attr("energy_basis") == 'LHV'
+        self.fn_unit = fn_unit = self.attr("functional_unit")
+        self.boundary_name = self.attr(f"{fn_unit}_boundary", raiseError=True)
+
+        self.validate()
+
+    def validate(self):
+        """
+        Ensure that the `Analysis` meets all logical requirements.
+
+        :return: none
+        :raises ModelValidationError: if any logical requirement is violated
+        """
+        for field in self.fields():
+            field.validate(self)
 
     def get_field(self, name, raiseError=True) -> Field:
         """

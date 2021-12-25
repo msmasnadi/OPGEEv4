@@ -2,7 +2,8 @@ import networkx as nx
 from . import ureg
 from .container import Container
 from .core import elt_name, instantiate_subelts, dict_from_list
-from .error import OpgeeException, OpgeeStopIteration, OpgeeMaxIterationsReached, OpgeeIterationConverged
+from .error import (OpgeeException, OpgeeStopIteration, OpgeeMaxIterationsReached,
+                    OpgeeIterationConverged, ModelValidationError)
 from .log import getLogger
 from .process import Process, Environment, Reservoir, Output, Aggregator, SurfaceSource
 from .process_groups import ProcessChoice
@@ -21,6 +22,14 @@ class Field(Container):
     gas field, and the `Stream` instances that connect them. It also holds instances
     of `Reservoir` and `Environment`, which are sources and sinks, respectively, in
     the process structure.
+
+    See {opgee}/etc/attributes.xml for attributes defined for the `<Field>`.
+
+    Fields can contain mutually exclusive process choice sets that group processes to
+    be enabled or disabled together as a coherent group. The "active" set is determimed
+    by the value of attributes named the same as the `<ProcessChoice>` element.
+
+    TBD: add a link to the approp section of opgee-xml.rst
     """
     def __init__(self, name, attr_dict=None, aggs=None, procs=None, streams=None, group_names=None,
                  process_choice_dict=None):
@@ -173,7 +182,7 @@ class Field(Container):
         return value
 
     def _boundary_name(self, analysis):
-        fn_unit = analysis.functional_unit
+        fn_unit = analysis.fn_unit
 
         boundary_attr = fn_unit + '_boundary'       # {oil_boundary, gas_boundary}
         boundary_name = self.attr(boundary_attr)    # {Production, Transportation, Distribution}
@@ -182,14 +191,15 @@ class Field(Container):
 
         return boundary_name
 
-    # TODO: this seems a bit wrong: An analysis with multiple fields will have a boundary stream for each field.
     def boundary_stream(self, analysis) -> Stream:
         """
         Return the currently chosen boundary stream.
 
         :return: (opgee.Stream) the currently chosen boundary stream
         """
+        # TODO: this setup seems a bit wrong: An analysis with multiple fields will have a boundary stream for each field.
         boundary_name = self._boundary_name(analysis)
+
         boundary_stream = Stream.boundary_stream(boundary_name)
         return boundary_stream
 
@@ -202,7 +212,7 @@ class Field(Container):
         :param raiseError: (bool) whether to raise an error if the energy flow is zero at the boundary
         :return: (pint.Quantity) the energy flow at the boundary
         """
-        fn_unit = analysis.functional_unit
+        fn_unit = analysis.fn_unit
         boundary_stream = self.boundary_stream(analysis)
         boundary_name = boundary_stream.boundary
 
@@ -229,6 +239,60 @@ class Field(Container):
 
         self.carbon_intensity = ci = (emissions / energy).to('grams/MJ')
         return ci
+
+    def validate(self, analysis):
+        """
+        Perform logical checks on the field after loading the entire model to ensure the field
+        is "well-defined". This allows the processing code to avoid testing validity at run-time.
+        Field conditions include:
+
+        - Cycles cannot span the current boundary.
+        - Aggregators cannot span the current boundary.
+        - The chosen system boundary is defined for this field
+
+        :param analysis: (opgee.Analysis) the current `Analysis`
+        :return: none
+        :raises ModelValidationError: raised if any validation condition is violated.
+        """
+
+        # Cycles cannot span the current boundary. Test this by checking that the boundary
+        # stream's src_proc and dst_proc are not in the same cycle. (N.B. __init__ evaluates
+        # and stores cycles.)
+        stream = self.boundary_stream(analysis )
+
+        # Check that there are Processes outside the current boundary. If not, nothing more to do.
+        beyond = stream.beyond_boundary()
+        if not beyond:
+            return
+
+        # Accumulate error msgs so user can correct them all at once.
+        msgs = []
+
+        src = stream.src_proc
+        dst = stream.dst_proc
+        for cycle in self.cycles:
+            if src in cycle and dst in cycle:
+                msgs.append(f"{stream.boundary} boundary {stream} spans a process cycle.")
+                break
+
+        # There will generally be far fewer Processes outside the system boundary than within,
+        # so we check that procs outside the boundary are not in Aggregators with members inside.
+        aggs = self.descendant_aggs()
+        for agg in aggs:
+            procs = agg.descendant_procs()
+            if not procs:
+                continue
+
+            # See if first proc is inside or beyond the boundar, then make sure the rest are the same
+            is_inside = procs[0] not in beyond
+            is_beyond = not is_inside               # improves readability
+            for proc in procs:
+                if (is_inside and proc in beyond) or (is_beyond and proc not in beyond):
+                    msgs.append(f"{agg} spans the {stream.boundary} boundary.")
+
+        if msgs:
+            msg = "\n - ".join(msgs)
+            raise ModelValidationError(f"Field validation failed:{msg}")
 
     def report(self, analysis):
         name = self.name

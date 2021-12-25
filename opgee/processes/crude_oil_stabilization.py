@@ -7,6 +7,7 @@ from opgee import ureg
 from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY
 from ..compressor import Compressor
 from ..emissions import EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
+from .shared import get_energy_carrier
 
 _logger = getLogger(__name__)
 
@@ -75,7 +76,8 @@ class CrudeOilStabilization(Process):
         # energy use
         heat_duty = oil_mass_rate * oil_specific_heat * (self.stab_temp - input.temperature) * (1 + self.eps_stab)
         energy_use = self.energy
-        energy_carrier = EN_NATURAL_GAS if self.prime_mover_type == "NG_engine" else EN_ELECTRICITY
+
+        energy_carrier = get_energy_carrier(self.prime_mover_type)
         energy_consumption = heat_duty / self.eta_gas if self.prime_mover_type == "NG_engine" else heat_duty / self.eta_electricity
 
         # boosting compressor for stabilizer

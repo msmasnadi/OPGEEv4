@@ -5,6 +5,7 @@ from ..process import Process
 from opgee import ureg
 from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
 from ..emissions import Emissions, EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
+from .shared import get_energy_carrier
 
 _logger = getLogger(__name__)
 
@@ -57,12 +58,8 @@ class WaterInjection(Process):
         #energy-use
         water_pump_power = self.get_energy_consumption(self.prime_mover_type, pumping_hp)
         energy_use = self.energy
-        if self.prime_mover_type == "NG_engine" or "NG_turbine":
-            energy_carrier = EN_NATURAL_GAS
-        elif self.prime_mover_type == "Electric_motor":
-            energy_carrier = EN_ELECTRICITY
-        else:
-            energy_carrier = EN_DIESEL
+
+        energy_carrier = get_energy_carrier(self.prime_mover_type)
         energy_use.set_rate(energy_carrier, water_pump_power)
 
         # emission

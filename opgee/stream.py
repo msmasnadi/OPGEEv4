@@ -125,9 +125,11 @@ class Stream(XmlInstantiable, AttributeMixin):
         # Should end up with a dictionary like this, but not hardcoded:
         # _known_boundaries_by_type = {'oil': ('Production', 'Transportation'),
         #                              'gas': ('Production', 'Transportation', 'Distribution')}
-
     _all_known_boundaries = set().union(*list(_known_boundaries_by_type.values()))
 
+    # TODO: ================================================================================
+    # TODO: there will be a boundary stream per Field, not just one per Analysis. Fix this!
+    # TODO: ================================================================================
     # Remember streams that declare themselves as system boundaries. Keys must be one of the
     # values in the tuples in the _known_boundaries dictionary above.
     boundary_dict = {}

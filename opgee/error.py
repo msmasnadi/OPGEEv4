@@ -66,16 +66,10 @@ class XmlFormatError(FileFormatError):
     pass
 
 
-# Deprecated
-# class FileExistsError(OpgeeException):
-#     """
-#     Raised when trying to write a file that already exists (if not allowed)
-#     """
-#     def __init__(self, filename):
-#         self.filename = filename
-#
-#     def __str__(self):
-#         return "Refusing to overwrite file: %s" % self.filename
+
+class ModelValidationError(FileFormatError):
+    pass
+
 
 class ConfigFileError(FileFormatError):
     """

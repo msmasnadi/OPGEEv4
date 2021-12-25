@@ -69,7 +69,7 @@
 		<Stream src="Separation" dst="WaterTreatment" name="separator to produced water treatment">
 			<Contains>water</Contains>
 		</Stream>
-		
+
 		<Stream src="WaterTreatment" dst="Output" name="produced water treatment to output">
 			<Contains>water for surface disposal</Contains>
 			<Contains>water for subsurface disposal</Contains>
@@ -204,7 +204,7 @@
 			<Contains>oil for dilution</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="Output" name="storage">
+		<Stream src="CrudeOilDewatering" dst="Output" name="storage" boundary="Production">	<!-- set boundary arbitrarily -->
 			<Contains>oil for storage</Contains>
 		</Stream>
 

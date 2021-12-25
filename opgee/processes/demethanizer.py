@@ -9,6 +9,7 @@ from ..compressor import Compressor
 from ..thermodynamics import component_MW
 from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
 from ..emissions import Emissions, EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
+from .shared import predict_blower_energy_use
 
 _logger = getLogger(__name__)
 
@@ -87,11 +88,7 @@ class Demethanizer(Process):
         fuel_gas_prod = (hydrocarbon_frac["C1"] - NGL_frac["C1"] * hydrocarbon_frac["C2"] / NGL_frac["C2"]) / \
                         (fuel_gas_frac["C1"] - NGL_frac["C1"] * fuel_gas_frac["C2"] / NGL_frac["C2"])
         reboiler_fuel_use = reboiler_heavy_duty * self.eta_reboiler_demethanizer
-        cooler_energy_consumption = self.predict_blower_energy_use(cooler_thermal_load,
-                                                                   self.air_cooler_delta_T,
-                                                                   self.water_press,
-                                                                   self.air_cooler_fan_eff,
-                                                                   self.air_cooler_speed_reducer_eff)
+        cooler_energy_consumption = predict_blower_energy_use(self, cooler_thermal_load)
         fuel_gas_mass = fuel_gas_prod * fuel_gas_frac * component_MW[fuel_gas_frac.index]
 
         gas_to_gather = self.find_output_stream("gas for gas partition")

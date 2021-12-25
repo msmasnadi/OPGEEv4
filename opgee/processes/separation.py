@@ -2,12 +2,13 @@ from ..combine_streams import combine_streams
 from ..log import getLogger
 from ..process import Process
 
-from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY
-from .. import ureg
+# from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY
+# from .. import ureg
 from ..stream import Stream, PHASE_GAS, PHASE_LIQUID, PHASE_SOLID
 from ..thermodynamics import rho
 from ..compressor import Compressor
 from ..emissions import EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
+from .shared import get_energy_carrier
 
 _logger = getLogger(__name__)
 
@@ -77,7 +78,7 @@ class Separation(Process):
         energy_consumption_sum = sum(energy_consumption_of_stages)
 
         energy_use = self.energy
-        energy_carrier = EN_NATURAL_GAS if self.prime_mover_type == "NG_engine" else EN_ELECTRICITY
+        energy_carrier = get_energy_carrier(self.prime_mover_type)
         energy_use.set_rate(energy_carrier, energy_consumption_sum)
 
         # emission rate

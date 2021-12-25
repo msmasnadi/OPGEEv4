@@ -253,6 +253,9 @@ class AttributeMixin():
         return obj.value if obj else None
 
     def set_attr(self, attr_name, value):
+        """
+        Set `attr_name`, which must be a known attribute, to `value`.
+        """
         obj = self.attr_dict.get(attr_name)
         if obj is None:
             raise OpgeeException(f"Attribute '{attr_name}' not found in {self}")
