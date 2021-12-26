@@ -24,11 +24,13 @@ class CrudeOilStabilization(Process):
         self.eta_gas = self.attr("eta_gas")
         self.eta_electricity = self.attr("eta_electricity")
         self.prime_mover_type = self.attr("prime_mover_type")
-        self.compressor_eff = field.attr("eta_compressor")
+        self.compressor_eff = field.attr("eta_compressor")      # TODO: why the name change? Other vars are eta_XXX.
 
     def run(self, analysis):
         self.print_running_msg()
 
+        # TODO: Wennan, this builds in a "hidden" dependency and surprising alteration
+        # TODO: the model without alerting the user. Is this the best way to handle this?
         if self.field.attr("crude_oil_dewatering_output") != self.name:
             self.enabled = False
             return

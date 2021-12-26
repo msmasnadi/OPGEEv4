@@ -132,6 +132,9 @@ class DiluentTransport(Process):
         """
         if type == "tanker":
             result = energy_consumption * load_factor * hp / self.ocean_tanker_speed / self.ocean_tanker_size
+
+        # TODO: unguarded else clauses are common points of failure, e.g., if a new "type" is added.
+        # TODO: test for all known cases and use else clause to raise an error for the unexpected value.
         else:
             result = energy_consumption * load_factor * hp / self.barge_capacity / self.barge_speed
         return result

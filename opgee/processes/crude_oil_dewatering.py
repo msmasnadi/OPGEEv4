@@ -15,10 +15,13 @@ class CrudeOilDewatering(Process):
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
+
+        # TODO: capture these in Field instance vars instead, once for all processes
         self.heater_treater = field.attr("heater_treater")
         self.stab_column = field.attr("stabilizer_column")
         self.upgrader_type = field.attr("upgrader_type")
         self.frac_diluent = field.attr("fraction_diluent")
+
         self.temperature_heater_treater = self.attr("temperature_heater_treater")
         self.heat_loss = self.attr("heat_loss")
         self.prime_mover_type = self.attr("prime_mover_type")

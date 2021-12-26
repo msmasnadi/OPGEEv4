@@ -75,10 +75,17 @@ class Field(Container):
 
         self.process_data = {}
 
+        # Set in _after_init()
+        self.std_temp  = None
+        self.std_press = None
+
     def _after_init(self):
         self.check_attr_constraints(self.attr_dict)
 
-        self.model = self.find_parent('Model')
+        self.model = model = self.find_parent('Model')
+
+        self.std_temp  = model.const("std-temperature")
+        self.std_press = model.const("std-pressure")
 
         for iterator in [self.processes(), self.streams(), [self.oil, self.gas, self.water, self.steam_generator]]:
             for obj in iterator:

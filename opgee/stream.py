@@ -434,16 +434,16 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.dirty = True
         self.components.loc[series.index, phase] = series * self.components.loc[series.index, phase]
 
-    def set_temperature_and_pressure(self, t, p):
+    def set_temperature_and_pressure(self, temp, press):
 
-        if p.m == 0:
+        if press.m == 0:
             return
 
-        self.temperature = t
-        self.pressure = p
+        self.temperature = temp
+        self.pressure = press
         self.dirty = True
 
-    def copy_flow_rates_from(self, stream, phase=None):
+    def copy_flow_rates_from(self, stream, phase=None, temp=None, press=None):
         """
         Copy all mass flow rates from `stream` to `self`
 
@@ -459,6 +459,12 @@ class Stream(XmlInstantiable, AttributeMixin):
             self.components[phase] = stream.components[phase]
         else:
             self.components[:] = stream.components
+
+        if temp is not None:
+            self.temperature = temp
+
+        if press is not None:
+            self.pressure = press
 
         self.dirty = True
 
