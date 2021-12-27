@@ -43,18 +43,6 @@ class AttributeError(OpgeeException):
         return f"Attribute {self.dict_name} for '{self.key}' was not found"
 
 
-# Deprecated
-# class FileMissingError(OpgeeException):
-#     """
-#     Indicate that a required file was not found or not readable.
-#     """
-#     def __init__(self, filename, reason):
-#         self.filename = filename
-#         self.reason   = reason
-#
-#     def __str__(self):
-#         return "Can't read %s: %s" % (self.filename, self.reason)
-
 class FileFormatError(OpgeeException):
     """
     Indicate a syntax error in a user-managed file.
@@ -64,7 +52,6 @@ class FileFormatError(OpgeeException):
 
 class XmlFormatError(FileFormatError):
     pass
-
 
 
 class ModelValidationError(FileFormatError):

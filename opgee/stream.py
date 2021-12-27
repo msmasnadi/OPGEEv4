@@ -310,7 +310,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         :return: None
         """
         # TBD: it's currently not possible to assign a Quantity to a DataFrame even if
-        # TBD: the units match. It's magnitude must be extracted. We check the units first...
+        #      the units match. It's magnitude must be extracted. We check the units first...
         self.components.loc[name, phase] = magnitude(rate, units=self.units())
         self.dirty = True
 

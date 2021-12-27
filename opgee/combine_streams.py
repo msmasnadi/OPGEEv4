@@ -8,7 +8,7 @@ from .thermodynamics import Oil, Gas, Water
 
 _logger = getLogger(__name__)
 
-#TODO: improve the combine stream to use temp and press
+#TODO: improve this to use temp and press
 def combine_streams(streams, API, pressure=None, temperature=None):
     """
     Thermodynamically combine multiple streams' components into a new

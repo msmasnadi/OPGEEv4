@@ -128,7 +128,7 @@ def main(args):
     #   - dcc.Upload allows a file to be uploaded. Could be useful in the future.
     # - add dcc.Dropdown from Analyses in a model or to run just one field
     #
-    # TBD: use "app.config['suppress_callback_exceptions'] = True" to not need to call tab-layout fns in this layout def
+    # N.B. use "app.config['suppress_callback_exceptions'] = True" to not need to call tab-layout fns in this layout def
 
     process_pane  = ProcessPane(app, model)
     settings_pane = SettingsPane(app, model)
@@ -179,8 +179,6 @@ def main(args):
     def update_output(n_clicks, analysis_and_field):
         if n_clicks:
             analysis, field = get_analysis_and_field(model, analysis_and_field)
-            # TBD: get user selections from radio buttons and pass to run method
-            # TBD: have run method take optional args for all the run parameters, defaulting to what's in the model file
             field.resolve_process_choices()
             field.run(analysis)
             field.report(analysis)
@@ -206,7 +204,7 @@ def main(args):
             return results_pane.get_layout(field)
 
     # @app.callback(
-    #     Output('tbd', 'children'),
+    #     Output('xxxx', 'children'),
     #     Input('network-layout', 'mouseoverEdgeData')
     # )
     # def mouseoverStream(data):

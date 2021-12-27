@@ -10,11 +10,6 @@ import argparse
 import os
 import sys
 
-# Deprecated
-#import re
-#import subprocess
-#from contextlib import contextmanager
-
 from .config import unixPath
 from .error import OpgeeException
 from .log import getLogger

@@ -226,13 +226,6 @@ class Field(Container):
         except KeyError:
             raise OpgeeException(f"{self} does not declare boundary stream '{analysis.boundary}'.")
 
-    # TODO: may not be required
-    def declared_boundaries(self):
-        """
-        Return the names of boundaries declared in the current field
-        """
-        return self.boundary_dict.keys()
-
     def defined_boundaries(self):
         """
         Return the names of all boundaries defined in configuration system)
@@ -426,8 +419,8 @@ class Field(Container):
 
                 process_successors(start_procs[0])
             else:
-                # TBD: Compute ordering by looking for procs in cycle that are successors to cycle_independent procs.
-                # TBD: For now, just copy run using procs_in_cycles.
+                # TBD: Compute ordering by looking for procs in cycle that are successors to
+                #      cycle_independent procs. For now, just copy run using procs_in_cycles.
                 ordered_cycle = procs_in_cycles
 
             # Iterate on the processes in cycle until a termination condition is met and an

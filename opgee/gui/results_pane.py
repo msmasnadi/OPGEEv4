@@ -101,8 +101,7 @@ class ResultsPane(OpgeePane):
 
             fn_unit = analysis.fn_unit.title()
 
-            # TBD: need to identify procs / aggs outside the boundary of interest
-            #      and subtract their energy use from total.
+            # Identify procs / aggs outside the boundary of interest and subtract their energy use from total.
             energy = field.energy_flow_rate(analysis)
             boundary_stream = field.boundary_stream(analysis)
             beyond = boundary_stream.beyond_boundary()

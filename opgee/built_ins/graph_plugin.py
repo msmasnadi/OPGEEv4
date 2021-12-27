@@ -46,6 +46,9 @@ class GraphCommand(SubcommandABC):
                             help=clean_help('''The pathname of the image file to create for classes. If none 
                             is specified, and the code is running in a jupyter notebook, the image is 
                             displayed inline. (Implies --model_hierarchy.)'''))
+
+        parser.add_argument('-x', '--xml_file', default=None,
+                            help="""The path to the model XML file to load. By default, the built-in opgee.xml is loaded.""")
         return parser
 
     def run(self, args, tool):
@@ -54,9 +57,12 @@ class GraphCommand(SubcommandABC):
         from ..model import ModelFile
         from ..pkg_utils import resourceStream
 
-        # TBD allow user to select which model file to graph
-        s = resourceStream('etc/opgee.xml', stream_type='bytes', decode=None)
-        mf = ModelFile('[opgee package]/etc/opgee.xml', stream=s)
+        if args.xml_file:
+            mf = ModelFile(args.xml_file)
+        else:
+            s = resourceStream('etc/opgee.xml', stream_type='bytes', decode=None)
+            mf = ModelFile('[opgee package]/etc/opgee.xml', stream=s)
+
         model = mf.model
 
         if args.model_hierarchy or args.hierarchy_output:

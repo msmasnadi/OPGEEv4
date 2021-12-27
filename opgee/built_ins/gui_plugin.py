@@ -1,9 +1,7 @@
 from ..subcommand import SubcommandABC #, clean_help
 
-# TBD: get these from the command line
-DFLT_MODEL_FILE = '/Users/rjp/repos/OPGEEv4/tests/files/test_separator.xml'
 DFLT_FIELD = 'test'
-DFLT_ANALYSIS = 'test_separator'
+DFLT_ANALYSIS = 'test'
 
 
 class GUICommand(SubcommandABC):
@@ -29,9 +27,9 @@ class GUICommand(SubcommandABC):
         parser.add_argument('-f', '--field', default=DFLT_FIELD,
                             help=f'''The field to display. Default (for testing) is "{DFLT_FIELD}"''')
 
-        # TBD: If not provided, use path found in opgee.cfg
-        parser.add_argument('-m', '--modelFile', default=DFLT_MODEL_FILE,
-                            help=f'''The OPGEE model XML file to read. Default (for testing) is "{DFLT_MODEL_FILE}"''')
+        parser.add_argument('-m', '--modelFile', default=None,
+                            help=f'''The OPGEE model XML file to read. Default is the value of config variable 'OPGEE.ModelFile', 
+                                     if defined, otherwise the built-in opgee.xml.''')
 
         # TBD: apparently action=argparse.BooleanOptionalAction requires py 3.9
         parser.add_argument('--add-stream-components', action='store_true',
