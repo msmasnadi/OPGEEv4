@@ -42,9 +42,8 @@ class ProcessPane(OpgeePane):
                 ],
                 style={
                     'resize': 'vertical',
-                    'overflow': 'auto',
-                    'height': '35%',
-
+                    # 'overflow': 'auto',
+                    # 'height': '35%',
                     'autosize': 'true',
                     'display': 'flex',
                 }
