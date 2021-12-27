@@ -45,8 +45,9 @@ def _subclass_dict(superclass):
 
     for cls in get_subclasses(superclass):
         name = cls.__name__
-        if name in d:
-            msg = f"Class '{name}' is defined by both {cls} and {d[name]}"
+        prior = d.get(name)
+        if prior is not None and prior != cls:
+            msg = f"Class '{name}' is defined by both {cls} and {prior}"
             if allow_redef:
                 print(msg)
             else:
@@ -799,6 +800,10 @@ class Process(XmlInstantiable, AttributeMixin):
                                     dtype="pint[g/mmBtu]")
         return emission_series
 
+    # TODO: This is currently used only once, in flaring.py. All that's really needed is the mass rate
+    # TODO: of CO2, so there's no reason to create a new Stream. Just sum the CO2 and use Stream.add_rate().
+    # TODO: I created (but haven't tested) a Stream.add_combustion_CO2_from(other_stream) which does this.
+    # TODO: (This seemed better located in the Stream class. So this should be removed once uses are changed.)
     @staticmethod
     def combust_stream(stream):
         """
@@ -879,6 +884,20 @@ class SurfaceSource(Process):
 
     def __init__(self, *args, **kwargs):
         super().__init__("SurfaceSource", desc='The Surface Source')
+
+    def run(self, analysis):
+        self.print_running_msg()
+
+
+class ExternalSupply(Process):
+    """
+    ExternalSupply represents all resources acquired from outside the system boundaries,
+    e.g., municipal water, utility gas and electricity. It's purpose is simply to tally
+    these as demanded.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__("ExternalSupply", desc='Resources outside system boundaries')
 
     def run(self, analysis):
         self.print_running_msg()

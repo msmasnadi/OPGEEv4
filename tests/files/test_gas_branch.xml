@@ -148,7 +148,7 @@
 			<Contains>water for subsurface disposal</Contains>
 		</Stream>
 
-		<Stream src="Separation" dst="Flaring" name="separation to flaring" boundary="Production">
+		<Stream src="Separation" dst="Flaring" name="separation to flaring">
 			<Contains>gas</Contains>
 		</Stream>
 
@@ -192,7 +192,8 @@
 <!--			<Contains>oil for storage</Contains>-->
 <!--		</Stream>-->
 
-		<Stream src="CrudeOilStorage" dst="Environment" name="crude oil storage to environment">
+		<!-- temporary boundary since there doesn't seem to be anywhere that's not in a cycle -->
+		<Stream src="CrudeOilStorage" dst="Environment" name="crude oil storage to environment" boundary="Production">
 			<Contains>gas fugitives</Contains>
 		</Stream>
 

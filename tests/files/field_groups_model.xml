@@ -15,6 +15,8 @@
 
 		<Process class="ProcA" desc="Test process 1"/>
 		<Process class="ProcB" desc="Test process 2"/>
+
+		<Stream src="ProcB" dst="Environment" boundary="Production"/>
 	</Field>
 
 	<Field name="test2">
@@ -23,6 +25,8 @@
 
 		<Process class="ProcA" desc="Test process 1"/>
 		<Process class="ProcB" desc="Test process 2"/>
+
+		<Stream src="ProcB" dst="Environment" boundary="Production"/>
 	</Field>
 
 	<Field name="test3">
@@ -31,6 +35,8 @@
 
 		<Process class="ProcA" desc="Test process 1"/>
 		<Process class="ProcB" desc="Test process 2"/>
+
+		<Stream src="ProcB" dst="Environment" boundary="Production"/>
 	</Field>
 
 </Model>

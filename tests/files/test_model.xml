@@ -3,6 +3,7 @@
 
 	<Analysis name="test">
 		<A name="functional_unit">oil</A>
+		<A name="boundary">Production</A>
 		<A name="energy_basis">LHV</A>
 	  <A name="GWP_horizon">100</A>
 	  <A name="GWP_version">AR5</A>
@@ -11,6 +12,7 @@
 
 	<Analysis name="test2">
 		<A name="functional_unit">oil</A>
+		<A name="boundary">Production</A>
 		<A name="energy_basis">LHV</A>
 	  <A name="GWP_horizon">100</A>
 	  <A name="GWP_version">AR5</A>
@@ -55,6 +57,8 @@
 			<Component name="oil" phase="liquid">100</Component>
 			<Contains>crude oil</Contains>
 		</Stream>
+
+		<Stream	src="ProcB" dst="Environment" boundary="Production"/>
 	</Field>
 
 	<Field name="other-field">
@@ -70,5 +74,7 @@
 			<Component name="oil" phase="liquid">100</Component>
 			<Contains>crude oil</Contains>
 		</Stream>
+
+		<Stream	src="ProcB" dst="Environment" boundary="Production"/>
 	</Field>
 </Model>

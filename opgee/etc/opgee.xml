@@ -103,7 +103,7 @@
 			<Contains>CO2</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="AfterDewatering">
+		<Stream src="CrudeOilDewatering" dst="AfterDewatering" boundary="Production">
 			<Contains>crude oil</Contains>
 			<Contains>water</Contains>
 		</Stream>
@@ -134,20 +134,20 @@
 		<Process class="Reservoir" desc="Oil reservoir">
 			<A name="leak_rate">0.0022</A>
 		</Process>
-		<Stream number="1" name="oil in reservoir" src="Reservoir" dst="ReservoirWellInterface">
+		<Stream name="oil in reservoir" src="Reservoir" dst="ReservoirWellInterface">
 			<A name="temperature">70.8</A>
 			<A name="pressure">887.3</A>
 			<Component name="oil" phase="liquid" >14555.9</Component>
 			<Component name="H2O" phase="liquid" >2037.8</Component>
 			<Contains>crude oil</Contains>
 		</Stream>
-		<Stream number="100" name="water in reservoir" src="Reservoir" dst="ReservoirWellInterface">
+		<Stream name="water in reservoir" src="Reservoir" dst="ReservoirWellInterface">
 			<A name="temperature">70.8</A>
 			<A name="pressure">887.3</A>
 			<Component name="H2O" phase="liquid" >255636.1</Component>
 			<Contains>water</Contains>
 		</Stream>
-		<Stream number="25" name="gas from reservoir" src="Reservoir" dst="ReservoirWellInterface">
+		<Stream name="gas from reservoir" src="Reservoir" dst="ReservoirWellInterface">
 			<A name="temperature">70.8</A>
 			<A name="pressure">887.3</A>
 			<Component name="N2" phase="gas" >519.9</Component>
@@ -257,5 +257,7 @@
 			<Process class="FuelGasImports" desc="Fuel Gas Imports"/>
 			<Process class="NGLOrDiluentProdAndImports" desc="NGL or Diluent Prod and Imports"/>
 		</Aggregator>
+
+		<Stream src="DownholePump" dst="Environment" boundary="Production"/>
 	</Field>
 </Model>

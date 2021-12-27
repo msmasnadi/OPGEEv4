@@ -4,7 +4,7 @@ from opgee.error import OpgeeException
 from opgee.stream import Stream
 from .utils_for_tests import load_test_model, path_to_test_file
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def test_model2(configure_logging_for_tests):
     # This fixture also serves to test user classpath
     setParam('OPGEE.ClassPath', path_to_test_file('user_processes.py'))

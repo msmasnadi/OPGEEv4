@@ -1,5 +1,5 @@
 import re
-from .config import getParamAsSequence
+from .config import getParamAsList
 from .container import Container
 from .core import elt_name, OpgeeObject
 from .error import OpgeeException, ModelValidationError
@@ -48,11 +48,7 @@ class Analysis(Container):
         self.fn_unit = None
         self.use_LHV = None
 
-        self.boundary_name = None
-
-        # Deprecated? Never used.
-        # self.oil_boundaries = None      # should this be in Stream?
-        # self.gas_boundaries = None
+        self.boundary = None
 
         # This is set in _after_init() to a pandas.Series holding the current values in use,
         # indexed by gas name. Must be set after initialization since we reference the Model
@@ -85,12 +81,12 @@ class Analysis(Container):
         self.use_GWP(gwp_horizon, gwp_version)
 
         # Create validation sets from system.cfg to avoid hardcoding these
-        self.functional_units = getParamAsSequence('OPGEE.FunctionalUnits', return_type='set')
-        self.energy_bases     = getParamAsSequence('OPGEE.EnergyBases', return_type='set')
+        self.functional_units = set(getParamAsList('OPGEE.FunctionalUnits'))
+        self.energy_bases     = set(getParamAsList('OPGEE.EnergyBases'))
 
         self.use_LHV = self.attr("energy_basis") == 'LHV'
-        self.fn_unit = fn_unit = self.attr("functional_unit")
-        self.boundary_name = self.attr(f"{fn_unit}_boundary", raiseError=True)
+        self.fn_unit = self.attr("functional_unit")
+        self.boundary = self.attr("boundary", raiseError=True)
 
         self.validate()
 

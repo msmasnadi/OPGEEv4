@@ -1,11 +1,12 @@
 import networkx as nx
 from . import ureg
+from .config import getParamAsList
 from .container import Container
 from .core import elt_name, instantiate_subelts, dict_from_list
 from .error import (OpgeeException, OpgeeStopIteration, OpgeeMaxIterationsReached,
                     OpgeeIterationConverged, ModelValidationError)
 from .log import getLogger
-from .process import Process, Environment, Reservoir, Output, Aggregator, SurfaceSource
+from .process import Process, Aggregator, Environment, Reservoir, Output, SurfaceSource, ExternalSupply
 from .process_groups import ProcessChoice
 from .stream import Stream
 from .thermodynamics import Oil, Gas, Water
@@ -29,10 +30,12 @@ class Field(Container):
     be enabled or disabled together as a coherent group. The "active" set is determimed
     by the value of attributes named the same as the `<ProcessChoice>` element.
 
-    TBD: add a link to the approp section of opgee-xml.rst
+    TBD: add a link to the appropriate section of opgee-xml.rst
     """
+
     def __init__(self, name, attr_dict=None, aggs=None, procs=None, streams=None, group_names=None,
                  process_choice_dict=None):
+
         # Note that `procs` include only Processes defined at the top-level of the field.
         # Other Processes maybe defined within the Aggregators in `aggs`.
         super().__init__(name, attr_dict=attr_dict, aggs=aggs, procs=procs)
@@ -42,14 +45,38 @@ class Field(Container):
         self.group_names = group_names
         self.stream_dict = dict_from_list(streams)
 
+        # Remember streams that declare themselves as system boundaries. Keys must be one of the
+        # values in the tuples in the _known_boundaries dictionary above.
+        self.boundary_dict = boundary_dict = {}
+
+        self.known_boundaries = known_boundaries = set(getParamAsList('OPGEE.Boundaries'))
+
+        # Save references to boundary streams by name; fail if duplicate definitions are found.
+        for stream in streams:
+            boundary = stream.boundary
+            if boundary:
+                if boundary not in known_boundaries:
+                    raise OpgeeException(f"{self}: {stream} boundary {boundary} is not a known boundary name. Must be one of {known_boundaries}")
+
+                other = boundary_dict.get(boundary)
+                if other:
+                    raise OpgeeException(
+                        f"{self}: Duplicate declaration of boundary '{boundary}' in streams {stream} and {other}")
+
+                boundary_dict[boundary] = stream
+                _logger.debug(f"{self}: {stream} defines boundary '{boundary}'")
+
         self.process_choice_dict = process_choice_dict
 
-        self.environment = Environment()  # one per field
-        self.reservoir = Reservoir()  # one per field
-        self.surface_source = SurfaceSource()  # one per field
+        # Each Field has one of these built-in processes
+        self.environment = Environment()
+        self.reservoir = Reservoir()
+        self.surface_source = SurfaceSource()
+        self.external_supply = ExternalSupply()
         self.output = Output()  # Deprecated?
 
-        self.builtin_procs = [self.environment, self.reservoir, self.surface_source, self.output]
+        self.builtin_procs = [self.environment, self.reservoir, self.surface_source,
+                              self.external_supply, self.output]
         all_procs = self.collect_processes()  # includes reservoir and environment
         self.process_dict = self.adopt(all_procs, asDict=True)
 
@@ -188,27 +215,29 @@ class Field(Container):
 
         return value
 
-    def _boundary_name(self, analysis):
-        fn_unit = analysis.fn_unit
-
-        boundary_attr = fn_unit + '_boundary'       # {oil_boundary, gas_boundary}
-        boundary_name = self.attr(boundary_attr)    # {Production, Transportation, Distribution}
-
-        Stream.validate_boundary(boundary_name, fn_unit=fn_unit)
-
-        return boundary_name
-
     def boundary_stream(self, analysis) -> Stream:
         """
-        Return the currently chosen boundary stream.
+        Return the currently chosen boundary stream, per the `Analysis` instance.
 
         :return: (opgee.Stream) the currently chosen boundary stream
         """
-        # TODO: this setup seems a bit wrong: An analysis with multiple fields will have a boundary stream for each field.
-        boundary_name = self._boundary_name(analysis)
+        try:
+            return self.boundary_dict[analysis.boundary]
+        except KeyError:
+            raise OpgeeException(f"{self} does not declare boundary stream '{analysis.boundary}'.")
 
-        boundary_stream = Stream.boundary_stream(boundary_name)
-        return boundary_stream
+    # TODO: may not be required
+    def declared_boundaries(self):
+        """
+        Return the names of boundaries declared in the current field
+        """
+        return self.boundary_dict.keys()
+
+    def defined_boundaries(self):
+        """
+        Return the names of all boundaries defined in configuration system)
+        """
+        return self.known_boundaries
 
     def energy_flow_rate(self, analysis, raiseError=True):
         """
@@ -219,11 +248,10 @@ class Field(Container):
         :param raiseError: (bool) whether to raise an error if the energy flow is zero at the boundary
         :return: (pint.Quantity) the energy flow at the boundary
         """
-        fn_unit = analysis.fn_unit
         boundary_stream = self.boundary_stream(analysis)
         boundary_name = boundary_stream.boundary
 
-        obj = self.oil if fn_unit == 'oil' else self.gas
+        obj = self.oil if analysis.fn_unit == 'oil' else self.gas
         energy = obj.energy_flow_rate(boundary_stream, use_LHV=analysis.use_LHV)
 
         if energy.m == 0:
@@ -265,7 +293,7 @@ class Field(Container):
         # Cycles cannot span the current boundary. Test this by checking that the boundary
         # stream's src_proc and dst_proc are not in the same cycle. (N.B. __init__ evaluates
         # and stores cycles.)
-        stream = self.boundary_stream(analysis )
+        stream = self.boundary_stream(analysis)
 
         # Check that there are Processes outside the current boundary. If not, nothing more to do.
         beyond = stream.beyond_boundary()

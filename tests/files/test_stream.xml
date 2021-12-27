@@ -42,5 +42,8 @@
 			<Contains>CO2</Contains>
 			<Contains>hydrogen</Contains>
 		</Stream>
+
+		<Stream src="Proc4" dst="Environment" boundary="Production"/>
+
 	</Field>
 </Model>

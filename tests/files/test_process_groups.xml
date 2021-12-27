@@ -57,5 +57,8 @@
         <StreamRef name="s9"/>
       </ProcessGroup>
     </ProcessChoice>
+
+    <Process class="Reservoir"/>
+    <Stream src="Reservoir" dst="Environment" boundary="Production"/>
   </Field>
 </Model>

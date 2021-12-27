@@ -454,11 +454,7 @@ def getParamAsFloat(name, section=None):
     value = getParam(name, section=section)
     return float(value)
 
-def getParamAsSequence(name, return_type='list'):
+def getParamAsList(name):
     value = getParam(name)
     values = [s.strip() for s in value.split(',')]
-    known_types = {'list', 'set'}
-    if return_type not in known_types:
-        raise OpgeeException(f"getParamAsSequence: unsupported return type '{return_type}'. Valid values are {known_types}.")
-
-    return (values if return_type == 'list' else set(values))
+    return values

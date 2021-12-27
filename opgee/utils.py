@@ -330,7 +330,7 @@ def loadModuleFromPath(module_path, raiseError=True):
 
     # Extract the module name from the module path
     module_path = unixPath(module_path)
-    base        = os.path.basename(module_path)
+    base = os.path.basename(module_path)
     module_name = base.split('.')[0]
 
     _logger.debug('loading module %s' % module_path)
