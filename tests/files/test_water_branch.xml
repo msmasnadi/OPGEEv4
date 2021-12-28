@@ -42,6 +42,8 @@
 		<Process class="SteamGeneration"/>
 		<Process class="WaterInjection"/>
 
+		<Process class="Output"/>
+
 		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
 			<Contains>crude oil</Contains>
 		</Stream>
@@ -184,6 +186,7 @@
 		<Process class="WaterTreatment"/>
 		<Process class="SteamGeneration"/>
 		<Process class="WaterInjection"/>
+		<Process class="Output"/>
 
 		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
 			<Contains>crude oil</Contains>

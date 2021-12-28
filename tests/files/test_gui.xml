@@ -38,6 +38,8 @@
 			<Process class="CrudeOilStorage" enabled="false"/>
 		</Aggregator>
 
+		<Process class="Output"/>
+
 		<Stream src="CrudeOilDewatering" dst="ProducedWaterTreatment">
 			<Contains>crude oil</Contains>
 			<Contains>water</Contains>

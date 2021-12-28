@@ -48,6 +48,7 @@
 		<Process class="HeavyOilUpgrading" enabled="false"/>
 		<Process class="HeavyOilDilution" enabled="false"/>
 		<Process class="Separation" enabled="false"/>
+		<Process class="Output"/>
 
 		<Stream src="Reservoir" dst="Before"/>
 		<Stream src="Before" dst="CrudeOilStabilization" name="before to crude oil stabilization">
@@ -112,6 +113,7 @@
 		<Process class="Before" desc="" impute-start="true">
 		</Process>
 		<Process class="After"/>
+		<Process class="Output"/>
 
 		<Process class="CrudeOilStabilization" enabled="false">
 		</Process>
@@ -185,6 +187,7 @@
 
 		<Process class="Before"/>
 		<Process class="After"/>
+		<Process class="Output"/>
 
 		<Process class="HeavyOilDilution" impute-start="true"/>
 		<Process class="BitumenMining"/>
@@ -230,6 +233,7 @@
 
 		<Process class="Before"/>
 		<Process class="After"/>
+		<Process class="Output"/>
 
 		<Process class="HeavyOilDilution" impute-start="true"/>
 		<Process class="BitumenMining"/>

@@ -45,17 +45,17 @@ def _subclass_dict(superclass):
 
     for cls in get_subclasses(superclass):
         name = cls.__name__
-        if name == 'Output':
-            pass
         prior = d.get(name)
-        if prior is not None and prior != cls:
-            msg = f"Class '{name}' is defined by both {cls} and {prior}"
-            if allow_redef:
-                print(msg)
-            else:
-                raise OpgeeException(msg)
-        else:
+
+        if prior is None:
             d[name] = cls
+        else:
+            if prior != cls:
+                msg = f"Class '{name}' is defined by both {cls} and {prior}"
+                if allow_redef:
+                    print(msg)
+                else:
+                    raise OpgeeException(msg)
 
     return d
 
@@ -64,15 +64,6 @@ def _subclass_dict(superclass):
 # Cache of known subclasses of Aggregator and Process
 #
 _Subclass_dict : Optional[dict] = None
-
-
-def reload_subclass_dict():
-    global _Subclass_dict
-
-    _Subclass_dict = {
-        Aggregator: _subclass_dict(Aggregator),
-        Process: _subclass_dict(Process)
-    }
 
 
 def _get_subclass(cls, subclass_name, reload=False):
@@ -958,3 +949,11 @@ class Aggregator(Container):
 
         obj = cls(name, attr_dict=attr_dict, aggs=aggs, procs=procs)
         return obj
+
+def reload_subclass_dict():
+    global _Subclass_dict
+
+    _Subclass_dict = {
+        Aggregator: _subclass_dict(Aggregator),
+        Process:    _subclass_dict(Process)
+    }

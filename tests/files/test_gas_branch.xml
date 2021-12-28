@@ -34,6 +34,8 @@
 		<A name="gas_processing_path">Acid Wet Gas</A>
 		<A name="upgrader_type">Delayed coking</A>
 
+		<Process class="Output"/>
+
 		<ProcessChoice name="gas_processing_path">
 			<ProcessGroup name="Acid Wet Gas">
 				<ProcessRef name="AcidGasRemoval"/>
