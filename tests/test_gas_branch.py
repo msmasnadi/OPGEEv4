@@ -1,4 +1,5 @@
 import pytest
+from . import Output
 from .utils_for_tests import load_test_model
 
 

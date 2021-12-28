@@ -1,5 +1,5 @@
 import pytest
-from opgee import Process
+from opgee.process import reload_subclass_dict, Process
 from .utils_for_tests import load_test_model
 
 
@@ -13,6 +13,7 @@ class BoundaryBefore(Process):
 
 @pytest.fixture(scope="module")
 def test_boundary(configure_logging_for_tests):
+    reload_subclass_dict()
     return load_test_model('test_boundary.xml')
 
 

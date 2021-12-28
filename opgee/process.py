@@ -45,6 +45,8 @@ def _subclass_dict(superclass):
 
     for cls in get_subclasses(superclass):
         name = cls.__name__
+        if name == 'Output':
+            pass
         prior = d.get(name)
         if prior is not None and prior != cls:
             msg = f"Class '{name}' is defined by both {cls} and {prior}"
@@ -930,46 +932,6 @@ class Environment(Process):
 
     def report(self, analysis):
         print(f"{self}: cumulative emissions to Environment:\n{self.emissions}")
-
-# Deprecated -- or should be. Use Stream boundary declarations instead.
-class Output(Process):
-    """
-    Receives all final streams from a field and performs CI calculations from them.
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__('Output', desc='Field output')
-        self.energy_flow = None
-
-    def run(self, analysis):
-        self.print_running_msg()
-
-        # fn_unit = analysis.fn_unit
-        # oil = self.field.oil
-        #
-        # # TODO: Wennan, is this correct for gas as well?
-        # heating_values = oil.component_LHV_mass if analysis.use_LHV else oil.component_HHV_mass
-        #
-        # inputs = self.inputs
-        #
-        # if not inputs:
-        #     return ureg.Quantity(0.0, "MJ/day")
-        #
-        # # zero_mass_rate = None if inputs else ureg.Quantity(0.0, Stream._units)
-        #
-        # if fn_unit == 'oil':
-        #     mass_rate = sum([stream.liquid_flow_rate('oil') for stream in inputs])
-        #     energy_flow = mass_rate * heating_values['oil']
-        #
-        # elif fn_unit == 'gas':
-        #     mass_rates = sum([stream.components.loc[heating_values.index, PHASE_GAS] * heating_values
-        #                       for stream in inputs])
-        #     energy_flow = sum(mass_rates * heating_values)
-        #
-        # else:
-        #     raise OpgeeException(f"Unknown functional unit: '{fn_unit}'")  # should never happen
-        #
-        # self.energy_flow = energy_flow.to("MJ/day")
 
 #
 # This class is defined here rather than in container.py to avoid import loops and to

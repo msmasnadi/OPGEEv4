@@ -258,12 +258,6 @@ class AbstractSubstance(OpgeeObject):
     """
     OilGasWater class contains Oil, Gas and Water class
     """
-
-    # #TODO: the emissions.py call this
-    # components = list(_dict_chemical.keys())
-    # component_MW = pd.Series({name: mol_weight(name, with_units=False) for name in components},
-    #                          dtype="pint[g/mole]")
-
     def __init__(self, field):
         """
 
@@ -637,12 +631,7 @@ class Oil(AbstractSubstance):
         :return:(pint.Quantity) energy flow rate in "mmBtu/day"
         """
         mass_flow_rate = stream.hydrocarbon_rate(PHASE_LIQUID)
-
-        # TODO: Wennan, is there any reason to convert this here? The result gets converted below.
-        # mass_flow_rate = mass_flow_rate.to("lb/day")
-
         mass_energy_density = self.oil_LHV_mass if use_LHV else self.oil_HHV_mass
-
         result = (mass_energy_density * mass_flow_rate).to("mmbtu/day")
         return result
 
@@ -1094,9 +1083,6 @@ class Gas(AbstractSubstance):
         """
         total_mass_flow_rate = stream.total_gas_rate()
         mass_energy_density = self.mass_energy_density(stream, use_LHV=use_LHV)
-
-        # TODO: why convert twice when once will do?
-        # result = total_mass_flow_rate.to("kg/day") * mass_energy_density.to("mmBtu/kg")
         result = (total_mass_flow_rate * mass_energy_density).to("mmBtu/day")
         return result
 

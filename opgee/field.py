@@ -6,7 +6,7 @@ from .core import elt_name, instantiate_subelts, dict_from_list
 from .error import (OpgeeException, OpgeeStopIteration, OpgeeMaxIterationsReached,
                     OpgeeIterationConverged, ModelValidationError)
 from .log import getLogger
-from .process import Process, Aggregator, Environment, Reservoir, Output, SurfaceSource, ExternalSupply
+from .process import Process, Aggregator, Environment, Reservoir, SurfaceSource, ExternalSupply
 from .process_groups import ProcessChoice
 from .stream import Stream
 from .thermodynamics import Oil, Gas, Water
@@ -73,10 +73,9 @@ class Field(Container):
         self.reservoir = Reservoir()
         self.surface_source = SurfaceSource()
         self.external_supply = ExternalSupply()
-        self.output = Output()  # Deprecated?
 
         self.builtin_procs = [self.environment, self.reservoir, self.surface_source,
-                              self.external_supply, self.output]
+                              self.external_supply]
         all_procs = self.collect_processes()  # includes reservoir and environment
         self.process_dict = self.adopt(all_procs, asDict=True)
 
