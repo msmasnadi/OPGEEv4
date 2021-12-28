@@ -29,6 +29,6 @@ def test_bad_model():
     with pytest.raises(XmlFormatError, match=f"Validation of '{xml_path}'\n.*using schema '{schema_path}' failed:\n.*"):
         XMLFile(xml_path, schemaPath=schema_path)
 
-# Validation of '/Users/rjp/repos/OPGEEv4/tests/files/bad_model.xml'
+# Validation of '.../OPGEEv4/tests/files/bad_model.xml'
 #   using schema 'etc/opgee.xsd' failed:
 #   Element 'Field': The attribute 'name' is required but missing., line 24

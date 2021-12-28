@@ -6,6 +6,19 @@ from ..log import getLogger
 
 _logger = getLogger(__name__)
 
+horiz_space = html.Span("", style={'width': '50px', 'display': 'inline-block'})
+
+pulldown_style = {
+    'width': '200px',
+    'textAlign': 'center',
+    'vertical-align': 'middle',
+    'display': 'inline-block'
+}
+
+label_style = {
+    'font-weight': 'bold'
+}
+
 class OpgeePane(object):
     def __init__(self, app, model):
         self.app = app

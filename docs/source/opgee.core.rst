@@ -16,6 +16,12 @@ This module contains core classes of the opgee package.
    :members:
 
 
+``opgee.analysis``
+--------------------
+
+.. automodule:: opgee.analysis
+   :members:
+
 ``opgee.attributes``
 ----------------------
 

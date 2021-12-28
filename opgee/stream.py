@@ -11,7 +11,6 @@ import re
 
 from . import ureg
 from .attributes import AttributeMixin
-from .config import getParamAsSequence
 from .core import XmlInstantiable, elt_name, magnitude
 from .error import OpgeeException
 from .log import getLogger
@@ -93,6 +92,7 @@ class Stream(XmlInstantiable, AttributeMixin):
     _gases = ['N2', 'O2', 'CO2', 'H2O', 'H2', 'H2S', 'SO2', "CO"]
     _other = ['Na+', 'Cl-', 'Si-']
 
+    # TODO: consider renaming this. Maybe "combustible_components"?
     emission_composition = _hydrocarbons + _gases
     _carbon_number_dict = {f'C{n}': float(n) for n in range(1, max_carbon_number + 1)}
 
@@ -111,35 +111,13 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     _units = ureg.Unit('tonne/day')
 
-    # Names of known system boundaries for use in computing CI
-    # TBD: populate this from system.cfg as in Field.py compute_carbon_intensity()
-    fn_units = getParamAsSequence('OPGEE.FunctionalUnits')
-    _known_boundaries_by_type = {}
-    for fn_unit in fn_units:
-        # Each fn unit, e.g., 'gas' and 'oil', must have corresponding config var with
-        # values, e.g., "OPGEE.GasBoundaries" and "OPGEE.OilBoundaries".
-        var_name = 'OPGEE.' + fn_unit.capitalize() + 'Boundaries'
-        boundaries = getParamAsSequence(var_name)
-        _known_boundaries_by_type[fn_unit] = boundaries
-
-        # Should end up with a dictionary like this, but not hardcoded:
-        # _known_boundaries_by_type = {'oil': ('Production', 'Transportation'),
-        #                              'gas': ('Production', 'Transportation', 'Distribution')}
-
-    _all_known_boundaries = set().union(*list(_known_boundaries_by_type.values()))
-
-    # Remember streams that declare themselves as system boundaries. Keys must be one of the
-    # values in the tuples in the _known_boundaries dictionary above.
-    boundary_dict = {}
-
-    def __init__(self, name, number=0, temperature=None, pressure=None,
+    def __init__(self, name, temperature=None, pressure=None,
                  src_name=None, dst_name=None, comp_matrix=None,
                  contents=None, impute=True, boundary=None):
         super().__init__(name)
 
         self.components = self.create_component_matrix() if comp_matrix is None else comp_matrix
         self.xml_data = comp_matrix
-        self.number = number
         self.temperature = temperature if isinstance(temperature, pint.Quantity) else ureg.Quantity(temperature, "degF")
         self.pressure = pressure if isinstance(pressure, pint.Quantity) else ureg.Quantity(pressure, "psi")
         self.src_name = src_name
@@ -148,14 +126,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.src_proc = None  # set in Field.connect_processes()
         self.dst_proc = None
 
-        self.boundary = boundary    # indicates name of boundary this stream crosses, or None
-        if boundary:
-            stream = self.boundary_dict.get(boundary)
-            if stream:
-                raise OpgeeException(f"Duplicate declaration of boundary '{boundary}' in streams {stream} and {self}")
-
-            self.boundary_dict[boundary] = self
-            _logger.debug(f"{self} defines boundary '{boundary}'")
+        self.boundary = boundary    # the name of the boundary this stream defines, or None
 
         self.contents = contents or []
 
@@ -168,8 +139,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.check_attr_constraints(self.attr_dict)
 
     def __str__(self):
-        number_str = f" #{self.number}" if self.number else ''
-        return f"<Stream '{self.name}'{number_str}>"
+        return f"<Stream '{self.name}'>"
 
     def reset(self):
         """
@@ -182,36 +152,49 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.pressure = ureg.Quantity(0.0, "psia")
         self.dirty = False
 
-    @classmethod
-    def boundary_stream(cls, boundary):
-        try:
-            return cls.boundary_dict[boundary]
-        except KeyError:
-            raise OpgeeException(f"boundary_stream: boundary '{boundary}' has not been declared.")
-
-    @classmethod
-    def boundaries(cls):
-        return cls.boundary_dict.keys()
-
-    @classmethod
-    def forget_boundaries(cls):
+    def within_boundary(self):
         """
-        Empties Stream's boundary_dict before loading a different model.
-
-        :return: none
+        If `self` is a boundary stream, return the list of processes within the boundary.
+        The boundary stream must not be in a cycle.
         """
-        cls.boundary_dict.clear()
+        if self.boundary is None:
+            raise OpgeeException(f"within_boundary: '{self}' is not a boundary stream.")
 
-    @classmethod
-    def validate_boundary(cls, name, fn_unit):
-        try:
-            valid_names = cls._known_boundaries_by_type[fn_unit]
-        except KeyError:
-             fn_units = list(cls._known_boundaries_by_type.keys())
-             raise OpgeeException(f"validate_boundary: Unknown functional unit '{fn_unit}'; valid values are {fn_units}")
+        visited = dict()
 
-        if not name in valid_names:
-            raise OpgeeException(f"validate_boundary: '{name}' is not a known system boundary for functional unit '{fn_unit}'")
+        def _visit(proc):
+            if proc is None or visited.get(id(proc), False):
+                return
+
+            visited[id(proc)] = proc
+
+            for p in proc.predecessors():
+                _visit(p)
+
+        _visit(self.src_proc)
+        return set(visited)
+
+    def beyond_boundary(self):
+        """
+        If `self` is a boundary stream, return the list of processes beyond the boundary.
+        The boundary stream must not be in a cycle.
+        """
+        if self.boundary is None:
+            raise OpgeeException(f"beyond_boundary: '{self}' is not a boundary stream.")
+
+        visited = dict()
+
+        def _visit(proc):
+            if proc is None or visited.get(id(proc), False):
+                return
+
+            visited[id(proc)] = proc
+
+            for p in proc.successors():
+                _visit(p)
+
+        _visit(self.dst_proc)
+        return set(visited)
 
     @classmethod
     def units(cls):
@@ -327,7 +310,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         :return: None
         """
         # TBD: it's currently not possible to assign a Quantity to a DataFrame even if
-        # TBD: the units match. It's magnitude must be extracted. We check the units first...
+        #      the units match. It's magnitude must be extracted. We check the units first...
         self.components.loc[name, phase] = magnitude(rate, units=self.units())
         self.dirty = True
 
@@ -388,16 +371,16 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.dirty = True
         self.components.loc[series.index, phase] = series * self.components.loc[series.index, phase]
 
-    def set_temperature_and_pressure(self, t, p):
+    def set_temperature_and_pressure(self, temp, press):
 
-        if p.m == 0:
+        if press.m == 0:
             return
 
-        self.temperature = t
-        self.pressure = p
+        self.temperature = temp
+        self.pressure = press
         self.dirty = True
 
-    def copy_flow_rates_from(self, stream, phase=None):
+    def copy_flow_rates_from(self, stream, phase=None, temp=None, press=None):
         """
         Copy all mass flow rates from `stream` to `self`
 
@@ -413,6 +396,12 @@ class Stream(XmlInstantiable, AttributeMixin):
             self.components[phase] = stream.components[phase]
         else:
             self.components[:] = stream.components
+
+        if temp is not None:
+            self.temperature = temp
+
+        if press is not None:
+            self.pressure = press
 
         self.dirty = True
 
@@ -479,6 +468,24 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.dirty = True
         self.components[PHASE_GAS] -= stream.components[PHASE_GAS]
 
+    def add_combustion_CO2_from(self, stream):
+        """
+        Compute the amount of CO2 from the combustible components in `stream`
+        and add these to `self` as CO2, assuming complete combustion.
+
+        :param stream: (opgee.Stream) a Stream with combustible components
+        :return: (pint.Quantity(unit="tonne/day")) the mass rate of CO2 from combustion.
+        """
+        from .thermodynamics import component_MW
+
+        combustibles = stream.emission_composition
+
+        rate = (stream.components.loc[combustibles, PHASE_GAS] / component_MW[combustibles] *
+                Stream.carbon_number * component_MW["CO2"]).sum()
+
+        self.set_flow_rate("CO2", PHASE_GAS, rate)
+        return rate
+
     def contains(self, stream_type):
         """
         Return whether `stream_type` is one of named contents of `stream`.
@@ -502,10 +509,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         name = a.get('name') or f"{src} => {dst}"
         impute = getBooleanXML(a.get('impute', "1"))
 
-        # The following are optional
-        number_str = a.get('number')
-        number = coercible(number_str, int, raiseError=False) if number_str else None
-        boundary = a.get('boundary')
+        boundary = a.get('boundary')  # optional
 
         # There should be 2 attributes: temperature and pressure
         attr_dict = cls.instantiate_attrs(elt)
@@ -538,13 +542,13 @@ class Stream(XmlInstantiable, AttributeMixin):
                 if comp_name not in matrix.index:
                     raise OpgeeException(f"Unrecognized stream component name '{comp_name}'.")
 
-                # TBD: if stream is to include electricity, it will be in MWh/day
+                # TBD: if stream is to include electricity, it will be in MWh/day?
                 matrix.loc[comp_name, phase] = rate
 
         else:
             matrix = None  # let the stream create it
 
-        obj = Stream(name, number=number, temperature=temp, pressure=pres,
+        obj = Stream(name, temperature=temp, pressure=pres,
                      comp_matrix=matrix, src_name=src, dst_name=dst,
                      contents=contents, impute=impute, boundary=boundary)
 

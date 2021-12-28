@@ -6,7 +6,6 @@ from opgee.error import OpgeeException
 from opgee.process import Process, _get_subclass, Environment, Reservoir
 from opgee.stream import Stream
 
-
 class NotProcess(): pass
 
 

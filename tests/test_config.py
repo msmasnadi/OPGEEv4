@@ -1,4 +1,3 @@
-import os
 from opgee.config import *
 
 def test_unixpath():

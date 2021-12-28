@@ -30,6 +30,7 @@
       <Option>AR4</Option>
       <Option>AR5</Option>
       <Option label="AR5 with C-cycle feedback">AR5_CCF</Option>
+      <Option>AR6</Option>
     </Options>
     <Options name="Functional unit" default="oil">
       <Option label="1 MJ Crude oil">oil</Option>
@@ -44,6 +45,15 @@
     <AttrDef name="GWP_version" options="GWP version" type="str"/>
     <AttrDef name="functional_unit" options="Functional unit" type="str"/>
     <AttrDef name="energy_basis" options="Energy basis" type="str"/>
+
+    <!-- We need this at the Analysis level to ensure all fields are evaluated to same bounds -->
+    <Options name="boundaries" default="Production">
+      <Option>Production</Option>
+      <Option>Transportation</Option>
+      <Option>Distribution</Option>
+    </Options>
+    <AttrDef name="boundary" options="boundaries" desc="The user-selected system boundary for all fields in an Analysis"/>
+
   </ClassAttrs>
 
   <!-- Attributes shared by all Processes. These values can be overridden in subprocesses -->
@@ -69,20 +79,6 @@
       <Option>Non-integrated with upgrader</Option>
     </Options>
     <AttrDef name="oil_sands_mine" options="oil_sands_mine_type" desc="Oil sands mine"/>
-
-    <Options name="oil_boundaries" default="Production">
-      <Option>Production</Option>
-      <Option>Transportation</Option>
-    </Options>
-    <AttrDef name="oil_boundary" options="oil_boundaries" desc="The user-selected system boundary for analysis of oil fields"/>
-
-    <Options name="gas_boundaries" default="Production">
-      <Option>Production</Option>
-      <Option>Transportation</Option>
-      <Option>Distribution</Option>
-    </Options>
-    <AttrDef name="gas_boundary" options="gas_boundaries" desc="The user-selected system boundary for analysis of gas fields"/>
-
 
     <!-- synchronized - these are just for testing purposes -->
     <AttrDef name="sync_attr_1" type="binary" synchronized="sync_test">0</AttrDef>

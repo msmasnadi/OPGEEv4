@@ -6,10 +6,11 @@
 '''
 import pandas as pd
 import pint
-from typing import Union
+from typing import Union, Optional
 
 from . import ureg
 from .attributes import AttrDefs, AttributeMixin
+from .config import getParamAsBoolean
 from .core import OpgeeObject, XmlInstantiable, elt_name, instantiate_subelts, magnitude
 from .container import Container
 from .error import OpgeeException, AbstractMethodError, OpgeeIterationConverged, OpgeeMaxIterationsReached
@@ -38,14 +39,29 @@ def _subclass_dict(superclass):
 
     :return: (dict) subclasses keyed by name
     """
-    d = {cls.__name__: cls for cls in get_subclasses(superclass)}
+    allow_redef = getParamAsBoolean('OPGEE.AllowProcessRedefinition')
+
+    d = {}
+
+    for cls in get_subclasses(superclass):
+        name = cls.__name__
+        prior = d.get(name)
+        if prior is not None and prior != cls:
+            msg = f"Class '{name}' is defined by both {cls} and {prior}"
+            if allow_redef:
+                print(msg)
+            else:
+                raise OpgeeException(msg)
+        else:
+            d[name] = cls
+
     return d
 
 
 #
 # Cache of known subclasses of Aggregator and Process
 #
-_Subclass_dict = None
+_Subclass_dict : Optional[dict] = None
 
 
 def reload_subclass_dict():
@@ -148,7 +164,7 @@ class Process(XmlInstantiable, AttributeMixin):
     In addition to testing for convergence, a "visit" counter in each ``Process`` is incremented each time the process
     is run (or bypassed) and if the count >= the Model's "maximum_iterations" attribute, ``OpgeeMaxIterationsReached``
     is likewise raised. Whichever limit is reached first will cause iterations to stop. Between model runs, the method
-    ``iteration_reset()`` is called for all processes to clear the visited counters and reset the iteration value to None.
+    ``field.reset()`` is called for all processes to clear the visited counters and reset the iteration value to None.
     """
 
     # Constants to support stream "finding" methods
@@ -199,6 +215,11 @@ class Process(XmlInstantiable, AttributeMixin):
         self.check_attr_constraints(self.attr_dict)
         self.process_EF = self.get_process_EF()
         self.field = self.get_field()
+
+    def reset(self):
+        self.energy.reset()
+        self.emissions.reset()
+        self.reset_iteration()
 
     #
     # Pass-through convenience methods for energy and emissions
@@ -355,7 +376,7 @@ class Process(XmlInstantiable, AttributeMixin):
         """
         return self.field.find_stream(name, raiseError=raiseError)
 
-    def _find_streams_by_type(self, direction, stream_type, combine=False, as_list=False, raiseError=True) -> Union[Stream, list]:
+    def _find_streams_by_type(self, direction, stream_type, combine=False, as_list=False, raiseError=True) -> Union[Stream, list, dict]:
         """
         Find the input or output streams (indicated by `direction`) that contain the indicated
         `stream_type`, e.g., 'crude oil', 'raw water' and so on.
@@ -381,7 +402,7 @@ class Process(XmlInstantiable, AttributeMixin):
         return combine_streams(streams, self.field.oil.API) if combine else (
             streams if as_list else {s.name: s for s in streams})
 
-    def find_input_streams(self, stream_type, combine=False, as_list=False, raiseError=True) -> list:
+    def find_input_streams(self, stream_type, combine=False, as_list=False, raiseError=True) -> Union[list, dict]:
         """
         Convenience method to call `_find_streams_by_type` with direction "input"
 
@@ -395,7 +416,7 @@ class Process(XmlInstantiable, AttributeMixin):
         return self._find_streams_by_type(self.INPUT, stream_type, combine=combine, as_list=as_list,
                                           raiseError=raiseError)
 
-    def find_output_streams(self, stream_type, combine=False, as_list=False, raiseError=True) -> list:
+    def find_output_streams(self, stream_type, combine=False, as_list=False, raiseError=True) -> Union[list, dict]:
         """
         Convenience method to call `_find_streams_by_type` with direction "output"
 
@@ -414,7 +435,6 @@ class Process(XmlInstantiable, AttributeMixin):
         Find exactly one input stream connected to a downstream Process that produces the indicated
         `stream_type`, e.g., 'crude oil', 'raw water' and so on.
 
-        :param direction: (str) 'input' or 'output'
         :param stream_type: (str) the generic type of stream a process can handle.
         :param raiseError: (bool) whether to raise an error if no handlers of `stream_type` are found.
         :return: (Streams or None)
@@ -433,7 +453,6 @@ class Process(XmlInstantiable, AttributeMixin):
         Find exactly one output stream connected to a downstream Process that consumes the indicated
         `stream_type`, e.g., 'crude oil', 'raw water' and so on.
 
-        :param direction: (str) 'input' or 'output'
         :param stream_type: (str) the generic type of stream a process can handle.
         :param raiseError: (bool) whether to raise an error if no handlers of `stream_type` are found.
         :return: (Streams or None)
@@ -528,7 +547,7 @@ class Process(XmlInstantiable, AttributeMixin):
 
             # TODO: we expect the series to have no units
             if isinstance(value, pd.Series):
-                diff = abs(value - prior_value)
+                diff = abs(value - prior_value) # type: pd.Series
                 if all(diff <= m.maximum_change):
                     self.iteration_converged = True
                     self.check_iterator_convergence()
@@ -568,7 +587,7 @@ class Process(XmlInstantiable, AttributeMixin):
     @classmethod
     def reset_all_iteration(cls):
         """
-        Reset the iteration value and counter in all interating processes.
+        Reset the iteration value and counter in all iterating processes.
 
         :return: none
         """
@@ -598,7 +617,7 @@ class Process(XmlInstantiable, AttributeMixin):
         :param analysis: (Analysis) the `Analysis` used to retrieve global settings
         :return: None
         """
-        raise AbstractMethodError(type(self), 'Process.run_internal')
+        raise AbstractMethodError(Process, 'Process.run')
 
     def check_balances(self):
         """
@@ -701,30 +720,6 @@ class Process(XmlInstantiable, AttributeMixin):
 
         return self.intermediate_results
 
-    def predict_blower_energy_use(self,
-                                  thermal_load,
-                                  air_cooler_delta_T,
-                                  water_press,
-                                  air_cooler_fan_eff,
-                                  air_cooler_speed_reducer_eff):
-        """
-        predict blower energy use per day.
-
-        :param air_cooler_speed_reducer_eff:
-        :param air_cooler_fan_eff:
-        :param water_press:
-        :param air_cooler_delta_T:
-        :param thermal_load: (float) thermal load (unit = btu/hr)
-        :return: (float) air cooling fan energy consumption (unit = "kWh/day)
-        """
-        field = self.field
-        blower_air_quantity = thermal_load / field.model.const("air-elevation-corr") / air_cooler_delta_T
-        blower_CFM = blower_air_quantity / field.model.const("air-density-ratio")
-        blower_delivered_hp = blower_CFM * water_press / air_cooler_fan_eff
-        blower_fan_motor_hp = blower_delivered_hp / air_cooler_speed_reducer_eff
-        air_cooler_energy_consumption = self.get_energy_consumption("Electric_motor", blower_fan_motor_hp)
-        return air_cooler_energy_consumption.to("kWh/day")
-
     def sum_intermediate_results(self):
         """
         Sum intermediate energy and emission results
@@ -734,6 +729,7 @@ class Process(XmlInstantiable, AttributeMixin):
 
         if self.intermediate_results is None:
             return
+
         self.energy.reset()
         self.emissions.reset()
 
@@ -804,6 +800,10 @@ class Process(XmlInstantiable, AttributeMixin):
                                     dtype="pint[g/mmBtu]")
         return emission_series
 
+    # TODO: This is currently used only once, in flaring.py. All that's really needed is the mass rate
+    # TODO: of CO2, so there's no reason to create a new Stream. Just sum the CO2 and use Stream.add_rate().
+    # TODO: I created (but haven't tested) a Stream.add_combustion_CO2_from(other_stream) which does this.
+    # TODO: (This seemed better located in the Stream class. So this should be removed once uses are changed.)
     @staticmethod
     def combust_stream(stream):
         """
@@ -889,6 +889,20 @@ class SurfaceSource(Process):
         self.print_running_msg()
 
 
+class ExternalSupply(Process):
+    """
+    ExternalSupply represents all resources acquired from outside the system boundaries,
+    e.g., municipal water, utility gas and electricity. It's purpose is simply to tally
+    these as demanded.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__("ExternalSupply", desc='Resources outside system boundaries')
+
+    def run(self, analysis):
+        self.print_running_msg()
+
+
 class Environment(Process):
     """
     Represents the environment, which in OPGEE is just a sink for emissions. The Environment
@@ -930,30 +944,37 @@ class Output(Process):
     def run(self, analysis):
         self.print_running_msg()
 
-        fn_unit = analysis.attr('functional_unit')
-        en_basis = analysis.attr('energy_basis')
-        oil = self.field.oil
+        # fn_unit = analysis.fn_unit
+        # oil = self.field.oil
+        #
+        # # TODO: Wennan, is this correct for gas as well?
+        # heating_values = oil.component_LHV_mass if analysis.use_LHV else oil.component_HHV_mass
+        #
+        # inputs = self.inputs
+        #
+        # if not inputs:
+        #     return ureg.Quantity(0.0, "MJ/day")
+        #
+        # # zero_mass_rate = None if inputs else ureg.Quantity(0.0, Stream._units)
+        #
+        # if fn_unit == 'oil':
+        #     mass_rate = sum([stream.liquid_flow_rate('oil') for stream in inputs])
+        #     energy_flow = mass_rate * heating_values['oil']
+        #
+        # elif fn_unit == 'gas':
+        #     mass_rates = sum([stream.components.loc[heating_values.index, PHASE_GAS] * heating_values
+        #                       for stream in inputs])
+        #     energy_flow = sum(mass_rates * heating_values)
+        #
+        # else:
+        #     raise OpgeeException(f"Unknown functional unit: '{fn_unit}'")  # should never happen
+        #
+        # self.energy_flow = energy_flow.to("MJ/day")
 
-        heating_values = oil.component_LHV_mass if en_basis == 'LHV' else oil.component_HHV_mass
-
-        inputs = self.inputs
-        zero_mass_rate = None if inputs else ureg.Quantity(0.0, Stream._units)
-
-        if fn_unit == 'oil':
-            mass_rate = sum([stream.liquid_flow_rate('oil') for stream in inputs]) if inputs else zero_mass_rate
-            energy_flow = mass_rate * heating_values['oil']
-
-        elif fn_unit == 'gas':
-            mass_rates = sum(
-                [stream.component[PHASE_GAS] * heating_values for stream in inputs]) if inputs else zero_mass_rate
-            energy_flow = sum(mass_rates * heating_values)
-
-        else:
-            raise OpgeeException(f"Unknown functional unit: '{fn_unit}'")  # should never happen
-
-        self.energy_flow = energy_flow.to("MJ/day")
-
-
+#
+# This class is defined here rather than in container.py to avoid import loops and to
+# allow the reference to Aggregator above.
+#
 class Aggregator(Container):
     def __init__(self, name, attr_dict=None, aggs=None, procs=None):
         super().__init__(name, attr_dict=attr_dict, aggs=aggs, procs=procs)

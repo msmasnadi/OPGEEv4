@@ -167,6 +167,7 @@ class Emissions(OpgeeObject):
         for gas, rate in kwargs.items():
             self.add_rate(category, gas, rate)
 
+    # TODO: Why does this add only CO2, CH4, and CO? What about all other components?
     def add_from_stream(self, category, stream):
         """
         Add emission flow rates from a Stream instance to the given emissions category.

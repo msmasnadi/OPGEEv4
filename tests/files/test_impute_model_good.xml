@@ -44,5 +44,7 @@
 		<Stream src="Impute3" dst="Impute4">
 			<Contains>CO2</Contains>
 		</Stream>
+
+		<Stream src="Impute1" dst="Environment" boundary="Production"/>
 	</Field>
 </Model>

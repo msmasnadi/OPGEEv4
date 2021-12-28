@@ -2,7 +2,7 @@
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
 
 	<Analysis name="test_gas_path_2">
-		<A name="functional_unit">oil</A>
+		<A name="functional_unit">gas</A>
 		<A name="energy_basis">LHV</A>
 	  <A name="GWP_horizon">100</A>
 	  <A name="GWP_version">AR5</A>
@@ -109,7 +109,6 @@
 		<Process class="GasLiftingCompressor"/>
 		<Process class="GasReinjectionCompressor"/>
 		<Process class="GasFloodingCompressor"/>
-		<Process class="After"/>
 		<Process class="GasReinjectionWell"/>
 		<Process class="TransmissionCompressor"/>
 
@@ -149,7 +148,7 @@
 			<Contains>water for subsurface disposal</Contains>
 		</Stream>
 
-		<Stream src="Separation" dst="Flaring" name="separation to flaring" boundary="Production">
+		<Stream src="Separation" dst="Flaring" name="separation to flaring">
 			<Contains>gas</Contains>
 		</Stream>
 
@@ -193,7 +192,8 @@
 <!--			<Contains>oil for storage</Contains>-->
 <!--		</Stream>-->
 
-		<Stream src="CrudeOilStorage" dst="Environment" name="crude oil storage to environment">
+		<!-- temporary boundary since there doesn't seem to be anywhere that's not in a cycle -->
+		<Stream src="CrudeOilStorage" dst="Environment" name="crude oil storage to environment" boundary="Production">
 			<Contains>gas fugitives</Contains>
 		</Stream>
 

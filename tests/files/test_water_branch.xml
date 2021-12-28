@@ -69,13 +69,13 @@
 		<Stream src="Separation" dst="WaterTreatment" name="separator to produced water treatment">
 			<Contains>water</Contains>
 		</Stream>
-		
+
 		<Stream src="WaterTreatment" dst="Output" name="produced water treatment to output">
 			<Contains>water for surface disposal</Contains>
 			<Contains>water for subsurface disposal</Contains>
 		</Stream>
 
-		<Stream src="Environment" dst="WaterTreatment" name="environment to produced water treatment">
+		<Stream src="ExternalSupply" dst="WaterTreatment">
 			<Contains>makeup water</Contains>
 		</Stream>
 
@@ -87,7 +87,7 @@
 			<Contains>makeup water for steam generation</Contains>
 		</Stream>
 
-		<Stream src="WaterTreatment" dst="WaterInjection" name="produced water treatment to water injection">
+		<Stream src="WaterTreatment" dst="WaterInjection">
 			<Contains>produced water for water injection</Contains>
 		</Stream>
 
@@ -99,7 +99,7 @@
 			<Contains>blowdown water</Contains>
 		</Stream>
 
-		<Stream src="SteamGeneration" dst="Environment" name="steam generation to environment">
+		<Stream src="SteamGeneration" dst="Environment" name="steam generation to environment" boundary="Production"> <!-- arbitrary boundary for testing -->
 			<Contains>waste water</Contains>
 		</Stream>
 
@@ -127,6 +127,7 @@
 			<Contains>crude oil</Contains>
 		</Stream>
 
+		<!-- TODO: "Output" should never be a source -->
 		<Stream src="Output" dst="DownholePump" name="lifting gas" impute="False">
 			<Contains>lifting gas</Contains>
 		</Stream>
@@ -217,7 +218,7 @@
 			<Contains>water for subsurface disposal</Contains>
 		</Stream>
 
-		<Stream src="Environment" dst="WaterTreatment" name="environment to produced water treatment">
+		<Stream src="ExternalSupply" dst="WaterTreatment" name="environment to produced water treatment">
 			<Contains>makeup water</Contains>
 		</Stream>
 
@@ -241,7 +242,7 @@
 			<Contains>blowdown water</Contains>
 		</Stream>
 
-		<Stream src="SteamGeneration" dst="Environment" name="steam generation to environment">
+		<Stream src="SteamGeneration" dst="Environment" name="steam generation to environment" boundary="Production">	<!-- set boundary arbitrarily -->
 			<Contains>waste water</Contains>
 		</Stream>
 

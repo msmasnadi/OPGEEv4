@@ -99,8 +99,7 @@
         <xs:element ref='Component'/>
         <xs:element ref="Contains"/>
       </xs:choice>
-      <xs:attribute name='name'/>                      <!-- allow this for now, but will be computed -->
-      <xs:attribute name='number' type='xs:integer'/>  <!-- allow this for now, but probably will be deprecated -->
+      <xs:attribute name='name'/>                      <!-- computed if not provided -->
       <xs:attribute name='src' use='required'/>
       <xs:attribute name='dst' use='required'/>
       <xs:attribute name="impute" default="1"/>        <!-- if false, don't traverse during impute() processing -->

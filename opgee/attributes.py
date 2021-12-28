@@ -253,6 +253,9 @@ class AttributeMixin():
         return obj.value if obj else None
 
     def set_attr(self, attr_name, value):
+        """
+        Set `attr_name`, which must be a known attribute, to `value`.
+        """
         obj = self.attr_dict.get(attr_name)
         if obj is None:
             raise OpgeeException(f"Attribute '{attr_name}' not found in {self}")
@@ -346,7 +349,7 @@ class AttributeMixin():
         # Check numeric constraints
         for attr_name, attr in attr_dict.items():
             # If the definition of an attribute of a subprocess is not known, look at Process's attributes
-            attr_def = class_attrs.attr_dict.get(attr_name) or (is_a_process(cls) and process_attr_dict.get(attr_name))
+            attr_def = class_attrs.attr_dict.get(attr_name) or (process_attr_dict.get(attr_name) if is_a_process(cls) else None)
             if not attr_def:
                 raise OpgeeException(f"Attribute '{attr_name}' not found for class '{cls.__name__}'")
 

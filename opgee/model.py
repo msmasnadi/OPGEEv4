@@ -8,7 +8,7 @@ from . import ureg
 from .analysis import Analysis
 from .container import Container
 from .core import instantiate_subelts, elt_name
-from .config import getParam
+from .config import getParam, unixPath
 from .error import OpgeeException
 from .field import Field
 from .log import getLogger
@@ -154,10 +154,13 @@ class Model(Container):
 
 class ModelFile(XMLFile):
     """
-    Represents the overall parameters.xml file.
+    Represents the overall opgee.xml file.
     """
 
-    def __init__(self, filename, stream=None, add_stream_components=True, use_class_path=True, forget_boundaries=True):
+    # Remember paths loaded so we avoid reloading them and re-defining Process subclasses
+    _loaded_module_paths = dict()
+
+    def __init__(self, filename, stream=None, add_stream_components=True, use_class_path=True):
         """
         Several steps are performed, some of which are dependent on the function's parameters:
 
@@ -171,9 +174,7 @@ class ModelFile(XMLFile):
         "OPGEE.ClassPath". Note that all classes referenced by the XML must be defined internally
         by opgee, or in the user's files indicated by "OPGEE.ClassPath".
 
-        4. If `forget_boundaries` is True, Stream's dictionary of system boundaries is cleared.
-
-        5. Construct the model data structure from the input XML file and store the result in `self.model`.
+        4. Construct the model data structure from the input XML file and store the result in `self.model`.
 
         :param filename: (str) the name of the file to read, if `stream` is None, else the description
            of the file, e.g., "[opgee package]/etc/opgee.xml".
@@ -188,13 +189,18 @@ class ModelFile(XMLFile):
                 names = splitAndStrip(extra_components, ',')
                 Stream.extend_components(names)
 
-        if forget_boundaries:
-            Stream.forget_boundaries()
-
         # We expect a single 'Analysis' element below Model
         _logger.debug("Loading model file: %s", filename)
 
         super().__init__(stream or filename, schemaPath='etc/opgee.xsd')
+
+        def _load_from_path(module_path):
+            module_path = unixPath(module_path)
+            if module_path in self._loaded_module_paths:
+                _logger.warn(f"Refusing to reload previously loaded module path {module_path}")
+            else:
+                loadModuleFromPath(module_path)
+                self._loaded_module_paths[module_path] = True
 
         if use_class_path:
             class_path = getParam('OPGEE.ClassPath')
@@ -202,9 +208,10 @@ class ModelFile(XMLFile):
             for path in paths:
                 if path.is_dir():
                     for module_path in path.glob('*.py'):  # load all .py files found in directory
-                        loadModuleFromPath(module_path)
+                        _load_from_path(module_path)
                 else:
-                    loadModuleFromPath(path)
+                    print(f"Loading module from '{path}'")
+                    _load_from_path(path)
 
             reload_subclass_dict()
 
@@ -213,4 +220,3 @@ class ModelFile(XMLFile):
 
         # If we're reading a stream, we'll show that in the GUI
         self.model.set_pathname(str(stream) if stream else filename)
-        self.model

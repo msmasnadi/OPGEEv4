@@ -10,11 +10,11 @@
 	</Analysis>
 
 	<Field name="field1">
-		<Process class="ProcA"/>
-		<Process class="ProcB"/>
-		<Process class="ProcC"/>
+		<Process class="BoundaryStreamsProcA"/>
+		<Process class="BoundaryStreamsProcB"/>
+		<Process class="BoundaryStreamsProcC"/>
 
-		<Stream src="ProcA" dst="ProcB" name="production site boundary" boundary="Production">
+		<Stream src="BoundaryStreamsProcA" dst="BoundaryStreamsProcB" name="production site boundary" boundary="Production">
 			<Component name="N2" phase="gas">25.7</Component>
 			<Component name="CO2" phase="gas">0.2</Component>
 			<Component name="C1" phase="gas">435.0</Component>
@@ -26,7 +26,7 @@
 			<Contains>gas from production site</Contains>
 		</Stream>
 
-		<Stream src="ProcB" dst="ProcC" name="distribution boundary" boundary="Distribution">
+		<Stream src="BoundaryStreamsProcB" dst="BoundaryStreamsProcC" name="distribution boundary" boundary="Distribution">
 			<Contains>gas for transmission</Contains>
 		</Stream>
 

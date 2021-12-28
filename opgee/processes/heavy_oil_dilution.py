@@ -78,6 +78,9 @@ class HeavyOilDilution(Process):
 
         input = self.find_input_streams("oil for dilution", combine=True)
 
+        # TODO: use this instead of dereferencing from self 8 times below. Less text is more readable, too.
+        frac_diluent = self.frac_diluent
+
         total_mass_oil_bitumen_before_dilution = input.liquid_flow_rate("oil")
         final_SG = self.oil_SG if self.oil_sand_mine is None else self.bitumen_SG
         total_volume_oil_bitumen_before_dilution = 0 if self.frac_diluent == 1 else \

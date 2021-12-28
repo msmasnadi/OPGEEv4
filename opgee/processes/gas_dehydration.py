@@ -58,6 +58,7 @@ class GasDehydration(Process):
         gas_fugitives.copy_flow_rates_from(gas_fugitives_temp)
         gas_fugitives.set_temperature_and_pressure(self.std_temp, self.std_press)
 
+        # TODO: Wrap only the call you expect to raise the exception in try/except. Looks like the first one only?
         try:
             output = self.gas_path_dict[self.gas_path]
             output_gas = self.find_output_stream(output)

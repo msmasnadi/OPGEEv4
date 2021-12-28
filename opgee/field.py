@@ -1,10 +1,12 @@
 import networkx as nx
 from . import ureg
+from .config import getParamAsList
 from .container import Container
 from .core import elt_name, instantiate_subelts, dict_from_list
-from .error import OpgeeException, OpgeeStopIteration, OpgeeMaxIterationsReached, OpgeeIterationConverged
+from .error import (OpgeeException, OpgeeStopIteration, OpgeeMaxIterationsReached,
+                    OpgeeIterationConverged, ModelValidationError)
 from .log import getLogger
-from .process import Process, Environment, Reservoir, Output, Aggregator, SurfaceSource
+from .process import Process, Aggregator, Environment, Reservoir, Output, SurfaceSource, ExternalSupply
 from .process_groups import ProcessChoice
 from .stream import Stream
 from .thermodynamics import Oil, Gas, Water
@@ -21,9 +23,19 @@ class Field(Container):
     gas field, and the `Stream` instances that connect them. It also holds instances
     of `Reservoir` and `Environment`, which are sources and sinks, respectively, in
     the process structure.
+
+    See {opgee}/etc/attributes.xml for attributes defined for the `<Field>`.
+
+    Fields can contain mutually exclusive process choice sets that group processes to
+    be enabled or disabled together as a coherent group. The "active" set is determimed
+    by the value of attributes named the same as the `<ProcessChoice>` element.
+
+    TBD: add a link to the appropriate section of opgee-xml.rst
     """
+
     def __init__(self, name, attr_dict=None, aggs=None, procs=None, streams=None, group_names=None,
                  process_choice_dict=None):
+
         # Note that `procs` include only Processes defined at the top-level of the field.
         # Other Processes maybe defined within the Aggregators in `aggs`.
         super().__init__(name, attr_dict=attr_dict, aggs=aggs, procs=procs)
@@ -33,14 +45,38 @@ class Field(Container):
         self.group_names = group_names
         self.stream_dict = dict_from_list(streams)
 
+        # Remember streams that declare themselves as system boundaries. Keys must be one of the
+        # values in the tuples in the _known_boundaries dictionary above.
+        self.boundary_dict = boundary_dict = {}
+
+        self.known_boundaries = known_boundaries = set(getParamAsList('OPGEE.Boundaries'))
+
+        # Save references to boundary streams by name; fail if duplicate definitions are found.
+        for stream in streams:
+            boundary = stream.boundary
+            if boundary:
+                if boundary not in known_boundaries:
+                    raise OpgeeException(f"{self}: {stream} boundary {boundary} is not a known boundary name. Must be one of {known_boundaries}")
+
+                other = boundary_dict.get(boundary)
+                if other:
+                    raise OpgeeException(
+                        f"{self}: Duplicate declaration of boundary '{boundary}' in streams {stream} and {other}")
+
+                boundary_dict[boundary] = stream
+                _logger.debug(f"{self}: {stream} defines boundary '{boundary}'")
+
         self.process_choice_dict = process_choice_dict
 
-        self.environment = Environment()  # one per field
-        self.reservoir = Reservoir()  # one per field
-        self.surface_source = SurfaceSource()  # one per field
+        # Each Field has one of these built-in processes
+        self.environment = Environment()
+        self.reservoir = Reservoir()
+        self.surface_source = SurfaceSource()
+        self.external_supply = ExternalSupply()
         self.output = Output()  # Deprecated?
 
-        self.builtin_procs = [self.environment, self.reservoir, self.surface_source, self.output]
+        self.builtin_procs = [self.environment, self.reservoir, self.surface_source,
+                              self.external_supply, self.output]
         all_procs = self.collect_processes()  # includes reservoir and environment
         self.process_dict = self.adopt(all_procs, asDict=True)
 
@@ -66,10 +102,17 @@ class Field(Container):
 
         self.process_data = {}
 
+        # Set in _after_init()
+        self.std_temp  = None
+        self.std_press = None
+
     def _after_init(self):
         self.check_attr_constraints(self.attr_dict)
 
-        self.model = self.find_parent('Model')
+        self.model = model = self.find_parent('Model')
+
+        self.std_temp  = model.const("std-temperature")
+        self.std_press = model.const("std-pressure")
 
         for iterator in [self.processes(), self.streams(), [self.oil, self.gas, self.water, self.steam_generator]]:
             for obj in iterator:
@@ -116,7 +159,7 @@ class Field(Container):
         except OpgeeStopIteration:
             raise OpgeeException("Impute failed due to a process loop. Use Stream attribute impute='0' to break cycle.")
 
-    def run(self, analysis):
+    def run(self, analysis, resolve_process_choices=True):
         """
         Run all Processes defined for this Field, in the order computed from the graph
         characteristics, using the settings in `analysis` (e.g., GWP).
@@ -127,13 +170,28 @@ class Field(Container):
         if self.is_enabled():
             _logger.debug(f"Running '{self}'")
 
-            self.reset_streams()
-            self.iteration_reset()
+            if resolve_process_choices:
+                self.resolve_process_choices()
+
+            self.reset()
             self._impute()
 
-            self.iteration_reset()
+            self.reset_iteration()
             self.run_processes(analysis)
+
             self.check_balances()
+
+    def reset(self):
+        self.reset_streams()
+        self.reset_processes()
+
+    def reset_iteration(self):
+        for proc in self.processes():
+            proc.reset_iteration()
+
+    def reset_processes(self):
+        for proc in self.processes():
+            proc.reset()    # also resets iteration
 
     def reset_streams(self):
         for stream in self.streams():
@@ -148,32 +206,121 @@ class Field(Container):
         for p in self.processes():
             p.check_balances()
 
+    # TODO: maybe move to Analysis
+    @staticmethod
+    def _check_attr_value(analysis, attr_name, choices):
+        value = analysis.attr(attr_name)
+        if not value in choices:
+            raise OpgeeException(f"compute_carbon_intensity: {attr_name} is {value}; must be one of {choices}")
+
+        return value
+
+    def boundary_stream(self, analysis) -> Stream:
+        """
+        Return the currently chosen boundary stream, per the `Analysis` instance.
+
+        :return: (opgee.Stream) the currently chosen boundary stream
+        """
+        try:
+            return self.boundary_dict[analysis.boundary]
+        except KeyError:
+            raise OpgeeException(f"{self} does not declare boundary stream '{analysis.boundary}'.")
+
+    def defined_boundaries(self):
+        """
+        Return the names of all boundaries defined in configuration system)
+        """
+        return self.known_boundaries
+
+    def energy_flow_rate(self, analysis, raiseError=True):
+        """
+        Return the energy flow rate for the user's chosen system boundary, functional unit
+        (oil vs gas), and energy basis (LHV vs HHV)
+
+        :param analysis: (opgee.Analysis) the chosen `Analysis` object
+        :param raiseError: (bool) whether to raise an error if the energy flow is zero at the boundary
+        :return: (pint.Quantity) the energy flow at the boundary
+        """
+        boundary_stream = self.boundary_stream(analysis)
+        boundary_name = boundary_stream.boundary
+
+        obj = self.oil if analysis.fn_unit == 'oil' else self.gas
+        energy = obj.energy_flow_rate(boundary_stream, use_LHV=analysis.use_LHV)
+
+        if energy.m == 0:
+            msg = f"energy_flow_rate: zero energy flow rate for {boundary_name} boundary stream {boundary_stream}"
+            if raiseError:
+                raise OpgeeException(msg)
+            else:
+                _logger.warning(msg)
+
+        self.boundary_energy_flow = energy
+        return energy
+
     def compute_carbon_intensity(self, analysis):
         rates = self.emissions.rates(analysis.gwp)
         emissions = rates.loc['GHG'].sum()
-
-        def check_value(attr_name, choices):
-            value = analysis.attr(attr_name)
-            if not value in choices:
-                raise OpgeeException(f"compute_carbon_intensity: {attr_name} is {value}; must be one of {choices}")
-
-            return value
-
-        fn_unit = check_value("functional_unit", analysis.functional_units)
-        energy_basis = check_value("energy_basis", analysis.energy_bases)
-
-        boundary_attr = fn_unit + '_boundary'       # {oil_boundary, gas_boundary}
-        boundary = self.attr(boundary_attr)         # {Production, Transportation, Distribution}
-        Stream.validate_boundary(boundary, fn_unit=fn_unit)
-
-        boundary_stream = Stream.boundary_stream(boundary)
-        self.boundary_energy_flow = energy = self.gas.energy_flow_rate(boundary_stream, energy_basis)
+        energy = self.energy_flow_rate(analysis, raiseError=False)
 
         if energy.m == 0:
-            raise OpgeeException(f"compute_carbon_intensity: zero energy flow rate in {boundary} boundary stream {boundary_stream}")
+            raise OpgeeException(f"compute_carbon_intensity: zero energy flow rate at boundary stream")
 
         self.carbon_intensity = ci = (emissions / energy).to('grams/MJ')
         return ci
+
+    def validate(self, analysis):
+        """
+        Perform logical checks on the field after loading the entire model to ensure the field
+        is "well-defined". This allows the processing code to avoid testing validity at run-time.
+        Field conditions include:
+
+        - Cycles cannot span the current boundary.
+        - Aggregators cannot span the current boundary.
+        - The chosen system boundary is defined for this field
+
+        :param analysis: (opgee.Analysis) the current `Analysis`
+        :return: none
+        :raises ModelValidationError: raised if any validation condition is violated.
+        """
+
+        # Cycles cannot span the current boundary. Test this by checking that the boundary
+        # stream's src_proc and dst_proc are not in the same cycle. (N.B. __init__ evaluates
+        # and stores cycles.)
+        stream = self.boundary_stream(analysis)
+
+        # Check that there are Processes outside the current boundary. If not, nothing more to do.
+        beyond = stream.beyond_boundary()
+        if not beyond:
+            return
+
+        # Accumulate error msgs so user can correct them all at once.
+        msgs = []
+
+        src = stream.src_proc
+        dst = stream.dst_proc
+        for cycle in self.cycles:
+            if src in cycle and dst in cycle:
+                msgs.append(f"{stream.boundary} boundary {stream} spans a process cycle.")
+                break
+
+        # There will generally be far fewer Processes outside the system boundary than within,
+        # so we check that procs outside the boundary are not in Aggregators with members inside.
+        aggs = self.descendant_aggs()
+        for agg in aggs:
+            procs = agg.descendant_procs()
+            if not procs:
+                continue
+
+            # See if first proc is inside or beyond the boundar, then make sure the rest are the same
+            is_inside = procs[0] not in beyond
+            is_beyond = not is_inside               # improves readability
+            for proc in procs:
+                if (is_inside and proc in beyond) or (is_beyond and proc not in beyond):
+                    msgs.append(f"{agg} spans the {stream.boundary} boundary.")
+
+        if msgs:
+            msg = "\n - ".join(msgs)
+            raise ModelValidationError(f"Field validation failed:{msg}")
 
     def report(self, analysis):
         name = self.name
@@ -272,8 +419,8 @@ class Field(Container):
 
                 process_successors(start_procs[0])
             else:
-                # TBD: Compute ordering by looking for procs in cycle that are successors to cycle_independent procs.
-                # TBD: For now, just copy run using procs_in_cycles.
+                # TBD: Compute ordering by looking for procs in cycle that are successors to
+                #      cycle_independent procs. For now, just copy run using procs_in_cycles.
                 ordered_cycle = procs_in_cycles
 
             # Iterate on the processes in cycle until a termination condition is met and an
@@ -343,10 +490,6 @@ class Field(Container):
             raise OpgeeException(f"Process choice '{name}' not found in field '{self.name}'")
 
         return choice_node
-
-    def iteration_reset(self):
-        for proc in self.processes():
-            proc.reset_iteration()
 
     def find_stream(self, name, raiseError=True):
         """
@@ -523,8 +666,6 @@ class Field(Container):
 
         :return: none
         """
-        import logging
-
         visited = {}  # traverse a process only the first time it's encountered
 
         def debug(msg):

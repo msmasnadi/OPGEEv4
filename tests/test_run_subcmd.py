@@ -18,6 +18,7 @@ def test_run_test_model(opgee):
         opgee.run(None, ['run', '-f', 'test', '--no_default_model', '-m', xml_path])
         good = True
     except Exception as e:
+        print(e)
         good = False
 
     assert good

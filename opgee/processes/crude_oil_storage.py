@@ -11,15 +11,19 @@ class CrudeOilStorage(Process):
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
+
         self.oil = field.oil
-        self.std_temp = field.model.const("std-temperature")
-        self.std_press = field.model.const("std-pressure")
-        self.tonne_to_bbl = field.model.const("tonne-to-bbl")
+        self.oil_sands_mine = field.attr("oil_sands_mine")
+
+        model = field.model
+        self.std_temp = model.const("std-temperature")
+        self.std_press = model.const("std-pressure")
+        self.tonne_to_bbl = model.const("tonne-to-bbl")
+
         self.storage_gas_comp = self.attrs_with_prefix("storage_gas_comp_")
         self.CH4_comp = self.attr("storage_gas_comp_C1")
         self.f_FG_CS_VRU = self.attr("f_FG_CS_VRU")
         self.f_FG_CS_FL = self.attr("f_FG_CS_FL")
-        self.oil_sands_mine = field.attr("oil_sands_mine")
 
     def run(self, analysis):
         self.print_running_msg()

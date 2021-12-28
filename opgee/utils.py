@@ -10,11 +10,6 @@ import argparse
 import os
 import sys
 
-# Deprecated
-#import re
-#import subprocess
-#from contextlib import contextmanager
-
 from .config import unixPath
 from .error import OpgeeException
 from .log import getLogger
@@ -330,7 +325,7 @@ def loadModuleFromPath(module_path, raiseError=True):
 
     # Extract the module name from the module path
     module_path = unixPath(module_path)
-    base        = os.path.basename(module_path)
+    base = os.path.basename(module_path)
     module_name = base.split('.')[0]
 
     _logger.debug('loading module %s' % module_path)

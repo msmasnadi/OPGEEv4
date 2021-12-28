@@ -50,6 +50,7 @@ class DownholePump(Process):
         output.subtract_gas_rates_from(gas_fugitives)
         output.set_temperature_and_pressure(self.wellhead_temp, self.wellhead_press)
 
+        # TODO: why do all the work above just to return if this is missing? Is all the rest only for downhole_pump?
         if not self.downhole_pump:
             return
 
