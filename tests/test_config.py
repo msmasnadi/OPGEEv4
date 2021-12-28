@@ -6,12 +6,12 @@ def test_unixpath():
 
 def test_expanduser():
     home = os.getenv('HOME')
-    assert pathjoin("~", "foo", expanduser=True) == f"{home}/foo"
+    assert pathjoin("~", "foo", expanduser=True) == unixPath(f"{home}/foo")
 
 def test_abspath():
     home = os.getenv('HOME')
     os.chdir(home)
-    assert pathjoin("foo", "bar", abspath=True) == f"{home}/foo/bar"
+    assert pathjoin("foo", "bar", abspath=True) == unixPath(f"{home}/foo/bar")
 
 def test_reload():
     getConfig()
