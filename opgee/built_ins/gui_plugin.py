@@ -1,5 +1,13 @@
 from ..subcommand import SubcommandABC #, clean_help
 
+from ..process import Process, _subclass_dict
+
+# TODO: this is a hack to get some of our test files working
+if 'Output' not in _subclass_dict(Process):
+    class Output(Process):
+        def run(self, analysis):
+            pass
+
 DFLT_FIELD = 'test'
 DFLT_ANALYSIS = 'test'
 
