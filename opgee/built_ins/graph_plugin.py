@@ -23,7 +23,7 @@ class GraphCommand(SubcommandABC):
                             Process subclasses (of which there are dozens) or only the "core" classes excluding
                             Process subclasses.'''))
 
-        parser.add_argument('-C', '--classes_output',
+        parser.add_argument('-C', '--classes-output',
                             help=clean_help('''The pathname of the image file to create for classes. If none 
                             is specified, and the code is running in a jupyter notebook, the image is 
                             displayed inline. (Implies --classes.)'''))
@@ -31,7 +31,7 @@ class GraphCommand(SubcommandABC):
         parser.add_argument('-f', '--field',
                             help=clean_help('''Graph the process network for the named field.'''))
 
-        parser.add_argument('-F', '--field_output',
+        parser.add_argument('-F', '--field-output',
                             help=clean_help('''The pathname of the image file to create with process connections
                             for the field specified in the --field argument. If no file is specified, and the code
                             is running in a jupyter notebook, the image is displayed inline.'''))
@@ -39,10 +39,10 @@ class GraphCommand(SubcommandABC):
         parser.add_argument('-l', '--levels', type=int, default=0,
                             help=clean_help('''How many levels to descend when graphing the model hierarchy'''))
 
-        parser.add_argument('-m', '--model_hierarchy', action='store_true',
+        parser.add_argument('-m', '--model-hierarchy', action='store_true',
                             help=clean_help('''Graph the model container hierarchy.'''))
 
-        parser.add_argument('-M', '--hierarchy_output',
+        parser.add_argument('-M', '--hierarchy-output',
                             help=clean_help('''The pathname of the image file to create for classes. If none 
                             is specified, and the code is running in a jupyter notebook, the image is 
                             displayed inline. (Implies --model_hierarchy.)'''))

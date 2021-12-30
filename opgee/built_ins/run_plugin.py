@@ -27,12 +27,12 @@ class RunCommand(SubcommandABC):
                             use the syntax "analysis_name.field_name". Otherwise the field will be run for each
                             Analysis the field name occurs within (respecting the --analyses flag).'''))
 
-        parser.add_argument('-m', '--model_file',
+        parser.add_argument('-m', '--model-file',
                             help=clean_help('''An XML model definition file to load. If --no_default_model is *not* specified,
                             (i.e., the default model is loaded), the XML file specified here will be merged with the default
                             model.'''))
 
-        parser.add_argument('-n', '--no_default_model', action='store_true',
+        parser.add_argument('-n', '--no-default-model', action='store_true',
                             help=clean_help('''Don't load the built-in opgee.xml model definition.'''))
 
         return parser

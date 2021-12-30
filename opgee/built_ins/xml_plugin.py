@@ -99,7 +99,7 @@ class XmlCommand(SubcommandABC):
                             help=clean_help('''The number of rows to import from the CSV file. 
                             Default is 0, which means import all rows.'''))
 
-        parser.add_argument('-p', '--fromPackage', action='store_true',
+        parser.add_argument('-p', '--from-package', action='store_true',
                             help=clean_help('''If specified, the inputCSV argument is treated as relative to 
                             the opgee package and loaded as an internal resource.'''))
 

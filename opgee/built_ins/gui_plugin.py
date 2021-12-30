@@ -35,7 +35,7 @@ class GUICommand(SubcommandABC):
         parser.add_argument('-f', '--field', default=DFLT_FIELD,
                             help=f'''The field to display. Default (for testing) is "{DFLT_FIELD}"''')
 
-        parser.add_argument('-m', '--modelFile', default=None,
+        parser.add_argument('-m', '--model-file', default=None,
                             help=f'''The OPGEE model XML file to read. Default is the value of config variable 'OPGEE.ModelFile', 
                                      if defined, otherwise the built-in opgee.xml.''')
 
