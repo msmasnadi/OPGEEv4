@@ -64,7 +64,7 @@ class RunCommand(SubcommandABC):
             mf = ModelFile(model_file)
             user_model = mf.model
 
-        # TBD: write this, probably in model.py
+        # TBD: remove this after writing merge that works at the XML level
         def merge_models(model1, model2):
             # if one or the other is None, return the other
             if not (model1 and model2):

@@ -20,7 +20,6 @@ from .XMLFile import XMLFile
 
 _logger = getLogger(__name__)
 
-
 class Model(Container):
 
     def __init__(self, name, analyses, fields, attr_dict=None):
@@ -216,6 +215,9 @@ class ModelFile(XMLFile):
             reload_subclass_dict()
 
         self.root = self.tree.getroot()
+
+        # TBD: read and merge user file prior to calling from_xml(root)
+
         self.model = Model.from_xml(self.root)
 
         # If we're reading a stream, we'll show that in the GUI
