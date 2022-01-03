@@ -39,8 +39,7 @@ class RunCommand(SubcommandABC):
 
     def run(self, args, tool):
         from ..error import CommandlineError
-        from ..model import ModelFile
-        from ..pkg_utils import resourceStream
+        from ..model_file import ModelFile
 
         use_default_model = not args.no_default_model
         model_file = args.model_file
@@ -53,28 +52,8 @@ class RunCommand(SubcommandABC):
         if not (use_default_model or model_file):
             raise CommandlineError("No model to run: the --model_file option was not used and --no_default_model was specified.")
 
-        builtin_model = user_model = None
-
-        if use_default_model:
-            s = resourceStream('etc/opgee.xml', stream_type='bytes', decode=None)
-            mf = ModelFile('[opgee]/etc/opgee.xml', stream=s)
-            builtin_model = mf.model
-
-        if model_file:
-            mf = ModelFile(model_file)
-            user_model = mf.model
-
-        # TBD: remove this after writing merge that works at the XML level
-        def merge_models(model1, model2):
-            # if one or the other is None, return the other
-            if not (model1 and model2):
-                return model1 or model2 or None
-
-            # TBD: do the actual merge
-            return None
-
-        model = merge_models(builtin_model, user_model)
-        model.validate()
+        mf = ModelFile(model_file, use_default_model=use_default_model)
+        model = mf.model
 
         all_analyses = model.analyses()
         if analysis_names:

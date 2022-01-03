@@ -92,7 +92,7 @@ class XmlCommand(SubcommandABC):
 
     def __init__(self, subparsers):
         kwargs = {'help' : '''Convert various CSV files to their corresponding XML representation.'''}
-        super().__init__('xml', subparsers, kwargs, group='project')
+        super().__init__('csv2xml', subparsers, kwargs, group='project')
 
     def addArgs(self, parser):
         parser.add_argument('-n', '--count', type=int, default=0,

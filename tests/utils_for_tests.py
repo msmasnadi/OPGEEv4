@@ -1,5 +1,5 @@
 from opgee.config import pathjoin
-from opgee.model import ModelFile
+from opgee.model_file import ModelFile
 from opgee.process import Process
 
 class ProcA(Process):
@@ -18,8 +18,10 @@ def path_to_test_file(filename):
     path = pathjoin(__file__, '..', f'files/{filename}', abspath=True)
     return path
 
-def load_test_model(xml_file, add_stream_components=False, use_class_path=False):
-    # reload_subclass_dict()
+def load_test_model(xml_file, add_stream_components=False, use_class_path=False, use_default_model=False):
     xml_path = path_to_test_file(xml_file)
-    mf = ModelFile(xml_path, add_stream_components=add_stream_components, use_class_path=use_class_path)
+    mf = ModelFile(xml_path,
+                   add_stream_components=add_stream_components,
+                   use_class_path=use_class_path,
+                   use_default_model=use_default_model)
     return mf.model

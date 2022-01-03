@@ -47,6 +47,9 @@ class GraphCommand(SubcommandABC):
                             is specified, and the code is running in a jupyter notebook, the image is 
                             displayed inline. (Implies --model_hierarchy.)'''))
 
+        parser.add_argument('-n', '--no-default-model', action='store_true',
+                            help=clean_help('''Don't load the built-in opgee.xml model definition.'''))
+
         parser.add_argument('-x', '--xml_file', default=None,
                             help="""The path to the model XML file to load. By default, the built-in opgee.xml is loaded.""")
         return parser
@@ -54,14 +57,10 @@ class GraphCommand(SubcommandABC):
     def run(self, args, tool):
         from ..error import CommandlineError
         from ..graph import write_model_diagram, write_class_diagram, write_process_diagram
-        from ..model import ModelFile
-        from ..pkg_utils import resourceStream
+        from ..model_file import ModelFile
 
-        if args.xml_file:
-            mf = ModelFile(args.xml_file)
-        else:
-            s = resourceStream('etc/opgee.xml', stream_type='bytes', decode=None)
-            mf = ModelFile('[opgee package]/etc/opgee.xml', stream=s)
+        use_default_model = not args.no_default_model
+        mf = ModelFile(args.xml_file, use_default_model=use_default_model)
 
         model = mf.model
 

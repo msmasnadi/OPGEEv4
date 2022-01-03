@@ -1,14 +1,8 @@
 import pytest
-from opgee.model import ModelFile
-from .utils_for_tests import path_to_test_file
+from .utils_for_tests import load_test_model
 
-@pytest.fixture(scope="module")
-def field_groups_model(configure_logging_for_tests):
-    xml_path = path_to_test_file('field_groups_model.xml')
-    mf = ModelFile(xml_path, add_stream_components=False, use_class_path=False)
-    return mf.model
-
-def test_field_groups(field_groups_model):
+def test_field_groups():
+    field_groups_model = load_test_model('field_groups_model.xml')
     field_groups_model.validate()
     analysis = field_groups_model.get_analysis('test')
     # Pattern should match only fields 'test1' and 'test2', and not 'test3'

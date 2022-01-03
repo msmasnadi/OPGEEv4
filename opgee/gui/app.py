@@ -4,7 +4,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State, ClientsideFunction
-from ..model import ModelFile
+from ..model_file import ModelFile
 from ..log import getLogger
 
 from .widgets import get_analysis_and_field, horiz_space, pulldown_style, label_style
@@ -37,7 +37,7 @@ def app_layout(app, model, analysis):
             html.Div([
                 html.Center([
                     html.Span("Model: ", style=label_style),
-                    html.Span(f"{model.pathname}"),
+                    html.Span(f"{model.pathnames}"),
                     horiz_space,
 
                     html.Span("Analysis: ", style=label_style),
@@ -111,7 +111,10 @@ def main(args):
     from .settings_pane import SettingsPane
     from .results_pane import ResultsPane
 
-    mf = ModelFile(args.modelFile, add_stream_components=args.add_stream_components, use_class_path=args.use_class_path)
+    use_default_model = not args.no_default_model
+
+    mf = ModelFile(args.modelFile, add_stream_components=args.add_stream_components,
+                   use_class_path=args.use_class_path, use_default_model=use_default_model)
     model = mf.model
     analysis_name = args.analysis
 

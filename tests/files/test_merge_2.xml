@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
+
+	<Analysis name="other">
+		<Field name="other"/>
+	</Analysis>
+
+	<Field name="other">
+		<A name="country">USA</A>
+
+		<Process class="ProcA" desc="Test process 1"/>
+		<Process class="ProcB" desc="Test process 2"/>
+
+		<Stream src="ProcA" dst="ProcB">
+			<A name="temperature">90.0</A>
+			<A name="pressure">150.0</A>
+			<Component name="oil" phase="liquid">100</Component>
+			<Contains>crude oil</Contains>
+		</Stream>
+	</Field>
+
+</Model>

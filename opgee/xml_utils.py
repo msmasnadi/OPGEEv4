@@ -9,6 +9,7 @@ from copy import deepcopy
 from io import StringIO
 from lxml import etree as ET
 from .log import getLogger
+from .error import OpgeeException
 
 _logger = getLogger(__name__)
 
@@ -19,6 +20,26 @@ def prettify(elt):
     file_obj = StringIO(xml.decode('utf-8'))
     tree = ET.parse(file_obj, parser)
     return tree.getroot()
+
+
+def save_xml(path, root, backup=False):
+    from pathlib import Path
+    import os
+
+    if path:
+        p = Path(path)
+        if p.exists():
+            if backup:
+                backup = path + '~'
+                os.rename(path, backup)
+            else:
+                raise OpgeeException(f"save_xml: file exists: '{path}'; to overwrite specify backup=True")
+
+        _logger.info(f"Writing '{path}'")
+        tree = ET.ElementTree(root)
+        tree.write(path, xml_declaration=True, pretty_print=True, encoding='utf-8')
+    else:
+        ET.dump(root, pretty_print=True)
 
 # Deprecated (currently unused)
 # Oddly, we must re-parse the XML to get the formatting right.
@@ -50,6 +71,11 @@ def match_element(elt1, elt2):
 
     return True
 
+def elt2str(elt):
+    attribs = ' '.join([f'{key}="{value}"' for key, value in elt.attrib.items()])
+    s = f"<{elt.tag} {attribs}>"
+    return s
+
 def merge_element(parent, new_elt):
     """
     Add an element if none of parent's children has the same tag and attributes
@@ -57,14 +83,21 @@ def merge_element(parent, new_elt):
     matching element.
     """
     for sibling in parent:
+        # _logger.debug(f"merge_element: new_elt {element_string(new_elt)} to sibling {element_string(sibling)}")
         if match_element(new_elt, sibling):
+            # _logger.debug(f"matched: {elt2str(new_elt)}  and  {elt2str(sibling)}")
             if new_elt.attrib.get('delete', '0') == '1':
+                _logger.debug(f"Deleting {elt2str(sibling)}")
                 parent.remove(sibling)
             else:
+                sibling.text = new_elt.text
                 merge_elements(sibling, new_elt.getchildren())
             return
 
+        # _logger.debug(f"NOT matched: {element_string(new_elt)}  and  {element_string(sibling)}")
+
     # if it wasn't merged, append it to parent
+    _logger.debug(f"Appending {elt2str(new_elt)} to {elt2str(parent)}")
     parent.append(deepcopy(new_elt))
 
 def merge_elements(parent, elt_list):
