@@ -68,12 +68,44 @@
 			</ProcessGroup>
 
 		</ProcessChoice>
-<!--		-->
-<!--		<Aggregator>-->
-<!--			<Process class="">-->
-<!--				<-->
-<!--			</Process>-->
-<!--		</Aggregator>-->
+
+		<Aggregator name="ProductionExtraction">
+			<Process class="DownholePump"/>
+			<Process class="CrudeOilStorage"/>
+			<Process class="GasLiftingCompressor"/>
+			<Process class="CO2ReinjectionCompressor"/>
+			<Process class="SourGasCompressor"/>
+			<Process class="GasFloodingCompressor"/>
+			<Process class="CO2InjectionWell"/>
+			<Process class="SteamGeneration"/>
+			<Process class="Flaring"/>
+			<Process class="Separation"/>
+			<Process class="CrudeOilDewatering"/>
+			<Process class="CrudeOilStabilization"/>
+			<Process class="VRUCompressor"/>
+			<Process class="Venting"/>
+		</Aggregator>
+
+		<Aggregator name="SurfaceProcessing">
+			<Process class="HeavyOilUpgrading"/>
+			<Process class="HeavyOilDilution"/>
+			<Process class="GasGathering"/>
+			<Process class="GasDehydration"/>
+			<Process class="AcidGasRemoval"/>
+			<Process class="Demethanizer"/>
+			<Process class="PreMembraneChiller"/>
+			<Process class="PreMembraneCompressor"/>
+			<Process class="CO2Membrane"/>
+			<Process class="RyanHolmes"/>
+		</Aggregator>
+
+		<Aggregator name="CrudeOilTransport">
+			<Process class="DiluentTransport" enabled="false"/>
+		</Aggregator>
+
+		<Aggregator name="GasTransport">
+			<Process class="TransmissionCompressor"/>
+		</Aggregator>
 
 		<Process class="Separation" impute-start="true"/>
 
