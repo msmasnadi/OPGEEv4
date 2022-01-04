@@ -78,7 +78,7 @@
 			<Process class="GasFloodingCompressor"/>
 			<Process class="CO2InjectionWell"/>
 			<Process class="Flaring"/>
-			<Process class="Separation"/>
+			<Process class="Separation" impute-start="true"/>
 			<Process class="CrudeOilDewatering"/>
 			<Process class="CrudeOilStabilization"/>
 			<Process class="VRUCompressor"/>
@@ -100,44 +100,20 @@
 			<Process class="TransmissionCompressor"/>
 		</Aggregator>
 
-		<Process class="Separation" impute-start="true"/>
-
 		<Process class="ReservoirWellInterface" cycle-start="true"/>
 
-		<Process class="DownholePump"/>
-		<Process class="CrudeOilDewatering"/>
-		<Process class="Flaring"/>
-		<Process class="Venting"/>
 		<Process class="BitumenMining"/>
 
-		<Process class="CrudeOilStabilization" enabled="false"/>
 		<Process class="HeavyOilUpgrading" enabled="false"/>
 		<Process class="HeavyOilDilution" enabled="false"/>
-		<Process class="CrudeOilStorage" enabled="false"/>
 
 		<Process class="WaterTreatment"/>
-		<Process class="GasGathering"/>
-		<Process class="CrudeOilStabilization"/>
-		<Process class="VRUCompressor"/>
-		<Process class="GasDehydration"/>
-		<Process class="CrudeOilStorage"/>
-		<Process class="AcidGasRemoval"/>
-		<Process class="PreMembraneChiller"/>
-		<Process class="PreMembraneCompressor"/>
-		<Process class="CO2Membrane"/>
-		<Process class="CO2ReinjectionCompressor"/>
-		<Process class="Demethanizer"/>
-		<Process class="RyanHolmes"/>
 		<Process class="NGL"/>
 		<Process class="GasPartition"/>
-		<Process class="CO2InjectionWell"/>
-		<Process class="SourGasCompressor"/>
 		<Process class="SourGasInjection"/>
 		<Process class="GasLiftingCompressor"/>
 		<Process class="GasReinjectionCompressor"/>
-		<Process class="GasFloodingCompressor"/>
 		<Process class="GasReinjectionWell"/>
-		<Process class="TransmissionCompressor"/>
 
 
 		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
