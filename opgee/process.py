@@ -965,6 +965,11 @@ class Aggregator(Container):
         attr_dict = cls.instantiate_attrs(elt)
 
         obj = cls(name, attr_dict=attr_dict, aggs=aggs, procs=procs)
+
+        # Aggregators are disabled if they are empty or contain only disabled aggs & procs
+        enabled = not all([not child.is_enabled() for child in aggs + procs])
+        obj.set_enabled(enabled)
+
         return obj
 
 def reload_subclass_dict():

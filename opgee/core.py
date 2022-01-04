@@ -51,6 +51,10 @@ def magnitude(value, units=None):
     else:
         return value
 
+
+def name_of(obj):
+    return obj.name
+
 def elt_name(elt):
     return elt.attrib.get('name')
 
@@ -232,3 +236,4 @@ class A(OpgeeObject):
         attrs = f"name='{self.name}' type='{self.pytype}' value='{self.value}'"
 
         return f"<{type_str} {attrs}>"
+

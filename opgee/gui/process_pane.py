@@ -5,7 +5,7 @@ from dash.dependencies import Input, Output, State
 import dash_table
 from textwrap import dedent as d
 
-from .. import Process
+from ..core import name_of
 from ..log import getLogger
 from .widgets import get_analysis_and_field, gui_switches, OpgeePane
 
@@ -189,14 +189,15 @@ class ProcessPane(OpgeePane):
 
             # recursively create expanding aggregator structure with emissions (table, eventually)
             def add_children(container, elt):
-                for agg in container.aggs:
+                enabled_aggs = [agg for agg in container.aggs if agg.is_enabled()]
+                for agg in sorted(enabled_aggs, key=name_of):
                     details = html.Details(children=[html.Summary(html.B(agg.name))], style=style)
                     elt.children.append(details)
                     add_children(agg, details)
 
                 if container.procs:
-                    enabled_procs = [proc for proc in container.procs if proc.is_enabled]
-                    sorted_procs = sorted(enabled_procs, key=lambda p: p.name)
+                    enabled_procs = [proc for proc in container.procs if proc.is_enabled()]
+                    sorted_procs = sorted(enabled_procs, key=name_of)
                     div = html.Div(style=style,
                                    children=[emissions_table(analysis, sorted_procs)])
                     elt.children.append(div)

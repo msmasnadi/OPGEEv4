@@ -81,7 +81,9 @@ class ResultsPane(OpgeePane):
                                "value": [pair[1] for pair in top_level],
                                "unit": [fn_unit] * len(top_level)})
 
-            fig = go.Figure(data=[go.Bar(name=row.category, x=[row.unit], y=[row.value.m], width=[0.7]) for idx, row in df.iterrows()],
+            fig = go.Figure(data=[go.Bar(name=row.category,
+                                         x=[row.unit],
+                                         y=[row.value.m], width=[0.7]) for idx, row in df.iterrows()],
                             layout=go.Layout(barmode='stack'))
 
             fig.update_layout(yaxis_title=f"g CO2 per MJ of {fn_unit}",  # doesn't render in latex: r'g CO$_2$ MJ$^{-1}$',
