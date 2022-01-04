@@ -75,7 +75,7 @@ class ResultsPane(OpgeePane):
                 return ci.to('grams/MJ')
 
             # Show results for top-level aggregators and procs for the selected field
-            top_level = [(obj.name, partial_ci(obj)) for obj in field.aggs + field.procs]
+            top_level = [(obj.name, partial_ci(obj)) for obj in field.children()]
 
             df = pd.DataFrame({"category": [pair[0] for pair in top_level],
                                "value": [pair[1] for pair in top_level],

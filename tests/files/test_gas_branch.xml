@@ -34,7 +34,7 @@
 		<A name="gas_processing_path">Acid Wet Gas</A>
 		<A name="upgrader_type">Delayed coking</A>
 
-		<Process class="Output"/>
+		<Process class="After"/>
 
 		<ProcessChoice name="gas_processing_path">
 			<ProcessGroup name="Acid Wet Gas">
@@ -68,12 +68,37 @@
 			</ProcessGroup>
 
 		</ProcessChoice>
-<!--		-->
-<!--		<Aggregator>-->
-<!--			<Process class="">-->
-<!--				<-->
-<!--			</Process>-->
-<!--		</Aggregator>-->
+
+		<Aggregator name="ProductionExtraction">
+			<Process class="DownholePump"/>
+			<Process class="CrudeOilStorage"/>
+			<Process class="GasLiftingCompressor"/>
+			<Process class="CO2ReinjectionCompressor"/>
+			<Process class="SourGasCompressor"/>
+			<Process class="GasFloodingCompressor"/>
+			<Process class="CO2InjectionWell"/>
+			<Process class="Flaring"/>
+			<Process class="Separation"/>
+			<Process class="CrudeOilDewatering"/>
+			<Process class="CrudeOilStabilization"/>
+			<Process class="VRUCompressor"/>
+			<Process class="Venting"/>
+		</Aggregator>
+
+		<Aggregator name="SurfaceProcessing">
+			<Process class="GasGathering"/>
+			<Process class="GasDehydration"/>
+			<Process class="AcidGasRemoval"/>
+			<Process class="Demethanizer"/>
+			<Process class="PreMembraneChiller"/>
+			<Process class="PreMembraneCompressor"/>
+			<Process class="CO2Membrane"/>
+			<Process class="RyanHolmes"/>
+		</Aggregator>
+
+		<Aggregator name="GasTransport">
+			<Process class="TransmissionCompressor"/>
+		</Aggregator>
 
 		<Process class="Separation" impute-start="true"/>
 
@@ -143,7 +168,7 @@
 			<Contains>water</Contains>
 		</Stream>
 
-		<Stream src="WaterTreatment" dst="Output" name="water treatment to steam">
+		<Stream src="WaterTreatment" dst="After" name="water treatment to steam">
 			<Contains>water for steam generation</Contains>
 			<Contains>water for reinjection</Contains>
 			<Contains>water for surface disposal</Contains>
