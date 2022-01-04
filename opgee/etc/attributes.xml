@@ -4,707 +4,709 @@
      to support parsing the XML model definition and to used by the Smart Default system
      to fill in unspecified attributes. It can also eventually support a GUI, e.g., in
      creating pulldown menus of options for categorical parameters and radio buttons for
-     binary ones.
+     binary ones.
      -->
-<AttrDefs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="attributes.xsd">
-  <ClassAttrs name="Model">
-    <!-- Maximum number of iterations for process loops -->
-    <AttrDef name="maximum_iterations" type="int">10</AttrDef>
-
-    <!-- Change threshold for iteration loops. Requires a Process to set a change variable. -->
-    <AttrDef name="maximum_change" type="float">0.001</AttrDef>
-  </ClassAttrs>
-
-  <ClassAttrs name="Stream">
-    <!-- the zero values aren't real defaults; they just avoid having None as a default -->
-    <AttrDef name="temperature" type="float" unit="degF">0</AttrDef>
-    <AttrDef name="pressure" type="float" unit="psia">0</AttrDef>
-  </ClassAttrs>
-
-  <ClassAttrs name="Analysis">
-    <Options name="GWP horizon" default="100">
-      <Option label="20 year">20</Option>
-      <Option label="100 year">100</Option>
-    </Options>
-    <Options name="GWP version" default="AR5">
-      <Option>AR4</Option>
-      <Option>AR5</Option>
-      <Option label="AR5 with C-cycle feedback">AR5_CCF</Option>
-      <Option>AR6</Option>
-    </Options>
-    <Options name="Functional unit" default="oil">
-      <Option label="1 MJ Crude oil">oil</Option>
-      <Option label="1 MJ Natural gas">gas</Option>
-    </Options>
-    <Options name="Energy basis" default="LHV">
-      <Option label="Lower heating value">LHV</Option>
-      <Option label="Higher heating value">HHV</Option>
-    </Options>
-
-    <AttrDef name="GWP_horizon" options="GWP horizon" type="int" unit="years"/>
-    <AttrDef name="GWP_version" options="GWP version" type="str"/>
-    <AttrDef name="functional_unit" options="Functional unit" type="str"/>
-    <AttrDef name="energy_basis" options="Energy basis" type="str"/>
-
-    <!-- We need this at the Analysis level to ensure all fields are evaluated to same bounds -->
-    <Options name="boundaries" default="Production">
-      <Option>Production</Option>
-      <Option>Transportation</Option>
-      <Option>Distribution</Option>
-    </Options>
-    <AttrDef name="boundary" options="boundaries" desc="The user-selected system boundary for all fields in an Analysis"/>
-
-  </ClassAttrs>
-
-  <!-- Attributes shared by all Processes. These values can be overridden in subprocesses -->
-  <ClassAttrs name="Process">
-    <AttrDef name="leak_rate" type="float" desc="Fraction of gas streams leaked to environment" unit="fraction">0.002</AttrDef>
-  </ClassAttrs>
-
-  <ClassAttrs name="Field">
-    <!-- Production methods -->
-    <AttrDef name="downhole_pump" type="binary" desc="Downhole pump">1</AttrDef>
-    <AttrDef name="water_reinjection" type="binary" desc="Water reinjection">1</AttrDef>
-    <AttrDef name="natural_gas_reinjection" type="binary" desc="Natural gas reinjection">1</AttrDef>
-    <AttrDef name="water_flooding" type="binary" desc="Water flooding">0</AttrDef>
-    <AttrDef name="gas_lifting" type="binary" desc="Gas lifting">0</AttrDef>
-
-    <!-- mutually exclusive -->
-    <AttrDef name="gas_flooding" type="binary" desc="Gas flooding" exclusive="flooding">0</AttrDef>
-    <AttrDef name="steam_flooding" type="binary" desc="Steam flooding" exclusive="flooding">0</AttrDef>
-
-    <Options name="oil_sands_mine_type" default="None">
-      <Option>None</Option>
-      <Option>Integrated with upgrader</Option>
-      <Option>Non-integrated with upgrader</Option>
-    </Options>
-    <AttrDef name="oil_sands_mine" options="oil_sands_mine_type" desc="Oil sands mine"/>
-
-    <!-- synchronized - these are just for testing purposes -->
-    <AttrDef name="sync_attr_1" type="binary" synchronized="sync_test">0</AttrDef>
-    <AttrDef name="sync_attr_2" type="binary" synchronized="sync_test">0</AttrDef>
-
-    <!-- Field properties -->
-    <AttrDef name="country" desc="Field location (country)" type="str">Generic</AttrDef>
-    <AttrDef name="name" desc="Field name" type="str">Generic</AttrDef>
-    <AttrDef name="age" unit="yr" desc="Field age" type="float" GT="0" LT="150">38</AttrDef>
-    <AttrDef name="depth" unit="ft" desc="Field depth" type="float" GT="0" LT="25000">7240.0</AttrDef>
-    <AttrDef name="oil_prod" unit="bbl_oil/d" desc="Oil production volume" type="float" GT="0">2098.0</AttrDef>
-    <AttrDef name="num_prod_wells" desc="Number of producing wells" type="int" GT="0">24</AttrDef>
-    <AttrDef name="num_water_inj_wells" desc="Number of water injecting wells" type="int" GE="0">20</AttrDef>
-    <AttrDef name="well_diam" unit="in" desc="Well diameter" type="float" GT="0">2.78</AttrDef>
-    <AttrDef name="prod_index" unit="bbl_oil/(psia*day)" type="float" desc="Productivity index">17.0</AttrDef>
-    <AttrDef name="res_press" unit="psia" desc="Average reservoir pressure" type="float">1556.6</AttrDef>
-    <AttrDef name="res_temp" unit="degF" desc="Average reservoir temperature" type="float">200.0</AttrDef>
-    <AttrDef name="res_thickness" unit="ft" desc="Average reservoir thickness" type="float">50</AttrDef>
-    <AttrDef name="res_perm" unit="mD" desc="Reservoir permeability" type="float">100</AttrDef>
-    <AttrDef name="wellhead_pressure" type="float" unit="psia" >500</AttrDef>
-    <AttrDef name="wellhead_temperature" type="float" unit="degF" >80</AttrDef>
-    <AttrDef name="offshore" type="binary" desc="Offshore?">0</AttrDef>
-
-    <!-- Fluid properties -->
-    <AttrDef name="API" desc="API gravity of produced crude" unit="degAPI" type="float">32.80</AttrDef>
-    <AttrDef name="API_bitumen" unit="degAPI" type="float" desc="API gravity of bitumen">8.0</AttrDef>
-    <AttrDef name="total_dissolved_solids" desc="water total dissolved solid (TDS)" unit="mg/L" type="float">5000.0</AttrDef>
-    <AttrDef name="gas_comp_N2" unit="mol_pct" type="float">2.86</AttrDef>
-    <AttrDef name="gas_comp_CO2" unit="mol_pct" type="float">0.33</AttrDef>
-    <AttrDef name="gas_comp_C1" unit="mol_pct" type="float">89.18</AttrDef>
-    <AttrDef name="gas_comp_C2" unit="mol_pct" type="float">5.30</AttrDef>
-    <AttrDef name="gas_comp_C3" unit="mol_pct" type="float">1.62</AttrDef>
-    <AttrDef name="gas_comp_C4" unit="mol_pct" type="float">0.71</AttrDef>
-    <AttrDef name="gas_comp_H2S" unit="mol_pct" type="float">0.0</AttrDef>    <!-- TODO: needs a default value -->
-
-    <!-- Production practices -->
-    <Options name="Flood gases" default="NG">
-      <Option desc="Natural gas">NG</Option>
-      <Option desc="Nitrogen">N2</Option>
-      <Option desc="Carbon dioxide">CO2</Option>
-    </Options>
-
-    <Options name="Liquids unloading" default="None">
-      <Option>Plunger</Option>
-      <Option>No plunger</Option>
-      <Option>None</Option>
-    </Options>
-
-    <Options name="source_CO2" default="reservoir">
-      <Option desc="natural subsurface reservoir">Reservoir</Option>
-      <Option>Anthropogenic</Option>
-    </Options>
-
-    <AttrDef name="GOR" desc="Gas-to-oil ratio" unit="scf/bbl_oil" type="float">2429.3</AttrDef>
-    <AttrDef name="WOR" desc="Water-to-oil ratio" unit="bbl_water/bbl_oil" type="float">6.0</AttrDef>
-    <AttrDef name="WIR" desc="Water injection ratio" unit="bbl_water/bbl_oil" type="float">7.0</AttrDef>
-    <AttrDef name="GLIR" desc="Gas lifting injection ratio" unit="scf/bbl_liquid" type="float">364.0</AttrDef>
-    <AttrDef name="GFIR" desc="Gas flooding injection ratio" unit="scf/bbl_oil" type="float">3644.0</AttrDef>
-    <AttrDef name="flood_gas_type" desc="Flood gas" options="Flood gases" type="str"/>
-    <AttrDef name="liquids_unloading" options="Liquids unloading" type="str"/>
-    <AttrDef name="frac_CO2_breakthrough" desc="Fraction of CO2 breaking through to producers" unit="percent" type="float">59</AttrDef>
-    <AttrDef name="source_CO2" desc="" options="source_CO2" type="str"/>
-    <AttrDef name="perc_sequestration_credit" desc="Percentage of sequestration credit assigned to the oilfield" unit="percent" type="float">0</AttrDef>
-    <AttrDef name="SOR" desc="Steam-to-oil ratio" unit="bbl_steam/bbl_oil" type="float">0</AttrDef>
-    <AttrDef name="fraction_elec_onsite" desc="Fraction of required electricity generated onsite" type="float">0.0</AttrDef>
-    <AttrDef name="fraction_remaining_gas_inj" desc="Fraction of remaining gas reinjected" type="float">0.5</AttrDef>
-    <AttrDef name="fraction_water_reinjected" desc="Fraction of water produced that is reinjected" type="float">1.0</AttrDef>
-    <AttrDef name="fraction_steam_cogen" desc="Fraction of steam generation via co-generation" type="float">0.0</AttrDef>
-    <AttrDef name="fraction_steam_solar" desc="Fraction of steam generation via solar thermal" type="float">0.0</AttrDef>
-    <AttrDef name="pressure_outlet" type="float" unit="psia" desc="Separator pressure (final if multi-stage)">100.0</AttrDef>
-    <AttrDef name="temperature_outlet" type="float" unit="degF" desc="Separator temperature (final if multi-stage)">90.0</AttrDef>
-    <AttrDef name="gas_pressure_after_boosting" type="float" unit="psia" desc="Separator gas outlet pressure after boosting compressors">500</AttrDef>
-    <AttrDef name="eta_compressor" type="float" unit="percent" desc="Compressor efficiency">75.0</AttrDef>
-    <AttrDef name="friction_factor" type="float" unit="frac" desc="wellbore friction factor">0.02</AttrDef>
-    <AttrDef name="press_water_reinj_pump" type="float" unit="psia" desc="Water reinjection pump characteristics Suction pressure">0.0</AttrDef>
-    <AttrDef name="eta_water_reinj_pump" type="float" unit="percent" desc="Water reinjection pump characteristics Pump efficiency ">60.0</AttrDef>
-
-    <!-- Processing practices -->
-    <Options name="upgrader_type" default="None">
-      <Option>None</Option>
-      <Option>Delayed coking</Option>
-      <Option>Hydroconversion</Option>
-      <Option desc="Combined hydroconversion and fluid coking">Combined</Option>
-    </Options>
-    <Options name="crude_oil_dewatering_output" default="CrudeOilStabilization">
-      <Option desc="Heavy oil upgrading">HeavyOilUpgrading</Option>
-      <Option desc="Heavy oil dilution">HeavyOilDilution</Option>
-      <Option desc="Crude oil stabilization">CrudeOilStabilization</Option>
-    </Options>
-    <Options name="gas_processing_path" default="Acid Gas">
-      <Option>None</Option>
-      <Option desc="Dehydrator">Minimal</Option>
-      <Option desc="Dehydrator + Amine Process">Acid Gas</Option>
-      <Option desc="Dehydrator + Demethanizer">Wet Gas</Option>
-      <Option desc="Dehydrator + Amine Process + Demethanizer">Acid Wet Gas</Option>
-      <Option desc="Dehydration then direct injection of sour CO2-rich stream">Sour Gas Reinjection</Option>
-      <Option desc="Dehydrator + Compressor + Membrane + Amine Process + Demethanizer">CO2-EOR Membrane</Option>
-      <Option desc="Dehydrator + Ryan Holmes Process (Demethanizer Included)">CO2-EOR Ryan Holmes</Option>
-    </Options>
-    <AttrDef name="heater_treater" type="binary" desc="Heater/treater">0</AttrDef>
-    <AttrDef name="steam_quality_at_generator_outlet" unit="frac" type="float" desc="steam quality at generator outlet">0.7</AttrDef>
-    <AttrDef name="steam_quality_after_blowdown" unit="frac" type="float" desc="desired steam quality after blowdown and recycle (if any)">0.7</AttrDef>
-    <AttrDef name="crude_oil_dewatering_output" options="crude_oil_dewatering_output" desc="process receiving crude oil from dewatering"/>
-    <AttrDef name="upgrader_type" desc="Upgrader type" options="upgrader_type" type="str"/>
-    <AttrDef name="gas_processing_path" desc="Associated gas processing path" options="gas_processing_path" type="str"/>
-    <AttrDef name="FOR" unit="scf/bbl_oil" desc="Ratio of flaring to oil production" type="float">141.3</AttrDef>
-    <AttrDef name="VOR" unit="scf/bbl_oil" desc="Ratio of venting to oil production" type="float">5.0</AttrDef>
-    <AttrDef name="fraction_diluent" desc="Volume fraction of diluent in diluted crude" type="float">0.0</AttrDef>
-    <AttrDef name="temperature_mined_bitumen" desc="Mined bitumen temperature" type="float" unit="degF">80.0</AttrDef>
-    <AttrDef name="pressure_mined_bitumen" desc="Mined bitumen pressure" type="float" unit="psia">14.70</AttrDef>
-    <AttrDef name="stabilizer_column" type="binary" desc="stabilizer colume">1</AttrDef>
-
-    <!-- LandUse impacts -->
-    <Options name="ecosystem_C_richness" default="Moderate">
-      <Option desc="Low carbon richness (semi-arid grasslands)">Low</Option>
-      <Option desc="Moderate carbon richness (mixed)">Moderate</Option>
-      <Option desc="High carbon richness (forested)">High</Option>
-    </Options>
-    <Options name="field_development_intensity" default="Moderate">
-      <Option desc="Low intensity development and low oxidation">Low</Option>
-      <Option desc="Moderate intensity development and moderate oxidation">Moderate</Option>
-      <Option desc="High intensity development and high oxidation">High</Option>
-    </Options>
-    <AttrDef name="ecosystem_richness" options="ecosystem_C_richness" desc="Ecosystem carbon richness" type="str"/>
-    <AttrDef name="field_development_intensity" options="field_development_intensity" desc="Field development intensity" type="str"/>
-
-    <!-- name="Transport_and_storage -->
-    <AttrDef name="Fraction_oil_transport_tanker" desc="Fraction  of oil transported by ocean tanker" type="float">1</AttrDef>
-    <AttrDef name="Fraction_oil_transport_barge" desc="Fraction of oil transported by barge" type="float">0</AttrDef>
-    <AttrDef name="Fraction_oil_transport_pipeline" desc="Fraction of oil transported by pipeline" type="float">1</AttrDef>
-    <AttrDef name="Fraction_oil_transport_rail" desc="Fraction of oil transported by rail" type="float">0</AttrDef>
-    <AttrDef name="Fraction_oil_transport_truck" desc="Fraction of oil transported by truck" type="float">0</AttrDef>
-    <AttrDef name="Oil_transport_distance_tanker" unit="mi" desc="Ocean tanker transport distance (one way)" type="float">8000</AttrDef>
-    <AttrDef name="Oil_transport_distance_barge" unit="mi" desc="Barge transport distance (one way)" type="float">500</AttrDef>
-    <AttrDef name="Oil_transport_distance_pipeline" unit="mi" desc="Pipeline transport distance (one way)" type="float">1000</AttrDef>
-    <AttrDef name="Oil_transport_distance_rail" unit="mi" desc="Rail transport distance (one way)" type="float">800</AttrDef>
-    <AttrDef name="Oil_transport_distance_truck" unit="mi" desc="Truck transport distance (one way)" type="float">100</AttrDef>
-    <AttrDef name="ocean_tanker_size" unit="tons" desc="Ocean tanker size, if applicable" type="float">250000</AttrDef>
-    <AttrDef name="small_sources_adder" unit="gCO2eq/MJ" desc="Small source emissions adder" type="float">0.5</AttrDef>
-
-    <AttrDef name="barge_capacity" unit="tonne" type="float" desc="Barge capacity">22500.0</AttrDef>
-    <AttrDef name="ocean_tanker_speed" unit="mile/hr" type="float" desc="Ocean tanker speed">18.52</AttrDef>
-    <AttrDef name="barge_speed" unit="mile/hr" type="float" desc="Barge speed">5.0</AttrDef>
-    <AttrDef name="ocean_tanker_load_factor_dest" unit="frac" type="float" desc="Ocean tanker load factor (origin to destination)">0.8</AttrDef>
-    <AttrDef name="barge_load_factor_dest" unit="frac" type="float" desc="Barge load factor (origin to destination)">0.8</AttrDef>
-    <AttrDef name="ocean_tanker_load_factor_origin" unit="frac" type="float" desc="Ocean tanker load factor (destination to origin)">0.7</AttrDef>
-    <AttrDef name="barge_load_factor_origin" unit="frac" type="float" desc="Barge load factor (destination to origin)">0.6</AttrDef>
-    <AttrDef name="energy_intensity_rail_transport" unit="btu/tonne/mile" type="float" desc="Energy intensity of rail transport">370.0</AttrDef>
-    <AttrDef name="energy_intensity_truck" unit="btu/tonne/mile" type="float">969.0</AttrDef>
-    <AttrDef name="energy_intensity_pipeline_turbine" unit="btu/tonne/mile" type="float" desc="Energy intensity of pipeline transport">240.0</AttrDef>
-    <AttrDef name="energy_intensity_pipeline_engine_current" unit="btu/tonne/mile" type="float" desc="Reciprocating enginer powered (current)">270.0</AttrDef>
-    <AttrDef name="energy_intensity_pipeline_engine_future" unit="btu/tonne/mile" type="float" desc="Reciprocating engine powered (future)">260.0</AttrDef>
-    <AttrDef name="frac_power_pipeline_turbine" unit="frac" type="float" desc="Fraction of power generation technologies for pipeline pumping and compression stations">0.55</AttrDef>
-    <AttrDef name="frac_power_pipeline_engine_current" unit="frac" type="float" desc="Reciprocating enginer powered (current)">0.36</AttrDef>
-    <AttrDef name="frac_power_pipeline_engine_future" unit="frac" type="float" desc="Reciprocating engine powered (future)">0.09</AttrDef>
-    <AttrDef name="losses_feed" unit="btu/mmBtu" type="float" desc="Feed losses: btu/mmbtu fuel transported">62.0</AttrDef>
-
-    <AttrDef name="fraction_diluent_transport_tanker" unit="frac" type="float">1.0</AttrDef>
-    <AttrDef name="fraction_diluent_transport_barge" unit="frac" type="float">0.0</AttrDef>
-    <AttrDef name="fraction_diluent_transport_pipeline" unit="frac" type="float">1.0</AttrDef>
-    <AttrDef name="fraction_diluent_transport_rail" unit="frac" type="float">0.0</AttrDef>
-    <AttrDef name="fraction_diluent_transport_truck" unit="frac" type="float">0.0</AttrDef>
-
-    <AttrDef name="diluent_transport_distance_tanker" unit="mile" type="float">8000.0</AttrDef>
-    <AttrDef name="diluent_transport_distance_barge" unit="mile" type="float">500.0</AttrDef>
-    <AttrDef name="diluent_transport_distance_pipeline" unit="mile" type="float">1000.0</AttrDef>
-    <AttrDef name="diluent_transport_distance_rail" unit="mile" type="float">800.0</AttrDef>
-    <AttrDef name="diluent_transport_distance_truck" unit="mile" type="float">100.0</AttrDef>
-    <AttrDef name="ocean_tanker_size" unit="tonne" type="float">250000.0</AttrDef>
-
-    <Options name="dilution_API" default="55.20">
-      <Option>55.20</Option>
-      <Option>23.0</Option>
-    </Options>
-    <AttrDef name="diluent_API" options="dilution_API" type="float" unit="degAPI"/>
-
-    <AttrDef name="imported_fuel_gas_comp_N2" unit="mol_pct" type="float">0.4</AttrDef>
-    <AttrDef name="imported_fuel_gas_comp_C1" unit="mol_pct" type="float">96.6</AttrDef>
-    <AttrDef name="imported_fuel_gas_comp_C2" unit="mol_pct" type="float">2.0</AttrDef>
-    <AttrDef name="imported_fuel_gas_comp_C3" unit="mol_pct" type="float">1.0</AttrDef>
-
-    <AttrDef name="processed_prod_gas_comp_N2" unit="mol_pct" type="float">0.4</AttrDef>
-    <AttrDef name="processed_prod_gas_comp_C1" unit="mol_pct" type="float">96.6</AttrDef>
-    <AttrDef name="processed_prod_gas_comp_C2" unit="mol_pct" type="float">2.0</AttrDef>
-    <AttrDef name="processed_prod_gas_comp_C3" unit="mol_pct" type="float">1.0</AttrDef>
-
-    <AttrDef name="imported_gas_comp_N2" unit="mol_pct" type="float">0.4</AttrDef>
-    <AttrDef name="imported_gas_comp_C1" unit="mol_pct" type="float">96.6</AttrDef>
-    <AttrDef name="imported_gas_comp_C2" unit="mol_pct" type="float">2.0</AttrDef>
-    <AttrDef name="imported_gas_comp_C3" unit="mol_pct" type="float">1.0</AttrDef>
-
-    <AttrDef name="air_comp_N2" unit="mol_pct" type="float">77.4396</AttrDef>
-    <AttrDef name="air_comp_O2" unit="mol_pct" type="float">20.531</AttrDef>
-    <AttrDef name="air_comp_CO2" unit="mol_pct" type="float">0.0294</AttrDef>
-    <AttrDef name="air_comp_H2O" unit="mol_pct" type="float">2.0</AttrDef>
-
-    <AttrDef name="NG_fuel_share_OTSG_produced" type="float" unit="frac" desc="Fraction produced gas of OTSG gaseous fuels share">0.0</AttrDef>
-    <AttrDef name="NG_fuel_share_HRSG_produced" type="float" unit="frac" desc="Fraction product gas of GT fuel input type">0.0</AttrDef>
-    <AttrDef name="steam_quality_outlet" type="float" unit="frac" desc="Steam quality at generator outlet">0.7</AttrDef>
-    <AttrDef name="steam_quality_after_blowdown" type="float" desc="Desired steam quality after blowdown and recycle (if any)">0.7</AttrDef>
-    <AttrDef name="fraction_blowdown_recycled" type="float" desc="Percentage of blowdown water recycled ">0.7</AttrDef>
-    <AttrDef name="waste_water_reinjection_temp" type="float" unit="degF" desc="Waste water rejection temperature">150.0</AttrDef>
-    <AttrDef name="waste_water_reinjection_press" type="float" unit="psia" desc="Waste water rejection pressure">14.67</AttrDef>
-    <AttrDef name="friction_loss_stream_distr" type="float" unit="frac" desc="Frictional losses in steam distribution and injection lines">1.1</AttrDef>
-    <AttrDef name="pressure_loss_choke_wellhead" type="float" unit="frac" desc="Choke pressure drop at wellhead">1.7</AttrDef>
-    <AttrDef name="steam_injection_delta_press" type="float" unit="psia" desc="steam_injection_delta_press">100.0</AttrDef>
-    <AttrDef name="prod_water_inlet_temp" type="float" unit="degF" desc="Recycled produced water inlet temperature">140</AttrDef>
-    <AttrDef name="makeup_water_inlet_temp" type="float" unit="degF" desc="Makeup water inlet temperature">60.0</AttrDef>
-    <AttrDef name="prod_water_inlet_press" type="float" unit="psia" desc="Recycled produced water inlet pressure">200.0</AttrDef>
-    <AttrDef name="makeup_water_inlet_press" type="float" unit="psia" desc="Makeup water inlet pressure">14.70</AttrDef>
-    <AttrDef name="waste_water_temp" type="float" unit="degF" desc="Waste water rejection temperature">150.0</AttrDef>
-    <AttrDef name="O2_excess_OTSG" type="float" unit="frac" desc="OTSG excess air in combustion, unit=mol O2 real/mol O2 stoichiometric">1.2</AttrDef>
-    <AttrDef name="temperature_inlet_air_OTSG" type="float" unit="degF" desc="OTSG inlet air temperature">80.33</AttrDef>
-    <AttrDef name="OTSG_exhaust_temp_outlet_before_economizer" type="float" unit="degF" desc="OTSG outlet exhaust temperature before economizer">350.0</AttrDef>
-    <AttrDef name="OTSG_exhaust_temp_outlet" type="float" unit="degF" desc="Temperature_outlet_exhaust_OTSG">350.0</AttrDef>
-    <AttrDef name="OTSG_exhaust_temp_outlet_before_preheater" type="float" unit="degF" desc="Temperature_outlet_exhaust_OTSG_before_preheater">350.0</AttrDef>
-    <AttrDef name="loss_shell_OTSG" type="float" unit="frac" desc="OTSG shell loss inefficiency">0.02</AttrDef>
-    <AttrDef name="loss_shell_HRSG" type="float" unit="frac" desc="HRSG shell loss inefficiency">0.02</AttrDef>
-    <AttrDef name="loss_gaseous_OTSG" type="float" unit="btu/mol" desc="OTSG other loss - Gaseous fuels">11.02</AttrDef>
-    <AttrDef name="loss_liquid_OTSG" type="float" unit="btu/lb" desc="OTSG other loss - Liquid fuels">250.0</AttrDef>
-    <AttrDef name="blowdown_heat_recovery" type="binary" desc="blowdown heat recovery availability">1</AttrDef>
-    <AttrDef name="eta_blowdown_heat_rec_OTSG" type="float" unit="frac" desc="OTSG heat recovery efficiency from blowdown rejected (for steam quality in excess of 80%)">0.95</AttrDef>
-    <AttrDef name="eta_blowdown_heat_rec_HRSG" type="float" unit="frac" desc="HRSG heat recovery efficiency from blowdown rejected (for steam quality in excess of 80%)">0.95</AttrDef>
-    <AttrDef name="economizer_OTSG" type="binary" desc="economizer availability in OTSG">0</AttrDef>
-    <AttrDef name="preheater_OTSG" type="binary" desc="preheater availability in OTSG">0</AttrDef>
-    <AttrDef name="economizer_HRSG" type="binary" desc="economizer availability in HRSG">0</AttrDef>
-    <AttrDef name="preheater_HRSG" type="binary" desc="preheater availability in HRSG">0</AttrDef>
-    <AttrDef name="eta_economizer_heat_rec_OTSG" type="float" unit="frac" desc="OTSG economizer recovery efficiency from exhaust">0.95</AttrDef>
-    <AttrDef name="eta_preheater_heat_rec_OTSG" type="float" unit="frac" desc="OTSG preheater recovery efficiency from exhaust">0.9</AttrDef>
-    <AttrDef name="eta_economizer_heat_rec_HRSG" type="float" unit="frac" desc="HRSG economizer recovery efficiency from exhaust">0.95</AttrDef>
-    <AttrDef name="eta_preheater_heat_rec_HRSG" type="float" unit="frac" desc="HRSG preheater recovery efficiency from exhaust">0.9</AttrDef>
-    <AttrDef name="OTSG_frac_import_gas" unit="frac" type="float" desc="OTSG gaseous fuels share for natural gas">1.0</AttrDef>
-    <AttrDef name="OTSG_frac_prod_gas" unit="frac" type="float" desc="OTSG gaseous fuels share for produced gas">0.0</AttrDef>
-    <AttrDef name="HRSG_frac_import_gas" unit="frac" type="float" desc="HRSG gaseous fuels share for natural gas">1.0</AttrDef>
-    <AttrDef name="HRSG_frac_prod_gas" unit="frac" type="float" desc="HRSG gaseous fuels share for produced gas">0.0</AttrDef>
-    <AttrDef name="duct_firing" type="binary" desc="Duct_firing_HRSG">0</AttrDef>
-
-
-    <AttrDef name="HRSG_exhaust_temp_outlet_before_economizer" type="float" unit="degF" desc="HRSG outlet exhaust temperature before economizer">350.0</AttrDef>
-    <AttrDef name="HRSG_exhaust_temp_outlet" type="float" unit="degF" desc="Temperature_outlet_exhaust_HRSG">350.0</AttrDef>
-    <AttrDef name="HRSG_exhaust_temp_outlet_before_preheater" type="float" unit="degF" desc="Temperature_outlet_exhaust_HRSG_before_preheater">350.0</AttrDef>
-
-    <AttrDef name="eta_displacementpump_steamgen" type="float" unit="frac" desc="Positive displacement pump efficiency">0.87</AttrDef>
-    <AttrDef name="eta_air_blower_OTSG" type="float" unit="hp*day/mmbtu" desc="Air blower energy consumption for OTSG">0.139</AttrDef>
-    <AttrDef name="eta_air_blower_HRSG" type="float" unit="hp*day/mmbtu" desc="Air blower energy consumption for HRSG">0.0</AttrDef>
-    <AttrDef name="eta_air_blower_solar" type="float" unit="hp*day/mmbtu" desc="Air blower energy consumption for solar Thermal">0.139</AttrDef>
-
-    <Options name="OTSG_fuel_type" default="Gas">
-      <Option>Gas</Option>
-      <Option>Oil</Option>
-    </Options>
-    <AttrDef name="fuel_input_type_OTSG" options="OTSG_fuel_type"/>
-
-    <Options name="gas_turbine_type" default="C">
-      <Option>A</Option>
-      <Option>B</Option>
-      <Option>C</Option>
-      <Option>D</Option>
-    </Options>
-    <AttrDef name="gas_turbine_type" options="gas_turbine_type"/>
-
-    <AttrDef name="combusted_gas_frac" type="float" unit="percent" desc="Combusted gas total fraction">93.0</AttrDef>
-    <AttrDef name="surface_piping_leakage" type="float" unit="kg/day" desc="Surface piping leakage for venting kg CH4/d">0.0</AttrDef>
-    <AttrDef name="eta_compressor_lifting" type="float" unit="percent" desc="Gas lifting compressor parameters (1-5 stages) - compressor efficiency">75.0</AttrDef>
-    <Options name="prime_mover_type_gas_lifting" default="NG_engine">
-      <Option>NG_engine</Option>
-      <Option>Electric_motor</Option>
-      <Option>Diesel_engine</Option>
-      <Option>NG_turbine</Option>
-    </Options>
-
-    <AttrDef name="prime_mover_type_gas_lifting" type="str" options="prime_mover_type_gas_lifting">NG_engine</AttrDef>
-    <AttrDef name="VRU_discharge_press" type="float" unit="psia" desc="VRU compressor discharge pressure">500.0</AttrDef>
-    <Options name="prime_mover_type_VRU" default="NG_engine">
-      <Option>NG_engine</Option>
-      <Option>Electric_motor</Option>
-      <Option>Diesel_engine</Option>
-      <Option>NG_turbine</Option>
-    </Options>
-
-    <AttrDef name="prime_mover_type_VRU" type="str" options="prime_mover_type_VRU">NG_engine</AttrDef>
-    <AttrDef name="eta_compressor_VRU" type="float" unit="percent" desc="VRU compressor efficiency">75.0</AttrDef>
-    <AttrDef name="reflux_ratio" type="float" unit="frac" desc="gas dehydration reflux ratio">2.25</AttrDef>
-    <AttrDef name="regeneration_feed_temp" type="float" unit="degF" desc="gas dehydration regeneration feed temperature">200.0</AttrDef>
-
-    <AttrDef name="chiller_outlet_temp" type="float" unit="degF" desc="pre membrane chiller outlet temperature">35.0</AttrDef>
-    <AttrDef name="fug_emissions_chiller" type="float" unit="percent" desc="pre membrane chiller fugitive emissions rate">0.0</AttrDef>
-
-<!--    <AttrDef name="gas_path" type="str" options="gas_path">7</AttrDef>-->
-<!--    <Options name="gas_path" default="7">-->
-<!--      <Option>1</Option>-->
-<!--      <Option>2</Option>-->
-<!--      <Option>3</Option>-->
-<!--      <Option>4</Option>-->
-<!--      <Option>5</Option>-->
-<!--      <Option>6</Option>-->
-<!--      <Option>7</Option>-->
-<!--    </Options>-->
-
-    <AttrDef name="PMC_discharge_press" type="float" unit="psia" desc="pre-membrane compressor discharge pressure">500.0</AttrDef>
-    <AttrDef name="eta_compressor_PMC" type="float" unit="percent" desc="pre-membrane compressor compressor efficiency">75.0</AttrDef>
-    <Options name="prime_mover_type_PMC" default="NG_engine">
-      <Option>NG_engine</Option>
-      <Option>Electric_motor</Option>
-      <Option>Diesel_engine</Option>
-      <Option>NG_turbine</Option>
-    </Options>
-    <AttrDef name="prime_mover_type_PMC" type="str" options="prime_mover_type_PMC">NG_engine</AttrDef>
-
-    <AttrDef name="membrane_separation_comp_N2" unit="mol_pct" type="float">42.0</AttrDef>
-    <AttrDef name="membrane_separation_comp_O2" unit="mol_pct" type="float">0.0</AttrDef>
-    <AttrDef name="membrane_separation_comp_CO2" unit="mol_pct" type="float">67.0</AttrDef>
-    <AttrDef name="membrane_separation_comp_H2O" unit="mol_pct" type="float">0.0</AttrDef>
-    <AttrDef name="membrane_separation_comp_C1" unit="mol_pct" type="float">2.0</AttrDef>
-    <AttrDef name="membrane_separation_comp_C2" unit="mol_pct" type="float">3.0</AttrDef>
-    <AttrDef name="membrane_separation_comp_C3" unit="mol_pct" type="float">4.0</AttrDef>
-    <AttrDef name="membrane_separation_comp_C4" unit="mol_pct" type="float">6.0</AttrDef>
-    <AttrDef name="membrane_separation_comp_CO" unit="mol_pct" type="float">0.0</AttrDef>
-    <AttrDef name="membrane_separation_comp_H2" unit="mol_pct" type="float">0.0</AttrDef>
-    <AttrDef name="membrane_separation_comp_H2S" unit="mol_pct" type="float">52.0</AttrDef>
-    <AttrDef name="membrane_separation_comp_SO2" unit="mol_pct" type="float">0.0</AttrDef>
-
-    <AttrDef name="feed_press_AGR" type="float" unit="psia">500.0</AttrDef>
-
-    <Options name="amine_solution" default="conv DEA">
-      <Option>conv DEA</Option>
-      <Option>high DEA</Option>
-      <Option>MEA</Option>
-      <Option>DGA</Option>
-      <Option>MDEA</Option>
-    </Options>
-    <AttrDef name="type_amine_AGR" type="str" options="amine_solution">conv DEA</AttrDef>
-    <AttrDef name="ratio_reflux_reboiler_AGR" type="float" unit="frac" desc="Reflux ratio in reboiler">2.0</AttrDef>
-    <AttrDef name="regeneration_AGR_temp" type="float" unit="degF" desc="Regeneration feed temperature">205.0</AttrDef>
-
-
-  </ClassAttrs>
-  <ClassAttrs name="SurveyTruck">
-    <AttrDef name="distance" type="float" desc="Distance of travel for survey" unit="mi">10000</AttrDef>
-    <AttrDef name="weight" type="float" desc="Weight of land survey vehicle" unit="tons">25</AttrDef>
-  </ClassAttrs>
-  <ClassAttrs name="SurveyShip">
-    <AttrDef name="distance" type="float" desc="Distance of travel for survey" unit="mi">10000</AttrDef>
-    <AttrDef name="weight" type="float" desc="Weight of ocean survey vehicle" unit="tons">100</AttrDef>
-  </ClassAttrs>
-  <ClassAttrs name="Exploration">
-    <AttrDef name="number_wells_dry" type="int" desc="Number of dry wells drilled per field found">1</AttrDef>
-    <AttrDef name="number_wells_exploratory" type="int" desc="Number of exploratory/scientific wells drilled after field discovery">3</AttrDef>
-  </ClassAttrs>
-  <ClassAttrs name="DrillingAndDevelopment">
-    <Options name="rig_efficiency" default="Medium">
-      <Option desc="Mud pump 60%, Rotary Table 40%">Low</Option>
-      <Option desc="Mud pump 65%, Rotary Table 45%">Medium</Option>
-      <Option desc="Mud pump 70%, Rotary Table 50%">High</Option>
-    </Options>
-    <Options name="well_complexity" default="Moderate">
-      <Option desc="Surface casing plus production casing">Simple</Option>
-      <Option desc="Surface, intermediate, production">Moderate</Option>
-      <Option desc="Surface, Intermediate 1, Intermediate 2, Production">Complex</Option>
-    </Options>
-    <Options name="well_size" default="Medium">
-      <Option>Small</Option>
-      <Option>Medium</Option>
-      <Option>Large</Option>
-    </Options>
-    <Options name="field_productivity_category" default="Medium">
-      <Option desc="USA">Low</Option>
-      <Option desc="Global average">Medium</Option>
-      <Option desc="OPEC">High</Option>
-    </Options>
-    <Options name="timeframe_land_use" default="30">
-      <Option>30</Option>
-      <Option>150</Option>
-    </Options>
-    <AttrDef name="eta_rig" type="str" options="rig_efficiency" desc="Rig efficiency"/>
-    <AttrDef name="well_complexity" options="well_complexity" desc="Well complexity" type="str"/>
-    <AttrDef name="well_size" desc="Hole size" type="str" options="well_size"/>
-    <AttrDef name="fraction_wells_horizontal" type="float" desc="Horizontal well?">0</AttrDef>
-    <AttrDef name="length_lateral" unit="ft" type="float" desc="Length of lateral">5000</AttrDef>
-    <AttrDef name="well_productivity_crude_oil" options="field_productivity_category" type="str"/>
-    <AttrDef name="well_productivity_natural_gas" options="field_productivity_category" type="str"/>
-    <AttrDef name="fraction_wells_fractured" desc="Fraction of wells fractured" type="float">0</AttrDef>
-    <AttrDef name="volume_per_well_fractured" desc="Fracturing fluid injection volume" type="float" unit="Mgal’’">3</AttrDef>
-    <AttrDef name="pressure_gradient_fracturing" desc="Fracturing pressure gradient (rock strength)" unit="psi/ft">0.7</AttrDef>
-    <AttrDef name="timeframe_land_use" desc="Timeframe of land use analysis" unit="years" options="timeframe_land_use">1</AttrDef>
-    <AttrDef name="flaring_fracturing_flowback" desc="Fracturing flowback flared?" type="binary">0</AttrDef>
-    <AttrDef name="REC_fracturing_flowback" desc="Fracturing flowback captured with reduced emissons completions?" type="binary">1</AttrDef>
-    <AttrDef name="number_well_workovers" desc="Workovers needed over lifetime of well" type="float">4.0</AttrDef>
-  </ClassAttrs>
-  <ClassAttrs name="DownholePump">
-    <Options name="prime_mover_type" default="NG_engine">
-      <Option>NG_engine</Option>
-      <Option>Electric_motor</Option>
-      <Option>Diesel_engine</Option>
-      <Option>NG_turbine</Option>
-    </Options>
-
-
-    <AttrDef name="eta_pump_well" type="float" unit="percent" desc="pump efficiency">65</AttrDef>
-    <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
-  </ClassAttrs>
-  <ClassAttrs name="WaterInjection">
-    <Options name="prime_mover_type" default="NG_engine">
-      <Option>NG_engine</Option>
-      <Option>Electric_motor</Option>
-      <Option>Diesel_engine</Option>
-      <Option>NG_turbine</Option>
-    </Options>
-
-    <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
-  </ClassAttrs>
-  <ClassAttrs name="FluidProduction">
-    <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
-  </ClassAttrs>
-  <ClassAttrs name="FluidInjection">
-    <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
-  </ClassAttrs>
-  <ClassAttrs name="BitumenMining">
-    <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
-  </ClassAttrs>
-  <ClassAttrs name="MaintenanceAndWorkovers">
-    <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
-  </ClassAttrs>
-
-  <!-- Surface processing-->
-  <ClassAttrs name="Separation">
-    <Options name="prime_mover_type" default="NG_engine">
-      <Option>NG_engine</Option>
-      <Option>Electric_motor</Option>
-      <Option>Diesel_engine</Option>
-      <Option>NG_turbine</Option>
-    </Options>
-
-    <AttrDef name="number_stages" type="int" desc="Number of separator stages">2</AttrDef>
-    <AttrDef name="pressure_first_stage" type="float" unit="psia" desc="First stage separator pressure">500.0</AttrDef>
-    <AttrDef name="pressure_second_stage" type="float" unit="psia" desc="Second stage separator pressure">250.0</AttrDef>
-    <AttrDef name="pressure_third_stage" type="float" unit="psia" desc="Third stage separator pressure">100.0</AttrDef>
-    <AttrDef name="water_content_oil_emulsion" type="float" unit="percent" desc="Entrained water as a fraction of oil emulsion (weight percentage)">14.0</AttrDef>
-    <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
-  </ClassAttrs>
-  <ClassAttrs name="CrudeOilDewatering">
-    <Options name="prime_mover_type" default="NG_engine">
-      <Option>NG_engine</Option>
-      <Option>Electric_motor</Option>
-    </Options>
-
-    <AttrDef name="temperature_heater_treater" unit="degF" type="float" desc="Treating temperature">165.0</AttrDef>
-    <AttrDef name="heat_loss" unit="percent" type="float" desc="Heat_loss_heater_treater">2.0</AttrDef>
-    <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
-    <AttrDef name="eta_gas" type="float" unit="frac" desc="heater fuel use efficiency - gas">0.80</AttrDef>
-    <AttrDef name="eta_electricity" type="float" unit="kWh/btu" desc="heater fuel use efficiency electricity">0.0004</AttrDef>
-  </ClassAttrs>
-  <ClassAttrs name="WaterTreatment">
-    <AttrDef name="fraction_disp_water_subsurface" unit="frac" type="float" desc="Fraction of excess water disposed in sub-surface">1.0</AttrDef>
-    <AttrDef name="fraction_disp_water_surface" unit="frac" type="float" desc="Fraction of excess water disposed in surface waters">0.0</AttrDef>
-    <AttrDef name="number_of_stages" type="int" desc="water treatment stages">4</AttrDef>
-    <AttrDef name="makeup_water_treatment_table" type="binary" desc="is makeup water treatment same as produced water treatment">1</AttrDef>
-    <AttrDef name="makeup_water_temp" type="float" unit="degF" desc="Temperature_makeup_H2O">60.0</AttrDef>
-    <AttrDef name="makeup_water_press" type="float" unit="psia" desc="Pressure_makeup_H2O">90.0</AttrDef>
-  </ClassAttrs>
-  <ClassAttrs name="CrudeOilStabilization">
-    <Options name="prime_mover_type" default="NG_engine">
-      <Option>NG_engine</Option>
-      <Option>Electric_motor</Option>
-    </Options>
-
-    <AttrDef name="stab_temp" unit="degF" type="float" desc="Stabilizer temperature">344.0</AttrDef>
-    <AttrDef name="stab_press" unit="psia" type="float" desc="Stabilizer pressure">100.0</AttrDef>
-    <AttrDef name="eps_stab" unit="percent" type="float" desc="Stabilizer heat loss">2.0</AttrDef>
-    <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
-    <AttrDef name="eta_gas" type="float" unit="frac" desc="heater fuel use efficiency - gas">0.80</AttrDef>
-    <AttrDef name="eta_electricity" type="float" unit="kWh/btu" desc="heater fuel use efficiency electricity">0.0004</AttrDef>
-
-  </ClassAttrs>
-  <ClassAttrs name="HeavyOilUpgrading">
-    <AttrDef name="cogeneration_upgrading" type="binary">1</AttrDef>
-    <AttrDef name="upgrader_gas_comp_CO2" unit="mol_pct" type="float">10.0</AttrDef>
-    <AttrDef name="upgrader_gas_comp_C1" unit="mol_pct" type="float">25.0</AttrDef>
-    <AttrDef name="upgrader_gas_comp_C2" unit="mol_pct" type="float">15.0</AttrDef>
-    <AttrDef name="upgrader_gas_comp_C3" unit="mol_pct" type="float">10.0</AttrDef>
-    <AttrDef name="upgrader_gas_comp_C4" unit="mol_pct" type="float">5.0</AttrDef>
-    <AttrDef name="upgrader_gas_comp_H2" unit="mol_pct" type="float">33.0</AttrDef>
-    <AttrDef name="upgrader_gas_comp_H2S" unit="mol_pct" type="float">2.0</AttrDef>
-  </ClassAttrs>
-
-  <ClassAttrs name="HeavyOilDilution">
-    <Options name="dilution_API" default="55.20">
-      <Option>55.20</Option>
-      <Option>23.0</Option>
-    </Options>
-    <Options name="diluent_or_dilbit" default="Diluent">
-      <Option>Diluent</Option>
-      <Option>Dilbit</Option>
-    </Options>
-
-    <AttrDef name="dilution_type" options="diluent_or_dilbit"/>
-    <AttrDef name="diluent_temp" unit="degF" type="float" desc="Diluent temperature">60.0</AttrDef>
-    <AttrDef name="diluent_press" unit="psia" type="float" desc="Diluent pressure">14.7</AttrDef>
-    <AttrDef name="final_mix_temp" unit="degF" type="float" desc="Final diluted crude mixture temperature">60.0</AttrDef>
-    <AttrDef name="final_mix_press" unit="psia" type="float" desc="Final diluted crude mixture pressure">14.7</AttrDef>
-    <AttrDef name="before_diluent_temp" unit="degF" type="float" desc="Standard temperature before dilution (for calculating volume at standard temperature)">60.0</AttrDef>
-    <AttrDef name="before_diluent_press" unit="psia" type="float" desc="Standard pressure before dilution (for calculating volume at standard temperature)">14.7</AttrDef>
-  </ClassAttrs>
-  <ClassAttrs name="CrudeOilStorage">
-    <AttrDef name="storage_gas_comp_CO2" unit="mol_pct" type="float">10.0</AttrDef>
-    <AttrDef name="storage_gas_comp_C1" unit="mol_pct" type="float">55.0</AttrDef>
-    <AttrDef name="storage_gas_comp_C2" unit="mol_pct" type="float">22.5</AttrDef>
-    <AttrDef name="storage_gas_comp_C3" unit="mol_pct" type="float">12.5</AttrDef>
-    <AttrDef name="storage_gas_comp_C4" unit="mol_pct" type="float">7.5</AttrDef>
-
-    <AttrDef name="f_FG_CS_VRU" unit="percent" type="float" desc="storage gas recovery fraction">6.0</AttrDef>
-    <AttrDef name="f_FG_CS_FL" unit="percent" type="float" desc="storage gas flare fraction">43.0</AttrDef>
-  </ClassAttrs>
-
-  <ClassAttrs name="GasDehydration">
-    <AttrDef name="eta_reboiler_dehydrator" type="float" unit="frac" desc="Reboiler heater fuel use efficiency">1.25</AttrDef>
-    <AttrDef name="air_cooler_delta_T" type="float" unit="delta_degF" desc="gas dehydration air cooler delta T, air side">40.0</AttrDef>
-    <AttrDef name="air_cooler_press_drop" type="float" unit="inch" desc="gas dehydration air cooler pressure drop">0.6</AttrDef>
-    <AttrDef name="air_cooler_fan_eff" type="float" unit="percent" desc="gas dehydration air cooler fan efficiency">70.0</AttrDef>
-    <AttrDef name="air_cooler_speed_reducer_eff" type="float" unit="percent" desc="gas dehydration air cooler speed reducer efficiency">92.0</AttrDef>
-  </ClassAttrs>
-
-  <ClassAttrs name="AcidGasRemoval">
-    <AttrDef name="eta_reboiler_AGR" type="float" unit="frac" desc="AGR reboiler Gas-fired heater fuel use">1.25</AttrDef>
-    <AttrDef name="air_cooler_delta_T" type="float" unit="delta_degF" desc="AGR air cooler delta T, air side">40.0</AttrDef>
-    <AttrDef name="air_cooler_fan_eff" type="float" unit="percent" desc="AGR air cooler fan efficiency">70.0</AttrDef>
-    <AttrDef name="air_cooler_press_drop" type="float" unit="inch" desc="AGR air cooler pressure drop">0.6</AttrDef>
-    <AttrDef name="air_cooler_speed_reducer_eff" type="float" unit="percent" desc="AGR air cooler speed reducer efficiency">92.0</AttrDef>
-    <AttrDef name="eta_compressor_AGR" type="float" unit="frac" desc="AGR compressor efficiency">75.0</AttrDef>
-    <Options name="prime_mover_type" default="Electric_motor">
-      <Option>NG_engine</Option>
-      <Option>Electric_motor</Option>
-    </Options>
-    <AttrDef name="prime_mover_type_AGR" type="str" options="prime_mover_type">Electric_motor</AttrDef>
-  </ClassAttrs>
-
-  <ClassAttrs name="RyanHolmes">
-    <AttrDef name="daily_use_engine" type="float" unit="hr/day" desc="Backup diesel engine daily usage">2.63</AttrDef>
-  </ClassAttrs>
-
-  <ClassAttrs name="CO2ReinjectionCompressor">
-    <AttrDef name="eta_compressor" type="float" unit="percent" desc="CO2 injection compressor efficiency">75.0</AttrDef>
-    <Options name="prime_mover_type" default="NG_engine">
-      <Option>NG_engine</Option>
-      <Option>Electric_motor</Option>
-    </Options>
-    <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
-  </ClassAttrs>
-
-  <ClassAttrs name="SourGasCompressor">
-    <AttrDef name="eta_compressor" type="float" unit="percent" desc="sour gas injection compressor efficiency">75.0</AttrDef>
-    <Options name="prime_mover_type" default="NG_engine">
-      <Option>NG_engine</Option>
-      <Option>Electric_motor</Option>
-    </Options>
-    <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
-  </ClassAttrs>
-
-  <ClassAttrs name="Demethanizer">
-    <AttrDef name="feed_press_demethanizer" type="float" unit="psia" desc="desired pressure for demethanizer reaction">600.0</AttrDef>
-    <AttrDef name="colume_pressure" type="float" unit="psia" desc="Demethanizer column pressure">240.0</AttrDef>
-    <AttrDef name="methane_to_NLG_ratio" type="float" unit="frac" desc="methane to ethane NGL composition molar ratio at NGL product stream">0.03</AttrDef>
-    <AttrDef name="eta_reboiler_demethanizer" type="float" unit="frac" desc="Reboiler gas-fired heater fuel use">1.25</AttrDef>
-    <AttrDef name="air_cooler_delta_T" type="float" unit="delta_degF" desc="AGR air cooler delta T, air side">40.0</AttrDef>
-    <AttrDef name="air_cooler_fan_eff" type="float" unit="percent" desc="AGR air cooler fan efficiency">70.0</AttrDef>
-    <AttrDef name="air_cooler_press_drop" type="float" unit="inch" desc="AGR air cooler pressure drop">0.6</AttrDef>
-    <AttrDef name="air_cooler_speed_reducer_eff" type="float" unit="percent" desc="AGR air cooler speed reducer efficiency">92.0</AttrDef>
-    <AttrDef name="eta_compressor" type="float" unit="percent" desc="demethanizer inlet boosting compressor efficiency">75.0</AttrDef>
-    <Options name="prime_mover_type" default="NG_engine">
-      <Option>NG_engine</Option>
-      <Option>Electric_motor</Option>
-    </Options>
-    <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
-  </ClassAttrs>
-
-  <ClassAttrs name="GasFloodingCompressor">
-    <AttrDef name="offset_gas_comp_N2" unit="mol_pct" type="float">2.0</AttrDef>
-    <AttrDef name="offset_gas_comp_CO2" unit="mol_pct" type="float">6.0</AttrDef>
-    <AttrDef name="offset_gas_comp_C1" unit="mol_pct" type="float">84.0</AttrDef>
-    <AttrDef name="offset_gas_comp_C2" unit="mol_pct" type="float">4.0</AttrDef>
-    <AttrDef name="offset_gas_comp_C3" unit="mol_pct" type="float">2.0</AttrDef>
-    <AttrDef name="offset_gas_comp_C4" unit="mol_pct" type="float">1.0</AttrDef>
-    <AttrDef name="offset_gas_comp_H2S" unit="mol_pct" type="float">1.0</AttrDef>
-
-  </ClassAttrs>
-
-  <ClassAttrs name="GasLiftingCompressor">
-    <Options name="prime_mover_type" default="NG_engine">
-      <Option>NG_engine</Option>
-      <Option>Electric_motor</Option>
-    </Options>
-    <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
-  </ClassAttrs>
-
-  <ClassAttrs name="GasReinjectionCompressor">
-    <Options name="prime_mover_type" default="NG_engine">
-      <Option>NG_engine</Option>
-      <Option>Electric_motor</Option>
-    </Options>
-    <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
-    <AttrDef name="eta_compressor" type="float" unit="percent" desc="gas reinjection compressor efficiency">75.0</AttrDef>
-  </ClassAttrs>
-
-  <ClassAttrs name="TransmissionCompressor">
-    <AttrDef name="press_drop_per_dist" type="float" unit="kPa/km" desc="Pressure drop per unit distance">15.67</AttrDef>
-    <AttrDef name="transmission_dist" type="float" unit="mile" desc="Gas transmission distance">680.0</AttrDef>
-    <AttrDef name="transmission_freq" type="float" unit="mile" desc="Frequency of gas transmission compressors"> 200.0</AttrDef>
-    <AttrDef name="transmission_inlet_press" type="float" unit="psia" desc="First compressor stage inlet pressure">1015.26</AttrDef>
-    <Options name="prime_mover_type" default="NG_engine">
-      <Option>NG_engine</Option>
-      <Option>Electric_motor</Option>
-      <Option>Diesel_engine</Option>
-      <Option>NG_turbine</Option>
-    </Options>
-
-    <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
-    <AttrDef name="eta_compressor" type="float" unit="percent" desc="sour gas injection compressor efficiency">75.0</AttrDef>
-
-  </ClassAttrs>
-
-  <ClassAttrs name="WasteTreatmentAndDisposal">
-    <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
-  </ClassAttrs>
-
-  <!-- Transport -->
-  <ClassAttrs name="CrudeTransport">
-    <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
-  </ClassAttrs>
-</AttrDefs>
+<Model schema_version="4.0.a">
+  <AttrDefs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="attributes.xsd">
+    <ClassAttrs name="Model">
+      <!-- Maximum number of iterations for process loops -->
+      <AttrDef name="maximum_iterations" type="int">10</AttrDef>
+
+      <!-- Change threshold for iteration loops. Requires a Process to set a change variable. -->
+      <AttrDef name="maximum_change" type="float">0.001</AttrDef>
+    </ClassAttrs>
+
+    <ClassAttrs name="Stream">
+      <!-- the zero values aren't real defaults; they just avoid having None as a default -->
+      <AttrDef name="temperature" type="float" unit="degF">0</AttrDef>
+      <AttrDef name="pressure" type="float" unit="psia">0</AttrDef>
+    </ClassAttrs>
+
+    <ClassAttrs name="Analysis">
+      <Options name="GWP horizon" default="100">
+        <Option label="20 year">20</Option>
+        <Option label="100 year">100</Option>
+      </Options>
+      <Options name="GWP version" default="AR5">
+        <Option>AR4</Option>
+        <Option>AR5</Option>
+        <Option label="AR5 with C-cycle feedback">AR5_CCF</Option>
+        <Option>AR6</Option>
+      </Options>
+      <Options name="Functional unit" default="oil">
+        <Option label="1 MJ Crude oil">oil</Option>
+        <Option label="1 MJ Natural gas">gas</Option>
+      </Options>
+      <Options name="Energy basis" default="LHV">
+        <Option label="Lower heating value">LHV</Option>
+        <Option label="Higher heating value">HHV</Option>
+      </Options>
+
+      <AttrDef name="GWP_horizon" options="GWP horizon" type="int" unit="years"/>
+      <AttrDef name="GWP_version" options="GWP version" type="str"/>
+      <AttrDef name="functional_unit" options="Functional unit" type="str"/>
+      <AttrDef name="energy_basis" options="Energy basis" type="str"/>
+
+      <!-- We need this at the Analysis level to ensure all fields are evaluated to same bounds -->
+      <Options name="boundaries" default="Production">
+        <Option>Production</Option>
+        <Option>Transportation</Option>
+        <Option>Distribution</Option>
+      </Options>
+      <AttrDef name="boundary" options="boundaries" desc="The user-selected system boundary for all fields in an Analysis"/>
+
+    </ClassAttrs>
+
+    <!-- Attributes shared by all Processes. These values can be overridden in subprocesses -->
+    <ClassAttrs name="Process">
+      <AttrDef name="leak_rate" type="float" desc="Fraction of gas streams leaked to environment" unit="fraction">0.002</AttrDef>
+    </ClassAttrs>
+
+    <ClassAttrs name="Field">
+      <!-- Production methods -->
+      <AttrDef name="downhole_pump" type="binary" desc="Downhole pump">1</AttrDef>
+      <AttrDef name="water_reinjection" type="binary" desc="Water reinjection">1</AttrDef>
+      <AttrDef name="natural_gas_reinjection" type="binary" desc="Natural gas reinjection">1</AttrDef>
+      <AttrDef name="water_flooding" type="binary" desc="Water flooding">0</AttrDef>
+      <AttrDef name="gas_lifting" type="binary" desc="Gas lifting">0</AttrDef>
+
+      <!-- mutually exclusive -->
+      <AttrDef name="gas_flooding" type="binary" desc="Gas flooding" exclusive="flooding">0</AttrDef>
+      <AttrDef name="steam_flooding" type="binary" desc="Steam flooding" exclusive="flooding">0</AttrDef>
+
+      <Options name="oil_sands_mine_type" default="None">
+        <Option>None</Option>
+        <Option>Integrated with upgrader</Option>
+        <Option>Non-integrated with upgrader</Option>
+      </Options>
+      <AttrDef name="oil_sands_mine" options="oil_sands_mine_type" desc="Oil sands mine"/>
+
+      <!-- synchronized - these are just for testing purposes -->
+      <AttrDef name="sync_attr_1" type="binary" synchronized="sync_test">0</AttrDef>
+      <AttrDef name="sync_attr_2" type="binary" synchronized="sync_test">0</AttrDef>
+
+      <!-- Field properties -->
+      <AttrDef name="country" desc="Field location (country)" type="str">Generic</AttrDef>
+      <AttrDef name="name" desc="Field name" type="str">Generic</AttrDef>
+      <AttrDef name="age" unit="yr" desc="Field age" type="float" GT="0" LT="150">38</AttrDef>
+      <AttrDef name="depth" unit="ft" desc="Field depth" type="float" GT="0" LT="25000">7240.0</AttrDef>
+      <AttrDef name="oil_prod" unit="bbl_oil/d" desc="Oil production volume" type="float" GT="0">2098.0</AttrDef>
+      <AttrDef name="num_prod_wells" desc="Number of producing wells" type="int" GT="0">24</AttrDef>
+      <AttrDef name="num_water_inj_wells" desc="Number of water injecting wells" type="int" GE="0">20</AttrDef>
+      <AttrDef name="well_diam" unit="in" desc="Well diameter" type="float" GT="0">2.78</AttrDef>
+      <AttrDef name="prod_index" unit="bbl_oil/(psia*day)" type="float" desc="Productivity index">17.0</AttrDef>
+      <AttrDef name="res_press" unit="psia" desc="Average reservoir pressure" type="float">1556.6</AttrDef>
+      <AttrDef name="res_temp" unit="degF" desc="Average reservoir temperature" type="float">200.0</AttrDef>
+      <AttrDef name="res_thickness" unit="ft" desc="Average reservoir thickness" type="float">50</AttrDef>
+      <AttrDef name="res_perm" unit="mD" desc="Reservoir permeability" type="float">100</AttrDef>
+      <AttrDef name="wellhead_pressure" type="float" unit="psia" >500</AttrDef>
+      <AttrDef name="wellhead_temperature" type="float" unit="degF" >80</AttrDef>
+      <AttrDef name="offshore" type="binary" desc="Offshore?">0</AttrDef>
+
+      <!-- Fluid properties -->
+      <AttrDef name="API" desc="API gravity of produced crude" unit="degAPI" type="float">32.80</AttrDef>
+      <AttrDef name="API_bitumen" unit="degAPI" type="float" desc="API gravity of bitumen">8.0</AttrDef>
+      <AttrDef name="total_dissolved_solids" desc="water total dissolved solid (TDS)" unit="mg/L" type="float">5000.0</AttrDef>
+      <AttrDef name="gas_comp_N2" unit="mol_pct" type="float">2.86</AttrDef>
+      <AttrDef name="gas_comp_CO2" unit="mol_pct" type="float">0.33</AttrDef>
+      <AttrDef name="gas_comp_C1" unit="mol_pct" type="float">89.18</AttrDef>
+      <AttrDef name="gas_comp_C2" unit="mol_pct" type="float">5.30</AttrDef>
+      <AttrDef name="gas_comp_C3" unit="mol_pct" type="float">1.62</AttrDef>
+      <AttrDef name="gas_comp_C4" unit="mol_pct" type="float">0.71</AttrDef>
+      <AttrDef name="gas_comp_H2S" unit="mol_pct" type="float">0.0</AttrDef>    <!-- TODO: needs a default value -->
+
+      <!-- Production practices -->
+      <Options name="Flood gases" default="NG">
+        <Option desc="Natural gas">NG</Option>
+        <Option desc="Nitrogen">N2</Option>
+        <Option desc="Carbon dioxide">CO2</Option>
+      </Options>
+
+      <Options name="Liquids unloading" default="None">
+        <Option>Plunger</Option>
+        <Option>No plunger</Option>
+        <Option>None</Option>
+      </Options>
+
+      <Options name="source_CO2" default="reservoir">
+        <Option desc="natural subsurface reservoir">Reservoir</Option>
+        <Option>Anthropogenic</Option>
+      </Options>
+
+      <AttrDef name="GOR" desc="Gas-to-oil ratio" unit="scf/bbl_oil" type="float">2429.3</AttrDef>
+      <AttrDef name="WOR" desc="Water-to-oil ratio" unit="bbl_water/bbl_oil" type="float">6.0</AttrDef>
+      <AttrDef name="WIR" desc="Water injection ratio" unit="bbl_water/bbl_oil" type="float">7.0</AttrDef>
+      <AttrDef name="GLIR" desc="Gas lifting injection ratio" unit="scf/bbl_liquid" type="float">364.0</AttrDef>
+      <AttrDef name="GFIR" desc="Gas flooding injection ratio" unit="scf/bbl_oil" type="float">3644.0</AttrDef>
+      <AttrDef name="flood_gas_type" desc="Flood gas" options="Flood gases" type="str"/>
+      <AttrDef name="liquids_unloading" options="Liquids unloading" type="str"/>
+      <AttrDef name="frac_CO2_breakthrough" desc="Fraction of CO2 breaking through to producers" unit="percent" type="float">59</AttrDef>
+      <AttrDef name="source_CO2" desc="" options="source_CO2" type="str"/>
+      <AttrDef name="perc_sequestration_credit" desc="Percentage of sequestration credit assigned to the oilfield" unit="percent" type="float">0</AttrDef>
+      <AttrDef name="SOR" desc="Steam-to-oil ratio" unit="bbl_steam/bbl_oil" type="float">0</AttrDef>
+      <AttrDef name="fraction_elec_onsite" desc="Fraction of required electricity generated onsite" type="float">0.0</AttrDef>
+      <AttrDef name="fraction_remaining_gas_inj" desc="Fraction of remaining gas reinjected" type="float">0.5</AttrDef>
+      <AttrDef name="fraction_water_reinjected" desc="Fraction of water produced that is reinjected" type="float">1.0</AttrDef>
+      <AttrDef name="fraction_steam_cogen" desc="Fraction of steam generation via co-generation" type="float">0.0</AttrDef>
+      <AttrDef name="fraction_steam_solar" desc="Fraction of steam generation via solar thermal" type="float">0.0</AttrDef>
+      <AttrDef name="pressure_outlet" type="float" unit="psia" desc="Separator pressure (final if multi-stage)">100.0</AttrDef>
+      <AttrDef name="temperature_outlet" type="float" unit="degF" desc="Separator temperature (final if multi-stage)">90.0</AttrDef>
+      <AttrDef name="gas_pressure_after_boosting" type="float" unit="psia" desc="Separator gas outlet pressure after boosting compressors">500</AttrDef>
+      <AttrDef name="eta_compressor" type="float" unit="percent" desc="Compressor efficiency">75.0</AttrDef>
+      <AttrDef name="friction_factor" type="float" unit="frac" desc="wellbore friction factor">0.02</AttrDef>
+      <AttrDef name="press_water_reinj_pump" type="float" unit="psia" desc="Water reinjection pump characteristics Suction pressure">0.0</AttrDef>
+      <AttrDef name="eta_water_reinj_pump" type="float" unit="percent" desc="Water reinjection pump characteristics Pump efficiency ">60.0</AttrDef>
+
+      <!-- Processing practices -->
+      <Options name="upgrader_type" default="None">
+        <Option>None</Option>
+        <Option>Delayed coking</Option>
+        <Option>Hydroconversion</Option>
+        <Option desc="Combined hydroconversion and fluid coking">Combined</Option>
+      </Options>
+      <Options name="crude_oil_dewatering_output" default="CrudeOilStabilization">
+        <Option desc="Heavy oil upgrading">HeavyOilUpgrading</Option>
+        <Option desc="Heavy oil dilution">HeavyOilDilution</Option>
+        <Option desc="Crude oil stabilization">CrudeOilStabilization</Option>
+      </Options>
+      <Options name="gas_processing_path" default="Acid Gas">
+        <Option>None</Option>
+        <Option desc="Dehydrator">Minimal</Option>
+        <Option desc="Dehydrator + Amine Process">Acid Gas</Option>
+        <Option desc="Dehydrator + Demethanizer">Wet Gas</Option>
+        <Option desc="Dehydrator + Amine Process + Demethanizer">Acid Wet Gas</Option>
+        <Option desc="Dehydration then direct injection of sour CO2-rich stream">Sour Gas Reinjection</Option>
+        <Option desc="Dehydrator + Compressor + Membrane + Amine Process + Demethanizer">CO2-EOR Membrane</Option>
+        <Option desc="Dehydrator + Ryan Holmes Process (Demethanizer Included)">CO2-EOR Ryan Holmes</Option>
+      </Options>
+      <AttrDef name="heater_treater" type="binary" desc="Heater/treater">0</AttrDef>
+      <AttrDef name="steam_quality_at_generator_outlet" unit="frac" type="float" desc="steam quality at generator outlet">0.7</AttrDef>
+      <AttrDef name="steam_quality_after_blowdown" unit="frac" type="float" desc="desired steam quality after blowdown and recycle (if any)">0.7</AttrDef>
+      <AttrDef name="crude_oil_dewatering_output" options="crude_oil_dewatering_output" desc="process receiving crude oil from dewatering"/>
+      <AttrDef name="upgrader_type" desc="Upgrader type" options="upgrader_type" type="str"/>
+      <AttrDef name="gas_processing_path" desc="Associated gas processing path" options="gas_processing_path" type="str"/>
+      <AttrDef name="FOR" unit="scf/bbl_oil" desc="Ratio of flaring to oil production" type="float">141.3</AttrDef>
+      <AttrDef name="VOR" unit="scf/bbl_oil" desc="Ratio of venting to oil production" type="float">5.0</AttrDef>
+      <AttrDef name="fraction_diluent" desc="Volume fraction of diluent in diluted crude" type="float">0.0</AttrDef>
+      <AttrDef name="temperature_mined_bitumen" desc="Mined bitumen temperature" type="float" unit="degF">80.0</AttrDef>
+      <AttrDef name="pressure_mined_bitumen" desc="Mined bitumen pressure" type="float" unit="psia">14.70</AttrDef>
+      <AttrDef name="stabilizer_column" type="binary" desc="stabilizer colume">1</AttrDef>
+
+      <!-- LandUse impacts -->
+      <Options name="ecosystem_C_richness" default="Moderate">
+        <Option desc="Low carbon richness (semi-arid grasslands)">Low</Option>
+        <Option desc="Moderate carbon richness (mixed)">Moderate</Option>
+        <Option desc="High carbon richness (forested)">High</Option>
+      </Options>
+      <Options name="field_development_intensity" default="Moderate">
+        <Option desc="Low intensity development and low oxidation">Low</Option>
+        <Option desc="Moderate intensity development and moderate oxidation">Moderate</Option>
+        <Option desc="High intensity development and high oxidation">High</Option>
+      </Options>
+      <AttrDef name="ecosystem_richness" options="ecosystem_C_richness" desc="Ecosystem carbon richness" type="str"/>
+      <AttrDef name="field_development_intensity" options="field_development_intensity" desc="Field development intensity" type="str"/>
+
+      <!-- name="Transport_and_storage -->
+      <AttrDef name="Fraction_oil_transport_tanker" desc="Fraction  of oil transported by ocean tanker" type="float">1</AttrDef>
+      <AttrDef name="Fraction_oil_transport_barge" desc="Fraction of oil transported by barge" type="float">0</AttrDef>
+      <AttrDef name="Fraction_oil_transport_pipeline" desc="Fraction of oil transported by pipeline" type="float">1</AttrDef>
+      <AttrDef name="Fraction_oil_transport_rail" desc="Fraction of oil transported by rail" type="float">0</AttrDef>
+      <AttrDef name="Fraction_oil_transport_truck" desc="Fraction of oil transported by truck" type="float">0</AttrDef>
+      <AttrDef name="Oil_transport_distance_tanker" unit="mi" desc="Ocean tanker transport distance (one way)" type="float">8000</AttrDef>
+      <AttrDef name="Oil_transport_distance_barge" unit="mi" desc="Barge transport distance (one way)" type="float">500</AttrDef>
+      <AttrDef name="Oil_transport_distance_pipeline" unit="mi" desc="Pipeline transport distance (one way)" type="float">1000</AttrDef>
+      <AttrDef name="Oil_transport_distance_rail" unit="mi" desc="Rail transport distance (one way)" type="float">800</AttrDef>
+      <AttrDef name="Oil_transport_distance_truck" unit="mi" desc="Truck transport distance (one way)" type="float">100</AttrDef>
+      <AttrDef name="ocean_tanker_size" unit="tons" desc="Ocean tanker size, if applicable" type="float">250000</AttrDef>
+      <AttrDef name="small_sources_adder" unit="gCO2eq/MJ" desc="Small source emissions adder" type="float">0.5</AttrDef>
+
+      <AttrDef name="barge_capacity" unit="tonne" type="float" desc="Barge capacity">22500.0</AttrDef>
+      <AttrDef name="ocean_tanker_speed" unit="mile/hr" type="float" desc="Ocean tanker speed">18.52</AttrDef>
+      <AttrDef name="barge_speed" unit="mile/hr" type="float" desc="Barge speed">5.0</AttrDef>
+      <AttrDef name="ocean_tanker_load_factor_dest" unit="frac" type="float" desc="Ocean tanker load factor (origin to destination)">0.8</AttrDef>
+      <AttrDef name="barge_load_factor_dest" unit="frac" type="float" desc="Barge load factor (origin to destination)">0.8</AttrDef>
+      <AttrDef name="ocean_tanker_load_factor_origin" unit="frac" type="float" desc="Ocean tanker load factor (destination to origin)">0.7</AttrDef>
+      <AttrDef name="barge_load_factor_origin" unit="frac" type="float" desc="Barge load factor (destination to origin)">0.6</AttrDef>
+      <AttrDef name="energy_intensity_rail_transport" unit="btu/tonne/mile" type="float" desc="Energy intensity of rail transport">370.0</AttrDef>
+      <AttrDef name="energy_intensity_truck" unit="btu/tonne/mile" type="float">969.0</AttrDef>
+      <AttrDef name="energy_intensity_pipeline_turbine" unit="btu/tonne/mile" type="float" desc="Energy intensity of pipeline transport">240.0</AttrDef>
+      <AttrDef name="energy_intensity_pipeline_engine_current" unit="btu/tonne/mile" type="float" desc="Reciprocating enginer powered (current)">270.0</AttrDef>
+      <AttrDef name="energy_intensity_pipeline_engine_future" unit="btu/tonne/mile" type="float" desc="Reciprocating engine powered (future)">260.0</AttrDef>
+      <AttrDef name="frac_power_pipeline_turbine" unit="frac" type="float" desc="Fraction of power generation technologies for pipeline pumping and compression stations">0.55</AttrDef>
+      <AttrDef name="frac_power_pipeline_engine_current" unit="frac" type="float" desc="Reciprocating enginer powered (current)">0.36</AttrDef>
+      <AttrDef name="frac_power_pipeline_engine_future" unit="frac" type="float" desc="Reciprocating engine powered (future)">0.09</AttrDef>
+      <AttrDef name="losses_feed" unit="btu/mmBtu" type="float" desc="Feed losses: btu/mmbtu fuel transported">62.0</AttrDef>
+
+      <AttrDef name="fraction_diluent_transport_tanker" unit="frac" type="float">1.0</AttrDef>
+      <AttrDef name="fraction_diluent_transport_barge" unit="frac" type="float">0.0</AttrDef>
+      <AttrDef name="fraction_diluent_transport_pipeline" unit="frac" type="float">1.0</AttrDef>
+      <AttrDef name="fraction_diluent_transport_rail" unit="frac" type="float">0.0</AttrDef>
+      <AttrDef name="fraction_diluent_transport_truck" unit="frac" type="float">0.0</AttrDef>
+
+      <AttrDef name="diluent_transport_distance_tanker" unit="mile" type="float">8000.0</AttrDef>
+      <AttrDef name="diluent_transport_distance_barge" unit="mile" type="float">500.0</AttrDef>
+      <AttrDef name="diluent_transport_distance_pipeline" unit="mile" type="float">1000.0</AttrDef>
+      <AttrDef name="diluent_transport_distance_rail" unit="mile" type="float">800.0</AttrDef>
+      <AttrDef name="diluent_transport_distance_truck" unit="mile" type="float">100.0</AttrDef>
+      <AttrDef name="ocean_tanker_size" unit="tonne" type="float">250000.0</AttrDef>
+
+      <Options name="dilution_API" default="55.20">
+        <Option>55.20</Option>
+        <Option>23.0</Option>
+      </Options>
+      <AttrDef name="diluent_API" options="dilution_API" type="float" unit="degAPI"/>
+
+      <AttrDef name="imported_fuel_gas_comp_N2" unit="mol_pct" type="float">0.4</AttrDef>
+      <AttrDef name="imported_fuel_gas_comp_C1" unit="mol_pct" type="float">96.6</AttrDef>
+      <AttrDef name="imported_fuel_gas_comp_C2" unit="mol_pct" type="float">2.0</AttrDef>
+      <AttrDef name="imported_fuel_gas_comp_C3" unit="mol_pct" type="float">1.0</AttrDef>
+
+      <AttrDef name="processed_prod_gas_comp_N2" unit="mol_pct" type="float">0.4</AttrDef>
+      <AttrDef name="processed_prod_gas_comp_C1" unit="mol_pct" type="float">96.6</AttrDef>
+      <AttrDef name="processed_prod_gas_comp_C2" unit="mol_pct" type="float">2.0</AttrDef>
+      <AttrDef name="processed_prod_gas_comp_C3" unit="mol_pct" type="float">1.0</AttrDef>
+
+      <AttrDef name="imported_gas_comp_N2" unit="mol_pct" type="float">0.4</AttrDef>
+      <AttrDef name="imported_gas_comp_C1" unit="mol_pct" type="float">96.6</AttrDef>
+      <AttrDef name="imported_gas_comp_C2" unit="mol_pct" type="float">2.0</AttrDef>
+      <AttrDef name="imported_gas_comp_C3" unit="mol_pct" type="float">1.0</AttrDef>
+
+      <AttrDef name="air_comp_N2" unit="mol_pct" type="float">77.4396</AttrDef>
+      <AttrDef name="air_comp_O2" unit="mol_pct" type="float">20.531</AttrDef>
+      <AttrDef name="air_comp_CO2" unit="mol_pct" type="float">0.0294</AttrDef>
+      <AttrDef name="air_comp_H2O" unit="mol_pct" type="float">2.0</AttrDef>
+
+      <AttrDef name="NG_fuel_share_OTSG_produced" type="float" unit="frac" desc="Fraction produced gas of OTSG gaseous fuels share">0.0</AttrDef>
+      <AttrDef name="NG_fuel_share_HRSG_produced" type="float" unit="frac" desc="Fraction product gas of GT fuel input type">0.0</AttrDef>
+      <AttrDef name="steam_quality_outlet" type="float" unit="frac" desc="Steam quality at generator outlet">0.7</AttrDef>
+      <AttrDef name="steam_quality_after_blowdown" type="float" desc="Desired steam quality after blowdown and recycle (if any)">0.7</AttrDef>
+      <AttrDef name="fraction_blowdown_recycled" type="float" desc="Percentage of blowdown water recycled ">0.7</AttrDef>
+      <AttrDef name="waste_water_reinjection_temp" type="float" unit="degF" desc="Waste water rejection temperature">150.0</AttrDef>
+      <AttrDef name="waste_water_reinjection_press" type="float" unit="psia" desc="Waste water rejection pressure">14.67</AttrDef>
+      <AttrDef name="friction_loss_stream_distr" type="float" unit="frac" desc="Frictional losses in steam distribution and injection lines">1.1</AttrDef>
+      <AttrDef name="pressure_loss_choke_wellhead" type="float" unit="frac" desc="Choke pressure drop at wellhead">1.7</AttrDef>
+      <AttrDef name="steam_injection_delta_press" type="float" unit="psia" desc="steam_injection_delta_press">100.0</AttrDef>
+      <AttrDef name="prod_water_inlet_temp" type="float" unit="degF" desc="Recycled produced water inlet temperature">140</AttrDef>
+      <AttrDef name="makeup_water_inlet_temp" type="float" unit="degF" desc="Makeup water inlet temperature">60.0</AttrDef>
+      <AttrDef name="prod_water_inlet_press" type="float" unit="psia" desc="Recycled produced water inlet pressure">200.0</AttrDef>
+      <AttrDef name="makeup_water_inlet_press" type="float" unit="psia" desc="Makeup water inlet pressure">14.70</AttrDef>
+      <AttrDef name="waste_water_temp" type="float" unit="degF" desc="Waste water rejection temperature">150.0</AttrDef>
+      <AttrDef name="O2_excess_OTSG" type="float" unit="frac" desc="OTSG excess air in combustion, unit=mol O2 real/mol O2 stoichiometric">1.2</AttrDef>
+      <AttrDef name="temperature_inlet_air_OTSG" type="float" unit="degF" desc="OTSG inlet air temperature">80.33</AttrDef>
+      <AttrDef name="OTSG_exhaust_temp_outlet_before_economizer" type="float" unit="degF" desc="OTSG outlet exhaust temperature before economizer">350.0</AttrDef>
+      <AttrDef name="OTSG_exhaust_temp_outlet" type="float" unit="degF" desc="Temperature_outlet_exhaust_OTSG">350.0</AttrDef>
+      <AttrDef name="OTSG_exhaust_temp_outlet_before_preheater" type="float" unit="degF" desc="Temperature_outlet_exhaust_OTSG_before_preheater">350.0</AttrDef>
+      <AttrDef name="loss_shell_OTSG" type="float" unit="frac" desc="OTSG shell loss inefficiency">0.02</AttrDef>
+      <AttrDef name="loss_shell_HRSG" type="float" unit="frac" desc="HRSG shell loss inefficiency">0.02</AttrDef>
+      <AttrDef name="loss_gaseous_OTSG" type="float" unit="btu/mol" desc="OTSG other loss - Gaseous fuels">11.02</AttrDef>
+      <AttrDef name="loss_liquid_OTSG" type="float" unit="btu/lb" desc="OTSG other loss - Liquid fuels">250.0</AttrDef>
+      <AttrDef name="blowdown_heat_recovery" type="binary" desc="blowdown heat recovery availability">1</AttrDef>
+      <AttrDef name="eta_blowdown_heat_rec_OTSG" type="float" unit="frac" desc="OTSG heat recovery efficiency from blowdown rejected (for steam quality in excess of 80%)">0.95</AttrDef>
+      <AttrDef name="eta_blowdown_heat_rec_HRSG" type="float" unit="frac" desc="HRSG heat recovery efficiency from blowdown rejected (for steam quality in excess of 80%)">0.95</AttrDef>
+      <AttrDef name="economizer_OTSG" type="binary" desc="economizer availability in OTSG">0</AttrDef>
+      <AttrDef name="preheater_OTSG" type="binary" desc="preheater availability in OTSG">0</AttrDef>
+      <AttrDef name="economizer_HRSG" type="binary" desc="economizer availability in HRSG">0</AttrDef>
+      <AttrDef name="preheater_HRSG" type="binary" desc="preheater availability in HRSG">0</AttrDef>
+      <AttrDef name="eta_economizer_heat_rec_OTSG" type="float" unit="frac" desc="OTSG economizer recovery efficiency from exhaust">0.95</AttrDef>
+      <AttrDef name="eta_preheater_heat_rec_OTSG" type="float" unit="frac" desc="OTSG preheater recovery efficiency from exhaust">0.9</AttrDef>
+      <AttrDef name="eta_economizer_heat_rec_HRSG" type="float" unit="frac" desc="HRSG economizer recovery efficiency from exhaust">0.95</AttrDef>
+      <AttrDef name="eta_preheater_heat_rec_HRSG" type="float" unit="frac" desc="HRSG preheater recovery efficiency from exhaust">0.9</AttrDef>
+      <AttrDef name="OTSG_frac_import_gas" unit="frac" type="float" desc="OTSG gaseous fuels share for natural gas">1.0</AttrDef>
+      <AttrDef name="OTSG_frac_prod_gas" unit="frac" type="float" desc="OTSG gaseous fuels share for produced gas">0.0</AttrDef>
+      <AttrDef name="HRSG_frac_import_gas" unit="frac" type="float" desc="HRSG gaseous fuels share for natural gas">1.0</AttrDef>
+      <AttrDef name="HRSG_frac_prod_gas" unit="frac" type="float" desc="HRSG gaseous fuels share for produced gas">0.0</AttrDef>
+      <AttrDef name="duct_firing" type="binary" desc="Duct_firing_HRSG">0</AttrDef>
+
+
+      <AttrDef name="HRSG_exhaust_temp_outlet_before_economizer" type="float" unit="degF" desc="HRSG outlet exhaust temperature before economizer">350.0</AttrDef>
+      <AttrDef name="HRSG_exhaust_temp_outlet" type="float" unit="degF" desc="Temperature_outlet_exhaust_HRSG">350.0</AttrDef>
+      <AttrDef name="HRSG_exhaust_temp_outlet_before_preheater" type="float" unit="degF" desc="Temperature_outlet_exhaust_HRSG_before_preheater">350.0</AttrDef>
+
+      <AttrDef name="eta_displacementpump_steamgen" type="float" unit="frac" desc="Positive displacement pump efficiency">0.87</AttrDef>
+      <AttrDef name="eta_air_blower_OTSG" type="float" unit="hp*day/mmbtu" desc="Air blower energy consumption for OTSG">0.139</AttrDef>
+      <AttrDef name="eta_air_blower_HRSG" type="float" unit="hp*day/mmbtu" desc="Air blower energy consumption for HRSG">0.0</AttrDef>
+      <AttrDef name="eta_air_blower_solar" type="float" unit="hp*day/mmbtu" desc="Air blower energy consumption for solar Thermal">0.139</AttrDef>
+
+      <Options name="OTSG_fuel_type" default="Gas">
+        <Option>Gas</Option>
+        <Option>Oil</Option>
+      </Options>
+      <AttrDef name="fuel_input_type_OTSG" options="OTSG_fuel_type"/>
+
+      <Options name="gas_turbine_type" default="C">
+        <Option>A</Option>
+        <Option>B</Option>
+        <Option>C</Option>
+        <Option>D</Option>
+      </Options>
+      <AttrDef name="gas_turbine_type" options="gas_turbine_type"/>
+
+      <AttrDef name="combusted_gas_frac" type="float" unit="percent" desc="Combusted gas total fraction">93.0</AttrDef>
+      <AttrDef name="surface_piping_leakage" type="float" unit="kg/day" desc="Surface piping leakage for venting kg CH4/d">0.0</AttrDef>
+      <AttrDef name="eta_compressor_lifting" type="float" unit="percent" desc="Gas lifting compressor parameters (1-5 stages) - compressor efficiency">75.0</AttrDef>
+      <Options name="prime_mover_type_gas_lifting" default="NG_engine">
+        <Option>NG_engine</Option>
+        <Option>Electric_motor</Option>
+        <Option>Diesel_engine</Option>
+        <Option>NG_turbine</Option>
+      </Options>
+
+      <AttrDef name="prime_mover_type_gas_lifting" type="str" options="prime_mover_type_gas_lifting">NG_engine</AttrDef>
+      <AttrDef name="VRU_discharge_press" type="float" unit="psia" desc="VRU compressor discharge pressure">500.0</AttrDef>
+      <Options name="prime_mover_type_VRU" default="NG_engine">
+        <Option>NG_engine</Option>
+        <Option>Electric_motor</Option>
+        <Option>Diesel_engine</Option>
+        <Option>NG_turbine</Option>
+      </Options>
+
+      <AttrDef name="prime_mover_type_VRU" type="str" options="prime_mover_type_VRU">NG_engine</AttrDef>
+      <AttrDef name="eta_compressor_VRU" type="float" unit="percent" desc="VRU compressor efficiency">75.0</AttrDef>
+      <AttrDef name="reflux_ratio" type="float" unit="frac" desc="gas dehydration reflux ratio">2.25</AttrDef>
+      <AttrDef name="regeneration_feed_temp" type="float" unit="degF" desc="gas dehydration regeneration feed temperature">200.0</AttrDef>
+
+      <AttrDef name="chiller_outlet_temp" type="float" unit="degF" desc="pre membrane chiller outlet temperature">35.0</AttrDef>
+      <AttrDef name="fug_emissions_chiller" type="float" unit="percent" desc="pre membrane chiller fugitive emissions rate">0.0</AttrDef>
+
+  <!--    <AttrDef name="gas_path" type="str" options="gas_path">7</AttrDef>-->
+  <!--    <Options name="gas_path" default="7">-->
+  <!--      <Option>1</Option>-->
+  <!--      <Option>2</Option>-->
+  <!--      <Option>3</Option>-->
+  <!--      <Option>4</Option>-->
+  <!--      <Option>5</Option>-->
+  <!--      <Option>6</Option>-->
+  <!--      <Option>7</Option>-->
+  <!--    </Options>-->
+
+      <AttrDef name="PMC_discharge_press" type="float" unit="psia" desc="pre-membrane compressor discharge pressure">500.0</AttrDef>
+      <AttrDef name="eta_compressor_PMC" type="float" unit="percent" desc="pre-membrane compressor compressor efficiency">75.0</AttrDef>
+      <Options name="prime_mover_type_PMC" default="NG_engine">
+        <Option>NG_engine</Option>
+        <Option>Electric_motor</Option>
+        <Option>Diesel_engine</Option>
+        <Option>NG_turbine</Option>
+      </Options>
+      <AttrDef name="prime_mover_type_PMC" type="str" options="prime_mover_type_PMC">NG_engine</AttrDef>
+
+      <AttrDef name="membrane_separation_comp_N2" unit="mol_pct" type="float">42.0</AttrDef>
+      <AttrDef name="membrane_separation_comp_O2" unit="mol_pct" type="float">0.0</AttrDef>
+      <AttrDef name="membrane_separation_comp_CO2" unit="mol_pct" type="float">67.0</AttrDef>
+      <AttrDef name="membrane_separation_comp_H2O" unit="mol_pct" type="float">0.0</AttrDef>
+      <AttrDef name="membrane_separation_comp_C1" unit="mol_pct" type="float">2.0</AttrDef>
+      <AttrDef name="membrane_separation_comp_C2" unit="mol_pct" type="float">3.0</AttrDef>
+      <AttrDef name="membrane_separation_comp_C3" unit="mol_pct" type="float">4.0</AttrDef>
+      <AttrDef name="membrane_separation_comp_C4" unit="mol_pct" type="float">6.0</AttrDef>
+      <AttrDef name="membrane_separation_comp_CO" unit="mol_pct" type="float">0.0</AttrDef>
+      <AttrDef name="membrane_separation_comp_H2" unit="mol_pct" type="float">0.0</AttrDef>
+      <AttrDef name="membrane_separation_comp_H2S" unit="mol_pct" type="float">52.0</AttrDef>
+      <AttrDef name="membrane_separation_comp_SO2" unit="mol_pct" type="float">0.0</AttrDef>
+
+      <AttrDef name="feed_press_AGR" type="float" unit="psia">500.0</AttrDef>
+
+      <Options name="amine_solution" default="conv DEA">
+        <Option>conv DEA</Option>
+        <Option>high DEA</Option>
+        <Option>MEA</Option>
+        <Option>DGA</Option>
+        <Option>MDEA</Option>
+      </Options>
+      <AttrDef name="type_amine_AGR" type="str" options="amine_solution">conv DEA</AttrDef>
+      <AttrDef name="ratio_reflux_reboiler_AGR" type="float" unit="frac" desc="Reflux ratio in reboiler">2.0</AttrDef>
+      <AttrDef name="regeneration_AGR_temp" type="float" unit="degF" desc="Regeneration feed temperature">205.0</AttrDef>
+
+
+    </ClassAttrs>
+    <ClassAttrs name="SurveyTruck">
+      <AttrDef name="distance" type="float" desc="Distance of travel for survey" unit="mi">10000</AttrDef>
+      <AttrDef name="weight" type="float" desc="Weight of land survey vehicle" unit="tons">25</AttrDef>
+    </ClassAttrs>
+    <ClassAttrs name="SurveyShip">
+      <AttrDef name="distance" type="float" desc="Distance of travel for survey" unit="mi">10000</AttrDef>
+      <AttrDef name="weight" type="float" desc="Weight of ocean survey vehicle" unit="tons">100</AttrDef>
+    </ClassAttrs>
+    <ClassAttrs name="Exploration">
+      <AttrDef name="number_wells_dry" type="int" desc="Number of dry wells drilled per field found">1</AttrDef>
+      <AttrDef name="number_wells_exploratory" type="int" desc="Number of exploratory/scientific wells drilled after field discovery">3</AttrDef>
+    </ClassAttrs>
+    <ClassAttrs name="DrillingAndDevelopment">
+      <Options name="rig_efficiency" default="Medium">
+        <Option desc="Mud pump 60%, Rotary Table 40%">Low</Option>
+        <Option desc="Mud pump 65%, Rotary Table 45%">Medium</Option>
+        <Option desc="Mud pump 70%, Rotary Table 50%">High</Option>
+      </Options>
+      <Options name="well_complexity" default="Moderate">
+        <Option desc="Surface casing plus production casing">Simple</Option>
+        <Option desc="Surface, intermediate, production">Moderate</Option>
+        <Option desc="Surface, Intermediate 1, Intermediate 2, Production">Complex</Option>
+      </Options>
+      <Options name="well_size" default="Medium">
+        <Option>Small</Option>
+        <Option>Medium</Option>
+        <Option>Large</Option>
+      </Options>
+      <Options name="field_productivity_category" default="Medium">
+        <Option desc="USA">Low</Option>
+        <Option desc="Global average">Medium</Option>
+        <Option desc="OPEC">High</Option>
+      </Options>
+      <Options name="timeframe_land_use" default="30">
+        <Option>30</Option>
+        <Option>150</Option>
+      </Options>
+      <AttrDef name="eta_rig" type="str" options="rig_efficiency" desc="Rig efficiency"/>
+      <AttrDef name="well_complexity" options="well_complexity" desc="Well complexity" type="str"/>
+      <AttrDef name="well_size" desc="Hole size" type="str" options="well_size"/>
+      <AttrDef name="fraction_wells_horizontal" type="float" desc="Horizontal well?">0</AttrDef>
+      <AttrDef name="length_lateral" unit="ft" type="float" desc="Length of lateral">5000</AttrDef>
+      <AttrDef name="well_productivity_crude_oil" options="field_productivity_category" type="str"/>
+      <AttrDef name="well_productivity_natural_gas" options="field_productivity_category" type="str"/>
+      <AttrDef name="fraction_wells_fractured" desc="Fraction of wells fractured" type="float">0</AttrDef>
+      <AttrDef name="volume_per_well_fractured" desc="Fracturing fluid injection volume" type="float" unit="Mgal’’">3</AttrDef>
+      <AttrDef name="pressure_gradient_fracturing" desc="Fracturing pressure gradient (rock strength)" unit="psi/ft">0.7</AttrDef>
+      <AttrDef name="timeframe_land_use" desc="Timeframe of land use analysis" unit="years" options="timeframe_land_use">1</AttrDef>
+      <AttrDef name="flaring_fracturing_flowback" desc="Fracturing flowback flared?" type="binary">0</AttrDef>
+      <AttrDef name="REC_fracturing_flowback" desc="Fracturing flowback captured with reduced emissons completions?" type="binary">1</AttrDef>
+      <AttrDef name="number_well_workovers" desc="Workovers needed over lifetime of well" type="float">4.0</AttrDef>
+    </ClassAttrs>
+    <ClassAttrs name="DownholePump">
+      <Options name="prime_mover_type" default="NG_engine">
+        <Option>NG_engine</Option>
+        <Option>Electric_motor</Option>
+        <Option>Diesel_engine</Option>
+        <Option>NG_turbine</Option>
+      </Options>
+
+
+      <AttrDef name="eta_pump_well" type="float" unit="percent" desc="pump efficiency">65</AttrDef>
+      <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
+    </ClassAttrs>
+    <ClassAttrs name="WaterInjection">
+      <Options name="prime_mover_type" default="NG_engine">
+        <Option>NG_engine</Option>
+        <Option>Electric_motor</Option>
+        <Option>Diesel_engine</Option>
+        <Option>NG_turbine</Option>
+      </Options>
+
+      <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
+    </ClassAttrs>
+    <ClassAttrs name="FluidProduction">
+      <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
+    </ClassAttrs>
+    <ClassAttrs name="FluidInjection">
+      <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
+    </ClassAttrs>
+    <ClassAttrs name="BitumenMining">
+      <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
+    </ClassAttrs>
+    <ClassAttrs name="MaintenanceAndWorkovers">
+      <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
+    </ClassAttrs>
+
+    <!-- Surface processing-->
+    <ClassAttrs name="Separation">
+      <Options name="prime_mover_type" default="NG_engine">
+        <Option>NG_engine</Option>
+        <Option>Electric_motor</Option>
+        <Option>Diesel_engine</Option>
+        <Option>NG_turbine</Option>
+      </Options>
+
+      <AttrDef name="number_stages" type="int" desc="Number of separator stages">2</AttrDef>
+      <AttrDef name="pressure_first_stage" type="float" unit="psia" desc="First stage separator pressure">500.0</AttrDef>
+      <AttrDef name="pressure_second_stage" type="float" unit="psia" desc="Second stage separator pressure">250.0</AttrDef>
+      <AttrDef name="pressure_third_stage" type="float" unit="psia" desc="Third stage separator pressure">100.0</AttrDef>
+      <AttrDef name="water_content_oil_emulsion" type="float" unit="percent" desc="Entrained water as a fraction of oil emulsion (weight percentage)">14.0</AttrDef>
+      <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
+    </ClassAttrs>
+    <ClassAttrs name="CrudeOilDewatering">
+      <Options name="prime_mover_type" default="NG_engine">
+        <Option>NG_engine</Option>
+        <Option>Electric_motor</Option>
+      </Options>
+
+      <AttrDef name="temperature_heater_treater" unit="degF" type="float" desc="Treating temperature">165.0</AttrDef>
+      <AttrDef name="heat_loss" unit="percent" type="float" desc="Heat_loss_heater_treater">2.0</AttrDef>
+      <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
+      <AttrDef name="eta_gas" type="float" unit="frac" desc="heater fuel use efficiency - gas">0.80</AttrDef>
+      <AttrDef name="eta_electricity" type="float" unit="kWh/btu" desc="heater fuel use efficiency electricity">0.0004</AttrDef>
+    </ClassAttrs>
+    <ClassAttrs name="WaterTreatment">
+      <AttrDef name="fraction_disp_water_subsurface" unit="frac" type="float" desc="Fraction of excess water disposed in sub-surface">1.0</AttrDef>
+      <AttrDef name="fraction_disp_water_surface" unit="frac" type="float" desc="Fraction of excess water disposed in surface waters">0.0</AttrDef>
+      <AttrDef name="number_of_stages" type="int" desc="water treatment stages">4</AttrDef>
+      <AttrDef name="makeup_water_treatment_table" type="binary" desc="is makeup water treatment same as produced water treatment">1</AttrDef>
+      <AttrDef name="makeup_water_temp" type="float" unit="degF" desc="Temperature_makeup_H2O">60.0</AttrDef>
+      <AttrDef name="makeup_water_press" type="float" unit="psia" desc="Pressure_makeup_H2O">90.0</AttrDef>
+    </ClassAttrs>
+    <ClassAttrs name="CrudeOilStabilization">
+      <Options name="prime_mover_type" default="NG_engine">
+        <Option>NG_engine</Option>
+        <Option>Electric_motor</Option>
+      </Options>
+
+      <AttrDef name="stab_temp" unit="degF" type="float" desc="Stabilizer temperature">344.0</AttrDef>
+      <AttrDef name="stab_press" unit="psia" type="float" desc="Stabilizer pressure">100.0</AttrDef>
+      <AttrDef name="eps_stab" unit="percent" type="float" desc="Stabilizer heat loss">2.0</AttrDef>
+      <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
+      <AttrDef name="eta_gas" type="float" unit="frac" desc="heater fuel use efficiency - gas">0.80</AttrDef>
+      <AttrDef name="eta_electricity" type="float" unit="kWh/btu" desc="heater fuel use efficiency electricity">0.0004</AttrDef>
+
+    </ClassAttrs>
+    <ClassAttrs name="HeavyOilUpgrading">
+      <AttrDef name="cogeneration_upgrading" type="binary">1</AttrDef>
+      <AttrDef name="upgrader_gas_comp_CO2" unit="mol_pct" type="float">10.0</AttrDef>
+      <AttrDef name="upgrader_gas_comp_C1" unit="mol_pct" type="float">25.0</AttrDef>
+      <AttrDef name="upgrader_gas_comp_C2" unit="mol_pct" type="float">15.0</AttrDef>
+      <AttrDef name="upgrader_gas_comp_C3" unit="mol_pct" type="float">10.0</AttrDef>
+      <AttrDef name="upgrader_gas_comp_C4" unit="mol_pct" type="float">5.0</AttrDef>
+      <AttrDef name="upgrader_gas_comp_H2" unit="mol_pct" type="float">33.0</AttrDef>
+      <AttrDef name="upgrader_gas_comp_H2S" unit="mol_pct" type="float">2.0</AttrDef>
+    </ClassAttrs>
+
+    <ClassAttrs name="HeavyOilDilution">
+      <Options name="dilution_API" default="55.20">
+        <Option>55.20</Option>
+        <Option>23.0</Option>
+      </Options>
+      <Options name="diluent_or_dilbit" default="Diluent">
+        <Option>Diluent</Option>
+        <Option>Dilbit</Option>
+      </Options>
+
+      <AttrDef name="dilution_type" options="diluent_or_dilbit"/>
+      <AttrDef name="diluent_temp" unit="degF" type="float" desc="Diluent temperature">60.0</AttrDef>
+      <AttrDef name="diluent_press" unit="psia" type="float" desc="Diluent pressure">14.7</AttrDef>
+      <AttrDef name="final_mix_temp" unit="degF" type="float" desc="Final diluted crude mixture temperature">60.0</AttrDef>
+      <AttrDef name="final_mix_press" unit="psia" type="float" desc="Final diluted crude mixture pressure">14.7</AttrDef>
+      <AttrDef name="before_diluent_temp" unit="degF" type="float" desc="Standard temperature before dilution (for calculating volume at standard temperature)">60.0</AttrDef>
+      <AttrDef name="before_diluent_press" unit="psia" type="float" desc="Standard pressure before dilution (for calculating volume at standard temperature)">14.7</AttrDef>
+    </ClassAttrs>
+    <ClassAttrs name="CrudeOilStorage">
+      <AttrDef name="storage_gas_comp_CO2" unit="mol_pct" type="float">10.0</AttrDef>
+      <AttrDef name="storage_gas_comp_C1" unit="mol_pct" type="float">55.0</AttrDef>
+      <AttrDef name="storage_gas_comp_C2" unit="mol_pct" type="float">22.5</AttrDef>
+      <AttrDef name="storage_gas_comp_C3" unit="mol_pct" type="float">12.5</AttrDef>
+      <AttrDef name="storage_gas_comp_C4" unit="mol_pct" type="float">7.5</AttrDef>
+
+      <AttrDef name="f_FG_CS_VRU" unit="percent" type="float" desc="storage gas recovery fraction">6.0</AttrDef>
+      <AttrDef name="f_FG_CS_FL" unit="percent" type="float" desc="storage gas flare fraction">43.0</AttrDef>
+    </ClassAttrs>
+
+    <ClassAttrs name="GasDehydration">
+      <AttrDef name="eta_reboiler_dehydrator" type="float" unit="frac" desc="Reboiler heater fuel use efficiency">1.25</AttrDef>
+      <AttrDef name="air_cooler_delta_T" type="float" unit="delta_degF" desc="gas dehydration air cooler delta T, air side">40.0</AttrDef>
+      <AttrDef name="air_cooler_press_drop" type="float" unit="inch" desc="gas dehydration air cooler pressure drop">0.6</AttrDef>
+      <AttrDef name="air_cooler_fan_eff" type="float" unit="percent" desc="gas dehydration air cooler fan efficiency">70.0</AttrDef>
+      <AttrDef name="air_cooler_speed_reducer_eff" type="float" unit="percent" desc="gas dehydration air cooler speed reducer efficiency">92.0</AttrDef>
+    </ClassAttrs>
+
+    <ClassAttrs name="AcidGasRemoval">
+      <AttrDef name="eta_reboiler_AGR" type="float" unit="frac" desc="AGR reboiler Gas-fired heater fuel use">1.25</AttrDef>
+      <AttrDef name="air_cooler_delta_T" type="float" unit="delta_degF" desc="AGR air cooler delta T, air side">40.0</AttrDef>
+      <AttrDef name="air_cooler_fan_eff" type="float" unit="percent" desc="AGR air cooler fan efficiency">70.0</AttrDef>
+      <AttrDef name="air_cooler_press_drop" type="float" unit="inch" desc="AGR air cooler pressure drop">0.6</AttrDef>
+      <AttrDef name="air_cooler_speed_reducer_eff" type="float" unit="percent" desc="AGR air cooler speed reducer efficiency">92.0</AttrDef>
+      <AttrDef name="eta_compressor_AGR" type="float" unit="frac" desc="AGR compressor efficiency">75.0</AttrDef>
+      <Options name="prime_mover_type" default="Electric_motor">
+        <Option>NG_engine</Option>
+        <Option>Electric_motor</Option>
+      </Options>
+      <AttrDef name="prime_mover_type_AGR" type="str" options="prime_mover_type">Electric_motor</AttrDef>
+    </ClassAttrs>
+
+    <ClassAttrs name="RyanHolmes">
+      <AttrDef name="daily_use_engine" type="float" unit="hr/day" desc="Backup diesel engine daily usage">2.63</AttrDef>
+    </ClassAttrs>
+
+    <ClassAttrs name="CO2ReinjectionCompressor">
+      <AttrDef name="eta_compressor" type="float" unit="percent" desc="CO2 injection compressor efficiency">75.0</AttrDef>
+      <Options name="prime_mover_type" default="NG_engine">
+        <Option>NG_engine</Option>
+        <Option>Electric_motor</Option>
+      </Options>
+      <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
+    </ClassAttrs>
+
+    <ClassAttrs name="SourGasCompressor">
+      <AttrDef name="eta_compressor" type="float" unit="percent" desc="sour gas injection compressor efficiency">75.0</AttrDef>
+      <Options name="prime_mover_type" default="NG_engine">
+        <Option>NG_engine</Option>
+        <Option>Electric_motor</Option>
+      </Options>
+      <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
+    </ClassAttrs>
+
+    <ClassAttrs name="Demethanizer">
+      <AttrDef name="feed_press_demethanizer" type="float" unit="psia" desc="desired pressure for demethanizer reaction">600.0</AttrDef>
+      <AttrDef name="colume_pressure" type="float" unit="psia" desc="Demethanizer column pressure">240.0</AttrDef>
+      <AttrDef name="methane_to_NLG_ratio" type="float" unit="frac" desc="methane to ethane NGL composition molar ratio at NGL product stream">0.03</AttrDef>
+      <AttrDef name="eta_reboiler_demethanizer" type="float" unit="frac" desc="Reboiler gas-fired heater fuel use">1.25</AttrDef>
+      <AttrDef name="air_cooler_delta_T" type="float" unit="delta_degF" desc="AGR air cooler delta T, air side">40.0</AttrDef>
+      <AttrDef name="air_cooler_fan_eff" type="float" unit="percent" desc="AGR air cooler fan efficiency">70.0</AttrDef>
+      <AttrDef name="air_cooler_press_drop" type="float" unit="inch" desc="AGR air cooler pressure drop">0.6</AttrDef>
+      <AttrDef name="air_cooler_speed_reducer_eff" type="float" unit="percent" desc="AGR air cooler speed reducer efficiency">92.0</AttrDef>
+      <AttrDef name="eta_compressor" type="float" unit="percent" desc="demethanizer inlet boosting compressor efficiency">75.0</AttrDef>
+      <Options name="prime_mover_type" default="NG_engine">
+        <Option>NG_engine</Option>
+        <Option>Electric_motor</Option>
+      </Options>
+      <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
+    </ClassAttrs>
+
+    <ClassAttrs name="GasFloodingCompressor">
+      <AttrDef name="offset_gas_comp_N2" unit="mol_pct" type="float">2.0</AttrDef>
+      <AttrDef name="offset_gas_comp_CO2" unit="mol_pct" type="float">6.0</AttrDef>
+      <AttrDef name="offset_gas_comp_C1" unit="mol_pct" type="float">84.0</AttrDef>
+      <AttrDef name="offset_gas_comp_C2" unit="mol_pct" type="float">4.0</AttrDef>
+      <AttrDef name="offset_gas_comp_C3" unit="mol_pct" type="float">2.0</AttrDef>
+      <AttrDef name="offset_gas_comp_C4" unit="mol_pct" type="float">1.0</AttrDef>
+      <AttrDef name="offset_gas_comp_H2S" unit="mol_pct" type="float">1.0</AttrDef>
+
+    </ClassAttrs>
+
+    <ClassAttrs name="GasLiftingCompressor">
+      <Options name="prime_mover_type" default="NG_engine">
+        <Option>NG_engine</Option>
+        <Option>Electric_motor</Option>
+      </Options>
+      <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
+    </ClassAttrs>
+
+    <ClassAttrs name="GasReinjectionCompressor">
+      <Options name="prime_mover_type" default="NG_engine">
+        <Option>NG_engine</Option>
+        <Option>Electric_motor</Option>
+      </Options>
+      <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
+      <AttrDef name="eta_compressor" type="float" unit="percent" desc="gas reinjection compressor efficiency">75.0</AttrDef>
+    </ClassAttrs>
+
+    <ClassAttrs name="TransmissionCompressor">
+      <AttrDef name="press_drop_per_dist" type="float" unit="kPa/km" desc="Pressure drop per unit distance">15.67</AttrDef>
+      <AttrDef name="transmission_dist" type="float" unit="mile" desc="Gas transmission distance">680.0</AttrDef>
+      <AttrDef name="transmission_freq" type="float" unit="mile" desc="Frequency of gas transmission compressors"> 200.0</AttrDef>
+      <AttrDef name="transmission_inlet_press" type="float" unit="psia" desc="First compressor stage inlet pressure">1015.26</AttrDef>
+      <Options name="prime_mover_type" default="NG_engine">
+        <Option>NG_engine</Option>
+        <Option>Electric_motor</Option>
+        <Option>Diesel_engine</Option>
+        <Option>NG_turbine</Option>
+      </Options>
+
+      <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
+      <AttrDef name="eta_compressor" type="float" unit="percent" desc="sour gas injection compressor efficiency">75.0</AttrDef>
+
+    </ClassAttrs>
+
+    <ClassAttrs name="WasteTreatmentAndDisposal">
+      <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
+    </ClassAttrs>
+
+    <!-- Transport -->
+    <ClassAttrs name="CrudeTransport">
+      <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
+    </ClassAttrs>
+  </AttrDefs>
+</Model>

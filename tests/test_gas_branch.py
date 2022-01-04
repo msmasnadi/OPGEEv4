@@ -1,11 +1,5 @@
 import pytest
 from .utils_for_tests import load_test_model
-from opgee.process import Process
-
-
-class After(Process):
-    def run(self, analysis):
-        pass
 
 
 @pytest.fixture(scope="module")

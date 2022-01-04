@@ -107,7 +107,7 @@ class ResultsPane(OpgeePane):
             beyond = boundary_stream.beyond_boundary()
 
             # Show results for top-level aggregators and procs for the selected field that are within the boundary
-            top_level = [(obj.name, obj.energy.data.sum()/energy) for obj in field.aggs + field.procs if obj not in beyond]
+            top_level = [(obj.name, obj.energy.data.sum()/energy) for obj in field.children() if obj not in beyond]
 
             df = pd.DataFrame({"category": [pair[0] for pair in top_level],
                                "value": [pair[1] for pair in top_level],

@@ -1,16 +1,7 @@
-import pytest
 from opgee import ureg
-from opgee.model import ModelFile
 from opgee.stream import Stream
 from opgee.process import Process
-from .utils_for_tests import path_to_test_file
-
-@pytest.fixture()
-def process_loop_model(configure_logging_for_tests):
-    xml_path = path_to_test_file('test_process_loop_model.xml')
-    mf = ModelFile(xml_path, add_stream_components=False, use_class_path=False)
-    return mf.model
-
+from .utils_for_tests import load_test_model
 
 class LoopProc1(Process):
     def run(self, analysis):
@@ -59,7 +50,8 @@ class LoopProc4(Process):
 
         self.add_emission_rate(EM_FLARING, 'CO2', co2_rate)
 
-def test_process_loop(process_loop_model):
+def test_process_loop():
+    process_loop_model = load_test_model('test_process_loop_model.xml')
     analysis = process_loop_model.get_analysis('test')
     field = analysis.get_field('test')
     field.run(analysis)

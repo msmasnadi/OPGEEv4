@@ -36,23 +36,26 @@ _logger = getLogger(__name__)
 # _types = {'str': str, 'int': int, 'float': float, 'bool': bool}
 
 class XMLFile(object):
-    """
-    Stores information about an XML file; provides wrapper to parse and access
-    the file tree, and handle "conditional XML".
 
-    :param filename: (str) The pathname to the XML file
-    :param load: (bool) If True, the file is loaded, otherwise, the instance is
-       set up, but the file is not read.
-    :param schemaPath: (str) If not None, the path relative to the root of the
-       package to the .xsd (schema definition) file to use to validate the XML file.
-    :param removeComments: (bool) If True, comments are discarded upon reading the file.
-    :param conditionalXML: (bool) If True, the XML is processed using Conditional XML
-       prior to validation.
-    :param varDict: (dict) A dictionary to use in place of the configuration dictionary
-       when processing Conditional XML.
-    """
+    parsed_schemas = {} # cache parsed schemas to avoid re-reading and parsing opgee.xml
+
     def __init__(self, filename, load=True, schemaPath=None,
                  removeComments=True, conditionalXML=False, varDict=None):
+        """
+        Stores information about an XML file; provides wrapper to parse and access
+        the file tree, and handle "conditional XML".
+
+        :param filename: (str) The pathname to the XML file
+        :param load: (bool) If True, the file is loaded, otherwise, the instance is
+           set up, but the file is not read.
+        :param schemaPath: (str) If not None, the path relative to the root of the
+           package to the .xsd (schema definition) file to use to validate the XML file.
+        :param removeComments: (bool) If True, comments are discarded upon reading the file.
+        :param conditionalXML: (bool) If True, the XML is processed using Conditional XML
+           prior to validation.
+        :param varDict: (dict) A dictionary to use in place of the configuration dictionary
+           when processing Conditional XML.
+        """
         self.filename = filename
         self.tree = None
         self.conditionalXML = conditionalXML
@@ -117,12 +120,15 @@ class XMLFile(object):
 
         tree = self.tree
 
-        # ensure that the entire directory has been extracted so that 'xs:include' works
-        pkg.resource_filename('opgee', os.path.dirname(self.schemaPath))
-        abspath = pkg.resource_filename('opgee', self.schemaPath)
-
-        xsd = ET.parse(abspath)
-        schema = ET.XMLSchema(xsd)
+        # use the cached version if available
+        schema = self.parsed_schemas.get(self.schemaPath)
+        if not schema:
+            # ensure that the entire directory has been extracted so that 'xs:include' works
+            pkg.resource_filename('opgee', os.path.dirname(self.schemaPath))
+            abspath = pkg.resource_filename('opgee', self.schemaPath)
+            xsd = ET.parse(abspath)
+            schema = ET.XMLSchema(xsd)
+            self.parsed_schemas[self.schemaPath] = schema
 
         if raiseOnError:
             try:

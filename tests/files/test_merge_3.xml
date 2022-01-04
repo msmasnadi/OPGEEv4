@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
+
+	<Field name="other">
+
+		<Process class="ProcA" desc="Test process 1">
+			<A name="temperature">100.0</A>
+			<A name="pressure">185.0</A>
+    </Process>
+
+		<!-- Delete first, so both the Contains elements get added -->
+		<Stream src="ProcA" dst="ProcB" delete="1"/>
+
+		<Stream src="ProcA" dst="ProcB">
+			<A name="temperature">99.0</A>
+			<A name="pressure">150.0</A>
+			<Component name="oil" phase="liquid">111</Component>
+
+			<!--
+			Without the prior delete above, each Contains matches, so content
+			is copied over, resulting in just the final Contains node.
+			-->
+			<Contains>crude oil</Contains>
+			<Contains>random substance</Contains>
+		</Stream>
+	</Field>
+
+</Model>

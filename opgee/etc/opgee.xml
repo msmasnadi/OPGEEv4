@@ -6,8 +6,7 @@
      and modify this file. We also (will) support site- and user-specific XML template files that
      define custom starting points.
      -->
-<Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="opgee.xsd">
-
+<Model schema_version="4.0.0.a" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="opgee.xsd">
 	<Analysis name="default">
 		<A name="GWP_horizon">100</A>
 		<A name="GWP_version">AR5</A>

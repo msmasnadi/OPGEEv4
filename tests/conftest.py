@@ -1,8 +1,7 @@
 import pytest
 from opgee.config import getConfig
 from opgee.log import setLogLevels, configureLogs
-from opgee.model import ModelFile
-from opgee.pkg_utils import resourceStream
+from opgee.model_file import ModelFile
 from opgee.tool import Opgee
 from .utils_for_tests import load_test_model
 
@@ -16,8 +15,7 @@ def configure_logging_for_tests():
 
 @pytest.fixture(scope="function")
 def opgee_model(configure_logging_for_tests):
-    stream = resourceStream('etc/opgee.xml', stream_type='bytes', decode=None)
-    mf = ModelFile('[opgee package]/etc/opgee.xml', stream=stream)
+    mf = ModelFile(None, use_default_model=True)
     return mf.model
 
 @pytest.fixture(scope="module")

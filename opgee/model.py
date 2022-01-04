@@ -8,15 +8,20 @@ from . import ureg
 from .analysis import Analysis
 from .container import Container
 from .core import instantiate_subelts, elt_name
+from .attributes import AttrDefs
 from .config import getParam, unixPath
-from .error import OpgeeException
+from .error import OpgeeException, XmlFormatError
 from .field import Field
 from .log import getLogger
+from .pkg_utils import resourceStream
 from .process import reload_subclass_dict
 from .stream import Stream
 from .table_manager import TableManager
 from .utils import loadModuleFromPath, splitAndStrip
 from .XMLFile import XMLFile
+from .xml_utils import merge_elements, save_xml
+
+DEFAULT_SCHEMA_VERSION = "4.0.0.a"
 
 _logger = getLogger(__name__)
 
@@ -26,6 +31,8 @@ class Model(Container):
         super().__init__(name, attr_dict=attr_dict)
 
         Model.instance = self
+
+        self.schema_version = attr_dict.get('schema_version', DEFAULT_SCHEMA_VERSION)
 
         self.analysis_dict = self.adopt(analyses, asDict=True)
         self.field_dict = self.adopt(fields, asDict=True)
@@ -68,7 +75,7 @@ class Model(Container):
         self.maximum_iterations = self.attr('maximum_iterations')
         self.maximum_change = self.attr('maximum_change')
 
-        self.pathname = None  # set by calling set_pathname(path)
+        self.pathnames = None  # set by calling set_pathnames(path)
 
     def _after_init(self):
         for obj in self.fields():
@@ -77,8 +84,8 @@ class Model(Container):
         for obj in self.analyses():
             obj._after_init()
 
-    def set_pathname(self, pathname):
-        self.pathname = pathname
+    def set_pathnames(self, pathnames):
+        self.pathnames = pathnames
 
     def fields(self):
         return self.field_dict.values()
@@ -150,75 +157,3 @@ class Model(Container):
 
         return obj
 
-
-class ModelFile(XMLFile):
-    """
-    Represents the overall opgee.xml file.
-    """
-
-    # Remember paths loaded so we avoid reloading them and re-defining Process subclasses
-    _loaded_module_paths = dict()
-
-    def __init__(self, filename, stream=None, add_stream_components=True, use_class_path=True):
-        """
-        Several steps are performed, some of which are dependent on the function's parameters:
-
-        1. If `add_stream_components` is True, load any extra stream components defined by config file
-        variable "OPGEE.StreamComponents".
-
-        2. Reads the input XML filename using either from `filename` (if `stream` is None) or from
-        `stream`. In the latter case, the filename is used only as a description of the stream.
-
-        3. If `use_class_path` is True, loads any Python files found in the path list defined by
-        "OPGEE.ClassPath". Note that all classes referenced by the XML must be defined internally
-        by opgee, or in the user's files indicated by "OPGEE.ClassPath".
-
-        4. Construct the model data structure from the input XML file and store the result in `self.model`.
-
-        :param filename: (str) the name of the file to read, if `stream` is None, else the description
-           of the file, e.g., "[opgee package]/etc/opgee.xml".
-        :param stream: (file-like object) if not None, read from this stream rather than opening `filename`.
-        """
-        import os
-        from pathlib import Path
-
-        if add_stream_components:
-            extra_components = getParam('OPGEE.StreamComponents')
-            if extra_components:
-                names = splitAndStrip(extra_components, ',')
-                Stream.extend_components(names)
-
-        # We expect a single 'Analysis' element below Model
-        _logger.debug("Loading model file: %s", filename)
-
-        super().__init__(stream or filename, schemaPath='etc/opgee.xsd')
-
-        def _load_from_path(module_path):
-            module_path = unixPath(module_path)
-            if module_path in self._loaded_module_paths:
-                _logger.warn(f"Refusing to reload previously loaded module path {module_path}")
-            else:
-                loadModuleFromPath(module_path)
-                self._loaded_module_paths[module_path] = True
-
-        if use_class_path:
-            class_path = getParam('OPGEE.ClassPath')
-            paths = [Path(path) for path in class_path.split(os.path.pathsep) if path]
-            for path in paths:
-                if path.is_dir():
-                    for module_path in path.glob('*.py'):  # load all .py files found in directory
-                        _load_from_path(module_path)
-                else:
-                    print(f"Loading module from '{path}'")
-                    _load_from_path(path)
-
-            reload_subclass_dict()
-
-        self.root = self.tree.getroot()
-
-        # TBD: read and merge user file prior to calling from_xml(root)
-
-        self.model = Model.from_xml(self.root)
-
-        # If we're reading a stream, we'll show that in the GUI
-        self.model.set_pathname(str(stream) if stream else filename)

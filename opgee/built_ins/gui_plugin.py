@@ -1,4 +1,4 @@
-from ..subcommand import SubcommandABC #, clean_help
+from ..subcommand import SubcommandABC
 
 from ..process import Process, _subclass_dict
 
@@ -38,6 +38,9 @@ class GUICommand(SubcommandABC):
         parser.add_argument('-m', '--model-file', default=None,
                             help=f'''The OPGEE model XML file to read. Default is the value of config variable 'OPGEE.ModelFile', 
                                      if defined, otherwise the built-in opgee.xml.''')
+
+        parser.add_argument('-n', '--no-default-model', action='store_true',
+                            help='''Don't load the built-in opgee.xml model definition.''')
 
         # TBD: apparently action=argparse.BooleanOptionalAction requires py 3.9
         parser.add_argument('--add-stream-components', action='store_true',
