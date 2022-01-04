@@ -113,7 +113,7 @@ def main(args):
 
     use_default_model = not args.no_default_model
 
-    mf = ModelFile(args.modelFile, add_stream_components=args.add_stream_components,
+    mf = ModelFile(args.model_file, add_stream_components=args.add_stream_components,
                    use_class_path=args.use_class_path, use_default_model=use_default_model)
     model = mf.model
     analysis_name = args.analysis

@@ -195,8 +195,9 @@ class ProcessPane(OpgeePane):
                     add_children(agg, details)
 
                 if container.procs:
+                    enabled_procs = [proc for proc in container.procs if proc.is_enabled]
                     div = html.Div(style=style,
-                                   children=[emissions_table(analysis, container.procs)])
+                                   children=[emissions_table(analysis, enabled_procs)])
                     elt.children.append(div)
 
             item = html.Details(open=True, children=[html.Summary("Process Emissions")])
