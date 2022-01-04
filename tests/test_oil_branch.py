@@ -1,17 +1,5 @@
 import pytest
-from opgee import Process
 from .utils_for_tests import load_test_model
-
-
-class Before(Process):
-    def run(self, analysis):
-        pass
-
-
-class After(Process):
-    def run(self, analysis):
-        pass
-
 
 @pytest.fixture(scope="function")
 def test_oil_branch(configure_logging_for_tests):

@@ -924,7 +924,15 @@ class Environment(Process):
     def report(self, analysis):
         print(f"{self}: cumulative emissions to Environment:\n{self.emissions}")
 
+
 # Required to load some test XML files
+class Before(Process):
+    def run(self, analysis):
+        pass
+
+    def impute(self):
+        pass
+
 class After(Process):
     def run(self, analysis):
         pass
