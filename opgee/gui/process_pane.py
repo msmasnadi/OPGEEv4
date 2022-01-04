@@ -221,15 +221,6 @@ class ProcessPane(OpgeePane):
                                        layout_name=layout_name)
 
 
-# Required to load separator_model.xml
-class After(Process):
-    def run(self, analysis):
-        pass
-
-    def impute(self):
-        pass
-
-
 # Load extra layouts
 # cyto.load_extra_layouts()   # required for cose-bilkent
 
