@@ -924,6 +924,15 @@ class Environment(Process):
     def report(self, analysis):
         print(f"{self}: cumulative emissions to Environment:\n{self.emissions}")
 
+# Required to load some test XML files
+class After(Process):
+    def run(self, analysis):
+        pass
+
+    def impute(self):
+        pass
+
+
 #
 # This class is defined here rather than in container.py to avoid import loops and to
 # allow the reference to Aggregator above.
