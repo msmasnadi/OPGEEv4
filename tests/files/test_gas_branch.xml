@@ -34,7 +34,7 @@
 		<A name="gas_processing_path">Acid Wet Gas</A>
 		<A name="upgrader_type">Delayed coking</A>
 
-		<Process class="Output"/>
+		<Process class="After"/>
 
 		<ProcessChoice name="gas_processing_path">
 			<ProcessGroup name="Acid Wet Gas">
@@ -77,7 +77,6 @@
 			<Process class="SourGasCompressor"/>
 			<Process class="GasFloodingCompressor"/>
 			<Process class="CO2InjectionWell"/>
-			<Process class="SteamGeneration"/>
 			<Process class="Flaring"/>
 			<Process class="Separation"/>
 			<Process class="CrudeOilDewatering"/>
@@ -87,8 +86,6 @@
 		</Aggregator>
 
 		<Aggregator name="SurfaceProcessing">
-			<Process class="HeavyOilUpgrading"/>
-			<Process class="HeavyOilDilution"/>
 			<Process class="GasGathering"/>
 			<Process class="GasDehydration"/>
 			<Process class="AcidGasRemoval"/>
@@ -97,10 +94,6 @@
 			<Process class="PreMembraneCompressor"/>
 			<Process class="CO2Membrane"/>
 			<Process class="RyanHolmes"/>
-		</Aggregator>
-
-		<Aggregator name="CrudeOilTransport">
-			<Process class="DiluentTransport" enabled="false"/>
 		</Aggregator>
 
 		<Aggregator name="GasTransport">
@@ -175,7 +168,7 @@
 			<Contains>water</Contains>
 		</Stream>
 
-		<Stream src="WaterTreatment" dst="Output" name="water treatment to steam">
+		<Stream src="WaterTreatment" dst="After" name="water treatment to steam">
 			<Contains>water for steam generation</Contains>
 			<Contains>water for reinjection</Contains>
 			<Contains>water for surface disposal</Contains>
