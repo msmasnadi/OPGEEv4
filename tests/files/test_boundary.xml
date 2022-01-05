@@ -13,6 +13,9 @@
 
 		<Process class="BoundaryBefore"/>
         <Process class="TransmissionCompressor"/>
+		<Process class="StorageCompressor"/>
+		<Process class="GasDistribution"/>
+		<Process class="LNGLiquefaction"/>
 
         <Stream src="BoundaryBefore" dst="TransmissionCompressor" name="before to transmission compressor" boundary="Production">
             <Component name="N2" phase="gas">25.7</Component>
@@ -24,6 +27,22 @@
 			<A name="temperature">90.0</A>
 			<A name="pressure">500.0</A>
 			<Contains>gas</Contains>
+		</Stream>
+
+		<Stream src="TransmissionCompressor" dst="Environment" name="transmission compressor to environment">
+			<Contains>gas fugitives</Contains>
+		</Stream>
+
+		<Stream src="TransmissionCompressor" dst="StorageCompressor" name="transmission compressor to storage compressor">
+			<Contains>gas for storage</Contains>
+		</Stream>
+
+		<Stream src="TransmissionCompressor" dst="LNGLiquefaction" name="transmission compressor to LNG liquefaction">
+			<Contains>LNG</Contains>
+		</Stream>
+
+		<Stream src="TransmissionCompressor" dst="GasDistribution" name="transmission compressor to gas distribution">
+			<Contains>gas for distribution</Contains>
 		</Stream>
 
     </Field>

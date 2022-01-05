@@ -421,6 +421,10 @@
 			<Contains>gas</Contains>
 		</Stream>
 
+		<Stream src="TransmissionCompressor" dst="Environment" name="transmission compressor to environment">
+			<Contains>gas fugitives</Contains>
+		</Stream>
+
 		<Stream src="SurfaceSource" dst="GasFloodingCompressor" name="surface source to gas flooding compressor">
 			<Contains>gas for gas flooding</Contains>
 		</Stream>

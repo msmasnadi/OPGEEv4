@@ -1,12 +1,7 @@
 from .drilling import Drilling, DrillingAndDevelopment, LandUse, Fracking
 from .exploration import Exploration, SurveyShip, SurveyTruck
-from .liquefied_natural_gas import LNGLiquefaction, LNGTransport, LNGRegasification
-from .other import *
-from .production_extraction import *
 from .water_treatment import WaterTreatment
-from .surface_processing import *
 from .separation import Separation
-from .transport_storage import *
 from .reservoir_well_interface import *
 from .crude_oil_storage import CrudeOilStorage
 from .downhole_pump import DownholePump
@@ -41,4 +36,7 @@ from .gas_flooding_compressor import GasFloodingCompressor
 from .gas_reinjection_compressor import GasReinjectionCompressor
 from .gas_reinjection_well import GasReinjectionWell
 from .transmission_compressor import TransmissionCompressor
+from .LNG_liquefaction import LNGLiquefaction
+from .storage_compressor import StorageCompressor
+from .gas_distribution import GasDistribution
 
