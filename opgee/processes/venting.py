@@ -49,7 +49,7 @@ class Venting(Process):
                                                       self.imported_fuel_gas_mass_fracs,
                                                       self.GLIR, self.oil_prod,
                                                       self.water_prod, temp, press)
-        if methane_lifting is None and len(gas_stream.components.query("gas > 0.0")) > 0:
+        if methane_lifting is None and len(gas_stream.gas_flow_rates()) > 0:
             discharge_press = (self.res_press + press) / 2 + ureg.Quantity(100, "psi")
             overall_compression_ratio = discharge_press / press
             compression_ratio = Compressor.get_compression_ratio(overall_compression_ratio)

@@ -170,7 +170,7 @@ class ProcessPane(OpgeePane):
                 stream = field.find_stream(name)
                 with pd.option_context('display.max_rows', None,
                                        'precision', 3):
-                    nonzero = stream.components.query('solid > 0 or liquid > 0 or gas > 0')
+                    nonzero = stream.non_zero_flow_rates()
                     components = str(nonzero.astype(float)) if len(nonzero) else '<empty stream>'
 
                 contents = '\n          '.join(stream.contents)

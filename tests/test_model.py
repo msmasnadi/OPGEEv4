@@ -17,7 +17,7 @@ def test_stream_components(configure_logging_for_tests):
 
     load_test_model('test_model.xml', add_stream_components=True)
 
-    comps = Stream.components
+    comps = Stream.component_names
     assert 'Foo' in comps and 'Bar' in comps
 
 def test_unknown_analysis(test_model2):

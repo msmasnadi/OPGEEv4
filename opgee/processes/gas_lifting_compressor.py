@@ -79,6 +79,4 @@ class GasLiftingCompressor(Process):
         emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
 
         if self.field.get_process_data("methane_from_gas_lifting") is None:
-            self.field.save_process_data(methane_from_gas_lifting=lifting_gas.components.loc["C1", PHASE_GAS])
-        pass
-
+            self.field.save_process_data(methane_from_gas_lifting=lifting_gas.gas_flow_rate("C1"))

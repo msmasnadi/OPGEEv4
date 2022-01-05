@@ -714,7 +714,7 @@ class Gas(AbstractSubstance):
         :return: (float) molar flow rate (unit = mol/day)
         """
 
-        mass_flow_rate = stream.components.loc[name, PHASE_GAS]
+        mass_flow_rate = stream.gas_flow_rate(name)
         molar_flow_rate = (mass_flow_rate / self.component_MW[name]).to("mol/day")
 
         return molar_flow_rate
@@ -742,7 +742,7 @@ class Gas(AbstractSubstance):
         """
 
         total_molar_flow_rate = self.total_molar_flow_rate(stream)
-        gas_flow_rates = stream.components.query("gas > 0.0").gas
+        gas_flow_rates = stream.gas_flow_rates()
 
         if len(gas_flow_rates) == 0:
             raise OpgeeException("Can't compute molar fractions on an empty stream")
@@ -782,7 +782,7 @@ class Gas(AbstractSubstance):
         :param stream:
         :return:
         """
-        mass_flow_rate = stream.components.query("gas > 0.0").gas  # pandas.Series
+        mass_flow_rate = stream.gas_flow_rates()  # pandas.Series
         universal_gas_constants = self.field.model.const("universal-gas-constants")  # J/mol/K
         molecular_weight = self.component_MW[mass_flow_rate.index]
         Cp = self.component_Cp_STP[mass_flow_rate.index]
@@ -803,9 +803,10 @@ class Gas(AbstractSubstance):
         """
         temperature = stream.temperature
         temperature = temperature.to("kelvin").m
-        mass_flow_rate = stream.components.query("gas > 0.0").gas  # pandas.Series
+        mass_flow_rate = stream.gas_flow_rates()  # pandas.Series
         if mass_flow_rate.empty:
             return ureg.Quantity(0, "btu/degF/day")
+
         specific_heat = pd.Series({name: Cp(name, temperature, with_units=False) for name in mass_flow_rate.index},
                                   dtype="pint[joule/g/kelvin]")
         heat_capacity = (mass_flow_rate * specific_heat).sum()
@@ -818,7 +819,7 @@ class Gas(AbstractSubstance):
         :param stream:
         :return:(float) pandas.Series
         """
-        mass_flow_rate = stream.components.query("gas > 0.0").gas  # pandas.Series
+        mass_flow_rate = stream.gas_flow_rates()  # pandas.Series
         molar_fraction = self.component_molar_fractions(stream).pint.m
         critical_temperature = self.component_Tc[mass_flow_rate.index].pint.to("rankine")
         critical_temperature = critical_temperature.pint.m
@@ -1009,10 +1010,11 @@ class Gas(AbstractSubstance):
         :param use_LHV: whether to use LHV or HHV
         :return: (float) gas mass energy density (unit = MJ/kg); None if the stream is empty
         """
-        if len(stream.components.query("gas > 0.0")) == 0:
+        mass_flow_rate = stream.gas_flow_rates()
+
+        if len(mass_flow_rate) == 0:
             return ureg.Quantity(0, "MJ/kg")
 
-        mass_flow_rate = stream.components.query("gas > 0.0").gas  # pandas.Series
         total_mass_rate = stream.total_gas_rate()
 
         hv_molar = self.component_LHV_molar if use_LHV else self.component_HHV_molar
@@ -1031,7 +1033,6 @@ class Gas(AbstractSubstance):
         :param use_LHV: whether to use LHV or HHV
         :return: (float) gas mass energy density (unit = MJ/kg)
         """
-
         hv_molar = self.component_LHV_molar if use_LHV else self.component_HHV_molar
 
         hv = hv_molar[molar_fracs.index]
@@ -1049,7 +1050,6 @@ class Gas(AbstractSubstance):
         :param temperature:
         :return:
         """
-
         latent_heat_water = Chemical("water").Hvap(T=273.15)
         latent_heat_water = ureg.Quantity(latent_heat_water, "joule/mole")
         enthalpy = pd.Series(
@@ -1065,7 +1065,9 @@ class Gas(AbstractSubstance):
         :param stream:
         :return:(float) gas volume energy density (unit = btu/scf)
         """
-        mass_flow_rate = stream.components.query("gas > 0.0").gas  # pandas.Series
+        mass_flow_rate = stream.gas_flow_rates()  # pandas.Series
+
+        # TODO: It looks like volume energy density differs for LHV vs HHV. Add the use_LHV=True keyword?
         lhv = self.component_LHV_molar[mass_flow_rate.index]
         molecular_weight = self.component_MW[mass_flow_rate.index]
         density = self.component_gas_rho_STP[mass_flow_rate.index]
@@ -1149,7 +1151,7 @@ class Water(AbstractSubstance):
         :return: (float) water heat capacity (unit = btu/degF/day)
         """
         temperature = stream.temperature
-        mass_flow_rate = stream.components.loc["H2O", PHASE_LIQUID]
+        mass_flow_rate = stream.liquid_flow_rate("H2O")
         specific_heat = cls.specific_heat(temperature)
 
         heat_capacity = mass_flow_rate * specific_heat

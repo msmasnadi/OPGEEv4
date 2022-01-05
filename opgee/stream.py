@@ -69,7 +69,7 @@ class Stream(XmlInstantiable, AttributeMixin):
     """
     The `Stream` class represent the flow rates of single substances or mingled combinations of co-flowing substances
     in any of the three states of matter (solid, liquid, or gas). Streams and stream components are specified in mass
-    flow rates (e.g., Mg per day). The default set of substances is defined by ``Stream.components`` but can be
+    flow rates (e.g., Mg per day). The default set of substances is defined by ``Stream.component_names`` but can be
     extended by the user to include other substances, by setting the configuration file variable
     `OPGEE.StreamComponents`.
 
@@ -103,7 +103,7 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     #: The stream components tracked by OPGEE. This list can be extended by calling ``Stream.extend_components(names)``,
     #: or more simply by defining configuration file variable ``OPGEE.StreamComponents``.
-    components = _solids + _liquids + _gases + _other + _hydrocarbons
+    component_names = _solids + _liquids + _gases + _other + _hydrocarbons
 
     # Remember extensions to avoid applying any redundantly.
     # Value is a dict keyed by set(added_component_names).
@@ -116,8 +116,8 @@ class Stream(XmlInstantiable, AttributeMixin):
                  contents=None, impute=True, boundary=None):
         super().__init__(name)
 
+        # TBD: rename this self.comp_matrix for clarity
         self.components = self.create_component_matrix() if comp_matrix is None else comp_matrix
-        self.xml_data = comp_matrix
         self.temperature = temperature if isinstance(temperature, pint.Quantity) else ureg.Quantity(temperature, "degF")
         self.pressure = pressure if isinstance(pressure, pint.Quantity) else ureg.Quantity(pressure, "psi")
         self.src_name = src_name
@@ -128,11 +128,17 @@ class Stream(XmlInstantiable, AttributeMixin):
 
         self.boundary = boundary    # the name of the boundary this stream defines, or None
 
-        self.contents = contents or []
+        self.contents = contents or []  # generic description of what the stream carries
 
         self.impute = impute
 
-        # indicates whether any data have been written to the stream yet
+        # These values are used by self.reset() to restore the stream to it's initial state per the XML.
+        self.xml_data = comp_matrix
+        self.initial_temp = temperature
+        self.initial_pres = pressure
+
+        # This flag indicates whether any data have been written to the stream yet. Note that it is False
+        # if only temperature and pressure are set, though setting T & P makes no sense on an empty stream.
         self.has_exogenous_data = self.dirty = comp_matrix is not None
 
     def _after_init(self):
@@ -143,14 +149,16 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     def reset(self):
         """
-        Reset an existing `Stream` to a state suitable for re-running the model.
+        Reset an existing `Stream` to a state suitable for re-running the model. If the stream
+        was initialized with data from the XML, this will have been stored in self.xml_data and
+        is used to reset the stream. Otherwise, a new component matrix is created.
 
         :return: none
         """
-        self.components = self.xml_data if self.xml_data is not None else self.create_component_matrix()
-        self.temperature = ureg.Quantity(0.0, "degF")
-        self.pressure = ureg.Quantity(0.0, "psia")
-        self.dirty = False
+        self.dirty = has_xml_data = self.xml_data is not None
+        self.components = self.xml_data if has_xml_data else self.create_component_matrix()
+        self.temperature = self.initial_temp
+        self.pressure = self.initial_pres
 
     def within_boundary(self):
         """
@@ -206,7 +214,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         Allows the user to extend the global `Component` list. This must be called before any streams
         are instantiated. This method is called automatically if the configuration file variable
         ``OPGEE.StreamComponents`` is not empty: set it to a comma-delimited list of component names
-        and they will be added to ``Stream.components`` at startup.
+        and they will be added to ``Stream.component_names`` at startup.
 
         :param names: (iterable of str) the names of new stream components.
         :return: None
@@ -226,7 +234,7 @@ class Stream(XmlInstantiable, AttributeMixin):
 
         _logger.info(f"Extended stream components to include {names}")
 
-        cls.components.extend(names)
+        cls.component_names.extend(names)
 
     @classmethod
     def create_component_matrix(cls):
@@ -235,7 +243,7 @@ class Stream(XmlInstantiable, AttributeMixin):
 
         :return: (pandas.DataFrame) Zero-filled stream DataFrame
         """
-        return pd.DataFrame(data=0.0, index=cls.components, columns=cls._phases, dtype='pint[tonne/day]')
+        return pd.DataFrame(data=0.0, index=cls.component_names, columns=cls._phases, dtype='pint[tonne/day]')
 
     def is_empty(self):
         return not self.dirty
@@ -317,6 +325,11 @@ class Stream(XmlInstantiable, AttributeMixin):
     #
     # Convenience functions
     #
+    def gas_flow_rates(self):
+        """Return a Series with all positive gas flows"""
+        gas = self.components.gas
+        return gas[gas > 0]
+
     def gas_flow_rate(self, name):
         """Calls ``self.flow_rate(name, PHASE_GAS)``"""
         return self.flow_rate(name, PHASE_GAS)
@@ -328,6 +341,12 @@ class Stream(XmlInstantiable, AttributeMixin):
     def solid_flow_rate(self, name):
         """Calls ``self.flow_rate(name, PHASE_SOLID)``"""
         return self.flow_rate(name, PHASE_SOLID)
+
+    def voc_flow_rates(self):
+        return self.components.gas[Stream.VOCs]
+
+    def non_zero_flow_rates(self):
+        self.components.query('solid > 0 or liquid > 0 or gas > 0')
 
     def set_gas_flow_rate(self, name, rate):
         """Calls ``self.set_flow_rate(name, PHASE_GAS, rate)``"""
@@ -373,6 +392,7 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     def set_temperature_and_pressure(self, temp, press):
 
+        # TODO: why does this happen? Ignoring this silently seems inappropriate
         if press.m == 0:
             return
 
@@ -389,6 +409,7 @@ class Stream(XmlInstantiable, AttributeMixin):
 
         :return: none
         """
+        # TODO: should this produce a warning?
         if stream.is_empty():
             return
 
@@ -413,6 +434,8 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param stream: (Stream) to copy
         :return: none
         """
+
+        # TODO: should this produce a warning?
         if stream.is_empty():
             return
 
@@ -426,6 +449,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param stream: (Stream) to copy
         :return: none
         """
+        # TODO: should this produce a warning?
         if stream.is_empty():
             return
 
@@ -483,7 +507,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         rate = (stream.components.loc[combustibles, PHASE_GAS] / component_MW[combustibles] *
                 Stream.carbon_number * component_MW["CO2"]).sum()
 
-        self.set_flow_rate("CO2", PHASE_GAS, rate)
+        self.set_flow_rate("CO2", PHASE_GAS, rate)      # sets dirty flag
         return rate
 
     def contains(self, stream_type):
