@@ -800,7 +800,7 @@ class Process(XmlInstantiable, AttributeMixin):
     @staticmethod
     def combust_stream(stream):
         """
-        combust the carbon containing gas and returning the new stream with only CO2
+        Combust the carbon containing gas and returning the new stream with only CO2
 
         :return: (Stream)
         """
