@@ -21,7 +21,7 @@ class Proc4(Process):
         pass
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="module")
 def stream_model(configure_logging_for_tests):
     return load_test_model('test_stream.xml')
 
@@ -66,3 +66,20 @@ def test_find_stream(stream_model):
 
     with pytest.raises(OpgeeException, match=f".*no input streams contain '{bad_name}'"):
         proc3.find_input_streams(bad_name, combine=False, as_list=False, raiseError=True)
+
+def test_initialization(stream_model):
+    analysis = stream_model.get_analysis('test')
+    field = analysis.get_field('test')
+
+    stream1 = field.find_stream('initialized')
+    assert stream1.is_initialized() and not stream1.has_zero_flow()
+
+    stream2 = field.find_stream("Proc3-to-Proc4")
+    assert stream2.is_uninitialized() and stream2.has_zero_flow()
+
+    stream2.set_gas_flow_rate("CO2", 0)
+    assert stream2.is_initialized() and stream2.has_zero_flow()
+
+    stream2.set_gas_flow_rate("CO2", 10)
+    assert stream2.is_initialized() and not stream2.has_zero_flow()
+

@@ -38,12 +38,19 @@
 			<Contains>hydrogen</Contains>
 		</Stream>
 
-		<Stream src="Proc3" dst="Proc4">
+		<Stream src="Proc3" dst="Proc4" name="Proc3-to-Proc4">
 			<Contains>CO2</Contains>
 			<Contains>hydrogen</Contains>
 		</Stream>
 
 		<Stream src="Proc4" dst="Environment" boundary="Production"/>
+
+		<Stream src="Reservoir" dst="Proc1" name="initialized">
+			<A name="temperature">90.0</A>
+			<A name="pressure">150.0</A>
+			<Component name="oil" phase="liquid">100</Component>
+			<Contains>crude oil</Contains>
+		</Stream>
 
 	</Field>
 </Model>
