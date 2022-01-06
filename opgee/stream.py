@@ -214,7 +214,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         Allows the user to extend the global `Component` list. This must be called before any streams
         are instantiated. This method is called automatically if the configuration file variable
         ``OPGEE.StreamComponents`` is not empty: set it to a comma-delimited list of component names
-        and they will be added to ``Stream.component_names`` at startup.
+        and they will be added to ``Stream.names`` at startup.
 
         :param names: (iterable of str) the names of new stream components.
         :return: None
