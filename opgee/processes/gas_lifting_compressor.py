@@ -30,7 +30,7 @@ class GasLiftingCompressor(Process):
         press = input.pressure
         temp = input.temperature
 
-        if input.is_empty():
+        if input.is_uninitialized():
             return
 
         loss_rate = self.venting_fugitive_rate()

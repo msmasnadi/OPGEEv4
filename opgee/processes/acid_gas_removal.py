@@ -45,7 +45,7 @@ class AcidGasRemoval(Process):
         # mass rate
         input = self.find_input_streams("gas for AGR", combine=True)
 
-        if input.is_empty():
+        if input.is_uninitialized():
             return
 
         loss_rate = self.venting_fugitive_rate()

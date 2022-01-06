@@ -29,7 +29,7 @@ def combine_streams(streams, API, pressure=None, temperature=None):
 
     comp_matrix = sum(matrices)
 
-    non_empty_streams = [stream for stream in streams if not stream.is_empty()]
+    non_empty_streams = [stream for stream in streams if not stream.is_uninitialized()]
 
     if not non_empty_streams:
         raise OpgeeException(f"combine_streams: streams are all empty")

@@ -25,7 +25,7 @@ class StorageSeparator(Process):
 
         input = self.find_input_stream("gas for separator")
 
-        if input.is_empty():
+        if input.is_uninitialized():
             return
 
         # produced water stream

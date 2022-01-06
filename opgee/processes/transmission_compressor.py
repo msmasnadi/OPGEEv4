@@ -38,7 +38,7 @@ class TransmissionCompressor(Process):
 
         input = self.find_input_stream("gas")
 
-        if input.is_empty():
+        if input.is_uninitialized():
             return
 
         loss_rate = self.venting_fugitive_rate()
@@ -81,6 +81,7 @@ class TransmissionCompressor(Process):
             energy_carrier = EN_ELECTRICITY
         else:
             energy_carrier = EN_DIESEL
+
         energy_use.set_rate(energy_carrier, energy_consumption_init +
                             energy_consumption_booster * num_compressor_stations)
 

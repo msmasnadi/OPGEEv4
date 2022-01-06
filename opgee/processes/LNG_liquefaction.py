@@ -26,7 +26,7 @@ class LNGLiquefaction(Process):
 
         input = self.find_input_stream("LNG")
 
-        if input.is_empty():
+        if input.is_uninitialized():
             return
 
         loss_rate = self.venting_fugitive_rate()

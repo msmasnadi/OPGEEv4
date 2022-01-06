@@ -825,7 +825,7 @@ class Process(XmlInstantiable, AttributeMixin):
         input_streams = self.find_input_streams(input_stream_contain)
         for stream in input_streams.values():
             # TODO: improve the logic
-            if stream.src_proc.enabled and stream.is_empty() and stream.src_name != "GasDehydration":
+            if stream.src_proc.enabled and stream.is_uninitialized() and stream.src_name != "GasDehydration":
                 return False
         return True
 

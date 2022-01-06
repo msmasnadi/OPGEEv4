@@ -139,7 +139,7 @@ class Stream(XmlInstantiable, AttributeMixin):
 
         # This flag indicates whether any data have been written to the stream yet. Note that it is False
         # if only temperature and pressure are set, though setting T & P makes no sense on an empty stream.
-        self.has_exogenous_data = self.dirty = comp_matrix is not None
+        self.has_exogenous_data = self.initialized = comp_matrix is not None
 
     def _after_init(self):
         self.check_attr_constraints(self.attr_dict)
@@ -155,7 +155,7 @@ class Stream(XmlInstantiable, AttributeMixin):
 
         :return: none
         """
-        self.dirty = has_xml_data = self.xml_data is not None
+        self.initialized = has_xml_data = self.xml_data is not None
         self.components = self.xml_data if has_xml_data else self.create_component_matrix()
         self.temperature = self.initial_temp
         self.pressure = self.initial_pres
@@ -245,7 +245,13 @@ class Stream(XmlInstantiable, AttributeMixin):
         """
         return pd.DataFrame(data=0.0, index=cls.component_names, columns=cls._phases, dtype='pint[tonne/day]')
 
-    def is_empty(self):
+    def is_initialized(self):
+        return self.initialized
+
+    def is_uninitialized(self):
+        return not self.initialized
+
+    def has_zero_flow(self):
         return self.total_flow_rate().m == 0
 
     def component_phases(self, name):
@@ -320,7 +326,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         # TBD: it's currently not possible to assign a Quantity to a DataFrame even if
         #      the units match. It's magnitude must be extracted. We check the units first...
         self.components.loc[name, phase] = magnitude(rate, units=self.units())
-        self.dirty = True
+        self.initialized = True
 
     #
     # Convenience functions
@@ -350,7 +356,7 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     def set_gas_flow_rate(self, name, rate):
         """Calls ``self.set_flow_rate(name, PHASE_GAS, rate)``"""
-        self.dirty = True
+        self.initialized = True
         return self.set_flow_rate(name, PHASE_GAS, rate)
 
     def set_liquid_flow_rate(self, name, rate, t=None, p=None):
@@ -360,12 +366,12 @@ class Stream(XmlInstantiable, AttributeMixin):
         if p is not None:
             self.pressure = p
 
-        self.dirty = True
+        self.initialized = True
         return self.set_flow_rate(name, PHASE_LIQUID, rate)
 
     def set_solid_flow_rate(self, name, rate):
         """Calls ``self.set_flow_rate(name, PHASE_SOLID, rate)``"""
-        self.dirty = True
+        self.initialized = True
         return self.set_flow_rate(name, PHASE_SOLID, rate)
 
     def set_rates_from_series(self, series, phase):
@@ -376,7 +382,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param phase:
         :return:
         """
-        self.dirty = True
+        self.initialized = True
         self.components.loc[series.index, phase] = series
 
     def multiply_factor_from_series(self, series, phase):
@@ -387,7 +393,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param phase:
         :return:
         """
-        self.dirty = True
+        self.initialized = True
         self.components.loc[series.index, phase] = series * self.components.loc[series.index, phase]
 
     def set_temperature_and_pressure(self, temp, press):
@@ -398,7 +404,7 @@ class Stream(XmlInstantiable, AttributeMixin):
 
         self.temperature = temp
         self.pressure = press
-        self.dirty = True
+        self.initialized = True
 
     def copy_flow_rates_from(self, stream, phase=None, temp=None, press=None):
         """
@@ -410,7 +416,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         :return: none
         """
         # TODO: should this produce a warning?
-        if stream.is_empty():
+        if stream.is_uninitialized():
             return
 
         if phase:
@@ -424,7 +430,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         if press is not None:
             self.pressure = press
 
-        self.dirty = True
+        self.initialized = True
 
 
     def copy_gas_rates_from(self, stream):
@@ -436,10 +442,10 @@ class Stream(XmlInstantiable, AttributeMixin):
         """
 
         # TODO: should this produce a warning?
-        if stream.is_empty():
+        if stream.is_uninitialized():
             return
 
-        self.dirty = True
+        self.initialized = True
         self.components[PHASE_GAS] = stream.components[PHASE_GAS]
 
     def copy_liquid_rates_from(self, stream):
@@ -450,10 +456,10 @@ class Stream(XmlInstantiable, AttributeMixin):
         :return: none
         """
         # TODO: should this produce a warning?
-        if stream.is_empty():
+        if stream.is_uninitialized():
             return
 
-        self.dirty = True
+        self.initialized = True
         self.components[PHASE_LIQUID] = stream.components[PHASE_LIQUID]
 
     def multiply_flow_rates(self, factor):
@@ -463,7 +469,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param factor: (float) what to multiply by
         :return: none
         """
-        self.dirty = True
+        self.initialized = True
         self.components *= magnitude(factor, 'fraction')
 
     def add_flow_rates_from(self, stream):
@@ -473,10 +479,10 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param stream: (Stream) the source of the rates to add
         :return: none
         """
-        if stream.is_empty():
+        if stream.is_uninitialized():
             return
 
-        self.dirty = True
+        self.initialized = True
         self.components += stream.components
 
     def subtract_gas_rates_from(self, stream):
@@ -486,10 +492,10 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param stream: (Stream) the source of the rates to subtract
         :return: none
         """
-        if stream.is_empty():
+        if stream.is_uninitialized():
             return
 
-        self.dirty = True
+        self.initialized = True
         self.components[PHASE_GAS] -= stream.components[PHASE_GAS]
 
     def add_combustion_CO2_from(self, stream):
@@ -507,7 +513,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         rate = (stream.components.loc[combustibles, PHASE_GAS] / component_MW[combustibles] *
                 Stream.carbon_number * component_MW["CO2"]).sum()
 
-        self.set_flow_rate("CO2", PHASE_GAS, rate)      # sets dirty flag
+        self.set_flow_rate("CO2", PHASE_GAS, rate)      # sets initialized flag
         return rate
 
     def contains(self, stream_type):

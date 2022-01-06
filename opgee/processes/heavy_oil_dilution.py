@@ -44,7 +44,7 @@ class HeavyOilDilution(Process):
         #mass rate
         input = self.find_input_streams("oil for dilution", combine=True)
 
-        if input.is_empty():
+        if input.is_uninitialized():
             return
 
         output = self.find_output_stream("oil for storage")
@@ -66,7 +66,7 @@ class HeavyOilDilution(Process):
 
         input_bitumen = input_streams["bitumen mining to heavy oil dilution"]
 
-        if input_bitumen.is_empty():
+        if input_bitumen.is_uninitialized():
             return
 
         # mass rate

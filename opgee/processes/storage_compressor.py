@@ -30,7 +30,7 @@ class StorageCompressor(Process):
 
         input = self.find_input_stream("gas for storage")
 
-        if input.is_empty():
+        if input.has_zero_flow():
             return
 
         loss_rate = self.venting_fugitive_rate()

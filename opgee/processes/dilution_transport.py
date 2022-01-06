@@ -42,7 +42,7 @@ class DiluentTransport(Process):
 
         input = self.find_input_stream("oil for transport")
 
-        if input.is_empty():
+        if input.is_uninitialized():
             return
 
         oil_mass_rate = input.liquid_flow_rate("oil")

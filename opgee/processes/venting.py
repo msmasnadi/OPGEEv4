@@ -39,7 +39,7 @@ class Venting(Process):
         temp = input.temperature
         press = input.pressure
 
-        if input.is_empty():
+        if input.is_uninitialized():
             return
 
         methane_lifting = self.field.get_process_data(

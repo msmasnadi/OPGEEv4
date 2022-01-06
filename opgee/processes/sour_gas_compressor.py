@@ -26,7 +26,7 @@ class SourGasCompressor(Process):
         # mass rate
         input = self.find_input_stream("gas for sour gas compressor")
 
-        if input.is_empty() == 0:
+        if input.is_uninitialized():
             return
 
         loss_rate = self.venting_fugitive_rate()

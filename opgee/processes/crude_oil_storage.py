@@ -36,7 +36,7 @@ class CrudeOilStorage(Process):
         # mass rate
         input = self.find_input_streams("oil for storage", combine=True)
 
-        if input.is_empty():
+        if input.is_uninitialized():
             return
 
         oil_mass_rate = input.liquid_flow_rate("oil")
