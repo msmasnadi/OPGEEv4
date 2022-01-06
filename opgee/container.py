@@ -40,13 +40,46 @@ class Container(XmlInstantiable, AttributeMixin):
 
     def children(self, include_disabled=False):
         """
-        Ignore disabled nodes unless `included_disabled` is True
+        Return all directly contained `Process` and `Container` objects below this
+        `Container`. See also `self.descendant_procs()` and`self.descendant_aggs()`.
 
         :param include_disabled: (bool) whether to include disabled nodes.
         :return: (list of Containers and/or Processes)
         """
         objs = self._children()
         return [obj for obj in objs if (include_disabled or obj.is_enabled())]
+
+    def descendant_procs(self, include_disabled=False):
+        """
+        Return all Processes contained in the current Container or its sub-Containers.
+
+        :param include_disabled: (bool) whether to include disabled nodes.
+        :return: (list of Processes)
+        """
+        procs = []
+
+        def _add_children(container, include_disabled=False):
+            for obj in container.children():
+                if isinstance(obj, Container):
+                    _add_children(obj, include_disabled=include_disabled)
+                elif (include_disabled or obj.is_enabled()):
+                    procs.append(obj)
+
+        _add_children(self)
+        return procs
+
+    def descendant_aggs(self):
+        """
+        Return a list of all descendent `Container` instances.
+
+        :return: (list of opgee.Container)
+        """
+        aggs = self.aggs.copy() if self.aggs else []
+
+        for agg in self.aggs:  # loop over original since we're extending the copy
+            aggs.extend(agg.descendant_aggs())
+
+        return aggs
 
     def print_running_msg(self):
         _logger.info(f"Running {type(self)} name='{self.name}'")

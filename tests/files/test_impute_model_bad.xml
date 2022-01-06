@@ -36,5 +36,7 @@
 		<!-- Creates a process loop -->
 		<Stream src="Impute3" dst="Impute2" impute="yes"/>
 		<Stream src="Impute3" dst="Impute4"/>
+
+		<Stream src="Impute1" dst="Environment" boundary="Production"/>
 	</Field>
 </Model>

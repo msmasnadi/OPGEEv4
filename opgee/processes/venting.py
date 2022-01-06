@@ -39,7 +39,7 @@ class Venting(Process):
         temp = input.temperature
         press = input.pressure
 
-        if input.is_empty():
+        if input.is_uninitialized():
             return
 
         methane_lifting = self.field.get_process_data(
@@ -49,12 +49,12 @@ class Venting(Process):
                                                       self.imported_fuel_gas_mass_fracs,
                                                       self.GLIR, self.oil_prod,
                                                       self.water_prod, temp, press)
-        if methane_lifting is None and len(gas_stream.components.query("gas > 0.0")) > 0:
+        if methane_lifting is None and len(gas_stream.gas_flow_rates()) > 0:
             discharge_press = (self.res_press + press) / 2 + ureg.Quantity(100, "psi")
             overall_compression_ratio = discharge_press / press
             compression_ratio = Compressor.get_compression_ratio(overall_compression_ratio)
             num_stages = Compressor.get_num_of_compression(overall_compression_ratio)
-            total_work, _ = Compressor.get_compressor_work_temp(self.field, temp, press, gas_stream, compression_ratio,
+            total_work, _, _ = Compressor.get_compressor_work_temp(self.field, temp, press, gas_stream, compression_ratio,
                                                                 num_stages)
             volume_flow_rate_STP = self.gas.tot_volume_flow_rate_STP(gas_stream)
             total_energy = total_work * volume_flow_rate_STP

@@ -9,7 +9,7 @@ import pandas as pd
 from . import ureg
 from .core import OpgeeObject, magnitude
 from .error import OpgeeException
-from .stream import Stream, PHASE_GAS
+from .stream import Stream
 from .log import getLogger
 
 
@@ -167,6 +167,7 @@ class Emissions(OpgeeObject):
         for gas, rate in kwargs.items():
             self.add_rate(category, gas, rate)
 
+    # TODO: Why does this add only CO2, CH4, and CO? What about all other components?
     def add_from_stream(self, category, stream):
         """
         Add emission flow rates from a Stream instance to the given emissions category.
@@ -182,7 +183,7 @@ class Emissions(OpgeeObject):
         # TBD: where to get CO and N2O?
 
         # All gas-phase hydrocarbons heavier than methane are considered VOCs
-        voc_rate = stream.components.loc[Stream.VOCs, PHASE_GAS].sum()
+        voc_rate = stream.voc_flow_rates().sum()
         self.add_rate(category, 'VOC', voc_rate)
 
 

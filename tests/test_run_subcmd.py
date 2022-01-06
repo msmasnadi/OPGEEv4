@@ -15,13 +15,14 @@ def test_unknown_field(opgee):
 def test_run_test_model(opgee):
     xml_path = path_to_test_file('test_model.xml')
     try:
-        opgee.run(None, ['run', '-f', 'test', '--no_default_model', '-m', xml_path])
+        opgee.run(None, ['run', '-f', 'test', '--no-default-model', '-m', xml_path])
         good = True
     except Exception as e:
+        print(e)
         good = False
 
     assert good
 
 def test_no_model(opgee):
     with pytest.raises(CommandlineError, match=r"No model to run: .*"):
-        opgee.run(None, ['run', '-a', 'test', '--no_default_model'])
+        opgee.run(None, ['run', '-a', 'test', '--no-default-model'])

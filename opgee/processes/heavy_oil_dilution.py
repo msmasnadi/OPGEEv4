@@ -44,7 +44,7 @@ class HeavyOilDilution(Process):
         #mass rate
         input = self.find_input_streams("oil for dilution", combine=True)
 
-        if input.is_empty():
+        if input.is_uninitialized():
             return
 
         output = self.find_output_stream("oil for storage")
@@ -66,7 +66,7 @@ class HeavyOilDilution(Process):
 
         input_bitumen = input_streams["bitumen mining to heavy oil dilution"]
 
-        if input_bitumen.is_empty():
+        if input_bitumen.is_uninitialized():
             return
 
         # mass rate
@@ -77,6 +77,9 @@ class HeavyOilDilution(Process):
         input_bitumen.set_liquid_flow_rate("oil", bitumen_mass_rate.to("tonne/day"), self.bitumen_temp, self.bitumen_press)
 
         input = self.find_input_streams("oil for dilution", combine=True)
+
+        # TODO: use this instead of dereferencing from self 8 times below. Less text is more readable, too.
+        frac_diluent = self.frac_diluent
 
         total_mass_oil_bitumen_before_dilution = input.liquid_flow_rate("oil")
         final_SG = self.oil_SG if self.oil_sand_mine is None else self.bitumen_SG

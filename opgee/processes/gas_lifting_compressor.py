@@ -30,7 +30,7 @@ class GasLiftingCompressor(Process):
         press = input.pressure
         temp = input.temperature
 
-        if input.is_empty():
+        if input.is_uninitialized():
             return
 
         loss_rate = self.venting_fugitive_rate()
@@ -46,7 +46,7 @@ class GasLiftingCompressor(Process):
         overall_compression_ratio = discharge_press / press
         compression_ratio = Compressor.get_compression_ratio(overall_compression_ratio)
         num_stages = Compressor.get_num_of_compression(overall_compression_ratio)
-        total_work, _ = Compressor.get_compressor_work_temp(self.field, temp, press, lifting_gas, compression_ratio,
+        total_work, _, _ = Compressor.get_compressor_work_temp(self.field, temp, press, lifting_gas, compression_ratio,
                                                             num_stages)
         volume_flow_rate_STP = self.gas.tot_volume_flow_rate_STP(lifting_gas)
         total_energy = total_work * volume_flow_rate_STP
@@ -79,6 +79,4 @@ class GasLiftingCompressor(Process):
         emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
 
         if self.field.get_process_data("methane_from_gas_lifting") is None:
-            self.field.save_process_data(methane_from_gas_lifting=lifting_gas.components.loc["C1", PHASE_GAS])
-        pass
-
+            self.field.save_process_data(methane_from_gas_lifting=lifting_gas.gas_flow_rate("C1"))

@@ -15,6 +15,8 @@ class PreMembraneCompressor(Process):
         self.gas = field.gas
         self.std_temp = field.model.const("std-temperature")
         self.std_press = field.model.const("std-pressure")
+
+        # TODO: choose whether to use PMC as prefix or suffix, but not both. The random approach makes it harder to remember names.
         self.PMC_discharge_press = field.attr("PMC_discharge_press")
         self.eta_compressor_PMC = field.attr("eta_compressor_PMC")
         self.prime_mover_type_PMC = field.attr("prime_mover_type_PMC")
@@ -24,7 +26,7 @@ class PreMembraneCompressor(Process):
 
         input = self.find_input_stream("gas for compressor")
 
-        if input.is_empty():
+        if input.is_uninitialized():
             return
 
         loss_rate = self.venting_fugitive_rate()
@@ -40,7 +42,7 @@ class PreMembraneCompressor(Process):
         overall_compression_ratio = self.PMC_discharge_press / input.pressure
         compression_ratio = Compressor.get_compression_ratio(overall_compression_ratio)
         num_stages = Compressor.get_num_of_compression(overall_compression_ratio)
-        total_work, outlet_temp = Compressor.get_compressor_work_temp(self.field,
+        total_work, outlet_temp, outlet_press = Compressor.get_compressor_work_temp(self.field,
                                                             input.temperature,
                                                             input.pressure,
                                                             input,
@@ -71,4 +73,3 @@ class PreMembraneCompressor(Process):
         emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
 
 
-        

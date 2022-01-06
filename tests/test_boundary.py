@@ -1,5 +1,5 @@
 import pytest
-from opgee import Process
+from opgee.process import Process
 from .utils_for_tests import load_test_model
 
 

@@ -7,9 +7,9 @@ DEVNULL = 'nul' if IsWindows else '/dev/null'
 
 @pytest.mark.parametrize(
     "args", [
-        ['graph', '--classes', 'core', '--classes_output', DEVNULL],
-        ['graph', '--field', 'test', '--field_output', DEVNULL],
-        ['graph', '--hierarchy_output', DEVNULL],
+        ['graph', '--classes', 'core', '--classes-output', DEVNULL],
+        ['graph', '--field', 'test', '--field-output', DEVNULL],
+        ['graph', '--hierarchy-output', DEVNULL],
     ]
 )
 def test_graphing(opgee, args):

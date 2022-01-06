@@ -31,7 +31,7 @@
 		</Aggregator>
 
 		<Process class="CrudeOilStorage" enabled="false"/>
-
+		<Process class="Output"/>
 
 		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
 			<Contains>crude oil</Contains>
@@ -76,7 +76,7 @@
 			<Contains>gas fugitives</Contains>
 		</Stream>
 
-		<Stream src="DownholePump" dst="Environment" name="gas fugitives from downhole pump">
+		<Stream src="DownholePump" dst="Environment" name="gas fugitives from downhole pump" boundary="Production"> <!-- arbitrary boundary just to get test working -->
 			<Contains>gas fugitives</Contains>
 		</Stream>
 
@@ -92,6 +92,7 @@
 			<Contains>crude oil</Contains>
 		</Stream>
 
+		<!-- TODO: Output should not be a source -->
 		<Stream src="Output" dst="DownholePump" name="lifting gas" impute="False">
 			<Contains>lifting gas</Contains>
 		</Stream>

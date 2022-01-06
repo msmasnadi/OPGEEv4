@@ -27,20 +27,19 @@ class RunCommand(SubcommandABC):
                             use the syntax "analysis_name.field_name". Otherwise the field will be run for each
                             Analysis the field name occurs within (respecting the --analyses flag).'''))
 
-        parser.add_argument('-m', '--model_file',
+        parser.add_argument('-m', '--model-file',
                             help=clean_help('''An XML model definition file to load. If --no_default_model is *not* specified,
                             (i.e., the default model is loaded), the XML file specified here will be merged with the default
                             model.'''))
 
-        parser.add_argument('-n', '--no_default_model', action='store_true',
+        parser.add_argument('-n', '--no-default-model', action='store_true',
                             help=clean_help('''Don't load the built-in opgee.xml model definition.'''))
 
         return parser
 
     def run(self, args, tool):
         from ..error import CommandlineError
-        from ..model import ModelFile
-        from ..pkg_utils import resourceStream
+        from ..model_file import ModelFile
 
         use_default_model = not args.no_default_model
         model_file = args.model_file
@@ -53,28 +52,8 @@ class RunCommand(SubcommandABC):
         if not (use_default_model or model_file):
             raise CommandlineError("No model to run: the --model_file option was not used and --no_default_model was specified.")
 
-        builtin_model = user_model = None
-
-        if use_default_model:
-            s = resourceStream('etc/opgee.xml', stream_type='bytes', decode=None)
-            mf = ModelFile('[opgee]/etc/opgee.xml', stream=s)
-            builtin_model = mf.model
-
-        if model_file:
-            mf = ModelFile(model_file)
-            user_model = mf.model
-
-        # TBD: write this, probably in model.py
-        def merge_models(model1, model2):
-            # if one or the other is None, return the other
-            if not (model1 and model2):
-                return model1 or model2 or None
-
-            # TBD: do the actual merge
-            return None
-
-        model = merge_models(builtin_model, user_model)
-        model.validate()
+        mf = ModelFile(model_file, use_default_model=use_default_model)
+        model = mf.model
 
         all_analyses = model.analyses()
         if analysis_names:

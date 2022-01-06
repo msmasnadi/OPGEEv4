@@ -7,6 +7,7 @@ from opgee import ureg
 from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY
 from ..compressor import Compressor
 from ..emissions import EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
+from .shared import get_energy_carrier
 
 _logger = getLogger(__name__)
 
@@ -23,18 +24,20 @@ class CrudeOilStabilization(Process):
         self.eta_gas = self.attr("eta_gas")
         self.eta_electricity = self.attr("eta_electricity")
         self.prime_mover_type = self.attr("prime_mover_type")
-        self.compressor_eff = field.attr("eta_compressor")
+        self.compressor_eff = field.attr("eta_compressor")      # TODO: why the name change? Other vars are eta_XXX.
 
     def run(self, analysis):
         self.print_running_msg()
 
+        # TODO: Wennan, this builds in a "hidden" dependency and surprising alteration
+        # TODO: the model without alerting the user. Is this the best way to handle this?
         if self.field.attr("crude_oil_dewatering_output") != self.name:
             self.enabled = False
             return
 
         # mass rate
         input = self.find_input_stream("oil for stabilization")
-        if input.is_empty():
+        if input.is_uninitialized():
             return
         average_temp = (self.stab_temp.m + input.temperature.m) / 2
         average_temp = ureg.Quantity(average_temp, "degF")
@@ -75,14 +78,15 @@ class CrudeOilStabilization(Process):
         # energy use
         heat_duty = oil_mass_rate * oil_specific_heat * (self.stab_temp - input.temperature) * (1 + self.eps_stab)
         energy_use = self.energy
-        energy_carrier = EN_NATURAL_GAS if self.prime_mover_type == "NG_engine" else EN_ELECTRICITY
+
+        energy_carrier = get_energy_carrier(self.prime_mover_type)
         energy_consumption = heat_duty / self.eta_gas if self.prime_mover_type == "NG_engine" else heat_duty / self.eta_electricity
 
         # boosting compressor for stabilizer
         overall_compression_ratio = self.stab_gas_press / input.pressure
         compression_ratio_per_stage = Compressor.get_compression_ratio(overall_compression_ratio)
         num_of_compression = Compressor.get_num_of_compression(overall_compression_ratio)
-        work_sum, _ = Compressor.get_compressor_work_temp(self.field, input.temperature, input.pressure,
+        work_sum, _, _= Compressor.get_compressor_work_temp(self.field, input.temperature, input.pressure,
                                                        output_stab_gas, compression_ratio_per_stage, num_of_compression)
         horsepower = work_sum * gas_removed_by_stabilizer
         brake_horsepower = horsepower / self.compressor_eff

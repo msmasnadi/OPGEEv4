@@ -4,7 +4,7 @@ from opgee.error import OpgeeException
 from opgee.stream import Stream
 from .utils_for_tests import load_test_model, path_to_test_file
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def test_model2(configure_logging_for_tests):
     # This fixture also serves to test user classpath
     setParam('OPGEE.ClassPath', path_to_test_file('user_processes.py'))
@@ -17,7 +17,7 @@ def test_stream_components(configure_logging_for_tests):
 
     load_test_model('test_model.xml', add_stream_components=True)
 
-    comps = Stream.components
+    comps = Stream.component_names
     assert 'Foo' in comps and 'Bar' in comps
 
 def test_unknown_analysis(test_model2):

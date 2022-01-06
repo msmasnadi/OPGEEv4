@@ -25,7 +25,7 @@ class VRUCompressor(Process):
         # mass rate
         input = self.find_input_stream("gas for VRU")
 
-        if input.is_empty():
+        if input.is_uninitialized():
             return
 
         loss_rate = self.venting_fugitive_rate()
@@ -41,7 +41,7 @@ class VRUCompressor(Process):
         overall_compression_ratio = self.discharge_press / input.pressure
         compression_ratio = Compressor.get_compression_ratio(overall_compression_ratio)
         num_stages = Compressor.get_num_of_compression(overall_compression_ratio)
-        total_work, temp = Compressor.get_compressor_work_temp(self.field,
+        total_work, temp, press = Compressor.get_compressor_work_temp(self.field,
                                                                input.temperature, input.pressure, input,
                                                                compression_ratio,
                                                                num_stages)

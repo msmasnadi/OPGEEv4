@@ -31,7 +31,7 @@ XML File Format
    :maxdepth: 1
 
    opgee-xml
-
+   attributes
 
 Application Programming Interface (API)
 ----------------------------------------

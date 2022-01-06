@@ -39,7 +39,7 @@
 
 		<Process class="Before" desc=""/>
 		<Process class="After"/>
-		
+
 		<Process class="CrudeOilStabilization"/>
 		<Process class="CrudeOilStorage"/>
 		<Process class="VRUCompressor"/>
@@ -48,6 +48,7 @@
 		<Process class="HeavyOilUpgrading" enabled="false"/>
 		<Process class="HeavyOilDilution" enabled="false"/>
 		<Process class="Separation" enabled="false"/>
+		<Process class="Output"/>
 
 		<Stream src="Reservoir" dst="Before"/>
 		<Stream src="Before" dst="CrudeOilStabilization" name="before to crude oil stabilization">
@@ -84,7 +85,7 @@
 			<Contains>gas for gas gathering</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to after">
+		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to after" boundary="Production">
 			<Contains>oil for transport</Contains>
 			<Contains>gas for flaring</Contains>
 		</Stream>
@@ -112,6 +113,7 @@
 		<Process class="Before" desc="" impute-start="true">
 		</Process>
 		<Process class="After"/>
+		<Process class="Output"/>
 
 		<Process class="CrudeOilStabilization" enabled="false">
 		</Process>
@@ -155,7 +157,7 @@
 			<Contains>oil for storage</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to after">
+		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to after" boundary="Production">
 			<Contains>oil for transport</Contains>
 			<Contains>oil for flaring</Contains>
 			<Contains>oil for VRU</Contains>
@@ -185,12 +187,13 @@
 
 		<Process class="Before"/>
 		<Process class="After"/>
+		<Process class="Output"/>
 
 		<Process class="HeavyOilDilution" impute-start="true"/>
 		<Process class="BitumenMining"/>
 		<Process class="DiluentTransport"/>
 
-		<Stream src="HeavyOilDilution" dst="After" name="heavy oil dilution to after">
+		<Stream src="HeavyOilDilution" dst="After" name="heavy oil dilution to after" boundary="Production">
 			<Contains>oil for storage</Contains>
 		</Stream>
 
@@ -200,7 +203,7 @@
 			<A name="temperature">165.0</A>
 			<A name="pressure">100.0</A>
 		</Stream>
-		
+
 		<Stream src="DiluentTransport" dst="HeavyOilDilution" name="dilution transport to heavy oil dilution">
 			<Contains>oil for dilution</Contains>
 		</Stream>
@@ -230,6 +233,7 @@
 
 		<Process class="Before"/>
 		<Process class="After"/>
+		<Process class="Output"/>
 
 		<Process class="HeavyOilDilution" impute-start="true"/>
 		<Process class="BitumenMining"/>
@@ -241,7 +245,7 @@
 			<Contains>oil for storage</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to after">
+		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to after" boundary="Production">
 			<Contains>oil for transport</Contains>
 			<Contains>oil for flaring</Contains>
 			<Contains>oil for VRU</Contains>

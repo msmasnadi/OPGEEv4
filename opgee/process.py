@@ -45,14 +45,17 @@ def _subclass_dict(superclass):
 
     for cls in get_subclasses(superclass):
         name = cls.__name__
-        if name in d:
-            msg = f"Class '{name}' is defined by both {cls} and {d[name]}"
-            if allow_redef:
-                print(msg)
-            else:
-                raise OpgeeException(msg)
-        else:
+        prior = d.get(name)
+
+        if prior is None:
             d[name] = cls
+        else:
+            if prior != cls:
+                msg = f"Class '{name}' is defined by both {cls} and {prior}"
+                if allow_redef:
+                    print(msg)
+                else:
+                    raise OpgeeException(msg)
 
     return d
 
@@ -61,15 +64,6 @@ def _subclass_dict(superclass):
 # Cache of known subclasses of Aggregator and Process
 #
 _Subclass_dict : Optional[dict] = None
-
-
-def reload_subclass_dict():
-    global _Subclass_dict
-
-    _Subclass_dict = {
-        Aggregator: _subclass_dict(Aggregator),
-        Process: _subclass_dict(Process)
-    }
 
 
 def _get_subclass(cls, subclass_name, reload=False):
@@ -719,30 +713,6 @@ class Process(XmlInstantiable, AttributeMixin):
 
         return self.intermediate_results
 
-    def predict_blower_energy_use(self,
-                                  thermal_load,
-                                  air_cooler_delta_T,
-                                  water_press,
-                                  air_cooler_fan_eff,
-                                  air_cooler_speed_reducer_eff):
-        """
-        predict blower energy use per day.
-
-        :param air_cooler_speed_reducer_eff:
-        :param air_cooler_fan_eff:
-        :param water_press:
-        :param air_cooler_delta_T:
-        :param thermal_load: (float) thermal load (unit = btu/hr)
-        :return: (float) air cooling fan energy consumption (unit = "kWh/day)
-        """
-        field = self.field
-        blower_air_quantity = thermal_load / field.model.const("air-elevation-corr") / air_cooler_delta_T
-        blower_CFM = blower_air_quantity / field.model.const("air-density-ratio")
-        blower_delivered_hp = blower_CFM * water_press / air_cooler_fan_eff
-        blower_fan_motor_hp = blower_delivered_hp / air_cooler_speed_reducer_eff
-        air_cooler_energy_consumption = self.get_energy_consumption("Electric_motor", blower_fan_motor_hp)
-        return air_cooler_energy_consumption.to("kWh/day")
-
     def sum_intermediate_results(self):
         """
         Sum intermediate energy and emission results
@@ -823,10 +793,14 @@ class Process(XmlInstantiable, AttributeMixin):
                                     dtype="pint[g/mmBtu]")
         return emission_series
 
+    # TODO: This is currently used only once, in flaring.py. All that's really needed is the mass rate
+    # TODO: of CO2, so there's no reason to create a new Stream. Just sum the CO2 and use Stream.add_rate().
+    # TODO: I created (but haven't tested) a Stream.add_combustion_CO2_from(other_stream) which does this.
+    # TODO: (This seemed better located in the Stream class. So this should be removed once uses are changed.)
     @staticmethod
     def combust_stream(stream):
         """
-        combust the carbon containing gas and returning the new stream with only CO2
+        Combust the carbon containing gas and returning the new stream with only CO2
 
         :return: (Stream)
         """
@@ -851,7 +825,7 @@ class Process(XmlInstantiable, AttributeMixin):
         input_streams = self.find_input_streams(input_stream_contain)
         for stream in input_streams.values():
             # TODO: improve the logic
-            if stream.src_proc.enabled and stream.is_empty() and stream.src_name != "GasDehydration":
+            if stream.src_proc.enabled and stream.is_uninitialized() and stream.src_name != "GasDehydration":
                 return False
         return True
 
@@ -908,6 +882,20 @@ class SurfaceSource(Process):
         self.print_running_msg()
 
 
+class ExternalSupply(Process):
+    """
+    ExternalSupply represents all resources acquired from outside the system boundaries,
+    e.g., municipal water, utility gas and electricity. It's purpose is simply to tally
+    these as demanded.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__("ExternalSupply", desc='Resources outside system boundaries')
+
+    def run(self, analysis):
+        self.print_running_msg()
+
+
 class Environment(Process):
     """
     Represents the environment, which in OPGEE is just a sink for emissions. The Environment
@@ -936,43 +924,27 @@ class Environment(Process):
     def report(self, analysis):
         print(f"{self}: cumulative emissions to Environment:\n{self.emissions}")
 
-# Deprecated -- or should be. Use Stream boundary declarations instead.
-class Output(Process):
-    """
-    Receives all final streams from a field and performs CI calculations from them.
-    """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__('Output', desc='Field output')
-        self.energy_flow = None
-
+# Required to load some test XML files
+class Before(Process):
     def run(self, analysis):
-        self.print_running_msg()
+        pass
 
-        fn_unit = analysis.attr('functional_unit')
-        en_basis = analysis.attr('energy_basis')
-        oil = self.field.oil
+    def impute(self):
+        pass
 
-        heating_values = oil.component_LHV_mass if en_basis == 'LHV' else oil.component_HHV_mass
+class After(Process):
+    def run(self, analysis):
+        pass
 
-        inputs = self.inputs
-        zero_mass_rate = None if inputs else ureg.Quantity(0.0, Stream._units)
-
-        if fn_unit == 'oil':
-            mass_rate = sum([stream.liquid_flow_rate('oil') for stream in inputs]) if inputs else zero_mass_rate
-            energy_flow = mass_rate * heating_values['oil']
-
-        elif fn_unit == 'gas':
-            mass_rates = sum(
-                [stream.component[PHASE_GAS] * heating_values for stream in inputs]) if inputs else zero_mass_rate
-            energy_flow = sum(mass_rates * heating_values)
-
-        else:
-            raise OpgeeException(f"Unknown functional unit: '{fn_unit}'")  # should never happen
-
-        self.energy_flow = energy_flow.to("MJ/day")
+    def impute(self):
+        pass
 
 
+#
+# This class is defined here rather than in container.py to avoid import loops and to
+# allow the reference to Aggregator above.
+#
 class Aggregator(Container):
     def __init__(self, name, attr_dict=None, aggs=None, procs=None):
         super().__init__(name, attr_dict=attr_dict, aggs=aggs, procs=procs)
@@ -993,4 +965,17 @@ class Aggregator(Container):
         attr_dict = cls.instantiate_attrs(elt)
 
         obj = cls(name, attr_dict=attr_dict, aggs=aggs, procs=procs)
+
+        # Aggregators are disabled if they are empty or contain only disabled aggs & procs
+        enabled = not all([not child.is_enabled() for child in aggs + procs])
+        obj.set_enabled(enabled)
+
         return obj
+
+def reload_subclass_dict():
+    global _Subclass_dict
+
+    _Subclass_dict = {
+        Aggregator: _subclass_dict(Aggregator),
+        Process:    _subclass_dict(Process)
+    }

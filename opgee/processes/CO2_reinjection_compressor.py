@@ -40,7 +40,7 @@ class CO2ReinjectionCompressor(Process):
         overall_compression_ratio = discharge_press / input.pressure
         compression_ratio = Compressor.get_compression_ratio(overall_compression_ratio)
         num_stages = Compressor.get_num_of_compression(overall_compression_ratio)
-        total_work, temp = Compressor.get_compressor_work_temp(self.field,
+        total_work, temp, press = Compressor.get_compressor_work_temp(self.field,
                                                                input.temperature,
                                                                input.pressure,
                                                                input,
@@ -57,7 +57,7 @@ class CO2ReinjectionCompressor(Process):
 
         # energy-use
         energy_use = self.energy
-        if self.prime_mover_type == "NG_engine" or "NG_turbine":
+        if self.prime_mover_type == "NG_engine" or "NG_turbine":        # TODO: use get_energy_carrier(self.prime_mover_type)
             energy_carrier = EN_NATURAL_GAS
         elif self.prime_mover_type == "Electric_motor":
             energy_carrier = EN_ELECTRICITY

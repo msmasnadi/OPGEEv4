@@ -5,7 +5,7 @@ from dash.dependencies import Input, Output, State
 import dash_table
 from textwrap import dedent as d
 
-from .. import Process
+from ..core import name_of
 from ..log import getLogger
 from .widgets import get_analysis_and_field, gui_switches, OpgeePane
 
@@ -42,9 +42,8 @@ class ProcessPane(OpgeePane):
                 ],
                 style={
                     'resize': 'vertical',
-                    'overflow': 'auto',
-                    'height': '35%',
-
+                    # 'overflow': 'auto',
+                    # 'height': '35%',
                     'autosize': 'true',
                     'display': 'flex',
                 }
@@ -171,7 +170,7 @@ class ProcessPane(OpgeePane):
                 stream = field.find_stream(name)
                 with pd.option_context('display.max_rows', None,
                                        'precision', 3):
-                    nonzero = stream.components.query('solid > 0 or liquid > 0 or gas > 0')
+                    nonzero = stream.non_zero_flow_rates()
                     components = str(nonzero.astype(float)) if len(nonzero) else '<empty stream>'
 
                 contents = '\n          '.join(stream.contents)
@@ -190,14 +189,17 @@ class ProcessPane(OpgeePane):
 
             # recursively create expanding aggregator structure with emissions (table, eventually)
             def add_children(container, elt):
-                for agg in container.aggs:
+                enabled_aggs = [agg for agg in container.aggs if agg.is_enabled()]
+                for agg in sorted(enabled_aggs, key=name_of):
                     details = html.Details(children=[html.Summary(html.B(agg.name))], style=style)
                     elt.children.append(details)
                     add_children(agg, details)
 
                 if container.procs:
+                    enabled_procs = [proc for proc in container.procs if proc.is_enabled()]
+                    sorted_procs = sorted(enabled_procs, key=name_of)
                     div = html.Div(style=style,
-                                   children=[emissions_table(analysis, container.procs)])
+                                   children=[emissions_table(analysis, sorted_procs)])
                     elt.children.append(div)
 
             item = html.Details(open=True, children=[html.Summary("Process Emissions")])
@@ -220,15 +222,6 @@ class ProcessPane(OpgeePane):
                                        show_stream_contents=show_stream_contents,
                                        show_disabled_procs=show_disabled_procs,
                                        layout_name=layout_name)
-
-
-# Required to load separator_model.xml
-class After(Process):
-    def run(self, analysis):
-        pass
-
-    def impute(self):
-        pass
 
 
 # Load extra layouts

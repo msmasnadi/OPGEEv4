@@ -51,44 +51,9 @@ def magnitude(value, units=None):
     else:
         return value
 
-# Deprecated?
-# def subelt_text(elt, tag, coerce=None, with_unit=True, required=True):
-#     """
-#     Get the value from the text of the named subelement of `elt`. If `required`
-#     is True and the element is not found, raise an error. If not found and `required`
-#     is False, return None. Regardless of `required`, an error is raised if multiple
-#     subelements with `tag` are found.
-#
-#     :param elt: (etree.Element) the parent element
-#     :param tag: (str) the tag of the subelement
-#     :param coerce: (type) a type to coerce the value
-#     :param with_unit: (bool) if True, return a Value instance with value and unit.
-#     :param required: (bool) whether to raise an error if element is not found,
-#            or if found and `with_unit` is True, there is no unit attribute.
-#     :return: (str) the value found in the subelement, converted by `coerce` if
-#            `coerce` is not None, or if `with_unit` is True, an instance of Value.
-#     :raises: OpgeeException if `required` is True and the subelement isn't found,
-#            or if multiple subelements with `tag` are found, or if a required element
-#            is missing a unit attribute and `with_unit` is True.
-#     """
-#     subs = elt.findall(tag)
-#     count = len(subs)
-#     if count == 0 and not required:
-#         return None
-#
-#     if count != 1:
-#         raise OpgeeException(f"Expected one {tag} subelements below {elt}; found {count}")
-#
-#     subelt = subs[0]
-#     value = subelt.text if coerce is None else coercible(subelt.text, coerce)
-#     unit = subelt.attrib.get('unit')
-#
-#     if with_unit:
-#         if unit is None:
-#             raise OpgeeException(f"subelt_value: unit is missing from element {subelt}")
-#         return ureg.Quantity(value, ureg[unit])
-#     else:
-#         return value
+
+def name_of(obj):
+    return obj.name
 
 def elt_name(elt):
     return elt.attrib.get('name')
@@ -271,3 +236,4 @@ class A(OpgeeObject):
         attrs = f"name='{self.name}' type='{self.pytype}' value='{self.value}'"
 
         return f"<{type_str} {attrs}>"
+

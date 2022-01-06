@@ -4,10 +4,10 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State, ClientsideFunction
-from ..model import ModelFile
+from ..model_file import ModelFile
 from ..log import getLogger
 
-from .widgets import get_analysis_and_field
+from .widgets import get_analysis_and_field, horiz_space, pulldown_style, label_style
 
 _logger = getLogger(__name__)
 
@@ -23,19 +23,6 @@ _logger = getLogger(__name__)
 def app_layout(app, model, analysis):
     analysis_names = [analysis.name for analysis in model.analyses()]
 
-    pulldown_style = {
-        'width': '200px',
-        'textAlign': 'center',
-        'vertical-align': 'middle',
-        'display': 'inline-block'
-    }
-
-    label_style = {
-        'font-weight': 'bold'
-    }
-
-    horiz_space = html.Span("", style={'width': '50px', 'display': 'inline-block'})
-
     # noinspection PyCallingNonCallable
     layout = html.Div([
         dcc.Store(id='analysis-and-field', storage_type='session'),
@@ -50,7 +37,7 @@ def app_layout(app, model, analysis):
             html.Div([
                 html.Center([
                     html.Span("Model: ", style=label_style),
-                    html.Span(f"{model.pathname}"),
+                    html.Span(f"{model.pathnames}"),
                     horiz_space,
 
                     html.Span("Analysis: ", style=label_style),
@@ -118,16 +105,16 @@ def app_layout(app, model, analysis):
     return layout
 
 
-
-
-
 def main(args):
     from ..version import VERSION
     from .process_pane import ProcessPane
     from .settings_pane import SettingsPane
     from .results_pane import ResultsPane
 
-    mf = ModelFile(args.modelFile, add_stream_components=args.add_stream_components, use_class_path=args.use_class_path)
+    use_default_model = not args.no_default_model
+
+    mf = ModelFile(args.model_file, add_stream_components=args.add_stream_components,
+                   use_class_path=args.use_class_path, use_default_model=use_default_model)
     model = mf.model
     analysis_name = args.analysis
 
@@ -144,7 +131,7 @@ def main(args):
     #   - dcc.Upload allows a file to be uploaded. Could be useful in the future.
     # - add dcc.Dropdown from Analyses in a model or to run just one field
     #
-    # TBD: use "app.config['suppress_callback_exceptions'] = True" to not need to call tab-layout fns in this layout def
+    # N.B. use "app.config['suppress_callback_exceptions'] = True" to not need to call tab-layout fns in this layout def
 
     process_pane  = ProcessPane(app, model)
     settings_pane = SettingsPane(app, model)
@@ -195,8 +182,6 @@ def main(args):
     def update_output(n_clicks, analysis_and_field):
         if n_clicks:
             analysis, field = get_analysis_and_field(model, analysis_and_field)
-            # TBD: get user selections from radio buttons and pass to run method
-            # TBD: have run method take optional args for all the run parameters, defaulting to what's in the model file
             field.resolve_process_choices()
             field.run(analysis)
             field.report(analysis)
@@ -222,7 +207,7 @@ def main(args):
             return results_pane.get_layout(field)
 
     # @app.callback(
-    #     Output('tbd', 'children'),
+    #     Output('xxxx', 'children'),
     #     Input('network-layout', 'mouseoverEdgeData')
     # )
     # def mouseoverStream(data):

@@ -1,9 +1,15 @@
-from ..subcommand import SubcommandABC #, clean_help
+from ..subcommand import SubcommandABC
 
-# TBD: get these from the command line
-DFLT_MODEL_FILE = '/Users/rjp/repos/OPGEEv4/tests/files/test_separator.xml'
+from ..process import Process, _subclass_dict
+
+# TODO: this is a hack to get some of our test files working
+if 'Output' not in _subclass_dict(Process):
+    class Output(Process):
+        def run(self, analysis):
+            pass
+
 DFLT_FIELD = 'test'
-DFLT_ANALYSIS = 'test_separator'
+DFLT_ANALYSIS = 'test'
 
 
 class GUICommand(SubcommandABC):
@@ -29,9 +35,12 @@ class GUICommand(SubcommandABC):
         parser.add_argument('-f', '--field', default=DFLT_FIELD,
                             help=f'''The field to display. Default (for testing) is "{DFLT_FIELD}"''')
 
-        # TBD: If not provided, use path found in opgee.cfg
-        parser.add_argument('-m', '--modelFile', default=DFLT_MODEL_FILE,
-                            help=f'''The OPGEE model XML file to read. Default (for testing) is "{DFLT_MODEL_FILE}"''')
+        parser.add_argument('-m', '--model-file', default=None,
+                            help=f'''The OPGEE model XML file to read. Default is the value of config variable 'OPGEE.ModelFile', 
+                                     if defined, otherwise the built-in opgee.xml.''')
+
+        parser.add_argument('-n', '--no-default-model', action='store_true',
+                            help='''Don't load the built-in opgee.xml model definition.''')
 
         # TBD: apparently action=argparse.BooleanOptionalAction requires py 3.9
         parser.add_argument('--add-stream-components', action='store_true',

@@ -44,7 +44,7 @@ class Compressor(OpgeeObject):
                            inlet_press * compression_ratio * num_of_compression)
 
         work_sum = ureg.Quantity(work.m, "hp*day/mmscf")
-        return work_sum, inlet_temp
+        return work_sum, inlet_temp, inlet_press
 
     @staticmethod
     def get_compression_ratio_stages(overall_compression_ratio_stages):
@@ -126,16 +126,15 @@ class Compressor(OpgeeObject):
         num_stages = Compressor.get_num_of_compression(overall_compression_ratio)
         inlet_temp = inlet_stream.temperature if inlet_temp is None else inlet_temp
         inlet_press = inlet_stream.pressure if inlet_pressure is None else inlet_pressure
-        total_work, outlet_temp = Compressor.get_compressor_work_temp(field,
-                                                                      inlet_temp,
-                                                                      inlet_press,
-                                                                      inlet_stream,
-                                                                      compression_ratio,
-                                                                      num_stages)
+        total_work, outlet_temp, outlet_press = Compressor.get_compressor_work_temp(field,
+                                                                                    inlet_temp,
+                                                                                    inlet_press,
+                                                                                    inlet_stream,
+                                                                                    compression_ratio,
+                                                                                    num_stages)
         volume_flow_rate_STP = field.gas.tot_volume_flow_rate_STP(inlet_stream)
         total_energy = total_work * volume_flow_rate_STP
         brake_horse_power = total_energy / eta_compressor
         energy_consumption = Process.get_energy_consumption(prime_mover_type, brake_horse_power)
 
-        return energy_consumption
-
+        return energy_consumption, outlet_temp, outlet_press

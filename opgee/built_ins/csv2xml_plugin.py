@@ -92,14 +92,14 @@ class XmlCommand(SubcommandABC):
 
     def __init__(self, subparsers):
         kwargs = {'help' : '''Convert various CSV files to their corresponding XML representation.'''}
-        super().__init__('xml', subparsers, kwargs, group='project')
+        super().__init__('csv2xml', subparsers, kwargs, group='project')
 
     def addArgs(self, parser):
         parser.add_argument('-n', '--count', type=int, default=0,
                             help=clean_help('''The number of rows to import from the CSV file. 
                             Default is 0, which means import all rows.'''))
 
-        parser.add_argument('-p', '--fromPackage', action='store_true',
+        parser.add_argument('-p', '--from-package', action='store_true',
                             help=clean_help('''If specified, the inputCSV argument is treated as relative to 
                             the opgee package and loaded as an internal resource.'''))
 

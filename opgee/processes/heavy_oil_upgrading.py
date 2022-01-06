@@ -27,6 +27,7 @@ class HeavyOilUpgrading(Process):
     def run(self, analysis):
         self.print_running_msg()
 
+        # TODO: Wennan, this looks like a process dependency that we should solve another way
         if self.field.attr("crude_oil_dewatering_output") != self.name:
             self.enabled = False
             return
@@ -51,7 +52,7 @@ class HeavyOilUpgrading(Process):
         input_oil = self.find_input_streams("oil for upgrading", combine=True)
         input_gas = self.find_input_stream("gas for upgrading")
 
-        if input_oil.is_empty() or input_gas.is_empty():
+        if input_oil.is_uninitialized() or input_gas.is_uninitialized():
             return
 
         upgrading_insitu = True if self.upgrader_type is not None and self.oil_sand_mine != "Without upgrader" else False

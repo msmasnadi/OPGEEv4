@@ -41,7 +41,7 @@
 			<Contains>hydrogen</Contains>
 		</Stream>
 
-		<Stream src="LoopProc3" dst="LoopProc4">
+		<Stream src="LoopProc3" dst="LoopProc4" boundary="Production">
 			<Contains>CO2</Contains>
 		</Stream>
 	</Field>

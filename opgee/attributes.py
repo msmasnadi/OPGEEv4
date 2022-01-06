@@ -9,7 +9,7 @@ import pandas as pd
 import pint_pandas
 from . import ureg
 from .core import OpgeeObject, XmlInstantiable, A, instantiate_subelts, elt_name, validate_unit, magnitude
-from .error import OpgeeException, AttributeError
+from .error import OpgeeException, AttributeError, XmlFormatError
 from .log import getLogger
 from .pkg_utils import resourceStream
 from .XMLFile import XMLFile
@@ -190,33 +190,20 @@ class AttrDefs(OpgeeObject):
     """
     instance = None
 
-    def __init__(self):
+    def __init__(self, root):
         super().__init__()
 
-        # Will be dict: key is class name: Model, Analysis, Field, Aggregator, or Process's class.
-        # Value is a ClassAttrs instance.
-        self.classes = None
-
-        _logger.debug("Reading etc/attributes.xml")
-        stream = resourceStream('etc/attributes.xml', stream_type='bytes', decode=None)
-        attr_xml = XMLFile(stream, schemaPath='etc/attributes.xsd')
-        root = attr_xml.tree.getroot()
-
-        # TBD: merge user's definitions into standard ones
-        # user_attr_file = getParam("OPGEE.UserAttributesFile")
-        # if user_attr_file:
-        #     user_attr_xml = XMLFile(user_attr_file, schemaPath='etc/attributes.xsd')
-        #     user_root = user_attr_xml.tree.getroot()
-        #
-
+        # self.classes is a dict with key = class name (Model, Analysis, Field, Aggregator, or Process's class);
+        # value = a ClassAttrs instance.
         self.classes = instantiate_subelts(root, ClassAttrs, as_dict=True)
 
     @classmethod
     def get_instance(cls):
-        if cls.instance is None:
-            cls.instance = AttrDefs()
-
         return cls.instance
+
+    @classmethod
+    def load_attr_defs(cls, elt):
+        cls.instance = AttrDefs(elt)
 
     def class_attrs(self, classname, raiseError=True):
         """
@@ -253,6 +240,9 @@ class AttributeMixin():
         return obj.value if obj else None
 
     def set_attr(self, attr_name, value):
+        """
+        Set `attr_name`, which must be a known attribute, to `value`.
+        """
         obj = self.attr_dict.get(attr_name)
         if obj is None:
             raise OpgeeException(f"Attribute '{attr_name}' not found in {self}")

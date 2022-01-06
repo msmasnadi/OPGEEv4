@@ -11,7 +11,7 @@ dependencies:
   - jinja2=3.0.1
   - libpng
   - libtiff
-  - lxml=4.6.3
+  - lxml=4.6.5
   - networkx
   - numpy=1.19.2
   - pandas>=1.2.0
@@ -30,7 +30,7 @@ dependencies:
   - traitlets
   - urllib3
   - pip:
+    - dash-cytoscape==0.2.0
     - thermosteam>=0.25.4
     - semver>=3.0.0.dev2
-    - dash-cytoscape==0.2.0
     - pyXSteam
