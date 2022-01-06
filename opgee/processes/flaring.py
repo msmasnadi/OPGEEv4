@@ -1,8 +1,7 @@
-from ..process import Process
-from ..log import getLogger
 from opgee import ureg
-from ..stream import Stream
 from ..emissions import EM_FLARING
+from ..log import getLogger
+from ..process import Process
 
 _logger = getLogger(__name__)
 
@@ -54,8 +53,6 @@ class Flaring(Process):
                                  gas_to_flare.total_flow_rate() +
                                  venting_gas.total_flow_rate())
 
-        #energy-use
-        energy_use = self.energy
         # emissions
         emissions = self.emissions
         emissions.add_from_stream(EM_FLARING, self.combust_stream(gas_to_flare))

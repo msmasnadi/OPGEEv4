@@ -1,7 +1,6 @@
+from ..emissions import EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
-from ..stream import PHASE_LIQUID
-from ..emissions import Emissions, EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
 
 _logger = getLogger(__name__)
 

@@ -1,8 +1,8 @@
-from ..process import Process
-from ..log import getLogger
-from ..stream import Stream, PHASE_LIQUID, PHASE_GAS
-from ..emissions import EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
 from opgee import ureg
+from ..emissions import EM_FUGITIVES
+from ..log import getLogger
+from ..process import Process
+from ..stream import PHASE_GAS
 
 _logger = getLogger(__name__)
 

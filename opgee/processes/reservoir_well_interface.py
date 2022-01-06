@@ -3,7 +3,7 @@ import numpy as np
 from opgee import ureg
 from ..log import getLogger
 from ..process import Process
-from ..stream import Stream, PHASE_GAS
+from ..stream import Stream
 
 _logger = getLogger(__name__)  # data logging
 

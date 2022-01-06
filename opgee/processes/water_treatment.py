@@ -1,6 +1,5 @@
 from opgee import ureg
-from ..emissions import Emissions
-from ..energy import Energy, EN_ELECTRICITY
+from ..energy import EN_ELECTRICITY
 from ..error import OpgeeException
 from ..log import getLogger
 from ..process import Process

@@ -1,10 +1,9 @@
 import math
 
 from opgee.stream import Stream
-from .. import ureg
+from .shared import get_energy_carrier
 from ..compressor import Compressor
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
-from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
 from ..log import getLogger
 from ..process import Process
 
@@ -75,13 +74,7 @@ class TransmissionCompressor(Process):
 
         # energy-use
         energy_use = self.energy
-        if self.prime_mover_type == "NG_engine" or "NG_turbine":
-            energy_carrier = EN_NATURAL_GAS
-        elif self.prime_mover_type == "Electric_motor":
-            energy_carrier = EN_ELECTRICITY
-        else:
-            energy_carrier = EN_DIESEL
-
+        energy_carrier = get_energy_carrier(self.prime_mover_type)
         energy_use.set_rate(energy_carrier, energy_consumption_init +
                             energy_consumption_booster * num_compressor_stations)
 

@@ -1,12 +1,11 @@
+from opgee import ureg
+from .shared import predict_blower_energy_use, get_energy_carrier
+from ..compressor import Compressor
+from ..emissions import EM_COMBUSTION, EM_FUGITIVES
+from ..energy import EN_NATURAL_GAS
 from ..log import getLogger
 from ..process import Process
-from ..stream import PHASE_LIQUID
 from ..process import run_corr_eqns
-from opgee import ureg
-from ..compressor import Compressor
-from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
-from ..emissions import Emissions, EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
-from .shared import predict_blower_energy_use, get_energy_carrier
 
 _logger = getLogger(__name__)
 

@@ -1,14 +1,13 @@
 import numpy as np
 
+from opgee import ureg
+from ..emissions import EM_COMBUSTION, EM_FUGITIVES
+from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY
+from ..error import OpgeeException
 from ..log import getLogger
 from ..process import Process
-from ..stream import PHASE_LIQUID
-from opgee import ureg
-from ..thermodynamics import component_MW
 from ..process import run_corr_eqns
-from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY
-from ..emissions import Emissions, EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
-from ..error import OpgeeException
+from ..thermodynamics import component_MW
 
 _logger = getLogger(__name__)
 

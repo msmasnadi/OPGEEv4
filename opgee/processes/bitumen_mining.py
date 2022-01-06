@@ -1,9 +1,9 @@
-from ..process import Process
-from ..log import getLogger
-from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
-from ..emissions import EM_COMBUSTION, EM_FUGITIVES
-from ..error import OpgeeException
 from opgee import ureg
+from ..emissions import EM_COMBUSTION, EM_FUGITIVES
+from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
+from ..error import OpgeeException
+from ..log import getLogger
+from ..process import Process
 from ..stream import PHASE_GAS
 
 _logger = getLogger(__name__)

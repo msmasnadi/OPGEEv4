@@ -1,13 +1,10 @@
-import numpy as np
-
+from opgee import ureg
+from .shared import get_energy_carrier
+from ..compressor import Compressor
+from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
 from ..stream import Stream, PHASE_LIQUID, PHASE_GAS
-from opgee import ureg
-from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY
-from ..compressor import Compressor
-from ..emissions import EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
-from .shared import get_energy_carrier
 
 _logger = getLogger(__name__)
 
@@ -24,7 +21,7 @@ class CrudeOilStabilization(Process):
         self.eta_gas = self.attr("eta_gas")
         self.eta_electricity = self.attr("eta_electricity")
         self.prime_mover_type = self.attr("prime_mover_type")
-        self.compressor_eff = field.attr("eta_compressor")      # TODO: why the name change? Other vars are eta_XXX.
+        self.eta_compressor = field.attr("eta_compressor")
 
     def run(self, analysis):
         self.print_running_msg()
@@ -89,7 +86,7 @@ class CrudeOilStabilization(Process):
         work_sum, _, _= Compressor.get_compressor_work_temp(self.field, input.temperature, input.pressure,
                                                        output_stab_gas, compression_ratio_per_stage, num_of_compression)
         horsepower = work_sum * gas_removed_by_stabilizer
-        brake_horsepower = horsepower / self.compressor_eff
+        brake_horsepower = horsepower / self.eta_compressor
         energy_consumption += self.get_energy_consumption(self.prime_mover_type, brake_horsepower)
         energy_use.set_rate(energy_carrier, energy_consumption.to("mmBtu/day"))
 
