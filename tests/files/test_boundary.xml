@@ -16,6 +16,9 @@
 		<Process class="StorageCompressor"/>
 		<Process class="GasDistribution"/>
 		<Process class="LNGLiquefaction"/>
+		<Process class="StorageWell"/>
+		<Process class="StorageSeparator"/>
+		<Process class="PostStorageCompressor"/>
 
         <Stream src="BoundaryBefore" dst="TransmissionCompressor" name="before to transmission compressor" boundary="Production">
             <Component name="N2" phase="gas">25.7</Component>
@@ -43,6 +46,42 @@
 
 		<Stream src="TransmissionCompressor" dst="GasDistribution" name="transmission compressor to gas distribution">
 			<Contains>gas for distribution</Contains>
+		</Stream>
+		
+		<Stream src="StorageCompressor" dst="Environment" name="storage compressor to environment">
+			<Contains>gas fugitives</Contains>
+		</Stream>
+		
+		<Stream src="StorageCompressor" dst="StorageWell" name="storage compressor to storage well">
+			<Contains>gas for well</Contains>
+		</Stream>
+
+		<Stream src="StorageWell" dst="Environment" name="storage well to environment">
+			<Contains>gas fugitives</Contains>
+		</Stream>
+
+		<Stream src="StorageWell" dst="StorageSeparator" name="storage well to storage separator">
+			<Contains>gas for separator</Contains>
+		</Stream>
+
+		<Stream src="StorageSeparator" dst="Environment" name="storage separator to environment">
+			<Contains>gas fugitives</Contains>
+		</Stream>
+
+		<Stream src="StorageSeparator" dst="PostStorageCompressor" name="storage separator to post storage compressor">
+			<Contains>gas for storage</Contains>
+		</Stream>
+
+		<Stream src="PostStorageCompressor" dst="GasDistribution" name="post storage compressor to gas distribution">
+			<Contains>gas for distribution</Contains>
+		</Stream>
+
+		<Stream src="PostStorageCompressor" dst="Environment" name="post storage compressor to environment">
+			<Contains>gas fugitives</Contains>
+		</Stream>
+
+		<Stream src="LNGLiquefaction" dst="Environment" name="LNG liquefaction to environment">
+			<Contains>gas fugitives</Contains>
 		</Stream>
 
     </Field>

@@ -39,4 +39,7 @@ from .transmission_compressor import TransmissionCompressor
 from .LNG_liquefaction import LNGLiquefaction
 from .storage_compressor import StorageCompressor
 from .gas_distribution import GasDistribution
+from .storage_well import StorageWell
+from .storage_separator import StorageSeparator
+from .post_storage_compressor import PostStorageCompressor
 

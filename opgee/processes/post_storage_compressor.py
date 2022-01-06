@@ -8,9 +8,9 @@ from ..process import Process
 _logger = getLogger(__name__)
 
 
-class StorageCompressor(Process):
+class PostStorageCompressor(Process):
     """
-    Storage compressor calculate emission from compressing gas for long-term (i.e., seasonal) storage.
+    Storage compressor calculate emission from compressing produced gas for long-term (i.e., seasonal) storage.
 
     """
 
@@ -23,7 +23,6 @@ class StorageCompressor(Process):
         self.prime_mover_type = self.attr("prime_mover_type")
         self.std_temp = field.model.const("std-temperature")
         self.std_press = field.model.const("std-pressure")
-
 
     def run(self, analysis):
         self.print_running_msg()
@@ -66,11 +65,11 @@ class StorageCompressor(Process):
         fuel_gas_stream.multiply_flow_rates(gas_consumption_frac.m)
         fuel_gas_stream.set_temperature_and_pressure(temp=input.temperature, press=input.pressure)
 
-        gas_to_well = self.find_output_stream("gas for well")
-        gas_to_well.copy_gas_rates_from(input)
-        gas_to_well.subtract_gas_rates_from(fuel_gas_stream)
-        gas_to_well.subtract_gas_rates_from(gas_fugitives)
-        gas_to_well.set_temperature_and_pressure(temp=output_temp, press=self.discharge_press)
+        gas_to_distribution = self.find_output_stream("gas for distribution")
+        gas_to_distribution.copy_gas_rates_from(input)
+        gas_to_distribution.subtract_gas_rates_from(fuel_gas_stream)
+        gas_to_distribution.subtract_gas_rates_from(gas_fugitives)
+        gas_to_distribution.set_temperature_and_pressure(temp=output_temp, press=self.discharge_press)
 
         # emissions
         emissions = self.emissions
@@ -78,4 +77,3 @@ class StorageCompressor(Process):
         combustion_emission = (energy_for_combustion * self.process_EF).sum()
         emissions.add_rate(EM_COMBUSTION, "CO2", combustion_emission)
         emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
-
