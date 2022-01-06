@@ -38,7 +38,7 @@ class TransmissionCompressor(Process):
 
         input = self.find_input_stream("gas")
 
-        if input.is_empty() is None:
+        if input.is_empty():
             return
 
         loss_rate = self.venting_fugitive_rate()

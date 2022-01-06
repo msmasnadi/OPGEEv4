@@ -104,7 +104,7 @@ class AcidGasRemoval(Process):
         overall_compression_ratio = ureg.Quantity(feed_gas_press, "psia") / input.pressure
         compression_ratio = Compressor.get_compression_ratio(overall_compression_ratio)
         num_stages = Compressor.get_num_of_compression(overall_compression_ratio)
-        total_work, _ = Compressor.get_compressor_work_temp(self.field,
+        total_work, _, _= Compressor.get_compressor_work_temp(self.field,
                                                             input.temperature,
                                                             input.pressure,
                                                             gas_to_demethanizer,

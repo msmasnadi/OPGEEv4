@@ -54,7 +54,7 @@ class Venting(Process):
             overall_compression_ratio = discharge_press / press
             compression_ratio = Compressor.get_compression_ratio(overall_compression_ratio)
             num_stages = Compressor.get_num_of_compression(overall_compression_ratio)
-            total_work, _ = Compressor.get_compressor_work_temp(self.field, temp, press, gas_stream, compression_ratio,
+            total_work, _, _ = Compressor.get_compressor_work_temp(self.field, temp, press, gas_stream, compression_ratio,
                                                                 num_stages)
             volume_flow_rate_STP = self.gas.tot_volume_flow_rate_STP(gas_stream)
             total_energy = total_work * volume_flow_rate_STP

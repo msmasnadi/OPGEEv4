@@ -1,5 +1,6 @@
 from .drilling import Drilling, DrillingAndDevelopment, LandUse, Fracking
 from .exploration import Exploration, SurveyShip, SurveyTruck
+from .process_for_test import *
 from .water_treatment import WaterTreatment
 from .separation import Separation
 from .reservoir_well_interface import *

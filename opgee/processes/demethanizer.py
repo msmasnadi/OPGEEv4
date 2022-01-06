@@ -144,7 +144,7 @@ class Demethanizer(Process):
     def compressor_energy_consumption(self, overall_compression_ratio, inlet_temp, inlet_press, stream):
         compression_ratio = Compressor.get_compression_ratio(overall_compression_ratio)
         num_stages = Compressor.get_num_of_compression(overall_compression_ratio)
-        total_work, _ = Compressor.get_compressor_work_temp(self.field,
+        total_work, _, _ = Compressor.get_compressor_work_temp(self.field,
                                                             inlet_temp,
                                                             inlet_press,
                                                             stream,

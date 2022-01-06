@@ -246,7 +246,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         return pd.DataFrame(data=0.0, index=cls.component_names, columns=cls._phases, dtype='pint[tonne/day]')
 
     def is_empty(self):
-        return not self.dirty
+        return self.total_flow_rate().m == 0
 
     def component_phases(self, name):
         """
