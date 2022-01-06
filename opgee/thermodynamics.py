@@ -134,6 +134,11 @@ def Cp(component, kelvin, with_units=True):
     return cp
 
 
+# TODO: this is used in only one place, with phase=PHASE_GAS and with_units=False,
+#       so this could be simplified in that usage to:
+#       def gas_enthalpy(component, temp_K):
+#           chemical = ChemicalInfo.chemical(component)
+#           return chemical.H('g', T=temp_K)
 def Enthalpy(component, kelvin, phase=PHASE_GAS, with_units=True):
     """
     calculate enthalpy of component given temperature and phase
@@ -161,7 +166,7 @@ def Enthalpy(component, kelvin, phase=PHASE_GAS, with_units=True):
 
     return H
 
-
+# TODO only used once. Simplify?
 def Tsat(component, Psat, with_units=True):
     """
 
@@ -178,7 +183,7 @@ def Tsat(component, Psat, with_units=True):
 
     return result
 
-
+# TODO only used once. Simplify?
 def Tc(component, with_units=True):
     """
 
@@ -194,7 +199,7 @@ def Tc(component, with_units=True):
 
     return tc
 
-
+# TODO only used once. Simplify?
 def Pc(component, with_units=True):
     """
 
@@ -281,7 +286,7 @@ class DryAir(Air):
 
 class AbstractSubstance(OpgeeObject):
     """
-    OilGasWater class contains Oil, Gas and Water class
+    AbstractSubstance class is superclass of Oil, Gas and Water
     """
     def __init__(self, field):
         """
@@ -345,6 +350,7 @@ class Oil(AbstractSubstance):
     def __init__(self, field):
         """
         Store common parameters describing crude oil.
+
         :param field: (opgee.Field) the `Field` of interest, used to get values of various field attributes.
         """
         super().__init__(field)
@@ -367,6 +373,7 @@ class Oil(AbstractSubstance):
         self.total_molar_weight = (self.gas_comp * self.component_MW[self.gas_comp.index]).sum()
         self.gas_specific_gravity = self._gas_specific_gravity()
 
+    # TODO: Used only once, immediately above
     def _gas_specific_gravity(self):
         """
         Gas specific gravity is defined as the ratio of the molecular weight (MW) of the gas
@@ -402,6 +409,7 @@ class Oil(AbstractSubstance):
         result = 141.5 / (API_grav.m + 131.5)
         return ureg.Quantity(result, "frac")
 
+    # TODO used only in tests
     def reservoir_solution_GOR(self):
         """
         The solution gas oil ratio (GOR) at resevoir condition is
@@ -512,6 +520,7 @@ class Oil(AbstractSubstance):
         result = ureg.Quantity(result, "frac")
         return result
 
+    # TODO: used only in tests
     def isothermal_compressibility_X(self, stream, oil_specific_gravity, gas_specific_gravity, gas_oil_ratio):
         """
         Isothermal compressibility is the change in volume of a system as the pressure changes
@@ -633,6 +642,7 @@ class Oil(AbstractSubstance):
 
         return result
 
+    # TODO: used only in tests
     def volume_energy_density(self, stream, oil_specific_gravity, gas_specific_gravity, gas_oil_ratio):
         """
 
@@ -1075,6 +1085,7 @@ class Gas(AbstractSubstance):
         """
         latent_heat_water = Chemical("water").Hvap(T=273.15)
         latent_heat_water = ureg.Quantity(latent_heat_water, "joule/mole")
+
         enthalpy = pd.Series(
             {name: Enthalpy(name, temperature, phase=PHASE_GAS, with_units=False) for name in molar_fracs.index},
             dtype="pint[joule/mole]")
@@ -1082,6 +1093,7 @@ class Gas(AbstractSubstance):
 
         return enthalpy
 
+    # TODO: used only in tests
     def volume_energy_density(self, stream):
         """
 
