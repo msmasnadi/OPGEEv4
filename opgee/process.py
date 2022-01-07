@@ -273,7 +273,7 @@ class Process(XmlInstantiable, AttributeMixin):
         """
         Return the energy consumption rates.
         """
-        # TBD: deal with LHV vs HHV here?
+        # TODO: deal with LHV vs HHV here?
         return self.energy.rates()
 
     #
@@ -845,7 +845,7 @@ class Process(XmlInstantiable, AttributeMixin):
 
         classname = a['class']  # required by XML schema
         subclass = _get_subclass(Process, classname)
-        attr_dict = subclass.instantiate_attrs(elt)
+        attr_dict = subclass.instantiate_attrs(elt, is_process=True)
 
         obj = subclass(name, desc=desc, attr_dict=attr_dict,
                        cycle_start=cycle_start, impute_start=impute_start)

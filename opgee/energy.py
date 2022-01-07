@@ -46,7 +46,6 @@ class Energy(OpgeeObject):
 
          :return: (pandas.Series) Zero-filled energy carrier Series
          """
-        # TBD: all are in mmbtu/day, or is electricity in kWh/day?
         return pd.Series(data=0.0, index=cls.carriers, name='energy', dtype="pint[mmbtu/day]")
 
     def __init__(self):

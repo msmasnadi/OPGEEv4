@@ -90,10 +90,6 @@ class ModelFile(XMLFile):
 
         AttrDefs.load_attr_defs(found[0])
 
-        #
-        # TBD: cache state in ModelFile class vars "loaded_stream_components" and "loaded_class_path"?
-        #
-
         # Process user configuration settings
         if add_stream_components:
             extra_components = getParam('OPGEE.StreamComponents')

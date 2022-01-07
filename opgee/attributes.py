@@ -272,15 +272,21 @@ class AttributeMixin():
 
     # TBD: fill in Smart Defaults here, or assume they've been filled already?
     @classmethod
-    def instantiate_attrs(cls, elt):
+    def instantiate_attrs(cls, elt, is_process=False):
+        """
+        Instantiate the attributes defined in XML for class `cls`. To avoid an
+        import loop, we don't import Process from process.py, so the caller tells
+        us whether `cls` is a subclass of Process.
+
+        :param elt: (lxml.etree.Element) the element under which to find attribute defs.
+        :param is_process: (bool) True if `cls` is a subclass of `Process.
+        :return: none
+        """
         attr_defs = AttrDefs.get_instance()
         attr_dict = {}
 
-        # TBD:   To avoid an import loop, we don't import Process from process.py. This
-        # TBD:   works, but it's a bit of a hack. There might be a better way...
-        if str(cls.__mro__[1]) == "<class 'opgee.process.Process'>":
+        if is_process:
             attr_defs = AttrDefs.get_instance()
-            # i.e., isinstance(cls, Process)
             process_attrs = attr_defs.classes.get('Process')
         else:
             process_attrs = None

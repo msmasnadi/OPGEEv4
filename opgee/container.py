@@ -117,7 +117,6 @@ class Container(XmlInstantiable, AttributeMixin):
         :return: ((pandas.Series, float)) a tuple containing the emissions Series
             and the GHG value computed using the model's current GWP settings.
         """
-        # TBD: Are emissions in same units (e.g., kg CO2eq / day) or in terms of energy flow?
         data = self.emissions.data
         data[:] = 0.0
 

@@ -205,14 +205,14 @@ class Field(Container):
         for p in self.processes():
             p.check_balances()
 
-    # TODO: maybe move to Analysis
-    @staticmethod
-    def _check_attr_value(analysis, attr_name, choices):
-        value = analysis.attr(attr_name)
-        if not value in choices:
-            raise OpgeeException(f"compute_carbon_intensity: {attr_name} is {value}; must be one of {choices}")
-
-        return value
+    # Deprecated
+    # @staticmethod
+    # def _check_attr_value(analysis, attr_name, choices):
+    #     value = analysis.attr(attr_name)
+    #     if not value in choices:
+    #         raise OpgeeException(f"compute_carbon_intensity: {attr_name} is {value}; must be one of {choices}")
+    #
+    #     return value
 
     def boundary_stream(self, analysis) -> Stream:
         """

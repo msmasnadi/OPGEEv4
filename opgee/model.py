@@ -126,17 +126,18 @@ class Model(Container):
         """
         return self.analyses()  # N.B. returns an iterator
 
-    def summarize(self):
-        """
-        Return a summary of energy use and emissions, by Model, Field, Aggregator, and Process.
-
-        :return: TBD: Unclear what the best structure for this is; it depends how it will be used.
-        """
-        pass
+    # Deprecated?
+    # def summarize(self):
+    #     """
+    #     Return a summary of energy use and emissions, by Model, Field, Aggregator, and Process.
+    #
+    #     :return: TBD: Unclear what the best structure for this is; it depends how it will be used.
+    #     """
+    #     pass
 
     def validate(self):
-        # TBD: validate all attributes of classes Field, Process, etc.
-        pass
+        for child in self.children():
+            child.validate()
 
     @classmethod
     def from_xml(cls, elt):
