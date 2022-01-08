@@ -8,18 +8,10 @@ from . import ureg
 from .analysis import Analysis
 from .container import Container
 from .core import instantiate_subelts, elt_name
-from .attributes import AttrDefs
-from .config import getParam, unixPath
 from .error import OpgeeException, XmlFormatError
 from .field import Field
 from .log import getLogger
-from .pkg_utils import resourceStream
-from .process import reload_subclass_dict
-from .stream import Stream
 from .table_manager import TableManager
-from .utils import loadModuleFromPath, splitAndStrip
-from .XMLFile import XMLFile
-from .xml_utils import merge_elements, save_xml
 
 DEFAULT_SCHEMA_VERSION = "4.0.0.a"
 
@@ -125,15 +117,6 @@ class Model(Container):
         instead, as it respects the self.is_enabled() setting.
         """
         return self.analyses()  # N.B. returns an iterator
-
-    # Deprecated?
-    # def summarize(self):
-    #     """
-    #     Return a summary of energy use and emissions, by Model, Field, Aggregator, and Process.
-    #
-    #     :return: TBD: Unclear what the best structure for this is; it depends how it will be used.
-    #     """
-    #     pass
 
     def validate(self):
         for child in self.children():

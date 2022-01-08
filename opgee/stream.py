@@ -75,6 +75,8 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     Streams are defined within the `<Field>` element and are stored in a `Field` instance. The `Field` class tracks
     all `Stream` instances in a dictionary keyed by `Stream` name.
+
+    See also :doc:`OPGEE XML documentation <opgee-xml>`
     """
     _phases = [PHASE_SOLID, PHASE_LIQUID, PHASE_GAS]
 

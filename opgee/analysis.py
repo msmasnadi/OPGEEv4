@@ -31,6 +31,8 @@ class Analysis(Container):
     - time horizon for GWPs (20 or 100 year), and
 
     - which IPCC assessment report to use for CO2-equivalence values (AR4, AR5, AR5 with C-cycle feedback, or AR6).
+
+    See also :doc:`OPGEE XML documentation <opgee-xml>`
     """
     def __init__(self, name, attr_dict=None, field_names=None, groups=None):
         super().__init__(name, attr_dict=attr_dict)

@@ -119,14 +119,3 @@ def merge_siblings(elt1, elt2):
         return # fails silently
 
     merge_elements(elt1, elt2[:])
-
-# Deprecated (currently unused)
-# def ElementWithText(tag, text, **kwargs):
-#     elt = ET.Element(tag, **kwargs)
-#     elt.text = str(text)
-#     return elt
-#
-# def SubElementWithText(parent, tag, text, **kwargs):
-#     elt = ElementWithText(tag, text, **kwargs)
-#     parent.append(elt)
-#     return elt

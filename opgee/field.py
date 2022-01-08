@@ -30,7 +30,7 @@ class Field(Container):
     be enabled or disabled together as a coherent group. The "active" set is determimed
     by the value of attributes named the same as the `<ProcessChoice>` element.
 
-    TBD: add a link to the appropriate section of opgee-xml.rst
+    See also :doc:`OPGEE XML documentation <opgee-xml>`
     """
 
     def __init__(self, name, attr_dict=None, aggs=None, procs=None, streams=None, group_names=None,
@@ -204,15 +204,6 @@ class Field(Container):
     def check_balances(self):
         for p in self.processes():
             p.check_balances()
-
-    # Deprecated
-    # @staticmethod
-    # def _check_attr_value(analysis, attr_name, choices):
-    #     value = analysis.attr(attr_name)
-    #     if not value in choices:
-    #         raise OpgeeException(f"compute_carbon_intensity: {attr_name} is {value}; must be one of {choices}")
-    #
-    #     return value
 
     def boundary_stream(self, analysis) -> Stream:
         """
