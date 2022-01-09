@@ -47,30 +47,15 @@ class HeavyOilDilution(Process):
         total_mass_rate = input.liquid_flow_rate("oil")
         output.set_liquid_flow_rate("oil", total_mass_rate, self.final_mix_temp, self.final_mix_press)
 
-        # energy use
-        energy_use = self.energy
-
-        # emission
-        emissions = self.emissions
-
     def impute(self):
 
         input_streams = self.find_input_streams("oil for dilution")
 
-        if "bitumen mining to heavy oil dilution" not in input_streams:
-            return
-
-        input_bitumen = input_streams["bitumen mining to heavy oil dilution"]
-
-        if input_bitumen.is_uninitialized():
-            return
-
-        # mass rate
-        upgrader_type = self.field.attr("upgrader_type")
-        upgrader_mining_prod_offsite = 1 if (self.oil_sand_mine is None or self.oil_sand_mine == "Non-integrated with upgrader") \
-                                            and self.downhole_pump == 0 and upgrader_type is not None else 0
-        bitumen_mass_rate = self.oil_prod_rate * self.bitumen_SG * self.water_density if upgrader_mining_prod_offsite == 0 and self.oil_sand_mine == "Non-integrated with upgrader" else ureg.Quantity(0, "tonne/day")
-        input_bitumen.set_liquid_flow_rate("oil", bitumen_mass_rate.to("tonne/day"), self.bitumen_temp, self.bitumen_press)
+        if "bitumen mining to heavy oil dilution" in input_streams:
+            input_bitumen = input_streams["bitumen mining to heavy oil dilution"]
+            bitumen_mass_rate = self.get_bitumen_mass_rate()
+            input_bitumen.set_liquid_flow_rate("oil", bitumen_mass_rate.to("tonne/day"), self.bitumen_temp,
+                                           self.bitumen_press)
 
         input = self.find_input_streams("oil for dilution", combine=True)
 
@@ -114,4 +99,22 @@ class HeavyOilDilution(Process):
                                                       self.diluent_press)
 
         self.field.save_process_data(final_diluent_LHV_mass=final_diluent_LHV_mass)
+
+    def get_bitumen_mass_rate(self):
+        """
+        Calculate bitumen mass rate
+
+        :return:
+        """
+        upgrader_type = self.field.attr("upgrader_type")
+        upgrader_mining_prod_offsite = 1 if (self.oil_sand_mine is None or
+                                             self.oil_sand_mine == "Non-integrated with upgrader") \
+                                            and self.downhole_pump == 0 and upgrader_type is not None else 0
+        bitumen_mass_rate = self.oil_prod_rate * self.bitumen_SG * self.water_density \
+            if upgrader_mining_prod_offsite == 0 and \
+               self.oil_sand_mine == "Non-integrated with upgrader" else ureg.Quantity(0, "tonne/day")
+
+        return bitumen_mass_rate
+
+
 
