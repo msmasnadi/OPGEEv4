@@ -9,10 +9,8 @@ import pandas as pd
 import pint_pandas
 from . import ureg
 from .core import OpgeeObject, XmlInstantiable, A, instantiate_subelts, elt_name, validate_unit, magnitude
-from .error import OpgeeException, AttributeError, XmlFormatError
+from .error import OpgeeException, AttributeError
 from .log import getLogger
-from .pkg_utils import resourceStream
-from .XMLFile import XMLFile
 from .utils import coercible
 
 _logger = getLogger(__name__)
@@ -305,7 +303,7 @@ class AttributeMixin():
 
             unknown_attrs = set(user_values.keys()) - set(combined_dict.keys())
             if unknown_attrs:
-                raise OpgeeException(f"Attributes {unknown_attrs} in model XML for '{classname}' lack metadata")
+                raise OpgeeException(f"Attributes {list(unknown_attrs)} in model XML for '{classname}' lack metadata")
 
             # set up all attributes with default values
             for name, attr_def in combined_dict.items():

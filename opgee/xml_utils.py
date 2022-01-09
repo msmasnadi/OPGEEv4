@@ -51,6 +51,9 @@ def save_xml(path, root, backup=False):
 #
 #     tree.write(filename, pretty_print=True, xml_declaration=True)
 
+#
+# TBD: Elements don't match unless *all* attribs are identical. Maybe match only on tag and name attribute??
+#
 # Surface level (tag and attribute) comparison of elements
 def match_element(elt1, elt2):
     if elt1.tag != elt2.tag:
@@ -102,9 +105,9 @@ def merge_element(parent, new_elt):
 
 def merge_elements(parent, elt_list):
     """
-    Add each element in elt_list to parent if none of parent's children has the same tag
-    and attributes as element. If a match is found, merge element's children with those
-    of the matching element, recursively.
+    Add each element in `elt_list` to parent if none of parent's children has the same tag
+    and attributes as `elt`. If a match is found, merge elt's children with those of the
+    the matching element, recursively.
     """
     for elt in elt_list:
         merge_element(parent, elt)

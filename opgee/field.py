@@ -24,12 +24,11 @@ class Field(Container):
     of `Reservoir` and `Environment`, which are sources and sinks, respectively, in
     the process structure.
 
-    See {opgee}/etc/attributes.xml for attributes defined for the `<Field>`.
-
     Fields can contain mutually exclusive process choice sets that group processes to
     be enabled or disabled together as a coherent group. The "active" set is determimed
     by the value of attributes named the same as the `<ProcessChoice>` element.
 
+    See {opgee}/etc/attributes.xml for attributes defined for the `<Field>`.
     See also :doc:`OPGEE XML documentation <opgee-xml>`
     """
 
@@ -80,6 +79,13 @@ class Field(Container):
         self.process_dict = self.adopt(all_procs, asDict=True)
 
         self.extend = False
+
+        # Stores the name of a Field that the current field copies then modifies
+        # If a Field named X appears in an Analysis element, and specifies that it
+        # modifies another Field Y, Field Y is copied and any elements defined within
+        # Field X are merged into the copy, and the copy is added to the Model with the
+        # new name. The "modifies" value is stored to record this behavior.
+        self.modifies = None
 
         self.boundary_energy_flow = None
         self.carbon_intensity = ureg.Quantity(0.0, "g/MJ")
@@ -522,6 +528,9 @@ class Field(Container):
     def set_extend(self, extend):
         self.extend = extend
 
+    def set_modifies(self, modifies):
+        self.modifies = modifies
+
     @classmethod
     def from_xml(cls, elt):
         """
@@ -531,6 +540,7 @@ class Field(Container):
         :return: (Field) instance populated from XML
         """
         name = elt_name(elt)
+        attrib = elt.attrib
 
         # TBD: fill in Smart Defaults here, or assume they've been filled already?
         attr_dict = cls.instantiate_attrs(elt)
@@ -549,9 +559,9 @@ class Field(Container):
                     streams=streams, group_names=group_names,
                     process_choice_dict=process_choice_dict)
 
-        attrib = elt.attrib
         obj.set_enabled(getBooleanXML(attrib.get('enabled', '1')))
         obj.set_extend(getBooleanXML(attrib.get('extend', '0')))
+        obj.set_modifies(attrib.get('modifies'))
 
         return obj
 
