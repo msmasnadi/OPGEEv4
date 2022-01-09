@@ -412,25 +412,24 @@ class Stream(XmlInstantiable, AttributeMixin):
         """
         Copy all mass flow rates from `stream` to `self`
 
+        :param press:
+        :param temp:
         :param phase: solid, liquid and gas phase
         :param stream: (Stream) to copy
 
         :return: none
         """
-        # TODO: should this produce a warning?
         if stream.is_uninitialized():
-            return
+            raise OpgeeException(f"Can't copy from uninitialized stream: {stream}")
 
         if phase:
             self.components[phase] = stream.components[phase]
         else:
             self.components[:] = stream.components
 
-        if temp is not None:
-            self.temperature = temp
+        self.temperature = stream.temperature if temp is None else temp
 
-        if press is not None:
-            self.pressure = press
+        self.pressure = stream.pressure if press is None else press
 
         self.initialized = True
 
@@ -443,9 +442,8 @@ class Stream(XmlInstantiable, AttributeMixin):
         :return: none
         """
 
-        # TODO: should this produce a warning?
         if stream.is_uninitialized():
-            return
+            raise OpgeeException(f"Can't copy from uninitialized stream: {stream}")
 
         self.initialized = True
         self.components[PHASE_GAS] = stream.components[PHASE_GAS]

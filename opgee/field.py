@@ -119,6 +119,11 @@ class Field(Container):
         self.std_temp  = model.const("std-temperature")
         self.std_press = model.const("std-pressure")
 
+        self.heater_treater = self.attr("heater_treater")
+        self.stab_column = self.attr("stabilizer_column")
+        self.upgrader_type = self.attr("upgrader_type")
+        self.frac_diluent = self.attr("fraction_diluent")
+
         for iterator in [self.processes(), self.streams(), [self.oil, self.gas, self.water, self.steam_generator]]:
             for obj in iterator:
                 obj._after_init()

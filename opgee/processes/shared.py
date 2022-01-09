@@ -1,5 +1,7 @@
 from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
 from ..error import OpgeeException
+
+
 #
 # Helper function shared by acid_gas_removal and demethanizer
 #
@@ -16,12 +18,13 @@ def predict_blower_energy_use(proc, thermal_load, air_cooler_delta_T=None, water
     :param air_cooler_speed_reducer_eff:
     :return: (pint.Quantity) air cooling fan energy consumption (unit = "kWh/day")
     """
+
     def _value(value, dflt):
         return (dflt if value is None else value)
 
-    air_cooler_delta_T           = _value(air_cooler_delta_T, proc.air_cooler_delta_T)
-    water_press                  = _value(water_press, proc.water_press)
-    air_cooler_fan_eff           = _value(air_cooler_fan_eff, proc.air_cooler_fan_eff)
+    air_cooler_delta_T = _value(air_cooler_delta_T, proc.air_cooler_delta_T)
+    water_press = _value(water_press, proc.water_press)
+    air_cooler_fan_eff = _value(air_cooler_fan_eff, proc.air_cooler_fan_eff)
     air_cooler_speed_reducer_eff = _value(air_cooler_speed_reducer_eff, proc.air_cooler_speed_reducer_eff)
 
     model = proc.field.model
