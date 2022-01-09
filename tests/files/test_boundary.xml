@@ -16,6 +16,7 @@
 		<Process class="StorageCompressor"/>
 		<Process class="GasDistribution"/>
 		<Process class="LNGLiquefaction"/>
+		<Process class="LNGTransport"/>
 		<Process class="StorageWell"/>
 		<Process class="StorageSeparator"/>
 		<Process class="PostStorageCompressor"/>
@@ -82,6 +83,10 @@
 
 		<Stream src="LNGLiquefaction" dst="Environment" name="LNG liquefaction to environment">
 			<Contains>gas fugitives</Contains>
+		</Stream>
+
+		<Stream src="LNGLiquefaction" dst="LNGTransport" name="LNG liquefaction to LNG transportation">
+			<Contains>gas for transportation</Contains>
 		</Stream>
 
     </Field>

@@ -5,6 +5,7 @@ from ..emissions import EM_COMBUSTION
 from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL, EN_RESID
 from ..log import getLogger
 from ..process import Process
+from ..error import OpgeeException
 
 _logger = getLogger(__name__)
 
@@ -16,7 +17,7 @@ class DiluentTransport(Process):
         self.oil = field.oil
 
         self.API_diluent = field.attr("diluent_API")
-        self.transport_share_fuel = field.model.transport_share_fuel
+        self.diluent_transport_share_fuel = field.model.diluent_transport_share_fuel
         self.ocean_tanker_load_factor_dest = field.attr("ocean_tanker_load_factor_dest")
         self.barge_load_factor_dest = field.attr("barge_load_factor_dest")
         self.ocean_tanker_load_factor_origin = field.attr("ocean_tanker_load_factor_origin")
@@ -118,7 +119,6 @@ class DiluentTransport(Process):
         output = self.find_output_stream("oil for dilution")
         input = self.find_input_stream("oil for transport")
         input.copy_flow_rates_from(output)
-        input.set_temperature_and_pressure(output.temperature, output.pressure)
 
     def transport_energy_intensity(self, type, energy_consumption, load_factor, hp):
         """
@@ -130,13 +130,16 @@ class DiluentTransport(Process):
         :param load_factor:
         :return: (float) tanker energy intensity
         """
-        if type == "tanker":
-            result = energy_consumption * load_factor * hp / self.ocean_tanker_speed / self.ocean_tanker_size
 
-        # TODO: unguarded else clauses are common points of failure, e.g., if a new "type" is added.
-        # TODO: test for all known cases and use else clause to raise an error for the unexpected value.
+        known_types = ["tanker", "barge"]
+        if type not in known_types:
+            raise OpgeeException(f"{type} is not in the known transport type: {known_types}")
+
+        common =  energy_consumption * load_factor * hp
+        if type == "tanker":
+            result = common / self.ocean_tanker_speed / self.ocean_tanker_size
         else:
-            result = energy_consumption * load_factor * hp / self.barge_capacity / self.barge_speed
+            result = common / self.barge_capacity / self.barge_speed
         return result
 
     def fuel_consumption(self, transport_energy_consumption, LHV, type):

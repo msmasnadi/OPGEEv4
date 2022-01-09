@@ -34,10 +34,13 @@ class HeavyOilDilution(Process):
     def run(self, analysis):
         self.print_running_msg()
 
+        if self.frac_diluent == 0.0 or not self.all_streams_ready("oil for dilution"):
+            return
+
         #mass rate
         input = self.find_input_streams("oil for dilution", combine=True)
 
-        if self.frac_diluent == 0.0 or not self.all_streams_ready("oil for dilution") or input.is_uninitialized():
+        if input.is_uninitialized():
             return
 
         output = self.find_output_stream("oil for storage")

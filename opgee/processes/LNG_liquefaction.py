@@ -16,6 +16,9 @@ class LNGLiquefaction(Process):
         self.gas = field.gas
         self.std_temp = field.model.const("std-temperature")
         self.std_press = field.model.const("std-pressure")
+        self.compression_refrigeration_load = self.attr("compression_refrigeration_load")
+        self.ancillary_loads = self.attr("ancillary_loads")
+        self.NG_to_liq_rate = self.attr("NG_to_liq_rate")
 
     def run(self, analysis):
         self.print_running_msg()
@@ -25,9 +28,16 @@ class LNGLiquefaction(Process):
         if input.is_uninitialized():
             return
 
-        loss_rate = self.venting_fugitive_rate()
-        gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
-        gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp)
-        gas_fugitives.set_temperature_and_pressure(self.std_temp, self.std_press)
+        total_load = (self.compression_refrigeration_load + self.ancillary_loads) * self.NG_to_liq_rate
+
+        # gas_to_transport = self.find_output_stream("gas for transport")
+        # gas_to_transport.copy_flow_rates_from(input)
+
+        #TODO: Future versions of OPGEE may treat this process in more detail.
+
+        # loss_rate = self.venting_fugitive_rate()
+        # gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
+        # gas_fugitives = self.find_output_stream("gas fugitives")
+        # gas_fugitives.copy_flow_rates_from(gas_fugitives_temp)
+        # gas_fugitives.set_temperature_and_pressure(self.std_temp, self.std_press)
 

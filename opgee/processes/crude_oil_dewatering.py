@@ -14,14 +14,7 @@ class CrudeOilDewatering(Process):
     # OPGEE v3 workbook for the default field.
     def _after_init(self):
         super()._after_init()
-        self.field = field = self.get_field()
-
-        # TODO: capture these in Field instance vars instead, once for all processes
-        self.heater_treater = field.attr("heater_treater")
-        self.stab_column = field.attr("stabilizer_column")
-        self.upgrader_type = field.attr("upgrader_type")
-        self.frac_diluent = field.attr("fraction_diluent")
-
+        self.field = self.get_field()
         self.temperature_heater_treater = self.attr("temperature_heater_treater")
         self.heat_loss = self.attr("heat_loss")
         self.prime_mover_type = self.attr("prime_mover_type")
@@ -30,6 +23,7 @@ class CrudeOilDewatering(Process):
 
     def run(self, analysis):
         self.print_running_msg()
+        field = self.field
 
         # mass rate
         input = self.find_input_stream("crude oil")
@@ -38,10 +32,10 @@ class CrudeOilDewatering(Process):
         oil_rate = input.flow_rate("oil", PHASE_LIQUID)
         water_rate = input.flow_rate("H2O", PHASE_LIQUID)
 
-        separator_final_SOR = self.field.get_process_data("separator_final_SOR")
+        separator_final_SOR = field.get_process_data("separator_final_SOR")
 
         oil_to_stabilization = self.find_output_stream("oil for stabilization", raiseError=False)
-        temp = self.temperature_heater_treater if self.heater_treater else temperature
+        temp = self.temperature_heater_treater if field.heater_treater else temperature
         if oil_to_stabilization is not None:
             oil_to_stabilization.set_liquid_flow_rate("oil", oil_rate, temp, pressure)
 
@@ -65,7 +59,7 @@ class CrudeOilDewatering(Process):
         water_heat_capacity = self.field.water.specific_heat(average_oil_temp)
         delta_temp = ureg.Quantity(self.temperature_heater_treater.m - temperature.m, "delta_degF")
         heat_duty = ureg.Quantity(0, "mmBtu/day")
-        if self.heater_treater:
+        if field.heater_treater:
             eff = (1 + self.heat_loss.to("frac")).to("frac")
             heat_duty = ((oil_rate * oil_heat_capacity + water_rate * water_heat_capacity) *
                          delta_temp * eff).to("mmBtu/day")

@@ -189,7 +189,7 @@
 		<Process class="After"/>
 		<Process class="Output"/>
 
-		<Process class="HeavyOilDilution" impute-start="true"/>
+		<Process class="HeavyOilDilution"/>
 		<Process class="BitumenMining"/>
 		<Process class="DiluentTransport"/>
 
@@ -235,11 +235,18 @@
 		<Process class="After"/>
 		<Process class="Output"/>
 
-		<Process class="HeavyOilDilution" impute-start="true"/>
+		<Process class="HeavyOilDilution"/>
 		<Process class="BitumenMining"/>
 		<Process class="DiluentTransport"/>
 		<Process class="Flaring" enabled="false"/>
 		<Process class="CrudeOilStorage"/>
+
+		<Stream src="Before" dst="HeavyOilDilution" name="before to heavy oil dilution">
+			<Contains>oil for dilution</Contains>
+			<Component name="oil" phase="liquid">12928.2</Component>
+			<A name="temperature">165.0</A>
+			<A name="pressure">100.0</A>
+		</Stream>
 
 		<Stream src="HeavyOilDilution" dst="CrudeOilStorage" name="heavy oil dilution to crude oil storage">
 			<Contains>oil for storage</Contains>

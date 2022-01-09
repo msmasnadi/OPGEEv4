@@ -44,8 +44,6 @@ class BitumenMining(Process):
     def run(self, analysis):
         self.print_running_msg()
 
-
-
         # mass rate
         input = self.find_input_stream("oil")
         bitumen_mass_rate = input.liquid_flow_rate("oil")
@@ -56,10 +54,10 @@ class BitumenMining(Process):
         mining_intensity_table = d[self.oil_sands_mine]
         unit_col = d["Units"]
 
-        mine_flaring_rate = self.FOR * bitumen_volume_rate * self.gas_comp * self.model.const("mol-per-scf") * \
-                            self.oil.component_MW[self.gas_comp.index]
-        mine_offgas_rate = self.VOR * bitumen_volume_rate * self.gas_comp * self.model.const("mol-per-scf") * \
-                           self.oil.component_MW[self.gas_comp.index]
+        oil_rate = (bitumen_volume_rate * self.gas_comp *
+                    self.model.const("mol-per-scf") * self.oil.component_MW[self.gas_comp.index])
+        mine_flaring_rate = self.FOR * oil_rate
+        mine_offgas_rate = self.VOR * oil_rate
 
         gas_fugitives = self.find_output_stream("gas fugitive")
         gas_fugitives.set_rates_from_series(mine_offgas_rate, PHASE_GAS)
