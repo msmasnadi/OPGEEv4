@@ -1,7 +1,0 @@
-,Diesel,Residual oil,Natural gas,Electricity
-,frac,frac,frac,frac
-tanker,0,1,0,0
-barge,0,1,0,0
-pipeline,0.45,0,0.55,0
-rail,1,0,0,0
-truck,1,0,0,0

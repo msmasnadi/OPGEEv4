@@ -18,7 +18,7 @@ class LNGTransport(Process):
         self.field = field = self.get_field()
         self.gas = field.gas
         self.ocean_tank_size = field.attr("ocean_tanker_size")
-        self.LNG_transport_shared_fuel = field.model.LNG_transport_share_fuel
+        # self.LNG_transport_shared_fuel = field.model.LNG_transport_share_fuel
 
 
     def run(self, analysis):

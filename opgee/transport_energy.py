@@ -13,6 +13,7 @@ class TransportEnergy(OpgeeObject):
     def get_transport_energy_dict(field,
                                   parameter_table,
                                   transport_share_fuel,
+                                  transport_by_mode,
                                   oil_LHV_rate):
         parameter_dict = TransportEnergy.get_parameter_dict(parameter_table)
         ocean_tanker_load_factor_dest = parameter_dict["load_factor_to_dest_tanker"]
@@ -32,12 +33,8 @@ class TransportEnergy(OpgeeObject):
         energy_intensity_rail_transport = parameter_dict["energy_intensity_rail_to_dest"]
         energy_intensity_truck = ureg.Quantity(969.0, "btu/(tonne*mile)")
         feed_loss = parameter_dict["feed_loss"]
-        df_frac = parameter_table.loc["fraction"]
-        df_dist = parameter_table.loc["distance"]
-        fraction_transport = \
-            pd.Series(df_frac["Values"].to_numpy(), index=df_frac["Name"].to_numpy(), dtype="pint[frac]")
-        transport_distance = \
-            pd.Series(df_dist["Values"].to_numpy(), index=df_dist["Name"].to_numpy(), dtype="pint[mile]")
+        fraction_transport = transport_by_mode["Fraction"]
+        transport_distance = transport_by_mode["Distance"]
         residual_oil_LHV = field.model.const("residual-oil-LHV")
         residual_oil_density = field.model.const("residual-oil-density")
 
@@ -150,12 +147,10 @@ class TransportEnergy(OpgeeObject):
 
         :return:
         """
-        parameter_value = parameter_table["Values"]
+        parameter_value = parameter_table.iloc[:, 0]
         parameter_unit = parameter_table["Units"]
         parameter_dict = {}
         for name, value in parameter_value.iteritems():
-            if name == "fraction" or name == "distance":
-                continue
             parameter_dict[name] = ureg.Quantity(value, parameter_unit[name])
 
         return parameter_dict

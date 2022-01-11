@@ -14,8 +14,12 @@ class DiluentTransport(Process):
         self.field = field = self.get_field()
         self.oil = field.oil
         self.API_diluent = field.attr("diluent_API")
-        self.diluent_transport_share_fuel = field.model.diluent_transport_share_fuel
-        self.diluent_transport_parameter = field.model.diluent_transport_parameter
+        self.transport_share_fuel = field.model.transport_share_fuel
+        self.transport_parameter = field.model.transport_parameter
+        self.transport_by_mode = field.model.transport_by_mode
+        self.diluent_transport_share_fuel = self.transport_share_fuel.loc["Diluent"]
+        self.diluent_transport_parameter = self.transport_parameter[["Diluent", "Units"]]
+        self.diluent_transport_by_mode = self.transport_by_mode.loc["Diluent"]
 
     def run(self, analysis):
         self.print_running_msg()
@@ -34,6 +38,7 @@ class DiluentTransport(Process):
         fuel_consumption = TransportEnergy.get_transport_energy_dict(self.field,
                                                                      self.diluent_transport_parameter,
                                                                      self.diluent_transport_share_fuel,
+                                                                     self.diluent_transport_by_mode,
                                                                      oil_LHV_rate)
 
         for name, value in fuel_consumption.items():
@@ -43,7 +48,7 @@ class DiluentTransport(Process):
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")
         combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
+        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission.to("tonne/day"))
 
     def impute(self):
         output = self.find_output_stream("oil for dilution")
