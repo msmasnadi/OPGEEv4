@@ -32,7 +32,7 @@ class TransportEnergy(OpgeeObject):
         energy_intensity_rail_transport = parameter_dict["energy_intensity_rail_to_dest"]
         energy_intensity_truck = ureg.Quantity(969.0, "btu/(tonne*mile)")
         feed_loss = parameter_dict["feed_loss"]
-        df_frac = parameter_table.loc["frac"]
+        df_frac = parameter_table.loc["fraction"]
         df_dist = parameter_table.loc["distance"]
         fraction_transport = \
             pd.Series(df_frac["Values"].to_numpy(), index=df_frac["Name"].to_numpy(), dtype="pint[frac]")
@@ -154,7 +154,7 @@ class TransportEnergy(OpgeeObject):
         parameter_unit = parameter_table["Units"]
         parameter_dict = {}
         for name, value in parameter_value.iteritems():
-            if name == "frac" or name == "distance":
+            if name == "fraction" or name == "distance":
                 continue
             parameter_dict[name] = ureg.Quantity(value, parameter_unit[name])
 

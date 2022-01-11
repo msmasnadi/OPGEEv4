@@ -381,7 +381,7 @@ class Process(XmlInstantiable, AttributeMixin):
         return combine_streams(streams, self.field.oil.API) if combine else (
             streams if as_list else {s.name: s for s in streams})
 
-    def find_input_streams(self, stream_type, combine=False, as_list=False, raiseError=True) -> Union[list, dict]:
+    def find_input_streams(self, stream_type, combine=False, as_list=False, raiseError=True) -> Union[Stream, list, dict]:
         """
         Convenience method to call `_find_streams_by_type` with direction "input"
 
@@ -395,7 +395,7 @@ class Process(XmlInstantiable, AttributeMixin):
         return self._find_streams_by_type(self.INPUT, stream_type, combine=combine, as_list=as_list,
                                           raiseError=raiseError)
 
-    def find_output_streams(self, stream_type, combine=False, as_list=False, raiseError=True) -> Union[list, dict]:
+    def find_output_streams(self, stream_type, combine=False, as_list=False, raiseError=True) -> Union[Stream, list, dict]:
         """
         Convenience method to call `_find_streams_by_type` with direction "output"
 

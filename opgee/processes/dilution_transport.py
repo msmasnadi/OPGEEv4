@@ -3,6 +3,7 @@ from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL, EN_RESID
 from ..log import getLogger
 from ..process import Process
 from ..transport_energy import TransportEnergy
+from .shared import get_energy_carrier
 
 _logger = getLogger(__name__)
 
@@ -34,16 +35,15 @@ class DiluentTransport(Process):
                                                                      self.diluent_transport_parameter,
                                                                      self.diluent_transport_share_fuel,
                                                                      oil_LHV_rate)
-        energy_use.set_rate(EN_NATURAL_GAS, fuel_consumption["Natural gas"].to("mmBtu/day"))
-        energy_use.set_rate(EN_DIESEL, fuel_consumption["Diesel"].to("mmBtu/day"))
-        energy_use.set_rate(EN_RESID, fuel_consumption["Residual oil"].to("mmBtu/day"))
-        energy_use.set_rate(EN_ELECTRICITY, fuel_consumption["Electricity"].to("mmBtu/day"))
+
+        for name, value in fuel_consumption.items():
+            energy_use.set_rate(get_energy_carrier(name), value.to("mmBtu/day"))
 
         # emission
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")
-        combusion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.add_rate(EM_COMBUSTION, "CO2", combusion_emission)
+        combustion_emission = (energy_for_combustion * self.process_EF).sum()
+        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
 
     def impute(self):
         output = self.find_output_stream("oil for dilution")
