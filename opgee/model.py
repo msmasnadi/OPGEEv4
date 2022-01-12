@@ -48,13 +48,9 @@ class Model(Container):
 
         self.heavy_oil_upgrading = tbl_mgr.get_table("heavy-oil-upgrading")
 
-        self.diluent_transport_share_fuel = tbl_mgr.get_table("diluent-transport-share-fuel")
-        self.LNG_transport_share_fuel = tbl_mgr.get_table("LNG-transport-share-fuel")
-        self.crude_transport_share_fuel = tbl_mgr.get_table("crude-transport-share-fuel")
-
-        self.diluent_transport_parameter = tbl_mgr.get_table("diluent-transport-parameter")
-        self.LNG_transport_parameter = tbl_mgr.get_table("LNG-transport-parameter")
-        self.crude_transport_parameter = tbl_mgr.get_table("crude-transport-parameter")
+        self.transport_parameter = tbl_mgr.get_table("transport-parameter")
+        self.transport_share_fuel = tbl_mgr.get_table("transport-share-fuel")
+        self.transport_by_mode = tbl_mgr.get_table("transport-by-mode")
 
         self.mining_energy_intensity = tbl_mgr.get_table("bitumen-mining-energy-intensity")
 

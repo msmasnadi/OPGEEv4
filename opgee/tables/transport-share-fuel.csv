@@ -1,0 +1,22 @@
+Type,Method,Diesel,Residual oil,Natural gas,Electricity
+_,_,frac,frac,frac,frac
+Diluent,tanker,0,1,0,0
+Diluent,barge,0,1,0,0
+Diluent,pipeline,0.45,0,0.55,0
+Diluent,rail,1,0,0,0
+Diluent,truck,1,0,0,0
+LNG,tanker,0,1,0,0
+LNG,barge,0,1,0,0
+LNG,pipeline,0.45,0,0.55,0
+LNG,rail,1,0,0,0
+LNG,truck,1,0,0,0
+Crude,tanker,0,1,0,0
+Crude,barge,0,1,0,0
+Crude,pipeline,0.45,0,0.55,0
+Crude,rail,1,0,0,0
+Crude,truck,1,0,0,0
+Petrocoke,tanker,0,1,0,0
+Petrocoke,barge,0,1,0,0
+Petrocoke,pipeline,0.45,0,0.55,0
+Petrocoke,rail,1,0,0,0
+Petrocoke,truck,1,0,0,0

@@ -3,6 +3,7 @@ from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL, EN_RESID
 from ..log import getLogger
 from ..process import Process
 from ..transport_energy import TransportEnergy
+from .shared import get_energy_carrier
 
 _logger = getLogger(__name__)
 
@@ -13,8 +14,12 @@ class DiluentTransport(Process):
         self.field = field = self.get_field()
         self.oil = field.oil
         self.API_diluent = field.attr("diluent_API")
-        self.diluent_transport_share_fuel = field.model.diluent_transport_share_fuel
-        self.diluent_transport_parameter = field.model.diluent_transport_parameter
+        self.transport_share_fuel = field.model.transport_share_fuel
+        self.transport_parameter = field.model.transport_parameter
+        self.transport_by_mode = field.model.transport_by_mode
+        self.diluent_transport_share_fuel = self.transport_share_fuel.loc["Diluent"]
+        self.diluent_transport_parameter = self.transport_parameter[["Diluent", "Units"]]
+        self.diluent_transport_by_mode = self.transport_by_mode.loc["Diluent"]
 
     def run(self, analysis):
         self.print_running_msg()
@@ -33,17 +38,17 @@ class DiluentTransport(Process):
         fuel_consumption = TransportEnergy.get_transport_energy_dict(self.field,
                                                                      self.diluent_transport_parameter,
                                                                      self.diluent_transport_share_fuel,
+                                                                     self.diluent_transport_by_mode,
                                                                      oil_LHV_rate)
-        energy_use.set_rate(EN_NATURAL_GAS, fuel_consumption["Natural gas"].to("mmBtu/day"))
-        energy_use.set_rate(EN_DIESEL, fuel_consumption["Diesel"].to("mmBtu/day"))
-        energy_use.set_rate(EN_RESID, fuel_consumption["Residual oil"].to("mmBtu/day"))
-        energy_use.set_rate(EN_ELECTRICITY, fuel_consumption["Electricity"].to("mmBtu/day"))
+
+        for name, value in fuel_consumption.items():
+            energy_use.set_rate(get_energy_carrier(name), value.to("mmBtu/day"))
 
         # emission
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")
-        combusion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.add_rate(EM_COMBUSTION, "CO2", combusion_emission)
+        combustion_emission = (energy_for_combustion * self.process_EF).sum()
+        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission.to("tonne/day"))
 
     def impute(self):
         output = self.find_output_stream("oil for dilution")
