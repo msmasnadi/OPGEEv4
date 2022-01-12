@@ -1,11 +1,13 @@
-from ..process import Process
-from ..log import getLogger
 from opgee import ureg
-from ..stream import Stream
 from ..emissions import EM_FLARING
+from ..log import getLogger
+from ..process import Process
+from ..stream import Stream
 
 _logger = getLogger(__name__)
 
+
+# TODO: Ask Zhang for the flaring model.
 
 class Flaring(Process):
     def _after_init(self):
@@ -15,7 +17,7 @@ class Flaring(Process):
         self.mol_per_scf = field.model.const("mol-per-scf")
         self.FOR = field.attr("FOR")
         self.oil_volume_rate = field.attr("oil_prod")
-        #TODO: need to work on this
+        # TODO: need to work on this
         self.combusted_gas_frac = field.attr("combusted_gas_frac")
 
     def run(self, analysis):
@@ -25,7 +27,7 @@ class Flaring(Process):
             return
 
         # mass rate
-        input = self.find_input_streams("gas", combine=True)
+        input = self.find_input_streams("gas", combine=True)  # type: Stream
 
         gas_mol_fraction = self.gas.total_molar_flow_rate(input)
         gas_volume_rate = gas_mol_fraction / self.mol_per_scf
@@ -54,14 +56,7 @@ class Flaring(Process):
                                  gas_to_flare.total_flow_rate() +
                                  venting_gas.total_flow_rate())
 
-        #energy-use
-        energy_use = self.energy
         # emissions
         emissions = self.emissions
         emissions.add_from_stream(EM_FLARING, self.combust_stream(gas_to_flare))
         emissions.add_from_stream(EM_FLARING, methane_slip)
-
-
-
-
-

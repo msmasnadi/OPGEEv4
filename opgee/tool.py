@@ -7,7 +7,6 @@
 .. Copyright (c) 2016-2021 Richard Plevin
    See the https://opensource.org/licenses/MIT for license details.
 '''
-
 import argparse
 from glob import glob
 import os
@@ -18,9 +17,6 @@ from .error import OpgeeException, CommandlineError
 from .log import setLogLevels, configureLogs
 from .subcommand import clean_help
 from .version import VERSION
-
-# Deprecated (signals.py)
-# from .signals import SignalException, catchSignals
 
 PROGRAM = 'opg'
 
@@ -350,10 +346,6 @@ def _main(argv=None):
     if ns.showBatch:
         ns.batch = True
 
-    # Deprecated (signals.py)
-    # Catch signals to allow cleanup of TempFile instances, e.g., on ^C
-    # catchSignals()
-
     if ns.batch:
         run = not ns.showBatch
         if ns.projectName:        # add these back in for the batch script
@@ -373,15 +365,6 @@ def main(argv=None, raiseError=False):
 
     except CommandlineError as e:
         print(e)
-
-    # Deprecated (signals.py)
-    # except SignalException as e:
-    #     if raiseError:
-    #         raise
-    #
-    #     _logger = getLogger(__name__)
-    #     _logger.error(f"{PROGRAM}: {e}")
-    #     return e.signum
 
     except Exception as e:
         if raiseError:

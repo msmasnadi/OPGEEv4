@@ -24,13 +24,12 @@ class Field(Container):
     of `Reservoir` and `Environment`, which are sources and sinks, respectively, in
     the process structure.
 
-    See {opgee}/etc/attributes.xml for attributes defined for the `<Field>`.
-
     Fields can contain mutually exclusive process choice sets that group processes to
     be enabled or disabled together as a coherent group. The "active" set is determimed
     by the value of attributes named the same as the `<ProcessChoice>` element.
 
-    TBD: add a link to the appropriate section of opgee-xml.rst
+    See {opgee}/etc/attributes.xml for attributes defined for the `<Field>`.
+    See also :doc:`OPGEE XML documentation <opgee-xml>`
     """
 
     def __init__(self, name, attr_dict=None, aggs=None, procs=None, streams=None, group_names=None,
@@ -81,6 +80,13 @@ class Field(Container):
 
         self.extend = False
 
+        # Stores the name of a Field that the current field copies then modifies
+        # If a Field named X appears in an Analysis element, and specifies that it
+        # modifies another Field Y, Field Y is copied and any elements defined within
+        # Field X are merged into the copy, and the copy is added to the Model with the
+        # new name. The "modifies" value is stored to record this behavior.
+        self.modifies = None
+
         self.boundary_energy_flow = None
         self.carbon_intensity = ureg.Quantity(0.0, "g/MJ")
 
@@ -112,6 +118,11 @@ class Field(Container):
 
         self.std_temp  = model.const("std-temperature")
         self.std_press = model.const("std-pressure")
+
+        self.heater_treater = self.attr("heater_treater")
+        self.stab_column = self.attr("stabilizer_column")
+        self.upgrader_type = self.attr("upgrader_type")
+        self.frac_diluent = self.attr("fraction_diluent")
 
         for iterator in [self.processes(), self.streams(), [self.oil, self.gas, self.water, self.steam_generator]]:
             for obj in iterator:
@@ -204,15 +215,6 @@ class Field(Container):
     def check_balances(self):
         for p in self.processes():
             p.check_balances()
-
-    # TODO: maybe move to Analysis
-    @staticmethod
-    def _check_attr_value(analysis, attr_name, choices):
-        value = analysis.attr(attr_name)
-        if not value in choices:
-            raise OpgeeException(f"compute_carbon_intensity: {attr_name} is {value}; must be one of {choices}")
-
-        return value
 
     def boundary_stream(self, analysis) -> Stream:
         """
@@ -531,6 +533,9 @@ class Field(Container):
     def set_extend(self, extend):
         self.extend = extend
 
+    def set_modifies(self, modifies):
+        self.modifies = modifies
+
     @classmethod
     def from_xml(cls, elt):
         """
@@ -540,6 +545,7 @@ class Field(Container):
         :return: (Field) instance populated from XML
         """
         name = elt_name(elt)
+        attrib = elt.attrib
 
         # TBD: fill in Smart Defaults here, or assume they've been filled already?
         attr_dict = cls.instantiate_attrs(elt)
@@ -558,9 +564,9 @@ class Field(Container):
                     streams=streams, group_names=group_names,
                     process_choice_dict=process_choice_dict)
 
-        attrib = elt.attrib
         obj.set_enabled(getBooleanXML(attrib.get('enabled', '1')))
         obj.set_extend(getBooleanXML(attrib.get('extend', '0')))
+        obj.set_modifies(attrib.get('modifies'))
 
         return obj
 

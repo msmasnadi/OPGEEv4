@@ -1,11 +1,9 @@
+from opgee import ureg
+from .shared import get_energy_carrier
+from ..compressor import Compressor
+from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
-from ..stream import PHASE_LIQUID
-from opgee import ureg
-from ..compressor import Compressor
-from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
-from ..emissions import Emissions, EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
-
 
 _logger = getLogger(__name__)
 
@@ -57,12 +55,7 @@ class GasReinjectionCompressor(Process):
 
         # energy-use
         energy_use = self.energy
-        if self.prime_mover_type == "NG_engine" or "NG_turbine":
-            energy_carrier = EN_NATURAL_GAS
-        elif self.prime_mover_type == "Electric_motor":
-            energy_carrier = EN_ELECTRICITY
-        else:
-            energy_carrier = EN_DIESEL
+        energy_carrier = get_energy_carrier(self.prime_mover_type)
         energy_use.set_rate(energy_carrier, energy_consumption)
 
         # emissions

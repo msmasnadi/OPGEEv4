@@ -1,6 +1,6 @@
 from ..log import getLogger
 from ..process import Process
-from ..stream import PHASE_LIQUID, PHASE_GAS
+from ..stream import PHASE_GAS
 
 _logger = getLogger(__name__)
 

@@ -1,8 +1,8 @@
+from ..emissions import EM_COMBUSTION
+from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY
+from ..error import BalanceError
 from ..log import getLogger
 from ..process import Process
-from ..error import BalanceError
-from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_UPG_PROC_GAS, EN_PETCOKE
-from ..emissions import EM_COMBUSTION
 
 _logger = getLogger(__name__)
 

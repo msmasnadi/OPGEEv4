@@ -248,7 +248,6 @@
       <AttrDef name="diluent_transport_distance_pipeline" unit="mile" type="float">1000.0</AttrDef>
       <AttrDef name="diluent_transport_distance_rail" unit="mile" type="float">800.0</AttrDef>
       <AttrDef name="diluent_transport_distance_truck" unit="mile" type="float">100.0</AttrDef>
-      <AttrDef name="ocean_tanker_size" unit="tonne" type="float">250000.0</AttrDef>
 
       <Options name="dilution_API" default="55.20">
         <Option>55.20</Option>
@@ -726,6 +725,8 @@
     <ClassAttrs name="LNGLiquefaction">
       <AttrDef name="compression_refrigeration_load" type="float" unit="MW/MMTPA" desc="Compression/ refrigeration load">0.0</AttrDef>
       <AttrDef name="ancillary_loads" type="float" unit="MW/MMTPA" desc="Ancillary loads">0.0</AttrDef>
+      <AttrDef name="NG_to_liq_rate" type="float" unit="tonnes/day" desc="natural gas to liquefaction rate">0.0</AttrDef>
+
     </ClassAttrs>
 
     <ClassAttrs name="WasteTreatmentAndDisposal">

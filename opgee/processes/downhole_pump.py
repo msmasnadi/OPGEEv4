@@ -1,11 +1,11 @@
 import numpy as np
-from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
-from ..process import Process
-from ..log import getLogger
+
 from opgee import ureg
-from opgee.stream import Stream
-from ..stream import Stream, PHASE_GAS, PHASE_LIQUID, PHASE_SOLID
-from ..emissions import Emissions, EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
+from ..emissions import EM_COMBUSTION, EM_FUGITIVES
+from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
+from ..log import getLogger
+from ..process import Process
+from ..stream import Stream
 
 _logger = getLogger(__name__)
 
@@ -34,6 +34,10 @@ class DownholePump(Process):
 
         # mass rate
         input = self.find_input_stream("crude oil")
+
+        if not self.downhole_pump or input.is_uninitialized():
+            return
+
         lift_gas = self.find_input_stream('lifting gas')
         input.add_flow_rates_from(lift_gas)
 
@@ -49,10 +53,6 @@ class DownholePump(Process):
         output.copy_flow_rates_from(input)
         output.subtract_gas_rates_from(gas_fugitives)
         output.set_temperature_and_pressure(self.wellhead_temp, self.wellhead_press)
-
-        # TODO: why do all the work above just to return if this is missing? Is all the rest only for downhole_pump?
-        if not self.downhole_pump:
-            return
 
         # energy use
         oil = self.field.oil

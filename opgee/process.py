@@ -158,6 +158,8 @@ class Process(XmlInstantiable, AttributeMixin):
     is run (or bypassed) and if the count >= the Model's "maximum_iterations" attribute, ``OpgeeMaxIterationsReached``
     is likewise raised. Whichever limit is reached first will cause iterations to stop. Between model runs, the method
     ``field.reset()`` is called for all processes to clear the visited counters and reset the iteration value to None.
+
+    See also :doc:`OPGEE XML documentation <opgee-xml>`
     """
 
     # Constants to support stream "finding" methods
@@ -273,7 +275,7 @@ class Process(XmlInstantiable, AttributeMixin):
         """
         Return the energy consumption rates.
         """
-        # TBD: deal with LHV vs HHV here?
+        # TODO: deal with LHV vs HHV here?
         return self.energy.rates()
 
     #
@@ -302,21 +304,7 @@ class Process(XmlInstantiable, AttributeMixin):
 
         return gas_fugitives
 
-    def get_water_transport_energy_consumption(self, load_factor, type):
-        """
-        calculate the water transport energy consumption
 
-        :param type: (str) "tanker" or "barge"
-        :param load_factor:
-        :return: (float) energy consumption (unit = btu/hp/hr)
-        """
-
-        residual_oil_LHV = self.model.const("residual-oil-LHV")
-        residual_oil_density = self.model.const("residual-oil-density")
-        const = 150 if type == "tanker" else 350
-
-        result = (14.42 / load_factor.m + const) * 0.735 * residual_oil_LHV.m / residual_oil_density.m
-        return ureg.Quantity(result, "btu/hp/hr")
 
     @property
     def model(self):
@@ -395,7 +383,7 @@ class Process(XmlInstantiable, AttributeMixin):
         return combine_streams(streams, self.field.oil.API) if combine else (
             streams if as_list else {s.name: s for s in streams})
 
-    def find_input_streams(self, stream_type, combine=False, as_list=False, raiseError=True) -> Union[list, dict]:
+    def find_input_streams(self, stream_type, combine=False, as_list=False, raiseError=True) -> Union[Stream, list, dict]:
         """
         Convenience method to call `_find_streams_by_type` with direction "input"
 
@@ -409,7 +397,7 @@ class Process(XmlInstantiable, AttributeMixin):
         return self._find_streams_by_type(self.INPUT, stream_type, combine=combine, as_list=as_list,
                                           raiseError=raiseError)
 
-    def find_output_streams(self, stream_type, combine=False, as_list=False, raiseError=True) -> Union[list, dict]:
+    def find_output_streams(self, stream_type, combine=False, as_list=False, raiseError=True) -> Union[Stream, list, dict]:
         """
         Convenience method to call `_find_streams_by_type` with direction "output"
 
@@ -730,38 +718,6 @@ class Process(XmlInstantiable, AttributeMixin):
             self.energy.add_rates_from(energy)
             self.emissions.add_rates_from(emission)
 
-    # Deprecated
-    # def venting_fugitive_rate(self, trial=None):
-    #     """
-    #     Look up venting/fugitive rate for this process. For user-defined processes not listed
-    #     in the venting_fugitives_by_process table, the Process subclass must implement this
-    #     method to override to the lookup.
-    #
-    #     :param trial: (int or None) if `trial` is None, the mean venting/fugitive rate is returned.
-    #        If `trial` is not None, it must be an integer trial number in the table's index.
-    #     :return: (float) the fraction of the output stream assumed to be lost to the environment,
-    #        either for the indicated `trial`, or the mean of all trial values if `trial` is None.
-    #     """
-    #     mgr = self.model.table_mgr
-    #     tbl_name = 'venting_fugitives_by_process'
-    #     df = mgr.get_table(tbl_name)
-    #
-    #     # Look up the process by name, but fall back to the classname if not found by name
-    #     columns = df.columns
-    #     name = self.name
-    #     if name not in columns:
-    #         classname = self.__class__.__name__
-    #         if classname != name:
-    #             if classname in columns:
-    #                 name = classname
-    #             else:
-    #                 raise OpgeeException(f"Neither '{name}' nor '{classname}' was found in table '{tbl_name}'")
-    #         else:
-    #             raise OpgeeException(f"'Class {classname}' was not found in table '{tbl_name}'")
-    #
-    #     value = df[name].mean() if trial is None else df.loc[name, trial]
-    #     return value
-
     def get_process_EF(self):
         """
         Look up emission factor for this process to calculate the combustion emission.
@@ -845,7 +801,7 @@ class Process(XmlInstantiable, AttributeMixin):
 
         classname = a['class']  # required by XML schema
         subclass = _get_subclass(Process, classname)
-        attr_dict = subclass.instantiate_attrs(elt)
+        attr_dict = subclass.instantiate_attrs(elt, is_process=True)
 
         obj = subclass(name, desc=desc, attr_dict=attr_dict,
                        cycle_start=cycle_start, impute_start=impute_start)

@@ -1,14 +1,13 @@
 import numpy as np
 
+from opgee import ureg
+from ..emissions import EM_COMBUSTION, EM_FUGITIVES
+from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY
+from ..error import OpgeeException
 from ..log import getLogger
 from ..process import Process
-from ..stream import PHASE_LIQUID
-from opgee import ureg
-from ..thermodynamics import component_MW
 from ..process import run_corr_eqns
-from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY
-from ..emissions import Emissions, EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
-from ..error import OpgeeException
+from ..thermodynamics import component_MW
 
 _logger = getLogger(__name__)
 
@@ -58,14 +57,13 @@ class GasDehydration(Process):
         gas_fugitives.copy_flow_rates_from(gas_fugitives_temp)
         gas_fugitives.set_temperature_and_pressure(self.std_temp, self.std_press)
 
-        # TODO: Wrap only the call you expect to raise the exception in try/except. Looks like the first one only?
         try:
             output = self.gas_path_dict[self.gas_path]
-            output_gas = self.find_output_stream(output)
         except:
             raise OpgeeException(f"{self.name} gas path is not recognized:{self.gas_path}. "
                                  f"Must be one of {list(self.gas_path_dict.keys())}")
 
+        output_gas = self.find_output_stream(output)
         output_gas.copy_flow_rates_from(input)
         output_gas.subtract_gas_rates_from(gas_fugitives)
         output_gas.set_temperature_and_pressure(input.temperature, input.pressure)

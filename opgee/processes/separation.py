@@ -1,14 +1,11 @@
+from .shared import get_energy_carrier
 from ..combine_streams import combine_streams
+from ..compressor import Compressor
+from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
-
-# from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY
-# from .. import ureg
-from ..stream import Stream, PHASE_GAS, PHASE_LIQUID, PHASE_SOLID
+from ..stream import Stream, PHASE_LIQUID
 from ..thermodynamics import rho
-from ..compressor import Compressor
-from ..emissions import EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
-from .shared import get_energy_carrier
 
 _logger = getLogger(__name__)
 

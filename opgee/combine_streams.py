@@ -42,18 +42,17 @@ def combine_streams(streams, API, pressure=None, temperature=None):
     first_non_empty_stream = non_empty_streams[0]
     stream_temperature = pd.Series([stream.temperature.to("kelvin").m for stream in non_empty_streams],
                                    dtype="pint[kelvin]")
-    stream_mass_rate = pd.Series([stream.total_flow_rate().m for stream in non_empty_streams],
-                                 dtype="pint[tonne/day]")
-    stream_Cp = pd.Series([mixture_heat_capacity(API, stream).m for stream in non_empty_streams],
+    stream_specific_heat = pd.Series([mixture_specific_heat_capacity(API, stream).m for stream in non_empty_streams],
                           dtype="pint[btu/degF/day]")
-    stream_specific_heat = stream_mass_rate * stream_Cp
-    temperature = (stream_temperature * stream_specific_heat).sum() / stream_specific_heat.sum()
-    temperature = temperature.to("degF")
-    stream = Stream('combined', temperature=temperature, pressure=first_non_empty_stream.pressure, comp_matrix=comp_matrix)
+    if stream_specific_heat.sum().m != 0:
+        temperature = (stream_temperature * stream_specific_heat).sum() / stream_specific_heat.sum()
+        temperature = temperature.to("degF")
+        stream =\
+            Stream('combined', temperature=temperature, pressure=first_non_empty_stream.pressure, comp_matrix=comp_matrix)
     return stream
 
 
-def mixture_heat_capacity(API, stream):
+def mixture_specific_heat_capacity(API, stream):
     """
     cp_mix = (mass_1/mass_mix)cp_1 + (mass_2/mass_mix)cp_2 + ...
 
@@ -67,5 +66,5 @@ def mixture_heat_capacity(API, stream):
     water_heat_capacity = Water.heat_capacity(stream)
     gas_heat_capacity = Gas.heat_capacity(stream)
 
-    heat_capacity = (oil_heat_capacity + water_heat_capacity + gas_heat_capacity) / total_mass_rate
-    return heat_capacity
+    heat_capacity = oil_heat_capacity + water_heat_capacity + gas_heat_capacity
+    return heat_capacity.to("btu/delta_degF/day")

@@ -189,7 +189,7 @@
 		<Process class="After"/>
 		<Process class="Output"/>
 
-		<Process class="HeavyOilDilution" impute-start="true"/>
+		<Process class="HeavyOilDilution"/>
 		<Process class="BitumenMining"/>
 		<Process class="DiluentTransport"/>
 
@@ -223,13 +223,14 @@
 
 	<Field name='bitumen_dilution'>
 		<A name="country">USA</A>
-		<A name="API">15.0</A>
+		<A name="API">32.0</A>
 		<A name="oil_prod">2098.0</A>
-		<A name="GOR">100.0</A>
-		<A name="fraction_diluent">0.01</A>
+		<A name="GOR">2429.0</A>
+		<A name="fraction_diluent">0.3</A>
 		<A name="oil_sands_mine">Non-integrated with upgrader</A>
-		<A name="FOR">0.0</A>
-		<A name="VOR">5.0</A>
+		<A name="FOR">2.0</A>
+		<A name="VOR">0.0</A>
+		<A name="downhole_pump">0</A>
 
 		<Process class="Before"/>
 		<Process class="After"/>
@@ -240,6 +241,12 @@
 		<Process class="DiluentTransport"/>
 		<Process class="Flaring" enabled="false"/>
 		<Process class="CrudeOilStorage"/>
+
+		<Stream src="Before" dst="HeavyOilDilution" name="before to heavy oil dilution">
+			<Contains>oil for dilution</Contains>
+			<A name="temperature">165.0</A>
+			<A name="pressure">100.0</A>
+		</Stream>
 
 		<Stream src="HeavyOilDilution" dst="CrudeOilStorage" name="heavy oil dilution to crude oil storage">
 			<Contains>oil for storage</Contains>

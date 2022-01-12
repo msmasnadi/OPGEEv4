@@ -429,6 +429,10 @@
 			<Contains>gas for gas flooding</Contains>
 		</Stream>
 
+		<Stream src="TransmissionCompressor" dst="After" name="transmission compression to after">
+			<Contains>gas for storage</Contains>
+		</Stream>
+
 	</Field>
 
 </Model>

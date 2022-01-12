@@ -1,11 +1,10 @@
 import numpy as np
 
+from opgee import ureg
+from .shared import get_energy_carrier
+from ..emissions import EM_COMBUSTION
 from ..log import getLogger
 from ..process import Process
-from opgee import ureg
-from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
-from ..emissions import Emissions, EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
-from .shared import get_energy_carrier
 
 _logger = getLogger(__name__)
 

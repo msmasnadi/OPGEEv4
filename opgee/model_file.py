@@ -1,3 +1,4 @@
+from copy import deepcopy
 import os
 from pathlib import Path
 from .attributes import AttrDefs
@@ -77,6 +78,28 @@ class ModelFile(XMLFile):
             root = xml_file.getRoot()
             merge_elements(base_root, root[:])
 
+        # Find Fields with modifies="..." attribute, copy the indicated Field, merge in the
+        # elements under the Field with modifies=, and replace elt. This is useful for
+        # debugging and storing the expanded "final" XML facilitates publication and replication.
+        found = base_root.xpath('//Analysis/Field[@modifies]')
+        for elt in found:
+            modifies = elt.attrib['modifies']
+            new_name = elt.attrib['name']
+
+            if base_root.find(f"Field[@name='{new_name}']") is not None:
+                raise XmlFormatError(f"Can't copy field '{modifies}' to '{new_name}': a field named '{new_name}' already exists.")
+
+            to_copy = base_root.find(f"Field[@name='{modifies}']")
+            copied = deepcopy(to_copy)          # don't modify the original
+            copied.attrib.update(elt.attrib)    # copy elt's attributes into `copied`
+
+            # N.B. Elements don't match unless *all* attribs are identical. Maybe match only on tag and name attribute??
+            merge_elements(copied, elt[:])      # merge elt's children into `copied`
+            base_root.append(copied)            # add the copy to the Model
+
+        # function argument overrides config file variable
+        save_to_path = save_to_path or getParam('OPGEE.XmlSavePathname')
+
         # Save the merged file if indicated
         if save_to_path:
             save_xml(save_to_path, base_root, backup=True)
@@ -89,10 +112,6 @@ class ModelFile(XMLFile):
             raise XmlFormatError("Multiple <AttrDefs> appear as children of <Model> in '{pathnames}'")
 
         AttrDefs.load_attr_defs(found[0])
-
-        #
-        # TBD: cache state in ModelFile class vars "loaded_stream_components" and "loaded_class_path"?
-        #
 
         # Process user configuration settings
         if add_stream_components:

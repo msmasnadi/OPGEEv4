@@ -8,39 +8,51 @@ from .core import OpgeeObject
 from .error import OpgeeException
 from .stream import PHASE_LIQUID, Stream, PHASE_GAS, PHASE_SOLID
 
-def _get_dict_chemical():
-    """
+class ChemicalInfo(OpgeeObject):
+    instance = None
 
-    :return: a dictionary which has key of the (str) compo
-    """
-    carbon_number = [f'C{n + 1}' for n in range(Stream.max_carbon_number)]
-    dict_chemical = {name: Chemical(name) for name in carbon_number}
-    non_hydrocarbon_gases = ["N2", "O2", "CO2", "H2O", "CO", "H2", "H2S", "SO2"]
-    dict_non_hydrocarbon = {name: Chemical(name) for name in non_hydrocarbon_gases}
-    dict_chemical.update(dict_non_hydrocarbon)
-    return dict_chemical
+    def __init__(self):
+        non_hydrocarbon_gases = ["N2", "O2", "CO2", "H2O", "CO", "H2", "H2S", "SO2"]
+        dict_non_hydrocarbon = {name: Chemical(name) for name in non_hydrocarbon_gases}
+        carbon_number = [f'C{n + 1}' for n in range(Stream.max_carbon_number)]
+        chemical_dict = {name: Chemical(name) for name in carbon_number}
+        chemical_dict.update(dict_non_hydrocarbon)
+        self._chemical_dict = chemical_dict
+        self._component_names = list(self._chemical_dict.keys())
+        self._mol_weights = pd.Series({name: chemical.MW for name, chemical in chemical_dict.items()},
+                                      dtype="pint[g/mole]")
+
+    @classmethod
+    def get_instance(cls):
+        if cls.instance is None:
+            cls.instance = cls()
+
+        return cls.instance
+
+    @classmethod
+    def chemical(cls, component_name):
+        obj = cls.get_instance()
+        return obj._chemical_dict[component_name]
+
+    @classmethod
+    def mol_weight(cls, component, with_units=True):
+        obj = cls.get_instance()
+        mw = obj._mol_weights.get(component)
+        return mw if with_units else mw.m
+
+    @classmethod
+    def mol_weights(cls):
+        obj = cls.get_instance()
+        return obj._mol_weights
+
+    @classmethod
+    def names(cls):
+        obj = cls.get_instance()
+        return obj._component_names
 
 
-_dict_chemical = _get_dict_chemical()
-
-
-def mol_weight(component, with_units=True):
-    """
-    Return the molecular weight of a Stream `component` (chemical)
-    :param with_units:
-    :param component: (str) the name of a Stream `component`
-    :return: (Quantity) molecular weight
-    """
-    result = _dict_chemical[component].MW
-    if with_units:
-        result = ureg.Quantity(result, "g/mol")
-
-    return result
-
-
-_components = list(_dict_chemical.keys())
-component_MW = pd.Series({name: mol_weight(name, with_units=False) for name in _components},
-                         dtype="pint[g/mole]")
+# TODO: replace uses of this global variable with calls to ChemicalInfo.mol_weights()
+component_MW = ChemicalInfo.mol_weights()
 
 
 def rho(component, temperature, pressure, phase):
@@ -58,7 +70,8 @@ def rho(component, temperature, pressure, phase):
     pressure = pressure.to("Pa").m
     phases = {PHASE_GAS: "g", PHASE_LIQUID: "l", PHASE_SOLID: "s"}
 
-    result = _dict_chemical[component].rho(phases[phase], temperature, pressure)
+    chemical = ChemicalInfo.chemical(component)
+    result = chemical.rho(phases[phase], temperature, pressure)
     return ureg.Quantity(result, "kg/m**3")
 
 
@@ -72,7 +85,7 @@ def heating_value(component, use_LHV=True, with_units=True):
     :param with_units: (bool) whether to include pint units in result
     :return: (float or pint.Quantity) lower or higher heating value (unit = joule/mol if with_units)
     """
-    chemical = _dict_chemical[component]
+    chemical = ChemicalInfo.chemical(component)
 
     hv = chemical.LHV if use_LHV else chemical.HHV
     hv = abs(hv) if hv is not None else 0
@@ -113,13 +126,19 @@ def Cp(component, kelvin, with_units=True):
     :param with_units:
     :return: (float) specific heat in standard condition (unit = joule/g/kelvin)
     """
-    cp = _dict_chemical[component].Cp(phase='g', T=kelvin)
+    chemical = ChemicalInfo.chemical(component)
+    cp = chemical.Cp(phase='g', T=kelvin)
     if with_units:
         cp = ureg.Quantity(cp, "joule/g/kelvin")
 
     return cp
 
 
+# TODO: this is used in only one place, with phase=PHASE_GAS and with_units=False,
+#       so this could be simplified in that usage to:
+#       def gas_enthalpy(component, temp_K):
+#           chemical = ChemicalInfo.chemical(component)
+#           return chemical.H('g', T=temp_K)
 def Enthalpy(component, kelvin, phase=PHASE_GAS, with_units=True):
     """
     calculate enthalpy of component given temperature and phase
@@ -131,19 +150,23 @@ def Enthalpy(component, kelvin, phase=PHASE_GAS, with_units=True):
     :return: (float) enthalpy (unit = joule/mole)
     """
 
+    # TODO: This will fail if an kelvin is integer. Better to test
+    #       if isinstance(kelvin, ureg.Quantity) since the code assumes this.
     if not isinstance(kelvin, float):
         kelvin = kelvin.to("kelvin")
         kelvin = kelvin.m
 
+    chemical = ChemicalInfo.chemical(component)
+
     phase_letter = "g" if phase == PHASE_GAS else "l"
-    H = _dict_chemical[component].H(phase=phase_letter, T=kelvin)
+    H = chemical.H(phase=phase_letter, T=kelvin)
 
     if with_units:
         H = ureg.Quantity(H, "joule/mol")
 
     return H
 
-
+# TODO only used once. Simplify?
 def Tsat(component, Psat, with_units=True):
     """
 
@@ -152,14 +175,15 @@ def Tsat(component, Psat, with_units=True):
     :param with_units:
     :return:
     """
+    chemical = ChemicalInfo.chemical(component)
+    result = chemical.Tsat(Psat)
 
-    result = _dict_chemical[component].Tsat(Psat)
     if with_units:
         result = ureg.Quantity(result, "kelvin")
 
     return result
 
-
+# TODO only used once. Simplify?
 def Tc(component, with_units=True):
     """
 
@@ -167,12 +191,15 @@ def Tc(component, with_units=True):
     :param with_units:
     :return: (float) critical temperature (unit = kelvin)
     """
-    tc = _dict_chemical[component].Tc
+    chemical = ChemicalInfo.chemical(component)
+    tc = chemical.Tc
+
     if with_units:
         tc = ureg.Quantity(tc, "kelvin")
+
     return tc
 
-
+# TODO only used once. Simplify?
 def Pc(component, with_units=True):
     """
 
@@ -180,9 +207,12 @@ def Pc(component, with_units=True):
     :param with_units:
     :return:(flaot) critial pressure (unit = Pa)
     """
-    pc = _dict_chemical[component].Pc
+    chemical = ChemicalInfo.chemical(component)
+    pc = chemical.Pc
+
     if with_units:
         pc = ureg.Quantity(pc, "Pa")
+
     return pc
 
 
@@ -256,7 +286,7 @@ class DryAir(Air):
 
 class AbstractSubstance(OpgeeObject):
     """
-    OilGasWater class contains Oil, Gas and Water class
+    AbstractSubstance class is superclass of Oil, Gas and Water
     """
     def __init__(self, field):
         """
@@ -274,8 +304,8 @@ class AbstractSubstance(OpgeeObject):
 
         self.std_temp = self.std_press = None
 
-        components = list(_dict_chemical.keys())
-        self.component_MW = component_MW
+        components = ChemicalInfo.names()
+        self.component_MW = ChemicalInfo.mol_weights()
 
         self.component_LHV_molar = pd.Series(
             {name: heating_value(name, use_LHV=True, with_units=False) for name in components},
@@ -320,6 +350,7 @@ class Oil(AbstractSubstance):
     def __init__(self, field):
         """
         Store common parameters describing crude oil.
+
         :param field: (opgee.Field) the `Field` of interest, used to get values of various field attributes.
         """
         super().__init__(field)
@@ -342,6 +373,7 @@ class Oil(AbstractSubstance):
         self.total_molar_weight = (self.gas_comp * self.component_MW[self.gas_comp.index]).sum()
         self.gas_specific_gravity = self._gas_specific_gravity()
 
+    # TODO: Used only once, immediately above
     def _gas_specific_gravity(self):
         """
         Gas specific gravity is defined as the ratio of the molecular weight (MW) of the gas
@@ -377,6 +409,7 @@ class Oil(AbstractSubstance):
         result = 141.5 / (API_grav.m + 131.5)
         return ureg.Quantity(result, "frac")
 
+    # TODO used only in tests
     def reservoir_solution_GOR(self):
         """
         The solution gas oil ratio (GOR) at resevoir condition is
@@ -487,6 +520,7 @@ class Oil(AbstractSubstance):
         result = ureg.Quantity(result, "frac")
         return result
 
+    # TODO: used only in tests
     def isothermal_compressibility_X(self, stream, oil_specific_gravity, gas_specific_gravity, gas_oil_ratio):
         """
         Isothermal compressibility is the change in volume of a system as the pressure changes
@@ -608,6 +642,7 @@ class Oil(AbstractSubstance):
 
         return result
 
+    # TODO: used only in tests
     def volume_energy_density(self, stream, oil_specific_gravity, gas_specific_gravity, gas_oil_ratio):
         """
 
@@ -728,7 +763,7 @@ class Gas(AbstractSubstance):
         """
         total_molar_flow_rate = self.total_molar_flow_rate(stream)
         mass_flow_rate = stream.gas_flow_rate(name)
-        molecular_weight = mol_weight(name)
+        molecular_weight = ChemicalInfo.mol_weight(name)
         molar_flow_rate = mass_flow_rate.to("g/day") / molecular_weight
 
         result = molar_flow_rate / total_molar_flow_rate
@@ -959,20 +994,9 @@ class Gas(AbstractSubstance):
         viscosity = 1.10e-4 * factor_K * math.exp(factor_X * (gas_density / 62.4) ** factor_Y)
         return ureg.Quantity(viscosity, "centipoise")
 
-    def molar_weight(self, stream):
-        """
-
-        :param stream:
-        :return:
-        """
-        mol_fracs = self.component_molar_fractions(stream)
-        molar_weight = (self.component_MW[mol_fracs.index] * mol_fracs).sum()
-
-        return molar_weight.to("g/mol")
-
     def molar_weight_from_molar_fracs(self, molar_fracs):
         """
-        calculate molar weight from molar fraction, where molar fraction is stored in Pandas Series
+        Calculate molar weight from molar fraction, where molar fraction is stored in Pandas Series
 
         :param molar_fracs:
         :return: (float) molar weight (unit = g/mol)
@@ -980,6 +1004,15 @@ class Gas(AbstractSubstance):
         molar_weight = (self.component_MW[molar_fracs.index] * molar_fracs).sum()
 
         return molar_weight.to("g/mol")
+
+    def molar_weight(self, stream):
+        """
+
+        :param stream:
+        :return:
+        """
+        mol_fracs = self.component_molar_fractions(stream)
+        return self.molar_weight_from_molar_fracs(mol_fracs)
 
     def volume_flow_rate(self, stream):
         """
@@ -1052,6 +1085,7 @@ class Gas(AbstractSubstance):
         """
         latent_heat_water = Chemical("water").Hvap(T=273.15)
         latent_heat_water = ureg.Quantity(latent_heat_water, "joule/mole")
+
         enthalpy = pd.Series(
             {name: Enthalpy(name, temperature, phase=PHASE_GAS, with_units=False) for name in molar_fracs.index},
             dtype="pint[joule/mole]")
@@ -1059,6 +1093,7 @@ class Gas(AbstractSubstance):
 
         return enthalpy
 
+    # TODO: used only in tests
     def volume_energy_density(self, stream):
         """
 
@@ -1086,6 +1121,7 @@ class Gas(AbstractSubstance):
         total_mass_flow_rate = stream.total_gas_rate()
         mass_energy_density = self.mass_energy_density(stream, use_LHV=use_LHV)
         result = (total_mass_flow_rate * mass_energy_density).to("mmBtu/day")
+
         return result
 
 

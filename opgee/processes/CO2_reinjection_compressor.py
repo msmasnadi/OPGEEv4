@@ -1,10 +1,9 @@
+from opgee import ureg
+from .shared import get_energy_carrier
+from ..compressor import Compressor
+from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
-from ..stream import PHASE_LIQUID, PHASE_GAS
-from opgee import ureg
-from ..compressor import Compressor
-from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
-from ..emissions import Emissions, EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
 
 _logger = getLogger(__name__)
 
@@ -15,6 +14,7 @@ class CO2ReinjectionCompressor(Process):
         self.field = field = self.get_field()
         self.gas = field.gas
         self.std_temp = field.model.const("std-temperature")
+        # TODO: remove field.xx to field.py and change the reference
         self.std_press = field.model.const("std-pressure")
         self.res_press = field.attr("res_press")
         self.eta_compressor = self.attr("eta_compressor")
@@ -38,18 +38,11 @@ class CO2ReinjectionCompressor(Process):
 
         discharge_press = self.res_press + ureg.Quantity(500, "psi")
         overall_compression_ratio = discharge_press / input.pressure
-        compression_ratio = Compressor.get_compression_ratio(overall_compression_ratio)
-        num_stages = Compressor.get_num_of_compression(overall_compression_ratio)
-        total_work, temp, press = Compressor.get_compressor_work_temp(self.field,
-                                                               input.temperature,
-                                                               input.pressure,
-                                                               input,
-                                                               compression_ratio,
-                                                               num_stages)
-        volume_flow_rate_STP = self.gas.tot_volume_flow_rate_STP(input)
-        total_energy = total_work * volume_flow_rate_STP
-        brake_horse_power = total_energy / self.eta_compressor
-        energy_consumption = self.get_energy_consumption(self.prime_mover_type, brake_horse_power.to("horsepower"))
+        energy_consumption, temp, _ = Compressor.get_compressor_energy_consumption(self.field,
+                                                                                   self.prime_mover_type,
+                                                                                   self.eta_compressor,
+                                                                                   overall_compression_ratio,
+                                                                                   input)
 
         gas_to_well.set_temperature_and_pressure(temp, input.pressure)
 
@@ -57,12 +50,7 @@ class CO2ReinjectionCompressor(Process):
 
         # energy-use
         energy_use = self.energy
-        if self.prime_mover_type == "NG_engine" or "NG_turbine":        # TODO: use get_energy_carrier(self.prime_mover_type)
-            energy_carrier = EN_NATURAL_GAS
-        elif self.prime_mover_type == "Electric_motor":
-            energy_carrier = EN_ELECTRICITY
-        else:
-            energy_carrier = EN_DIESEL
+        energy_carrier = get_energy_carrier(self.prime_mover_type)
         energy_use.set_rate(energy_carrier, energy_consumption)
 
         # emissions
@@ -72,4 +60,3 @@ class CO2ReinjectionCompressor(Process):
         emissions.add_rate(EM_COMBUSTION, "CO2", combustion_emission)
 
         emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
-        pass

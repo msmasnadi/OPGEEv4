@@ -1,9 +1,8 @@
 from opgee import ureg
+from ..compressor import Compressor
+from ..emissions import EM_VENTING, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
-from ..stream import Stream, PHASE_GAS
-from ..compressor import Compressor
-from ..emissions import EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
 
 _logger = getLogger(__name__)
 

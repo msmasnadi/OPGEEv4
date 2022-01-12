@@ -1,12 +1,11 @@
+from opgee import ureg
+from .shared import predict_blower_energy_use, get_energy_carrier
+from ..compressor import Compressor
+from ..emissions import EM_COMBUSTION, EM_FUGITIVES
+from ..energy import EN_NATURAL_GAS
 from ..log import getLogger
 from ..process import Process
-from ..stream import PHASE_LIQUID
 from ..process import run_corr_eqns
-from opgee import ureg
-from ..compressor import Compressor
-from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
-from ..emissions import Emissions, EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
-from .shared import predict_blower_energy_use, get_energy_carrier
 
 _logger = getLogger(__name__)
 
@@ -102,18 +101,13 @@ class AcidGasRemoval(Process):
         amine_cooler_energy_consumption = predict_blower_energy_use(self, cooler_thermal_load)
 
         overall_compression_ratio = ureg.Quantity(feed_gas_press, "psia") / input.pressure
-        compression_ratio = Compressor.get_compression_ratio(overall_compression_ratio)
-        num_stages = Compressor.get_num_of_compression(overall_compression_ratio)
-        total_work, _, _= Compressor.get_compressor_work_temp(self.field,
-                                                            input.temperature,
-                                                            input.pressure,
-                                                            gas_to_demethanizer,
-                                                            compression_ratio,
-                                                            num_stages)
-        volume_flow_rate_STP = self.gas.tot_volume_flow_rate_STP(gas_to_demethanizer)
-        total_energy = total_work * volume_flow_rate_STP
-        brake_horse_power = total_energy / self.eta_compressor_AGR
-        compressor_energy_consumption = self.get_energy_consumption(self.prime_mover_type_AGR, brake_horse_power)
+        compressor_energy_consumption, temp, _ = Compressor.get_compressor_energy_consumption(self.field,
+                                                                                              self.prime_mover_type_AGR,
+                                                                                              self.eta_compressor_AGR,
+                                                                                              overall_compression_ratio,
+                                                                                              gas_to_demethanizer,
+                                                                                              inlet_temp=input.temperature,
+                                                                                              inlet_pressure=input.pressure)
 
         # energy-use
         energy_carrier = get_energy_carrier(self.prime_mover_type_AGR)

@@ -1,10 +1,11 @@
+import pandas as pd
+
+from opgee import ureg
+from ..emissions import EM_COMBUSTION, EM_FLARING
+from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_UPG_PROC_GAS, EN_PETCOKE
 from ..log import getLogger
 from ..process import Process
-from ..stream import PHASE_LIQUID, PHASE_GAS
-from opgee import ureg
-from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY, EN_UPG_PROC_GAS, EN_PETCOKE
-from ..emissions import EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
-import pandas as pd
+from ..stream import PHASE_GAS
 
 _logger = getLogger(__name__)
 

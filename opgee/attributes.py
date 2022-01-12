@@ -9,10 +9,8 @@ import pandas as pd
 import pint_pandas
 from . import ureg
 from .core import OpgeeObject, XmlInstantiable, A, instantiate_subelts, elt_name, validate_unit, magnitude
-from .error import OpgeeException, AttributeError, XmlFormatError
+from .error import OpgeeException, AttributeError
 from .log import getLogger
-from .pkg_utils import resourceStream
-from .XMLFile import XMLFile
 from .utils import coercible
 
 _logger = getLogger(__name__)
@@ -272,15 +270,21 @@ class AttributeMixin():
 
     # TBD: fill in Smart Defaults here, or assume they've been filled already?
     @classmethod
-    def instantiate_attrs(cls, elt):
+    def instantiate_attrs(cls, elt, is_process=False):
+        """
+        Instantiate the attributes defined in XML for class `cls`. To avoid an
+        import loop, we don't import Process from process.py, so the caller tells
+        us whether `cls` is a subclass of Process.
+
+        :param elt: (lxml.etree.Element) the element under which to find attribute defs.
+        :param is_process: (bool) True if `cls` is a subclass of `Process.
+        :return: none
+        """
         attr_defs = AttrDefs.get_instance()
         attr_dict = {}
 
-        # TBD:   To avoid an import loop, we don't import Process from process.py. This
-        # TBD:   works, but it's a bit of a hack. There might be a better way...
-        if str(cls.__mro__[1]) == "<class 'opgee.process.Process'>":
+        if is_process:
             attr_defs = AttrDefs.get_instance()
-            # i.e., isinstance(cls, Process)
             process_attrs = attr_defs.classes.get('Process')
         else:
             process_attrs = None
@@ -299,7 +303,7 @@ class AttributeMixin():
 
             unknown_attrs = set(user_values.keys()) - set(combined_dict.keys())
             if unknown_attrs:
-                raise OpgeeException(f"Attributes {unknown_attrs} in model XML for '{classname}' lack metadata")
+                raise OpgeeException(f"Attributes {list(unknown_attrs)} in model XML for '{classname}' lack metadata")
 
             # set up all attributes with default values
             for name, attr_def in combined_dict.items():

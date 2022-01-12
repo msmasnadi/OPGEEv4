@@ -24,10 +24,12 @@
 		<!-- Field name="test" -->		<!-- this would include "test" field w/o change -->
 
 		<!-- TBD: implement the required merge behavior -->
-		<Field name="test">	<!-- include "test" field with modifications to process attributes -->
-			<Process class="ReservoirWellInterface">
-				<A name="some_attribute">12345</A>
-			</Process>
+		<Field name="US_FW_custom" modifies="US_FW">				<!-- the elements below are merged into a copy of field US_FW -->
+			<Aggregator name="Production_and_extraction">
+						<Process class="Reservoir" desc="Oil reservoir">
+							<A name="leak_rate">0.004</A>
+						</Process>
+			</Aggregator>
 		</Field>
 	</Analysis>
 

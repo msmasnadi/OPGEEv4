@@ -1,15 +1,15 @@
 import pandas as pd
 
+from opgee import ureg
+from .shared import predict_blower_energy_use, get_energy_carrier
+from ..compressor import Compressor
+from ..emissions import EM_COMBUSTION, EM_FUGITIVES
+from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY
 from ..log import getLogger
 from ..process import Process
-from ..stream import PHASE_LIQUID, PHASE_GAS
 from ..process import run_corr_eqns
-from opgee import ureg
-from ..compressor import Compressor
+from ..stream import PHASE_GAS
 from ..thermodynamics import component_MW
-from ..energy import Energy, EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
-from ..emissions import Emissions, EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES
-from .shared import predict_blower_energy_use
 
 _logger = getLogger(__name__)
 
@@ -123,12 +123,7 @@ class Demethanizer(Process):
 
         # energy-use
         energy_use = self.energy
-        if self.prime_mover_type == "NG_engine" or "NG_turbine":
-            energy_carrier = EN_NATURAL_GAS
-        elif self.prime_mover_type == "Electric_motor":
-            energy_carrier = EN_ELECTRICITY
-        else:
-            energy_carrier = EN_DIESEL
+        energy_carrier = get_energy_carrier(self.prime_mover_type)
         energy_use.set_rate(energy_carrier, inlet_compressor_energy_consump + outlet_compressor_energy_consump)
         energy_use.add_rate(EN_NATURAL_GAS, reboiler_fuel_use)
         energy_use.set_rate(EN_ELECTRICITY, cooler_energy_consumption)
