@@ -1,4 +1,4 @@
-from opgee.stream import Stream
+from ..stream import Stream
 from .shared import get_energy_carrier
 from ..compressor import Compressor
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES

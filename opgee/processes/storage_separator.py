@@ -1,4 +1,4 @@
-from opgee.stream import Stream
+from ..stream import Stream
 from ..log import getLogger
 from ..process import Process
 

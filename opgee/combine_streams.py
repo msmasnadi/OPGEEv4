@@ -1,7 +1,7 @@
 # from . import ureg
 import pandas as pd
 
-from opgee.stream import PHASE_LIQUID, Stream
+from .stream import PHASE_LIQUID, Stream
 from .error import OpgeeException
 from .log import getLogger
 from .thermodynamics import Oil, Gas, Water
