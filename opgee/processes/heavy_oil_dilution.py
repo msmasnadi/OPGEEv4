@@ -1,4 +1,4 @@
-from opgee import ureg
+from .. import ureg
 from ..process import Process
 from ..stream import Stream
 

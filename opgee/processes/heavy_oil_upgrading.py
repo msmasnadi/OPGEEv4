@@ -1,6 +1,6 @@
 import pandas as pd
 
-from opgee import ureg
+from .. import ureg
 from ..emissions import EM_COMBUSTION, EM_FLARING
 from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_UPG_PROC_GAS, EN_PETCOKE
 from ..log import getLogger

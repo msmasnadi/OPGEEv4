@@ -1,7 +1,6 @@
 import pandas as pd
 
-from opgee import ureg
-from .shared import predict_blower_energy_use, get_energy_carrier
+from .. import ureg
 from ..compressor import Compressor
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY
@@ -10,6 +9,7 @@ from ..process import Process
 from ..process import run_corr_eqns
 from ..stream import PHASE_GAS
 from ..thermodynamics import component_MW
+from .shared import predict_blower_energy_use, get_energy_carrier
 
 _logger = getLogger(__name__)
 

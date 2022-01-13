@@ -1,4 +1,4 @@
-from opgee import ureg
+from .. import ureg
 from ..emissions import EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process

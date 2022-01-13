@@ -1,4 +1,4 @@
-from opgee import ureg
+from .. import ureg
 from .shared import get_energy_carrier
 from ..compressor import Compressor
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
