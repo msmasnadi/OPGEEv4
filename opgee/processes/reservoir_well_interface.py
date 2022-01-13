@@ -1,6 +1,6 @@
 import numpy as np
 
-from opgee import ureg
+from .. import ureg
 from ..log import getLogger
 from ..process import Process
 from ..stream import Stream

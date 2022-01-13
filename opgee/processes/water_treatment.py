@@ -1,4 +1,4 @@
-from opgee import ureg
+from .. import ureg
 from ..energy import EN_ELECTRICITY
 from ..error import OpgeeException
 from ..log import getLogger

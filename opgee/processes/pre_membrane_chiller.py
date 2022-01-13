@@ -1,4 +1,4 @@
-from opgee import ureg
+from .. import ureg
 from ..emissions import EM_FUGITIVES
 from ..energy import EN_ELECTRICITY
 from ..log import getLogger

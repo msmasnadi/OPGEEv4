@@ -1,6 +1,6 @@
 import numpy as np
 
-from opgee import ureg
+from .. import ureg
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY
 from ..error import OpgeeException

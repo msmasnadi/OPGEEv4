@@ -1,4 +1,4 @@
-from opgee import ureg
+from .. import ureg
 from ..compressor import Compressor
 from ..emissions import EM_VENTING, EM_FUGITIVES
 from ..log import getLogger

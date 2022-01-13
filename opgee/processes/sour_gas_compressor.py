@@ -1,9 +1,9 @@
-from opgee import ureg
-from .shared import get_energy_carrier
+from .. import ureg
 from ..compressor import Compressor
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
+from .shared import get_energy_carrier
 
 _logger = getLogger(__name__)
 
