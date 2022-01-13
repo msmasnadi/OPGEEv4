@@ -1,11 +1,11 @@
 import math
 
-from opgee.stream import Stream
-from .shared import get_energy_carrier
+from ..stream import Stream
 from ..compressor import Compressor
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
+from .shared import get_energy_carrier
 
 _logger = getLogger(__name__)
 

@@ -1,8 +1,7 @@
-from opgee.core import OpgeeObject
-from opgee import ureg
-from .error import OpgeeException
-from .process import Process
 import pandas as pd
+from . import ureg
+from .core import OpgeeObject
+from .error import OpgeeException
 
 
 class TransportEnergy(OpgeeObject):

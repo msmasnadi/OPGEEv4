@@ -1,10 +1,9 @@
-from opgee.stream import Stream
 from .. import ureg
 from ..config import getParam
 from ..energy import EN_NATURAL_GAS
 from ..log import getLogger
 from ..process import Process
-from ..stream import PHASE_GAS
+from ..stream import PHASE_GAS, Stream
 
 _logger = getLogger(__name__)
 

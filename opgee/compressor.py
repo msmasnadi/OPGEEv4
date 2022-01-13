@@ -1,5 +1,5 @@
-from opgee.core import OpgeeObject
-from opgee import ureg
+from . import ureg
+from .core import OpgeeObject
 from .error import OpgeeException
 from .process import Process
 
