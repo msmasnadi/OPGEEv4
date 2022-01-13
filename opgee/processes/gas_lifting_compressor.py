@@ -1,5 +1,5 @@
 from .. import ureg
-from ..compressor import Compressor
+from opgee.processes.compressor import Compressor
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
 from ..log import getLogger

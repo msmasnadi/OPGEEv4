@@ -1,8 +1,7 @@
 from ..emissions import EM_COMBUSTION
-from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL, EN_RESID
 from ..log import getLogger
 from ..process import Process
-from ..transport_energy import TransportEnergy
+from opgee.processes.transport_energy import TransportEnergy
 from .shared import get_energy_carrier
 
 _logger = getLogger(__name__)

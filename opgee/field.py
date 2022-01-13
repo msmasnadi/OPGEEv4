@@ -10,7 +10,7 @@ from .process import Process, Aggregator, Environment, Reservoir, SurfaceSource,
 from .process_groups import ProcessChoice
 from .stream import Stream
 from .thermodynamics import Oil, Gas, Water
-from .steam_generator import SteamGenerator
+from opgee.processes.steam_generator import SteamGenerator
 from .utils import getBooleanXML, flatten
 from .energy import Energy
 
