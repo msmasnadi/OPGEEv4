@@ -2,6 +2,7 @@ import pandas as pd
 from opgee import ureg
 from opgee.core import OpgeeObject
 from opgee.error import OpgeeException
+from ..energy import EN_DIESEL
 
 
 class TransportEnergy(OpgeeObject):
@@ -13,7 +14,13 @@ class TransportEnergy(OpgeeObject):
                                   parameter_table,
                                   transport_share_fuel,
                                   transport_by_mode,
-                                  oil_LHV_rate):
+                                  LHV_rate,
+                                  prod_type):
+        known_types = ["diluent", "lng", "crude", "petrocoke"]
+        prod_type = prod_type.lower()
+        if prod_type not in known_types:
+            raise OpgeeException(f"{prod_type} is not in the known product type: {known_types}")
+
         parameter_dict = TransportEnergy.get_parameter_dict(parameter_table)
         ocean_tanker_load_factor_dest = parameter_dict["load_factor_to_dest_tanker"]
         barge_load_factor_dest = parameter_dict["load_factor_to_dest_barge"]
@@ -124,9 +131,13 @@ class TransportEnergy(OpgeeObject):
              pipeline_origin_energy_intensity, rail_origin_energy_intensity,
              truck_origin_energy_intensity], dtype="pint[btu/tonne/mile]")
 
-        final_diluent_LHV_mass = field.get_process_data("final_diluent_LHV_mass")
-        transport_energy_consumption = (transport_dest_energy_consumption + transport_origin_energy_consumption) / \
-                                       final_diluent_LHV_mass
+        if prod_type == "diluent":
+            denominator = field.get_process_data("final_diluent_LHV_mass")
+        elif prod_type == "lng":
+            denominator = field.gas.component_LHV_mass["C1"]
+
+        transport_energy_consumption =\
+            (transport_dest_energy_consumption + transport_origin_energy_consumption) / denominator
 
         fuel_consumption = \
             TransportEnergy.fuel_consumption(
@@ -134,7 +145,8 @@ class TransportEnergy(OpgeeObject):
                 transport_distance,
                 transport_share_fuel,
                 transport_energy_consumption,
-                oil_LHV_rate)
+                feed_loss,
+                LHV_rate)
 
         return fuel_consumption
 
@@ -212,10 +224,12 @@ class TransportEnergy(OpgeeObject):
                          transport_distance,
                          transport_share_fuel,
                          transport_energy_consumption,
+                         feed_loss,
                          LHV):
         """
         Calculate different type of fuel consumption.
 
+        :param feed_loss:
         :param transport_share_fuel:
         :param transport_distance:
         :param fraction_transport:
@@ -227,5 +241,6 @@ class TransportEnergy(OpgeeObject):
 
         result = {}
         for type, frac in transport_share_fuel.iteritems():
-            result[type] = (transport_energy_consumption * transport_distance * fraction_transport * frac).sum() * LHV
+            temp = (transport_energy_consumption * transport_distance * fraction_transport * frac).sum() * LHV
+            result[type] = temp if type != EN_DIESEL else temp + LHV * feed_loss
         return result

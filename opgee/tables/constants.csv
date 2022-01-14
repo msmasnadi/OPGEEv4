@@ -18,3 +18,4 @@ steam-press-upper-limit, 200, bar
 tonne-to-bbl, 7.33, bbl_oil/tonne
 air-elevation-corr, 0.24, btu/(lb*delta_degF)
 air-density-ratio, 0.0749, lb/ft**3
+LNG-temp, -260, degF

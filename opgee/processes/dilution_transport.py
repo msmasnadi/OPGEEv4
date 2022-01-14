@@ -13,12 +13,9 @@ class DiluentTransport(Process):
         self.field = field = self.get_field()
         self.oil = field.oil
         self.API_diluent = field.attr("diluent_API")
-        self.transport_share_fuel = field.model.transport_share_fuel
-        self.transport_parameter = field.model.transport_parameter
-        self.transport_by_mode = field.model.transport_by_mode
-        self.diluent_transport_share_fuel = self.transport_share_fuel.loc["Diluent"]
-        self.diluent_transport_parameter = self.transport_parameter[["Diluent", "Units"]]
-        self.diluent_transport_by_mode = self.transport_by_mode.loc["Diluent"]
+        self.transport_share_fuel = field.transport_share_fuel.loc["Diluent"]
+        self.transport_parameter = field.transport_parameter[["Diluent", "Units"]]
+        self.transport_by_mode = field.transport_by_mode.loc["Diluent"]
 
     def run(self, analysis):
         self.print_running_msg()
@@ -35,10 +32,11 @@ class DiluentTransport(Process):
         # energy use
         energy_use = self.energy
         fuel_consumption = TransportEnergy.get_transport_energy_dict(self.field,
-                                                                     self.diluent_transport_parameter,
-                                                                     self.diluent_transport_share_fuel,
-                                                                     self.diluent_transport_by_mode,
-                                                                     oil_LHV_rate)
+                                                                     self.transport_parameter,
+                                                                     self.transport_share_fuel,
+                                                                     self.transport_by_mode,
+                                                                     oil_LHV_rate,
+                                                                     "Diluent")
 
         for name, value in fuel_consumption.items():
             energy_use.set_rate(get_energy_carrier(name), value.to("mmBtu/day"))

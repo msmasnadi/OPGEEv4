@@ -35,7 +35,6 @@
 
 
 	<Field name="oil_stabilization">
-		<A name="country">USA</A>
 
 		<Process class="Before" desc=""/>
 		<Process class="After"/>
@@ -45,8 +44,6 @@
 		<Process class="VRUCompressor"/>
 <!--		<Process class="GasGathering"/>-->
 
-		<Process class="HeavyOilUpgrading" enabled="false"/>
-		<Process class="HeavyOilDilution" enabled="false"/>
 		<Process class="Separation" enabled="false"/>
 		<Process class="Output"/>
 

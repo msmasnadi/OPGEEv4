@@ -34,6 +34,7 @@ class CrudeOilStabilization(Process):
 
         # mass rate
         input = self.find_input_stream("oil for stabilization")
+
         if input.is_uninitialized():
             return
         average_temp = (self.stab_temp.m + input.temperature.m) / 2

@@ -186,6 +186,24 @@ class Emissions(OpgeeObject):
         voc_rate = stream.voc_flow_rates().sum()
         self.add_rate(category, 'VOC', voc_rate)
 
+    def set_from_stream(self, category, stream):
+        """
+        Set emission flow rates from a Stream instance to the given emissions category.
+
+        :param category: (str) one of the defined emissions categories
+        :param stream: (Stream)
+        :return: none
+        """
+        self.set_rate(category, 'CO2', stream.gas_flow_rate('CO2'))
+        self.set_rate(category, 'CH4', stream.gas_flow_rate('C1'))
+        self.set_rate(category, "CO", stream.gas_flow_rate("CO"))
+
+        # TODO: where to get CO and N2O?
+
+        # All gas-phase hydrocarbons heavier than methane are considered VOCs
+        voc_rate = stream.voc_flow_rates().sum()
+        self.set_rate(category, 'VOC', voc_rate)
+
 
     def add_from_series(self, category, series):
         """

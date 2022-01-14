@@ -206,49 +206,6 @@
       <AttrDef name="ecosystem_richness" options="ecosystem_C_richness" desc="Ecosystem carbon richness" type="str"/>
       <AttrDef name="field_development_intensity" options="field_development_intensity" desc="Field development intensity" type="str"/>
 
-      <!-- name="Transport_and_storage -->
-      <AttrDef name="Fraction_oil_transport_tanker" desc="Fraction  of oil transported by ocean tanker" type="float">1</AttrDef>
-      <AttrDef name="Fraction_oil_transport_barge" desc="Fraction of oil transported by barge" type="float">0</AttrDef>
-      <AttrDef name="Fraction_oil_transport_pipeline" desc="Fraction of oil transported by pipeline" type="float">1</AttrDef>
-      <AttrDef name="Fraction_oil_transport_rail" desc="Fraction of oil transported by rail" type="float">0</AttrDef>
-      <AttrDef name="Fraction_oil_transport_truck" desc="Fraction of oil transported by truck" type="float">0</AttrDef>
-      <AttrDef name="Oil_transport_distance_tanker" unit="mi" desc="Ocean tanker transport distance (one way)" type="float">8000</AttrDef>
-      <AttrDef name="Oil_transport_distance_barge" unit="mi" desc="Barge transport distance (one way)" type="float">500</AttrDef>
-      <AttrDef name="Oil_transport_distance_pipeline" unit="mi" desc="Pipeline transport distance (one way)" type="float">1000</AttrDef>
-      <AttrDef name="Oil_transport_distance_rail" unit="mi" desc="Rail transport distance (one way)" type="float">800</AttrDef>
-      <AttrDef name="Oil_transport_distance_truck" unit="mi" desc="Truck transport distance (one way)" type="float">100</AttrDef>
-      <AttrDef name="ocean_tanker_size" unit="tons" desc="Ocean tanker size, if applicable" type="float">250000</AttrDef>
-      <AttrDef name="small_sources_adder" unit="gCO2eq/MJ" desc="Small source emissions adder" type="float">0.5</AttrDef>
-
-      <AttrDef name="barge_capacity" unit="tonne" type="float" desc="Barge capacity">22500.0</AttrDef>
-      <AttrDef name="ocean_tanker_speed" unit="mile/hr" type="float" desc="Ocean tanker speed">18.52</AttrDef>
-      <AttrDef name="barge_speed" unit="mile/hr" type="float" desc="Barge speed">5.0</AttrDef>
-      <AttrDef name="ocean_tanker_load_factor_dest" unit="frac" type="float" desc="Ocean tanker load factor (origin to destination)">0.8</AttrDef>
-      <AttrDef name="barge_load_factor_dest" unit="frac" type="float" desc="Barge load factor (origin to destination)">0.8</AttrDef>
-      <AttrDef name="ocean_tanker_load_factor_origin" unit="frac" type="float" desc="Ocean tanker load factor (destination to origin)">0.7</AttrDef>
-      <AttrDef name="barge_load_factor_origin" unit="frac" type="float" desc="Barge load factor (destination to origin)">0.6</AttrDef>
-      <AttrDef name="energy_intensity_rail_transport" unit="btu/tonne/mile" type="float" desc="Energy intensity of rail transport">370.0</AttrDef>
-      <AttrDef name="energy_intensity_truck" unit="btu/tonne/mile" type="float">969.0</AttrDef>
-      <AttrDef name="energy_intensity_pipeline_turbine" unit="btu/tonne/mile" type="float" desc="Energy intensity of pipeline transport">240.0</AttrDef>
-      <AttrDef name="energy_intensity_pipeline_engine_current" unit="btu/tonne/mile" type="float" desc="Reciprocating enginer powered (current)">270.0</AttrDef>
-      <AttrDef name="energy_intensity_pipeline_engine_future" unit="btu/tonne/mile" type="float" desc="Reciprocating engine powered (future)">260.0</AttrDef>
-      <AttrDef name="frac_power_pipeline_turbine" unit="frac" type="float" desc="Fraction of power generation technologies for pipeline pumping and compression stations">0.55</AttrDef>
-      <AttrDef name="frac_power_pipeline_engine_current" unit="frac" type="float" desc="Reciprocating enginer powered (current)">0.36</AttrDef>
-      <AttrDef name="frac_power_pipeline_engine_future" unit="frac" type="float" desc="Reciprocating engine powered (future)">0.09</AttrDef>
-      <AttrDef name="losses_feed" unit="btu/mmBtu" type="float" desc="Feed losses: btu/mmbtu fuel transported">62.0</AttrDef>
-
-      <AttrDef name="fraction_diluent_transport_tanker" unit="frac" type="float">1.0</AttrDef>
-      <AttrDef name="fraction_diluent_transport_barge" unit="frac" type="float">0.0</AttrDef>
-      <AttrDef name="fraction_diluent_transport_pipeline" unit="frac" type="float">1.0</AttrDef>
-      <AttrDef name="fraction_diluent_transport_rail" unit="frac" type="float">0.0</AttrDef>
-      <AttrDef name="fraction_diluent_transport_truck" unit="frac" type="float">0.0</AttrDef>
-
-      <AttrDef name="diluent_transport_distance_tanker" unit="mile" type="float">8000.0</AttrDef>
-      <AttrDef name="diluent_transport_distance_barge" unit="mile" type="float">500.0</AttrDef>
-      <AttrDef name="diluent_transport_distance_pipeline" unit="mile" type="float">1000.0</AttrDef>
-      <AttrDef name="diluent_transport_distance_rail" unit="mile" type="float">800.0</AttrDef>
-      <AttrDef name="diluent_transport_distance_truck" unit="mile" type="float">100.0</AttrDef>
-
       <Options name="dilution_API" default="55.20">
         <Option>55.20</Option>
         <Option>23.0</Option>
@@ -402,7 +359,7 @@
       <AttrDef name="type_amine_AGR" type="str" options="amine_solution">conv DEA</AttrDef>
       <AttrDef name="ratio_reflux_reboiler_AGR" type="float" unit="frac" desc="Reflux ratio in reboiler">2.0</AttrDef>
       <AttrDef name="regeneration_AGR_temp" type="float" unit="degF" desc="Regeneration feed temperature">205.0</AttrDef>
-      <AttrDef name="natural_gas_to_liquefaction_frac" type="float" unit="frac" desc="Fraction of natural gas to liquefaction">0.0</AttrDef>
+      <AttrDef name="natural_gas_to_liquefaction_frac" type="float" unit="frac" desc="Fraction of natural gas to liquefaction">0.5</AttrDef>
 
 
     </ClassAttrs>
@@ -728,6 +685,25 @@
       <AttrDef name="NG_to_liq_rate" type="float" unit="tonnes/day" desc="natural gas to liquefaction rate">0.0</AttrDef>
 
     </ClassAttrs>
+
+    <ClassAttrs name="LNGRegasification">
+      <AttrDef name="energy_intensity_regas" type="float" unit="frac" desc="Re-gasification power requirement">0.03</AttrDef>
+      <Options name="prime_mover_type" default="NG_engine">
+        <Option>NG_engine</Option>
+        <Option>Electric_motor</Option>
+        <Option>Diesel_engine</Option>
+        <Option>NG_turbine</Option>
+      </Options>
+      <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
+      <AttrDef name="efficiency" type="float" unit="percent" desc="turnine efficiency">0.3</AttrDef>
+    </ClassAttrs>
+
+    <ClassAttrs name="GasDistribution">
+      <AttrDef name="frac_loss_distribution" type="float" unit="frac" desc="Loss fraction during local distribution">0.0016</AttrDef>
+      <AttrDef name="frac_loss_meter" type="float" unit="frac" desc="Loss fraction at customer meter">0.0</AttrDef>
+      <AttrDef name="frac_loss_enduse" type="float" unit="frac" desc="Loss fraction at end use appliance or equipment">0.00475</AttrDef>
+    </ClassAttrs>
+
 
     <ClassAttrs name="WasteTreatmentAndDisposal">
       <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>

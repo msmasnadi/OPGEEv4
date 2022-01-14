@@ -44,4 +44,5 @@ from .storage_well import StorageWell
 from .storage_separator import StorageSeparator
 from .post_storage_compressor import PostStorageCompressor
 from .LNG_transport import LNGTransport
+from .LNG_regasification import LNGRegasification
 
