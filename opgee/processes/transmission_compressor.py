@@ -1,7 +1,7 @@
 import math
 
 from ..stream import Stream
-from ..compressor import Compressor
+from opgee.processes.compressor import Compressor
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process

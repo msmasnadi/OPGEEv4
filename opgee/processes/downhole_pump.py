@@ -6,6 +6,7 @@ from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
 from ..log import getLogger
 from ..process import Process
 from ..stream import Stream
+from .shared import get_energy_carrier
 
 _logger = getLogger(__name__)
 
@@ -125,12 +126,7 @@ class DownholePump(Process):
         energy_consumption_sum = sum(energy_consumption_of_stages) * self.num_prod_wells
 
         energy_use = self.energy
-        if self.prime_mover_type == "NG_engine" or "NG_turbine":
-            energy_carrier = EN_NATURAL_GAS
-        elif self.prime_mover_type == "Electric_motor":
-            energy_carrier = EN_ELECTRICITY
-        else:
-            energy_carrier = EN_DIESEL
+        energy_carrier = get_energy_carrier(self.prime_mover_type)
         energy_use.set_rate(energy_carrier, energy_consumption_sum)
 
         # emission

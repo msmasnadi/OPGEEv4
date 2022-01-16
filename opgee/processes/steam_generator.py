@@ -1,5 +1,5 @@
-from . import ureg
-from .core import OpgeeObject
+from opgee import ureg
+from opgee.core import OpgeeObject
 import pandas as pd
 
 
@@ -25,7 +25,6 @@ class SteamGenerator(OpgeeObject):
         self.fraction_steam_cogen = field.attr("fraction_steam_cogen")
         self.fraction_steam_solar = field.attr("fraction_steam_solar")
         self.fraction_OTSG = 1 - self.fraction_steam_cogen - self.fraction_steam_solar
-
 
         self.prod_water_inlet_temp = field.attr("prod_water_inlet_temp")
         self.prod_water_inlet_press = field.attr("prod_water_inlet_press")
@@ -462,27 +461,3 @@ class SteamGenerator(OpgeeObject):
         HRSG_inlet = HRSG_inlet.drop(labels=["C1"])
 
         return HRSG_inlet, HRSG_inlet_sum, HRSG_inlet_MW, HRSG_inlet_LHV_fuel, HRSG_inlet_LHV_stream, duct_additional_fuel
-
-    # self.air_requirement_fuel = air_requirement_fuel
-    # self.air_requirement_MW = air_requirement_MW
-    # self.exhaust_consump_sum = exhaust_consump_sum
-    # self.exhaust_consump_MW = exhaust_consump_MW
-    # self.gas_MW_combust_OTSG = gas_MW_combust_OTSG
-    # self.prod_water_mass_rate = prod_water_mass_rate
-    # self.prod_water_enthalpy_rate = prod_water_enthalpy_rate_OTSG
-    # self.makeup_water_mass_rate = makeup_water_mass_rate
-    # self.makeup_water_enthalpy_rate = makeup_water_enthalpy_rate_OTSG
-    # self.OTSG_steam_out_enthalpy_rate = OTSG_steam_out_enthalpy_rate
-    # self.gas_LHV_OTSG = gas_LHV_OTSG
-    # self.air_requirement_LHV_stream = air_requirement_LHV_stream
-    # self.LHV_stream = LHV_stream
-
-    # self.fuel_consumption_for_steam_generation = fuel_consumption_for_steam_generation
-
-    # self.O2_excess_HRSG = O2_excess_HRSG
-    # self.import_gas_products_comp = import_gas_products_comp
-    # self.prod_gas_products_comp = prod_gas_products_comp
-    # self.exhaust_consump_GT = exhaust_consump_GT
-    # self.exhaust_consump_GT_LHV_fuel = exhaust_consump_GT_LHV_fuel
-    # self.gas_MW_combust_GT = gas_MW_combust_GT
-    # self.gas_LHV_GT = gas_LHV_GT

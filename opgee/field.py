@@ -6,11 +6,11 @@ from .core import elt_name, instantiate_subelts, dict_from_list
 from .error import (OpgeeException, OpgeeStopIteration, OpgeeMaxIterationsReached,
                     OpgeeIterationConverged, ModelValidationError)
 from .log import getLogger
-from .process import Process, Aggregator, Environment, Reservoir, SurfaceSource, ExternalSupply
+from .process import Process, Aggregator, Environment, Reservoir, SurfaceSource, ExternalSupply, Customer
 from .process_groups import ProcessChoice
 from .stream import Stream
 from .thermodynamics import Oil, Gas, Water
-from .steam_generator import SteamGenerator
+from opgee.processes.steam_generator import SteamGenerator
 from .utils import getBooleanXML, flatten
 from .energy import Energy
 
@@ -70,11 +70,12 @@ class Field(Container):
         # Each Field has one of these built-in processes
         self.environment = Environment()
         self.reservoir = Reservoir()
+        self.customer = Customer()
         self.surface_source = SurfaceSource()
         self.external_supply = ExternalSupply()
 
         self.builtin_procs = [self.environment, self.reservoir, self.surface_source,
-                              self.external_supply]
+                              self.external_supply, self.customer]
         all_procs = self.collect_processes()  # includes reservoir and environment
         self.process_dict = self.adopt(all_procs, asDict=True)
 
@@ -118,11 +119,18 @@ class Field(Container):
 
         self.std_temp  = model.const("std-temperature")
         self.std_press = model.const("std-pressure")
+        self.LNG_temp = model.const("LNG-temp")
 
         self.heater_treater = self.attr("heater_treater")
         self.stab_column = self.attr("stabilizer_column")
         self.upgrader_type = self.attr("upgrader_type")
         self.frac_diluent = self.attr("fraction_diluent")
+        self.prime_mover_type_lifting = self.attr("prime_mover_type_gas_lifting")
+        self.eta_compressor_lifting = self.attr("eta_compressor_lifting")
+
+        self.transport_share_fuel = model.transport_share_fuel
+        self.transport_parameter = model.transport_parameter
+        self.transport_by_mode = model.transport_by_mode
 
         for iterator in [self.processes(), self.streams(), [self.oil, self.gas, self.water, self.steam_generator]]:
             for obj in iterator:

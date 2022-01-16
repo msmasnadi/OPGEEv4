@@ -1,7 +1,7 @@
-from . import ureg
-from .core import OpgeeObject
-from .error import OpgeeException
-from .process import Process
+from opgee import ureg
+from opgee.core import OpgeeObject
+from opgee.error import OpgeeException
+from opgee.process import Process
 
 _power = [1, 1 / 2, 1 / 3, 1 / 4, 1 / 5]
 

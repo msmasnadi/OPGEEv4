@@ -1,6 +1,6 @@
 from .. import ureg
 from .shared import get_energy_carrier
-from ..compressor import Compressor
+from opgee.processes.compressor import Compressor
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
@@ -25,6 +25,7 @@ class CrudeOilStabilization(Process):
 
     def run(self, analysis):
         self.print_running_msg()
+        field = self.field
 
         # TODO: Wennan, this builds in a "hidden" dependency and surprising alteration
         # TODO: the model without alerting the user. Is this the best way to handle this?
@@ -34,6 +35,7 @@ class CrudeOilStabilization(Process):
 
         # mass rate
         input = self.find_input_stream("oil for stabilization")
+
         if input.is_uninitialized():
             return
         average_temp = (self.stab_temp.m + input.temperature.m) / 2
@@ -81,21 +83,23 @@ class CrudeOilStabilization(Process):
 
         # boosting compressor for stabilizer
         overall_compression_ratio = self.stab_gas_press / input.pressure
-        compression_ratio_per_stage = Compressor.get_compression_ratio(overall_compression_ratio)
-        num_of_compression = Compressor.get_num_of_compression(overall_compression_ratio)
-        work_sum, _, _= Compressor.get_compressor_work_temp(self.field, input.temperature, input.pressure,
-                                                       output_stab_gas, compression_ratio_per_stage, num_of_compression)
-        horsepower = work_sum * gas_removed_by_stabilizer
-        brake_horsepower = horsepower / self.eta_compressor
-        energy_consumption += self.get_energy_consumption(self.prime_mover_type, brake_horsepower)
+        compressor_energy, _, _ = Compressor.get_compressor_energy_consumption(field,
+                                                                               self.prime_mover_type,
+                                                                               self.eta_compressor,
+                                                                               overall_compression_ratio,
+                                                                               output_stab_gas,
+                                                                               inlet_temp=input.temperature,
+                                                                               inlet_pressure=input.pressure)
+
+        energy_consumption += compressor_energy
         energy_use.set_rate(energy_carrier, energy_consumption.to("mmBtu/day"))
 
         # emission rate
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")
         combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.add_rate(EM_COMBUSTION, "CO2", combustion_emission)
+        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission.to("tonne/day"))
 
-        emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
+        emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
 
         self.field.save_process_data(oil_stab_solution_GOR_outlet=solution_GOR_outlet)

@@ -1,5 +1,5 @@
 from .. import ureg
-from ..compressor import Compressor
+from opgee.processes.compressor import Compressor
 from ..emissions import EM_VENTING, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
@@ -24,19 +24,15 @@ class Venting(Process):
         self.VOR_over_GOR = self.VOR / self.GOR
         self.imported_fuel_gas_comp = field.attrs_with_prefix("imported_gas_comp_")
         self.imported_fuel_gas_mass_fracs = field.gas.component_mass_fractions(self.imported_fuel_gas_comp)
-        self.eta_compressor_lifting = field.attr("eta_compressor_lifting")
-        self.prime_mover_type_gas_lifting = field.attr("prime_mover_type_gas_lifting")
-
-        self.amb_temp = self.field.model.const("std-temperature")
-        self.amb_press = self.field.model.const("std-pressure")
 
     def run(self, analysis):
         self.print_running_msg()
+        field = self.field
         # mass rate
 
         input = self.find_input_stream("gas")
-        temp = input.temperature
-        press = input.pressure
+        input_temp = input.temperature
+        input_press = input.pressure
 
         if input.is_uninitialized():
             return
@@ -47,18 +43,17 @@ class Venting(Process):
         gas_stream = self.get_gas_lifting_init_stream(self.imported_fuel_gas_comp,
                                                       self.imported_fuel_gas_mass_fracs,
                                                       self.GLIR, self.oil_prod,
-                                                      self.water_prod, temp, press)
+                                                      self.water_prod, input_temp, input_press)
         if methane_lifting is None and len(gas_stream.gas_flow_rates()) > 0:
-            discharge_press = (self.res_press + press) / 2 + ureg.Quantity(100, "psi")
-            overall_compression_ratio = discharge_press / press
-            compression_ratio = Compressor.get_compression_ratio(overall_compression_ratio)
-            num_stages = Compressor.get_num_of_compression(overall_compression_ratio)
-            total_work, _, _ = Compressor.get_compressor_work_temp(self.field, temp, press, gas_stream, compression_ratio,
-                                                                num_stages)
-            volume_flow_rate_STP = self.gas.tot_volume_flow_rate_STP(gas_stream)
-            total_energy = total_work * volume_flow_rate_STP
-            brake_horse_power = total_energy / self.eta_compressor_lifting
-            energy_consumption = self.get_energy_consumption(self.prime_mover_type_gas_lifting, brake_horse_power)
+            discharge_press = (self.res_press + input_press) / 2 + ureg.Quantity(100, "psi")
+            overall_compression_ratio = discharge_press / input_press
+            energy_consumption, _, _ = Compressor.get_compressor_energy_consumption(field,
+                                                                                    field.prime_mover_type_lifting,
+                                                                                    field.eta_compressor_lifting,
+                                                                                    overall_compression_ratio,
+                                                                                    gas_stream,
+                                                                                    inlet_temp=input.temperature,
+                                                                                    inlet_pressure=input.pressure)
             energy_content_imported_gas = self.gas.mass_energy_density(gas_stream) * gas_stream.total_gas_rate()
             frac_imported_gas_consumed = energy_consumption / energy_content_imported_gas
             loss_rate = (ureg.Quantity(0, "frac")
@@ -75,14 +70,12 @@ class Venting(Process):
             self.field.save_process_data(gas_lifting_stream=gas_stream)
 
         gas_to_vent = self.find_output_stream("gas venting")
-        gas_to_vent.copy_flow_rates_from(input)
+        gas_to_vent.copy_flow_rates_from(input, temp=field.std_temp, press=field.std_press)
         gas_to_vent.multiply_flow_rates(venting_frac.m)
-        gas_to_vent.set_temperature_and_pressure(self.amb_temp, self.amb_press)
 
         gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(input)
+        gas_fugitives.copy_flow_rates_from(input, temp=field.std_temp, press=field.std_press)
         gas_fugitives.multiply_flow_rates(fugitive_frac.m)
-        gas_fugitives.set_temperature_and_pressure(self.amb_temp, self.amb_press)
 
         gas_to_gathering = self.find_output_stream("gas for gas gathering")
         gas_to_gathering.copy_flow_rates_from(input)
@@ -95,19 +88,5 @@ class Venting(Process):
 
         # emissions
         emissions = self.emissions
-        emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
-        emissions.add_from_stream(EM_VENTING, gas_to_vent)
-
-    # def generate_gas_lifting_stream(self, temp, press):
-    #     """
-    #
-    #     :param temp:
-    #     :param press:
-    #     :return:
-    #     """
-    #     stream = Stream("gas lifting stream", temperature=temp, pressure=press)
-    #     gas_lifting_series = self.imported_fuel_gas_mass_fracs * \
-    #                          self.GLIR * (self.oil_prod + self.water_prod) \
-    #                          * self.gas.component_gas_rho_STP[self.imported_fuel_gas_comp.index]
-    #     stream.set_rates_from_series(gas_lifting_series, PHASE_GAS)
-    #     return stream
+        emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
+        emissions.set_from_stream(EM_VENTING, gas_to_vent)

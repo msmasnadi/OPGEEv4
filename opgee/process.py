@@ -63,7 +63,7 @@ def _subclass_dict(superclass):
 #
 # Cache of known subclasses of Aggregator and Process
 #
-_Subclass_dict : Optional[dict] = None
+_Subclass_dict: Optional[dict] = None
 
 
 def _get_subclass(cls, subclass_name, reload=False):
@@ -304,8 +304,6 @@ class Process(XmlInstantiable, AttributeMixin):
 
         return gas_fugitives
 
-
-
     @property
     def model(self):
         """
@@ -357,7 +355,8 @@ class Process(XmlInstantiable, AttributeMixin):
         """
         return self.field.find_stream(name, raiseError=raiseError)
 
-    def _find_streams_by_type(self, direction, stream_type, combine=False, as_list=False, raiseError=True) -> Union[Stream, list, dict]:
+    def _find_streams_by_type(self, direction, stream_type, combine=False, as_list=False, raiseError=True) -> Union[
+        Stream, list, dict]:
         """
         Find the input or output streams (indicated by `direction`) that contain the indicated
         `stream_type`, e.g., 'crude oil', 'raw water' and so on.
@@ -383,7 +382,8 @@ class Process(XmlInstantiable, AttributeMixin):
         return combine_streams(streams, self.field.oil.API) if combine else (
             streams if as_list else {s.name: s for s in streams})
 
-    def find_input_streams(self, stream_type, combine=False, as_list=False, raiseError=True) -> Union[Stream, list, dict]:
+    def find_input_streams(self, stream_type, combine=False, as_list=False, raiseError=True) -> Union[
+        Stream, list, dict]:
         """
         Convenience method to call `_find_streams_by_type` with direction "input"
 
@@ -397,7 +397,8 @@ class Process(XmlInstantiable, AttributeMixin):
         return self._find_streams_by_type(self.INPUT, stream_type, combine=combine, as_list=as_list,
                                           raiseError=raiseError)
 
-    def find_output_streams(self, stream_type, combine=False, as_list=False, raiseError=True) -> Union[Stream, list, dict]:
+    def find_output_streams(self, stream_type, combine=False, as_list=False, raiseError=True) -> Union[
+        Stream, list, dict]:
         """
         Convenience method to call `_find_streams_by_type` with direction "output"
 
@@ -528,7 +529,7 @@ class Process(XmlInstantiable, AttributeMixin):
 
             # TODO: we expect the series to have no units
             if isinstance(value, pd.Series):
-                diff = abs(value - prior_value) # type: pd.Series
+                diff = abs(value - prior_value)  # type: pd.Series
                 if all(diff <= m.maximum_change):
                     self.iteration_converged = True
                     self.check_iterator_convergence()
@@ -825,6 +826,18 @@ class Reservoir(Process):
         self.print_running_msg()
 
 
+class Customer(Process):
+    """
+    Customer represents the process after gas distribution.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__("Customer", desc='The Customer')
+
+    def run(self, analysis):
+        self.print_running_msg()
+
+
 class SurfaceSource(Process):
     """
     SurfaceSource represents oil, gas and water source in the surface.
@@ -889,6 +902,7 @@ class Before(Process):
     def impute(self):
         pass
 
+
 class After(Process):
     def run(self, analysis):
         pass
@@ -928,10 +942,11 @@ class Aggregator(Container):
 
         return obj
 
+
 def reload_subclass_dict():
     global _Subclass_dict
 
     _Subclass_dict = {
         Aggregator: _subclass_dict(Aggregator),
-        Process:    _subclass_dict(Process)
+        Process: _subclass_dict(Process)
     }

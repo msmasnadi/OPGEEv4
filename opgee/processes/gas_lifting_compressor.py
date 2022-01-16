@@ -1,7 +1,7 @@
+from opgee.processes.compressor import Compressor
+from .shared import get_energy_carrier
 from .. import ureg
-from ..compressor import Compressor
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
-from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
 from ..log import getLogger
 from ..process import Process
 
@@ -16,17 +16,13 @@ class GasLiftingCompressor(Process):
         self.std_temp = field.model.const("std-temperature")
         self.std_press = field.model.const("std-pressure")
         self.res_press = field.attr("res_press")
-        self.prime_mover_type = self.attr("prime_mover_type")
-        self.eta_compressor_lifting = field.attr("eta_compressor_lifting")
-        self.prime_mover_type_gas_lifting = field.attr("prime_mover_type_gas_lifting")
 
     def run(self, analysis):
         self.print_running_msg()
+        field = self.field
 
         # mass rate
         input = self.find_input_stream("lifting gas")
-        press = input.pressure
-        temp = input.temperature
 
         if input.is_uninitialized():
             return
@@ -40,16 +36,16 @@ class GasLiftingCompressor(Process):
         lifting_gas = self.find_output_stream("lifting gas")
         lifting_gas.copy_flow_rates_from(input)
 
-        discharge_press = (self.res_press + press) / 2 + ureg.Quantity(100, "psi")
-        overall_compression_ratio = discharge_press / press
-        compression_ratio = Compressor.get_compression_ratio(overall_compression_ratio)
-        num_stages = Compressor.get_num_of_compression(overall_compression_ratio)
-        total_work, _, _ = Compressor.get_compressor_work_temp(self.field, temp, press, lifting_gas, compression_ratio,
-                                                            num_stages)
-        volume_flow_rate_STP = self.gas.tot_volume_flow_rate_STP(lifting_gas)
-        total_energy = total_work * volume_flow_rate_STP
-        brake_horse_power = total_energy / self.eta_compressor_lifting
-        energy_consumption = self.get_energy_consumption(self.prime_mover_type_gas_lifting, brake_horse_power)
+        discharge_press = (self.res_press + input.pressure) / 2 + ureg.Quantity(100, "psi")
+        overall_compression_ratio = discharge_press / input.pressure
+        energy_consumption, _, _ = Compressor.get_compressor_energy_consumption(field,
+                                                                                field.prime_mover_type_lifting,
+                                                                                field.eta_compressor_lifting,
+                                                                                overall_compression_ratio,
+                                                                                lifting_gas,
+                                                                                inlet_temp=input.temperature,
+                                                                                inlet_pressure=input.pressure)
+
         energy_content_imported_gas = self.gas.mass_energy_density(lifting_gas) * lifting_gas.total_gas_rate()
         frac_imported_gas_consumed = energy_consumption / energy_content_imported_gas
         gas_lifting_fugitive_loss_rate = self.field.get_process_data("gas_lifting_compressor_loss_rate")
@@ -60,21 +56,16 @@ class GasLiftingCompressor(Process):
 
         # energy-use
         energy_use = self.energy
-        if self.prime_mover_type == "NG_engine" or "NG_turbine":
-            energy_carrier = EN_NATURAL_GAS
-        elif self.prime_mover_type == "Electric_motor":
-            energy_carrier = EN_ELECTRICITY
-        else:
-            energy_carrier = EN_DIESEL
+        energy_carrier = get_energy_carrier(field.prime_mover_type_lifting)
         energy_use.set_rate(energy_carrier, energy_consumption)
 
         # emissions
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")
         combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.add_rate(EM_COMBUSTION, "CO2", combustion_emission)
+        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
 
-        emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
+        emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
 
         if self.field.get_process_data("methane_from_gas_lifting") is None:
             self.field.save_process_data(methane_from_gas_lifting=lifting_gas.gas_flow_rate("C1"))

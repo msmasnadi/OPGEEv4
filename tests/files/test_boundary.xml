@@ -16,10 +16,12 @@
 		<Process class="StorageCompressor"/>
 		<Process class="GasDistribution"/>
 		<Process class="LNGLiquefaction"/>
+		<Process class="LNGRegasification"/>
 		<Process class="LNGTransport"/>
 		<Process class="StorageWell"/>
 		<Process class="StorageSeparator"/>
 		<Process class="PostStorageCompressor"/>
+		<Process class="Customer"/>
 
         <Stream src="BoundaryBefore" dst="TransmissionCompressor" name="before to transmission compressor" boundary="Production">
             <Component name="N2" phase="gas">25.7</Component>
@@ -86,8 +88,25 @@
 		</Stream>
 
 		<Stream src="LNGLiquefaction" dst="LNGTransport" name="LNG liquefaction to LNG transportation">
-			<Contains>gas for transportation</Contains>
+			<Contains>gas for transport</Contains>
 		</Stream>
+		
+		<Stream src="LNGTransport" dst="LNGRegasification" name="LNG transportation to LNG regasification">
+			<Contains>gas</Contains>
+		</Stream>
+
+		<Stream src="LNGRegasification" dst="GasDistribution" name="LNG transportation to gas distribution">
+			<Contains>gas for distribution</Contains>
+		</Stream>
+
+		<Stream src="GasDistribution" dst="Environment" name="gas distribution to environment">
+			<Contains>gas fugitives</Contains>
+		</Stream>
+
+		<Stream src="GasDistribution" dst="Customer" name="gas distribution to customer">
+			<Contains>gas</Contains>
+		</Stream>
+
 
     </Field>
 
