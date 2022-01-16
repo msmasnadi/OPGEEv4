@@ -19,8 +19,6 @@ class Demethanizer(Process):
         super()._after_init()
         self.field = field = self.get_field()
         self.gas = field.gas
-        self.std_temp = field.model.const("std-temperature")
-        self.std_press = field.model.const("std-pressure")
         self.feed_press_demethanizer = self.attr("feed_press_demethanizer")
         self.colume_pressure = self.attr("colume_pressure")
         self.methane_to_NLG_ratio = self.attr("methane_to_NLG_ratio")
@@ -39,6 +37,7 @@ class Demethanizer(Process):
 
     def run(self, analysis):
         self.print_running_msg()
+        field = self.field
 
         if not self.all_streams_ready("gas for demethanizer"):
             return
@@ -49,8 +48,7 @@ class Demethanizer(Process):
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
         gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp)
-        gas_fugitives.set_temperature_and_pressure(self.std_temp, self.std_press)
+        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, temp=field.std_temp, press=field.std_press)
 
         # Demethanizer modeling based on Aspen HYSYS
         feed_gas_press = min(max(self.feed_press_demethanizer.to("psia").m, 600.0), 1000.0)
@@ -107,19 +105,25 @@ class Demethanizer(Process):
         # TODO: ethane to petrochemicals
 
         # inlet boosting compressor
-        overall_compression_ratio = self.feed_press_demethanizer / input.pressure
-        inlet_compressor_energy_consump = self.compressor_energy_consumption(overall_compression_ratio,
-                                                                             input.temperature,
-                                                                             input.pressure,
-                                                                             gas_to_gather)
+        inlet_compressor_energy_consump, _, _ = \
+            Compressor.get_compressor_energy_consumption(field,
+                                                         self.prime_mover_type,
+                                                         self.eta_compressor,
+                                                         self.feed_press_demethanizer / input.pressure,
+                                                         gas_to_gather,
+                                                         inlet_temp=input.temperature,
+                                                         inlet_pressure=input.pressure)
 
         # outlet compressor
         feed_gas_exit_press = ureg.Quantity(corr_result_df.loc["fuel gas pressure", :].sum(), "psia")
-        overall_compression_ratio = input.pressure / feed_gas_exit_press
-        outlet_compressor_energy_consump = self.compressor_energy_consumption(overall_compression_ratio,
-                                                                              input.temperature,
-                                                                              input.pressure,
-                                                                              gas_to_gather)
+        outlet_compressor_energy_consump, _, _ = \
+            Compressor.get_compressor_energy_consumption(field,
+                                                         self.prime_mover_type,
+                                                         self.eta_compressor,
+                                                         input.pressure / feed_gas_exit_press,
+                                                         gas_to_gather,
+                                                         inlet_temp=input.temperature,
+                                                         inlet_pressure=input.pressure)
 
         # energy-use
         energy_use = self.energy
@@ -132,22 +136,7 @@ class Demethanizer(Process):
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")
         combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.add_rate(EM_COMBUSTION, "CO2", combustion_emission)
+        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
 
-        emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
+        emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
 
-    def compressor_energy_consumption(self, overall_compression_ratio, inlet_temp, inlet_press, stream):
-        compression_ratio = Compressor.get_compression_ratio(overall_compression_ratio)
-        num_stages = Compressor.get_num_of_compression(overall_compression_ratio)
-        total_work, _, _ = Compressor.get_compressor_work_temp(self.field,
-                                                            inlet_temp,
-                                                            inlet_press,
-                                                            stream,
-                                                            compression_ratio,
-                                                            num_stages)
-        volume_flow_rate_STP = self.gas.tot_volume_flow_rate_STP(stream)
-        total_energy = total_work * volume_flow_rate_STP
-        brake_horse_power = total_energy / self.eta_compressor
-        energy_consumption = self.get_energy_consumption(self.prime_mover_type, brake_horse_power)
-
-        return energy_consumption
