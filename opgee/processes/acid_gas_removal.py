@@ -61,14 +61,17 @@ class AcidGasRemoval(Process):
             gas_to_demethanizer.copy_flow_rates_from(input)
             gas_to_demethanizer.set_gas_flow_rate("CO2", CO2_to_demethanizer)
             gas_to_demethanizer.subtract_gas_rates_from(gas_fugitives)
-            gas_to_demethanizer.set_temperature_and_pressure(input.temperature, input.pressure)
+        else:
+            gas_to_gathering = self.find_output_stream("gas for gas gathering")
+            gas_to_gathering.copy_flow_rates_from(input)
+            gas_to_gathering.set_gas_flow_rate("CO2", CO2_to_demethanizer)
+            gas_to_gathering.subtract_gas_rates_from(gas_fugitives)
 
         gas_to_CO2_reinjection = self.find_output_stream("gas for CO2 compressor", raiseError=False)
         if gas_to_CO2_reinjection is not None:
             gas_to_CO2_reinjection.copy_flow_rates_from(input)
             gas_to_CO2_reinjection.subtract_gas_rates_from(gas_to_demethanizer)
             gas_to_CO2_reinjection.subtract_gas_rates_from(gas_fugitives)
-            gas_to_CO2_reinjection.set_temperature_and_pressure(input.temperature, input.pressure)
 
         # AGR modeling based on Aspen HYSYS
         feed_gas_mol_fracs = self.gas.component_molar_fractions(input)
@@ -109,15 +112,18 @@ class AcidGasRemoval(Process):
                                                                                               inlet_pressure=input.pressure)
 
         # energy-use
-        energy_carrier = get_energy_carrier(self.prime_mover_type_AGR)
         energy_use = self.energy
+        energy_carrier = get_energy_carrier(self.prime_mover_type_AGR)
         energy_use.set_rate(energy_carrier, compressor_energy_consumption)
-        energy_use.add_rate(EN_NATURAL_GAS, reboiler_fuel_use)
+        if energy_carrier == EN_NATURAL_GAS:
+            energy_use.add_rate(EN_NATURAL_GAS, reboiler_fuel_use)
+        else:
+            energy_use.set_rate(EN_NATURAL_GAS, reboiler_fuel_use)
 
         # emissions
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")
         combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.add_rate(EM_COMBUSTION, "CO2", combustion_emission)
+        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission.to("tonne/day"))
 
-        emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
+        emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)

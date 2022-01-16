@@ -85,9 +85,9 @@ class BitumenMining(Process):
         if self.process_EF is None:
             raise OpgeeException(f"{self.name} does not have emission factor")
         combusion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.add_rate(EM_COMBUSTION, "CO2", combusion_emission)
+        emissions.set_rate(EM_COMBUSTION, "CO2", combusion_emission.to("tonne/day"))
 
-        emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
+        emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
 
     def impute(self):
 

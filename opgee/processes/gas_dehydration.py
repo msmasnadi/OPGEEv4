@@ -44,6 +44,7 @@ class GasDehydration(Process):
 
     def run(self, analysis):
         self.print_running_msg()
+        field = self.field
 
         # mass rate
         input = self.find_input_stream("gas")
@@ -54,8 +55,7 @@ class GasDehydration(Process):
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
         gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp)
-        gas_fugitives.set_temperature_and_pressure(self.std_temp, self.std_press)
+        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, temp=field.std_temp, press=field.std_press)
 
         try:
             output = self.gas_path_dict[self.gas_path]
@@ -66,7 +66,6 @@ class GasDehydration(Process):
         output_gas = self.find_output_stream(output)
         output_gas.copy_flow_rates_from(input)
         output_gas.subtract_gas_rates_from(gas_fugitives)
-        output_gas.set_temperature_and_pressure(input.temperature, input.pressure)
 
         feed_gas_press = input.pressure
         feed_gas_temp = input.temperature
@@ -94,11 +93,11 @@ class GasDehydration(Process):
         corr_result_df = run_corr_eqns(x1, x2, x3, x4, x5, self.gas_dehydration_tbl)
         reboiler_heavy_duty = ureg.Quantity(max(0, corr_result_df["Reboiler"] * gas_multiplier), "kW")
         pump_duty = ureg.Quantity(max(0, corr_result_df["Pump"] * gas_multiplier), "kW")
-        condensor_thermal_load = ureg.Quantity(max(0, corr_result_df["Condenser"] * gas_multiplier), "kW")
+        condenser_thermal_load = ureg.Quantity(max(0, corr_result_df["Condenser"] * gas_multiplier), "kW")
         water_output = ureg.Quantity(max(0, corr_result_df["Resid water"]), "lb/mmscf")
 
         reboiler_fuel_use = reboiler_heavy_duty * self.eta_reboiler_dehydrator
-        blower_air_quantity = condensor_thermal_load / self.air_elevation_const / self.air_cooler_delta_T
+        blower_air_quantity = condenser_thermal_load / self.air_elevation_const / self.air_cooler_delta_T
         blower_CFM = blower_air_quantity / self.air_density_ratio
         blower_delivered_hp = blower_CFM * self.water_press / self.air_cooler_fan_eff
         blower_fan_motor_hp = blower_delivered_hp / self.air_cooler_speed_reducer_eff
@@ -113,9 +112,9 @@ class GasDehydration(Process):
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")
         combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.add_rate(EM_COMBUSTION, "CO2", combustion_emission)
+        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission.to("tonne/day"))
 
-        emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
+        emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
 
     @staticmethod
     def pseudo_pressure(tau, Tc_over_T, critical_pressure):

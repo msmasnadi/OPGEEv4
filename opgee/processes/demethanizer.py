@@ -98,7 +98,7 @@ class Demethanizer(Process):
         gas_to_LNG = self.find_output_stream("gas for NGL")
         gas_to_LNG.copy_flow_rates_from(input)
         gas_to_LNG.subtract_gas_rates_from(gas_to_gather)
-        gas_to_LNG.set_temperature_and_pressure(self.std_temp, input.pressure)
+        gas_to_LNG.set_temperature_and_pressure(field.std_temp, input.pressure)
         C2_mass_rate = gas_to_LNG.gas_flow_rate("C2")
         gas_to_LNG.set_gas_flow_rate("C2", ureg.Quantity(0, "tonne/day"))
 
@@ -129,14 +129,16 @@ class Demethanizer(Process):
         energy_use = self.energy
         energy_carrier = get_energy_carrier(self.prime_mover_type)
         energy_use.set_rate(energy_carrier, inlet_compressor_energy_consump + outlet_compressor_energy_consump)
-        energy_use.add_rate(EN_NATURAL_GAS, reboiler_fuel_use)
+        if energy_carrier == EN_NATURAL_GAS:
+            energy_use.add_rate(EN_NATURAL_GAS, reboiler_fuel_use)
+        else:
+            energy_use.set_rate(EN_NATURAL_GAS, reboiler_fuel_use)
         energy_use.set_rate(EN_ELECTRICITY, cooler_energy_consumption)
 
         # emissions
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")
         combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
+        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission.to("tonne/day"))
 
         emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
-

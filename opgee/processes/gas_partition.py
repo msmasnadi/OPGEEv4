@@ -46,6 +46,9 @@ class GasPartition(Process):
         temp = input.temperature
         press = input.pressure
 
+        if input.is_uninitialized():
+            return
+
         gas_lifting = self.find_output_stream("lifting gas")
 
         if self.gas_lifting:
@@ -56,8 +59,6 @@ class GasPartition(Process):
                                                                self.water_prod, temp, press)
                 gas_lifting.copy_flow_rates_from(init_stream)
                 self.is_first_loop = False
-
-        gas_lifting.set_temperature_and_pressure(input.temperature, input.pressure)
 
         # Check
         iteration_series = (gas_lifting.components.gas - input.components.gas).astype(float)

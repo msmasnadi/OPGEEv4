@@ -119,7 +119,7 @@ class HeavyOilUpgrading(Process):
         # emission
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")
-        combusion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.add_rate(EM_COMBUSTION, "CO2", combusion_emission)
-        emissions.add_from_series(EM_FLARING, proc_gas_flaring_rate)
+        combustion_emission = (energy_for_combustion * self.process_EF).sum()
+        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission.to("tonne/day"))
+        emissions.set_from_series(EM_FLARING, proc_gas_flaring_rate.pint.to("tonne/day"))
 
