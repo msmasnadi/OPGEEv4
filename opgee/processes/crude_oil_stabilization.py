@@ -38,6 +38,7 @@ class CrudeOilStabilization(Process):
 
         if input.is_uninitialized():
             return
+
         average_temp = (self.stab_temp.m + input.temperature.m) / 2
         average_temp = ureg.Quantity(average_temp, "degF")
 

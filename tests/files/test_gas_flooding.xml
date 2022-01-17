@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
+
+	<Analysis name="test_gas_flooding">
+		<A name="functional_unit">gas</A>
+		<A name="energy_basis">LHV</A>
+	  <A name="GWP_horizon">100</A>
+	  <A name="GWP_version">AR5</A>
+		<Field name="test_gas_flooding"/>
+	</Analysis>
+
+    <Field name="test_gas_flooding">
+        <A name="country">USA</A>
+        <A name="gas_flooding">1</A>
+        <A name="flood_gas_type">NG</A>
+
+        <Process class="Before" impute-start="true"/>
+        <Process class="After"/>
+        <Process class="GasReinjectionCompressor"/>
+        <Stream src="Before" dst="GasReinjectionCompressor" name="before to gas reinjection compressor" boundary="Production">
+            <Contains>gas for gas reinjection compressor</Contains>
+            <Component name="C1" phase="gas">10</Component>
+            <A name="temperature">60</A>
+            <A name="pressure">600</A>
+        </Stream>
+
+        <Stream src="GasReinjectionCompressor" dst="After" name="gas reinjection compressor to after">
+            <Contains>imported gas</Contains>
+            <Contains>gas for gas reinjection well</Contains>
+        </Stream>
+
+        <Stream src="GasReinjectionCompressor" dst="Environment" name="gas reinjection compressor to environment">
+            <Contains>gas fugitives</Contains>
+        </Stream>
+    </Field>
+
+</Model>

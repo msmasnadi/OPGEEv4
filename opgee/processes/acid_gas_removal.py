@@ -14,8 +14,6 @@ class AcidGasRemoval(Process):
         super()._after_init()
         self.field = field = self.get_field()
         self.gas = field.gas
-        self.std_temp = field.model.const("std-temperature")
-        self.std_press = field.model.const("std-pressure")
         self.type_amine_AGR = field.attr("type_amine_AGR")
         self.ratio_reflux_reboiler_AGR = field.attr("ratio_reflux_reboiler_AGR")
         self.feed_press_AGR = field.attr("feed_press_AGR")
@@ -36,6 +34,7 @@ class AcidGasRemoval(Process):
 
     def run(self, analysis):
         self.print_running_msg()
+        field = self.field
 
         if not self.all_streams_ready("gas for AGR"):
             return
@@ -49,8 +48,7 @@ class AcidGasRemoval(Process):
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
         gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp)
-        gas_fugitives.set_temperature_and_pressure(self.std_temp, self.std_press)
+        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, temp=field.std_temp, press=field.std_press)
 
         CO2_feed_mass_rate = input.gas_flow_rate("CO2")
         CH4_feed_mass_rate = input.gas_flow_rate("C1")
@@ -103,22 +101,19 @@ class AcidGasRemoval(Process):
         amine_cooler_energy_consumption = predict_blower_energy_use(self, cooler_thermal_load)
 
         overall_compression_ratio = ureg.Quantity(feed_gas_press, "psia") / input.pressure
-        compressor_energy_consumption, temp, _ = Compressor.get_compressor_energy_consumption(self.field,
-                                                                                              self.prime_mover_type_AGR,
-                                                                                              self.eta_compressor_AGR,
-                                                                                              overall_compression_ratio,
-                                                                                              gas_to_demethanizer,
-                                                                                              inlet_temp=input.temperature,
-                                                                                              inlet_pressure=input.pressure)
+        compressor_energy_consumption, temp, _ = \
+            Compressor.get_compressor_energy_consumption(self.field,
+                                                         self.prime_mover_type_AGR,
+                                                         self.eta_compressor_AGR,
+                                                         overall_compression_ratio,
+                                                         gas_to_demethanizer,
+                                                         inlet_temp=input.temperature,
+                                                         inlet_pressure=input.pressure)
 
         # energy-use
         energy_use = self.energy
         energy_carrier = get_energy_carrier(self.prime_mover_type_AGR)
         energy_use.set_rate(energy_carrier, compressor_energy_consumption)
-        if energy_carrier == EN_NATURAL_GAS:
-            energy_use.add_rate(EN_NATURAL_GAS, reboiler_fuel_use)
-        else:
-            energy_use.set_rate(EN_NATURAL_GAS, reboiler_fuel_use)
 
         # emissions
         emissions = self.emissions

@@ -17,8 +17,6 @@ class GasDehydration(Process):
         super()._after_init()
         self.field = field = self.get_field()
         self.gas = field.gas
-        self.std_temp = field.model.const("std-temperature")
-        self.std_press = field.model.const("std-pressure")
         self.gas_dehydration_tbl = field.model.gas_dehydration_tbl
         self.mol_to_scf = field.model.const("mol-per-scf")
         self.air_elevation_const = field.model.const("air-elevation-corr")

@@ -9,6 +9,11 @@ class AfterDewatering(Process):
         self.print_running_msg()
 
 
+class GasFloodingCompressor(Process):
+    def run(self, analysis):
+        self.print_running_msg()
+
+
 class CrudeOilTransport(Process):
     def run(self, analysis):
         self.print_running_msg()

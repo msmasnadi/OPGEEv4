@@ -122,7 +122,6 @@
 			<Process class="GasLiftingCompressor"/>
 			<Process class="CO2ReinjectionCompressor"/>
 			<Process class="SourGasCompressor"/>
-			<Process class="GasFloodingCompressor"/>
 			<Process class="CO2InjectionWell"/>
 			<Process class="Flaring"/>
 			<Process class="Separation" impute-start="true"/>
@@ -476,8 +475,8 @@
 			<Contains>gas fugitives</Contains>
 		</Stream>
 
-		<Stream src="SurfaceSource" dst="GasFloodingCompressor" name="surface source to gas flooding compressor">
-			<Contains>gas for gas flooding</Contains>
+		<Stream src="GasReinjectionCompressor" dst="SurfaceSource" name="surface source to gas flooding compressor">
+			<Contains>imported gas</Contains>
 		</Stream>
 
 		<Stream src="TransmissionCompressor" dst="After" name="transmission compression to after">

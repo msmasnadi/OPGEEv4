@@ -178,6 +178,7 @@
         <Option desc="Dehydration then direct injection of sour CO2-rich stream">Sour Gas Reinjection</Option>
         <Option desc="Dehydrator + Compressor + Membrane + Amine Process + Demethanizer">CO2-EOR Membrane</Option>
         <Option desc="Dehydrator + Ryan Holmes Process (Demethanizer Included)">CO2-EOR Ryan Holmes</Option>
+<!--        <Option desc="Dehydrator + Methane Nitrogen Flooding">Methane Nitrogen Flooding</Option>-->
       </Options>
       <AttrDef name="heater_treater" type="binary" desc="Heater/treater">0</AttrDef>
       <AttrDef name="steam_quality_at_generator_outlet" unit="frac" type="float" desc="steam quality at generator outlet">0.7</AttrDef>
@@ -596,16 +597,6 @@
       <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
     </ClassAttrs>
 
-    <ClassAttrs name="GasFloodingCompressor">
-      <AttrDef name="offset_gas_comp_N2" unit="mol_pct" type="float">2.0</AttrDef>
-      <AttrDef name="offset_gas_comp_CO2" unit="mol_pct" type="float">6.0</AttrDef>
-      <AttrDef name="offset_gas_comp_C1" unit="mol_pct" type="float">84.0</AttrDef>
-      <AttrDef name="offset_gas_comp_C2" unit="mol_pct" type="float">4.0</AttrDef>
-      <AttrDef name="offset_gas_comp_C3" unit="mol_pct" type="float">2.0</AttrDef>
-      <AttrDef name="offset_gas_comp_C4" unit="mol_pct" type="float">1.0</AttrDef>
-      <AttrDef name="offset_gas_comp_H2S" unit="mol_pct" type="float">1.0</AttrDef>
-
-    </ClassAttrs>
 
     <ClassAttrs name="VRUCompressor">
       <AttrDef name="discharge_press" type="float" unit="psia" desc="VRU compressor discharge pressure">500.0</AttrDef>
@@ -619,6 +610,17 @@
       <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
       <AttrDef name="eta_compressor" type="float" unit="percent" desc="VRU compressor efficiency">75.0</AttrDef>
     </ClassAttrs>
+
+<!--     <ClassAttrs name="GasFloodingCompressor">-->
+<!--      <Options name="prime_mover_type" default="NG_engine">-->
+<!--        <Option>NG_engine</Option>-->
+<!--        <Option>Electric_motor</Option>-->
+<!--      </Options>-->
+<!--      <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>-->
+<!--      <AttrDef name="eta_compressor" type="float" unit="percent" desc="gas reinjection compressor efficiency">75.0</AttrDef>-->
+
+<!--    </ClassAttrs>-->
+
 
     <ClassAttrs name="GasLiftingCompressor">
       <Options name="prime_mover_type" default="NG_engine">
@@ -635,6 +637,17 @@
       </Options>
       <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
       <AttrDef name="eta_compressor" type="float" unit="percent" desc="gas reinjection compressor efficiency">75.0</AttrDef>
+      <AttrDef name="N2_flooding_temp" type="float" unit="degF" desc="nitrogen flooding temperature">197.0</AttrDef>
+      <AttrDef name="C1_flooding_temp" type="float" unit="degF" desc="methane flooding temperature">60</AttrDef>
+      <AttrDef name="N2_flooding_press" type="float" unit="psia" desc="nitrogen flooding pressure">125.0</AttrDef>
+      <AttrDef name="C1_flooding_press" type="float" unit="psia" desc="methane flooding pressure">600</AttrDef>
+      <AttrDef name="offset_gas_comp_N2" unit="mol_pct" type="float">2.0</AttrDef>
+      <AttrDef name="offset_gas_comp_CO2" unit="mol_pct" type="float">6.0</AttrDef>
+      <AttrDef name="offset_gas_comp_C1" unit="mol_pct" type="float">84.0</AttrDef>
+      <AttrDef name="offset_gas_comp_C2" unit="mol_pct" type="float">4.0</AttrDef>
+      <AttrDef name="offset_gas_comp_C3" unit="mol_pct" type="float">2.0</AttrDef>
+      <AttrDef name="offset_gas_comp_C4" unit="mol_pct" type="float">1.0</AttrDef>
+      <AttrDef name="offset_gas_comp_H2S" unit="mol_pct" type="float">1.0</AttrDef>
     </ClassAttrs>
 
     <ClassAttrs name="TransmissionCompressor">
