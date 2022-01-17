@@ -39,8 +39,11 @@ def test_A_set_value_None():
     assert a.value is None
 
 def test_A_str_rep():
-    a = A('foo', value=10, pytype='float', unit='mmbtu/day')
-    assert str(a) == "<A name='foo' type='float' value='10.0 mmbtu/d'>"
+    value = 10
+    unit  = 'mmbtu/day'
+    a = A('foo', value=value, pytype='float', unit=unit)
+    assert str(a).startswith("<A name='foo' type='float'")
+    assert a.value == ureg.Quantity(value, unit)
 
 
 count = 0
