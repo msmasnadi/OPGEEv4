@@ -12,7 +12,6 @@ from .error import OpgeeException
 from .stream import Stream
 from .log import getLogger
 
-
 _logger = getLogger(__name__)
 
 EM_COMBUSTION = 'Combustion'
@@ -127,8 +126,13 @@ class Emissions(OpgeeObject):
         :param rate: (float) the rate in the Process' flow units (e.g., mmbtu (LHV) of fuel burned)
         :return: none
         """
+        rate = ureg.Quantity(rate)
+        if rate.dimensionless:
+            rate = ureg.Quantity(rate.m, "tonne/day")
+        else:
+            rate = rate.to("tonne/day")
         self._check_loc('set_rate', gas, category)
-        self.data.loc[gas, category] = magnitude(rate, units=self._units)
+        self.data.loc[gas, category] = magnitude(rate, units="metric_ton / day")
 
     def set_rates(self, category, **kwargs):
         """
@@ -204,7 +208,6 @@ class Emissions(OpgeeObject):
         voc_rate = stream.voc_flow_rates().sum()
         self.set_rate(category, 'VOC', voc_rate)
 
-
     def add_from_series(self, category, series):
         """
         Add emission flow rates from a Series instance to the given emissions category.
@@ -227,6 +230,25 @@ class Emissions(OpgeeObject):
         # TODO: this is incorrect since not weighted by GWP
         # GHG = self.data[category].sum()
         # self.add_rate(category, "GHG", GHG)
+
+    def set_from_series(self, category, series):
+        """
+        Set emission flow rates from a Series instance to the given emissions category.
+
+        :param category: (str) one of the defined emissions categories
+        :param series: (Series)
+        :return: none
+        """
+        if "CO2" in series:
+            self.set_rate(category, 'CO2', series['CO2'])
+        if "C1" in series:
+            self.set_rate(category, 'CH4', series['C1'])
+        if "CO" in series:
+            self.set_rate(category, "CO", series["CO"])
+
+        # All gas-phase hydrocarbons heavier than methane are considered VOCs
+        voc_rate = series[series.index.intersection(Stream.VOCs)].sum()
+        self.set_rate(category, 'VOC', voc_rate)
 
     def add_rates_from(self, emissions):
         """

@@ -114,7 +114,7 @@ class SteamGeneration(Process):
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")
         combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.add_rate(EM_COMBUSTION, "CO2", combustion_emission)
+        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
 
     def get_feedwater_horsepower(self, steam_injection_volume_rate, makeup_water_to_prod_water_frac):
         result = steam_injection_volume_rate * makeup_water_to_prod_water_frac * (

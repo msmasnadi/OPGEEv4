@@ -33,7 +33,6 @@ from .sour_gas_compressor import SourGasCompressor
 from .sour_gas_injection import SourGasInjection
 from .demethanizer import Demethanizer
 from .gas_lifting_compressor import GasLiftingCompressor
-from .gas_flooding_compressor import GasFloodingCompressor
 from .gas_reinjection_compressor import GasReinjectionCompressor
 from .gas_reinjection_well import GasReinjectionWell
 from .transmission_compressor import TransmissionCompressor

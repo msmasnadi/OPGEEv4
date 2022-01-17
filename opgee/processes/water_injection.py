@@ -29,7 +29,7 @@ class WaterInjection(Process):
         self.gravitation_const = self.field.model.const("gravitational-constant")
         self.depth = field.attr("depth")
         self.well_diam = field.attr("well_diam")
-        self.xsection_area = np.pi * (self.well_diam / 2)**2
+        self.xsection_area = np.pi * (self.well_diam / 2) ** 2
         self.friction_factor = field.attr("friction_factor")
         self.press_water_reinj_pump = field.attr("press_water_reinj_pump")
         self.eta_water_reinj_pump = field.attr("eta_water_reinj_pump")
@@ -39,7 +39,7 @@ class WaterInjection(Process):
         self.print_running_msg()
 
         input_prod = self.find_input_stream("produced water for water injection")
-        input_makeup =self.find_input_stream("makeup water for water injection")
+        input_makeup = self.find_input_stream("makeup water for water injection")
         total_water_mass = input_prod.liquid_flow_rate("H2O") + input_makeup.liquid_flow_rate("H2O")
         total_water_volume = total_water_mass / self.water_density
         single_well_water_volume = total_water_volume / self.num_water_inj_wells
@@ -48,13 +48,15 @@ class WaterInjection(Process):
         water_gravitation_head = self.water_density * self.gravitation_acc * self.depth
         water_flow_velocity = single_well_water_volume / self.xsection_area
 
-        friction_loss = (self.friction_factor * self.depth * water_flow_velocity**2) / (2 * self.well_diam * self.gravitation_const) * self.water_density
+        friction_loss = (self.friction_factor * self.depth * water_flow_velocity ** 2) / \
+                        (2 * self.well_diam * self.gravitation_const) * self.water_density
         diff_press = wellbore_flowing_press - water_gravitation_head
 
-        pumping_press = diff_press + friction_loss - self.press_water_reinj_pump if diff_press + friction_loss >= 0 else ureg.Quantity(0, "psia")
+        pumping_press = diff_press + friction_loss - self.press_water_reinj_pump \
+            if diff_press + friction_loss >= 0 else ureg.Quantity(0, "psia")
         pumping_hp = pumping_press * single_well_water_volume / self.eta_water_reinj_pump
 
-        #energy-use
+        # energy-use
         water_pump_power = self.get_energy_consumption(self.prime_mover_type, pumping_hp)
         energy_use = self.energy
 
@@ -64,15 +66,5 @@ class WaterInjection(Process):
         # emission
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")
-        combusion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.add_rate(EM_COMBUSTION, "CO2", combusion_emission)
-
-
-
-
-
-
-
-
-
-
+        combustion_emission = (energy_for_combustion * self.process_EF).sum()
+        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)

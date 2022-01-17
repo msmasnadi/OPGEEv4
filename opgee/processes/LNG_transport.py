@@ -52,4 +52,4 @@ class LNGTransport(Process):
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")
         combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission.to("tonne/day"))
+        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)

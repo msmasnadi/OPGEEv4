@@ -40,21 +40,51 @@
 			<ProcessGroup name="Acid Wet Gas">
 				<ProcessRef name="AcidGasRemoval"/>
 				<ProcessRef name="Demethanizer"/>
+				<StreamRef name="gas dehydration to acid gas removal"/>
+				<StreamRef name="acid gas removal to demethanizer"/>
+				<StreamRef name="acid gas removal to environment"/>
+				<StreamRef name="demethanizer to gas partition"/>
+				<StreamRef name="demethanizer to environment"/>
+				<StreamRef name="demethanizer to NGL"/>
 			</ProcessGroup>
 			<ProcessGroup name="Acid Gas">
 				<ProcessRef name="AcidGasRemoval"/>
+				<StreamRef name="gas dehydration to acid gas removal"/>
+				<StreamRef name="acid gas removal to environment"/>
+				<StreamRef name="acid gas removal to gas partition"/>
 			</ProcessGroup>
 			<ProcessGroup name="Wet Gas">
 				<ProcessRef name="Demethanizer"/>
+				<StreamRef name="gas dehydration to demethanizer"/>
+				<StreamRef name="demethanizer to gas partition"/>
+				<StreamRef name="demethanizer to environment"/>
+				<StreamRef name="demethanizer to NGL"/>
 			</ProcessGroup>
 			<ProcessGroup name="CO2-EOR Ryan Holmes">
 				<ProcessRef name="RyanHolmes"/>
 				<ProcessRef name="CO2ReinjectionCompressor"/>
 				<ProcessRef name="CO2InjectionWell"/>
+				<StreamRef name="gas dehydration to Ryan-Holmes"/>
+				<StreamRef name="Ryan-Holmes to CO2 reinjection compressor"/>
+				<StreamRef name="Ryan-Holmes to gas partition"/>
+				<StreamRef name="Ryan-Holmes to environment"/>
+				<StreamRef name="Ryan-Holmes to NGL"/>
+				<StreamRef name="CO2 reinjection compressor to CO2 injection well"/>
+				<StreamRef name="CO2 reinjection compressor to environment"/>
+				<StreamRef name="flooding CO2"/>
+				<StreamRef name="CO2 injection well to environment"/>
+				<StreamRef name="CO2 injection well to reservoir"/>
+				
 			</ProcessGroup>
 			<ProcessGroup name="Sour Gas Reinjection">
 				<ProcessRef name="SourGasCompressor"/>
 				<ProcessRef name="SourGasInjection"/>
+				<StreamRef name="gas dehydration to sour gas compressor"/>
+				<StreamRef name="sour gas compressor to environment"/>
+				<StreamRef name="sour gas compressor to sour gas injection"/>
+				<StreamRef name="sour gas injection to environment"/>
+				<StreamRef name="sour gas injection to reservoir"/>
+
 			</ProcessGroup>
 
 			<ProcessGroup name="CO2-EOR Membrane">
@@ -65,6 +95,23 @@
 				<ProcessRef name="CO2ReinjectionCompressor"/>
 				<ProcessRef name="CO2InjectionWell"/>
 				<ProcessRef name="Demethanizer"/>
+				<StreamRef name="gas dehydration to pre membrane chiller"/>
+				<StreamRef name="pre membrane chiller to pre membrane compressor"/>
+				<StreamRef name="pre membrane chiller to environment"/>
+				<StreamRef name="pre membrane compressor to environment"/>
+				<StreamRef name="pre membrane compressor to CO2 membrane"/>
+				<StreamRef name="CO2 membrane to acid gas removal"/>
+				<StreamRef name="CO2 membrane to CO2 reinjection compressor"/>
+				<StreamRef name="acid gas removal to environment"/>
+				<StreamRef name="acid gas removal to CO2 reinjection compressor"/>
+				<StreamRef name="CO2 reinjection compressor to CO2 injection well"/>
+				<StreamRef name="CO2 reinjection compressor to environment"/>
+				<StreamRef name="flooding CO2"/>
+				<StreamRef name="CO2 injection well to environment"/>
+				<StreamRef name="CO2 injection well to reservoir"/>
+				<StreamRef name="acid gas removal to demethanizer"/>
+				<StreamRef name="demethanizer to gas partition"/>
+
 			</ProcessGroup>
 
 		</ProcessChoice>
@@ -75,7 +122,6 @@
 			<Process class="GasLiftingCompressor"/>
 			<Process class="CO2ReinjectionCompressor"/>
 			<Process class="SourGasCompressor"/>
-			<Process class="GasFloodingCompressor"/>
 			<Process class="CO2InjectionWell"/>
 			<Process class="Flaring"/>
 			<Process class="Separation" impute-start="true"/>
@@ -196,7 +242,7 @@
 <!--		</Stream>-->
 
 		<!-- temporary boundary since there doesn't seem to be anywhere that's not in a cycle -->
-		<Stream src="CrudeOilStorage" dst="Environment" name="crude oil storage to environment" boundary="Production">
+		<Stream src="CrudeOilStorage" dst="Environment" name="crude oil storage to environment">
 			<Contains>gas fugitives</Contains>
 		</Stream>
 
@@ -284,21 +330,21 @@
 			<Contains>gas fugitives</Contains>
 		</Stream>
 
-<!--		<Stream src="PreMembraneCompressor" dst="CO2Membrane" name="pre membrane compressor to CO2 membrane">-->
-<!--			<Contains>gas for CO2 membrane</Contains>-->
-<!--		</Stream>-->
+		<Stream src="PreMembraneCompressor" dst="CO2Membrane" name="pre membrane compressor to CO2 membrane">
+			<Contains>gas for CO2 membrane</Contains>
+		</Stream>
 
 		<Stream src="PreMembraneCompressor" dst="Environment" name="pre membrane compressor to environment">
 			<Contains>gas fugitives</Contains>
 		</Stream>
 
-<!--		<Stream src="CO2Membrane" dst="AcidGasRemoval" name="CO2 membrane to acid gas removal">-->
-<!--			<Contains>gas for AGR</Contains>-->
-<!--		</Stream>-->
+		<Stream src="CO2Membrane" dst="AcidGasRemoval" name="CO2 membrane to acid gas removal">
+			<Contains>gas for AGR</Contains>
+		</Stream>
 
-<!--		<Stream src="CO2Membrane" dst="CO2ReinjectionCompressor" name="CO2 membrane to CO2 reinjection compressor">-->
-<!--			<Contains>gas for CO2 compressor</Contains>-->
-<!--		</Stream>-->
+		<Stream src="CO2Membrane" dst="CO2ReinjectionCompressor" name="CO2 membrane to CO2 reinjection compressor">
+			<Contains>gas for CO2 compressor</Contains>
+		</Stream>
 
 		<Stream src="AcidGasRemoval" dst="Environment" name="acid gas removal to environment">
 			<Contains>gas fugitives</Contains>
@@ -310,6 +356,10 @@
 
 		<Stream src="AcidGasRemoval" dst="Demethanizer" name="acid gas removal to demethanizer">
 			<Contains>gas for demethanizer</Contains>
+		</Stream>
+
+		<Stream src="AcidGasRemoval" dst="GasPartition" name="acid gas removal to gas partition">
+			<Contains>gas for gas partition</Contains>
 		</Stream>
 
 		<Stream src="GasDehydration" dst="RyanHolmes" name="gas dehydration to Ryan-Holmes">
@@ -417,7 +467,7 @@
 			<Contains>gas fugitives</Contains>
 		</Stream>
 
-		<Stream src="GasPartition" dst="TransmissionCompressor" name="gas partition to production site boundary">
+		<Stream src="GasPartition" dst="TransmissionCompressor" name="gas partition to production site boundary" boundary = "Production">
 			<Contains>gas</Contains>
 		</Stream>
 
@@ -425,8 +475,8 @@
 			<Contains>gas fugitives</Contains>
 		</Stream>
 
-		<Stream src="SurfaceSource" dst="GasFloodingCompressor" name="surface source to gas flooding compressor">
-			<Contains>gas for gas flooding</Contains>
+		<Stream src="GasReinjectionCompressor" dst="SurfaceSource" name="surface source to gas flooding compressor">
+			<Contains>imported gas</Contains>
 		</Stream>
 
 		<Stream src="TransmissionCompressor" dst="After" name="transmission compression to after">

@@ -38,6 +38,7 @@ class CrudeOilStabilization(Process):
 
         if input.is_uninitialized():
             return
+
         average_temp = (self.stab_temp.m + input.temperature.m) / 2
         average_temp = ureg.Quantity(average_temp, "degF")
 
@@ -98,7 +99,7 @@ class CrudeOilStabilization(Process):
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")
         combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission.to("tonne/day"))
+        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
 
         emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
 

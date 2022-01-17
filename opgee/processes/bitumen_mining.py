@@ -46,6 +46,10 @@ class BitumenMining(Process):
 
         # mass rate
         input = self.find_input_stream("oil")
+
+        if input.is_uninitialized():
+            return
+
         bitumen_mass_rate = input.liquid_flow_rate("oil")
         bitumen_volume_rate = bitumen_mass_rate / self.bitumen_SG / self.water_density
 
@@ -82,12 +86,10 @@ class BitumenMining(Process):
         # emissions
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")
-        if self.process_EF is None:
-            raise OpgeeException(f"{self.name} does not have emission factor")
-        combusion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.add_rate(EM_COMBUSTION, "CO2", combusion_emission)
+        combustion_emission = (energy_for_combustion * self.process_EF).sum()
+        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
 
-        emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
+        emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
 
     def impute(self):
 

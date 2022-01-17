@@ -27,6 +27,10 @@ class CrudeOilDewatering(Process):
 
         # mass rate
         input = self.find_input_stream("crude oil")
+
+        if input.is_uninitialized():
+            return
+
         temperature = input.temperature
         pressure = input.pressure
         oil_rate = input.flow_rate("oil", PHASE_LIQUID)
@@ -67,11 +71,12 @@ class CrudeOilDewatering(Process):
         # energy_use
         energy_use = self.energy
         energy_carrier = EN_NATURAL_GAS if self.prime_mover_type == "NG_engine" else EN_ELECTRICITY
-        energy_consumption = heat_duty / self.eta_gas if self.prime_mover_type == "NG_engine" else heat_duty / self.eta_electricity
+        energy_consumption =\
+            heat_duty / self.eta_gas if self.prime_mover_type == "NG_engine" else heat_duty / self.eta_electricity
         energy_use.set_rate(energy_carrier, energy_consumption.to("mmBtu/day"))
 
         # emissions
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")
-        combusion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.add_rate(EM_COMBUSTION, "CO2", combusion_emission)
+        combustion_emission = (energy_for_combustion * self.process_EF).sum()
+        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)

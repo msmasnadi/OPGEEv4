@@ -16,9 +16,11 @@ class DownholePump(Process):
         super()._after_init()
         self.field = field = self.get_field()
         self.downhole_pump = field.attr("downhole_pump")
+        self.gas_lifting = field.attr("gas_lifting")
+        if not self.downhole_pump and not self.gas_lifting:
+            self.enabled = False
+            return
         self.res_temp = field.attr("res_temp")
-        self.wellhead_press = field.attr("wellhead_pressure")
-        self.wellhead_temp = field.attr("wellhead_temperature")
         self.oil_volume_rate = field.attr("oil_prod")
         self.eta_pump_well = self.attr("eta_pump_well")
         self.prod_tubing_diam = field.attr("well_diam")
@@ -32,11 +34,12 @@ class DownholePump(Process):
 
     def run(self, analysis):
         self.print_running_msg()
+        field = self.field
 
         # mass rate
         input = self.find_input_stream("crude oil")
 
-        if not self.downhole_pump or input.is_uninitialized():
+        if input.is_uninitialized():
             return
 
         lift_gas = self.find_input_stream('lifting gas')
@@ -51,14 +54,13 @@ class DownholePump(Process):
 
         # Check
         self.set_iteration_value(output.total_flow_rate())
-        output.copy_flow_rates_from(input)
+        output.copy_flow_rates_from(input, temp=field.wellhead_temp, press=field.wellhead_press)
         output.subtract_gas_rates_from(gas_fugitives)
-        output.set_temperature_and_pressure(self.wellhead_temp, self.wellhead_press)
 
         # energy use
-        oil = self.field.oil
-        water = self.field.water
-        gas = self.field.gas
+        oil = field.oil
+        water = field.water
+        gas = field.gas
         solution_gas_oil_ratio_input = oil.solution_gas_oil_ratio(input,
                                                                   oil.oil_specific_gravity,
                                                                   oil.gas_specific_gravity,
@@ -95,8 +97,8 @@ class DownholePump(Process):
 
         # properties of free gas (all at average conditions along wellbore, in production tubing)
         free_gas = solution_gas_oil_ratio_input - average_SOR
-        wellbore_average_press = (self.wellhead_press + input.pressure) / 2
-        wellbore_average_temp = ureg.Quantity((self.wellhead_temp.m + self.res_temp.m) / 2, "degF")
+        wellbore_average_press = (field.wellhead_press + input.pressure) / 2
+        wellbore_average_temp = ureg.Quantity((field.wellhead_temp.m + self.res_temp.m) / 2, "degF")
         stream = Stream("average", temperature=wellbore_average_temp, pressure=wellbore_average_press)
         stream.copy_flow_rates_from(input)
         gas_FVF = gas.volume_factor(stream)
@@ -119,7 +121,8 @@ class DownholePump(Process):
         pressure_drop_fric = (fluid_lifted_density * self.friction_factor * self.depth * fluid_velocity ** 2 /
                               (2 * self.prod_tubing_diam))
         pressure_drop_total = pressure_drop_fric + pressure_drop_elev
-        pressure_for_lifting = max(0, self.wellhead_press + pressure_drop_total - input.pressure)
+        pressure_for_lifting = max(ureg.Quantity(0, "psia"),
+                                   field.wellhead_press + pressure_drop_total - input.pressure)
         liquid_flow_rate_per_well = (average_volume_oil_lifted + volume_water_lifted) / self.num_prod_wells
         brake_horse_power = 1.05 * (liquid_flow_rate_per_well * pressure_for_lifting) / self.eta_pump_well
         energy_consumption_of_stages = self.get_energy_consumption_stages(self.prime_mover_type, [brake_horse_power])
@@ -133,9 +136,9 @@ class DownholePump(Process):
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")
         combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.add_rate(EM_COMBUSTION, "CO2", combustion_emission)
+        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
 
-        emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
+        emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
 
     def impute(self):
         output = self.find_output_stream("crude oil")

@@ -38,19 +38,16 @@ class Flaring(Process):
         methane_slip.copy_flow_rates_from(input)
         multiplier = (frac_gas_flared * (1 - self.combusted_gas_frac)).m
         methane_slip.multiply_flow_rates(multiplier)
-        methane_slip.set_temperature_and_pressure(input.temperature, input.pressure)
 
         gas_to_flare = self.find_output_stream("gas flaring")
         gas_to_flare.copy_flow_rates_from(input)
         gas_to_flare.multiply_flow_rates(frac_gas_flared.m)
         gas_to_flare.subtract_gas_rates_from(methane_slip)
-        gas_to_flare.set_temperature_and_pressure(input.temperature, input.pressure)
 
         venting_gas = self.find_output_stream("gas")
         venting_gas.copy_flow_rates_from(input)
         venting_gas.subtract_gas_rates_from(gas_to_flare)
         venting_gas.subtract_gas_rates_from(methane_slip)
-        venting_gas.set_temperature_and_pressure(input.temperature, input.pressure)
 
         self.set_iteration_value(methane_slip.total_flow_rate() +
                                  gas_to_flare.total_flow_rate() +
@@ -58,5 +55,6 @@ class Flaring(Process):
 
         # emissions
         emissions = self.emissions
-        emissions.add_from_stream(EM_FLARING, self.combust_stream(gas_to_flare))
-        emissions.add_from_stream(EM_FLARING, methane_slip)
+        sum_streams = self.combust_stream(gas_to_flare)
+        sum_streams.add_flow_rates_from(methane_slip)
+        emissions.set_from_stream(EM_FLARING, sum_streams)
