@@ -2,9 +2,15 @@ import pint
 from .pkg_utils import resourceStream
 
 #
-# Create a pint registry, load our defs, and make it the application registry.
+# Try to use the "ureg" from thermosteam to avoid mixing and matching registries.
+# If that fails, we create a new pint unit registry. In either case, we load our defs,
+# and set it to be the application registry.
 #
-ureg = pint.UnitRegistry()
+try:
+    from thermosteam.units_of_measure import ureg
+except:
+    ureg = pint.UnitRegistry()
+
 ureg.load_definitions(resourceStream('etc/units.txt'))
 pint.set_application_registry(ureg)
 
