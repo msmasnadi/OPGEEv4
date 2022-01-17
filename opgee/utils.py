@@ -114,18 +114,19 @@ def getBooleanXML(value):
     """
     Get a value from an XML file and convert it into a boolean True or False.
 
-    :param value: any value (it's first converted to a string)
-    :return: True if the value is in ['true', 'yes', '1'], False if the value
-             is in ['false', 'no', '0']. An exception is raised if any other
+    :param value: any value (it's first converted to a lower-case string)
+    :return: True if the value is in ['true', 'yes', '1'], False if the value is
+             in ['false', 'no', '0', 'none']. An exception is raised if any other
              value is passed.
     :raises: OpgeeException
     """
     false = ["false", "no", "0", "none"]
     true  = ["true", "yes", "1"]
+    valid = true + false
 
     val = str(value).strip().lower()
-    if val not in true + false:
-        raise OpgeeException("Can't convert '%s' to boolean; must be in {none,false,no,0,true,yes,1} (case sensitive)." % value)
+    if val not in valid:
+        raise OpgeeException(f"Can't convert '{value}' to boolean; must be one of {valid} (case sensitive).")
 
     return (val in true)
 
@@ -164,10 +165,10 @@ getFuncName = lambda n=0: sys._getframe(n + 1).f_code.co_name
 
 def coercible(value, pytype, raiseError=True, allow_truncation=False):
     """
-    Attempt to coerce a value to `type` and raise an error on failure. If the
+    Attempt to coerce a value to `pytype` and raise an error on failure. If the
     value is a pint.Quantity, the value is simply returned.
 
-    :param value: any value coercible to `type`
+    :param value: any value coercible to `pytype`
     :param pytype: any Python type or its string equivalent
     :param raiseError: (bool) whether to raise errors when appropriate
     :param allow_truncation: (bool) whether to allow truncation of float to int
