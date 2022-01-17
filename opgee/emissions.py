@@ -126,8 +126,13 @@ class Emissions(OpgeeObject):
         :param rate: (float) the rate in the Process' flow units (e.g., mmbtu (LHV) of fuel burned)
         :return: none
         """
+        rate = ureg.Quantity(rate)
+        if rate.dimensionless:
+            rate = ureg.Quantity(rate.m, "tonne/day")
+        else:
+            rate = rate.to("tonne/day")
         self._check_loc('set_rate', gas, category)
-        self.data.loc[gas, category] = magnitude(rate, units=self._units)
+        self.data.loc[gas, category] = magnitude(rate, units="metric_ton / day")
 
     def set_rates(self, category, **kwargs):
         """
