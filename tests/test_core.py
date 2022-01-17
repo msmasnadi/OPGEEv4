@@ -40,7 +40,7 @@ def test_A_set_value_None():
 
 def test_A_str_rep():
     a = A('foo', value=10, pytype='float', unit='mmbtu/day')
-    assert str(a) == "<A name='foo' type='float' value='10.0 mmBtu / day'>"
+    assert str(a) == "<A name='foo' type='float' value='10.0 mmbtu/d'>"
 
 
 count = 0

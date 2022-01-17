@@ -122,7 +122,7 @@ def test_set_intermediate_value(procB):
     iv.store('temp', q)
     row = iv.get('temp')
 
-    assert row['value'] == q.m and row['unit'] == q.u
+    assert row['value'] == q.m and ureg.Unit(row['unit']) == q.u
 
 
 def test_bad_intermediate_value(procB):
