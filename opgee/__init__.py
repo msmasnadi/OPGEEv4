@@ -9,7 +9,7 @@ from .pkg_utils import resourceStream
 try:
     from thermosteam.units_of_measure import ureg
 except:
-    ureg = pint.UnitRegistry()
+    ureg = pint.UnitRegistry()  # pragma: no cover
 
 ureg.load_definitions(resourceStream('etc/units.txt'))
 pint.set_application_registry(ureg)

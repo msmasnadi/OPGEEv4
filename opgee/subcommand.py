@@ -84,7 +84,7 @@ class SubcommandABC(object):
 
         :return: the populated parser
         """
-        pass
+        pass    # pragma: no cover
 
     @abstractmethod
     def run(self, args, tool):
@@ -98,4 +98,4 @@ class SubcommandABC(object):
         :param tool: the GcamTool instance for the main command
         :return: nothing
         """
-        pass
+        pass    # pragma: no cover
