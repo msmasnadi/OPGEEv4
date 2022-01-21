@@ -64,6 +64,7 @@ def rho(component, temperature, pressure, phase):
     :param temperature:
     :param pressure:
     :param phase:
+
     :return:
     """
     temperature = temperature.to("kelvin").m
@@ -83,6 +84,7 @@ def heating_value(component, use_LHV=True, with_units=True):
     :param component: (str) the name of a stream component
     :param use_LHV: (bool) whether to use LHV, else use HHV
     :param with_units: (bool) whether to include pint units in result
+
     :return: (float or pint.Quantity) lower or higher heating value (unit = joule/mol if with_units)
     """
     chemical = ChemicalInfo.chemical(component)
@@ -102,6 +104,7 @@ def LHV(component, with_units=True):
 
     :param component: (str) the name of a stream component
     :param with_units: (bool) whether to include pint units in result
+
     :return: (float) lower heating value (unit = joule/mol)
     """
     return heating_value(component, use_LHV=True, with_units=with_units)
@@ -113,6 +116,7 @@ def HHV(component, with_units=True):
 
     :param component: (str) the name of a stream component
     :param with_units: (bool) whether to include pint units in result
+
     :return: (float) lower heating value (unit = joule/mol)
     """
     return heating_value(component, use_LHV=False, with_units=with_units)
@@ -124,6 +128,7 @@ def Cp(component, kelvin, with_units=True):
     :param kelvin: unit in Kelvin
     :param component:
     :param with_units:
+
     :return: (float) specific heat in standard condition (unit = joule/g/kelvin)
     """
     chemical = ChemicalInfo.chemical(component)
@@ -147,6 +152,7 @@ def Enthalpy(component, kelvin, phase=PHASE_GAS, with_units=True):
     :param component:
     :param kelvin:
     :param with_units:
+
     :return: (float) enthalpy (unit = joule/mole)
     """
 
@@ -173,6 +179,7 @@ def Tsat(component, Psat, with_units=True):
     :param Psat: saturated pressure (unit in Pa)
     :param component:
     :param with_units:
+
     :return:
     """
     chemical = ChemicalInfo.chemical(component)
@@ -189,6 +196,7 @@ def Tc(component, with_units=True):
 
     :param component:
     :param with_units:
+
     :return: (float) critical temperature (unit = kelvin)
     """
     chemical = ChemicalInfo.chemical(component)
@@ -205,6 +213,7 @@ def Pc(component, with_units=True):
 
     :param component:
     :param with_units:
+
     :return:(flaot) critial pressure (unit = Pa)
     """
     chemical = ChemicalInfo.chemical(component)
@@ -404,6 +413,7 @@ class Oil(AbstractSubstance):
         """
         Calculate specific gravity of crude oil using the API standard SG at 60C = 141.5/(API+131.5)
         :param API_grav:
+
         :return:
         """
         result = 141.5 / (API_grav.m + 131.5)
@@ -438,6 +448,7 @@ class Oil(AbstractSubstance):
         :param oil_specific_gravity:
         :param gas_specific_gravity:
         :param gas_oil_ratio:
+
         :return:
         """
         oil_SG = oil_specific_gravity.m
@@ -592,6 +603,7 @@ class Oil(AbstractSubstance):
         :param oil_specific_gravity:
         :param gas_specific_gravity:
         :param gas_oil_ratio:
+
         :return:
         """
         oil_SG = oil_specific_gravity.m
@@ -616,6 +628,7 @@ class Oil(AbstractSubstance):
         :param oil_specific_gravity:
         :param gas_specific_gravity:
         :param gas_oil_ratio:
+
         :return:(float) oil volume flow rate (unit = bbl/day)
         """
 
@@ -631,6 +644,7 @@ class Oil(AbstractSubstance):
         :param API:
         :param use_LHV: whether to use LHV or HHV
         :param with_unit: (float) lower or higher heating value (unit = btu/lb)
+
         :return: heating value mass
         """
         # Oil lower heating value correlation
@@ -663,6 +677,7 @@ class Oil(AbstractSubstance):
 
         :stream: (opgee.Stream) the `Stream` to consider
         :param use_LHV: whether to use LHV or HHV
+
         :return:(pint.Quantity) energy flow rate in "mmBtu/day"
         """
         mass_flow_rate = stream.hydrocarbon_rate(PHASE_LIQUID)
@@ -678,6 +693,7 @@ class Oil(AbstractSubstance):
 
         :param API:
         :param temperature:
+
         :return:(float) specific heat capacity of crude oil (unit = btu/lb/degF)
         """
         API = API.m
@@ -733,6 +749,7 @@ class Gas(AbstractSubstance):
         """
 
         :param stream:
+
         :return: (float) total molar flow rate (unit = mol/day)
         """
         mass_flow_rate = stream.total_gases_rates()  # pandas.Series
@@ -746,6 +763,7 @@ class Gas(AbstractSubstance):
 
         :param stream:
         :param name:
+
         :return: (float) molar flow rate (unit = mol/day)
         """
 
@@ -759,6 +777,7 @@ class Gas(AbstractSubstance):
 
         :param name: (str) component name
         :param stream:
+
         :return:
         """
         total_molar_flow_rate = self.total_molar_flow_rate(stream)
@@ -773,6 +792,7 @@ class Gas(AbstractSubstance):
         """
 
         :param stream:
+
         :return:(float) Panda Series component molar fractions
         """
 
@@ -793,6 +813,7 @@ class Gas(AbstractSubstance):
         generate moss fractions from molar fractions
 
         :param molar_fracs:
+
         :return:
         """
         molar_weight = self.molar_weight_from_molar_fracs(molar_fracs)
@@ -804,6 +825,7 @@ class Gas(AbstractSubstance):
         """
 
         :param stream:
+
         :return:
         """
         mol_fracs = self.component_molar_fractions(stream)
@@ -815,6 +837,7 @@ class Gas(AbstractSubstance):
         """
 
         :param stream:
+
         :return:
         """
         mass_flow_rate = stream.gas_flow_rates()  # pandas.Series
@@ -834,6 +857,7 @@ class Gas(AbstractSubstance):
         """
 
         :param stream:
+
         :return: (float) gas heat capacity (unit = btu/degF/day)
         """
         temperature = stream.temperature
@@ -852,6 +876,7 @@ class Gas(AbstractSubstance):
         """
 
         :param stream:
+
         :return:(float) pandas.Series
         """
         mass_flow_rate = stream.gas_flow_rates()  # pandas.Series
@@ -875,6 +900,7 @@ class Gas(AbstractSubstance):
         """
 
         :param stream:
+
         :return: (float) corrected pseudocritical temperature (unit = rankine)
         """
         uncorr_pseudocritical_temp = self.uncorrected_pseudocritical_temperature_and_pressure(stream)["temperature"].m
@@ -890,6 +916,7 @@ class Gas(AbstractSubstance):
         """
 
         :param stream:
+
         :return:
         """
         uncorr_pseudocritical_temp = self.uncorrected_pseudocritical_temperature_and_pressure(stream)["temperature"]
@@ -908,6 +935,7 @@ class Gas(AbstractSubstance):
         """
 
         :param stream:
+
         :return:
         """
         corr_pseudocritical_temp = self.corrected_pseudocritical_temperature(stream)
@@ -919,6 +947,7 @@ class Gas(AbstractSubstance):
         """
 
         :param stream:
+
         :return:
         """
         corr_pseudocritical_press = self.corrected_pseudocritical_pressure(stream)
@@ -932,6 +961,7 @@ class Gas(AbstractSubstance):
 
         :param reduced_temperature:
         :param reduced_pressure:
+
         :return:(float) gas z_factor (unit = frac)
         """
         reduced_temp = reduced_temperature.m
@@ -953,6 +983,7 @@ class Gas(AbstractSubstance):
         """
 
         :param stream:
+
         :return:
         """
 
@@ -968,6 +999,7 @@ class Gas(AbstractSubstance):
         """
 
         :param stream:
+
         :return: (float) gas density (unit = tonne/m3)
         """
         volume_factor = self.volume_factor(stream)
@@ -981,6 +1013,7 @@ class Gas(AbstractSubstance):
         Calculate natural gas viscosity using Lee et al.(1966) correlation
 
         :param stream:
+
         :return:(float) natural gas viscosity (unit = cP)
         """
         gas_stream_molar_weight = self.molar_weight(stream).m
@@ -999,6 +1032,7 @@ class Gas(AbstractSubstance):
         Calculate molar weight from molar fraction, where molar fraction is stored in Pandas Series
 
         :param molar_fracs:
+
         :return: (float) molar weight (unit = g/mol)
         """
         molar_weight = (self.component_MW[molar_fracs.index] * molar_fracs).sum()
@@ -1009,6 +1043,7 @@ class Gas(AbstractSubstance):
         """
 
         :param stream:
+
         :return:
         """
         mol_fracs = self.component_molar_fractions(stream)
@@ -1018,6 +1053,7 @@ class Gas(AbstractSubstance):
         """
 
         :param stream:
+
         :return: Gas volume flow rate (unit = m3/day)
         """
         total_mass_rate = stream.total_gas_rate()
@@ -1030,6 +1066,7 @@ class Gas(AbstractSubstance):
         """
 
         :param stream:
+
         :return: Gas volume flow rate at standard temp and press (unit = m3/day)
         """
         total_molar_flow_rate = self.total_molar_flow_rate(stream)
@@ -1041,6 +1078,7 @@ class Gas(AbstractSubstance):
 
         :param stream: (opgee.Stream) the `Stream` to examine
         :param use_LHV: whether to use LHV or HHV
+
         :return: (float) gas mass energy density (unit = MJ/kg); None if the stream is empty
         """
         mass_flow_rate = stream.gas_flow_rates()
@@ -1064,6 +1102,7 @@ class Gas(AbstractSubstance):
 
         :param molar_fracs:
         :param use_LHV: whether to use LHV or HHV
+
         :return: (float) gas mass energy density (unit = MJ/kg)
         """
         hv_molar = self.component_LHV_molar if use_LHV else self.component_HHV_molar
@@ -1081,6 +1120,7 @@ class Gas(AbstractSubstance):
 
         :param molar_fracs:
         :param temperature:
+
         :return:
         """
         latent_heat_water = Chemical("water").Hvap(T=273.15)
@@ -1098,6 +1138,7 @@ class Gas(AbstractSubstance):
         """
 
         :param stream:
+
         :return:(float) gas volume energy density (unit = btu/scf)
         """
         mass_flow_rate = stream.gas_flow_rates()  # pandas.Series
@@ -1116,6 +1157,7 @@ class Gas(AbstractSubstance):
 
         :param stream:
         :param use_LHV: (bool) whether to use LHV, else use HHV
+
         :return: (float) energy flow rate (unit = mmBtu/day)
         """
         total_mass_flow_rate = stream.total_gas_rate()
@@ -1160,6 +1202,7 @@ class Water(AbstractSubstance):
         """
 
         :param stream:
+
         :return: (float) water volume flow rate (unit = bbl_water/d)
         """
         mass_rate = stream.flow_rate("H2O", PHASE_LIQUID)
@@ -1173,6 +1216,7 @@ class Water(AbstractSubstance):
         """
 
         :param temperature:
+
         :return:(float) water specific heat (unit = btu/lb/degF)
         """
         temperature = temperature.to("kelvin").m
@@ -1184,6 +1228,7 @@ class Water(AbstractSubstance):
         """
 
         :param stream:
+
         :return: (float) water heat capacity (unit = btu/degF/day)
         """
         temperature = stream.temperature
@@ -1199,6 +1244,7 @@ class Water(AbstractSubstance):
         calculate water saturated temperature given the saturated pressure
 
         :param saturated_pressure:
+
         :return: (float) water saturated temperature (unit = degF)
         """
 
@@ -1213,6 +1259,7 @@ class Water(AbstractSubstance):
         :param pressure:
         :param temperature:
         :param mass_rate:
+
         :return: (float) total water enthalpy (unit = MJ/day)
         """
         pressure = pressure.to("psia").m
@@ -1232,6 +1279,7 @@ class Water(AbstractSubstance):
         :param pressure:
         :param steam_quality:
         :param mass_rate:
+
         :return:
         """
         pressure = pressure.to("psia").m

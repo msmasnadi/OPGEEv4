@@ -1,16 +1,49 @@
 XML File Format
 ====================
 
-The `opgee` package includes two XML files:
+The `opgee` package includes two built-in XML files:
 
 * `opgee/etc/opgee.xml` describes the default model, and
 
 * `opgee/etc/attributes.xml` describes attributes of various model components.
 
-Users can provide their own XML files which can be added to or used in place of,
+Users can provide their own XML files which can be merged with or used in place of,
 the built-in definitions. The elements of the two files are described below,
-followed by the contents of the files.
+followed by the contents of the built-in files.
 
+XML file merging
+-----------------
+The user can specify multiple XML filenames to the `opg run` sub-command. The purpose of this
+feature is to allow users to use the built-in model specification as much as possible, by
+specifying only modifications changes to that model. The built-in files etc/opgee.xml and
+etc/attributes.xml are first loaded unless the user specifies `--no-default-model` on the command-line
+to the `opg run` sub-command. Files are merged in the order they are given on the command-line.
+
+How merging works
+^^^^^^^^^^^^^^^^^^^^^
+The first loaded XML is considered the "base" file into which subsequent files are merged.
+Each subsequent file contain the complete XML structure, from the `<Model>` element down, but
+it needs to specify only
+
+    * new elements not present in the base or previously merged files
+    * modifications to existing elements, or
+    * elements to delete
+
+For an elements to "match" a previously defined one, it must be in the position in the XML
+hierarchy where each element in the hierarchy of the new and old models have the same tag
+and attributes (attribute order is irrelevant).
+
+An element is inserted into the XML in the position where a non-matching element first appears
+in the structure. **Give example**
+
+If a match is found and the attribute ``delete=true`` is specified in the new XML, that element
+and everything below it in original XML is deleted, and any XML below this element is inserted
+in its place. **Give example**
+
+If a match is found and the attribute ``delete=true`` is *not* specified in the new XML, the
+matching process proceeds recursively to the next lower level of the XML structure. If a final
+XML element (i.e., one with no children) matches, its text is copied in place of any that appeared
+in the currently merged XML. **Give example.**
 
 opgee.xml
 ------------
@@ -353,7 +386,7 @@ Describes a single option with an ``<Options>`` element. An optional
 option. The ``<Option>`` element contains the value for this alternative,
 e.g.,
 
-.. code-block::
+.. code-block:: xml
 
     <Options name="ecosystem_C_richness" default="Moderate">
       <Option desc="Low carbon richness (semi-arid grasslands)">Low</Option>

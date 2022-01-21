@@ -357,6 +357,18 @@ def _main(argv=None):
         args = tool.parser.parse_args(args=otherArgs)
         tool.run(args=args)
 
+def opg(cmdline):
+    """
+    A function that mimics the "opg" command-line, taking a command-line string that
+    is parsed like a shell command.
+
+    :param cmdline: (str) the rest of an "opg" command-line after the "opg" command itself.
+    :return: none
+    """
+    import shlex
+
+    argv = shlex.split(cmdline)
+    main(argv)
 
 def main(argv=None, raiseError=False):
     try:

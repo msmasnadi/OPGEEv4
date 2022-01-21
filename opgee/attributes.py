@@ -6,7 +6,6 @@
 """
 from collections import defaultdict
 import pandas as pd
-import pint_pandas
 from . import ureg
 from .core import OpgeeObject, XmlInstantiable, A, instantiate_subelts, elt_name, validate_unit, magnitude
 from .error import OpgeeException, AttributeError
@@ -183,8 +182,8 @@ class ClassAttrs(XmlInstantiable):
 class AttrDefs(OpgeeObject):
     """
     Parse and provide access to attributes.xml metadata file.
-    This is a singleton class: use AttrDefs.get_instance() rather
-    than calling AttrDefs() directly.
+    This is a singleton class: use ``AttrDefs.get_instance()`` rather
+    than calling ``AttrDefs()`` directly.
     """
     instance = None
 
@@ -206,13 +205,13 @@ class AttrDefs(OpgeeObject):
     def class_attrs(self, classname, raiseError=True):
         """
         Return the ClassAttrs instance for the named class. If not found: if
-        `raise_error` is True, a KeyError will be raised; if `raise_error` is False,
+        ``raise_error`` is True, a KeyError will be raised; if ``raise_error`` is False,
         None will be returned.
 
         :param classname: (str) the name of the class to find attributes for
         :param raiseError: (bool) whether failure to find class should raise an error
         :return: (ClassAttrs) the instance defining attributes for classname.
-        :raises: OpgeeError if `raiseError` is True and classname is not in the dict.
+        :raises: OpgeeError if ``raiseError`` is True and classname is not in the dict.
         """
         attrs = self.classes.get(classname)
         if attrs is None and raiseError:
@@ -223,8 +222,9 @@ class AttrDefs(OpgeeObject):
 
 class AttributeMixin():
     """
-    Consolidates attribute-related code shared by `Container` and `Process` classes.
-    Note: must be mixed into classes that have both self.attr_dict and self.attr_defs.
+    Consolidates attribute-related code shared by ``Container`` and ``Process`` classes.
+    Note: must be mixed into classes that have both ``self.attr_dict`` and
+    ``self.attr_defs``.
     """
 
     def __init__(self):
@@ -277,7 +277,8 @@ class AttributeMixin():
         us whether `cls` is a subclass of Process.
 
         :param elt: (lxml.etree.Element) the element under which to find attribute defs.
-        :param is_process: (bool) True if `cls` is a subclass of `Process.
+        :param is_process: (bool) True if `cls` is a subclass of `Process`.
+
         :return: none
         """
         attr_defs = AttrDefs.get_instance()

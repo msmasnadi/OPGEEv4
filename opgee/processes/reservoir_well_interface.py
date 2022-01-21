@@ -58,6 +58,7 @@ class ReservoirWellInterface(Process):
         """
 
         :param input_stream: (stream) one combined stream from reservoir to reservoir well interface
+
         :return:(float) bottomhole pressure (BHP) (unit = psia)
         """
         oil = self.field.oil

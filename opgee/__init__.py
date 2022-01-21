@@ -1,4 +1,5 @@
 import pint
+import pint_pandas
 from .pkg_utils import resourceStream
 
 #

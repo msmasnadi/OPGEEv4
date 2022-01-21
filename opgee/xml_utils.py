@@ -39,7 +39,8 @@ def save_xml(path, root, backup=False):
         tree = ET.ElementTree(root)
         tree.write(path, xml_declaration=True, pretty_print=True, encoding='utf-8')
     else:
-        ET.dump(root, pretty_print=True)
+        # for debugging only
+        ET.dump(root, pretty_print=True) # pragma: no cover
 
 # Deprecated (currently unused)
 # Oddly, we must re-parse the XML to get the formatting right.

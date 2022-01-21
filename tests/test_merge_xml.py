@@ -4,6 +4,7 @@ from lxml import etree as ET
 from tempfile import mkdtemp
 from .utils_for_tests import path_to_test_file
 from opgee.xml_utils import merge_siblings, prettify
+from opgee.tool import opg
 
 def assert_same_xml(x1, x2):
     x1_str = ET.tostring(x1, pretty_print=True).decode("utf-8")
@@ -128,14 +129,6 @@ in1 = path_to_test_file('test_merge_1.xml')
 in2 = path_to_test_file('test_merge_2.xml')
 in3 = path_to_test_file('test_merge_3.xml')
 
-def opg(cmdline):
-    import shlex
-    from opgee.tool import main
-
-    # print(f"Running 'opg {cmdline}'")
-    argv = shlex.split(cmdline)
-    main(argv)
-
 
 def tmpdir():
     dirname = mkdtemp(prefix='merged_xml_')
@@ -143,8 +136,8 @@ def tmpdir():
 
 
 @pytest.mark.parametrize(
-    "cmdline,expected", [(f'merge -n "{in1}" "{in2}" -o "merged.xml" --overwrite', merged_1),
-                         (f'merge -n "{in1}" "{in2}" "{in3}" -o "merged.xml" --overwrite', merged_2)])
+    "cmdline,expected", [(f'merge -n "{in1}" "{in2}" -o "merged.xml" --overwrite --no-default-model', merged_1),
+                         (f'merge -n "{in1}" "{in2}" "{in3}" -o "merged.xml" --overwrite --no-default-model', merged_2)])
 def test_merge(cmdline, expected):
     out_dir = tmpdir()
     os.chdir(out_dir)
@@ -152,7 +145,12 @@ def test_merge(cmdline, expected):
     opg(cmdline)
 
     with open(f"{out_dir}/merged.xml", 'rb') as f:
-        out_xml = f.read()
+        merged_xml = f.read()
 
-    out_tree = prettify(ET.XML(out_xml))
-    assert_same_xml(out_tree, expected)
+    merged_root = prettify(ET.XML(merged_xml))
+
+    # Delete the <AttrDefs> for comparison
+    attr_defs = merged_root.find('AttrDefs')
+    attr_defs.getparent().remove(attr_defs)
+
+    assert_same_xml(merged_root, expected)
