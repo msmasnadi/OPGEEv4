@@ -74,7 +74,7 @@ class GasPartition(Process):
         gas_to_reinjection.subtract_gas_rates_from(gas_lifting)
 
         # exported gas can have negative flow rates which means the imported gas
-        exported_gas = self.find_output_stream("gas")
+        exported_gas = self.find_output_stream("gas for transmission")
 
         excluded = [s.strip() for s in getParam("OPGEE.ExcludeFromReinjectionEnergySummary").split(",")]
         energy_sum = self.field.sum_process_energy(processes_to_exclude=excluded)

@@ -27,12 +27,6 @@ class CrudeOilStabilization(Process):
         self.print_running_msg()
         field = self.field
 
-        # TODO: Wennan, this builds in a "hidden" dependency and surprising alteration
-        # TODO: the model without alerting the user. Is this the best way to handle this?
-        if self.field.attr("crude_oil_dewatering_output") != self.name:
-            self.enabled = False
-            return
-
         # mass rate
         input = self.find_input_stream("oil for stabilization")
 
@@ -69,7 +63,7 @@ class CrudeOilStabilization(Process):
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
         gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp)
+        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, temp=field.std_temp, press=field.std_press)
 
         output = self.find_output_stream("oil for storage")
         oil_for_storage = oil_mass_rate - output_stab_gas.total_gas_rate() - gas_fugitives.total_gas_rate()

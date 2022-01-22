@@ -6,6 +6,8 @@
 '''
 
 import pandas as pd
+import pint
+
 from . import ureg
 from .core import OpgeeObject, magnitude
 from .error import OpgeeException
@@ -126,13 +128,9 @@ class Emissions(OpgeeObject):
         :param rate: (float) the rate in the Process' flow units (e.g., mmbtu (LHV) of fuel burned)
         :return: none
         """
-        rate = ureg.Quantity(rate)
-        if rate.dimensionless:
-            rate = ureg.Quantity(rate.m, "tonne/day")
-        else:
-            rate = rate.to("tonne/day")
+        rate = rate.to("tonne/day") if isinstance(rate, pint.Quantity) else rate
         self._check_loc('set_rate', gas, category)
-        self.data.loc[gas, category] = magnitude(rate, units="metric_ton / day")
+        self.data.loc[gas, category] = magnitude(rate, units="tonne/day")
 
     def set_rates(self, category, **kwargs):
         """
@@ -157,7 +155,7 @@ class Emissions(OpgeeObject):
         """
         self._check_loc('add_rate', gas, category)
         sum = self.data.loc[gas, category] + rate
-        self.data.loc[gas, category] = magnitude(sum, units="metric_ton / day")
+        self.data.loc[gas, category] = magnitude(sum, units="tonne/day")
 
     def add_rates(self, category, **kwargs):
         """

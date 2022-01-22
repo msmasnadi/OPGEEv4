@@ -4,6 +4,7 @@ from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY
 from ..log import getLogger
 from ..process import Process
 from ..stream import PHASE_LIQUID
+from ..error import OpgeeException
 
 _logger = getLogger(__name__)
 
@@ -14,12 +15,17 @@ class CrudeOilDewatering(Process):
     # OPGEE v3 workbook for the default field.
     def _after_init(self):
         super()._after_init()
-        self.field = self.get_field()
+        self.field = field = self.get_field()
         self.temperature_heater_treater = self.attr("temperature_heater_treater")
         self.heat_loss = self.attr("heat_loss")
         self.prime_mover_type = self.attr("prime_mover_type")
         self.eta_gas = (self.attr("eta_gas")).to("frac")
         self.eta_electricity = (self.attr("eta_electricity")).to("frac")
+        self.oil_path = field.attr("oil_processing_path")
+        self.oil_path_dict = {"Stabilization": "oil for stabilization",
+                              "Storage": "oil for storage",
+                              "Upgrading": "oil for upgrader",
+                              "Dilution": "oil for dilution"}
 
     def run(self, analysis):
         self.print_running_msg()
@@ -31,37 +37,28 @@ class CrudeOilDewatering(Process):
         if input.is_uninitialized():
             return
 
-        temperature = input.temperature
         pressure = input.pressure
         oil_rate = input.flow_rate("oil", PHASE_LIQUID)
         water_rate = input.flow_rate("H2O", PHASE_LIQUID)
+        temp = self.temperature_heater_treater if field.heater_treater else input.temperature
 
         separator_final_SOR = field.get_process_data("separator_final_SOR")
 
-        oil_to_stabilization = self.find_output_stream("oil for stabilization", raiseError=False)
-        temp = self.temperature_heater_treater if field.heater_treater else temperature
-        if oil_to_stabilization is not None:
-            oil_to_stabilization.set_liquid_flow_rate("oil", oil_rate, temp, pressure)
+        try:
+            output = self.oil_path_dict[self.oil_path]
+        except:
+            raise OpgeeException(f"{self.name} oil path is not recognized:{self.oil_path}. "
+                                 f"Must be one of {list(self.oil_path_dict.keys())}")
+        output_oil = self.find_output_stream(output)
+        output_oil.set_liquid_flow_rate("oil", oil_rate, temp, pressure)
 
         water_to_treatment = self.find_output_stream("water")
         water_to_treatment.set_liquid_flow_rate("H2O", water_rate, temp, pressure)
 
-        oil_to_storage = self.find_output_stream("oil for storage", raiseError=False)
-        if oil_to_storage is not None:
-            oil_to_storage.set_liquid_flow_rate("oil", oil_rate, temp, pressure)
-        else:
-            oil_to_upgrader = self.find_output_stream("oil for upgrader", raiseError=False)
-            if oil_to_upgrader is not None:
-                oil_to_upgrader.set_liquid_flow_rate("oil", oil_rate, temp, pressure)
-            else:
-                oil_to_dilution = self.find_output_stream("oil for dilution", raiseError=False)
-                if oil_to_dilution is not None:
-                    oil_to_dilution.set_liquid_flow_rate("oil", oil_rate, temp, pressure)
-
-        average_oil_temp = ureg.Quantity((temperature.m+self.temperature_heater_treater.m)/2, "degF")
+        average_oil_temp = ureg.Quantity((input.temperature.m+self.temperature_heater_treater.m)/2, "degF")
         oil_heat_capacity = self.field.oil.specific_heat(self.field.oil.API, average_oil_temp)
         water_heat_capacity = self.field.water.specific_heat(average_oil_temp)
-        delta_temp = ureg.Quantity(self.temperature_heater_treater.m - temperature.m, "delta_degF")
+        delta_temp = ureg.Quantity(self.temperature_heater_treater.m - input.temperature.m, "delta_degF")
         heat_duty = ureg.Quantity(0, "mmBtu/day")
         if field.heater_treater:
             eff = (1 + self.heat_loss.to("frac")).to("frac")

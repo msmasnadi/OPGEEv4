@@ -15,10 +15,12 @@ _logger = getLogger(__name__)
 
 _cache = {}
 
+
 def cached(func):
     """
     Simple decorator to cache results keyed on method args.
     """
+
     def wrapper(*args, **kwargs):
         # convert kwargs dict, which is unhashable, to tuple of pairs
         key = (func.__name__, args, tuple(kwargs.items()))
@@ -30,6 +32,7 @@ def cached(func):
             return result
 
     return wrapper
+
 
 def magnitude(value, units=None):
     """
@@ -44,8 +47,11 @@ def magnitude(value, units=None):
     """
     if isinstance(value, ureg.Quantity):
         # if optional units are provided, validate them
-        if units and value.units != units:
-            raise OpgeeException(f"magnitude: value {value} units are not {units}")
+        if units:
+            if not isinstance(units, pint.Unit):
+                units = ureg.Unit(units)
+            if value.units != units:
+                raise OpgeeException(f"magnitude: value {value} units are not {units}")
 
         return value.m
     else:
@@ -55,8 +61,10 @@ def magnitude(value, units=None):
 def name_of(obj):
     return obj.name
 
+
 def elt_name(elt):
     return elt.attrib.get('name')
+
 
 def instantiate_subelts(elt, cls, as_dict=False):
     """
@@ -68,14 +76,15 @@ def instantiate_subelts(elt, cls, as_dict=False):
     :param as_dict: (bool) if True, return a dictionary of subelements, keyed by name
     :return: (list) instantiated objects
     """
-    tag = cls.__name__      # class name matches element name
+    tag = cls.__name__  # class name matches element name
     objs = [cls.from_xml(e) for e in elt.findall(tag)]
 
     if as_dict:
-        d = {obj.name : obj for obj in objs}
+        d = {obj.name: obj for obj in objs}
         return d
     else:
         return objs
+
 
 def dict_from_list(objs):
     """
@@ -97,6 +106,7 @@ def dict_from_list(objs):
 
     return d
 
+
 # Top of hierarchy, because it's useful to know which classes are "ours"
 class OpgeeObject():
     pass
@@ -113,6 +123,7 @@ class XmlInstantiable(OpgeeObject):
     4. Subclasses of Container and Process implement ``run(self)`` to perform any required operations.
 
     """
+
     def __init__(self, name):
         super().__init__()
         self.name = name
@@ -154,7 +165,7 @@ class XmlInstantiable(OpgeeObject):
         for obj in objs:
             obj.parent = self
 
-        return {obj.name : obj for obj in objs} if asDict else objs
+        return {obj.name: obj for obj in objs} if asDict else objs
 
     def find_parent(self, cls):
         """
@@ -170,11 +181,12 @@ class XmlInstantiable(OpgeeObject):
         if self.parent is None:
             return None
 
-        return self.parent.find_parent(cls) # recursively ascend the graph
+        return self.parent.find_parent(cls)  # recursively ascend the graph
 
 
 # to avoid redundantly reporting bad units
 _undefined_units = {}
+
 
 def validate_unit(unit):
     """
@@ -197,12 +209,14 @@ def validate_unit(unit):
 
     return None
 
+
 class A(OpgeeObject):
     """
     The ``<A>`` element represents the value of an attribute previously defined in
     `attributes.xml` or a user-provided file. Note that this class is not instantiated
     using ``from_xml()`` approach since values are merged with metadata from `attributes.xml`.
     """
+
     def __init__(self, name, value=None, pytype=None, unit=None):
         super().__init__()
         self.name = name
@@ -244,4 +258,3 @@ class A(OpgeeObject):
         attrs = f"name='{self.name}' type='{self.pytype}' value='{self.value}'"
 
         return f"<{type_str} {attrs}>"
-

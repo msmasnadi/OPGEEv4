@@ -32,7 +32,7 @@
 			<Component name="C4" phase="gas">1.4</Component>
 			<A name="temperature">90.0</A>
 			<A name="pressure">500.0</A>
-			<Contains>gas</Contains>
+			<Contains>gas for transmission</Contains>
 		</Stream>
 
 		<Stream src="TransmissionCompressor" dst="Environment" name="transmission compressor to environment">
