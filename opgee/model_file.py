@@ -28,7 +28,8 @@ class ModelFile(XMLFile):
     _loaded_user_classes = False
 
     def __init__(self, pathnames, add_stream_components=True,
-                 use_class_path=True, use_default_model=True, save_to_path=None):
+                 use_class_path=True, use_default_model=True,
+                 instantiate_model=True, save_to_path=None):
         """
         Several steps are performed, some of which are dependent on the function's parameters:
 
@@ -44,8 +45,17 @@ class ModelFile(XMLFile):
 
         4. Construct the model data structure from the input XML file and store the result in `self.model`.
 
-        :param pathnames: (list of str) the names of the files to read, if `stream` is None, else
-           the description of the file, e.g., "[opgee package]/etc/opgee.xml".
+        :param pathnames: (str, or list or tuple of str) the name(s) of the file(s) to read, if
+           `stream` is None, else the description of the file, e.g., "[opgee package]/etc/opgee.xml".
+        :param add_stream_components: (bool) whether to load additional `Stream` components using the
+           value of config parameter "OPGEE.StreamComponents".
+        :param use_class_path: (bool) whether to load custom python classes from the path indicated by
+           config file variable "OPGEE.ClassPath".
+        :param use_default_model: (bool) whether to load the built-in files "etc/opgee.xml" and
+           "/etc/attributes.xml".
+        :param instantiate_model: (bool) whether to parse the merged XML to create a ``Model``
+            instance.
+        :param save_to_path: (str) If provided, the final merged XML will written to this pathname.
         """
         _logger.debug(f"Loading model from: {pathnames}")
 
@@ -53,7 +63,7 @@ class ModelFile(XMLFile):
             pathnames = [] if pathnames is None else [pathnames]
 
         if not (pathnames or use_default_model):
-            raise OpgeeException(f"ModelFile: not model XML file specified")
+            raise OpgeeException(f"ModelFile: no model XML file specified")
 
         opgee_xml = 'etc/opgee.xml'
         attributes_xml = 'etc/attributes.xml'
@@ -142,12 +152,14 @@ class ModelFile(XMLFile):
 
             reload_subclass_dict()
 
-        self.model = model = Model.from_xml(base_root)
-        model.validate()
+        # the merge subcommand specifies instantiate_model=False, but normally the model is loaded.
+        if instantiate_model:
+            self.model = model = Model.from_xml(base_root)
+            model.validate()
 
-        # Show the list of paths read in the GUI
-        pathnames.insert(0, opgee_xml if base_stream else base_path)
-        model.set_pathnames(pathnames)
+            # Show the list of paths read in the GUI
+            pathnames.insert(0, opgee_xml if base_stream else base_path)
+            model.set_pathnames(pathnames)
 
     @classmethod
     def attr_defs(cls):

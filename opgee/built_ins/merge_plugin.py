@@ -42,15 +42,11 @@ class MergeCommand(SubcommandABC):
 
     def run(self, args, tool):
         from ..error import CommandlineError
-        from ..pkg_utils import resourceStream
-        from ..XMLFile import XMLFile
-        from ..xml_utils import merge_elements, save_xml
+        from ..model_file import ModelFile
 
         pathnames = args.pathnames
         if not pathnames:
             raise CommandlineError('Missing required input XML file(s)')
-
-        # TBD: rewrite this to use updated ModelFile
 
         if args.outputXML:
             output_path = Path(args.outputXML)
@@ -63,20 +59,10 @@ class MergeCommand(SubcommandABC):
         else:
             output_path = None
 
-        # read and validate the format of all the input files.
-        xml_files = [XMLFile(path, schemaPath='etc/opgee.xsd') for path in pathnames]
-        xml_roots = [xml_file.getRoot() for xml_file in xml_files]
+        use_default_model = not args.no_default_model
+        mf = ModelFile(pathnames, use_default_model=use_default_model,
+                       instantiate_model=False, save_to_path=output_path)
 
-        if args.no_default_model:
-            base_root = xml_roots.pop(0)
-        else:
-            s = resourceStream('etc/opgee.xml', stream_type='bytes', decode=None)
-            base_root = XMLFile(s, schemaPath='etc/opgee.xsd').getRoot()
-
-        # merge everything below <Model> into the base XML file's <Model> element
-        for root in xml_roots:
-            merge_elements(base_root, root[:])
-
-        save_xml(output_path, base_root)
-
-        pass
+        if not output_path:
+            from lxml import etree
+            etree.dump(mf.root, pretty_print=True)

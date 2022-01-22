@@ -5,7 +5,6 @@
    See the https://opensource.org/licenses/MIT for license details.
 '''
 import pandas as pd
-import pint_pandas
 from .core import OpgeeObject
 from .error import OpgeeException
 

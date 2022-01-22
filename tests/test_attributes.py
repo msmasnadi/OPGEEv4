@@ -1,6 +1,6 @@
 import pytest
 from lxml import etree as ET
-from pint import Quantity
+from opgee import ureg
 from opgee.analysis import Analysis
 from opgee.attributes import ClassAttrs, AttributeMixin
 from opgee.core import instantiate_subelts
@@ -81,7 +81,7 @@ def test_model_defaults(attr_classes, attr_dict_1, attr_name, value):
 
 
 @pytest.mark.parametrize(
-    "attr_name, value", [("GWP_horizon", Quantity(20.0, 'year')),  # test units and numerical override
+    "attr_name, value", [("GWP_horizon", ureg.Quantity(20.0, 'year')),  # test units and numerical override
                          ("GWP_version", "AR4"),  # test character value override
                          ("energy_basis", "LHV"),  # test character default adopted
                          ]

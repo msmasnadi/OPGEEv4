@@ -89,10 +89,6 @@ class FuelGasImports(Process):
     def run(self, analysis):
         self.print_running_msg()
 
-class GasTransmissionCompressors(Process):
-    def run(self, analysis):
-        self.print_running_msg()
-
 
 class NGLOrDiluentProdAndImports(Process):
     def run(self, analysis):

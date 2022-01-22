@@ -25,6 +25,12 @@ class Proc4(Process):
 def stream_model(configure_logging_for_tests):
     return load_test_model('test_stream.xml')
 
+def test_carbon_number():
+    from opgee.stream import is_carbon_number
+    assert is_carbon_number("C2") and is_carbon_number("C200")
+
+    assert not is_carbon_number("foo")
+
 def test_find_stream(stream_model):
     analysis = stream_model.get_analysis('test')
     field = analysis.get_field('test')

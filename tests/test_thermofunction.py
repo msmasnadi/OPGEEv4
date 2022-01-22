@@ -29,9 +29,9 @@ def test_oil_specific_gravity(oil_instance):
     assert oil_SG == ureg.Quantity(pytest.approx(oil_instance.oil_specific_gravity.m), "frac")
 
 
-def test_reservoir_solution_GOR(oil_instance):
-    res_GOR = oil_instance.reservoir_solution_GOR()
-    assert res_GOR == ureg.Quantity(pytest.approx(291.334541), "scf/bbl_oil")
+# def test_reservoir_solution_GOR(oil_instance):
+#     res_GOR = oil_instance.reservoir_solution_GOR()
+#     assert res_GOR == ureg.Quantity(pytest.approx(291.334541), "scf/bbl_oil")
 
 
 def test_bubble_point_pressure(oil_instance):
@@ -371,3 +371,17 @@ def test_steam_enthalpy(water_instance):
     mass_rate = ureg.Quantity(5.52E7, "kg/day")
     enthalpy = water_instance.steam_enthalpy(press, steam_quality, mass_rate)
     assert enthalpy == ureg.Quantity(pytest.approx(1.28341315e+08), "MJ/day")
+
+def test_check_balance():
+    from opgee.processes.steam_generation import SteamGeneration
+    from opgee.error import BalanceError
+
+    proc = SteamGeneration("test_proc")
+    input = ureg.Quantity(100.0, "tonne/day")
+    output1 = ureg.Quantity(100.0001, "tonne/day")
+    output2 = ureg.Quantity(110, "tonne/day")
+
+    proc.check_balance(input, output1, "test1")
+
+    with pytest.raises(BalanceError, match="test2 is not balanced in test_proc"):
+        proc.check_balance(input, output2, "test2")
