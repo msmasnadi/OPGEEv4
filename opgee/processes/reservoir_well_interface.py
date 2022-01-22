@@ -56,10 +56,12 @@ class ReservoirWellInterface(Process):
 
     def get_bottomhole_press(self, input_stream):
         """
+        Get the bottomhole pressure (BHP)
 
-        :param input_stream: (stream) one combined stream from reservoir to reservoir well interface
+        :param input_stream: (Stream) a combined stream with all flows from Reservoir
+           to Reservoir-Well Interface
 
-        :return:(float) bottomhole pressure (BHP) (unit = psia)
+        :return:(pint.Quantity) bottomhole pressure (BHP) in units "psia"
         """
         oil = self.field.oil
         gas = self.field.gas
@@ -89,8 +91,8 @@ class ReservoirWellInterface(Process):
         boundary = ureg.Quantity(2000, "psia")
         if res_press <= boundary:
             # flowing bottomhole pressure at producer (gas phase, low pressure)
-            delta_P_square = (gas_viscosity * z_factor * self.std_press * stream_temp * np.log(
-                1000 / 0.5) * gas_rate_per_well /
+            delta_P_square = (gas_viscosity * z_factor * self.std_press * stream_temp *
+                              np.log(1000 / 0.5) * gas_rate_per_well /
                               (np.pi * self.permeability * self.thickness * self.std_temp)).to("psia**2")
             prod_gas_flowing_BHP = np.sqrt(res_press ** 2 - delta_P_square)
         else:
