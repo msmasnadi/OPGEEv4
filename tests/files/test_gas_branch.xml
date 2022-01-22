@@ -468,7 +468,7 @@
 		</Stream>
 
 		<Stream src="GasPartition" dst="TransmissionCompressor" name="gas partition to production site boundary" boundary = "Production">
-			<Contains>gas</Contains>
+			<Contains>gas for transmission</Contains>
 		</Stream>
 
 		<Stream src="TransmissionCompressor" dst="Environment" name="transmission compressor to environment">

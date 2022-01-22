@@ -474,11 +474,11 @@ class Field(Container):
 
     def streams(self):
         """
-        Gets all `Stream` instances for this `Field`.
+        Gets all enabled `Stream` instances for this `Field`.
 
         :return: (iterator of `Stream` instances) streams in this `Field`
         """
-        return self.stream_dict.values()
+        return [s for s in self.stream_dict.values() if s.enabled]
 
     def processes(self):
         """
