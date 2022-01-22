@@ -28,11 +28,6 @@ class HeavyOilUpgrading(Process):
     def run(self, analysis):
         self.print_running_msg()
 
-        # TODO: Wennan, this looks like a process dependency that we should solve another way
-        if self.field.attr("crude_oil_dewatering_output") != self.name:
-            self.enabled = False
-            return
-
         if not self.all_streams_ready("oil for upgrading"):
             return
 

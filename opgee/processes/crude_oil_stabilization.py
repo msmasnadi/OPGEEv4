@@ -27,12 +27,6 @@ class CrudeOilStabilization(Process):
         self.print_running_msg()
         field = self.field
 
-        # TODO: Wennan, this builds in a "hidden" dependency and surprising alteration
-        # TODO: the model without alerting the user. Is this the best way to handle this?
-        if self.field.attr("crude_oil_dewatering_output") != self.name:
-            self.enabled = False
-            return
-
         # mass rate
         input = self.find_input_stream("oil for stabilization")
 

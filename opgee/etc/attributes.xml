@@ -178,7 +178,13 @@
         <Option desc="Dehydration then direct injection of sour CO2-rich stream">Sour Gas Reinjection</Option>
         <Option desc="Dehydrator + Compressor + Membrane + Amine Process + Demethanizer">CO2-EOR Membrane</Option>
         <Option desc="Dehydrator + Ryan Holmes Process (Demethanizer Included)">CO2-EOR Ryan Holmes</Option>
-<!--        <Option desc="Dehydrator + Methane Nitrogen Flooding">Methane Nitrogen Flooding</Option>-->
+      </Options>
+      <Options name="oil_processing_path" default="Stabilization">
+        <Option>None</Option>
+        <Option desc="Stabilization">Stabilization</Option>
+        <Option desc="Storage">Storage</Option>
+        <Option desc="Upgrading">Upgrading</Option>
+        <Option desc="Dilution">Dilution</Option>
       </Options>
       <AttrDef name="heater_treater" type="binary" desc="Heater/treater">0</AttrDef>
       <AttrDef name="steam_quality_at_generator_outlet" unit="frac" type="float" desc="steam quality at generator outlet">0.7</AttrDef>
@@ -189,6 +195,7 @@
       <AttrDef name="FOR" unit="scf/bbl_oil" desc="Ratio of flaring to oil production" type="float">141.3</AttrDef>
       <AttrDef name="VOR" unit="scf/bbl_oil" desc="Ratio of venting to oil production" type="float">5.0</AttrDef>
       <AttrDef name="fraction_diluent" desc="Volume fraction of diluent in diluted crude" type="float">0.0</AttrDef>
+      <AttrDef name="oil_processing_path" desc="Associated oil processing path" options="oil_processing_path" type="str"/>
       <AttrDef name="temperature_mined_bitumen" desc="Mined bitumen temperature" type="float" unit="degF">80.0</AttrDef>
       <AttrDef name="pressure_mined_bitumen" desc="Mined bitumen pressure" type="float" unit="psia">14.70</AttrDef>
       <AttrDef name="stabilizer_column" type="binary" desc="stabilizer colume">1</AttrDef>
