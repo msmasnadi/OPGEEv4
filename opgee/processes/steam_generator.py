@@ -148,6 +148,7 @@ class SteamGenerator(OpgeeObject):
                                  shell_loss_per_unit_fuel -
                                  other_loss_per_unit_fuel, 0)
 
+        # TODO: Wennan, lots of redundancy here you can extract to a common factor
         # calculate recoverable heat
         delta_H = steam_out_enthalpy_rate - prod_water_enthalpy_rate - makeup_water_enthalpy_rate - recoverable_enthalpy_blowdown_water
         constant_before_economizer = exhaust_consump_sum * exhaust_consump_MW / \
@@ -160,11 +161,13 @@ class SteamGenerator(OpgeeObject):
         eta_eco = self.eta_economizer_heat_rec_OTSG
         eta_heater = self.eta_preheater_heat_rec_OTSG
 
+        # TODO: Write a local function and call it twice since the form of these expression is the same.
         d_eco = eta_eco * (constant_before_economizer - constant_before_preheater) / \
                 (1 + eta_eco * (constant_before_economizer - constant_before_preheater))
         d_heater = eta_heater * (constant_outlet - constant_before_preheater) / \
                    (1 + eta_heater * (constant_outlet - constant_before_preheater))
 
+        # TODO: as above
         recoverable_heat_before_economizer = ureg.Quantity(0, "MJ/day") if not self.economizer_OTSG else \
             (d_eco - d_eco * d_heater) * delta_H / (1 - d_eco * d_heater)
         recoverable_heat_before_preheater = ureg.Quantity(0, "MJ/day") if not self.economizer_OTSG else \
@@ -211,6 +214,8 @@ class SteamGenerator(OpgeeObject):
                          water_mass_rate_for_injection,
                          blowdown_water_mass_rate):
 
+        # TODO: Wennan, I'm think we need a 'ThermoState' object to hold temperature and pressure. (Not sure that's
+        #       the best name though.) It would simplify the many function calls that pass the two together.
         prod_water_enthalpy_rate = self.water.enthalpy_PT(self.prod_water_inlet_press,
                                                           self.prod_water_inlet_temp,
                                                           prod_water_mass_rate * self.fraction_steam_cogen)

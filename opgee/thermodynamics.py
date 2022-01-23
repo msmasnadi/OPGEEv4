@@ -8,6 +8,22 @@ from .core import OpgeeObject
 from .error import OpgeeException
 from .stream import PHASE_LIQUID, Stream, PHASE_GAS, PHASE_SOLID
 
+# TODO: consider using this everywhere we store and access T and P
+class Condition(OpgeeObject):
+    __slots__ = ('T', 'P')      # keeps instances small and fast
+
+    def __init__(self, T, P):
+        self.T = T
+        self.P = P
+
+    def set(self, T=None, P=None):
+        if T is not None:
+            self.T = T
+
+        if P is not None:
+            self.P = P
+
+
 class ChemicalInfo(OpgeeObject):
     instance = None
 
