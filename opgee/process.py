@@ -19,7 +19,7 @@ from .energy import Energy
 from .log import getLogger
 from .stream import Stream, PHASE_GAS
 from .utils import getBooleanXML
-from .drivers import Drivers
+from .drivers import get_efficiency
 from .combine_streams import combine_streams
 from .thermodynamics import component_MW
 
@@ -651,7 +651,7 @@ class Process(XmlInstantiable, AttributeMixin):
     def get_energy_consumption_stages(prime_mover_type, brake_horsepower_of_stages):
         energy_consumption_of_stages = []
         for brake_horsepower in brake_horsepower_of_stages:
-            eff = Drivers.get_efficiency(prime_mover_type, brake_horsepower)
+            eff = get_efficiency(prime_mover_type, brake_horsepower)
             energy_consumption = (brake_horsepower * eff).to("mmBtu/day")
             energy_consumption_of_stages.append(energy_consumption)
 
@@ -659,7 +659,7 @@ class Process(XmlInstantiable, AttributeMixin):
 
     @staticmethod
     def get_energy_consumption(prime_mover_type, brake_horsepower):
-        eff = Drivers.get_efficiency(prime_mover_type, brake_horsepower)
+        eff = get_efficiency(prime_mover_type, brake_horsepower)
         energy_consumption = (brake_horsepower * eff).to("mmBtu/day")
 
         return energy_consumption
