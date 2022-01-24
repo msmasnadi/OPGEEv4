@@ -1,12 +1,11 @@
 import numpy as np
 
+from .shared import get_energy_carrier
 from .. import ureg
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
-from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
 from ..log import getLogger
 from ..process import Process
 from ..stream import Stream
-from .shared import get_energy_carrier
 
 _logger = getLogger(__name__)
 

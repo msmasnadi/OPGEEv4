@@ -31,6 +31,13 @@ class HeavyOilUpgrading(Process):
         if not self.all_streams_ready("oil for upgrading"):
             return
 
+        # mass rate
+        input_oil = self.find_input_streams("oil for upgrading", combine=True)
+        input_gas = self.find_input_stream("gas for upgrading")
+
+        if input_oil.is_uninitialized() or input_gas.is_uninitialized():
+            return
+
         df = self.model.heavy_oil_upgrading
         totals = df.query("Fraction == 'total'")
         d = {}
@@ -43,13 +50,6 @@ class HeavyOilUpgrading(Process):
 
         heavy_oil_upgrading_table = df[self.upgrader_type]
         heavy_oil_upgrading_table.index = df["Items"]
-
-        # mass rate
-        input_oil = self.find_input_streams("oil for upgrading", combine=True)
-        input_gas = self.find_input_stream("gas for upgrading")
-
-        if input_oil.is_uninitialized() or input_gas.is_uninitialized():
-            return
 
         upgrading_insitu = True if self.upgrader_type is not None and self.oil_sand_mine != "Without upgrader" else False
         upgrader_process_gas_MW = (self.upgrader_gas_comp * self.oil.component_MW[self.upgrader_gas_comp.index]).sum()

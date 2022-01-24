@@ -1,9 +1,9 @@
-from ..stream import Stream
 from opgee.processes.compressor import Compressor
+from .shared import get_energy_carrier
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
-from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
 from ..log import getLogger
 from ..process import Process
+from ..stream import Stream
 
 _logger = getLogger(__name__)
 
@@ -51,12 +51,7 @@ class PostStorageCompressor(Process):
 
         # energy-use
         energy_use = self.energy
-        if self.prime_mover_type == "NG_engine" or "NG_turbine":
-            energy_carrier = EN_NATURAL_GAS
-        elif self.prime_mover_type == "Electric_motor":
-            energy_carrier = EN_ELECTRICITY
-        else:
-            energy_carrier = EN_DIESEL
+        energy_carrier = get_energy_carrier(self.prime_mover_type)
         energy_use.set_rate(energy_carrier, energy_consumption)
 
         gas_consumption_frac = energy_use.get_rate(energy_carrier) / input_energy_flow_rate

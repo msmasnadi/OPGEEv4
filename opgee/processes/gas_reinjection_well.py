@@ -10,11 +10,10 @@ class GasReinjectionWell(Process):
         super()._after_init()
         self.field = field = self.get_field()
         self.gas = field.gas
-        self.std_temp = field.model.const("std-temperature")
-        self.std_press = field.model.const("std-pressure")
 
     def run(self, analysis):
         self.print_running_msg()
+        field = self.field
 
         # mass rate
         input = self.find_input_stream("gas for gas reinjection well")
@@ -25,7 +24,7 @@ class GasReinjectionWell(Process):
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
         gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, temp=self.std_temp, press=self.std_press)
+        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, temp=field.std_temp, press=field.std_press)
 
         gas_to_reservoir = self.find_output_stream("gas for reservoir")
         gas_to_reservoir.copy_flow_rates_from(input)
