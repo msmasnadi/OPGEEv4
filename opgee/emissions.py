@@ -225,10 +225,6 @@ class Emissions(OpgeeObject):
         voc_rate = series[series.index.intersection(Stream.VOCs)].sum()
         self.add_rate(category, 'VOC', voc_rate)
 
-        # TODO: this is incorrect since not weighted by GWP
-        # GHG = self.data[category].sum()
-        # self.add_rate(category, "GHG", GHG)
-
     def set_from_series(self, category, series):
         """
         Set emission flow rates from a Series instance to the given emissions category.

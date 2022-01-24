@@ -17,7 +17,7 @@ from .error import OpgeeException, AbstractMethodError, OpgeeIterationConverged,
 from .emissions import Emissions, EM_OTHER
 from .energy import Energy
 from .log import getLogger
-from .stream import Stream, PHASE_GAS
+from .stream import Stream, PHASE_GAS, PHASE_LIQUID
 from .utils import getBooleanXML
 from .drivers import get_efficiency
 from .combine_streams import combine_streams
@@ -298,9 +298,7 @@ class Process(XmlInstantiable, AttributeMixin):
         gas_fugitives.copy_gas_rates_from(stream)
         gas_fugitives.multiply_flow_rates(loss_rate)
 
-        std_temp = field.model.const("std-temperature")
-        std_press = field.model.const("std-pressure")
-        gas_fugitives.set_temperature_and_pressure(std_temp, std_press)
+        gas_fugitives.set_temperature_and_pressure(field.std_temp, field.std_press)
 
         return gas_fugitives
 
@@ -751,9 +749,9 @@ class Process(XmlInstantiable, AttributeMixin):
         return emission_series
 
     # TODO: This is currently used only once, in flaring.py. All that's really needed is the mass rate
-    # TODO: of CO2, so there's no reason to create a new Stream. Just sum the CO2 and use Stream.add_rate().
-    # TODO: I created (but haven't tested) a Stream.add_combustion_CO2_from(other_stream) which does this.
-    # TODO: (This seemed better located in the Stream class. So this should be removed once uses are changed.)
+    #       of CO2, so there's no reason to create a new Stream. Just sum the CO2 and use Stream.add_rate().
+    #       I created (but haven't tested) a Stream.add_combustion_CO2_from(other_stream) which does this.
+    #       (This seemed better located in the Stream class. So this should be removed once uses are changed.)
     @staticmethod
     def combust_stream(stream):
         """
@@ -850,7 +848,10 @@ class SurfaceSource(Process):
     def run(self, analysis):
         self.print_running_msg()
 
-# TODO: implement this
+#
+# TODO: Unclear whether this needs to be a Process since it's never actually run.
+#       However, it does allow us to attach streams to it for use by other processes.
+#
 class ExternalSupply(Process):
     """
     ExternalSupply represents all resources acquired from outside the system boundaries,
@@ -860,6 +861,47 @@ class ExternalSupply(Process):
 
     def __init__(self, *args, **kwargs):
         super().__init__("ExternalSupply", desc='Resources outside system boundaries')
+        self.reset_totals()
+
+    def reset_totals(self):
+        self.water       = ureg.Quantity(0.0, "tonne/day")   # municipal water
+        self.gas         = ureg.Quantity(0.0, "tonne/day")   # utility natural gas
+        self.electricity = ureg.Quantity(0.0, "mmbtu/day")   # grid electricity
+
+    def reset(self):
+        super().reset()
+        self.reset_totals()
+
+    def use_gas(self, stream, quantity):
+        """
+        Record use of a ``quantity`` of imported utility natural gas
+
+        :param quantity: (pint.Quantity) in units of mass/time
+        :param stream: (Stream) input stream to the process requesting the resource
+        :return: none
+        """
+        self.gas += quantity
+        stream.add_flow_rate('C1', PHASE_GAS, quantity)
+
+    def use_water(self, stream, quantity):
+        """
+        Record use of a ``quantity`` of imported municipal water
+
+        :param quantity: (pint.Quantity) in units of mass/time
+        :return: none
+        """
+        self.water += quantity
+        stream.add_flow_rate('H2O', PHASE_LIQUID, quantity)
+
+    # Electricity is not handled in Streams, so no stream argument here.
+    def use_electricity(self, quantity):
+        """
+        Record use of a ``quantity`` of imported grid electricity
+
+        :param quantity: (pint.Quantity) in units of energy/time
+        :return: none
+        """
+        self.electricity += quantity
 
     def run(self, analysis):
         self.print_running_msg()

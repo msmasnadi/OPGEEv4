@@ -504,6 +504,16 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.initialized = True
         self.components *= magnitude(factor, 'fraction')
 
+    def add_flow_rate(self, name, phase, rate):
+        """
+        Add the mass flow ``rate`` to our own
+        :param name: (str) the name of the component
+        :param phase: (str) one of {'gas', 'liquid', or 'solid'}
+        :param rate: (pint.Quantity) in units of mass/time
+        :return: none
+        """
+        self.set_flow_rate(name, phase, self.flow_rate(name, phase) + rate)
+
     def add_flow_rates_from(self, stream):
         """
         Add the mass flow rates from ``stream`` to our own.

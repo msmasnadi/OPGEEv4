@@ -53,7 +53,6 @@ class RunCommand(SubcommandABC):
         if not (use_default_model or model_files):
             raise CommandlineError("No model to run: the --model-file option was not used and --no-default-model was specified.")
 
-        # TBD: rationalize this with
         mf = ModelFile(model_files, use_default_model=use_default_model)
         model = mf.model
 

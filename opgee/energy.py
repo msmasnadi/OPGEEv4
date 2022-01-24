@@ -12,7 +12,7 @@ from .log import getLogger
 
 _logger = getLogger(__name__)
 
-# TBD: Decide if these strings are the ones we want to use throughout.
+# TBD: Decide if these strings are the ones we want to use throughout. Some seem a bit random.
 EN_NATURAL_GAS = 'Natural gas'
 EN_UPG_PROC_GAS = 'Upgrader proc. gas'
 EN_NGL = 'NGL'

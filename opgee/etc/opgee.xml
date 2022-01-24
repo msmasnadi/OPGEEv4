@@ -23,7 +23,6 @@
 
 		<!-- Field name="test" -->		<!-- this would include "test" field w/o change -->
 
-		<!-- TBD: implement the required merge behavior -->
 		<Field name="US_FW_custom" modifies="US_FW">				<!-- the elements below are merged into a copy of field US_FW -->
 			<Aggregator name="Production_and_extraction">
 						<Process class="Reservoir" desc="Oil reservoir">
