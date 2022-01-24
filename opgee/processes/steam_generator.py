@@ -5,6 +5,9 @@ import pandas as pd
 
 class SteamGenerator(OpgeeObject):
     def __init__(self, field):
+        self.field = field
+        model = field.model
+
         self.frac_steam_cogen = field.attr("fraction_steam_cogen")
         self.frac_steam_solar = field.attr("fraction_steam_solar")
         self.SOR = field.attr("SOR")
@@ -68,18 +71,17 @@ class SteamGenerator(OpgeeObject):
 
         self.gas_turbine_type = field.attr("gas_turbine_type")
         self.duct_firing = field.attr("duct_firing")
-        self.field = field
 
-    def _after_init(self):
-        self.water = self.field.water
-        self.oil = self.field.oil
-        self.gas = self.field.gas
+        self.water = field.water
+        self.oil = field.oil
+        self.gas = field.gas
 
-        self.prod_combustion_coeff = self.field.model.prod_combustion_coeff
-        self.reaction_combustion_coeff = self.field.model.reaction_combustion_coeff
-        self.gas_turbine_tlb = self.field.model.gas_turbine_tbl
-        self.liquid_fuel_comp = self.field.oil.liquid_fuel_composition(self.API)
-        self.steam_press_upper = self.field.model.const("steam-press-upper-limit")
+        self.prod_combustion_coeff = model.prod_combustion_coeff
+        self.reaction_combustion_coeff = model.reaction_combustion_coeff
+        self.gas_turbine_tlb = model.gas_turbine_tbl
+        self.liquid_fuel_comp = self.oil.liquid_fuel_composition(self.API)
+        self.steam_press_upper = model.const("steam-press-upper-limit")
+
         self.steam_generator_press_outlet = min((self.res_press + self.steam_injection_delta_press) *
                                                 self.friction_loss_stream_distr *
                                                 self.pressure_loss_choke_wellhead, self.steam_press_upper)
@@ -89,9 +91,12 @@ class SteamGenerator(OpgeeObject):
 
         self.prod_gas_reactants_comp = self.get_combustion_comp(self.reaction_combustion_coeff,
                                                                 self.processed_prod_gas_comp)
+
         self.prod_gas_products_comp = self.get_combustion_comp(self.prod_combustion_coeff, self.processed_prod_gas_comp)
+
         self.import_gas_reactants_comp = self.get_combustion_comp(self.reaction_combustion_coeff,
                                                                   self.imported_fuel_gas_comp)
+
         self.import_gas_products_comp = self.get_combustion_comp(self.prod_combustion_coeff,
                                                                  self.imported_fuel_gas_comp)
 

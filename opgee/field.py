@@ -135,7 +135,7 @@ class Field(Container):
         self.water = Water(self)
         self.steam_generator = SteamGenerator(self)
 
-        for iterator in [self.processes(), self.streams(), [self.steam_generator]]:     # self.oil, self.gas, self.water,
+        for iterator in [self.processes(), self.streams()]:
             for obj in iterator:
                 obj._after_init()
 
