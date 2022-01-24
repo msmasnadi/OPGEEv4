@@ -45,6 +45,12 @@ class SteamGeneration(Process):
         self.eta_air_blower_OTSG = field.attr("eta_air_blower_OTSG")
         self.eta_air_blower_HRSG = field.attr("eta_air_blower_HRSG")
         self.eta_air_blower_solar = field.attr("eta_air_blower_solar")
+
+        # TODO: the SteamGenerator is instantiated only here, in Field, yet it is used only
+        #       in the SteamGeneration process. Is the SteamGenerator intended to be used by
+        #       other processes? If not, this, why not move its methods into SteamGeneration?
+        #       The only methods SteamGenerator called in SteamGeneration are called once each,
+        #       in run().
         self.steam_generator = field.steam_generator
 
     def run(self, analysis):

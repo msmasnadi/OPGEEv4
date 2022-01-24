@@ -371,7 +371,7 @@ class AbstractSubstance(OpgeeObject):
 
 class Oil(AbstractSubstance):
     """
-    Describes thermodynamic proerties of crude oil.
+    Describes thermodynamic properties of crude oil.
     """
 
     # Bubblepoint pressure constants
