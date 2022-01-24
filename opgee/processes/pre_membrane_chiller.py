@@ -16,11 +16,10 @@ class PreMembraneChiller(Process):
         self.pressure_drop = ureg.Quantity(56, "delta_degC")
         self.feed_stream_mass_rate = ureg.Quantity(6.111072, "tonne/day")
         self.compressor_load = ureg.Quantity(3.44, "MW")
-        self.std_temp = field.model.const("std-temperature")
-        self.std_press = field.model.const("std-pressure")
 
     def run(self, analysis):
         self.print_running_msg()
+        field = self.field
 
         # mass rate
         input = self.find_input_stream("gas for chiller")
@@ -28,7 +27,7 @@ class PreMembraneChiller(Process):
         gas_fugitives_temp = self.set_gas_fugitives(input, self.fug_emissions_chiller.to("frac"))
         gas_fugitives = self.find_output_stream("gas fugitives")
         gas_fugitives.copy_flow_rates_from(gas_fugitives_temp)
-        gas_fugitives.set_temperature_and_pressure(self.std_temp, self.std_press)
+        gas_fugitives.set_temperature_and_pressure(field.std_temp, field.std_press)
 
         gas_to_compressor = self.find_output_stream("gas for compressor")
         gas_to_compressor.copy_flow_rates_from(input)

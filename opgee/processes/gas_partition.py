@@ -18,12 +18,10 @@ class GasPartition(Process):
         super()._after_init()
         self.field = field = self.get_field()
         self.gas = field.gas
-        self.std_temp = field.model.const("std-temperature")
-        self.std_press = field.model.const("std-pressure")
         self.gas_lifting = field.attr("gas_lifting")
         self.imported_fuel_gas_comp = field.attrs_with_prefix("imported_gas_comp_")
         self.imported_fuel_gas_mass_fracs = field.gas.component_mass_fractions(self.imported_fuel_gas_comp)
-        self.imported_gas_stream = Stream("imported_gas", temperature=self.std_temp, pressure=self.std_press)
+        self.imported_gas_stream = Stream("imported_gas", temperature=field.std_temp, pressure=field.std_press)
         self.imported_gas_stream.set_rates_from_series(
             self.imported_fuel_gas_mass_fracs * ureg.Quantity(1, "tonne/day"),
             phase=PHASE_GAS)
