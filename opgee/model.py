@@ -72,11 +72,9 @@ class Model(Container):
         self.pathnames = None  # set by calling set_pathnames(path)
 
     def _after_init(self):
-        for obj in self.fields():
-            obj._after_init()
-
-        for obj in self.analyses():
-            obj._after_init()
+        for iterator in [self.fields(), self.analyses()]:
+            for obj in iterator:
+                obj._after_init()
 
     def set_pathnames(self, pathnames):
         self.pathnames = pathnames

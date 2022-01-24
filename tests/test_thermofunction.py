@@ -1,6 +1,5 @@
 import pandas as pd
 import pytest
-from opgee.thermodynamics import Oil, Gas, Water
 from opgee.stream import Stream
 from opgee import ureg
 
@@ -8,9 +7,7 @@ from opgee import ureg
 @pytest.fixture(scope="module")
 def oil_instance(test_model):
     field = test_model.get_field("test")
-    oil = Oil(field)
-    oil._after_init()
-    return oil
+    return field.oil
 
 
 def test_gas_specific_gravity(oil_instance):
@@ -28,7 +25,7 @@ def test_oil_specific_gravity(oil_instance):
     oil_SG = oil_instance.specific_gravity(oil_instance.API)
     assert oil_SG == ureg.Quantity(pytest.approx(oil_instance.oil_specific_gravity.m), "frac")
 
-
+# TODO: Fix or delete this
 # def test_reservoir_solution_GOR(oil_instance):
 #     res_GOR = oil_instance.reservoir_solution_GOR()
 #     assert res_GOR == ureg.Quantity(pytest.approx(291.334541), "scf/bbl_oil")
@@ -150,10 +147,7 @@ def test_liquid_fuel_comp(oil_instance):
 @pytest.fixture
 def gas_instance(test_model):
     field = test_model.get_field("test")
-    gas = Gas(field)
-    gas._after_init()
-    return gas
-
+    return field.gas
 
 @pytest.fixture
 def stream():
@@ -321,9 +315,7 @@ def test_energy_flow_rate(gas_instance, stream):
 @pytest.fixture
 def water_instance(test_model):
     field = test_model.get_field("test")
-    water = Water(field)
-    water._after_init()
-    return water
+    return field.water
 
 
 def test_water_density(water_instance):

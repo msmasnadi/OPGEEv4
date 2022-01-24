@@ -39,7 +39,7 @@ class Field(Container):
         # Other Processes maybe defined within the Aggregators in `aggs`.
         super().__init__(name, attr_dict=attr_dict, aggs=aggs, procs=procs)
 
-        self._model = None  # set in _after_init
+        self.model = None  # set in _after_init
 
         self.group_names = group_names
         self.stream_dict = dict_from_list(streams)
@@ -101,14 +101,10 @@ class Field(Container):
         if cycles:
             _logger.debug(f"Field '{name}' has cycles: {cycles}")
 
-        self.oil = Oil(self)
-        self.gas = Gas(self)
-        self.water = Water(self)
-        self.steam_generator = SteamGenerator(self)
-
         self.process_data = {}
 
         # Set in _after_init()
+        self.oil = self.gas = self.water = self.steam_generator = None
         self.std_temp  = None
         self.std_press = None
 
@@ -134,7 +130,12 @@ class Field(Container):
         self.transport_parameter = model.transport_parameter
         self.transport_by_mode = model.transport_by_mode
 
-        for iterator in [self.processes(), self.streams(), [self.oil, self.gas, self.water, self.steam_generator]]:
+        self.oil = Oil(self)
+        self.gas = Gas(self)
+        self.water = Water(self)
+        self.steam_generator = SteamGenerator(self)
+
+        for iterator in [self.processes(), self.streams(), [self.steam_generator]]:     # self.oil, self.gas, self.water,
             for obj in iterator:
                 obj._after_init()
 
