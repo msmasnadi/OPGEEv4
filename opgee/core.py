@@ -36,10 +36,10 @@ def cached(func):
 
 def magnitude(value, units=None):
     """
-    Return the magnitude of `value`. If `value` is a pint.Quantity and
-    `units` is not None, check that `value` has the expected `units and
-    return the magnitude of `value`. If `value` is not a Quantity, just
-    return it.
+    Return the magnitude of ``value``. If ``value`` is a ``pint.Quantity`` and
+    ``units`` is not None, check that ``value`` has the expected units and
+    return the magnitude of ``value``. If ``value`` is not a ``pint.Quantity``,
+    just return it.
 
     :param value: (float or pint.Quantity) the value for which we return the magnitude.
     :param units: (None or pint.Unit) the expected units
@@ -68,7 +68,7 @@ def elt_name(elt):
 
 def instantiate_subelts(elt, cls, as_dict=False):
     """
-    Return a list of instances of `cls` (or of its indicated subclass of Process).
+    Return a list of instances of ``cls`` (or of its indicated subclass of ``Process``).
 
     :param elt: (lxml.etree.Element) the parent element
     :param cls: (type) the class to instantiate. If cls is Process, the class will
@@ -88,7 +88,7 @@ def instantiate_subelts(elt, cls, as_dict=False):
 
 def dict_from_list(objs):
     """
-    Create a dictionary of XMLInstantiable objects by their name attribute, but
+    Create a dictionary of ``XMLInstantiable`` objects by their name attribute, but
     raise an error if any name is repeated.
 
     :param objs: (list of XMLInstantiable instances) the object to create dict from.
@@ -189,6 +189,14 @@ _undefined_units = {}
 
 
 def validate_unit(unit):
+    """
+    Return the ``pint.Unit`` associated with the string ``unit``, or ``None``
+    if ``unit`` is ``None`` or not in the unit registry.
+
+    :param unit: (str) a string representation of a ``pint.Unit``
+
+    :return: (pint.Unit or None)
+    """
     if not unit:
         return None
 
@@ -204,9 +212,9 @@ def validate_unit(unit):
 
 class A(OpgeeObject):
     """
-    The <A> element represents the value of an attribute previously defined in
-    attributes.xml or a user-provided file. Note that this class is not instantiated
-    using from_xml() approach since values are merged with metadata from attributes.xml.
+    The ``<A>`` element represents the value of an attribute previously defined in
+    `attributes.xml` or a user-provided file. Note that this class is not instantiated
+    using ``from_xml()`` approach since values are merged with metadata from `attributes.xml`.
     """
 
     def __init__(self, name, value=None, pytype=None, unit=None):
@@ -218,11 +226,11 @@ class A(OpgeeObject):
 
     def set_value(self, value):
         """
-        Sets the instances' value to the value given, using the stored `pytype` for type
-        conversion and `unit` to define a pint `Quantity`, if given.
+        Sets the instances' value to the value given, using the stored ``pytype`` for type
+        conversion and ``unit`` to define a ``pint.Quantity``, if given.
 
         :param value: (str, numerical, or pint.Quantity) the value to possibly convert
-        :return: the value, converted to `pytype`, and with `unit`, if specified.
+        :return: the value, converted to ``pytype``, and with ``unit``, if specified.
         """
         if value is None:
             return None

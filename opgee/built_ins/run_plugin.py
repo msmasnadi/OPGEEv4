@@ -43,17 +43,18 @@ class RunCommand(SubcommandABC):
         from ..model_file import ModelFile
 
         use_default_model = not args.no_default_model
-        model_file = args.model_file
+        model_files = args.model_file
         field_names = args.fields
         analysis_names = args.analyses
 
         if not (field_names or analysis_names):
             raise CommandlineError("Must indicate one or more fields or analyses to run")
 
-        if not (use_default_model or model_file):
-            raise CommandlineError("No model to run: the --model_file option was not used and --no_default_model was specified.")
+        if not (use_default_model or model_files):
+            raise CommandlineError("No model to run: the --model-file option was not used and --no-default-model was specified.")
 
-        mf = ModelFile(model_file, use_default_model=use_default_model)
+        # TBD: rationalize this with
+        mf = ModelFile(model_files, use_default_model=use_default_model)
         model = mf.model
 
         all_analyses = model.analyses()

@@ -8,6 +8,22 @@ from .core import OpgeeObject
 from .error import OpgeeException
 from .stream import PHASE_LIQUID, Stream, PHASE_GAS, PHASE_SOLID
 
+# TODO: consider using this everywhere we store and access T and P
+class Condition(OpgeeObject):
+    __slots__ = ('T', 'P')      # keeps instances small and fast
+
+    def __init__(self, T, P):
+        self.T = T
+        self.P = P
+
+    def set(self, T=None, P=None):
+        if T is not None:
+            self.T = T
+
+        if P is not None:
+            self.P = P
+
+
 class ChemicalInfo(OpgeeObject):
     instance = None
 
@@ -83,7 +99,7 @@ def heating_value(component, use_LHV=True, with_units=True):
 
     :param component: (str) the name of a stream component
     :param use_LHV: (bool) whether to use LHV, else use HHV
-    :param with_units: (bool) whether to include pint units in result
+    :param with_units: (bool) whether to return a pint.Quantity()
 
     :return: (float or pint.Quantity) lower or higher heating value (unit = joule/mol if with_units)
     """
@@ -103,7 +119,7 @@ def LHV(component, with_units=True):
     Return the lower heating value for the given component, with or without Pint units.
 
     :param component: (str) the name of a stream component
-    :param with_units: (bool) whether to include pint units in result
+    :param with_units: (bool) whether to return a pint.Quantity()
 
     :return: (float) lower heating value (unit = joule/mol)
     """
@@ -127,7 +143,7 @@ def Cp(component, kelvin, with_units=True):
 
     :param kelvin: unit in Kelvin
     :param component:
-    :param with_units:
+    :param with_units: (bool) whether to return a pint.Quantity()
 
     :return: (float) specific heat in standard condition (unit = joule/g/kelvin)
     """
@@ -151,7 +167,7 @@ def Enthalpy(component, kelvin, phase=PHASE_GAS, with_units=True):
     :param phase:
     :param component:
     :param kelvin:
-    :param with_units:
+    :param with_units: (bool) whether to return a pint.Quantity()
 
     :return: (float) enthalpy (unit = joule/mole)
     """
@@ -172,13 +188,13 @@ def Enthalpy(component, kelvin, phase=PHASE_GAS, with_units=True):
 
     return H
 
-# TODO only used once. Simplify?
+# TODO twice. Simplify?
 def Tsat(component, Psat, with_units=True):
     """
 
     :param Psat: saturated pressure (unit in Pa)
     :param component:
-    :param with_units:
+    :param with_units: (bool) whether to return a pint.Quantity()
 
     :return:
     """
@@ -195,7 +211,7 @@ def Tc(component, with_units=True):
     """
 
     :param component:
-    :param with_units:
+    :param with_units: (bool) whether to return a pint.Quantity()
 
     :return: (float) critical temperature (unit = kelvin)
     """
@@ -212,9 +228,9 @@ def Pc(component, with_units=True):
     """
 
     :param component:
-    :param with_units:
+    :param with_units: (bool) whether to return a pint.Quantity()
 
-    :return:(flaot) critial pressure (unit = Pa)
+    :return:(pint.Quantity or float) critical pressure, with unit="Pa" if ``with_units``.
     """
     chemical = ChemicalInfo.chemical(component)
     pc = chemical.Pc
@@ -241,12 +257,14 @@ class Air(OpgeeObject):
         self.composition = composition
         self.field = field
         self.components = [name for name, fraction in self.composition]
-        self.mol_fraction = [fraction for name, fraction in self.composition]
-        self.mixture = Mixture.from_chemicals(self.components)
+        self.mol_fraction = mol_fraction = [fraction for name, fraction in self.composition]
+        self.mixture = mixture = Mixture.from_chemicals(self.components)
+        self.mol_weight = ureg.Quantity(mixture.MW(mol_fraction), "g/mol")
 
-    def mol_weight(self):
-        result = self.mixture.MW(self.mol_fraction)
-        return ureg.Quantity(result, "g/mol")
+    # Deprecated -- made an instance variable, stored in __init__
+    # def mol_weight(self):
+    #     result = self.mixture.MW(self.mol_fraction)
+    #     return ureg.Quantity(result, "g/mol")
 
     def density(self):
         """
@@ -258,7 +276,7 @@ class Air(OpgeeObject):
         result = self.mixture.rho("g", self.mol_fraction, std_temp.m, std_press.m)
         return ureg.Quantity(result, "kg/m**3")
 
-
+# Deprecated? Currently unused.
 class WetAir(Air):
     """
     WetAir class represents the composition of wet air.
@@ -304,14 +322,18 @@ class AbstractSubstance(OpgeeObject):
         """
         self.res_temp = field.attr("res_temp")
         self.res_press = field.attr("res_press")
-        self.field = field
+        # self.field = field        # TODO: Was used only to extract self.field.model, so we just store that instead
+        self.model = model = field.model
+
+        # self.std_temp = self.std_press = None
+        self.std_temp  = field.std_temp  # model.const("std-temperature")
+        self.std_press = field.std_press # model.const("std-pressure")
 
         self.dry_air = DryAir(field)
-        self.wet_air = WetAir(field)
-        self.wet_air_MW = self.wet_air.mol_weight()
-        self.dry_air_MW = self.dry_air.mol_weight()
+        # self.wet_air = WetAir(field)              # TODO: unused
+        # self.wet_air_MW = self.wet_air.mol_weight # TODO: unused
+        # self.dry_air_MW = self.dry_air.mol_weight   # TODO: unused. (Just used self.dry_air.mol_weight in the two places it was used)
 
-        self.std_temp = self.std_press = None
 
         components = ChemicalInfo.names()
         self.component_MW = ChemicalInfo.mol_weights()
@@ -337,13 +359,14 @@ class AbstractSubstance(OpgeeObject):
         self.component_gas_rho_STP = pd.Series({name: rho(name, temp, press, PHASE_GAS)
                                                 for name in components}, dtype="pint[kg/m**3]")
 
-    def _after_init(self):
-        """
-
-        :return:
-        """
-        self.std_temp = self.field.model.const("std-temperature")
-        self.std_press = self.field.model.const("std-pressure")
+    # Deprecated: this is done in __init__()
+    # def _after_init(self):
+    #     """
+    #
+    #     :return:
+    #     """
+    #     self.std_temp = self.field.model.const("std-temperature")
+    #     self.std_press = self.field.model.const("std-pressure")
 
 
 class Oil(AbstractSubstance):
@@ -391,7 +414,7 @@ class Oil(AbstractSubstance):
         :return: (float) gas specific gravity (unit = fraction)
         """
 
-        gas_SG = self.total_molar_weight / self.dry_air_MW
+        gas_SG = self.total_molar_weight / self.dry_air.mol_weight
         return gas_SG
 
     @staticmethod
@@ -830,7 +853,7 @@ class Gas(AbstractSubstance):
         """
         mol_fracs = self.component_molar_fractions(stream)
         sg = (mol_fracs * self.component_MW[mol_fracs.index]).sum()
-        sg = sg / self.dry_air_MW
+        sg = sg / self.dry_air.mol_weight
         return sg
 
     def ratio_of_specific_heat(self, stream):
@@ -841,7 +864,7 @@ class Gas(AbstractSubstance):
         :return:
         """
         mass_flow_rate = stream.gas_flow_rates()  # pandas.Series
-        universal_gas_constants = self.field.model.const("universal-gas-constants")  # J/mol/K
+        universal_gas_constants = self.model.const("universal-gas-constants")  # J/mol/K
         molecular_weight = self.component_MW[mass_flow_rate.index]
         Cp = self.component_Cp_STP[mass_flow_rate.index]
         gas_constant = universal_gas_constants / molecular_weight
@@ -989,8 +1012,8 @@ class Gas(AbstractSubstance):
 
         z_factor = self.Z_factor(self.reduced_temperature(stream), self.reduced_pressure(stream))
         temp = stream.temperature.to("rankine")
-        amb_temp = self.field.model.const("std-temperature").to("rankine")
-        amb_press = self.field.model.const("std-pressure")
+        amb_temp = self.std_temp.to("rankine")
+        amb_press = self.std_press
 
         result = amb_press * z_factor * temp / (stream.pressure * amb_temp)
         return result.to("frac")
@@ -1070,7 +1093,7 @@ class Gas(AbstractSubstance):
         :return: Gas volume flow rate at standard temp and press (unit = m3/day)
         """
         total_molar_flow_rate = self.total_molar_flow_rate(stream)
-        result = total_molar_flow_rate / self.field.model.const("mol-per-scf")
+        result = total_molar_flow_rate / self.model.const("mol-per-scf")
         return result.to("mmscf/day")
 
     def mass_energy_density(self, stream, use_LHV=True):
@@ -1189,8 +1212,8 @@ class Water(AbstractSubstance):
         :return: (float) water density (unit = kg/m3)
         """
 
-        temp = temperature if temperature is not None else self.field.model.const("std-temperature")
-        press = pressure if pressure is not None else self.field.model.const("std-pressure")
+        temp = temperature if temperature is not None else self.model.const("std-temperature")
+        press = pressure if pressure is not None else self.model.const("std-pressure")
 
         specifc_gravity = self.specific_gravity
         water_density_STP = rho("H2O", temp, press, PHASE_LIQUID)

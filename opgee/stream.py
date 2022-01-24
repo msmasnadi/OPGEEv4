@@ -317,15 +317,16 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     def set_flow_rate(self, name, phase, rate):
         """
-        Set the value of the stream component `name` for `phase` to `rate`.
+        Set the value of the stream component ``name`` for ``phase` to ``rate``.
 
         :param name: (str) the name of a stream component
         :param phase: (str) the name of a phase of matter ('gas', 'liquid' or 'solid')
         :param rate: (float) the flow rate for the given stream component
         :return: None
         """
-        # TBD: it's currently not possible to assign a Quantity to a DataFrame even if
-        #      the units match. It's magnitude must be extracted. We check the units first...
+        # TBD: Check that this comment remains true with updates to pint. (If not, update the code)
+        # It's currently not possible to assign a Quantity to a DataFrame even if
+        # the units match. It's magnitude must be extracted. We check the units first...
         self.components.loc[name, phase] = magnitude(rate, units=self.units())
         self.initialized = True
 
@@ -333,20 +334,39 @@ class Stream(XmlInstantiable, AttributeMixin):
     # Convenience functions
     #
     def gas_flow_rates(self):
-        """Return a Series with all positive gas flows"""
+        """
+        Return all positive gas flows
+
+        :return: (pandas.Series) all flow rates
+        """
         gas = self.components.gas
         return gas[gas > 0]
 
     def gas_flow_rate(self, name):
-        """Calls ``self.flow_rate(name, PHASE_GAS)``"""
+        """
+        Convenience method to get the flow rate of a gas.
+
+        :param name: (str) the name of the component
+        :return: (pint.Quantity) the flow rate of the component
+        """
         return self.flow_rate(name, PHASE_GAS)
 
     def liquid_flow_rate(self, name):
-        """Calls ``self.flow_rate(name, PHASE_LIQUID)``"""
+        """
+        Convenience method to get the flow rate of a liquid.
+
+        :param name: (str) the name of the component
+        :return: (pint.Quantity) the flow rate of the component
+        """
         return self.flow_rate(name, PHASE_LIQUID)
 
     def solid_flow_rate(self, name):
-        """Calls ``self.flow_rate(name, PHASE_SOLID)``"""
+        """
+        Convenience method to get the flow rate of a solid.
+
+        :param name: (str) the name of the component
+        :return: (pint.Quantity) the flow rate of the component
+        """
         return self.flow_rate(name, PHASE_SOLID)
 
     def voc_flow_rates(self):
@@ -356,12 +376,15 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.components.query('solid > 0 or liquid > 0 or gas > 0')
 
     def set_gas_flow_rate(self, name, rate):
-        """Calls ``self.set_flow_rate(name, PHASE_GAS, rate)``"""
-        self.initialized = True
+        """
+        Convenience method to set the flow rate for a gas.
+        """
         return self.set_flow_rate(name, PHASE_GAS, rate)
 
     def set_liquid_flow_rate(self, name, rate, t=None, p=None):
-        """Calls ``self.set_flow_rate(name, PHASE_LIQUID, rate)``"""
+        """
+        Sets the flow rate of a liquid substance
+        """
         if t is not None:
             self.temperature = t
         if p is not None:
@@ -371,7 +394,9 @@ class Stream(XmlInstantiable, AttributeMixin):
         return self.set_flow_rate(name, PHASE_LIQUID, rate)
 
     def set_solid_flow_rate(self, name, rate):
-        """Calls ``self.set_flow_rate(name, PHASE_SOLID, rate)``"""
+        """
+        Sets the flow rate of a solid substance
+        """
         self.initialized = True
         return self.set_flow_rate(name, PHASE_SOLID, rate)
 
@@ -388,16 +413,24 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     def multiply_factor_from_series(self, series, phase):
         """
-        multiply from series
+        Multiply the flow rates for the given ``phase`` by the values in ``series``
 
-        :param series:
-        :param phase:
+        :param series: (pandas.Series) index must refer to components of `Stream`
+        :param phase: (str) one of {'gas', 'liquid', or 'solid'}
         :return:
         """
         self.initialized = True
         self.components.loc[series.index, phase] = series * self.components.loc[series.index, phase]
 
     def set_temperature_and_pressure(self, temp, press):
+        """
+        Set the stream's temperature and pressure, unless the pressure is zero,
+        in which nothing is done.
+
+        :param temp: (pint.Quantity) temperature
+        :param press: (pint.Quantity) pressure
+        :return: none
+        """
 
         # TODO: why does this happen? Ignoring this silently seems inappropriate
         if press.m == 0:
@@ -409,11 +442,11 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     def copy_flow_rates_from(self, stream, phase=None, temp=None, press=None):
         """
-        Copy all mass flow rates from `stream` to `self`
+        Copy all mass flow rates from ``stream`` to ``self``
 
-        :param press:
-        :param temp:
-        :param phase: solid, liquid and gas phase
+        :param press: (pint.Quantity) the pressure to set in the ``self``
+        :param temp: (pint.Quantity) the temperature to set in ``self``
+        :param phase: (str) one of {'gas', 'liquid', or 'solid'}
         :param stream: (Stream) to copy
 
         :return: none
@@ -435,7 +468,7 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     def copy_gas_rates_from(self, stream):
         """
-        Copy gas mass flow rates from `stream` to `self`
+        Copy gas mass flow rates from ``stream`` to ``self``
 
         :param stream: (Stream) to copy
         :return: none
@@ -449,7 +482,7 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     def copy_liquid_rates_from(self, stream):
         """
-        Copy liquid mass flow rates from `stream` to `self`
+        Copy liquid mass flow rates from ``stream`` to ``self``
 
         :param stream: (Stream) to copy
         :return: none
@@ -463,9 +496,9 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     def multiply_flow_rates(self, factor):
         """
-        Multiply all our mass flow rates by `factor`.
+        Multiply the Stream's mass flow rates by ``factor``.
 
-        :param factor: (float) what to multiply by
+        :param factor: (float) the value to multiply by
         :return: none
         """
         self.initialized = True
@@ -473,7 +506,7 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     def add_flow_rates_from(self, stream):
         """
-        Add the mass flow rates from `stream` to our own.
+        Add the mass flow rates from ``stream`` to our own.
 
         :param stream: (Stream) the source of the rates to add
         :return: none
@@ -486,7 +519,7 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     def subtract_gas_rates_from(self, stream):
         """
-        Subtract the gas mass flow rates of `stream` from our own.
+        Subtract the gas mass flow rates of ``stream`` from our own.
 
         :param stream: (Stream) the source of the rates to subtract
         :return: none
@@ -500,9 +533,9 @@ class Stream(XmlInstantiable, AttributeMixin):
     def add_combustion_CO2_from(self, stream):
         """
         Compute the amount of CO2 from the combustible components in `stream`
-        and add these to `self` as CO2, assuming complete combustion.
+        and add these to ``self`` as CO2, assuming complete combustion.
 
-        :param stream: (opgee.Stream) a Stream with combustible components
+        :param stream: (Stream) a Stream with combustible components
         :return: (pint.Quantity(unit="tonne/day")) the mass rate of CO2 from combustion.
         """
         from .thermodynamics import component_MW
@@ -517,7 +550,7 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     def contains(self, stream_type):
         """
-        Return whether `stream_type` is one of named contents of `stream`.
+        Return whether ``stream_type`` is one of named contents of ``self``.
 
         :param stream_type: (str) a symbolic name for contents of `stream`
         :return: (bool) True if `stream_type` is among the contents of `stream`

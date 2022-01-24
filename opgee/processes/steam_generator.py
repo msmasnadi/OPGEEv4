@@ -5,6 +5,9 @@ import pandas as pd
 
 class SteamGenerator(OpgeeObject):
     def __init__(self, field):
+        self.field = field
+        model = field.model
+
         self.frac_steam_cogen = field.attr("fraction_steam_cogen")
         self.frac_steam_solar = field.attr("fraction_steam_solar")
         self.SOR = field.attr("SOR")
@@ -68,18 +71,17 @@ class SteamGenerator(OpgeeObject):
 
         self.gas_turbine_type = field.attr("gas_turbine_type")
         self.duct_firing = field.attr("duct_firing")
-        self.field = field
 
-    def _after_init(self):
-        self.water = self.field.water
-        self.oil = self.field.oil
-        self.gas = self.field.gas
+        self.water = field.water
+        self.oil = field.oil
+        self.gas = field.gas
 
-        self.prod_combustion_coeff = self.field.model.prod_combustion_coeff
-        self.reaction_combustion_coeff = self.field.model.reaction_combustion_coeff
-        self.gas_turbine_tlb = self.field.model.gas_turbine_tbl
-        self.liquid_fuel_comp = self.field.oil.liquid_fuel_composition(self.API)
-        self.steam_press_upper = self.field.model.const("steam-press-upper-limit")
+        self.prod_combustion_coeff = model.prod_combustion_coeff
+        self.reaction_combustion_coeff = model.reaction_combustion_coeff
+        self.gas_turbine_tlb = model.gas_turbine_tbl
+        self.liquid_fuel_comp = self.oil.liquid_fuel_composition(self.API)
+        self.steam_press_upper = model.const("steam-press-upper-limit")
+
         self.steam_generator_press_outlet = min((self.res_press + self.steam_injection_delta_press) *
                                                 self.friction_loss_stream_distr *
                                                 self.pressure_loss_choke_wellhead, self.steam_press_upper)
@@ -89,9 +91,12 @@ class SteamGenerator(OpgeeObject):
 
         self.prod_gas_reactants_comp = self.get_combustion_comp(self.reaction_combustion_coeff,
                                                                 self.processed_prod_gas_comp)
+
         self.prod_gas_products_comp = self.get_combustion_comp(self.prod_combustion_coeff, self.processed_prod_gas_comp)
+
         self.import_gas_reactants_comp = self.get_combustion_comp(self.reaction_combustion_coeff,
                                                                   self.imported_fuel_gas_comp)
+
         self.import_gas_products_comp = self.get_combustion_comp(self.prod_combustion_coeff,
                                                                  self.imported_fuel_gas_comp)
 
@@ -148,6 +153,7 @@ class SteamGenerator(OpgeeObject):
                                  shell_loss_per_unit_fuel -
                                  other_loss_per_unit_fuel, 0)
 
+        # TODO: Wennan, lots of redundancy here you can extract to a common factor
         # calculate recoverable heat
         delta_H = steam_out_enthalpy_rate - prod_water_enthalpy_rate - makeup_water_enthalpy_rate - recoverable_enthalpy_blowdown_water
         constant_before_economizer = exhaust_consump_sum * exhaust_consump_MW / \
@@ -160,11 +166,13 @@ class SteamGenerator(OpgeeObject):
         eta_eco = self.eta_economizer_heat_rec_OTSG
         eta_heater = self.eta_preheater_heat_rec_OTSG
 
+        # TODO: Write a local function and call it twice since the form of these expression is the same.
         d_eco = eta_eco * (constant_before_economizer - constant_before_preheater) / \
                 (1 + eta_eco * (constant_before_economizer - constant_before_preheater))
         d_heater = eta_heater * (constant_outlet - constant_before_preheater) / \
                    (1 + eta_heater * (constant_outlet - constant_before_preheater))
 
+        # TODO: as above
         recoverable_heat_before_economizer = ureg.Quantity(0, "MJ/day") if not self.economizer_OTSG else \
             (d_eco - d_eco * d_heater) * delta_H / (1 - d_eco * d_heater)
         recoverable_heat_before_preheater = ureg.Quantity(0, "MJ/day") if not self.economizer_OTSG else \
@@ -211,6 +219,8 @@ class SteamGenerator(OpgeeObject):
                          water_mass_rate_for_injection,
                          blowdown_water_mass_rate):
 
+        # TODO: Wennan, I'm think we need a 'ThermoState' object to hold temperature and pressure. (Not sure that's
+        #       the best name though.) It would simplify the many function calls that pass the two together.
         prod_water_enthalpy_rate = self.water.enthalpy_PT(self.prod_water_inlet_press,
                                                           self.prod_water_inlet_temp,
                                                           prod_water_mass_rate * self.fraction_steam_cogen)

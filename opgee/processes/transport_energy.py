@@ -215,7 +215,7 @@ class TransportEnergy(OpgeeObject):
         common = energy_consumption * load_factor * hp
         if type == "tanker":
             result = common / ocean_tanker_speed / ocean_tanker_size
-        else:
+        else: # must be "barge" since we checked.
             result = common / barge_capacity / barge_speed
         return result
 
