@@ -13,7 +13,7 @@
 		<A name="country">USA</A>
     <ProcessChoice name="gas_processing_path" extend="false" default="None">
       <!-- Identify a set of mutually-exclusive ProcessGroup alternatives -->
-      <ProcessGroup name="None"/>
+      <ProcessGroup name="Nothing"/>
       <ProcessGroup name="Minimal">
         <ProcessRef name="GasDehydration"/>
       </ProcessGroup>
@@ -23,42 +23,37 @@
         <StreamRef name="s1"/>
       </ProcessGroup>
       <ProcessGroup name="Acid Wet Gas">
-        <ProcessRef name="bar"/>
-        <ProcessRef name="baz"/>
+        <ProcessRef name="After"/>
         <StreamRef name="s2"/>
       </ProcessGroup>
       <ProcessGroup name="Wet Gas">
-        <ProcessRef name="yyy"/>
-        <ProcessRef name="zzz"/>
-        <StreamRef name="s3"/>
+        <ProcessRef name="After"/>
+        <StreamRef name="s2"/>
       </ProcessGroup>
       <ProcessGroup name="Dry Gas">
-        <ProcessRef name="uuu"/>
-        <ProcessRef name="www"/>
-        <ProcessRef name="zzz"/>
-        <StreamRef name="s4"/>
-        <StreamRef name="s5"/>
+        <ProcessRef name="After"/>
+        <StreamRef name="s2"/>
       </ProcessGroup>
       <ProcessGroup name="Sour Gas Reinjection">
-        <ProcessRef name="abc"/>
-        <ProcessRef name="def"/>
-        <StreamRef name="s6"/>
+        <ProcessRef name="After"/>
+        <StreamRef name="s2"/>
       </ProcessGroup>
       <ProcessGroup name="CO2-EOR Membrane">
-        <ProcessRef name="ghi"/>
-        <ProcessRef name="jkl"/>
-        <ProcessRef name="mmm"/>
-        <StreamRef name="s7"/>
-        <StreamRef name="s8"/>
+        <ProcessRef name="After"/>
+        <StreamRef name="s2"/>
       </ProcessGroup>
       <ProcessGroup name="CO2-EOR Ryan Holmes">
-        <ProcessRef name="mno"/>
-        <ProcessRef name="pqr"/>
-        <StreamRef name="s9"/>
+        <ProcessRef name="After"/>
+        <StreamRef name="s2"/>
       </ProcessGroup>
     </ProcessChoice>
 
     <Process class="Reservoir"/>
+    <Process class="GasDehydration"/>
+    <Process class="AcidGasRemoval"/>
+    <Process class="After"/>
     <Stream src="Reservoir" dst="Environment" boundary="Production"/>
+    <Stream src="GasDehydration" dst="AcidGasRemoval" name="s1"/>
+      <Stream src="GasDehydration" dst="AcidGasRemoval" name="s2"/>
   </Field>
 </Model>

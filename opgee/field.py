@@ -91,15 +91,7 @@ class Field(Container):
         self.boundary_energy_flow = None
         self.carbon_intensity = ureg.Quantity(0.0, "g/MJ")
 
-        # we use networkx to reason about the directed graph of Processes (nodes)
-        # and Streams (edges).
-        self.graph = g = self._connect_processes()
-
-        self.cycles = cycles = list(nx.simple_cycles(g))
-        self.run_order = None if self.cycles else nx.topological_sort(g)
-
-        if cycles:
-            _logger.debug(f"Field '{name}' has cycles: {cycles}")
+        self.graph = self.cycles = self.run_order = None
 
         self.process_data = {}
 
@@ -134,6 +126,18 @@ class Field(Container):
         self.gas = Gas(self)
         self.water = Water(self)
         self.steam_generator = SteamGenerator(self)
+
+        self.resolve_process_choices()
+
+        # we use networkx to reason about the directed graph of Processes (nodes)
+        # and Streams (edges).
+        self.graph = g = self._connect_processes()
+
+        self.cycles = cycles = list(nx.simple_cycles(g))
+        self.run_order = None if self.cycles else nx.topological_sort(g)
+
+        if cycles:
+            _logger.debug(f"Field '{self.name}' has cycles: {cycles}")
 
         for iterator in [self.processes(), self.streams()]:
             for obj in iterator:
@@ -191,8 +195,8 @@ class Field(Container):
         if self.is_enabled():
             _logger.debug(f"Running '{self}'")
 
-            if resolve_process_choices:
-                self.resolve_process_choices()
+            # if resolve_process_choices:
+            #     self.resolve_process_choices()
 
             self.reset()
             self._impute()
