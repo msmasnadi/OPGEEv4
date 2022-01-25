@@ -61,9 +61,6 @@ def test_find_stream(stream_model):
     with pytest.raises(OpgeeException, match=f".*both 'combine' and 'as_list' cannot be True"):
         proc3.find_output_streams('hydrogen', as_list=True, combine=True)
 
-    with pytest.raises(OpgeeException, match=".*streams are all empty"):
-        proc3.find_output_streams('hydrogen', combine=True)
-
     streams = proc3.find_input_streams('natural gas', as_list=False)
     assert streams and type(streams) == dict
 

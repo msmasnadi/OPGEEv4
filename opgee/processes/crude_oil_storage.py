@@ -27,10 +27,6 @@ class CrudeOilStorage(Process):
         field = self.field
 
         #TODO: LPG to blend with crude oil need to be implement after gas branch
-
-        if not self.all_streams_ready("oil for storage"):
-            return
-
         # mass rate
         input = self.find_input_streams("oil for storage", combine=True)
 
@@ -64,5 +60,5 @@ class CrudeOilStorage(Process):
 
         # emissions
         emissions = self.emissions
-        emissions.add_from_stream(EM_FUGITIVES, gas_fugitive_stream)
+        emissions.set_from_stream(EM_FUGITIVES, gas_fugitive_stream)
 

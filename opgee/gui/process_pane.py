@@ -15,7 +15,7 @@ _logger = getLogger(__name__)
 class ProcessPane(OpgeePane):
 
     def get_layout(self, field, show_streams_to_env=False, show_stream_contents=False, show_disabled_procs=False,
-               layout_name='breadthfirst'):
+                   layout_name='breadthfirst'):
         # the main row
         layout = html.Div([
 
@@ -109,7 +109,6 @@ class ProcessPane(OpgeePane):
         )
         return layout
 
-
     def add_callbacks(self):
         app = self.app
         model = self.model
@@ -171,7 +170,8 @@ class ProcessPane(OpgeePane):
                 with pd.option_context('display.max_rows', None,
                                        'precision', 3):
                     nonzero = stream.non_zero_flow_rates()
-                    components = str(nonzero.astype(float)) if nonzero is not None and len(nonzero) else '<empty stream>'
+                    components = str(nonzero.astype(float)) if nonzero is not None and len(
+                        nonzero) else '<empty stream>'
 
                 contents = '\n          '.join(stream.contents)
                 text = f"Name: {name}\nContains: {contents}\n{components}"
@@ -227,15 +227,19 @@ class ProcessPane(OpgeePane):
 # Load extra layouts
 # cyto.load_extra_layouts()   # required for cose-bilkent
 
-def field_network_graph(field, show_streams_to_env=False, show_stream_contents=False, show_disabled_procs=False, layout_name='breadthfirst'):
+def field_network_graph(field, show_streams_to_env=False, show_stream_contents=False, show_disabled_procs=False,
+                        layout_name='breadthfirst'):
     nodes = [{'data': {'id': name, 'label': name},
-              'classes': ('enabled-node' if proc.enabled else 'disabled-node')} for name, proc in field.process_dict.items()
+              'classes': ('enabled-node' if proc.enabled else 'disabled-node')} for name, proc in
+             field.process_dict.items()
              if show_disabled_procs or proc.enabled]  # , 'size': 150  didn't work
 
     edges = [{'data': {'id': name, 'source': s.src_name, 'target': s.dst_name, 'contents': ', '.join(s.contents)},
-              'classes': ('enabled-edge' if (s.dst_proc.enabled and s.src_proc.enabled) else 'disabled-edge')} for
-             name, s in field.stream_dict.items() if (
+              'classes': ('enabled-edge'
+                          if (s.enabled and s.dst_proc.enabled and s.src_proc.enabled) else 'disabled-edge')}
+             for name, s in field.stream_dict.items() if (
                      (show_streams_to_env or s.dst_name != "Environment") and
+                     s.dst_proc and s.src_proc and
                      (show_disabled_procs or (s.dst_proc.enabled and s.src_proc.enabled))
              )]
 
@@ -248,8 +252,8 @@ def field_network_graph(field, show_streams_to_env=False, show_stream_contents=F
         elements=nodes + edges,
         autounselectify=False,
         autoungrabify=True,
-        userPanningEnabled=True, # False,  # may need to reconsider this when model is bigger
-        userZoomingEnabled=True, # False,  # automatic zoom when user changes browser size still works
+        userPanningEnabled=True,  # False,  # may need to reconsider this when model is bigger
+        userZoomingEnabled=True,  # False,  # automatic zoom when user changes browser size still works
         style={'width': '100%',
                # 'height': '100%',
                'height': '600px',
@@ -257,7 +261,7 @@ def field_network_graph(field, show_streams_to_env=False, show_stream_contents=F
                'autosize': 'true',
                'resize': 'inherit',
                'overflow': 'auto',
-               'display' : 'flex',
+               'display': 'flex',
                },
         # style={'width': '100%', 'height': '500px', 'resize': 'inherit'},
         layout={

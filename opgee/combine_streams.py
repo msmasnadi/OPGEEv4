@@ -1,10 +1,10 @@
-# from . import ureg
 import pandas as pd
 
 from .stream import PHASE_LIQUID, Stream
 from .error import OpgeeException
 from .log import getLogger
 from .thermodynamics import Oil, Gas, Water
+from . import ureg
 
 _logger = getLogger(__name__)
 
@@ -32,7 +32,7 @@ def combine_streams(streams, API, pressure=None, temperature=None):
     non_empty_streams = [stream for stream in streams if not stream.is_uninitialized()]
 
     if not non_empty_streams:
-        raise OpgeeException(f"combine_streams: streams are all empty")
+        return Stream("empty_stream", temperature=ureg.Quantity(0, "degF"), pressure=ureg.Quantity(0, "psia"))
 
     # TODO: This block might not be necessary
     for stream in non_empty_streams:

@@ -116,6 +116,33 @@
 
 		</ProcessChoice>
 
+		<ProcessChoice name="oil_processing_path">
+
+			<ProcessGroup name="Stabilization">
+				<ProcessRef name="CrudeOilStabilization"/>
+				<ProcessRef name="CrudeOilStorage"/>
+				<StreamRef name="crude oil dewatering to crude oil stabilization"/>
+				<StreamRef name="crude oil stabilization to environment"/>
+				<StreamRef name="crude oil stabilization to crude oil storage"/>
+			</ProcessGroup>
+
+			<ProcessGroup name="Storage">
+				<ProcessRef name="CrudeOilStorage"/>
+				<StreamRef name="crude oil dewatering to crude oil storage"/>
+			</ProcessGroup>
+
+			<ProcessGroup name="Upgrading">
+				<ProcessRef name="HeavyOilUpgrading"/>
+				<StreamRef name="crude oil dewatering to heavy oil upgrading"/>
+				<StreamRef name="heavy oil upgrading to flaring"/>
+			</ProcessGroup>
+
+			<ProcessGroup name="Dilution">
+				<ProcessRef name="HeavyOilDilution"/>
+				<StreamRef name="crude oil dewatering to heavy oil dilution"/>
+			</ProcessGroup>
+		</ProcessChoice>
+
 		<Aggregator name="ProductionExtraction">
 			<Process class="DownholePump"/>
 			<Process class="CrudeOilStorage"/>
@@ -132,6 +159,8 @@
 		</Aggregator>
 
 		<Aggregator name="SurfaceProcessing">
+			<Process class="HeavyOilDilution"/>
+			<Process class="HeavyOilUpgrading"/>
 			<Process class="GasGathering"/>
 			<Process class="GasDehydration"/>
 			<Process class="AcidGasRemoval"/>
@@ -174,13 +203,13 @@
 			<Contains>oil for stabilization</Contains>
 		</Stream>
 
-<!--		<Stream src="CrudeOilDewatering" dst="HeavyOilUpgrading" name="crude oil dewatering to heavy oil upgrading">-->
-<!--			<Contains>oil for upgrader</Contains>-->
-<!--		</Stream>-->
+		<Stream src="CrudeOilDewatering" dst="HeavyOilUpgrading" name="crude oil dewatering to heavy oil upgrading">
+			<Contains>oil for upgrader</Contains>
+		</Stream>
 
-<!--		<Stream src="CrudeOilDewatering" dst="HeavyOilDilution" name="crude oil dewatering to heavy oil dilution">-->
-<!--			<Contains>oil for dilution</Contains>-->
-<!--		</Stream>-->
+		<Stream src="CrudeOilDewatering" dst="HeavyOilDilution" name="crude oil dewatering to heavy oil dilution">
+			<Contains>oil for dilution</Contains>
+		</Stream>
 
 		<Stream src="CrudeOilDewatering" dst="CrudeOilStorage" name="crude oil dewatering to crude oil storage">
 			<Contains>oil for storage</Contains>
@@ -232,10 +261,6 @@
 		<Stream src="CrudeOilStabilization" dst="Environment" name="crude oil stabilization to environment">
 			<Contains>gas fugitives</Contains>
 		</Stream>
-
-<!--		<Stream src="HeavyOilUpgrading" dst="CrudeOilStorage" name="crude oil upgrading to crude oil storage">-->
-<!--			<Contains>oil for storage</Contains>-->
-<!--		</Stream>-->
 
 <!--		<Stream src="HeavyOilDilution" dst="CrudeOilStorage" name="crude oil dilution to crude oil storage">-->
 <!--			<Contains>oil for storage</Contains>-->
@@ -314,9 +339,9 @@
 			<Contains>gas</Contains>
 		</Stream>
 
-<!--		<Stream src="HeavyOilUpgrading" dst="Flaring" name="heavy oil upgrading to flaring">-->
-<!--			<Contains>gas</Contains>-->
-<!--		</Stream>-->
+		<Stream src="HeavyOilUpgrading" dst="Flaring" name="heavy oil upgrading to flaring">
+			<Contains>gas</Contains>
+		</Stream>
 
 		<Stream src="GasDehydration" dst="PreMembraneChiller" name="gas dehydration to pre membrane chiller">
 			<Contains>gas for chiller</Contains>
@@ -481,6 +506,8 @@
 
 		<Stream src="TransmissionCompressor" dst="After" name="transmission compression to after">
 			<Contains>gas for storage</Contains>
+			<Contains>LNG</Contains>
+			<Contains>gas for distribution</Contains>
 		</Stream>
 
 	</Field>

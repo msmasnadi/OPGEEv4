@@ -44,4 +44,4 @@ class PreMembraneChiller(Process):
 
         # emissions
         emissions = self.emissions
-        emissions.add_from_stream(EM_FUGITIVES, gas_fugitives)
+        emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
