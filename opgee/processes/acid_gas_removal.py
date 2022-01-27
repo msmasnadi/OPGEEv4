@@ -90,9 +90,9 @@ class AcidGasRemoval(Process):
         x4 = regen_temp
         x5 = feed_gas_press
         corr_result_df = run_corr_eqns(x1, x2, x3, x4, x5, self.AGR_table.loc[:, self.type_amine_AGR])
-        reboiler_heavy_duty = ureg.Quantity(max(0, corr_result_df["Reboiler"] * gas_multiplier), "kW")
-        condenser_thermal_load = ureg.Quantity(max(0, corr_result_df["Condenser"] * gas_multiplier), "kW")
-        cooler_thermal_load = ureg.Quantity(max(0, corr_result_df["Cooler"] * gas_multiplier), "kW")
+        reboiler_heavy_duty = ureg.Quantity(max(0.0, corr_result_df["Reboiler"] * gas_multiplier), "kW")
+        condenser_thermal_load = ureg.Quantity(max(0.0, corr_result_df["Condenser"] * gas_multiplier), "kW")
+        cooler_thermal_load = ureg.Quantity(max(0.0, corr_result_df["Cooler"] * gas_multiplier), "kW")
 
         # TODO: Wennan, are these variables needed? They are currently unused.
         reboiler_fuel_use = reboiler_heavy_duty * self.eta_reboiler_AGR
