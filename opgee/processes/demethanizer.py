@@ -48,7 +48,7 @@ class Demethanizer(Process):
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
         gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, temp=field.std_temp, press=field.std_press)
+        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, tp=field.stp)
 
         # Demethanizer modeling based on Aspen HYSYS
         feed_gas_press = min(max(self.feed_press_demethanizer.to("psia").m, 600.0), 1000.0)
@@ -95,22 +95,24 @@ class Demethanizer(Process):
         gas_to_gather.set_rates_from_series(fuel_gas_mass, PHASE_GAS)
 
         gas_to_LNG = self.find_output_stream("gas for NGL")
-        gas_to_LNG.copy_flow_rates_from(input, temp=field.std_temp)
+        gas_to_LNG.copy_flow_rates_from(input)
+        gas_to_LNG.tp.set(T=field.std_temp)
         gas_to_LNG.subtract_gas_rates_from(gas_to_gather)
         C2_mass_rate = gas_to_LNG.gas_flow_rate("C2")
         gas_to_LNG.set_gas_flow_rate("C2", ureg.Quantity(0, "tonne/day"))
 
         # TODO: ethane to petrochemicals
 
+        input_tp = input.tp
+
         # inlet boosting compressor
         inlet_compressor_energy_consump, _, _ = \
             Compressor.get_compressor_energy_consumption(field,
                                                          self.prime_mover_type,
                                                          self.eta_compressor,
-                                                         self.feed_press_demethanizer / input.pressure,
+                                                         self.feed_press_demethanizer / input_tp.P,
                                                          gas_to_gather,
-                                                         inlet_temp=input.temperature,
-                                                         inlet_pressure=input.pressure)
+                                                         inlet_tp=input.tp)
 
         # outlet compressor
         feed_gas_exit_press = ureg.Quantity(corr_result_df.loc["fuel gas pressure", :].sum(), "psia")
@@ -118,10 +120,9 @@ class Demethanizer(Process):
             Compressor.get_compressor_energy_consumption(field,
                                                          self.prime_mover_type,
                                                          self.eta_compressor,
-                                                         input.pressure / feed_gas_exit_press,
+                                                         input_tp.P / feed_gas_exit_press,
                                                          gas_to_gather,
-                                                         inlet_temp=input.temperature,
-                                                         inlet_pressure=input.pressure)
+                                                         inlet_tp=input.tp)
 
         # energy-use
         energy_use = self.energy

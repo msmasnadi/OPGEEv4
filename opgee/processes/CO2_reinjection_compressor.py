@@ -28,13 +28,13 @@ class CO2ReinjectionCompressor(Process):
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
         gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, temp=field.std_temp, press=field.std_press)
+        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, tp=field.stp)
 
         gas_to_well = self.find_output_stream("gas for CO2 injection well")
         gas_to_well.copy_flow_rates_from(input)
         gas_to_well.subtract_gas_rates_from(gas_fugitives)
 
-        discharge_press = self.res_press + ureg.Quantity(500, "psi")
+        discharge_press = self.res_press + ureg.Quantity(500.0, "psia")
         overall_compression_ratio = discharge_press / input.pressure
         energy_consumption, temp, _ = Compressor.get_compressor_energy_consumption(self.field,
                                                                                    self.prime_mover_type,
@@ -42,7 +42,8 @@ class CO2ReinjectionCompressor(Process):
                                                                                    overall_compression_ratio,
                                                                                    input)
 
-        gas_to_well.set_temperature_and_pressure(temp, input.pressure)
+        # gas_to_well.set_temperature_and_pressure(temp, input.pressure)
+        gas_to_well.tp.set(T=temp, P=input.pressure)
 
         self.field.save_process_data(CO2_injection_rate=gas_to_well.gas_flow_rate("CO2"))
 

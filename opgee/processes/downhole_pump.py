@@ -1,11 +1,12 @@
 import numpy as np
 
-from .shared import get_energy_carrier
 from .. import ureg
+from ..core import TemperaturePressure
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
 from ..stream import Stream
+from .shared import get_energy_carrier
 
 _logger = getLogger(__name__)
 
@@ -53,7 +54,7 @@ class DownholePump(Process):
 
         # Check
         self.set_iteration_value(output.total_flow_rate())
-        output.copy_flow_rates_from(input, temp=field.wellhead_temp, press=field.wellhead_press)
+        output.copy_flow_rates_from(input, tp=field.wellhead_tp)
         output.subtract_gas_rates_from(gas_fugitives)
 
         # energy use
@@ -96,9 +97,9 @@ class DownholePump(Process):
 
         # properties of free gas (all at average conditions along wellbore, in production tubing)
         free_gas = solution_gas_oil_ratio_input - average_SOR
-        wellbore_average_press = (field.wellhead_press + input.pressure) / 2
+        wellbore_average_press = (field.wellhead_press + input.tp.P) / 2
         wellbore_average_temp = ureg.Quantity((field.wellhead_temp.m + self.res_temp.m) / 2, "degF")
-        stream = Stream("average", temperature=wellbore_average_temp, pressure=wellbore_average_press)
+        stream = Stream("average", TemperaturePressure(wellbore_average_temp, wellbore_average_press))
         stream.copy_flow_rates_from(input)
         gas_FVF = gas.volume_factor(stream)
         gas_density = gas.density(stream)
@@ -121,7 +122,7 @@ class DownholePump(Process):
                               (2 * self.prod_tubing_diam))
         pressure_drop_total = pressure_drop_fric + pressure_drop_elev
         pressure_for_lifting = max(ureg.Quantity(0, "psia"),
-                                   field.wellhead_press + pressure_drop_total - input.pressure)
+                                   field.wellhead_press + pressure_drop_total - input.tp.P)
         liquid_flow_rate_per_well = (average_volume_oil_lifted + volume_water_lifted) / self.num_prod_wells
         brake_horse_power = 1.05 * (liquid_flow_rate_per_well * pressure_for_lifting) / self.eta_pump_well
         energy_consumption_of_stages = self.get_energy_consumption_stages(self.prime_mover_type, [brake_horse_power])

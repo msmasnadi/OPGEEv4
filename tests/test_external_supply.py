@@ -1,11 +1,13 @@
 from opgee import ureg
+from opgee.core import TemperaturePressure
 from opgee.process import ExternalSupply
 from opgee.stream import Stream
 
 def test_external_supply():
     supply = ExternalSupply()
 
-    stream = Stream("external supply", temperature=72, pressure=100)
+    stream = Stream("external supply", TemperaturePressure(ureg.Quantity(72.0, "degF"),
+                                                           ureg.Quantity(100.0, "psia")))
 
     gas = ureg.Quantity(10, "tonne/day")
     supply.use_gas(stream, gas)

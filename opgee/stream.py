@@ -4,13 +4,14 @@
 .. Copyright (c) 2021 Richard Plevin and Adam Brandt
    See the https://opensource.org/licenses/MIT for license details.
 '''
+from copy import copy
 import pandas as pd
 import pint
 import re
 
 from . import ureg
 from .attributes import AttributeMixin
-from .core import XmlInstantiable, elt_name, magnitude
+from .core import XmlInstantiable, elt_name, magnitude, TemperaturePressure
 from .error import OpgeeException
 from .log import getLogger
 from .utils import getBooleanXML, coercible
@@ -112,31 +113,38 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     _units = ureg.Unit('tonne/day')
 
-    def __init__(self, name, temperature=None, pressure=None,
+    def __init__(self, name, tp,
                  src_name=None, dst_name=None, comp_matrix=None,
                  contents=None, impute=True, boundary=None):
         super().__init__(name)
 
         # TBD: rename this self.comp_matrix for clarity
         self.components = self.create_component_matrix() if comp_matrix is None else comp_matrix
-        self.temperature = temperature if isinstance(temperature, pint.Quantity) else ureg.Quantity(temperature, "degF")
-        self.pressure = pressure if isinstance(pressure, pint.Quantity) else ureg.Quantity(pressure, "psi")
+
+        # New approach
+        self.tp = copy(tp)
+
+        # These values are used by self.reset() to restore the stream to it's initial state per the XML.
+        self.initial_tp = copy(self.tp)
+        self.xml_data = comp_matrix
+
+        # Deprecated: old approach
+        # temperature, pressure = tp.get()
+        # self.temperature = temperature if isinstance(temperature, pint.Quantity) else ureg.Quantity(temperature, "degF")
+        # self.pressure = pressure if isinstance(pressure, pint.Quantity) else ureg.Quantity(pressure, "psi")
+
         self.src_name = src_name
         self.dst_name = dst_name
 
         self.src_proc = None  # set in Field.connect_processes()
         self.dst_proc = None
+        self.field = None
 
         self.boundary = boundary    # the name of the boundary this stream defines, or None
 
         self.contents = contents or []  # generic description of what the stream carries
 
         self.impute = impute
-
-        # These values are used by self.reset() to restore the stream to it's initial state per the XML.
-        self.xml_data = comp_matrix
-        self.initial_temp = temperature
-        self.initial_pres = pressure
 
         # This flag indicates whether any data have been written to the stream yet. Note that it is False
         # if only temperature and pressure are set, though setting T & P makes no sense on an empty stream.
@@ -158,8 +166,8 @@ class Stream(XmlInstantiable, AttributeMixin):
         """
         self.initialized = has_xml_data = self.xml_data is not None
         self.components = self.xml_data if has_xml_data else self.create_component_matrix()
-        self.temperature = self.initial_temp
-        self.pressure = self.initial_pres
+
+        self.tp.copy_from(self.initial_tp)
 
     def within_boundary(self):
         """
@@ -381,14 +389,18 @@ class Stream(XmlInstantiable, AttributeMixin):
         """
         return self.set_flow_rate(name, PHASE_GAS, rate)
 
-    def set_liquid_flow_rate(self, name, rate, t=None, p=None):
+    def set_liquid_flow_rate(self, name, rate, tp=None):
         """
         Sets the flow rate of a liquid substance
         """
-        if t is not None:
-            self.temperature = t
-        if p is not None:
-            self.pressure = p
+        # Deprecated
+        # if t is not None:
+        #     self.temperature = t
+        # if p is not None:
+        #     self.pressure = p
+
+        if tp:
+            self.tp.copy_from(tp)
 
         self.initialized = True
         return self.set_flow_rate(name, PHASE_LIQUID, rate)
@@ -422,6 +434,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.initialized = True
         self.components.loc[series.index, phase] = series * self.components.loc[series.index, phase]
 
+    # Deprecated, but not fully removed yet. For now, just calls new method
     def set_temperature_and_pressure(self, temp, press):
         """
         Set the stream's temperature and pressure, unless the pressure is zero,
@@ -431,21 +444,35 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param press: (pint.Quantity) pressure
         :return: none
         """
+        self.set_tp(TemperaturePressure(temp, press))
+
+    def set_tp(self, tp):
+        """
+        Set the stream's temperature and pressure, unless the pressure is zero,
+        in which case nothing is done.
+
+        :param tp: (TemperaturePressure) temperature and pressure
+        :return: none
+        """
+        from copy import copy
 
         # TODO: why does this happen? Ignoring this silently seems inappropriate
-        if press.m == 0:
+        if not tp:
+            _logger.warn("Called Stream.set_tp() with None")
             return
 
-        self.temperature = temp
-        self.pressure = press
+        if tp.P.m == 0:
+            _logger.warn("Called Stream.set_tp() with zero pressure")
+            return
+
+        self.tp = copy(tp)
         self.initialized = True
 
-    def copy_flow_rates_from(self, stream, phase=None, temp=None, press=None):
+    def copy_flow_rates_from(self, stream, phase=None, tp=None):
         """
         Copy all mass flow rates from ``stream`` to ``self``
 
-        :param press: (pint.Quantity) the pressure to set in the ``self``
-        :param temp: (pint.Quantity) the temperature to set in ``self``
+        :param tp: (TemperaturePressure) temperature and pressure to set
         :param phase: (str) one of {'gas', 'liquid', or 'solid'}
         :param stream: (Stream) to copy
 
@@ -459,14 +486,16 @@ class Stream(XmlInstantiable, AttributeMixin):
         else:
             self.components[:] = stream.components
 
-        self.temperature = stream.temperature if temp is None else temp
+        self.tp.copy_from(tp or stream.tp)
 
-        self.pressure = stream.pressure if press is None else press
+        # else: # Deprecated
+        #     self.temperature = stream.temperature if temp is None else temp
+        #     self.pressure = stream.pressure if press is None else press
 
         self.initialized = True
 
 
-    def copy_gas_rates_from(self, stream):
+    def copy_gas_rates_from(self, stream, tp=None):
         """
         Copy gas mass flow rates from ``stream`` to ``self``
 
@@ -479,6 +508,9 @@ class Stream(XmlInstantiable, AttributeMixin):
 
         self.initialized = True
         self.components[PHASE_GAS] = stream.components[PHASE_GAS]
+
+        if tp:
+            self.set_tp(tp)
 
     def copy_liquid_rates_from(self, stream):
         """
@@ -540,6 +572,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.initialized = True
         self.components[PHASE_GAS] -= stream.components[PHASE_GAS]
 
+    # TODO: not yet used or tested
     def add_combustion_CO2_from(self, stream):
         """
         Compute the amount of CO2 from the combustible components in `stream`
@@ -591,6 +624,7 @@ class Stream(XmlInstantiable, AttributeMixin):
 
         temp = attr_dict['temperature'].value
         pres = attr_dict['pressure'].value
+        tp = TemperaturePressure(temp, pres)
 
         contents = [node.text for node in elt.findall('Contains')]
 
@@ -614,14 +648,12 @@ class Stream(XmlInstantiable, AttributeMixin):
                 if comp_name not in matrix.index:
                     raise OpgeeException(f"Unrecognized stream component name '{comp_name}'.")
 
-                # TBD: if stream is to include electricity, it will be in MWh/day?
                 matrix.loc[comp_name, phase] = rate
 
         else:
             matrix = None  # let the stream create it
 
-        obj = Stream(name, temperature=temp, pressure=pres,
-                     comp_matrix=matrix, src_name=src, dst_name=dst,
+        obj = Stream(name, tp, comp_matrix=matrix, src_name=src, dst_name=dst,
                      contents=contents, impute=impute, boundary=boundary)
 
         return obj

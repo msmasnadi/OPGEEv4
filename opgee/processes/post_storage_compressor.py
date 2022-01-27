@@ -1,9 +1,9 @@
-from opgee.processes.compressor import Compressor
-from .shared import get_energy_carrier
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
 from ..stream import Stream
+from .compressor import Compressor
+from .shared import get_energy_carrier
 
 _logger = getLogger(__name__)
 
@@ -11,9 +11,7 @@ _logger = getLogger(__name__)
 class PostStorageCompressor(Process):
     """
     Storage compressor calculate emission from compressing produced gas for long-term (i.e., seasonal) storage.
-
     """
-
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
@@ -35,12 +33,11 @@ class PostStorageCompressor(Process):
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
         gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp)
-        gas_fugitives.set_temperature_and_pressure(self.std_temp, self.std_press)
+        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, tp=self.std_tp)
 
         input_energy_flow_rate = self.field.gas.energy_flow_rate(input)
 
-        overall_compression_ratio = self.discharge_press / input.pressure
+        overall_compression_ratio = self.discharge_press / input.tp.P
         energy_consumption, output_temp, output_press = \
             Compressor.get_compressor_energy_consumption(
                 self.field,
@@ -55,16 +52,16 @@ class PostStorageCompressor(Process):
         energy_use.set_rate(energy_carrier, energy_consumption)
 
         gas_consumption_frac = energy_use.get_rate(energy_carrier) / input_energy_flow_rate
-        fuel_gas_stream = Stream("fuel gas stream", temperature=input.temperature, pressure=input.pressure)
-        fuel_gas_stream.copy_gas_rates_from(input)
+        fuel_gas_stream = Stream("fuel gas stream", input.tp)
+        fuel_gas_stream.copy_gas_rates_from(input, tp=input.tp)
         fuel_gas_stream.multiply_flow_rates(gas_consumption_frac.m)
-        fuel_gas_stream.set_temperature_and_pressure(temp=input.temperature, press=input.pressure)
 
         gas_to_distribution = self.find_output_stream("gas for distribution")
         gas_to_distribution.copy_gas_rates_from(input)
+        gas_to_distribution.tp.set(T=output_temp, P=self.discharge_press)
+
         gas_to_distribution.subtract_gas_rates_from(fuel_gas_stream)
         gas_to_distribution.subtract_gas_rates_from(gas_fugitives)
-        gas_to_distribution.set_temperature_and_pressure(temp=output_temp, press=self.discharge_press)
 
         # emissions
         emissions = self.emissions

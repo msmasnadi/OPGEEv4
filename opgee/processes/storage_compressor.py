@@ -34,12 +34,13 @@ class StorageCompressor(Process):
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
         gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp)
-        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, temp=field.std_temp, press=field.std_press)
+
+        # gas_fugitives.copy_flow_rates_from(gas_fugitives_temp)    # TODO: this was here redundantly
+        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, tp=field.stp)
 
         input_energy_flow_rate = self.field.gas.energy_flow_rate(input)
 
-        overall_compression_ratio = self.discharge_press / input.pressure
+        overall_compression_ratio = self.discharge_press / input.tp.P
         energy_consumption, output_temp, output_press = \
             Compressor.get_compressor_energy_consumption(
                 self.field,
@@ -54,12 +55,13 @@ class StorageCompressor(Process):
         energy_use.set_rate(energy_carrier, energy_consumption)
 
         gas_consumption_frac = energy_use.get_rate(energy_carrier) / input_energy_flow_rate
-        fuel_gas_stream = Stream("fuel gas stream", temperature=input.temperature, pressure=input.pressure)
+        fuel_gas_stream = Stream("fuel gas stream", input.tp)
         fuel_gas_stream.copy_flow_rates_from(input, phase=PHASE_GAS)
         fuel_gas_stream.multiply_flow_rates(gas_consumption_frac.m)
 
         gas_to_well = self.find_output_stream("gas for well")
-        gas_to_well.copy_flow_rates_from(input, phase=PHASE_GAS, temp=output_temp, press=self.discharge_press)
+        gas_to_well.copy_flow_rates_from(input, phase=PHASE_GAS)
+        gas_to_well.tp.set(T=output_temp, P=self.discharge_press)
         gas_to_well.subtract_gas_rates_from(fuel_gas_stream)
         gas_to_well.subtract_gas_rates_from(gas_fugitives)
 

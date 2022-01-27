@@ -1,10 +1,10 @@
 import numpy as np
 
 from .. import ureg
+from ..core import TemperaturePressure, STP
 from ..log import getLogger
 from ..process import Process
 from ..stream import Stream
-
 _logger = getLogger(__name__)  # data logging
 
 
@@ -12,22 +12,21 @@ class ReservoirWellInterface(Process):
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
-        self.res_temp = field.attr("res_temp")
-        self.res_press = field.attr("res_press")
+
+        self.res_tp = TemperaturePressure(field.attr("res_temp"),
+                                          field.attr("res_press"))
+
         self.num_prod_wells = field.attr("num_prod_wells")
         self.productivity_index = field.attr("prod_index")
         self.permeability = field.attr("res_perm")
         self.thickness = field.attr("res_thickness")
-        self.std_press = field.model.const("std-pressure").to("Pa")
-
-        self.std_temp = field.model.const("std-temperature").to("kelvin")
 
     def run(self, analysis):
         self.print_running_msg()
 
         # mass rate
         input = self.find_input_stream("crude oil")
-        input.set_temperature_and_pressure(self.res_temp, self.res_press)
+        input.set_tp(self.res_tp)
 
         output = self.find_output_stream("crude oil")
         # Check
@@ -36,9 +35,9 @@ class ReservoirWellInterface(Process):
         flooding_CO2 = self.find_input_stream("CO2", raiseError=False)
         # output.add_flow_rates_from(flooding_CO2)
         if flooding_CO2 is not None:
-            flooding_CO2.set_temperature_and_pressure(self.res_temp, self.res_press)
+            flooding_CO2.set_tp(self.res_tp)
 
-            reset_stream = Stream(name="reset_stream", temperature=input.temperature, pressure=input.pressure)
+            reset_stream = Stream("reset_stream", input.tp)
             reset_stream.copy_flow_rates_from(input)
             reset_stream.add_flow_rates_from(flooding_CO2)
 
@@ -46,7 +45,7 @@ class ReservoirWellInterface(Process):
 
         # bottom hole flowing pressure
         bottomhole_flowing_press = self.get_bottomhole_press(input)
-        output.set_temperature_and_pressure(self.res_temp, bottomhole_flowing_press)
+        output.tp.set(T=self.res_tp.T, P=bottomhole_flowing_press)
 
     def impute(self):
         output = self.find_output_stream("crude oil")
@@ -67,8 +66,11 @@ class ReservoirWellInterface(Process):
         gas = self.field.gas
         water = self.field.water
 
-        res_press = input_stream.pressure.to("psia")
-        stream_temp = input_stream.temperature.to("kelvin")
+        stream_temp = input_stream.tp.T.to("kelvin")
+        res_press = input_stream.tp.P.to("psia")
+
+        std_T = STP.T.to("kelvin")
+        std_P = STP.P.to("Pa")
 
         # injection and production rate
         oil_prod_volume_rate = oil.volume_flow_rate(input_stream,
@@ -86,14 +88,14 @@ class ReservoirWellInterface(Process):
         gas_formation_volume_factor = gas.volume_factor(input_stream)
 
         # reservoir and flowing pressures at wellbore interface
-        prod_liquid_flowing_BHP = (input_stream.pressure - fluid_rate_per_well / self.productivity_index).to("psia")
+        prod_liquid_flowing_BHP = (input_stream.tp.P - fluid_rate_per_well / self.productivity_index).to("psia")
 
         boundary = ureg.Quantity(2000, "psia")
         if res_press <= boundary:
             # flowing bottomhole pressure at producer (gas phase, low pressure)
-            delta_P_square = (gas_viscosity * z_factor * self.std_press * stream_temp *
+            delta_P_square = (gas_viscosity * z_factor * std_P * stream_temp *
                               np.log(1000 / 0.5) * gas_rate_per_well /
-                              (np.pi * self.permeability * self.thickness * self.std_temp)).to("psia**2")
+                              (np.pi * self.permeability * self.thickness * std_T)).to("psia**2")
             prod_gas_flowing_BHP = np.sqrt(res_press ** 2 - delta_P_square)
         else:
             # flowing bottomhole pressure at producer (gas phase, high pressure)

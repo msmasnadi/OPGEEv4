@@ -107,8 +107,12 @@ class Compressor(OpgeeObject):
                                           eta_compressor,
                                           overall_compression_ratio,
                                           inlet_stream,
-                                          inlet_temp=None,
-                                          inlet_pressure=None):
+                                          inlet_tp=None,
+
+                                          # deprecated
+                                          # inlet_temp=None,
+                                          # inlet_pressure=None
+                                          ):
         """
         Calculate compressor energy consumption
 
@@ -124,8 +128,10 @@ class Compressor(OpgeeObject):
 
         compression_ratio = Compressor.get_compression_ratio(overall_compression_ratio)
         num_stages = Compressor.get_num_of_compression(overall_compression_ratio)
-        inlet_temp = inlet_stream.temperature if inlet_temp is None else inlet_temp
-        inlet_press = inlet_stream.pressure if inlet_pressure is None else inlet_pressure
+
+        tp = inlet_tp or inlet_stream.tp
+        inlet_temp, inlet_press = tp.get()
+
         total_work, outlet_temp, outlet_press = Compressor.get_compressor_work_temp(field,
                                                                                     inlet_temp,
                                                                                     inlet_press,

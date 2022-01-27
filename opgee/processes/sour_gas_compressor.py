@@ -30,13 +30,13 @@ class SourGasCompressor(Process):
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
         gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, temp=field.std_temp, press=field.std_press)
+        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, tp=field.stp)
 
         gas_to_injection = self.find_output_stream("gas for sour gas injection")
         gas_to_injection.copy_flow_rates_from(input)
         gas_to_injection.subtract_gas_rates_from(gas_fugitives)
 
-        discharge_press = self.res_press + ureg.Quantity(500, "psi")
+        discharge_press = self.res_press + ureg.Quantity(500.0, "psia")
         overall_compression_ratio = discharge_press / input.pressure
         energy_consumption, output_temp, output_press = \
             Compressor.get_compressor_energy_consumption(
@@ -45,7 +45,8 @@ class SourGasCompressor(Process):
                 self.eta_compressor,
                 overall_compression_ratio,
                 input)
-        gas_to_injection.set_temperature_and_pressure(output_temp, input.pressure)
+
+        gas_to_injection.tp.set(T=output_temp, P=input.pressure)
 
         self.field.save_process_data(CO2_injection_rate=gas_to_injection.gas_flow_rate("CO2"))
 

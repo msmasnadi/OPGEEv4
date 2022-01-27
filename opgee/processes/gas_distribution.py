@@ -27,7 +27,7 @@ class GasDistribution(Process):
             return
 
         gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(input, temp=field.std_temp, press=field.std_press)
+        gas_fugitives.copy_flow_rates_from(input, tp=field.stp)
         gas_fugitives.multiply_flow_rates(self.frac_loss.m)
 
         gas_to_customer = self.find_output_stream("gas")

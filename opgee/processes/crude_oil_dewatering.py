@@ -1,4 +1,5 @@
 from .. import ureg
+from ..core import TemperaturePressure
 from ..emissions import EM_COMBUSTION
 from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY
 from ..log import getLogger
@@ -37,10 +38,10 @@ class CrudeOilDewatering(Process):
         if input.is_uninitialized():
             return
 
-        pressure = input.pressure
+        input_T, input_P = input.tp.get()
         oil_rate = input.flow_rate("oil", PHASE_LIQUID)
         water_rate = input.flow_rate("H2O", PHASE_LIQUID)
-        temp = self.temperature_heater_treater if field.heater_treater else input.temperature
+        temp = self.temperature_heater_treater if field.heater_treater else input_T
 
         separator_final_SOR = field.get_process_data("separator_final_SOR")
 
@@ -50,16 +51,19 @@ class CrudeOilDewatering(Process):
             raise OpgeeException(f"{self.name} oil path is not recognized:{self.oil_path}. "
                                  f"Must be one of {list(self.oil_path_dict.keys())}")
         output_oil = self.find_output_stream(output)
-        output_oil.set_liquid_flow_rate("oil", oil_rate, temp, pressure)
+
+        output_tp = TemperaturePressure(temp, input_P)
+        output_oil.set_liquid_flow_rate("oil", oil_rate, tp=output_tp)
 
         water_to_treatment = self.find_output_stream("water")
-        water_to_treatment.set_liquid_flow_rate("H2O", water_rate, temp, pressure)
+        water_to_treatment.set_liquid_flow_rate("H2O", water_rate, tp=output_tp)
 
-        average_oil_temp = ureg.Quantity((input.temperature.m+self.temperature_heater_treater.m)/2, "degF")
+        average_oil_temp = ureg.Quantity((input_T.m+self.temperature_heater_treater.m)/2, "degF")
         oil_heat_capacity = self.field.oil.specific_heat(self.field.oil.API, average_oil_temp)
         water_heat_capacity = self.field.water.specific_heat(average_oil_temp)
-        delta_temp = ureg.Quantity(self.temperature_heater_treater.m - input.temperature.m, "delta_degF")
+        delta_temp = ureg.Quantity(self.temperature_heater_treater.m - input_T.m, "delta_degF")
         heat_duty = ureg.Quantity(0, "mmBtu/day")
+
         if field.heater_treater:
             eff = (1 + self.heat_loss.to("frac")).to("frac")
             heat_duty = ((oil_rate * oil_heat_capacity + water_rate * water_heat_capacity) *

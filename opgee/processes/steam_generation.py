@@ -1,3 +1,4 @@
+from ..core import TemperaturePressure
 from ..emissions import EM_COMBUSTION
 from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY
 from ..error import BalanceError
@@ -26,8 +27,10 @@ class SteamGeneration(Process):
         self.steam_quality_outlet = field.attr("steam_quality_outlet")
         self.steam_quality_after_blowdown = field.attr("steam_quality_after_blowdown")
         self.fraction_blowdown_recycled = field.attr("fraction_blowdown_recycled")
-        self.waste_water_reinjection_temp = field.attr("waste_water_reinjection_temp")
-        self.waste_water_reinjection_press = field.attr("waste_water_reinjection_press")
+
+        self.waste_water_reinjection_tp = TemperaturePressure(field.attr("waste_water_reinjection_temp"),
+                                                              field.attr("waste_water_reinjection_press"))
+
         self.friction_loss_stream_distr = field.attr("friction_loss_stream_distr")
         self.pressure_loss_choke_wellhead = field.attr("pressure_loss_choke_wellhead")
         self.water = field.water
@@ -68,12 +71,10 @@ class SteamGeneration(Process):
         output_waste_water = self.find_output_stream("waste water")
         output_waste_water.set_liquid_flow_rate("H2O",
                                                 waste_water_from_blowdown.to("tonne/day"),
-                                                t=self.waste_water_reinjection_temp,
-                                                p=self.waste_water_reinjection_press)
+                                                tp=self.waste_water_reinjection_tp)
         output_recycled_blowdown_water = self.find_output_stream("blowdown water")
         output_recycled_blowdown_water.set_liquid_flow_rate("H2O", recycled_blowdown_water.to("tonne/day"),
-                                                            t=self.waste_water_reinjection_temp,
-                                                            p=self.waste_water_reinjection_press)
+                                                            tp=self.waste_water_reinjection_tp)
 
         input_prod_water = self.find_input_stream("produced water for steam generation")
         prod_water_mass_rate = input_prod_water.liquid_flow_rate("H2O")

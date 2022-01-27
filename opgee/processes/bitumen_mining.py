@@ -1,7 +1,7 @@
 from .. import ureg
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
-from ..error import OpgeeException
+from ..core import TemperaturePressure
 from ..log import getLogger
 from ..process import Process
 from ..stream import PHASE_GAS
@@ -25,15 +25,19 @@ class BitumenMining(Process):
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
+
         self.oil_sands_mine = field.attr("oil_sands_mine")
         if self.oil_sands_mine == "None":
             self.enabled = False
             return
+
         self.oil = field.oil
-        self.API_bitumen = field.attr("API_bitumen")
-        self.bitumen_SG = self.oil.specific_gravity(self.API_bitumen)
-        self.temperature_mined_bitumen = field.attr("temperature_mined_bitumen")
-        self.pressure_mined_bitumen = field.attr("pressure_mined_bitumen")
+        self.bitumen_API = field.attr("API_bitumen")
+        self.bitumen_SG = self.oil.specific_gravity(self.bitumen_API)
+
+        self.mined_bitumen_tp = TemperaturePressure(field.attr("temperature_mined_bitumen"),
+                                                    field.attr("pressure_mined_bitumen"))
+
         self.gas_comp = field.attrs_with_prefix("gas_comp_")
         self.FOR = field.attr("FOR")
         self.VOR = field.attr("VOR")
@@ -97,4 +101,4 @@ class BitumenMining(Process):
 
         oil_mass_rate = input_dilution.liquid_flow_rate("oil")
         input = self.find_input_stream("oil")
-        input.set_liquid_flow_rate("oil", oil_mass_rate, self.temperature_mined_bitumen, self.pressure_mined_bitumen)
+        input.set_liquid_flow_rate("oil", oil_mass_rate, self.mined_bitumen_tp)

@@ -182,7 +182,7 @@ class Emissions(OpgeeObject):
         self.add_rate(category, 'CH4', stream.gas_flow_rate('C1'))
         self.add_rate(category, "CO", stream.gas_flow_rate("CO"))
 
-        # TODO: where to get CO and N2O?
+        # TODO: where to get N2O?
 
         # All gas-phase hydrocarbons heavier than methane are considered VOCs
         voc_rate = stream.voc_flow_rates().sum()
@@ -200,7 +200,7 @@ class Emissions(OpgeeObject):
         self.set_rate(category, 'CH4', stream.gas_flow_rate('C1'))
         self.set_rate(category, "CO", stream.gas_flow_rate("CO"))
 
-        # TODO: where to get CO and N2O?
+        # TODO: where to get N2O?
 
         # All gas-phase hydrocarbons heavier than methane are considered VOCs
         voc_rate = stream.voc_flow_rates().sum()

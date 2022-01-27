@@ -8,7 +8,7 @@ _logger = getLogger(__name__)
 class SourGasInjection(Process):
     def _after_init(self):
         super()._after_init()
-        self.field = field = self.get_field()
+        self.field = self.get_field()
 
     def run(self, analysis):
         self.print_running_msg()
@@ -20,7 +20,7 @@ class SourGasInjection(Process):
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
         gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, temp=field.std_temp, press=field.std_press)
+        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, tp=field.stp)
 
         gas_to_reservoir = self.find_output_stream("gas for reservoir")
         gas_to_reservoir.copy_flow_rates_from(input)

@@ -1,4 +1,5 @@
 from .. import ureg
+from ..core import TemperaturePressure
 from ..energy import EN_ELECTRICITY
 from ..error import OpgeeException
 from ..log import getLogger
@@ -11,8 +12,6 @@ class WaterTreatment(Process):
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
-        self.std_temp = field.model.const("std-temperature")
-        self.std_press = field.model.const("std-pressure")
         self.oil_volume_rate = field.attr("oil_prod")
         self.WOR = field.attr("WOR")
         self.WIR = field.attr("WIR")
@@ -30,10 +29,13 @@ class WaterTreatment(Process):
         self.frac_disp_surface = self.attr("fraction_disp_water_surface")
 
         self.water_treatment_table = self.model.water_treatment
+        self.makeup_water_treatment = None
         self.makeup_water_treatment_tbl = self.attr("makeup_water_treatment_table")
+
+        self.makeup_water_tp = TemperaturePressure(self.attr("makeup_water_temp"),
+                                                   self.attr("makeup_water_press"))
+
         self.num_stages = self.attr("number_of_stages")
-        self.makeup_water_temp = self.attr("makeup_water_temp")
-        self.makeup_water_press = self.attr("makeup_water_press")
 
         self.init_intermediate_results(["Produced Water", "Makeup Water"])
 
@@ -46,7 +48,7 @@ class WaterTreatment(Process):
         prod_water_mass_rate = input.liquid_flow_rate("H2O")
 
         water = self.field.water
-        water_density = water.density(input.temperature, input.pressure)
+        water_density = water.density(input.tp.T, input.tp.P)
         prod_water_volume = prod_water_mass_rate / water_density
 
         # calculate makeup water volume rate
@@ -55,6 +57,9 @@ class WaterTreatment(Process):
         else:
             if self.water_flooding:
                 total_water_inj_demand = self.oil_volume_rate * self.WIR
+
+        # TODO: if neither water_reinjection nor water_flooding are true, total_water_inj_demand will be unbound
+
         makeup_water_volume_reinjection = max(total_water_inj_demand - prod_water_volume, ureg.Quantity(0.0, "barrel_water/day"))
         makeup_water_mass_reinjection = makeup_water_volume_reinjection * water_density
 
@@ -71,24 +76,23 @@ class WaterTreatment(Process):
         if makeup_water_to_reinjection is not None:
             makeup_water_to_reinjection.set_liquid_flow_rate("H2O",
                                                              makeup_water_mass_reinjection.to("tonne/day"),
-                                                             self.makeup_water_temp,
-                                                             self.makeup_water_press)
+                                                             tp=self.makeup_water_tp)
 
         makeup_water_to_steam = self.find_output_stream("makeup water for steam generation", raiseError=False)
         if makeup_water_to_steam is not None:
             makeup_water_to_steam.set_liquid_flow_rate("H2O", makeup_water_mass_steam.to("tonne/day"),
-                                                       self.makeup_water_temp, self.makeup_water_press)
+                                                       tp=self.makeup_water_tp)
 
         # produced water stream
         prod_water_to_reinjection = self.find_output_stream("produced water for water injection", raiseError=False)
         if prod_water_to_reinjection is not None:
             prod_water_mass = min(total_water_inj_demand * water_density, prod_water_mass_rate)
-            prod_water_to_reinjection.set_liquid_flow_rate("H2O", prod_water_mass.to("tonne/day"), input.temperature, input.pressure)
+            prod_water_to_reinjection.set_liquid_flow_rate("H2O", prod_water_mass.to("tonne/day"), tp=input.tp)
 
         prod_water_to_steam = self.find_output_stream("produced water for steam generation", raiseError=False)
         if prod_water_to_steam is not None:
             prod_water_mass = min(total_steam_inj_demand * water_density, prod_water_mass_rate)
-            prod_water_to_steam.set_liquid_flow_rate("H2O", prod_water_mass.to("tonne/day"), input.temperature, input.pressure)
+            prod_water_to_steam.set_liquid_flow_rate("H2O", prod_water_mass.to("tonne/day"), tp=input.tp)
 
 
         output_surface_disposal = self.find_output_stream("water for surface disposal")

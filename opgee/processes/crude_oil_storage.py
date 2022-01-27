@@ -44,17 +44,19 @@ class CrudeOilStorage(Process):
         vapor_to_VRU = self.f_FG_CS_VRU * gas_exsolved_upon_flashing * self.storage_gas_comp
         gas_fugitives = (1 - self.f_FG_CS_VRU - self.f_FG_CS_FL) * gas_exsolved_upon_flashing * self.storage_gas_comp
 
+        stp = field.stp
+
         output_flare = self.find_output_stream("gas for flaring")
         output_flare.set_rates_from_series(vapor_to_flare, PHASE_GAS)
-        output_flare.set_temperature_and_pressure(field.std_temp, field.std_press)
+        output_flare.set_tp(stp)
 
         output_VRU = self.find_output_stream("gas for VRU")
         output_VRU.set_rates_from_series(vapor_to_VRU, PHASE_GAS)
-        output_VRU.set_temperature_and_pressure(field.std_temp, field.std_press)
+        output_VRU.set_tp(stp)
 
         gas_fugitive_stream = self.find_output_stream("gas fugitives")
         gas_fugitive_stream.set_rates_from_series(gas_fugitives, PHASE_GAS)
-        gas_fugitive_stream.set_temperature_and_pressure(field.std_temp, field.std_press)
+        gas_fugitive_stream.set_tp(stp)
 
         # No energy-use for storage
 

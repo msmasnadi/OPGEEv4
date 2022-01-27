@@ -9,8 +9,8 @@ class GasGathering(Process):
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
-        self.std_temp = field.model.const("std-temperature")
-        self.std_press = field.model.const("std-pressure")
+        # self.std_temp = field.model.const("std-temperature")
+        # self.std_press = field.model.const("std-pressure")
 
     def run(self, analysis):
         self.print_running_msg()
@@ -24,7 +24,7 @@ class GasGathering(Process):
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
         gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, temp=self.std_temp, press=self.std_press)
+        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, tp=self.field.stp)
 
         gas_to_dehydration = self.find_output_stream("gas")
         gas_to_dehydration.copy_flow_rates_from(input)

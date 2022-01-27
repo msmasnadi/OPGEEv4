@@ -53,7 +53,7 @@ class GasDehydration(Process):
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
         gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, temp=field.std_temp, press=field.std_press)
+        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, tp=field.stp)
 
         try:
             output = self.gas_path_dict[self.gas_path]
@@ -65,8 +65,7 @@ class GasDehydration(Process):
         output_gas.copy_flow_rates_from(input)
         output_gas.subtract_gas_rates_from(gas_fugitives)
 
-        feed_gas_press = input.pressure
-        feed_gas_temp = input.temperature
+        feed_gas_temp, feed_gas_press = input.tp.get()
 
         # how much moisture in gas
         water_critical_temp = self.gas.component_Tc["H2O"]

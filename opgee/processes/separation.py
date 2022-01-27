@@ -1,5 +1,6 @@
 from .shared import get_energy_carrier
 from ..combine_streams import combine_streams
+from ..core import TemperaturePressure
 from opgee.processes.compressor import Compressor
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..log import getLogger
@@ -19,16 +20,22 @@ class Separation(Process):
         # Primary mover type is one of: {"NG_engine", "Electric_motor", "Diesel_engine", "NG_turbine"}
         self.prime_mover_type = self.attr("prime_mover_type")
 
-        self.wellhead_temp = field.attr("wellhead_temperature")
-        self.wellhead_press = field.attr("wellhead_pressure")
+        # self.wellhead_temp = field.attr("wellhead_temperature")
+        # self.wellhead_press = field.attr("wellhead_pressure")
+
         self.loss_rate = self.venting_fugitive_rate()
         self.loss_rate = (1 / (1 - self.loss_rate)).to("frac")
-        self.temperature_outlet = field.attr("temperature_outlet")
-        self.temperature_stage1 = field.attr("wellhead_temperature")
-        self.temperature_stage2 = (self.temperature_stage1.to("kelvin") + self.temperature_outlet.to("kelvin")) / 2
+
+        self.outlet_tp = TemperaturePressure(field.attr("temperature_outlet"),
+                                             field.attr("pressure_outlet"))
+
+        self.temperature_stage1 = field.wellhead_tp.T
+        self.temperature_stage2 = (self.temperature_stage1.to("kelvin") + self.outlet_tp.T.to("kelvin")) / 2
+
         self.pressure_stage1 = self.attr("pressure_first_stage")
         self.pressure_stage2 = self.attr("pressure_second_stage")
         self.pressure_stage3 = self.attr("pressure_third_stage")
+
         self.oil_volume_rate = field.attr("oil_prod")  # (float) bbl/day
         self.gas_oil_ratio = field.attr("GOR")  # (float) scf/bbl
         self.gas_comp = field.attrs_with_prefix("gas_comp_")  # Pandas.Series (float) percent
@@ -37,10 +44,7 @@ class Separation(Process):
 
         self.num_of_stages = self.attr("number_stages")
 
-        self.std_temp = field.model.const("std-temperature")
-        self.std_press = field.model.const("std-pressure")
         self.pressure_after_boosting = field.attr("gas_pressure_after_boosting")
-        self.pressure_outlet = field.attr("pressure_outlet")
 
         self.water_content = self.attr("water_content_oil_emulsion")
         self.compressor_eff = field.attr("eta_compressor").to("frac")
@@ -89,20 +93,22 @@ class Separation(Process):
         self.field.save_process_data(separation_solution_GOR=final_GOR)
 
     def impute(self):
-        oil = self.field.oil
+        field = self.field
+        oil = field.oil
 
-        gas_after, oil_after, water_after = self.get_output_streams(self.field)
+        gas_after, oil_after, water_after = self.get_output_streams(field)
         gas_after.multiply_flow_rates(self.loss_rate)
 
-        output = combine_streams([oil_after, gas_after, water_after], oil.API, self.wellhead_press)
+        output = combine_streams([oil_after, gas_after, water_after], oil.API,
+                                # TODO: pressure arg not currently used in combine_streams!
+                                 pressure=field.wellhead_tp.P)
 
         input = self.find_input_stream("crude oil")
-        input.set_temperature_and_pressure(self.wellhead_temp, self.wellhead_press)
-        input.copy_flow_rates_from(output)
+        input.copy_flow_rates_from(output, tp=field.wellhead_tp)
 
     def get_stages_temperature_and_pressure(self):
 
-        temperature_of_stages = [self.temperature_stage1, self.temperature_stage2.to("degF"), self.temperature_outlet]
+        temperature_of_stages = [self.temperature_stage1, self.temperature_stage2.to("degF"), self.outlet_tp.T]
 
         pressure_of_stages = [self.pressure_stage1, self.pressure_stage2, self.pressure_stage3]
 
@@ -113,11 +119,12 @@ class Separation(Process):
 
         oil = field.oil
         gas = field.gas
+        std_tp = field.stp
 
         gas_after = self.find_output_stream("gas")
-        stream = Stream("stage_stream",
-                        temperature=temperature_of_stages[self.num_of_stages - 1],
-                        pressure=pressure_of_stages[self.num_of_stages - 1])
+        last = self.num_of_stages - 1
+        stream = Stream("stage_stream", TemperaturePressure(temperature_of_stages[last],
+                                                            pressure_of_stages[last]))
 
         density = oil.density(stream,  # lb/ft3
                               oil.oil_specific_gravity,
@@ -130,21 +137,24 @@ class Separation(Process):
 
         for component, mass_rate in gas_mass_rate.items():
             gas_after.set_gas_flow_rate(component, mass_rate.to("tonne/day"))
-        gas_after.set_temperature_and_pressure(self.temperature_outlet, self.pressure_after_boosting)
+
+        gas_after.tp.set(T=self.outlet_tp.T, P=self.pressure_after_boosting)
 
         oil_after = self.find_output_stream("crude oil")
         oil_mass_rate = (self.oil_volume_rate * density).to("tonne/day")
         water_in_oil_mass_rate = self.water_in_oil_mass_rate(oil_mass_rate)
         oil_after.set_liquid_flow_rate("oil", oil_mass_rate)
         oil_after.set_liquid_flow_rate("H2O", water_in_oil_mass_rate)
-        oil_after.set_temperature_and_pressure(self.temperature_outlet, self.pressure_outlet)
+        oil_after.set_tp(self.outlet_tp)
 
-        water_density_STP = rho("H2O", self.std_temp, self.std_press, PHASE_LIQUID)
+        water_density_STP = rho("H2O", std_tp.T, std_tp.P, PHASE_LIQUID)
         water_mass_rate = (self.oil_volume_rate * self.water_oil_ratio * water_density_STP.to("tonne/barrel_water") -
                            water_in_oil_mass_rate)
         water_after = self.find_output_stream("water")
         water_after.set_liquid_flow_rate("H2O", water_mass_rate)
-        water_after.set_temperature_and_pressure(self.temperature_outlet, self.pressure_outlet)
+        water_after.set_tp(self.outlet_tp)
+
+
         return gas_after, oil_after, water_after
 
     def water_in_oil_mass_rate(self, oil_mass_rate):
@@ -164,9 +174,8 @@ class Separation(Process):
 
         solution_gas_oil_ratio_of_stages = [oil.gas_oil_ratio]
         for stage in range(self.num_of_stages):
-            stream_stages = Stream("stage_stream",
-                                   temperature=temperature_of_stages[stage],
-                                   pressure=pressure_of_stages[stage])
+            stream_stages = Stream("stage_stream", TemperaturePressure(temperature_of_stages[stage],
+                                                                       pressure_of_stages[stage]))
             solution_gas_oil_ratio = oil.solution_gas_oil_ratio(stream_stages,
                                                                 oil.oil_specific_gravity,
                                                                 oil.gas_specific_gravity,

@@ -13,8 +13,8 @@ class CopyingProcess(Process):
         output = self.outputs[0] if self.outputs else None
 
         if input and output:
-            input.temperature = output.temperature
-            input.pressure = output.pressure
+            input.tp.T = output.tp.T
+            input.tp.P = output.tp.P
 
 class Impute1(CopyingProcess): pass
 class Impute2(CopyingProcess): pass
@@ -38,7 +38,8 @@ def test_impute_cycle_good(good_model):
     field._impute()
 
     stream = field.find_stream('Impute1 => Impute2')
-    assert stream.pressure == ureg.Quantity(150.0, 'psia') and stream.temperature == ureg.Quantity(90.0, "degF")
+    t, p = stream.tp.get()
+    assert p == ureg.Quantity(150.0, 'psia') and t == ureg.Quantity(90.0, "degF")
 
 def test_impute_cycle_bad(bad_model):
     model = bad_model

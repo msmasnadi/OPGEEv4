@@ -29,7 +29,8 @@ class LNGLiquefaction(Process):
         total_load = (self.compression_refrigeration_load + self.ancillary_loads) * self.NG_to_liq_rate
 
         gas_to_transport = self.find_output_stream("gas for transport")
-        gas_to_transport.copy_flow_rates_from(input, temp=self.field.LNG_temp)
+        gas_to_transport.copy_flow_rates_from(input)
+        gas_to_transport.tp.set(T=self.field.LNG_temp)
 
         #TODO: Future versions of OPGEE may treat this process in more detail.
 

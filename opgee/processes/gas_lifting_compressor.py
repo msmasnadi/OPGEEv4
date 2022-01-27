@@ -26,23 +26,26 @@ class GasLiftingCompressor(Process):
             return
 
         loss_rate = self.venting_fugitive_rate()
+
+        # TODO: Wennan, this intermediate copy should not be necessary
         gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
         gas_fugitives = self.find_output_stream("gas fugitives")
         gas_fugitives.copy_flow_rates_from(gas_fugitives_temp)
-        gas_fugitives.set_temperature_and_pressure(field.std_temp, field.std_press)
+        gas_fugitives.set_tp(field.stp)
 
         lifting_gas = self.find_output_stream("lifting gas")
         lifting_gas.copy_flow_rates_from(input)
 
-        discharge_press = (self.res_press + input.pressure) / 2 + ureg.Quantity(100, "psi")
-        overall_compression_ratio = discharge_press / input.pressure
+        input_tp = input.tp
+
+        discharge_press = (self.res_press + input_tp.P) / 2 + ureg.Quantity(100.0, "psia")
+        overall_compression_ratio = discharge_press / input_tp.P
         energy_consumption, _, _ = Compressor.get_compressor_energy_consumption(field,
                                                                                 field.prime_mover_type_lifting,
                                                                                 field.eta_compressor_lifting,
                                                                                 overall_compression_ratio,
                                                                                 lifting_gas,
-                                                                                inlet_temp=input.temperature,
-                                                                                inlet_pressure=input.pressure)
+                                                                                inlet_tp=input.tp)
 
         energy_content_imported_gas = self.gas.mass_energy_density(lifting_gas) * lifting_gas.total_gas_rate()
         frac_imported_gas_consumed = energy_consumption / energy_content_imported_gas

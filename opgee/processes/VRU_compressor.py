@@ -29,11 +29,11 @@ class VRUCompressor(Process):
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
         gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, temp=field.std_temp, press=field.std_press)
+        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, tp=field.stp)
 
         gas_to_gathering = self.find_output_stream("gas for gas gathering")
 
-        overall_compression_ratio = self.discharge_press / input.pressure
+        overall_compression_ratio = self.discharge_press / input.tp.P
         energy_consumption, output_temp, output_press = \
             Compressor.get_compressor_energy_consumption(
                 self.field,
@@ -42,8 +42,9 @@ class VRUCompressor(Process):
                 overall_compression_ratio,
                 input)
 
-        gas_to_gathering.copy_flow_rates_from(input, temp=output_temp, press=self.discharge_press)
+        gas_to_gathering.copy_flow_rates_from(input)
         gas_to_gathering.subtract_gas_rates_from(gas_fugitives)
+        gas_to_gathering.tp.set(T=output_temp, P=self.discharge_press)
 
         # energy-use
         energy_use = self.energy

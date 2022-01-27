@@ -1,14 +1,15 @@
 import pandas as pd
 
-from .stream import PHASE_LIQUID, Stream
+from . import ureg
+from .core import TemperaturePressure
 from .error import OpgeeException
 from .log import getLogger
+from .stream import PHASE_LIQUID, Stream
 from .thermodynamics import Oil, Gas, Water
-from . import ureg
 
 _logger = getLogger(__name__)
 
-#TODO: improve this to use temp and press
+# TODO: improve this to use temp and press
 def combine_streams(streams, API, pressure=None, temperature=None):
     """
     Thermodynamically combine multiple streams' components into a new
@@ -25,30 +26,32 @@ def combine_streams(streams, API, pressure=None, temperature=None):
     if len(streams) == 1:  # corner case
         return streams[0]
 
-    matrices = [stream.components for stream in streams]
-
-    comp_matrix = sum(matrices)
-
     non_empty_streams = [stream for stream in streams if not stream.is_uninitialized()]
 
     if not non_empty_streams:
-        return Stream("empty_stream", temperature=ureg.Quantity(0, "degF"), pressure=ureg.Quantity(0, "psia"))
+        return Stream("empty_stream", TemperaturePressure(ureg.Quantity(0, "degF"), ureg.Quantity(0, "psia")))
 
     # TODO: This block might not be necessary
     for stream in non_empty_streams:
-        if stream.pressure.m == 0:
+        if stream.tp.P.m == 0.0:
             raise OpgeeException(f"combine_streams: steam pressure of '{stream.name}' is Zero")
 
-    first_non_empty_stream = non_empty_streams[0]
-    stream_temperature = pd.Series([stream.temperature.to("kelvin").m for stream in non_empty_streams],
+    comp_matrix = sum([stream.components for stream in streams])
+
+    stream_temperature = pd.Series([stream.tp.T.to("kelvin").m for stream in non_empty_streams],
                                    dtype="pint[kelvin]")
+
     stream_specific_heat = pd.Series([mixture_specific_heat_capacity(API, stream).m for stream in non_empty_streams],
-                          dtype="pint[btu/degF/day]")
-    if stream_specific_heat.sum().m != 0:
-        temperature = (stream_temperature * stream_specific_heat).sum() / stream_specific_heat.sum()
+                                     dtype="pint[btu/degF/day]")
+
+    stream_sp_heat_sum = stream_specific_heat.sum()
+    if stream_sp_heat_sum.m != 0.0:
+        temperature = (stream_temperature * stream_specific_heat).sum() / stream_sp_heat_sum
         temperature = temperature.to("degF")
-        stream =\
-            Stream('combined', temperature=temperature, pressure=first_non_empty_stream.pressure, comp_matrix=comp_matrix)
+        first_non_empty_stream = non_empty_streams[0]
+        stream = Stream('combined', TemperaturePressure(temperature, first_non_empty_stream.tp.P),
+                        comp_matrix=comp_matrix)
+
     return stream
 
 
@@ -60,7 +63,7 @@ def mixture_specific_heat_capacity(API, stream):
     :param stream:
     :return: (float) heat capacity of mixture (unit = btu/degF/day)
     """
-    temperature = stream.temperature
+    temperature = stream.tp.T
     total_mass_rate = stream.total_flow_rate()
     oil_heat_capacity = stream.hydrocarbon_rate(PHASE_LIQUID) * Oil.specific_heat(API, temperature)
     water_heat_capacity = Water.heat_capacity(stream)

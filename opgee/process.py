@@ -291,14 +291,9 @@ class Process(XmlInstantiable, AttributeMixin):
         :param stream:
         :return:
         """
-
-        field = self.field
-
         gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_gas_rates_from(stream)
+        gas_fugitives.copy_gas_rates_from(stream, tp=self.field.stp)
         gas_fugitives.multiply_flow_rates(loss_rate)
-
-        gas_fugitives.set_temperature_and_pressure(field.std_temp, field.std_press)
 
         return gas_fugitives
 
@@ -662,27 +657,6 @@ class Process(XmlInstantiable, AttributeMixin):
 
         return energy_consumption
 
-    def get_gas_lifting_init_stream(self,
-                                    imported_fuel_gas_comp,
-                                    imported_fuel_gas_mass_fracs,
-                                    GLIR, oil_prod, water_prod, temp, press):
-        """
-        generate inital gas stream for lifting
-
-        :param imported_fuel_gas_comp: (float) Pandas Series imported fuel gas composition
-        :param imported_fuel_gas_mass_fracs: (float) Pandas.Series imported fuel gas mass fractions
-        :param GLIR: (float) gas lifting injection ratio
-        :param oil_prod: (float) oil production volume rate
-        :param water_prod: (float) water production volume rate
-        :return: (Stream) initial gas lifting stream
-        """
-        gas = self.field.gas
-        stream = Stream("gas lifting stream", temperature=temp, pressure=press)
-        gas_lifting_series = imported_fuel_gas_mass_fracs * GLIR * (oil_prod + water_prod) \
-                             * gas.component_gas_rho_STP[imported_fuel_gas_comp.index]
-        stream.set_rates_from_series(gas_lifting_series, PHASE_GAS)
-        return stream
-
     def init_intermediate_results(self, names):
         """
 
@@ -760,7 +734,7 @@ class Process(XmlInstantiable, AttributeMixin):
         :return: (Stream)
         """
 
-        result = Stream("combusted_stream", temperature=stream.temperature, pressure=stream.pressure)
+        result = Stream("combusted_stream", stream.tp)
         CO2 = (stream.components.loc[stream.emission_composition, PHASE_GAS] /
                component_MW[stream.emission_composition] *
                Stream.carbon_number *

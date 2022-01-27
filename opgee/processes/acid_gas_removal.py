@@ -48,7 +48,7 @@ class AcidGasRemoval(Process):
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
         gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, temp=field.std_temp, press=field.std_press)
+        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, tp=field.stp)
 
         CO2_feed_mass_rate = input.gas_flow_rate("CO2")
         CH4_feed_mass_rate = input.gas_flow_rate("C1")
@@ -93,22 +93,21 @@ class AcidGasRemoval(Process):
         reboiler_heavy_duty = ureg.Quantity(max(0, corr_result_df["Reboiler"] * gas_multiplier), "kW")
         condenser_thermal_load = ureg.Quantity(max(0, corr_result_df["Condenser"] * gas_multiplier), "kW")
         cooler_thermal_load = ureg.Quantity(max(0, corr_result_df["Cooler"] * gas_multiplier), "kW")
-        reboiler_fuel_use = reboiler_heavy_duty * self.eta_reboiler_AGR
 
         # TODO: Wennan, are these variables needed? They are currently unused.
+        reboiler_fuel_use = reboiler_heavy_duty * self.eta_reboiler_AGR
         pump_duty = ureg.Quantity(max(0, corr_result_df["Pump"] * gas_multiplier), "kW")
         condenser_energy_consumption = predict_blower_energy_use(self, condenser_thermal_load)
         amine_cooler_energy_consumption = predict_blower_energy_use(self, cooler_thermal_load)
 
-        overall_compression_ratio = ureg.Quantity(feed_gas_press, "psia") / input.pressure
+        overall_compression_ratio = ureg.Quantity(feed_gas_press, "psia") / input.tp.P
         compressor_energy_consumption, temp, _ = \
             Compressor.get_compressor_energy_consumption(self.field,
                                                          self.prime_mover_type_AGR,
                                                          self.eta_compressor_AGR,
                                                          overall_compression_ratio,
                                                          gas_to_demethanizer,
-                                                         inlet_temp=input.temperature,
-                                                         inlet_pressure=input.pressure)
+                                                         inlet_tp=input.tp)
 
         # energy-use
         energy_use = self.energy

@@ -26,15 +26,14 @@ class PreMembraneChiller(Process):
 
         gas_fugitives_temp = self.set_gas_fugitives(input, self.fug_emissions_chiller.to("frac"))
         gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp)
-        gas_fugitives.set_temperature_and_pressure(field.std_temp, field.std_press)
+        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, tp=field.stp)
 
         gas_to_compressor = self.find_output_stream("gas for compressor")
         gas_to_compressor.copy_flow_rates_from(input)
         gas_to_compressor.subtract_gas_rates_from(gas_fugitives)
-        gas_to_compressor.set_temperature_and_pressure(self.outlet_temp, input.pressure)
+        gas_to_compressor.tp.set(T=self.outlet_temp, P=input.pressure)
 
-        delta_temp = input.temperature - self.outlet_temp
+        delta_temp = input.tp.T - self.outlet_temp
         energy_consumption = (self.compressor_load * input.total_gas_rate() /
                               self.feed_stream_mass_rate * delta_temp / self.pressure_drop)
 

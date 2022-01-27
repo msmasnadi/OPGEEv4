@@ -28,7 +28,7 @@ class PreMembraneCompressor(Process):
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
         gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, temp=field.std_temp, press=field.std_press)
+        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, tp=field.stp)
 
         gas_to_CO2_membrane = self.find_output_stream("gas for CO2 membrane")
         gas_to_CO2_membrane.copy_flow_rates_from(input)

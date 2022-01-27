@@ -2,7 +2,7 @@ import networkx as nx
 from . import ureg
 from .config import getParamAsList
 from .container import Container
-from .core import elt_name, instantiate_subelts, dict_from_list
+from .core import elt_name, instantiate_subelts, dict_from_list, TemperaturePressure
 from .error import (OpgeeException, OpgeeStopIteration, OpgeeMaxIterationsReached,
                     OpgeeIterationConverged, ModelValidationError)
 from .log import getLogger
@@ -97,16 +97,22 @@ class Field(Container):
 
         # Set in _after_init()
         self.oil = self.gas = self.water = self.steam_generator = None
-        self.std_temp  = None
-        self.std_press = None
+        self.stp = self.wellhead_tp = None
+
+        # Deprecated
+        # self.std_temp  = None
+        # self.std_press = None
 
     def _after_init(self):
         self.check_attr_constraints(self.attr_dict)
 
         self.model = model = self.find_parent('Model')
 
+        self.stp = TemperaturePressure(model.const("std-temperature"), model.const("std-pressure"))
+        # Deprecated
         self.std_temp  = model.const("std-temperature")
         self.std_press = model.const("std-pressure")
+
         self.LNG_temp = model.const("LNG-temp")
 
         self.heater_treater = self.attr("heater_treater")
@@ -115,6 +121,9 @@ class Field(Container):
         self.frac_diluent = self.attr("fraction_diluent")
         self.prime_mover_type_lifting = self.attr("prime_mover_type_gas_lifting")
         self.eta_compressor_lifting = self.attr("eta_compressor_lifting")
+
+        self.wellhead_tp = TemperaturePressure(self.attr("wellhead_temperature"), self.attr("wellhead_pressure"))
+        # Deprecated
         self.wellhead_press = self.attr("wellhead_pressure")
         self.wellhead_temp = self.attr("wellhead_temperature")
 

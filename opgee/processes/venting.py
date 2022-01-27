@@ -3,6 +3,7 @@ from opgee.processes.compressor import Compressor
 from ..emissions import EM_VENTING, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
+from .shared import get_gas_lifting_init_stream
 
 _logger = getLogger(__name__)
 
@@ -31,29 +32,31 @@ class Venting(Process):
         # mass rate
 
         input = self.find_input_stream("gas")
-        input_temp = input.temperature
-        input_press = input.pressure
-
         if input.is_uninitialized():
             return
+
+        input_tp = input.tp
 
         methane_lifting = self.field.get_process_data(
             "methane_from_gas_lifting") if self.gas_lifting else None
         gas_lifting_fugitive_loss_rate = self.field.get_process_data("gas_lifting_compressor_loss_rate")
-        gas_stream = self.get_gas_lifting_init_stream(self.imported_fuel_gas_comp,
-                                                      self.imported_fuel_gas_mass_fracs,
-                                                      self.GLIR, self.oil_prod,
-                                                      self.water_prod, input_temp, input_press)
+        gas_stream = get_gas_lifting_init_stream(field.gas, self.imported_fuel_gas_comp,
+                                                 self.imported_fuel_gas_mass_fracs,
+                                                 self.GLIR, self.oil_prod,
+                                                 self.water_prod, input_tp)
+
         if methane_lifting is None and len(gas_stream.gas_flow_rates()) > 0:
-            discharge_press = (self.res_press + input_press) / 2 + ureg.Quantity(100, "psi")
+            input_press = input_tp.P
+            discharge_press = (self.res_press + input_press) / 2 + ureg.Quantity(100.0, "psia")
             overall_compression_ratio = discharge_press / input_press
+
             energy_consumption, _, _ = Compressor.get_compressor_energy_consumption(field,
                                                                                     field.prime_mover_type_lifting,
                                                                                     field.eta_compressor_lifting,
                                                                                     overall_compression_ratio,
                                                                                     gas_stream,
-                                                                                    inlet_temp=input.temperature,
-                                                                                    inlet_pressure=input.pressure)
+                                                                                    inlet_tp=input_tp)
+
             energy_content_imported_gas = self.gas.mass_energy_density(gas_stream) * gas_stream.total_gas_rate()
             frac_imported_gas_consumed = energy_consumption / energy_content_imported_gas
             loss_rate = (ureg.Quantity(0, "frac")
@@ -70,17 +73,16 @@ class Venting(Process):
             self.field.save_process_data(gas_lifting_stream=gas_stream)
 
         gas_to_vent = self.find_output_stream("gas venting")
-        gas_to_vent.copy_flow_rates_from(input, temp=field.std_temp, press=field.std_press)
+        gas_to_vent.copy_flow_rates_from(input, tp=field.stp)
         gas_to_vent.multiply_flow_rates(venting_frac.m)
 
         gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(input, temp=field.std_temp, press=field.std_press)
+        gas_fugitives.copy_flow_rates_from(input, tp=field.stp)
         gas_fugitives.multiply_flow_rates(fugitive_frac.m)
 
         gas_to_gathering = self.find_output_stream("gas for gas gathering")
-        gas_to_gathering.copy_flow_rates_from(input)
+        gas_to_gathering.copy_flow_rates_from(input, tp=input.tp)
         gas_to_gathering.multiply_flow_rates(1 - venting_frac.m - fugitive_frac.m)
-        gas_to_gathering.set_temperature_and_pressure(input.temperature, input.pressure)
 
         self.set_iteration_value(gas_to_vent.total_flow_rate() +
                                  gas_fugitives.total_flow_rate() +

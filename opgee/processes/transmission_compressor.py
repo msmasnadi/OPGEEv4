@@ -1,10 +1,10 @@
 import math
-
-from ..stream import Stream
-from opgee.processes.compressor import Compressor
+from ..core import STP
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
+from ..stream import Stream
+from .compressor import Compressor
 from .shared import get_energy_carrier
 
 _logger = getLogger(__name__)
@@ -26,11 +26,10 @@ class TransmissionCompressor(Process):
         self.transmission_inlet_press = self.attr("transmission_inlet_press")
         self.prime_mover_type = self.attr("prime_mover_type")
         self.eta_compressor = self.attr("eta_compressor")
-        self.std_temp = field.model.const("std-temperature")
-        self.std_press = field.model.const("std-pressure")
         self.gas_to_storage_frac = self.attr("gas_to_storage_frac")
         self.natural_gas_to_liquefaction_frac = field.attr("natural_gas_to_liquefaction_frac")
         self.transmission_sys_discharge = self.attr("transmission_sys_discharge")
+        self.loss_rate = self.venting_fugitive_rate()
 
     def run(self, analysis):
         self.print_running_msg()
@@ -40,11 +39,9 @@ class TransmissionCompressor(Process):
         if input.is_uninitialized():
             return
 
-        loss_rate = self.venting_fugitive_rate()
-        gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
+        gas_fugitives_temp = self.set_gas_fugitives(input, self.loss_rate)
         gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp)
-        gas_fugitives.set_temperature_and_pressure(self.std_temp, self.std_press)
+        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, tp=STP)
 
         input_energy_flow_rate = self.field.gas.energy_flow_rate(input)
 
@@ -53,7 +50,7 @@ class TransmissionCompressor(Process):
         num_compressor_stations = math.ceil(self.transmission_dist / self.transmission_freq)
 
         # initial compressor properties
-        overall_compression_ratio_init = station_outlet_press / input.pressure
+        overall_compression_ratio_init = station_outlet_press / input.tp.P
         energy_consumption_init, output_temp_init, output_press_init = \
             Compressor.get_compressor_energy_consumption(
                 self.field,
@@ -79,7 +76,7 @@ class TransmissionCompressor(Process):
                             energy_consumption_booster * num_compressor_stations)
 
         gas_consumption_frac = energy_use.get_rate(energy_carrier) / input_energy_flow_rate
-        fuel_gas_stream = Stream("fuel gas stream", temperature=input.temperature, pressure=input.pressure)
+        fuel_gas_stream = Stream("fuel gas stream", input.tp)
         fuel_gas_stream.copy_gas_rates_from(input)
         fuel_gas_stream.multiply_flow_rates(gas_consumption_frac.m)
 

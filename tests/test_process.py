@@ -151,7 +151,9 @@ def test_bad_process_data(procB):
 
 
 def test_combust_stream(procB):
-    stream = Stream("test_stream", temperature=ureg.Quantity(100, "degF"), pressure=ureg.Quantity(100, "psia"))
+    from opgee.core import TemperaturePressure
+    stream = Stream("test_stream", TemperaturePressure(ureg.Quantity(100, "degF"),
+                                                       ureg.Quantity(100, "psia")))
     stream.set_gas_flow_rate("C1", ureg.Quantity(10, "tonne/day"))
     stream.set_gas_flow_rate("C2", ureg.Quantity(20, "tonne/day"))
     stream.set_gas_flow_rate("N2", ureg.Quantity(15, "tonne/day"))

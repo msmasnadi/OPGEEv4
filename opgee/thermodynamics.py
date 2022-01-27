@@ -1,28 +1,13 @@
 import math
 import pandas as pd
 from pandas import Series
+import pint
 from pyXSteam.XSteam import XSteam
 from thermosteam import Chemical, Mixture
 from . import ureg
-from .core import OpgeeObject
+from .core import OpgeeObject, STP, TemperaturePressure
 from .error import OpgeeException
 from .stream import PHASE_LIQUID, Stream, PHASE_GAS, PHASE_SOLID
-
-# TODO: consider using this everywhere we store and access T and P
-class Condition(OpgeeObject):
-    __slots__ = ('T', 'P')      # keeps instances small and fast
-
-    def __init__(self, T, P):
-        self.T = T
-        self.P = P
-
-    def set(self, T=None, P=None):
-        if T is not None:
-            self.T = T
-
-        if P is not None:
-            self.P = P
-
 
 class ChemicalInfo(OpgeeObject):
     instance = None
@@ -171,10 +156,7 @@ def Enthalpy(component, kelvin, phase=PHASE_GAS, with_units=True):
 
     :return: (float) enthalpy (unit = joule/mole)
     """
-
-    # TODO: This will fail if an kelvin is integer. Better to test
-    #       if isinstance(kelvin, ureg.Quantity) since the code assumes this.
-    if not isinstance(kelvin, float):
+    if isinstance(kelvin, ureg.Quantity):
         kelvin = kelvin.to("kelvin")
         kelvin = kelvin.m
 
@@ -188,7 +170,7 @@ def Enthalpy(component, kelvin, phase=PHASE_GAS, with_units=True):
 
     return H
 
-# TODO twice. Simplify?
+# TODO called twice. Simplify?
 def Tsat(component, Psat, with_units=True):
     """
 
@@ -261,18 +243,13 @@ class Air(OpgeeObject):
         self.mixture = mixture = Mixture.from_chemicals(self.components)
         self.mol_weight = ureg.Quantity(mixture.MW(mol_fraction), "g/mol")
 
-    # Deprecated -- made an instance variable, stored in __init__
-    # def mol_weight(self):
-    #     result = self.mixture.MW(self.mol_fraction)
-    #     return ureg.Quantity(result, "g/mol")
-
     def density(self):
         """
 
         :return: (float) dry air density (unit = kg/m3)
         """
-        std_temp = self.field.model.const("std-temperature").to("kelvin")
-        std_press = self.field.model.const("std-pressure").to("Pa")
+        std_temp = STP.T.to("kelvin")
+        std_press = STP.P.to("Pa")
         result = self.mixture.rho("g", self.mol_fraction, std_temp.m, std_press.m)
         return ureg.Quantity(result, "kg/m**3")
 
@@ -320,14 +297,9 @@ class AbstractSubstance(OpgeeObject):
 
         :param field:
         """
-        self.res_temp = field.attr("res_temp")
-        self.res_press = field.attr("res_press")
-        # self.field = field        # TODO: Was used only to extract self.field.model, so we just store that instead
-        self.model = model = field.model
+        self.res_tp = TemperaturePressure(field.attr("res_temp"), field.attr("res_press"))
 
-        # self.std_temp = self.std_press = None
-        self.std_temp  = field.std_temp  # model.const("std-temperature")
-        self.std_press = field.std_press # model.const("std-pressure")
+        self.model = field.model
 
         self.dry_air = DryAir(field)
         # self.wet_air = WetAir(field)              # TODO: unused
@@ -358,15 +330,6 @@ class AbstractSubstance(OpgeeObject):
         press = ureg.Quantity(14.7, "psia")
         self.component_gas_rho_STP = pd.Series({name: rho(name, temp, press, PHASE_GAS)
                                                 for name in components}, dtype="pint[kg/m**3]")
-
-    # Deprecated: this is done in __init__()
-    # def _after_init(self):
-    #     """
-    #
-    #     :return:
-    #     """
-    #     self.std_temp = self.field.model.const("std-temperature")
-    #     self.std_press = self.field.model.const("std-pressure")
 
 
 class Oil(AbstractSubstance):
@@ -451,15 +414,17 @@ class Oil(AbstractSubstance):
         :return: (float) solution gas oil ratio at resevoir condition (unit = scf/bbl)
         """
         oil_SG = self.oil_specific_gravity.m
-        res_temperature = self.res_temp.to("rankine").m
-        res_pressure = self.res_press.to("psia").m
+
+        res_T = self.res_tp.T.to("rankine").m
+        res_P = self.res_tp.P.to("psia").m
+
         gas_SG = self.gas_specific_gravity.to("frac").m
         gor_bubble = self.bubble_point_solution_GOR(self.gas_oil_ratio).m
 
-        empirical_res = (res_pressure ** (1 / self.pbub_a2) *
+        empirical_res = (res_P ** (1 / self.pbub_a2) *
                          oil_SG ** (-self.pbub_a1 / self.pbub_a2) *
                          math.exp(self.pbub_a3 / self.pbub_a2 * gas_SG * oil_SG) /
-                         (res_temperature * gas_SG))
+                         (res_T * gas_SG))
         result = min([empirical_res, gor_bubble])
         result = ureg.Quantity(result, "scf/bbl_oil")
         return result
@@ -475,13 +440,13 @@ class Oil(AbstractSubstance):
         :return:
         """
         oil_SG = oil_specific_gravity.m
-        temperature = stream.temperature.to("rankine").m
+        stream_T = stream.tp.T.to("rankine").m
 
         gas_SG = gas_specific_gravity.to("frac").m
         gor_bubble = self.bubble_point_solution_GOR(gas_oil_ratio).m
 
         result = (oil_SG ** self.pbub_a1 *
-                  (gas_SG * gor_bubble * temperature) ** self.pbub_a2 *
+                  (gas_SG * gor_bubble * stream_T) ** self.pbub_a2 *
                   math.exp(-self.pbub_a3 * gas_SG * oil_SG))
         result = ureg.Quantity(result, "psia")
         return result
@@ -493,16 +458,16 @@ class Oil(AbstractSubstance):
         :return: (float) solution gas oil ratio (unit = scf/bbl)
         """
         oil_SG = oil_specific_gravity.m
-        stream_temp = stream.temperature.to("rankine").m
-        stream_press = stream.pressure.m
+        stream_T = stream.tp.T.to("rankine").m
+        stream_P = stream.tp.P.m
 
         gas_SG = gas_specific_gravity.to("frac").m
         gor_bubble = self.bubble_point_solution_GOR(gas_oil_ratio)
 
-        result = min(math.pow(stream_press, 1 / self.pbub_a2) *
+        result = min(math.pow(stream_P, 1 / self.pbub_a2) *
                      math.pow(oil_SG, -self.pbub_a1 / self.pbub_a2) *
                      math.exp(self.pbub_a3 / self.pbub_a2 * gas_SG * oil_SG) *
-                     1 / (stream_temp * gas_SG),
+                     1 / (stream_T * gas_SG),
                      gor_bubble.m)
         result = ureg.Quantity(result, "scf/bbl_oil")
         return result
@@ -515,13 +480,13 @@ class Oil(AbstractSubstance):
         :return: (float) saturated formation volume factor (unit = fraction)
         """
         oil_SG = oil_specific_gravity.m
-        stream_temp = stream.temperature.m
+        stream_T = stream.tp.T.m
 
         gas_SG = gas_specific_gravity.to("frac").m
         solution_gor = self.solution_gas_oil_ratio(stream, oil_specific_gravity, gas_specific_gravity, gas_oil_ratio).m
 
-        result = (1 + 0.000000525 * solution_gor * (stream_temp - 60) +
-                  0.000181 * solution_gor / oil_SG + 0.000449 * (stream_temp - 60) / oil_SG +
+        result = (1 + 0.000000525 * solution_gor * (stream_T - 60) +
+                  0.000181 * solution_gor / oil_SG + 0.000449 * (stream_T - 60) / oil_SG +
                   0.000206 * solution_gor * gas_SG / oil_SG)
         result = ureg.Quantity(result, "frac")
         return result
@@ -537,7 +502,7 @@ class Oil(AbstractSubstance):
 
         :return: (float) unsaturated formation volume factor (unit = fraction)
         """
-        res_stream = Stream("test_stream", temperature=self.res_temp, pressure=self.res_press)
+        res_stream = Stream("test_stream", self.res_tp)
         bubble_oil_FVF = self.saturated_formation_volume_factor(res_stream,
                                                                 self.oil_specific_gravity,
                                                                 self.gas_specific_gravity,
@@ -548,7 +513,7 @@ class Oil(AbstractSubstance):
                                                    gas_specific_gravity,
                                                    gas_oil_ratio).m
         isothermal_compressibility = self.isothermal_compressibility(oil_specific_gravity).m
-        stream_press = stream.pressure.m
+        stream_press = stream.tp.P.m
 
         result = bubble_oil_FVF * math.exp(isothermal_compressibility * (p_bubblepoint - stream_press))
         result = ureg.Quantity(result, "frac")
@@ -573,7 +538,7 @@ class Oil(AbstractSubstance):
                                                    gas_specific_gravity,
                                                    gas_oil_ratio).m
         gas_SG = gas_specific_gravity.to("frac").m
-        stream_temp = stream.temperature.to("rankine").m
+        stream_temp = stream.tp.T.to("rankine").m
 
         result = max((iso_comp_a1 * solution_gor + iso_comp_a2 * solution_gor ** 2 +
                       iso_comp_a3 * gas_SG + iso_comp_a4 * stream_temp ** 2), 0.0)
@@ -612,7 +577,7 @@ class Oil(AbstractSubstance):
                                                          oil_specific_gravity,
                                                          gas_specific_gravity,
                                                          gas_oil_ratio)
-                  if stream.pressure < p_bubblepoint else
+                  if stream.tp.P < p_bubblepoint else
                   self.unsat_formation_volume_factor(stream,
                                                      oil_specific_gravity,
                                                      gas_specific_gravity,
@@ -883,7 +848,7 @@ class Gas(AbstractSubstance):
 
         :return: (float) gas heat capacity (unit = btu/degF/day)
         """
-        temperature = stream.temperature
+        temperature = stream.tp.T
         temperature = temperature.to("kelvin").m
         mass_flow_rate = stream.gas_flow_rates()  # pandas.Series
         if mass_flow_rate.empty:
@@ -962,7 +927,7 @@ class Gas(AbstractSubstance):
         :return:
         """
         corr_pseudocritical_temp = self.corrected_pseudocritical_temperature(stream)
-        result = stream.temperature.to("rankine") / corr_pseudocritical_temp
+        result = stream.tp.T.to("rankine") / corr_pseudocritical_temp
 
         return result.to("frac")
 
@@ -974,7 +939,7 @@ class Gas(AbstractSubstance):
         :return:
         """
         corr_pseudocritical_press = self.corrected_pseudocritical_pressure(stream)
-        result = stream.pressure / corr_pseudocritical_press
+        result = stream.tp.P / corr_pseudocritical_press
 
         return result.to("frac")
 
@@ -1011,11 +976,12 @@ class Gas(AbstractSubstance):
         """
 
         z_factor = self.Z_factor(self.reduced_temperature(stream), self.reduced_pressure(stream))
-        temp = stream.temperature.to("rankine")
-        amb_temp = self.std_temp.to("rankine")
-        amb_press = self.std_press
+        stream_T = stream.tp.T.to("rankine")
+        stream_P = stream.tp.P
+        amb_temp = STP.T.to("rankine")
+        amb_press = STP.P
 
-        result = amb_press * z_factor * temp / (stream.pressure * amb_temp)
+        result = amb_press * z_factor * stream_T / (stream_P * amb_temp)
         return result.to("frac")
 
     def density(self, stream):
@@ -1041,7 +1007,7 @@ class Gas(AbstractSubstance):
         """
         gas_stream_molar_weight = self.molar_weight(stream).m
         gas_density = self.density(stream).to("lb/ft**3").m
-        temp = stream.temperature.to("rankine").m
+        temp = stream.tp.T.to("rankine").m
 
         factor_K = (9.4 + 0.02 * gas_stream_molar_weight) * temp ** 1.5 / (209 + 19 * gas_stream_molar_weight + temp)
         factor_X = 3.5 + 986 / temp + 0.01 * gas_stream_molar_weight
@@ -1254,9 +1220,8 @@ class Water(AbstractSubstance):
 
         :return: (float) water heat capacity (unit = btu/degF/day)
         """
-        temperature = stream.temperature
         mass_flow_rate = stream.liquid_flow_rate("H2O")
-        specific_heat = cls.specific_heat(temperature)
+        specific_heat = cls.specific_heat(stream.tp.T)
 
         heat_capacity = mass_flow_rate * specific_heat
         return heat_capacity.to("btu/degF/day")
