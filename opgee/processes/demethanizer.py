@@ -1,14 +1,14 @@
 import pandas as pd
 
 from .. import ureg
-from opgee.processes.compressor import Compressor
+from ..core import STP
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
-from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY
 from ..log import getLogger
 from ..process import Process
 from ..process import run_corr_eqns
 from ..stream import PHASE_GAS
 from ..thermodynamics import component_MW
+from .compressor import Compressor
 from .shared import predict_blower_energy_use, get_energy_carrier
 
 _logger = getLogger(__name__)
@@ -96,7 +96,7 @@ class Demethanizer(Process):
 
         gas_to_LNG = self.find_output_stream("gas for NGL")
         gas_to_LNG.copy_flow_rates_from(input)
-        gas_to_LNG.tp.set(T=field.std_temp)
+        gas_to_LNG.tp.set(T=STP.T)
         gas_to_LNG.subtract_gas_rates_from(gas_to_gather)
         C2_mass_rate = gas_to_LNG.gas_flow_rate("C2")
         gas_to_LNG.set_gas_flow_rate("C2", ureg.Quantity(0, "tonne/day"))

@@ -95,10 +95,12 @@ class DownholePump(Process):
         water_density = water.density()
         volume_water_lifted = water.volume_flow_rate(output)
 
+        wellhead_T, wellhead_P = field.wellhead_tp.get()
+
         # properties of free gas (all at average conditions along wellbore, in production tubing)
         free_gas = solution_gas_oil_ratio_input - average_SOR
-        wellbore_average_press = (field.wellhead_press + input.tp.P) / 2
-        wellbore_average_temp = ureg.Quantity((field.wellhead_temp.m + self.res_temp.m) / 2, "degF")
+        wellbore_average_press = (wellhead_P + input.tp.P) / 2
+        wellbore_average_temp = ureg.Quantity((wellhead_T.m + self.res_temp.m) / 2, "degF")
         stream = Stream("average", TemperaturePressure(wellbore_average_temp, wellbore_average_press))
         stream.copy_flow_rates_from(input)
         gas_FVF = gas.volume_factor(stream)
@@ -121,8 +123,7 @@ class DownholePump(Process):
         pressure_drop_fric = (fluid_lifted_density * self.friction_factor * self.depth * fluid_velocity ** 2 /
                               (2 * self.prod_tubing_diam))
         pressure_drop_total = pressure_drop_fric + pressure_drop_elev
-        pressure_for_lifting = max(ureg.Quantity(0, "psia"),
-                                   field.wellhead_press + pressure_drop_total - input.tp.P)
+        pressure_for_lifting = max(ureg.Quantity(0, "psia"), wellhead_P + pressure_drop_total - input.tp.P)
         liquid_flow_rate_per_well = (average_volume_oil_lifted + volume_water_lifted) / self.num_prod_wells
         brake_horse_power = 1.05 * (liquid_flow_rate_per_well * pressure_for_lifting) / self.eta_pump_well
         energy_consumption_of_stages = self.get_energy_consumption_stages(self.prime_mover_type, [brake_horse_power])

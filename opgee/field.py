@@ -97,21 +97,18 @@ class Field(Container):
 
         # Set in _after_init()
         self.oil = self.gas = self.water = self.steam_generator = None
-        self.stp = self.wellhead_tp = None
 
-        # Deprecated
-        # self.std_temp  = None
-        # self.std_press = None
+        self.wellhead_tp = None
+
+        self.stp = None # TODO: eliminate uses of this in favor or opgee.core.STP
 
     def _after_init(self):
         self.check_attr_constraints(self.attr_dict)
 
         self.model = model = self.find_parent('Model')
 
+        # TODO: eliminate this
         self.stp = TemperaturePressure(model.const("std-temperature"), model.const("std-pressure"))
-        # Deprecated
-        self.std_temp  = model.const("std-temperature")
-        self.std_press = model.const("std-pressure")
 
         self.LNG_temp = model.const("LNG-temp")
 
@@ -123,9 +120,6 @@ class Field(Container):
         self.eta_compressor_lifting = self.attr("eta_compressor_lifting")
 
         self.wellhead_tp = TemperaturePressure(self.attr("wellhead_temperature"), self.attr("wellhead_pressure"))
-        # Deprecated
-        self.wellhead_press = self.attr("wellhead_pressure")
-        self.wellhead_temp = self.attr("wellhead_temperature")
 
         self.transport_share_fuel = model.transport_share_fuel
         self.transport_parameter = model.transport_parameter
