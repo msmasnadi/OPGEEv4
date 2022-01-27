@@ -26,15 +26,10 @@ def attr_classes():
       <Option>oil</Option>
       <Option>gas</Option>
     </Options>
-    <Options name="energy_basis" default="LHV">
-      <Option>LHV</Option>
-      <Option>HHV</Option>
-    </Options>
 
     <AttrDef name="GWP_horizon" options="GWP_time_horizon" type="int" unit="years"/>
     <AttrDef name="GWP_version" options="GWP_version" type="str"/>
     <AttrDef name="functional_unit" options="functional_unit" type="str"/>
-    <AttrDef name="energy_basis" options="energy_basis" type="str"/>
 
     <!-- Maximum number of iterations for process loops -->
     <AttrDef name="maximum_iterations" type="int">10</AttrDef>
@@ -83,7 +78,7 @@ def test_model_defaults(attr_classes, attr_dict_1, attr_name, value):
 @pytest.mark.parametrize(
     "attr_name, value", [("GWP_horizon", ureg.Quantity(20.0, 'year')),  # test units and numerical override
                          ("GWP_version", "AR4"),  # test character value override
-                         ("energy_basis", "LHV"),  # test character default adopted
+                         ("functional_unit", "oil"),  # test character default adopted
                          ]
 )
 def test_analysis_defaults(attr_classes, attr_dict_2, attr_name, value):
@@ -103,10 +98,10 @@ def test_exceptions(attr_classes, attr_dict_1):
 
 
 def test_string_rep(attr_classes):
-    name = 'energy_basis'
+    name = 'functional_unit'
     adef = attr_classes['Model'].attribute(name)
     s = str(adef)
-    s == f"<AttrDef name='{name} type='{adef.pytype}' default='{adef.default}' options='{adef.option_set}'>"
+    assert s == f"<AttrDef name='{name}' type='{adef.pytype}' default='{adef.default}' options='{adef.option_set}'>"
 
 
 def test_unknown_attribute(attr_classes):

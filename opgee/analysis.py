@@ -41,12 +41,8 @@ class Analysis(Container):
         # The following are set from attributes or config info in _after_init()
         self.model = None
         self.field_dict = None
-
         self.functional_units = None
-        self.energy_bases = None
-
         self.fn_unit = None
-
         self.boundary = None
 
         # This is set in _after_init() to a pandas.Series holding the current values in use,
@@ -81,7 +77,6 @@ class Analysis(Container):
 
         # Create validation sets from system.cfg to avoid hardcoding these
         self.functional_units = set(getParamAsList('OPGEE.FunctionalUnits'))
-        self.energy_bases     = set(getParamAsList('OPGEE.EnergyBases'))
 
         self.fn_unit = self.attr("functional_unit")
         self.boundary = self.attr("boundary", raiseError=True)
