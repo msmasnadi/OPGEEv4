@@ -107,22 +107,17 @@ class Compressor(OpgeeObject):
                                           eta_compressor,
                                           overall_compression_ratio,
                                           inlet_stream,
-                                          inlet_tp=None,
-
-                                          # deprecated
-                                          # inlet_temp=None,
-                                          # inlet_pressure=None
-                                          ):
+                                          inlet_tp=None):
         """
         Calculate compressor energy consumption
 
-        :param field:
+        :param field: (Field)
         :param prime_mover_type:
         :param eta_compressor:
         :param overall_compression_ratio:
-        :param inlet_stream:
-        :param inlet_temp:
-        :param inlet_pressure:
+        :param inlet_stream: (Stream)
+        :param inlet_tp: (TemperaturePressure) the T and P at the inlet to override
+           that in the inlet_stream
         :return:
         """
 

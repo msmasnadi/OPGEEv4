@@ -41,73 +41,7 @@ def splitAndStrip(s, delim):
     items = [item.strip() for item in s.split(delim)]
     return items
 
-# Deprecated
-# _abspath_prog = re.compile(r"^([/\\])|([a-zA-Z]:)")
-#
-# def is_abspath(pathname):
-#     """
-#     Return True if pathname is an absolute pathname, else False.
-#     """
-#     return bool(_abspath_prog.match(pathname))
-#
-# def get_path(pathname, defaultDir):
-#     """
-#     Return pathname if it's an absolute pathname, otherwise return
-#     the path composed of pathname relative to the given defaultDir.
-#     """
-#     return pathname if is_abspath(pathname) else pathjoin(defaultDir, pathname)
-#
-# def queueForStream(stream):
-#     """
-#     Create a thread to read from a non-socket file descriptor and
-#     its contents to a socket so non-blocking read via select() works
-#     on Windows. (Since Windows doesn't support select on pipes.)
-#
-#     :param stream: (file object) the input to read from,
-#        presumably a pipe from a subprocess
-#     :return: (int) a file descriptor for the socket to read from.
-#     """
-#     from six.moves.queue import Queue
-#     from threading import Thread
-#
-#     def enqueue(stream, queue):
-#         fd = stream.fileno()
-#         data = None
-#         while data != b'':
-#             data = os.read(fd, 1024)
-#             queue.put(data)
-#         stream.close()
-#
-#     q = Queue()
-#     t = Thread(target=enqueue, args=(stream, q))
-#     t.daemon = True # thread dies with the program
-#     t.start()
-#
-#     return q
-#
-# def digitColumns(df, asInt=False):
-#     '''
-#     Get a list of columns with integer names (as strings, e.g., "2007") in df.
-#     If asInt is True return as a list of integers, otherwise as strings.
-#     '''
-#     digitCols = filter(str.isdigit, df.columns)
-#     return [int(x) for x in digitCols] if asInt else list(digitCols)
-#
-# @contextmanager
-# def pushd(directory):
-#     """
-#     Context manager that changes to the given directory and then
-#     returns to the original directory. Usage is ``with pushd('/foo/bar'): ...``
-#
-#     :param directory: (str) a directory to chdir to temporarily
-#     :return: none
-#     """
-#     owd = os.getcwd()
-#     try:
-#         os.chdir(directory)
-#         yield directory
-#     finally:
-#         os.chdir(owd)
+
 
 # used only in opgee modules
 def getBooleanXML(value):
@@ -129,35 +63,6 @@ def getBooleanXML(value):
         raise OpgeeException(f"Can't convert '{value}' to boolean; must be one of {valid} (case sensitive).")
 
     return (val in true)
-
-# Deprecated
-# def deleteFile(filename):
-#     """
-#     Delete the given `filename`, but ignore errors, like "rm -f"
-#
-#     :param filename: (str) the file to remove
-#     :return: none
-#     """
-#     try:
-#         os.remove(filename)
-#     except:
-#         pass    # ignore errors, like "rm -f"
-#
-# def systemOpenFile(path):
-#     """
-#     Ask the operating system to open a file at the given pathname.
-#
-#     :param path: (str) the pathname of a file to open
-#     :return: none
-#     """
-#     import platform
-#     from subprocess import call
-#
-#     if platform.system() == 'Windows':
-#         call(['start', os.path.abspath(path)], shell=True)
-#     else:
-#         # "-g" => don't bring app to the foreground
-#         call(['open', '-g', path], shell=False)
 
 # Function to return current function name, or the caller, and so on up
 # the stack, based on value of n.
@@ -213,25 +118,6 @@ def coercible(value, pytype, raiseError=True, allow_truncation=False):
 
     return value
 
-# Deprecated
-# def shellCommand(command, shell=True, raiseError=True):
-#     """
-#     Run a shell command and optionally raise OpgeeException error.
-#
-#     :param command: the command to run, with arguments. This can be expressed
-#       either as a string or as a list of strings.
-#     :param shell: if True, run `command` in a shell, otherwise run it directly.
-#     :param raiseError: if True, raise `ToolError` on command failure.
-#     :return: exit status of executed command
-#     :raises: ToolError
-#     """
-#     _logger.info(command)
-#     exitStatus = subprocess.call(command, shell=shell)
-#     if exitStatus != 0:
-#         if raiseError:
-#             raise OpgeeException("\n*** Command failed: %s\n*** Command exited with status %s\n" % (command, exitStatus))
-#
-#     return exitStatus
 
 def flatten(listOfLists):
     """
@@ -245,57 +131,7 @@ def flatten(listOfLists):
 
     return list(chain.from_iterable(listOfLists))
 
-# Deprecated
-# def ensureExtension(filename, ext):
-#     """
-#     Force a filename to have the given extension, `ext`, adding it to
-#     any other extension, if present. That is, if `filename` is ``foo.bar``,
-#     and `ext` is ``baz``, the result will be ``foo.bar.baz``.
-#     If `ext` doesn't start with a ".", one is added.
-#
-#     :param filename: filename
-#     :param ext: the desired filename extension
-#     :return: filename with extension `ext`
-#     """
-#     mainPart, extension = os.path.splitext(filename)
-#     ext = ext if ext[0] == '.' else '.' + ext
-#
-#     if not extension:
-#         filename = mainPart + ext
-#     elif extension != ext:
-#         filename += ext
-#
-#     return filename
-#
-# def ensureCSV(file):
-#     """
-#     Ensure that the file has a '.csv' extension by replacing or adding
-#     the extension, as required.
-#
-#     :param file: (str) a filename
-#     :return: (str) the filename with a '.csv' extension.
-#     """
-#     return ensureExtension(file, '.csv')
-#
-# def saveTextToFile(txt, dirname='', filename=''):
-#     """
-#     Save the given text to a file in the given directory.
-#
-#     :param txt: (str) the text to save
-#     :param dirname: (str) path to a directory
-#     :param filename: (str) the name of the file to create
-#
-#     :return: none
-#     """
-#     if dirname:
-#         mkdirs(dirname)
-#
-#     pathname = pathjoin(dirname, filename)
-#
-#     _logger.debug("Writing %s", pathname)
-#     with open(pathname, 'w') as f:
-#         f.write(txt)
-#
+
 def mkdirs(newdir, mode=0o770):
     """
     Try to create the full path `newdir` and ignore the error if it already exists.
@@ -329,7 +165,7 @@ def loadModuleFromPath(module_path, raiseError=True):
     base = os.path.basename(module_path)
     module_name = base.split('.')[0]
 
-    _logger.debug('loading module %s' % module_path)
+    _logger.debug(f"Loading module {module_path}")
 
     # Load the compiled code if it's a '.pyc', otherwise load the source code
     module = None
