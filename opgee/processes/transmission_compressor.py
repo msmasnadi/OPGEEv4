@@ -1,5 +1,5 @@
 import math
-from ..core import STP
+from ..core import STP, TemperaturePressure
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
@@ -81,26 +81,24 @@ class TransmissionCompressor(Process):
         fuel_gas_stream.multiply_flow_rates(gas_consumption_frac.m)
 
         gas_to_storage = self.find_output_stream("gas for storage")
-        gas_to_storage.copy_gas_rates_from(input)
+        gas_to_storage.copy_gas_rates_from(input, tp=TemperaturePressure(output_temp_init, output_press_init))
         gas_to_storage.subtract_gas_rates_from(fuel_gas_stream)
         gas_to_storage.subtract_gas_rates_from(gas_fugitives)
         gas_to_storage.multiply_flow_rates(self.gas_to_storage_frac.m)
-        gas_to_storage.set_temperature_and_pressure(temp=output_temp_init, press=output_press_init)
 
+        gas_tp = TemperaturePressure(output_temp_init, self.transmission_sys_discharge)
         gas_to_liquefaction = self.find_output_stream("LNG")
-        gas_to_liquefaction.copy_gas_rates_from(input)
+        gas_to_liquefaction.copy_gas_rates_from(input, tp=gas_tp)
         gas_to_liquefaction.subtract_gas_rates_from(fuel_gas_stream)
         gas_to_liquefaction.subtract_gas_rates_from(gas_fugitives)
         gas_to_liquefaction.multiply_flow_rates(self.natural_gas_to_liquefaction_frac.m)
-        gas_to_liquefaction.set_temperature_and_pressure(temp=output_temp_init, press=self.transmission_sys_discharge)
 
         gas_to_distribution = self.find_output_stream("gas for distribution")
-        gas_to_distribution.copy_gas_rates_from(input)
+        gas_to_distribution.copy_gas_rates_from(input, tp=gas_tp)
         gas_to_distribution.subtract_gas_rates_from(fuel_gas_stream)
         gas_to_distribution.subtract_gas_rates_from(gas_fugitives)
         gas_to_distribution.subtract_gas_rates_from(gas_to_storage)
         gas_to_distribution.subtract_gas_rates_from(gas_to_liquefaction)
-        gas_to_distribution.set_temperature_and_pressure(temp=output_temp_init, press=self.transmission_sys_discharge)
 
         # emissions
         emissions = self.emissions

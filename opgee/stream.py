@@ -121,17 +121,11 @@ class Stream(XmlInstantiable, AttributeMixin):
         # TBD: rename this self.comp_matrix for clarity
         self.components = self.create_component_matrix() if comp_matrix is None else comp_matrix
 
-        # New approach
         self.tp = copy(tp)
 
         # These values are used by self.reset() to restore the stream to it's initial state per the XML.
         self.initial_tp = copy(self.tp)
         self.xml_data = comp_matrix
-
-        # Deprecated: old approach
-        # temperature, pressure = tp.get()
-        # self.temperature = temperature if isinstance(temperature, pint.Quantity) else ureg.Quantity(temperature, "degF")
-        # self.pressure = pressure if isinstance(pressure, pint.Quantity) else ureg.Quantity(pressure, "psi")
 
         self.src_name = src_name
         self.dst_name = dst_name
@@ -393,12 +387,6 @@ class Stream(XmlInstantiable, AttributeMixin):
         """
         Sets the flow rate of a liquid substance
         """
-        # Deprecated
-        # if t is not None:
-        #     self.temperature = t
-        # if p is not None:
-        #     self.pressure = p
-
         if tp:
             self.tp.copy_from(tp)
 
@@ -433,18 +421,6 @@ class Stream(XmlInstantiable, AttributeMixin):
         """
         self.initialized = True
         self.components.loc[series.index, phase] = series * self.components.loc[series.index, phase]
-
-    # Deprecated, but not fully removed yet. For now, just calls new method
-    def set_temperature_and_pressure(self, temp, press):
-        """
-        Set the stream's temperature and pressure, unless the pressure is zero,
-        in which nothing is done.
-
-        :param temp: (pint.Quantity) temperature
-        :param press: (pint.Quantity) pressure
-        :return: none
-        """
-        self.set_tp(TemperaturePressure(temp, press))
 
     def set_tp(self, tp):
         """
@@ -487,10 +463,6 @@ class Stream(XmlInstantiable, AttributeMixin):
             self.components[:] = stream.components
 
         self.tp.copy_from(tp or stream.tp)
-
-        # else: # Deprecated
-        #     self.temperature = stream.temperature if temp is None else temp
-        #     self.pressure = stream.pressure if press is None else press
 
         self.initialized = True
 
