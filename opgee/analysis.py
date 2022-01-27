@@ -26,8 +26,6 @@ class Analysis(Container):
 
     - system boundary (e.g., Production, Distribution),
 
-    - energy basis (LHV or HHV),
-
     - time horizon for GWPs (20 or 100 year), and
 
     - which IPCC assessment report to use for CO2-equivalence values (AR4, AR5, AR5 with C-cycle feedback, or AR6).
@@ -48,7 +46,6 @@ class Analysis(Container):
         self.energy_bases = None
 
         self.fn_unit = None
-        self.use_LHV = None
 
         self.boundary = None
 
@@ -86,7 +83,6 @@ class Analysis(Container):
         self.functional_units = set(getParamAsList('OPGEE.FunctionalUnits'))
         self.energy_bases     = set(getParamAsList('OPGEE.EnergyBases'))
 
-        self.use_LHV = self.attr("energy_basis") == 'LHV'
         self.fn_unit = self.attr("functional_unit")
         self.boundary = self.attr("boundary", raiseError=True)
 

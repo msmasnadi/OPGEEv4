@@ -53,8 +53,7 @@ class ResultsPane(OpgeePane):
                 _logger.warning(f"ci_text: {e}")
                 ci = ureg.Quantity(0, "grams/MJ")
 
-            en_basis = "LHV" if analysis.use_LHV else "HHV"
-            return f"CI: {ci.m:0.2f} g CO2e/MJ {en_basis} of {analysis.fn_unit}"
+            return f"CI: {ci.m:0.2f} g CO2e/MJ LHV of {analysis.fn_unit}"
 
         @app.callback(
             Output('ci-barchart', 'figure'),

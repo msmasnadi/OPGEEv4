@@ -85,7 +85,6 @@ def heating_value(component, use_LHV=True, with_units=True):
     :param component: (str) the name of a stream component
     :param use_LHV: (bool) whether to use LHV, else use HHV
     :param with_units: (bool) whether to return a pint.Quantity()
-
     :return: (float or pint.Quantity) lower or higher heating value (unit = joule/mol if with_units)
     """
     chemical = ChemicalInfo.chemical(component)
@@ -108,19 +107,7 @@ def LHV(component, with_units=True):
 
     :return: (float) lower heating value (unit = joule/mol)
     """
-    return heating_value(component, use_LHV=True, with_units=with_units)
-
-
-def HHV(component, with_units=True):
-    """
-    Return the lower heating value for the given component, with or without Pint units.
-
-    :param component: (str) the name of a stream component
-    :param with_units: (bool) whether to include pint units in result
-
-    :return: (float) lower heating value (unit = joule/mol)
-    """
-    return heating_value(component, use_LHV=False, with_units=with_units)
+    return heating_value(component, with_units=with_units)
 
 
 def Cp(component, kelvin, with_units=True):
@@ -311,7 +298,7 @@ class AbstractSubstance(OpgeeObject):
         self.component_MW = ChemicalInfo.mol_weights()
 
         self.component_LHV_molar = pd.Series(
-            {name: heating_value(name, use_LHV=True, with_units=False) for name in components},
+            {name: heating_value(name, with_units=False) for name in components},
             dtype="pint[joule/mole]")
         self.component_LHV_mass = self.component_LHV_molar / self.component_MW  # joule/gram
 
@@ -319,6 +306,7 @@ class AbstractSubstance(OpgeeObject):
             {name: heating_value(name, use_LHV=False, with_units=False) for name in components},
             dtype="pint[joule/mole]")
         self.component_HHV_mass = self.component_LHV_molar / self.component_MW  # joule/gram
+
 
         self.component_Cp_STP = pd.Series({name: Cp(name, 288.706, with_units=False) for name in components},
                                           dtype="pint[joule/g/kelvin]")
@@ -358,10 +346,8 @@ class Oil(AbstractSubstance):
         # reservoir_pressure: (float) average reservoir pressure; unit = psia
 
         self.API = API = field.attr("API")
-        self.oil_LHV_mass = self.mass_energy_density(use_LHV=True)
-        self.oil_HHV_mass = self.mass_energy_density(use_LHV=False)
+        self.oil_LHV_mass = self.mass_energy_density()
         self.component_LHV_mass['oil'] = self.oil_LHV_mass.to("joule/gram")
-        self.component_HHV_mass['oil'] = self.oil_HHV_mass.to("joule/gram")
         self.gas_comp = field.attrs_with_prefix('gas_comp_')
         self.gas_oil_ratio = field.attr('GOR')
         self.oil_specific_gravity = ureg.Quantity(141.5 / (131.5 + API.m), "frac")
@@ -616,7 +602,6 @@ class Oil(AbstractSubstance):
         :param oil_specific_gravity:
         :param gas_specific_gravity:
         :param gas_oil_ratio:
-
         :return:(float) oil volume flow rate (unit = bbl/day)
         """
 
@@ -632,7 +617,6 @@ class Oil(AbstractSubstance):
         :param API:
         :param use_LHV: whether to use LHV or HHV
         :param with_unit: (float) lower or higher heating value (unit = btu/lb)
-
         :return: heating value mass
         """
         # Oil lower heating value correlation
@@ -659,17 +643,15 @@ class Oil(AbstractSubstance):
         result = mass_energy_density * density
         return result.to("mmBtu/bbl_oil")
 
-    def energy_flow_rate(self, stream, use_LHV=True):
+    def energy_flow_rate(self, stream):
         """
-        Calculate the energy flow rate in "mmbtu/day" in LHV if `use_LHV` is True, else in HHV.
+        Calculate the energy flow rate in "mmbtu/day" in LHV.
 
         :stream: (opgee.Stream) the `Stream` to consider
-        :param use_LHV: whether to use LHV or HHV
-
         :return:(pint.Quantity) energy flow rate in "mmBtu/day"
         """
         mass_flow_rate = stream.hydrocarbon_rate(PHASE_LIQUID)
-        mass_energy_density = self.oil_LHV_mass if use_LHV else self.oil_HHV_mass
+        mass_energy_density = self.oil_LHV_mass
         result = (mass_energy_density * mass_flow_rate).to("mmbtu/day")
         return result
 
@@ -1055,19 +1037,16 @@ class Gas(AbstractSubstance):
         """
 
         :param stream:
-
         :return: Gas volume flow rate at standard temp and press (unit = m3/day)
         """
         total_molar_flow_rate = self.total_molar_flow_rate(stream)
         result = total_molar_flow_rate / self.model.const("mol-per-scf")
         return result.to("mmscf/day")
 
-    def mass_energy_density(self, stream, use_LHV=True):
+    def mass_energy_density(self, stream):
         """
 
         :param stream: (opgee.Stream) the `Stream` to examine
-        :param use_LHV: whether to use LHV or HHV
-
         :return: (float) gas mass energy density (unit = MJ/kg); None if the stream is empty
         """
         mass_flow_rate = stream.gas_flow_rates()
@@ -1077,7 +1056,7 @@ class Gas(AbstractSubstance):
 
         total_mass_rate = stream.total_gas_rate()
 
-        hv_molar = self.component_LHV_molar if use_LHV else self.component_HHV_molar
+        hv_molar = self.component_LHV_molar
         hv = hv_molar[mass_flow_rate.index]
 
         molecular_weight = self.component_MW[mass_flow_rate.index]
@@ -1085,16 +1064,14 @@ class Gas(AbstractSubstance):
 
         return mass_energy_density.to("MJ/kg")
 
-    def mass_energy_density_from_molar_fracs(self, molar_fracs, use_LHV=True):
+    def mass_energy_density_from_molar_fracs(self, molar_fracs):
         """
         calculate gas mass energy density from series
 
         :param molar_fracs:
-        :param use_LHV: whether to use LHV or HHV
-
         :return: (float) gas mass energy density (unit = MJ/kg)
         """
-        hv_molar = self.component_LHV_molar if use_LHV else self.component_HHV_molar
+        hv_molar = self.component_LHV_molar
 
         hv = hv_molar[molar_fracs.index]
         molecular_weight = self.component_MW[molar_fracs.index]
@@ -1127,12 +1104,10 @@ class Gas(AbstractSubstance):
         """
 
         :param stream:
-
         :return:(float) gas volume energy density (unit = btu/scf)
         """
         mass_flow_rate = stream.gas_flow_rates()  # pandas.Series
 
-        # TODO: It looks like volume energy density differs for LHV vs HHV. Add the use_LHV=True keyword?
         lhv = self.component_LHV_molar[mass_flow_rate.index]
         molecular_weight = self.component_MW[mass_flow_rate.index]
         density = self.component_gas_rho_STP[mass_flow_rate.index]
@@ -1141,16 +1116,14 @@ class Gas(AbstractSubstance):
 
         return volume_energy_density.to("Btu/ft**3")
 
-    def energy_flow_rate(self, stream, use_LHV=True):
+    def energy_flow_rate(self, stream):
         """
 
         :param stream:
-        :param use_LHV: (bool) whether to use LHV, else use HHV
-
         :return: (float) energy flow rate (unit = mmBtu/day)
         """
         total_mass_flow_rate = stream.total_gas_rate()
-        mass_energy_density = self.mass_energy_density(stream, use_LHV=use_LHV)
+        mass_energy_density = self.mass_energy_density(stream)
         result = (total_mass_flow_rate * mass_energy_density).to("mmBtu/day")
 
         return result

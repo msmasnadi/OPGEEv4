@@ -260,7 +260,7 @@ class Field(Container):
     def energy_flow_rate(self, analysis, raiseError=True):
         """
         Return the energy flow rate for the user's chosen system boundary, functional unit
-        (oil vs gas), and energy basis (LHV vs HHV)
+        (oil vs gas)
 
         :param analysis: (opgee.Analysis) the chosen `Analysis` object
         :param raiseError: (bool) whether to raise an error if the energy flow is zero at the boundary
@@ -270,7 +270,7 @@ class Field(Container):
         boundary_name = boundary_stream.boundary
 
         obj = self.oil if analysis.fn_unit == 'oil' else self.gas
-        energy = obj.energy_flow_rate(boundary_stream, use_LHV=analysis.use_LHV)
+        energy = obj.energy_flow_rate(boundary_stream)
 
         if energy.m == 0:
             msg = f"energy_flow_rate: zero energy flow rate for {boundary_name} boundary stream {boundary_stream}"
