@@ -289,4 +289,5 @@ class TemperaturePressure(OpgeeObject):
     def copy_from(self, tp):
         self.set(T=tp.T, P=tp.P)
 
+# Standard temperature and pressure
 STP = TemperaturePressure(std_temperature, std_pressure)

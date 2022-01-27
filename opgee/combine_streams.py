@@ -10,18 +10,16 @@ from .thermodynamics import Oil, Gas, Water
 _logger = getLogger(__name__)
 
 # TODO: improve this to use temp and press
-def combine_streams(streams, API, pressure=None, temperature=None):
+def combine_streams(streams, API): #, tp=None):
     """
     Thermodynamically combine multiple streams' components into a new
     anonymous Stream. This is used on input streams since it makes no
     sense for output streams.
 
-    :param temperature:
-    :param pressure:
-    :param API:
     :param streams: (list of Streams) the Streams to combine
+    :param API (pint.Quantity): API value
     :return: (Stream) if len(streams) > 1, returns a new Stream. If
-       len(streams) == 1, the original stream is returned.
+       len(streams) == 1, the input stream (streams[0]) is returned.
     """
     if len(streams) == 1:  # corner case
         return streams[0]
@@ -52,7 +50,8 @@ def combine_streams(streams, API, pressure=None, temperature=None):
         temperature = (stream_temperature * stream_specific_heat).sum() / stream_sp_heat_sum
         temperature = temperature.to("degF")
         first_non_empty_stream = non_empty_streams[0]
-        stream = Stream('combined', TemperaturePressure(temperature, first_non_empty_stream.tp.P),
+        stream = Stream('combined',
+                        TemperaturePressure(temperature, first_non_empty_stream.tp.P),
                         comp_matrix=comp_matrix)
 
     return stream
@@ -67,7 +66,7 @@ def mixture_specific_heat_capacity(API, stream):
     :return: (float) heat capacity of mixture (unit = btu/degF/day)
     """
     temperature = stream.tp.T
-    total_mass_rate = stream.total_flow_rate()
+    total_mass_rate = stream.total_flow_rate()  # TODO: unused
     oil_heat_capacity = stream.hydrocarbon_rate(PHASE_LIQUID) * Oil.specific_heat(API, temperature)
     water_heat_capacity = Water.heat_capacity(stream)
     gas_heat_capacity = Gas.heat_capacity(stream)

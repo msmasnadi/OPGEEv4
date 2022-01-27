@@ -101,7 +101,8 @@ class Separation(Process):
 
         output = combine_streams([oil_after, gas_after, water_after], oil.API,
                                 # TODO: pressure arg not currently used in combine_streams!
-                                 pressure=field.wellhead_tp.P)
+                                #  pressure=field.wellhead_tp.P
+                                 )
 
         input = self.find_input_stream("crude oil")
         input.copy_flow_rates_from(output, tp=field.wellhead_tp)
