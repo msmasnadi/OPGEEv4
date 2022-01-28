@@ -52,6 +52,7 @@
         <Option>Production</Option>
         <Option>Transportation</Option>
         <Option>Distribution</Option>
+        <Option>Refinery</Option>
       </Options>
       <AttrDef name="boundary" options="boundaries" desc="The user-selected system boundary for all fields in an Analysis"/>
 

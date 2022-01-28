@@ -42,7 +42,7 @@
 		<Process class="CrudeOilStabilization"/>
 		<Process class="CrudeOilStorage"/>
 		<Process class="VRUCompressor"/>
-<!--		<Process class="GasGathering"/>-->
+		<Process class="CrudeOilTransport"/>
 
 		<Process class="Separation" enabled="false"/>
 		<Process class="Output"/>
@@ -83,8 +83,15 @@
 		</Stream>
 
 		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to after" boundary="Production">
-			<Contains>oil for transport</Contains>
 			<Contains>gas for flaring</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilStorage" dst="CrudeOilTransport" name="crude oil storage to crude oil transport">
+			<Contains>oil for transport</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilTransport" dst="After" name="crude oil transport to after" boundary="Transportation">
+			<Contains>oil for refinery</Contains>
 		</Stream>
 
 		<Stream src="CrudeOilStorage" dst="VRUCompressor" name="crude oil storage to VRU compressor">

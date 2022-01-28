@@ -26,7 +26,7 @@ class CrudeOilStorage(Process):
         self.print_running_msg()
         field = self.field
 
-        #TODO: LPG to blend with crude oil need to be implement after gas branch
+        # TODO: LPG to blend with crude oil need to be implement after gas branch
         # mass rate
         input = self.find_input_streams("oil for storage", combine=True)
 
@@ -58,9 +58,16 @@ class CrudeOilStorage(Process):
         gas_fugitive_stream.set_rates_from_series(gas_fugitives, PHASE_GAS)
         gas_fugitive_stream.set_tp(stp)
 
+        output_refinery = self.find_output_stream("oil for transport")
+        oil_to_transport_mass_rate = (oil_mass_rate -
+                                      output_VRU.total_gas_rate() -
+                                      output_flare.total_gas_rate() -
+                                      gas_fugitive_stream.total_gas_rate())
+        output_refinery.set_liquid_flow_rate("oil", oil_to_transport_mass_rate)
+        output_refinery.set_tp(stp)
+
         # No energy-use for storage
 
         # emissions
         emissions = self.emissions
         emissions.set_from_stream(EM_FUGITIVES, gas_fugitive_stream)
-
