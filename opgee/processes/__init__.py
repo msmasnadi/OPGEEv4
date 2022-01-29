@@ -45,4 +45,5 @@ from .post_storage_compressor import PostStorageCompressor
 from .LNG_transport import LNGTransport
 from .LNG_regasification import LNGRegasification
 from .crude_oil_transport import CrudeOilTransport
+from .petrocoke_transport import PetrocokeTransport
 

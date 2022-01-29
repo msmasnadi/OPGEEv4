@@ -4,6 +4,7 @@ from ..process import Process
 from ..stream import Stream
 from .compressor import Compressor
 from .shared import get_energy_carrier
+from ..core import STP
 
 _logger = getLogger(__name__)
 
@@ -19,8 +20,6 @@ class PostStorageCompressor(Process):
         self.discharge_press = self.attr("discharge_press")
         self.eta_compressor = self.attr("eta_compressor")
         self.prime_mover_type = self.attr("prime_mover_type")
-        self.std_temp = field.model.const("std-temperature")
-        self.std_press = field.model.const("std-pressure")
 
     def run(self, analysis):
         self.print_running_msg()
@@ -33,7 +32,7 @@ class PostStorageCompressor(Process):
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
         gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, tp=self.std_tp)
+        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, tp=STP)
 
         input_energy_flow_rate = self.field.gas.energy_flow_rate(input)
 

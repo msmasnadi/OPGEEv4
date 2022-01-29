@@ -165,11 +165,6 @@
         <Option>Hydroconversion</Option>
         <Option desc="Combined hydroconversion and fluid coking">Combined</Option>
       </Options>
-      <Options name="crude_oil_dewatering_output" default="CrudeOilStabilization">
-        <Option desc="Heavy oil upgrading">HeavyOilUpgrading</Option>
-        <Option desc="Heavy oil dilution">HeavyOilDilution</Option>
-        <Option desc="Crude oil stabilization">CrudeOilStabilization</Option>
-      </Options>
       <Options name="gas_processing_path" default="Acid Gas">
         <Option>None</Option>
         <Option desc="Dehydrator">Minimal</Option>
@@ -190,7 +185,6 @@
       <AttrDef name="heater_treater" type="binary" desc="Heater/treater">0</AttrDef>
       <AttrDef name="steam_quality_at_generator_outlet" unit="frac" type="float" desc="steam quality at generator outlet">0.7</AttrDef>
       <AttrDef name="steam_quality_after_blowdown" unit="frac" type="float" desc="desired steam quality after blowdown and recycle (if any)">0.7</AttrDef>
-      <AttrDef name="crude_oil_dewatering_output" options="crude_oil_dewatering_output" desc="process receiving crude oil from dewatering"/>
       <AttrDef name="upgrader_type" desc="Upgrader type" options="upgrader_type" type="str"/>
       <AttrDef name="gas_processing_path" desc="Associated gas processing path" options="gas_processing_path" type="str"/>
       <AttrDef name="FOR" unit="scf/bbl_oil" desc="Ratio of flaring to oil production" type="float">141.3</AttrDef>

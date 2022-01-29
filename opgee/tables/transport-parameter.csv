@@ -1,6 +1,6 @@
 Parameters,Diluent,LNG,Crude,Petrocoke,Units
-ocean_tanker_size,250000,250000,250000,250000.00,tonne
-capacity_barge,22500,22500,22500,22500.00,tonne
+ocean_tanker_size,250000,250000,250000,250000,tonne
+capacity_barge,22500,22500,22500,22500,tonne
 speed_tanker,18.52,18.52,18.52,18.52,mile/hr
 speed_barge,5,5,5,5,mile/hr
 load_factor_to_dest_tanker,0.8,0.8,0.8,0.8,frac
@@ -8,10 +8,10 @@ load_factor_to_dest_barge,0.8,0.8,0.8,0.8,frac
 load_factor_to_orig_tanker,0.7,0.7,0.7,0.7,frac
 load_factor_to_orig_barge,0.6,0.6,0.6,0.6,frac
 energy_intensity_rail_to_dest,370,370,370,370,btu/(tonne*mile)
-energy_intensity_pipeline_turbine,240,240,240,,btu/(tonne*mile)
-energy_intensity_pipeline_engine_current,270,270,270,,btu/(tonne*mile)
-energy_intensity_pipeline_engine_future,260,260,260,,btu/(tonne*mile)
-frac_power_pipeline_turbine,0.55,0.55,0.55,,frac
-frac_power_pipeline_engine_current,0.36,0.36,0.36,,frac
-frac_power_pipeline_engine_future,0.09,0.09,0.09,,frac
+energy_intensity_pipeline_turbine,240,240,240,0,btu/(tonne*mile)
+energy_intensity_pipeline_engine_current,270,270,270,0,btu/(tonne*mile)
+energy_intensity_pipeline_engine_future,260,260,260,0,btu/(tonne*mile)
+frac_power_pipeline_turbine,0.55,0.55,0.55,0,frac
+frac_power_pipeline_engine_current,0.36,0.36,0.36,0,frac
+frac_power_pipeline_engine_future,0.09,0.09,0.09,0,frac
 feed_loss,62,62,62,62,btu/mmbtu

@@ -6,6 +6,7 @@ from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_UPG_PROC_GAS, EN_PETCOKE
 from ..log import getLogger
 from ..process import Process
 from ..stream import PHASE_GAS
+from ..core import STP
 
 _logger = getLogger(__name__)
 
@@ -66,6 +67,12 @@ class HeavyOilUpgrading(Process):
         coke_to_stockpile_and_transport = coke_dict["Fraction coke exported"] + coke_dict["Fraction coke stockpiled"]
         coke_to_heat = coke_dict["Fraction coke to self use - Heating"]
 
+        if self.field.get_process_data("frac_coke_exported") is None:
+            self.field.save_process_data(
+                frac_coke_exported=d["Coke yield per bbl SCO output"]["Fraction coke exported"])
+
+        coke_to_transport = self.find_output_stream("petrocoke for transport")
+        coke_to_transport.set_solid_flow_rate("PC", coke_to_stockpile_and_transport)
 
         proc_gas_dict = d["Process gas (PG) yield per bbl SCO output"] * SCO_output
         proc_gas_to_heat = proc_gas_dict["Fraction PG to self use - Heating (W/O cogen)"]
@@ -92,7 +99,8 @@ class HeavyOilUpgrading(Process):
         NG_to_cogen = NG_to_cogen_yield * SCO_output
         heat_from_cogen = NG_to_cogen * self.NG_heating_value * \
                           heavy_oil_upgrading_table["Cogeneration steam efficiency"]
-        NG_to_heat = max(NG_dict["Fraction NG - Heating (W/O cogen)"] - heat_from_cogen / upgrader_process_gas_heating_value, 0)
+        NG_to_heat = max(
+            NG_dict["Fraction NG - Heating (W/O cogen)"] - heat_from_cogen / upgrader_process_gas_heating_value, 0)
 
         proc_gas_flaring_rate = (self.upgrader_gas_comp *
                                  self.oil.component_MW[self.upgrader_gas_comp.index] *
@@ -100,6 +108,7 @@ class HeavyOilUpgrading(Process):
                                  self.mole_to_scf)
         flaring_gas = self.find_output_stream("gas for flaring")
         flaring_gas.set_rates_from_series(proc_gas_flaring_rate, PHASE_GAS)
+        flaring_gas.set_temperature_and_pressure(temp=STP.T, press=STP.P)
 
         # energy use
         energy_use = self.energy

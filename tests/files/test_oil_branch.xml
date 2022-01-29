@@ -111,13 +111,15 @@
 	<Field name="heavy_oil_upgrading">
 		<A name="country">USA</A>
 		<A name="API">8.6</A>
-		<A name="crude_oil_dewatering_output">HeavyOilUpgrading</A>
+		<A name="oil_processing_path">Upgrading</A>
 		<A name="upgrader_type">Delayed coking</A>
 
 		<Process class="Before" desc="" impute-start="true">
 		</Process>
 		<Process class="After"/>
 		<Process class="Output"/>
+		<Process class="CrudeOilTransport"/>
+		<Process class="PetrocokeTransport"/>
 
 		<Process class="CrudeOilStabilization" enabled="false">
 		</Process>
@@ -127,8 +129,6 @@
 		<Process class="HeavyOilDilution" enabled="false"/>
 		<Process class="BitumenMining" enabled="false"/>
 		<Process class="Flaring" enabled="false"/>
-
-<!--		<Stream src="Reservoir" dst="Before"/>-->
 
 		<Stream src="Before" dst="HeavyOilUpgrading" name="before to heavy oil upgrading">
 			<Contains>oil for upgrading</Contains>
@@ -162,9 +162,21 @@
 		</Stream>
 
 		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to after" boundary="Production">
+			<Contains>gas for flaring</Contains>
+			<Contains>gas for VRU</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilStorage" dst="CrudeOilTransport" name="crude oil storage to crude oil transport">
 			<Contains>oil for transport</Contains>
-			<Contains>oil for flaring</Contains>
-			<Contains>oil for VRU</Contains>
+		</Stream>
+
+		<Stream src="HeavyOilUpgrading" dst="PetrocokeTransport" name="heavy oil upgrading to petrocoke transport">
+			<Contains>petrocoke for transport</Contains>
+		</Stream>
+
+		<Stream src="PetrocokeTransport" dst="After" name="petrocoke transport to after">
+			<Contains>petrocoke for market</Contains>
+			<Contains>exported petrocoke</Contains>
 		</Stream>
 
 		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to flaring">
@@ -187,7 +199,7 @@
 		<A name="oil_prod">83709.0</A>
 		<A name="GOR">132.23</A>
 		<A name="fraction_diluent">0.398</A>
-		<A name="crude_oil_dewatering_output">HeavyOilDilution</A>
+		<A name="oil_processing_path">Dilution</A>
 
 		<Process class="Before"/>
 		<Process class="After"/>
