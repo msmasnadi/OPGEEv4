@@ -28,10 +28,15 @@ class Imports(OpgeeObject):
                  DIESEL      : "mmbtu/day",
                  RESID       : "mmbtu/day",
                  PETCOKE     : "mmbtu/day",
-                 ELECTRICITY : "mmbtu/day",
+                 ELECTRICITY : "kWh/day",
                  WATER       : "gal/day"}
 
     imports_set = set(unit_dict.keys())
+
+    # TODO: Maybe use this as a new instance var in Stream?
+    # d = {name : ureg.Quantity(0.0, units) for name, units in Imports.unit_dict.items()}
+    # self.imports = pd.Series(d)
+    # self.exports = pd.Series(d)
 
     @classmethod
     def create_import_df(cls):

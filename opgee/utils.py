@@ -139,7 +139,7 @@ def mkdirs(newdir, mode=0o770):
     :param newdir: the directory to create (along with any needed parent directories)
     :return: nothing
     """
-    from errno import EEXIST
+    from errno import EEXIST        # pycharm thinks this is unknown but it's wrong
 
     try:
         os.makedirs(newdir, mode)
