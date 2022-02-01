@@ -175,6 +175,10 @@
 			<Process class="TransmissionCompressor"/>
 		</Aggregator>
 
+		<Aggregator name="OilTransport">
+			<Process class="CrudeOilTransport"/>
+		</Aggregator>
+
 		<Process class="ReservoirWellInterface" cycle-start="true"/>
 
 		<Process class="BitumenMining"/>
@@ -266,9 +270,16 @@
 <!--			<Contains>oil for storage</Contains>-->
 <!--		</Stream>-->
 
-		<!-- temporary boundary since there doesn't seem to be anywhere that's not in a cycle -->
 		<Stream src="CrudeOilStorage" dst="Environment" name="crude oil storage to environment">
 			<Contains>gas fugitives</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilStorage" dst="CrudeOilTransport" name="crude oil storage to crude oil transport">
+			<Contains>oil for transport</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilTransport" dst="After" name="crude oil transport to after">
+			<Contains>oil for refinery</Contains>
 		</Stream>
 
 		<Stream src="GasGathering" dst="Environment" name="gas gathering to environment">

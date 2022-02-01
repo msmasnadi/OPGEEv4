@@ -135,6 +135,10 @@ class TransportEnergy(OpgeeObject):
             denominator = field.get_process_data("final_diluent_LHV_mass")
         elif prod_type == "lng":
             denominator = field.gas.component_LHV_mass["C1"]
+        elif prod_type == "crude":
+            denominator = field.get_process_data("crude_LHV")
+        else:
+            denominator = field.model.const("petrocoke-heating-value") / 1.10231
 
         transport_energy_consumption =\
             (transport_dest_energy_consumption + transport_origin_energy_consumption) / denominator

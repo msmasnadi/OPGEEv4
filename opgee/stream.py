@@ -326,10 +326,11 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param rate: (float) the flow rate for the given stream component
         :return: None
         """
+        rate = rate.to("tonne/day") if isinstance(rate, pint.Quantity) else rate
         # TBD: Check that this comment remains true with updates to pint. (If not, update the code)
         # It's currently not possible to assign a Quantity to a DataFrame even if
         # the units match. It's magnitude must be extracted. We check the units first...
-        self.components.loc[name, phase] = magnitude(rate, units=self.units())
+        self.components.loc[name, phase] = magnitude(rate, units="tonne/day")
         self.initialized = True
 
     #
@@ -393,10 +394,13 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.initialized = True
         return self.set_flow_rate(name, PHASE_LIQUID, rate)
 
-    def set_solid_flow_rate(self, name, rate):
+    def set_solid_flow_rate(self, name, rate, tp=None):
         """
         Sets the flow rate of a solid substance
         """
+        if tp:
+            self.tp.copy_from(tp)
+
         self.initialized = True
         return self.set_flow_rate(name, PHASE_SOLID, rate)
 
@@ -505,6 +509,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param factor: (float) the value to multiply by
         :return: none
         """
+        factor = factor.to("fraction") if isinstance(factor, pint.Quantity) else factor
         self.initialized = True
         self.components *= magnitude(factor, 'fraction')
 
