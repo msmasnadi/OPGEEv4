@@ -108,7 +108,7 @@ class HeavyOilUpgrading(Process):
                                  self.mole_to_scf)
         flaring_gas = self.find_output_stream("gas for flaring")
         flaring_gas.set_rates_from_series(proc_gas_flaring_rate, PHASE_GAS)
-        flaring_gas.set_temperature_and_pressure(temp=STP.T, press=STP.P)
+        flaring_gas.set_tp(STP)
 
         # energy use
         energy_use = self.energy
