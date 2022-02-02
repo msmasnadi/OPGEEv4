@@ -81,7 +81,7 @@ class SettingsPane(OpgeePane):
                     # print(f"Callback state for input '{id}'")
                     ids.append(id)
             else:
-                print(f"Class {class_name} has no attributes")
+                _logger.debug(f"Class {class_name} has no attributes")
 
         # First element is the filename field, we pop() this before processing all the generated inputs
         # state_list = [State('settings-filename', 'value')] + [State(id, 'value') for id in ids]

@@ -4,7 +4,7 @@ from .config import getParamAsList
 from .container import Container
 from .core import elt_name, instantiate_subelts, dict_from_list, TemperaturePressure
 from .error import (OpgeeException, OpgeeStopIteration, OpgeeMaxIterationsReached,
-                    OpgeeIterationConverged, ModelValidationError)
+                    OpgeeIterationConverged, ModelValidationError, ZeroEnergyFlowError)
 from .log import getLogger
 from .process import Process, Aggregator, Environment, Reservoir, SurfaceSource, ExternalSupply, Customer
 from .process_groups import ProcessChoice
@@ -267,11 +267,10 @@ class Field(Container):
         energy = obj.energy_flow_rate(boundary_stream)
 
         if energy.m == 0:
-            msg = f"energy_flow_rate: zero energy flow rate for {boundary_name} boundary stream {boundary_stream}"
             if raiseError:
-                raise OpgeeException(msg)
+                raise ZeroEnergyFlowError(boundary_stream)
             else:
-                _logger.warning(msg)
+                _logger.warning(f"Zero energy flow rate for {boundary_name} boundary stream {boundary_stream}")
 
         self.boundary_energy_flow = energy
         return energy
@@ -279,10 +278,7 @@ class Field(Container):
     def compute_carbon_intensity(self, analysis):
         rates = self.emissions.rates(analysis.gwp)
         emissions = rates.loc['GHG'].sum()
-        energy = self.energy_flow_rate(analysis, raiseError=False)
-
-        if energy.m == 0:
-            raise OpgeeException(f"compute_carbon_intensity: zero energy flow rate at boundary stream")
+        energy = self.energy_flow_rate(analysis)
 
         self.carbon_intensity = ci = (emissions / energy).to('grams/MJ')
         return ci

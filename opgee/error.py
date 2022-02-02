@@ -76,7 +76,6 @@ class BalanceError(OpgeeException):
     """
     Mass or Energy balances are fail
     """
-
     def __init__(self, proc_name, mass_or_energy, message=None):
         self.proc_name = proc_name
         self.mass_or_energy = mass_or_energy
@@ -85,3 +84,16 @@ class BalanceError(OpgeeException):
     def __str__(self):
         return f"{self.mass_or_energy} is not balanced in {self.proc_name}" + \
                (f": {self.message}" if self.message else "")
+
+
+class ZeroEnergyFlowError(OpgeeException):
+    """
+    Zero energy flow at system boundary, so cannot compute CI
+    """
+    def __init__(self, stream, message=None):
+        self.boundary_stream = stream
+        self.message = message
+
+    def __str__(self):
+        return (f"Zero energy flow rate for {self.stream.boundary} boundary stream {self.stream}" +
+                (f": {self.message}" if self.message else ""))

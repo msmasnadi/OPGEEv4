@@ -1,7 +1,7 @@
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
-from ..error import OpgeeException
+from ..error import ZeroEnergyFlowError
 from ..log import getLogger
 
 from .widgets import get_analysis_and_field, OpgeePane, horiz_space
@@ -9,6 +9,29 @@ from .widgets import get_analysis_and_field, OpgeePane, horiz_space
 _logger = getLogger(__name__)
 
 barchart_style = {"width": "440px", 'display': 'inline-block'}
+
+_zero_flow_at_boundary_msg = {
+    "layout": {
+        "xaxis": {
+            "visible": False
+        },
+        "yaxis": {
+            "visible": False
+        },
+        "annotations": [
+            {
+                "text": "No figure",
+                "xref": "paper",
+                "yref": "paper",
+                "showarrow": False,
+                "font": {
+                    "size": 20
+                }
+            }
+        ]
+    }
+}
+
 
 class ResultsPane(OpgeePane):
 
@@ -48,10 +71,11 @@ class ResultsPane(OpgeePane):
 
             try:
                 ci = field.compute_carbon_intensity(analysis)
-            except OpgeeException as e:
-                from .. import ureg
-                _logger.warning(f"ci_text: {e}")
-                ci = ureg.Quantity(0, "grams/MJ")
+            except ZeroEnergyFlowError:
+                return dcc.Markdown("**Cannot compute CI: zero energy flow at system boundary**")
+                # from .. import ureg
+                # _logger.warning(f"ci_text: {e}")
+                # ci = ureg.Quantity(0, "grams/MJ")
 
             return f"CI: {ci.m:0.2f} g CO2e/MJ LHV of {analysis.fn_unit}"
 
@@ -65,8 +89,12 @@ class ResultsPane(OpgeePane):
 
             analysis, field = get_analysis_and_field(model, analysis_and_field)
 
+            try:
+               energy = field.energy_flow_rate(analysis)
+            except ZeroEnergyFlowError:
+                return _zero_flow_at_boundary_msg
+
             fn_unit = analysis.fn_unit.title()
-            energy = field.energy_flow_rate(analysis)
 
             def partial_ci(obj):
                 ghgs = obj.emissions.data.sum(axis='columns')['GHG']
@@ -93,17 +121,21 @@ class ResultsPane(OpgeePane):
         @app.callback(
             Output('energy-barchart', 'figure'),
             Input('run-button', 'n_clicks'),
+            Input('ci-barchart', 'figure'),         # run this after CI barchart
             Input('analysis-and-field', 'data'))
-        def energy_barchart(n_clicks, analysis_and_field):
+        def energy_barchart(n_clicks, ci_figure, analysis_and_field):
             import pandas as pd
             import plotly.graph_objs as go
 
             analysis, field = get_analysis_and_field(model, analysis_and_field)
 
-            fn_unit = analysis.fn_unit.title()
-
             # Identify procs / aggs outside the boundary of interest and subtract their energy use from total.
-            energy = field.energy_flow_rate(analysis)
+            try:
+               energy = field.energy_flow_rate(analysis)
+            except ZeroEnergyFlowError:
+                return _zero_flow_at_boundary_msg
+
+            fn_unit = analysis.fn_unit.title()
             boundary_stream = field.boundary_stream(analysis)
             beyond = boundary_stream.beyond_boundary()
 
