@@ -170,11 +170,12 @@ class ProcessPane(OpgeePane):
                 with pd.option_context('display.max_rows', None,
                                        'precision', 3):
                     nonzero = stream.non_zero_flow_rates()
-                    components = str(nonzero.astype(float)) if nonzero is not None and len(
-                        nonzero) else '<empty stream>'
+                    components = (str(nonzero.astype(float))
+                                  if nonzero is not None and len(nonzero)
+                                  else '<empty stream>')
 
                 contents = '\n          '.join(stream.contents)
-                text = f"Name: {name}\nContains: {contents}\n{components}"
+                text = f"Name: {name}\nT: {stream.tp.T}, P: {stream.tp.P}\nContains: {contents}\n{components}"
                 return html.Pre(text)
 
         @app.callback(

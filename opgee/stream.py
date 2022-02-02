@@ -376,7 +376,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         return self.components.gas[Stream.VOCs]
 
     def non_zero_flow_rates(self):
-        self.components.query('solid > 0 or liquid > 0 or gas > 0')
+        return self.components.query('solid > 0 or liquid > 0 or gas > 0')
 
     def set_gas_flow_rate(self, name, rate):
         """
