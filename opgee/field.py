@@ -115,7 +115,6 @@ class Field(Container):
         self.heater_treater = self.attr("heater_treater")
         self.stab_column = self.attr("stabilizer_column")
         self.upgrader_type = self.attr("upgrader_type")
-        self.frac_diluent = self.attr("fraction_diluent")
         self.prime_mover_type_lifting = self.attr("prime_mover_type_gas_lifting")
         self.eta_compressor_lifting = self.attr("eta_compressor_lifting")
 
@@ -124,6 +123,8 @@ class Field(Container):
         self.transport_share_fuel = model.transport_share_fuel
         self.transport_parameter = model.transport_parameter
         self.transport_by_mode = model.transport_by_mode
+
+        self.imported_gas_comp = model.imported_gas_comp
 
         self.oil = Oil(self)
         self.gas = Gas(self)

@@ -21,7 +21,7 @@ class CrudeOilStabilization(Process):
         self.eta_gas = self.attr("eta_gas")
         self.eta_electricity = self.attr("eta_electricity")
         self.prime_mover_type = self.attr("prime_mover_type")
-        self.eta_compressor = field.attr("eta_compressor")
+        self.eta_compressor = self.attr("eta_compressor")
 
     def run(self, analysis):
         self.print_running_msg()

@@ -13,8 +13,8 @@ class PreMembraneCompressor(Process):
         self.field = field = self.get_field()
         self.gas = field.gas
         self.discharge_press = field.attr("discharge_press")
-        self.eta_compressor = field.attr("eta_compressor")
-        self.prime_mover_type = field.attr("prime_mover_type")
+        self.eta_compressor = self.attr("eta_compressor")
+        self.prime_mover_type = self.attr("prime_mover_type")
 
     def run(self, analysis):
         self.print_running_msg()

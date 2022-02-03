@@ -21,7 +21,7 @@ class GasPartition(Process):
         self.field = field = self.get_field()
         self.gas = field.gas
         self.gas_lifting = field.attr("gas_lifting")
-        self.imported_fuel_gas_comp = field.attrs_with_prefix("imported_gas_comp_")
+        self.imported_fuel_gas_comp = field.imported_gas_comp["Imported Fuel"]
         self.imported_fuel_gas_mass_fracs = field.gas.component_mass_fractions(self.imported_fuel_gas_comp)
         self.imported_gas_stream = Stream("imported_gas", STP)
         self.imported_gas_stream.set_rates_from_series(

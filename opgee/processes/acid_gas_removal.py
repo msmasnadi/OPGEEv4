@@ -29,8 +29,8 @@ class AcidGasRemoval(Process):
         self.air_cooler_fan_eff = self.attr("air_cooler_fan_eff")
         self.air_cooler_speed_reducer_eff = self.attr("air_cooler_speed_reducer_eff")
         self.AGR_table = field.model.AGR_tbl
-        self.eta_compressor_AGR = self.attr("eta_compressor_AGR")
-        self.prime_mover_type_AGR = self.attr("prime_mover_type_AGR")
+        self.eta_compressor = self.attr("eta_compressor")
+        self.prime_mover_type = self.attr("prime_mover_type")
 
     def run(self, analysis):
         self.print_running_msg()
@@ -103,15 +103,15 @@ class AcidGasRemoval(Process):
         overall_compression_ratio = ureg.Quantity(feed_gas_press, "psia") / input.tp.P
         compressor_energy_consumption, temp, _ = \
             Compressor.get_compressor_energy_consumption(self.field,
-                                                         self.prime_mover_type_AGR,
-                                                         self.eta_compressor_AGR,
+                                                         self.prime_mover_type,
+                                                         self.eta_compressor,
                                                          overall_compression_ratio,
                                                          gas_to_demethanizer,
                                                          inlet_tp=input.tp)
 
         # energy-use
         energy_use = self.energy
-        energy_carrier = get_energy_carrier(self.prime_mover_type_AGR)
+        energy_carrier = get_energy_carrier(self.prime_mover_type)
         energy_use.set_rate(energy_carrier, compressor_energy_consumption)
 
         # emissions

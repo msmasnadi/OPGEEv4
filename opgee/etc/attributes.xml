@@ -108,6 +108,8 @@
       <AttrDef name="API" desc="API gravity of produced crude" unit="degAPI" type="float">32.80</AttrDef>
       <AttrDef name="API_bitumen" unit="degAPI" type="float" desc="API gravity of bitumen">8.0</AttrDef>
       <AttrDef name="total_dissolved_solids" desc="water total dissolved solid (TDS)" unit="mg/L" type="float">5000.0</AttrDef>
+
+<!--      TODO: change it to import export csv.-->
       <AttrDef name="gas_comp_N2" unit="mol_pct" type="float">2.86</AttrDef>
       <AttrDef name="gas_comp_CO2" unit="mol_pct" type="float">0.33</AttrDef>
       <AttrDef name="gas_comp_C1" unit="mol_pct" type="float">89.18</AttrDef>
@@ -150,13 +152,9 @@
       <AttrDef name="fraction_water_reinjected" desc="Fraction of water produced that is reinjected" type="float">1.0</AttrDef>
       <AttrDef name="fraction_steam_cogen" desc="Fraction of steam generation via co-generation" type="float">0.0</AttrDef>
       <AttrDef name="fraction_steam_solar" desc="Fraction of steam generation via solar thermal" type="float">0.0</AttrDef>
-      <AttrDef name="pressure_outlet" type="float" unit="psia" desc="Separator pressure (final if multi-stage)">100.0</AttrDef>
-      <AttrDef name="temperature_outlet" type="float" unit="degF" desc="Separator temperature (final if multi-stage)">90.0</AttrDef>
       <AttrDef name="gas_pressure_after_boosting" type="float" unit="psia" desc="Separator gas outlet pressure after boosting compressors">500</AttrDef>
-      <AttrDef name="eta_compressor" type="float" unit="percent" desc="Compressor efficiency">75.0</AttrDef>
       <AttrDef name="friction_factor" type="float" unit="frac" desc="wellbore friction factor">0.02</AttrDef>
-      <AttrDef name="press_water_reinj_pump" type="float" unit="psia" desc="Water reinjection pump characteristics Suction pressure">0.0</AttrDef>
-      <AttrDef name="eta_water_reinj_pump" type="float" unit="percent" desc="Water reinjection pump characteristics Pump efficiency ">60.0</AttrDef>
+
 
       <!-- Processing practices -->
       <Options name="upgrader_type" default="None">
@@ -189,7 +187,7 @@
       <AttrDef name="gas_processing_path" desc="Associated gas processing path" options="gas_processing_path" type="str"/>
       <AttrDef name="FOR" unit="scf/bbl_oil" desc="Ratio of flaring to oil production" type="float">141.3</AttrDef>
       <AttrDef name="VOR" unit="scf/bbl_oil" desc="Ratio of venting to oil production" type="float">5.0</AttrDef>
-      <AttrDef name="fraction_diluent" desc="Volume fraction of diluent in diluted crude" type="float">0.0</AttrDef>
+      <AttrDef name="fraction_diluent" unit="frac" desc="Volume fraction of diluent in diluted crude" type="float">0.0</AttrDef>
       <AttrDef name="oil_processing_path" desc="Associated oil processing path" options="oil_processing_path" type="str"/>
       <AttrDef name="temperature_mined_bitumen" desc="Mined bitumen temperature" type="float" unit="degF">80.0</AttrDef>
       <AttrDef name="pressure_mined_bitumen" desc="Mined bitumen pressure" type="float" unit="psia">14.70</AttrDef>
@@ -214,26 +212,6 @@
         <Option>23.0</Option>
       </Options>
       <AttrDef name="diluent_API" options="dilution_API" type="float" unit="degAPI"/>
-
-      <AttrDef name="imported_fuel_gas_comp_N2" unit="mol_pct" type="float">0.4</AttrDef>
-      <AttrDef name="imported_fuel_gas_comp_C1" unit="mol_pct" type="float">96.6</AttrDef>
-      <AttrDef name="imported_fuel_gas_comp_C2" unit="mol_pct" type="float">2.0</AttrDef>
-      <AttrDef name="imported_fuel_gas_comp_C3" unit="mol_pct" type="float">1.0</AttrDef>
-
-      <AttrDef name="processed_prod_gas_comp_N2" unit="mol_pct" type="float">0.4</AttrDef>
-      <AttrDef name="processed_prod_gas_comp_C1" unit="mol_pct" type="float">96.6</AttrDef>
-      <AttrDef name="processed_prod_gas_comp_C2" unit="mol_pct" type="float">2.0</AttrDef>
-      <AttrDef name="processed_prod_gas_comp_C3" unit="mol_pct" type="float">1.0</AttrDef>
-
-      <AttrDef name="imported_gas_comp_N2" unit="mol_pct" type="float">0.4</AttrDef>
-      <AttrDef name="imported_gas_comp_C1" unit="mol_pct" type="float">96.6</AttrDef>
-      <AttrDef name="imported_gas_comp_C2" unit="mol_pct" type="float">2.0</AttrDef>
-      <AttrDef name="imported_gas_comp_C3" unit="mol_pct" type="float">1.0</AttrDef>
-
-      <AttrDef name="air_comp_N2" unit="mol_pct" type="float">77.4396</AttrDef>
-      <AttrDef name="air_comp_O2" unit="mol_pct" type="float">20.531</AttrDef>
-      <AttrDef name="air_comp_CO2" unit="mol_pct" type="float">0.0294</AttrDef>
-      <AttrDef name="air_comp_H2O" unit="mol_pct" type="float">2.0</AttrDef>
 
       <AttrDef name="NG_fuel_share_OTSG_produced" type="float" unit="frac" desc="Fraction produced gas of OTSG gaseous fuels share">0.0</AttrDef>
       <AttrDef name="NG_fuel_share_HRSG_produced" type="float" unit="frac" desc="Fraction product gas of GT fuel input type">0.0</AttrDef>
@@ -317,22 +295,6 @@
 
       <AttrDef name="chiller_outlet_temp" type="float" unit="degF" desc="pre membrane chiller outlet temperature">35.0</AttrDef>
       <AttrDef name="fug_emissions_chiller" type="float" unit="percent" desc="pre membrane chiller fugitive emissions rate">0.0</AttrDef>
-
-
-
-      <AttrDef name="membrane_separation_comp_N2" unit="mol_pct" type="float">42.0</AttrDef>
-      <AttrDef name="membrane_separation_comp_O2" unit="mol_pct" type="float">0.0</AttrDef>
-      <AttrDef name="membrane_separation_comp_CO2" unit="mol_pct" type="float">67.0</AttrDef>
-      <AttrDef name="membrane_separation_comp_H2O" unit="mol_pct" type="float">0.0</AttrDef>
-      <AttrDef name="membrane_separation_comp_C1" unit="mol_pct" type="float">2.0</AttrDef>
-      <AttrDef name="membrane_separation_comp_C2" unit="mol_pct" type="float">3.0</AttrDef>
-      <AttrDef name="membrane_separation_comp_C3" unit="mol_pct" type="float">4.0</AttrDef>
-      <AttrDef name="membrane_separation_comp_C4" unit="mol_pct" type="float">6.0</AttrDef>
-      <AttrDef name="membrane_separation_comp_CO" unit="mol_pct" type="float">0.0</AttrDef>
-      <AttrDef name="membrane_separation_comp_H2" unit="mol_pct" type="float">0.0</AttrDef>
-      <AttrDef name="membrane_separation_comp_H2S" unit="mol_pct" type="float">52.0</AttrDef>
-      <AttrDef name="membrane_separation_comp_SO2" unit="mol_pct" type="float">0.0</AttrDef>
-
       <AttrDef name="feed_press_AGR" type="float" unit="psia">500.0</AttrDef>
 
       <Options name="amine_solution" default="conv DEA">
@@ -422,6 +384,8 @@
       </Options>
 
       <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
+      <AttrDef name="press_pump" type="float" unit="psia" desc="Water reinjection pump characteristics Suction pressure">0.0</AttrDef>
+      <AttrDef name="eta_pump" type="float" unit="percent" desc="Water reinjection pump characteristics Pump efficiency ">60.0</AttrDef>
     </ClassAttrs>
     <ClassAttrs name="FluidProduction">
       <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
@@ -451,6 +415,9 @@
       <AttrDef name="pressure_third_stage" type="float" unit="psia" desc="Third stage separator pressure">100.0</AttrDef>
       <AttrDef name="water_content_oil_emulsion" type="float" unit="percent" desc="Entrained water as a fraction of oil emulsion (weight percentage)">14.0</AttrDef>
       <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
+      <AttrDef name="pressure_outlet" type="float" unit="psia" desc="Separator pressure (final if multi-stage)">100.0</AttrDef>
+      <AttrDef name="temperature_outlet" type="float" unit="degF" desc="Separator temperature (final if multi-stage)">90.0</AttrDef>
+      <AttrDef name="eta_compressor" type="float" unit="percent" desc="Compressor efficiency">75.0</AttrDef>
     </ClassAttrs>
     <ClassAttrs name="CrudeOilDewatering">
       <Options name="prime_mover_type" default="NG_engine">
@@ -484,17 +451,10 @@
       <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
       <AttrDef name="eta_gas" type="float" unit="frac" desc="heater fuel use efficiency - gas">0.80</AttrDef>
       <AttrDef name="eta_electricity" type="float" unit="kWh/btu" desc="heater fuel use efficiency electricity">0.0004</AttrDef>
-
+      <AttrDef name="eta_compressor" type="float" unit="percent" desc="Compressor efficiency">75.0</AttrDef>
     </ClassAttrs>
     <ClassAttrs name="HeavyOilUpgrading">
       <AttrDef name="cogeneration_upgrading" type="binary">1</AttrDef>
-      <AttrDef name="upgrader_gas_comp_CO2" unit="mol_pct" type="float">10.0</AttrDef>
-      <AttrDef name="upgrader_gas_comp_C1" unit="mol_pct" type="float">25.0</AttrDef>
-      <AttrDef name="upgrader_gas_comp_C2" unit="mol_pct" type="float">15.0</AttrDef>
-      <AttrDef name="upgrader_gas_comp_C3" unit="mol_pct" type="float">10.0</AttrDef>
-      <AttrDef name="upgrader_gas_comp_C4" unit="mol_pct" type="float">5.0</AttrDef>
-      <AttrDef name="upgrader_gas_comp_H2" unit="mol_pct" type="float">33.0</AttrDef>
-      <AttrDef name="upgrader_gas_comp_H2S" unit="mol_pct" type="float">2.0</AttrDef>
     </ClassAttrs>
 
     <ClassAttrs name="HeavyOilDilution">
@@ -516,12 +476,6 @@
       <AttrDef name="before_diluent_press" unit="psia" type="float" desc="Standard pressure before dilution (for calculating volume at standard temperature)">14.7</AttrDef>
     </ClassAttrs>
     <ClassAttrs name="CrudeOilStorage">
-      <AttrDef name="storage_gas_comp_CO2" unit="mol_pct" type="float">10.0</AttrDef>
-      <AttrDef name="storage_gas_comp_C1" unit="mol_pct" type="float">55.0</AttrDef>
-      <AttrDef name="storage_gas_comp_C2" unit="mol_pct" type="float">22.5</AttrDef>
-      <AttrDef name="storage_gas_comp_C3" unit="mol_pct" type="float">12.5</AttrDef>
-      <AttrDef name="storage_gas_comp_C4" unit="mol_pct" type="float">7.5</AttrDef>
-
       <AttrDef name="f_FG_CS_VRU" unit="percent" type="float" desc="storage gas recovery fraction">6.0</AttrDef>
       <AttrDef name="f_FG_CS_FL" unit="percent" type="float" desc="storage gas flare fraction">43.0</AttrDef>
     </ClassAttrs>
@@ -540,12 +494,12 @@
       <AttrDef name="air_cooler_fan_eff" type="float" unit="percent" desc="AGR air cooler fan efficiency">70.0</AttrDef>
       <AttrDef name="air_cooler_press_drop" type="float" unit="inch" desc="AGR air cooler pressure drop">0.6</AttrDef>
       <AttrDef name="air_cooler_speed_reducer_eff" type="float" unit="percent" desc="AGR air cooler speed reducer efficiency">92.0</AttrDef>
-      <AttrDef name="eta_compressor_AGR" type="float" unit="frac" desc="AGR compressor efficiency">75.0</AttrDef>
+      <AttrDef name="eta_compressor" type="float" unit="frac" desc="AGR compressor efficiency">75.0</AttrDef>
       <Options name="prime_mover_type" default="Electric_motor">
         <Option>NG_engine</Option>
         <Option>Electric_motor</Option>
       </Options>
-      <AttrDef name="prime_mover_type_AGR" type="str" options="prime_mover_type">Electric_motor</AttrDef>
+      <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">Electric_motor</AttrDef>
     </ClassAttrs>
 
     <ClassAttrs name="PreMembraneCompressor">
@@ -643,13 +597,6 @@
       <AttrDef name="C1_flooding_temp" type="float" unit="degF" desc="methane flooding temperature">60</AttrDef>
       <AttrDef name="N2_flooding_press" type="float" unit="psia" desc="nitrogen flooding pressure">125.0</AttrDef>
       <AttrDef name="C1_flooding_press" type="float" unit="psia" desc="methane flooding pressure">600</AttrDef>
-      <AttrDef name="offset_gas_comp_N2" unit="mol_pct" type="float">2.0</AttrDef>
-      <AttrDef name="offset_gas_comp_CO2" unit="mol_pct" type="float">6.0</AttrDef>
-      <AttrDef name="offset_gas_comp_C1" unit="mol_pct" type="float">84.0</AttrDef>
-      <AttrDef name="offset_gas_comp_C2" unit="mol_pct" type="float">4.0</AttrDef>
-      <AttrDef name="offset_gas_comp_C3" unit="mol_pct" type="float">2.0</AttrDef>
-      <AttrDef name="offset_gas_comp_C4" unit="mol_pct" type="float">1.0</AttrDef>
-      <AttrDef name="offset_gas_comp_H2S" unit="mol_pct" type="float">1.0</AttrDef>
     </ClassAttrs>
 
     <ClassAttrs name="TransmissionCompressor">

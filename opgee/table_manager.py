@@ -47,6 +47,7 @@ class TableManager(OpgeeObject):
         TableDef("gas-dehydration", index_col=0),
         TableDef("acid-gas-removal", index_col=0, index_row=[0,1]),
         TableDef("ryan-holmes-process", index_col=0, has_units=True),
+        TableDef("imported-gas-comp", index_col=0, has_units=True),
         TableDef("demethanizer", index_col=0, index_row=[0,1])
     ]
 

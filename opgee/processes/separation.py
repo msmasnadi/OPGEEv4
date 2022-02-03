@@ -20,14 +20,11 @@ class Separation(Process):
         # Primary mover type is one of: {"NG_engine", "Electric_motor", "Diesel_engine", "NG_turbine"}
         self.prime_mover_type = self.attr("prime_mover_type")
 
-        # self.wellhead_temp = field.attr("wellhead_temperature")
-        # self.wellhead_press = field.attr("wellhead_pressure")
-
         self.loss_rate = self.venting_fugitive_rate()
         self.loss_rate = (1 / (1 - self.loss_rate)).to("frac")
 
-        self.outlet_tp = TemperaturePressure(field.attr("temperature_outlet"),
-                                             field.attr("pressure_outlet"))
+        self.outlet_tp = TemperaturePressure(self.attr("temperature_outlet"),
+                                             self.attr("pressure_outlet"))
 
         self.temperature_stage1 = field.wellhead_tp.T
         self.temperature_stage2 = (self.temperature_stage1.to("kelvin") + self.outlet_tp.T.to("kelvin")) / 2
@@ -47,7 +44,7 @@ class Separation(Process):
         self.pressure_after_boosting = field.attr("gas_pressure_after_boosting")
 
         self.water_content = self.attr("water_content_oil_emulsion")
-        self.compressor_eff = field.attr("eta_compressor").to("frac")
+        self.compressor_eff = self.attr("eta_compressor").to("frac")
 
     def run(self, analysis):
         self.print_running_msg()
@@ -99,10 +96,7 @@ class Separation(Process):
         gas_after, oil_after, water_after = self.get_output_streams(field)
         gas_after.multiply_flow_rates(self.loss_rate)
 
-        output = combine_streams([oil_after, gas_after, water_after], oil.API,
-                                # TODO: pressure arg not currently used in combine_streams!
-                                #  pressure=field.wellhead_tp.P
-                                 )
+        output = combine_streams([oil_after, gas_after, water_after], oil.API)
 
         input = self.find_input_stream("crude oil")
         input.copy_flow_rates_from(output, tp=field.wellhead_tp)

@@ -17,7 +17,7 @@ class HeavyOilUpgrading(Process):
         self.field = field = self.get_field()
         self.oil = self.field.oil
         self.water = self.field.water
-        self.upgrader_gas_comp = self.attrs_with_prefix("upgrader_gas_comp_")
+        self.upgrader_gas_comp = field.imported_gas_comp["Upgrader Gas"]
         self.oil_sand_mine = self.attr("oil_sands_mine")
         self.fraction_elec_onsite = field.attr("fraction_elec_onsite")
         self.cogeneration_upgrading = self.attr("cogeneration_upgrading")

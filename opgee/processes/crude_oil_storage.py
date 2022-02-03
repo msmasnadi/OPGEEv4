@@ -17,8 +17,8 @@ class CrudeOilStorage(Process):
         model = field.model
         self.tonne_to_bbl = model.const("tonne-to-bbl")
 
-        self.storage_gas_comp = self.attrs_with_prefix("storage_gas_comp_")
-        self.CH4_comp = self.attr("storage_gas_comp_C1")
+        self.storage_gas_comp = field.imported_gas_comp["Storage Gas"]
+        self.CH4_comp = self.storage_gas_comp["C1"]
         self.f_FG_CS_VRU = self.attr("f_FG_CS_VRU")
         self.f_FG_CS_FL = self.attr("f_FG_CS_FL")
 

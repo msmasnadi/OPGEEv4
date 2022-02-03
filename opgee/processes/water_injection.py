@@ -31,8 +31,8 @@ class WaterInjection(Process):
         self.well_diam = field.attr("well_diam")
         self.xsection_area = np.pi * (self.well_diam / 2) ** 2
         self.friction_factor = field.attr("friction_factor")
-        self.press_water_reinj_pump = field.attr("press_water_reinj_pump")
-        self.eta_water_reinj_pump = field.attr("eta_water_reinj_pump")
+        self.press_pump = self.attr("press_pump")
+        self.eta_pump = self.attr("eta_pump")
         self.prime_mover_type = self.attr("prime_mover_type")
 
     def run(self, analysis):
@@ -52,9 +52,9 @@ class WaterInjection(Process):
                         (2 * self.well_diam * self.gravitation_const) * self.water_density
         diff_press = wellbore_flowing_press - water_gravitation_head
 
-        pumping_press = diff_press + friction_loss - self.press_water_reinj_pump \
+        pumping_press = diff_press + friction_loss - self.press_pump \
             if diff_press + friction_loss >= 0 else ureg.Quantity(0, "psia")
-        pumping_hp = pumping_press * single_well_water_volume / self.eta_water_reinj_pump
+        pumping_hp = pumping_press * single_well_water_volume / self.eta_pump
 
         # energy-use
         water_pump_power = self.get_energy_consumption(self.prime_mover_type, pumping_hp)

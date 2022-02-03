@@ -38,7 +38,7 @@ class HeavyOilDilution(Process):
     def run(self, analysis):
         self.print_running_msg()
 
-        if self.frac_diluent == 0.0 or not self.all_streams_ready("oil for dilution"):
+        if self.frac_diluent.m == 0.0 or not self.all_streams_ready("oil for dilution"):
             return
 
         # mass rate

@@ -23,7 +23,7 @@ class Venting(Process):
         self.res_press = field.attr("res_press")
         self.water_prod = self.oil_prod * self.WOR
         self.VOR_over_GOR = self.VOR / self.GOR
-        self.imported_fuel_gas_comp = field.attrs_with_prefix("imported_gas_comp_")
+        self.imported_fuel_gas_comp = field.imported_gas_comp["Imported Fuel"]
         self.imported_fuel_gas_mass_fracs = field.gas.component_mass_fractions(self.imported_fuel_gas_comp)
 
     def run(self, analysis):

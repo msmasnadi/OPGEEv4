@@ -11,7 +11,7 @@ class CO2Membrane(Process):
         super()._after_init()
         self.field = field = self.get_field()
         self.gas = field.gas
-        self.membrane_comp = field.attrs_with_prefix("membrane_separation_comp_")
+        self.membrane_comp = field.imported_gas_comp["Membrane Separation Gas"]
         self.feed_press_AGR = field.attr("feed_press_AGR")
 
     def run(self, analysis):

@@ -39,9 +39,9 @@ class SteamGenerator(OpgeeObject):
         self.OTSG_exhaust_temp_series = field.attrs_with_prefix("OTSG_exhaust_temp_")
         self.HRSG_exhaust_temp_series = field.attrs_with_prefix("HRSG_exhaust_temp_")
 
-        self.imported_fuel_gas_comp = field.attrs_with_prefix("imported_gas_comp_")
-        self.processed_prod_gas_comp = field.attrs_with_prefix("processed_prod_gas_comp_")
-        self.inlet_air_comp = field.attrs_with_prefix("air_comp_")
+        self.imported_fuel_gas_comp = field.imported_gas_comp["Imported Fuel"]
+        self.processed_prod_gas_comp = field.imported_gas_comp["Processed Produced Gas"]
+        self.inlet_air_comp = field.imported_gas_comp["Air"]
 
         self.OTSG_frac_import_gas = field.attr("OTSG_frac_import_gas")
         self.OTSG_frac_prod_gas = field.attr("OTSG_frac_prod_gas")

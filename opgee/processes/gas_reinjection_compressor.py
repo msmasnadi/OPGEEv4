@@ -20,7 +20,7 @@ class GasReinjectionCompressor(Process):
         self.res_press = field.attr("res_press")
         self.gas_flooding = field.attr("gas_flooding")
         self.prime_mover_type = self.attr("prime_mover_type")
-        self.eta_compressor = field.attr("eta_compressor")
+        self.eta_compressor = self.attr("eta_compressor")
         self.flood_gas_type = field.attr("flood_gas_type")
 
         # TODO: Wennan, I updated these sets of T and P, but they appear to be unused
@@ -35,7 +35,7 @@ class GasReinjectionCompressor(Process):
                                                   self.attr("C1_flooding_press"))
 
         self.GFIR = field.attr("GFIR")
-        self.offset_gas_comp = self.attrs_with_prefix("offset_gas_comp_")
+        self.offset_gas_comp = field.imported_gas_comp["Gas Flooding"]
         self.oil_prod = field.attr("oil_prod")
         self.gas_flooding_vol_rate = self.oil_prod * self.GFIR
         self.frac_CO2_breakthrough = field.attr("frac_CO2_breakthrough")
