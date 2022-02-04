@@ -187,7 +187,7 @@
       <AttrDef name="gas_processing_path" desc="Associated gas processing path" options="gas_processing_path" type="str"/>
       <AttrDef name="FOR" unit="scf/bbl_oil" desc="Ratio of flaring to oil production" type="float">141.3</AttrDef>
       <AttrDef name="VOR" unit="scf/bbl_oil" desc="Ratio of venting to oil production" type="float">5.0</AttrDef>
-      <AttrDef name="fraction_diluent" unit="frac" desc="Volume fraction of diluent in diluted crude" type="float">0.0</AttrDef>
+<!--      <AttrDef name="fraction_diluent" unit="frac" desc="Volume fraction of diluent in diluted crude" type="float">0.0</AttrDef>-->
       <AttrDef name="oil_processing_path" desc="Associated oil processing path" options="oil_processing_path" type="str"/>
       <AttrDef name="temperature_mined_bitumen" desc="Mined bitumen temperature" type="float" unit="degF">80.0</AttrDef>
       <AttrDef name="pressure_mined_bitumen" desc="Mined bitumen pressure" type="float" unit="psia">14.70</AttrDef>
@@ -474,6 +474,7 @@
       <AttrDef name="final_mix_press" unit="psia" type="float" desc="Final diluted crude mixture pressure">14.7</AttrDef>
       <AttrDef name="before_diluent_temp" unit="degF" type="float" desc="Standard temperature before dilution (for calculating volume at standard temperature)">60.0</AttrDef>
       <AttrDef name="before_diluent_press" unit="psia" type="float" desc="Standard pressure before dilution (for calculating volume at standard temperature)">14.7</AttrDef>
+      <AttrDef name="fraction_diluent" unit="frac" desc="Volume fraction of diluent in diluted crude" type="float">0.0</AttrDef>
     </ClassAttrs>
     <ClassAttrs name="CrudeOilStorage">
       <AttrDef name="f_FG_CS_VRU" unit="percent" type="float" desc="storage gas recovery fraction">6.0</AttrDef>

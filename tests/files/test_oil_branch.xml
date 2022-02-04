@@ -198,14 +198,15 @@
 		<A name="API">8.0</A>
 		<A name="oil_prod">83709.0</A>
 		<A name="GOR">132.23</A>
-		<A name="fraction_diluent">0.398</A>
 		<A name="oil_processing_path">Dilution</A>
 
 		<Process class="Before"/>
 		<Process class="After"/>
 		<Process class="Output"/>
 
-		<Process class="HeavyOilDilution"/>
+		<Process class="HeavyOilDilution">
+			<A name="fraction_diluent">0.398</A>
+		</Process>
 		<Process class="BitumenMining"/>
 		<Process class="DiluentTransport"/>
 
@@ -242,7 +243,6 @@
 		<A name="API">32.0</A>
 		<A name="oil_prod">2098.0</A>
 		<A name="GOR">2429.0</A>
-		<A name="fraction_diluent">0.3</A>
 		<A name="oil_sands_mine">Non-integrated with upgrader</A>
 		<A name="FOR">2.0</A>
 		<A name="VOR">0.0</A>
@@ -252,7 +252,9 @@
 		<Process class="After"/>
 		<Process class="Output"/>
 
-		<Process class="HeavyOilDilution" impute-start="true"/>
+		<Process class="HeavyOilDilution" impute-start="true">
+			<A name="fraction_diluent">0.3</A>
+		</Process>
 		<Process class="BitumenMining"/>
 		<Process class="DiluentTransport"/>
 		<Process class="Flaring" enabled="false"/>

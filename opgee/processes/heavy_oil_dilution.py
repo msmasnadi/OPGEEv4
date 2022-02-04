@@ -15,7 +15,7 @@ class HeavyOilDilution(Process):
         self.water = self.field.water
         self.water_density = self.water.density()
 
-        self.frac_diluent = field.attr("fraction_diluent")
+        self.frac_diluent = self.attr("fraction_diluent")
         self.downhole_pump = field.attr("downhole_pump")
         self.oil_sand_mine = field.attr("oil_sands_mine")
 

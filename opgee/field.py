@@ -210,6 +210,8 @@ class Field(Container):
 
             self.check_balances()
 
+            self.compute_carbon_intensity(analysis)
+
     def reset(self):
         self.reset_streams()
         self.reset_processes()
