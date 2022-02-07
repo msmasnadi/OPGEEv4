@@ -90,7 +90,7 @@ class ResultsPane(OpgeePane):
             analysis, field = get_analysis_and_field(model, analysis_and_field)
 
             try:
-               energy = field.energy_flow_rate(analysis)
+               energy = field.boundary_energy_flow_rate(analysis)
             except ZeroEnergyFlowError:
                 return _zero_flow_at_boundary_msg
 
@@ -131,7 +131,7 @@ class ResultsPane(OpgeePane):
 
             # Identify procs / aggs outside the boundary of interest and subtract their energy use from total.
             try:
-               energy = field.energy_flow_rate(analysis)
+               energy = field.boundary_energy_flow_rate(analysis)
             except ZeroEnergyFlowError:
                 return _zero_flow_at_boundary_msg
 

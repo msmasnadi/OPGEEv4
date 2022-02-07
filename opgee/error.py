@@ -91,7 +91,7 @@ class ZeroEnergyFlowError(OpgeeException):
     Zero energy flow at system boundary, so cannot compute CI
     """
     def __init__(self, stream, message=None):
-        self.boundary_stream = stream
+        self.stream = stream
         self.message = message
 
     def __str__(self):

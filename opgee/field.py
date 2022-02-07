@@ -88,8 +88,8 @@ class Field(Container):
         # new name. The "modifies" value is stored to record this behavior.
         self.modifies = None
 
-        self.boundary_energy_flow = None
         self.carbon_intensity = ureg.Quantity(0.0, "g/MJ")
+        self.procs_beyond_boundary = None
 
         self.graph = self.cycles = self.run_order = None
 
@@ -188,19 +188,22 @@ class Field(Container):
         except OpgeeStopIteration:
             raise OpgeeException("Impute failed due to a process loop. Use Stream attribute impute='0' to break cycle.")
 
-    def run(self, analysis, resolve_process_choices=True):
+    def run(self, analysis, compute_ci=True):
         """
         Run all Processes defined for this Field, in the order computed from the graph
         characteristics, using the settings in `analysis` (e.g., GWP).
 
         :param analysis: (Analysis) the `Analysis` to use for analysis-specific settings.
+        :param compute_ci: (bool) if False, CI calculation is not performed (used by some tests)
         :return: None
         """
         if self.is_enabled():
             _logger.debug(f"Running '{self}'")
 
-            # if resolve_process_choices:
-            #     self.resolve_process_choices()
+            # Cache the sets of processes within and outside the current boundary. We use
+            # this information in compute_carbon_intensity() to ignore irrelevant procs.
+            boundary_stream = self.boundary_stream(analysis)
+            self.procs_beyond_boundary = boundary_stream.beyond_boundary()
 
             self.reset()
             self._impute()
@@ -210,7 +213,14 @@ class Field(Container):
 
             self.check_balances()
 
-            self.compute_carbon_intensity(analysis)
+            # Perform aggregations
+            self.get_energy_rates()
+            self.get_emission_rates(analysis, procs_to_exclude=self.procs_beyond_boundary)
+
+            if compute_ci:
+                self.compute_carbon_intensity(analysis)
+            else:
+                self.carbon_intensity = None    # avoid reporting a stale result
 
     def reset(self):
         self.reset_streams()
@@ -254,7 +264,7 @@ class Field(Container):
         """
         return self.known_boundaries
 
-    def energy_flow_rate(self, analysis, raiseError=True):
+    def boundary_energy_flow_rate(self, analysis, raiseError=True):
         """
         Return the energy flow rate for the user's chosen system boundary, functional unit
         (oil vs gas)
@@ -275,13 +285,20 @@ class Field(Container):
             else:
                 _logger.warning(f"Zero energy flow rate for {boundary_name} boundary stream {boundary_stream}")
 
-        self.boundary_energy_flow = energy
         return energy
 
     def compute_carbon_intensity(self, analysis):
+        """
+        Compute carbon intensity by summing emissions from all processes within the
+        selected system boundary and dividing by the flow of the functional unit
+        across that boundary stream.
+
+        :param analysis: (Analysis) the analysis this field is part of
+        :return: (pint.Quantity) carbon intensity in units of g CO2e/MJ
+        """
         rates = self.emissions.rates(analysis.gwp)
         emissions = rates.loc['GHG'].sum()
-        energy = self.energy_flow_rate(analysis)
+        energy = self.boundary_energy_flow_rate(analysis)
 
         self.carbon_intensity = ci = (emissions / energy).to('grams/MJ')
         return ci
@@ -341,14 +358,18 @@ class Field(Container):
             raise ModelValidationError(f"Field validation failed:{msg}")
 
     def report(self, analysis):
+        """
+        Print a text report showing Streams, energy, and emissions. Must
+        """
         name = self.name
 
         print(f"\n*** Streams for field '{name}'")
         for stream in self.streams():
             print(f"{stream}\n{stream.components}\n")
 
-        # Perform aggregations required by compute_carbon_intensity()
-        self.report_energy_and_emissions(analysis)
+        print(f"{self} Energy consumption:\n{self.energy.data}")
+        print(f"\nCumulative emissions to Environment:\n{self.emissions.data}")
+        print(f"Total: {self.ghgs} CO2eq")
 
     def _is_cycle_member(self, process):
         """
