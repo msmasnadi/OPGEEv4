@@ -54,4 +54,4 @@ def test_process_loop():
     process_loop_model = load_test_model('test_process_loop_model.xml')
     analysis = process_loop_model.get_analysis('test')
     field = analysis.get_field('test')
-    field.run(analysis)
+    field.run(analysis, compute_ci=False)

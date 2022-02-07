@@ -133,7 +133,7 @@ class ProcessPane(OpgeePane):
                 # values = '\n'.join([f"{name:4s} {round(value.m, digits)}" for name, value in rates.items()])
                 # emissions_str = f"\nEmissions: (tonne/day)\n{values}"
 
-                rates = proc.get_energy_rates(analysis)
+                rates = proc.get_energy_rates()
                 values = '\n'.join([f"{name:19s} {round(value.m, digits)}" for name, value in rates.items()])
                 energy_str = f"\n\nEnergy use: (mmbtu/day)\n{values}"
 

@@ -2,7 +2,7 @@
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
 
 	<Analysis name="test_boundary">
-		<A name="functional_unit">oil</A>
+		<A name="functional_unit">gas</A>
 		<A name="energy_basis">LHV</A>
 	  <A name="GWP_horizon">100</A>
 	  <A name="GWP_version">AR5</A>
@@ -50,11 +50,11 @@
 		<Stream src="TransmissionCompressor" dst="GasDistribution" name="transmission compressor to gas distribution">
 			<Contains>gas for distribution</Contains>
 		</Stream>
-		
+
 		<Stream src="StorageCompressor" dst="Environment" name="storage compressor to environment">
 			<Contains>gas fugitives</Contains>
 		</Stream>
-		
+
 		<Stream src="StorageCompressor" dst="StorageWell" name="storage compressor to storage well">
 			<Contains>gas for well</Contains>
 		</Stream>
@@ -90,7 +90,7 @@
 		<Stream src="LNGLiquefaction" dst="LNGTransport" name="LNG liquefaction to LNG transportation">
 			<Contains>gas for transport</Contains>
 		</Stream>
-		
+
 		<Stream src="LNGTransport" dst="LNGRegasification" name="LNG transportation to LNG regasification">
 			<Contains>gas</Contains>
 		</Stream>

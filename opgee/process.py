@@ -241,11 +241,13 @@ class Process(XmlInstantiable, AttributeMixin):
         """
         self.emissions.add_rates(category, **kwargs)
 
-    def get_emission_rates(self, analysis):
+    def get_emission_rates(self, analysis, procs_to_exclude=None):
         """
         Return the emission rates and the calculated GHG value. Uses the current
         choice of GWP values in the Analysis containing this process.
 
+        :param procs_to_exclude: ignored here, but provided for API consistency with
+            Container class method of same name
         :return: ((pandas.Series, float)) a tuple containing the emissions Series
             and the GHG value computed using the model's current GWP settings.
         """
@@ -271,11 +273,10 @@ class Process(XmlInstantiable, AttributeMixin):
         """
         self.energy.add_rates(dictionary)
 
-    def get_energy_rates(self, analysis):
+    def get_energy_rates(self):
         """
         Return the energy consumption rates.
         """
-        # TODO: deal with LHV vs HHV here?
         return self.energy.rates()
 
     #

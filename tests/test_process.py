@@ -50,7 +50,7 @@ def test_add_energy_rates(test_model):
 
     procA.add_energy_rates({EN_NATURAL_GAS: ng_rate, EN_CRUDE_OIL: oil_rate})
 
-    rates = procA.get_energy_rates(analysis)
+    rates = procA.get_energy_rates()
 
     assert (rates[EN_NATURAL_GAS] == ng_rate and rates[EN_CRUDE_OIL] == oil_rate)
 

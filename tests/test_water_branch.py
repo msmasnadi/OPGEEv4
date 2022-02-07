@@ -10,10 +10,10 @@ def test_water_branch(configure_logging_for_tests):
 def test_steam(test_water_branch):
     analysis = test_water_branch.get_analysis('test_steam_generation')
     field = analysis.get_field('test_steam')
-    field.run(analysis)
+    field.run(analysis, compute_ci=False)
 
 
 def test_water(test_water_branch):
     analysis = test_water_branch.get_analysis('test_water_injection')
     field = analysis.get_field('test_water')
-    field.run(analysis)
+    field.run(analysis, compute_ci=False)

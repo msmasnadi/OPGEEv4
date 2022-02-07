@@ -52,13 +52,15 @@
 		<Process class="ProcB" desc="Test process 2"/>
 
 		<Stream src="ProcA" dst="ProcB">
+			<Contains>crude oil</Contains>
+		</Stream>
+
+		<Stream	src="ProcB" dst="Environment" boundary="Production">
 			<A name="temperature">90.0</A>
 			<A name="pressure">150.0</A>
 			<Component name="oil" phase="liquid">100</Component>
 			<Contains>crude oil</Contains>
 		</Stream>
-
-		<Stream	src="ProcB" dst="Environment" boundary="Production"/>
 	</Field>
 
 	<Field name="other-field">
@@ -69,12 +71,14 @@
 		<Process class="ProcB" desc="Test process 2"/>
 
 		<Stream src="ProcA" dst="ProcB">
+			<Contains>crude oil</Contains>
+		</Stream>
+
+		<Stream	src="ProcB" dst="Environment" boundary="Production">
 			<A name="temperature">90.0</A>
 			<A name="pressure">150.0</A>
 			<Component name="oil" phase="liquid">100</Component>
 			<Contains>crude oil</Contains>
 		</Stream>
-
-		<Stream	src="ProcB" dst="Environment" boundary="Production"/>
 	</Field>
 </Model>

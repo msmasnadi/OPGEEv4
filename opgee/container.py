@@ -84,17 +84,7 @@ class Container(XmlInstantiable, AttributeMixin):
     def print_running_msg(self):
         _logger.info(f"Running {type(self)} name='{self.name}'")
 
-
-    def report_energy_and_emissions(self, analysis):
-        # calculate and store results internally
-        self.get_energy_rates(analysis)
-        self.get_emission_rates(analysis)
-
-        print(f"{self} Energy consumption:\n{self.energy.data}")
-        print(f"\nCumulative emissions to Environment:\n{self.emissions.data}")
-        print(f"Total: {self.ghgs} CO2eq")
-
-    def get_energy_rates(self, analysis):
+    def get_energy_rates(self):
         """
         Return the energy consumption rates by summing those of our children nodes,
         recursively working our way down the Container hierarchy, and storing each
@@ -104,12 +94,12 @@ class Container(XmlInstantiable, AttributeMixin):
         data = self.energy.data
 
         for child in self.children():
-            child_data = child.get_energy_rates(analysis)
+            child_data = child.get_energy_rates()
             data += child_data
 
         return data
 
-    def get_emission_rates(self, analysis):
+    def get_emission_rates(self, analysis, procs_to_exclude=None):
         """
         Return a tuple of the emission rates (Series) and the calculated GHG value (float).
         Uses the current choice of GWP values in the enclosing Model.
@@ -121,7 +111,8 @@ class Container(XmlInstantiable, AttributeMixin):
         data[:] = 0.0
 
         for child in self.children():
-            child_data = child.get_emission_rates(analysis)
-            data += child_data
+            if not procs_to_exclude or child not in procs_to_exclude:
+                child_data = child.get_emission_rates(analysis, procs_to_exclude=procs_to_exclude)
+                data += child_data
 
         return data
