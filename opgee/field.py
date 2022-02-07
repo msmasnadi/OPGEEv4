@@ -13,6 +13,7 @@ from .thermodynamics import Oil, Gas, Water
 from opgee.processes.steam_generator import SteamGenerator
 from .utils import getBooleanXML, flatten
 from .energy import Energy
+from .import_export import ImportExport
 
 _logger = getLogger(__name__)
 
@@ -101,6 +102,8 @@ class Field(Container):
         self.wellhead_tp = None
 
         self.stp = None # TODO: eliminate uses of this in favor or opgee.core.STP
+
+        self.import_export = ImportExport()
 
     def _after_init(self):
         self.check_attr_constraints(self.attr_dict)
