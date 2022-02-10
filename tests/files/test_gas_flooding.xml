@@ -12,11 +12,13 @@
     <Field name="test_gas_flooding">
         <A name="country">USA</A>
         <A name="gas_flooding">1</A>
-        <A name="flood_gas_type">NG</A>
+
 
         <Process class="Before" impute-start="true"/>
         <Process class="After"/>
-        <Process class="GasReinjectionCompressor"/>
+        <Process class="GasReinjectionCompressor">
+            <A name="flood_gas_type">NG</A>
+        </Process>
         <Stream src="Before" dst="GasReinjectionCompressor" name="before to gas reinjection compressor" boundary="Production">
             <Contains>gas for gas reinjection compressor</Contains>
             <Component name="C1" phase="gas">10</Component>

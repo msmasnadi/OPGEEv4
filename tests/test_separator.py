@@ -19,10 +19,3 @@ def test_run_steam(test_separator):
     field.set_attr("steam_flooding", 1)
     field.run(analysis, compute_ci=False)
 
-
-def test_run_heater(test_separator):
-    analysis = test_separator.get_analysis('test_separator')
-    field = analysis.get_field('test')
-    field.set_attr("heater_treater", 1)
-    field.run(analysis, compute_ci=False)
-

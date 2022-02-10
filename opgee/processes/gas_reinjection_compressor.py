@@ -21,7 +21,7 @@ class GasReinjectionCompressor(Process):
         self.gas_flooding = field.attr("gas_flooding")
         self.prime_mover_type = self.attr("prime_mover_type")
         self.eta_compressor = self.attr("eta_compressor")
-        self.flood_gas_type = field.attr("flood_gas_type")
+        self.flood_gas_type = self.attr("flood_gas_type")
 
         # TODO: Wennan, I updated these sets of T and P, but they appear to be unused
         # self.N2_flooding_temp = self.attr("N2_flooding_temp")
@@ -38,7 +38,7 @@ class GasReinjectionCompressor(Process):
         self.offset_gas_comp = field.imported_gas_comp["Gas Flooding"]
         self.oil_prod = field.attr("oil_prod")
         self.gas_flooding_vol_rate = self.oil_prod * self.GFIR
-        self.frac_CO2_breakthrough = field.attr("frac_CO2_breakthrough")
+        self.frac_CO2_breakthrough = self.attr("frac_CO2_breakthrough")
 
     def run(self, analysis):
         self.print_running_msg()
@@ -93,9 +93,6 @@ class GasReinjectionCompressor(Process):
         gas_to_well = self.find_output_stream("gas for gas reinjection well")
         gas_to_well.copy_flow_rates_from(input)
         gas_to_well.subtract_gas_rates_from(gas_fugitives)
-
-        incoming_gas_consumed = energy_consumption / self.gas.energy_flow_rate(input)
-        gas_to_well.multiply_flow_rates(1 - incoming_gas_consumed.m)
 
         # energy-use
         energy_use = self.energy

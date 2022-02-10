@@ -65,7 +65,6 @@ def mixture_specific_heat_capacity(API, stream):
     :return: (float) heat capacity of mixture (unit = btu/degF/day)
     """
     temperature = stream.tp.T
-    # total_mass_rate = stream.total_flow_rate()  # TODO: unused
     oil_heat_capacity = stream.hydrocarbon_rate(PHASE_LIQUID) * Oil.specific_heat(API, temperature)
     water_heat_capacity = Water.heat_capacity(stream)
     gas_heat_capacity = Gas.heat_capacity(stream)

@@ -50,16 +50,10 @@ class PostStorageCompressor(Process):
         energy_carrier = get_energy_carrier(self.prime_mover_type)
         energy_use.set_rate(energy_carrier, energy_consumption)
 
-        gas_consumption_frac = energy_use.get_rate(energy_carrier) / input_energy_flow_rate
-        fuel_gas_stream = Stream("fuel gas stream", input.tp)
-        fuel_gas_stream.copy_gas_rates_from(input, tp=input.tp)
-        fuel_gas_stream.multiply_flow_rates(gas_consumption_frac.m)
-
         gas_to_distribution = self.find_output_stream("gas for distribution")
         gas_to_distribution.copy_gas_rates_from(input)
         gas_to_distribution.tp.set(T=output_temp, P=self.discharge_press)
 
-        gas_to_distribution.subtract_gas_rates_from(fuel_gas_stream)
         gas_to_distribution.subtract_gas_rates_from(gas_fugitives)
 
         # emissions

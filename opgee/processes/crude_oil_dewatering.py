@@ -17,6 +17,7 @@ class CrudeOilDewatering(Process):
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
+        self.heater_treater = self.attr("heater_treater")
         self.temperature_heater_treater = self.attr("temperature_heater_treater")
         self.heat_loss = self.attr("heat_loss")
         self.prime_mover_type = self.attr("prime_mover_type")
@@ -41,7 +42,7 @@ class CrudeOilDewatering(Process):
         input_T, input_P = input.tp.get()
         oil_rate = input.flow_rate("oil", PHASE_LIQUID)
         water_rate = input.flow_rate("H2O", PHASE_LIQUID)
-        temp = self.temperature_heater_treater if field.heater_treater else input_T
+        temp = self.temperature_heater_treater if self.heater_treater else input_T
 
         separator_final_SOR = field.get_process_data("separator_final_SOR")
 
@@ -64,7 +65,7 @@ class CrudeOilDewatering(Process):
         delta_temp = ureg.Quantity(self.temperature_heater_treater.m - input_T.m, "delta_degF")
         heat_duty = ureg.Quantity(0, "mmBtu/day")
 
-        if field.heater_treater:
+        if self.heater_treater:
             eff = (1 + self.heat_loss.to("frac")).to("frac")
             heat_duty = ((oil_rate * oil_heat_capacity + water_rate * water_heat_capacity) *
                          delta_temp * eff).to("mmBtu/day")

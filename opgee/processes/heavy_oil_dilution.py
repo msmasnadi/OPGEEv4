@@ -24,7 +24,7 @@ class HeavyOilDilution(Process):
         self.bitumen_tp  = TemperaturePressure(field.attr("temperature_mined_bitumen"),
                                                field.attr("pressure_mined_bitumen"))
 
-        self.diluent_API = field.attr("diluent_API")
+        self.diluent_API = self.attr("diluent_API")
         self.dilution_SG = self.oil.specific_gravity(self.diluent_API)
 
         self.dilution_type = self.attr("dilution_type")

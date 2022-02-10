@@ -33,10 +33,8 @@ class LNGRegasification(Process):
         total_regasification_requirement = self.energy_intensity_regas * gas_LHV_rate
 
         energy_consumption = self.get_energy_consumption(self.prime_mover_type, total_regasification_requirement)
-        frac_fuel_gas = energy_consumption / gas_LHV_rate
         gas_to_distribution = self.find_output_stream("gas for distribution")
         gas_to_distribution.copy_flow_rates_from(input)
-        gas_to_distribution.multiply_flow_rates(1 - frac_fuel_gas.to("frac").m)
 
         # energy-use
         energy_use = self.energy

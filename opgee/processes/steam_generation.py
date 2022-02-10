@@ -24,30 +24,30 @@ class SteamGeneration(Process):
 
         self.SOR = field.attr("SOR")
         self.oil_volume_rate = field.attr("oil_prod")
-        self.steam_quality_outlet = field.attr("steam_quality_outlet")
-        self.steam_quality_after_blowdown = field.attr("steam_quality_after_blowdown")
-        self.fraction_blowdown_recycled = field.attr("fraction_blowdown_recycled")
+        self.steam_quality_outlet = self.attr("steam_quality_outlet")
+        self.steam_quality_after_blowdown = self.attr("steam_quality_after_blowdown")
+        self.fraction_blowdown_recycled = self.attr("fraction_blowdown_recycled")
 
-        self.waste_water_reinjection_tp = TemperaturePressure(field.attr("waste_water_reinjection_temp"),
-                                                              field.attr("waste_water_reinjection_press"))
+        self.waste_water_reinjection_tp = TemperaturePressure(self.attr("waste_water_reinjection_temp"),
+                                                              self.attr("waste_water_reinjection_press"))
 
-        self.friction_loss_stream_distr = field.attr("friction_loss_stream_distr")
-        self.pressure_loss_choke_wellhead = field.attr("pressure_loss_choke_wellhead")
+        self.friction_loss_stream_distr = self.attr("friction_loss_stream_distr")
+        self.pressure_loss_choke_wellhead = self.attr("pressure_loss_choke_wellhead")
         self.water = field.water
         self.water_density = self.water.density()
         self.res_press = field.attr("res_press")
         self.steam_press_upper = field.model.const("steam-press-upper-limit")
-        self.steam_injection_delta_press = field.attr("steam_injection_delta_press")
+        self.steam_injection_delta_press = self.attr("steam_injection_delta_press")
         self.steam_generator_press_outlet = min((self.res_press + self.steam_injection_delta_press) *
                                                 self.friction_loss_stream_distr *
                                                 self.pressure_loss_choke_wellhead, self.steam_press_upper)
         self.steam_generator_temp_outlet = self.water.saturated_temperature(self.steam_generator_press_outlet)
-        self.prod_water_inlet_press = field.attr("prod_water_inlet_press")
-        self.makeup_water_inlet_press = field.attr("makeup_water_inlet_press")
-        self.eta_displacementpump_steamgen = field.attr("eta_displacementpump_steamgen")
-        self.eta_air_blower_OTSG = field.attr("eta_air_blower_OTSG")
-        self.eta_air_blower_HRSG = field.attr("eta_air_blower_HRSG")
-        self.eta_air_blower_solar = field.attr("eta_air_blower_solar")
+        self.prod_water_inlet_press = self.attr("prod_water_inlet_press")
+        self.makeup_water_inlet_press = self.attr("makeup_water_inlet_press")
+        self.eta_displacementpump_steamgen = self.attr("eta_displacementpump_steamgen")
+        self.eta_air_blower_OTSG = self.attr("eta_air_blower_OTSG")
+        self.eta_air_blower_HRSG = self.attr("eta_air_blower_HRSG")
+        self.eta_air_blower_solar = self.attr("eta_air_blower_solar")
 
         # TODO: the SteamGenerator is instantiated only here, in Field, yet it is used only
         #       in the SteamGeneration process. Is the SteamGenerator intended to be used by

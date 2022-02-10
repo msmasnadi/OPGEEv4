@@ -22,8 +22,8 @@ class WaterTreatment(Process):
 
         self.steam_flooding = field.attr("steam_flooding")
         self.SOR = field.attr("SOR")
-        self.steam_quality_outlet = field.attr("steam_quality_at_generator_outlet")
-        self.steam_quality_blowdown = field.attr("steam_quality_after_blowdown")
+        self.steam_quality_outlet = self.attr("steam_quality_at_generator_outlet")
+        self.steam_quality_blowdown = self.attr("steam_quality_after_blowdown")
 
         self.frac_disp_subsurface = self.attr("fraction_disp_water_subsurface")
         self.frac_disp_surface = self.attr("fraction_disp_water_surface")

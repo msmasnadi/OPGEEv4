@@ -119,11 +119,6 @@
       <AttrDef name="gas_comp_H2S" unit="mol_pct" type="float">0.0</AttrDef>    <!-- TODO: needs a default value -->
 
       <!-- Production practices -->
-      <Options name="Flood gases" default="NG">
-        <Option desc="Natural gas">NG</Option>
-        <Option desc="Nitrogen">N2</Option>
-        <Option desc="Carbon dioxide">CO2</Option>
-      </Options>
 
       <Options name="Liquids unloading" default="None">
         <Option>Plunger</Option>
@@ -131,20 +126,20 @@
         <Option>None</Option>
       </Options>
 
-      <Options name="source_CO2" default="reservoir">
-        <Option desc="natural subsurface reservoir">Reservoir</Option>
-        <Option>Anthropogenic</Option>
-      </Options>
+<!--      <Options name="source_CO2" default="reservoir">-->
+<!--        <Option desc="natural subsurface reservoir">Reservoir</Option>-->
+<!--        <Option>Anthropogenic</Option>-->
+<!--      </Options>-->
 
       <AttrDef name="GOR" desc="Gas-to-oil ratio" unit="scf/bbl_oil" type="float">2429.3</AttrDef>
       <AttrDef name="WOR" desc="Water-to-oil ratio" unit="bbl_water/bbl_oil" type="float">6.0</AttrDef>
       <AttrDef name="WIR" desc="Water injection ratio" unit="bbl_water/bbl_oil" type="float">7.0</AttrDef>
       <AttrDef name="GLIR" desc="Gas lifting injection ratio" unit="scf/bbl_liquid" type="float">364.0</AttrDef>
       <AttrDef name="GFIR" desc="Gas flooding injection ratio" unit="scf/bbl_oil" type="float">3644.0</AttrDef>
-      <AttrDef name="flood_gas_type" desc="Flood gas" options="Flood gases" type="str"/>
+
       <AttrDef name="liquids_unloading" options="Liquids unloading" type="str"/>
-      <AttrDef name="frac_CO2_breakthrough" desc="Fraction of CO2 breaking through to producers" unit="percent" type="float">59</AttrDef>
-      <AttrDef name="source_CO2" desc="" options="source_CO2" type="str"/>
+
+<!--      <AttrDef name="source_CO2" desc="" options="source_CO2" type="str"/>-->
       <AttrDef name="perc_sequestration_credit" desc="Percentage of sequestration credit assigned to the oilfield" unit="percent" type="float">0</AttrDef>
       <AttrDef name="SOR" desc="Steam-to-oil ratio" unit="bbl_steam/bbl_oil" type="float">0</AttrDef>
       <AttrDef name="fraction_elec_onsite" desc="Fraction of required electricity generated onsite" type="float">0.0</AttrDef>
@@ -154,7 +149,6 @@
       <AttrDef name="fraction_steam_solar" desc="Fraction of steam generation via solar thermal" type="float">0.0</AttrDef>
       <AttrDef name="gas_pressure_after_boosting" type="float" unit="psia" desc="Separator gas outlet pressure after boosting compressors">500</AttrDef>
       <AttrDef name="friction_factor" type="float" unit="frac" desc="wellbore friction factor">0.02</AttrDef>
-
 
       <!-- Processing practices -->
       <Options name="upgrader_type" default="None">
@@ -180,9 +174,9 @@
         <Option desc="Upgrading">Upgrading</Option>
         <Option desc="Dilution">Dilution</Option>
       </Options>
-      <AttrDef name="heater_treater" type="binary" desc="Heater/treater">0</AttrDef>
-      <AttrDef name="steam_quality_at_generator_outlet" unit="frac" type="float" desc="steam quality at generator outlet">0.7</AttrDef>
-      <AttrDef name="steam_quality_after_blowdown" unit="frac" type="float" desc="desired steam quality after blowdown and recycle (if any)">0.7</AttrDef>
+
+
+
       <AttrDef name="upgrader_type" desc="Upgrader type" options="upgrader_type" type="str"/>
       <AttrDef name="gas_processing_path" desc="Associated gas processing path" options="gas_processing_path" type="str"/>
       <AttrDef name="FOR" unit="scf/bbl_oil" desc="Ratio of flaring to oil production" type="float">141.3</AttrDef>
@@ -207,14 +201,6 @@
       <AttrDef name="ecosystem_richness" options="ecosystem_C_richness" desc="Ecosystem carbon richness" type="str"/>
       <AttrDef name="field_development_intensity" options="field_development_intensity" desc="Field development intensity" type="str"/>
 
-      <Options name="dilution_API" default="55.20">
-        <Option>55.20</Option>
-        <Option>23.0</Option>
-      </Options>
-      <AttrDef name="diluent_API" options="dilution_API" type="float" unit="degAPI"/>
-
-      <AttrDef name="NG_fuel_share_OTSG_produced" type="float" unit="frac" desc="Fraction produced gas of OTSG gaseous fuels share">0.0</AttrDef>
-      <AttrDef name="NG_fuel_share_HRSG_produced" type="float" unit="frac" desc="Fraction product gas of GT fuel input type">0.0</AttrDef>
       <AttrDef name="steam_quality_outlet" type="float" unit="frac" desc="Steam quality at generator outlet">0.7</AttrDef>
       <AttrDef name="steam_quality_after_blowdown" type="float" desc="Desired steam quality after blowdown and recycle (if any)">0.7</AttrDef>
       <AttrDef name="fraction_blowdown_recycled" type="float" desc="Percentage of blowdown water recycled ">0.7</AttrDef>
@@ -225,6 +211,14 @@
       <AttrDef name="steam_injection_delta_press" type="float" unit="psia" desc="steam_injection_delta_press">100.0</AttrDef>
       <AttrDef name="prod_water_inlet_temp" type="float" unit="degF" desc="Recycled produced water inlet temperature">140</AttrDef>
       <AttrDef name="makeup_water_inlet_temp" type="float" unit="degF" desc="Makeup water inlet temperature">60.0</AttrDef>
+      <AttrDef name="eta_displacementpump_steamgen" type="float" unit="frac" desc="Positive displacement pump efficiency">0.87</AttrDef>
+      <AttrDef name="eta_air_blower_OTSG" type="float" unit="hp*day/mmbtu" desc="Air blower energy consumption for OTSG">0.139</AttrDef>
+      <AttrDef name="eta_air_blower_HRSG" type="float" unit="hp*day/mmbtu" desc="Air blower energy consumption for HRSG">0.0</AttrDef>
+      <AttrDef name="makeup_water_inlet_press" type="float" unit="psia" desc="Makeup water inlet pressure">14.70</AttrDef>
+      <AttrDef name="eta_air_blower_solar" type="float" unit="hp*day/mmbtu" desc="Air blower energy consumption for solar Thermal">0.139</AttrDef>
+      <AttrDef name="prod_water_inlet_press" type="float" unit="psia" desc="Recycled produced water inlet pressure">200.0</AttrDef>
+      <AttrDef name="NG_fuel_share_OTSG_produced" type="float" unit="frac" desc="Fraction produced gas of OTSG gaseous fuels share">0.0</AttrDef>
+      <AttrDef name="NG_fuel_share_HRSG_produced" type="float" unit="frac" desc="Fraction product gas of GT fuel input type">0.0</AttrDef>
       <AttrDef name="prod_water_inlet_press" type="float" unit="psia" desc="Recycled produced water inlet pressure">200.0</AttrDef>
       <AttrDef name="makeup_water_inlet_press" type="float" unit="psia" desc="Makeup water inlet pressure">14.70</AttrDef>
       <AttrDef name="waste_water_temp" type="float" unit="degF" desc="Waste water rejection temperature">150.0</AttrDef>
@@ -253,16 +247,9 @@
       <AttrDef name="HRSG_frac_import_gas" unit="frac" type="float" desc="HRSG gaseous fuels share for natural gas">1.0</AttrDef>
       <AttrDef name="HRSG_frac_prod_gas" unit="frac" type="float" desc="HRSG gaseous fuels share for produced gas">0.0</AttrDef>
       <AttrDef name="duct_firing" type="binary" desc="Duct_firing_HRSG">0</AttrDef>
-
-
       <AttrDef name="HRSG_exhaust_temp_outlet_before_economizer" type="float" unit="degF" desc="HRSG outlet exhaust temperature before economizer">350.0</AttrDef>
       <AttrDef name="HRSG_exhaust_temp_outlet" type="float" unit="degF" desc="Temperature_outlet_exhaust_HRSG">350.0</AttrDef>
       <AttrDef name="HRSG_exhaust_temp_outlet_before_preheater" type="float" unit="degF" desc="Temperature_outlet_exhaust_HRSG_before_preheater">350.0</AttrDef>
-
-      <AttrDef name="eta_displacementpump_steamgen" type="float" unit="frac" desc="Positive displacement pump efficiency">0.87</AttrDef>
-      <AttrDef name="eta_air_blower_OTSG" type="float" unit="hp*day/mmbtu" desc="Air blower energy consumption for OTSG">0.139</AttrDef>
-      <AttrDef name="eta_air_blower_HRSG" type="float" unit="hp*day/mmbtu" desc="Air blower energy consumption for HRSG">0.0</AttrDef>
-      <AttrDef name="eta_air_blower_solar" type="float" unit="hp*day/mmbtu" desc="Air blower energy consumption for solar Thermal">0.139</AttrDef>
 
       <Options name="OTSG_fuel_type" default="Gas">
         <Option>Gas</Option>
@@ -430,6 +417,7 @@
       <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
       <AttrDef name="eta_gas" type="float" unit="frac" desc="heater fuel use efficiency - gas">0.80</AttrDef>
       <AttrDef name="eta_electricity" type="float" unit="kWh/btu" desc="heater fuel use efficiency electricity">0.0004</AttrDef>
+      <AttrDef name="heater_treater" type="binary" desc="Heater/treater">0</AttrDef>
     </ClassAttrs>
     <ClassAttrs name="WaterTreatment">
       <AttrDef name="fraction_disp_water_subsurface" unit="frac" type="float" desc="Fraction of excess water disposed in sub-surface">1.0</AttrDef>
@@ -438,6 +426,8 @@
       <AttrDef name="makeup_water_treatment_table" type="binary" desc="is makeup water treatment same as produced water treatment">1</AttrDef>
       <AttrDef name="makeup_water_temp" type="float" unit="degF" desc="Temperature_makeup_H2O">60.0</AttrDef>
       <AttrDef name="makeup_water_press" type="float" unit="psia" desc="Pressure_makeup_H2O">90.0</AttrDef>
+      <AttrDef name="steam_quality_at_generator_outlet" unit="frac" type="float" desc="steam quality at generator outlet">0.7</AttrDef>
+      <AttrDef name="steam_quality_after_blowdown" unit="frac" type="float" desc="desired steam quality after blowdown and recycle (if any)">0.7</AttrDef>
     </ClassAttrs>
     <ClassAttrs name="CrudeOilStabilization">
       <Options name="prime_mover_type" default="NG_engine">
@@ -456,6 +446,75 @@
     <ClassAttrs name="HeavyOilUpgrading">
       <AttrDef name="cogeneration_upgrading" type="binary">1</AttrDef>
     </ClassAttrs>
+    <ClassAttrs name="SteamGeneration">
+      <AttrDef name="steam_quality_outlet" type="float" unit="frac" desc="Steam quality at generator outlet">0.7</AttrDef>
+      <AttrDef name="steam_quality_after_blowdown" type="float" desc="Desired steam quality after blowdown and recycle (if any)">0.7</AttrDef>
+      <AttrDef name="fraction_blowdown_recycled" type="float" desc="Percentage of blowdown water recycled ">0.7</AttrDef>
+      <AttrDef name="waste_water_reinjection_temp" type="float" unit="degF" desc="Waste water rejection temperature">150.0</AttrDef>
+      <AttrDef name="waste_water_reinjection_press" type="float" unit="psia" desc="Waste water rejection pressure">14.67</AttrDef>
+      <AttrDef name="friction_loss_stream_distr" type="float" unit="frac" desc="Frictional losses in steam distribution and injection lines">1.1</AttrDef>
+      <AttrDef name="pressure_loss_choke_wellhead" type="float" unit="frac" desc="Choke pressure drop at wellhead">1.7</AttrDef>
+      <AttrDef name="steam_injection_delta_press" type="float" unit="psia" desc="steam_injection_delta_press">100.0</AttrDef>
+      <AttrDef name="prod_water_inlet_temp" type="float" unit="degF" desc="Recycled produced water inlet temperature">140</AttrDef>
+      <AttrDef name="makeup_water_inlet_temp" type="float" unit="degF" desc="Makeup water inlet temperature">60.0</AttrDef>
+      <AttrDef name="eta_displacementpump_steamgen" type="float" unit="frac" desc="Positive displacement pump efficiency">0.87</AttrDef>
+      <AttrDef name="eta_air_blower_OTSG" type="float" unit="hp*day/mmbtu" desc="Air blower energy consumption for OTSG">0.139</AttrDef>
+      <AttrDef name="eta_air_blower_HRSG" type="float" unit="hp*day/mmbtu" desc="Air blower energy consumption for HRSG">0.0</AttrDef>
+      <AttrDef name="makeup_water_inlet_press" type="float" unit="psia" desc="Makeup water inlet pressure">14.70</AttrDef>
+      <AttrDef name="eta_air_blower_solar" type="float" unit="hp*day/mmbtu" desc="Air blower energy consumption for solar Thermal">0.139</AttrDef>
+      <AttrDef name="prod_water_inlet_press" type="float" unit="psia" desc="Recycled produced water inlet pressure">200.0</AttrDef>
+    </ClassAttrs>
+
+    <ClassAttrs name="SteamGenerator">
+      <AttrDef name="NG_fuel_share_OTSG_produced" type="float" unit="frac" desc="Fraction produced gas of OTSG gaseous fuels share">0.0</AttrDef>
+      <AttrDef name="NG_fuel_share_HRSG_produced" type="float" unit="frac" desc="Fraction product gas of GT fuel input type">0.0</AttrDef>
+      <AttrDef name="prod_water_inlet_press" type="float" unit="psia" desc="Recycled produced water inlet pressure">200.0</AttrDef>
+      <AttrDef name="makeup_water_inlet_press" type="float" unit="psia" desc="Makeup water inlet pressure">14.70</AttrDef>
+      <AttrDef name="waste_water_temp" type="float" unit="degF" desc="Waste water rejection temperature">150.0</AttrDef>
+      <AttrDef name="O2_excess_OTSG" type="float" unit="frac" desc="OTSG excess air in combustion, unit=mol O2 real/mol O2 stoichiometric">1.2</AttrDef>
+      <AttrDef name="temperature_inlet_air_OTSG" type="float" unit="degF" desc="OTSG inlet air temperature">80.33</AttrDef>
+      <AttrDef name="OTSG_exhaust_temp_outlet_before_economizer" type="float" unit="degF" desc="OTSG outlet exhaust temperature before economizer">350.0</AttrDef>
+      <AttrDef name="OTSG_exhaust_temp_outlet" type="float" unit="degF" desc="Temperature_outlet_exhaust_OTSG">350.0</AttrDef>
+      <AttrDef name="OTSG_exhaust_temp_outlet_before_preheater" type="float" unit="degF" desc="Temperature_outlet_exhaust_OTSG_before_preheater">350.0</AttrDef>
+      <AttrDef name="loss_shell_OTSG" type="float" unit="frac" desc="OTSG shell loss inefficiency">0.02</AttrDef>
+      <AttrDef name="loss_shell_HRSG" type="float" unit="frac" desc="HRSG shell loss inefficiency">0.02</AttrDef>
+      <AttrDef name="loss_gaseous_OTSG" type="float" unit="btu/mol" desc="OTSG other loss - Gaseous fuels">11.02</AttrDef>
+      <AttrDef name="loss_liquid_OTSG" type="float" unit="btu/lb" desc="OTSG other loss - Liquid fuels">250.0</AttrDef>
+      <AttrDef name="blowdown_heat_recovery" type="binary" desc="blowdown heat recovery availability">1</AttrDef>
+      <AttrDef name="eta_blowdown_heat_rec_OTSG" type="float" unit="frac" desc="OTSG heat recovery efficiency from blowdown rejected (for steam quality in excess of 80%)">0.95</AttrDef>
+      <AttrDef name="eta_blowdown_heat_rec_HRSG" type="float" unit="frac" desc="HRSG heat recovery efficiency from blowdown rejected (for steam quality in excess of 80%)">0.95</AttrDef>
+      <AttrDef name="economizer_OTSG" type="binary" desc="economizer availability in OTSG">0</AttrDef>
+      <AttrDef name="preheater_OTSG" type="binary" desc="preheater availability in OTSG">0</AttrDef>
+      <AttrDef name="economizer_HRSG" type="binary" desc="economizer availability in HRSG">0</AttrDef>
+      <AttrDef name="preheater_HRSG" type="binary" desc="preheater availability in HRSG">0</AttrDef>
+      <AttrDef name="eta_economizer_heat_rec_OTSG" type="float" unit="frac" desc="OTSG economizer recovery efficiency from exhaust">0.95</AttrDef>
+      <AttrDef name="eta_preheater_heat_rec_OTSG" type="float" unit="frac" desc="OTSG preheater recovery efficiency from exhaust">0.9</AttrDef>
+      <AttrDef name="eta_economizer_heat_rec_HRSG" type="float" unit="frac" desc="HRSG economizer recovery efficiency from exhaust">0.95</AttrDef>
+      <AttrDef name="eta_preheater_heat_rec_HRSG" type="float" unit="frac" desc="HRSG preheater recovery efficiency from exhaust">0.9</AttrDef>
+      <AttrDef name="OTSG_frac_import_gas" unit="frac" type="float" desc="OTSG gaseous fuels share for natural gas">1.0</AttrDef>
+      <AttrDef name="OTSG_frac_prod_gas" unit="frac" type="float" desc="OTSG gaseous fuels share for produced gas">0.0</AttrDef>
+      <AttrDef name="HRSG_frac_import_gas" unit="frac" type="float" desc="HRSG gaseous fuels share for natural gas">1.0</AttrDef>
+      <AttrDef name="HRSG_frac_prod_gas" unit="frac" type="float" desc="HRSG gaseous fuels share for produced gas">0.0</AttrDef>
+      <AttrDef name="duct_firing" type="binary" desc="Duct_firing_HRSG">0</AttrDef>
+      <AttrDef name="HRSG_exhaust_temp_outlet_before_economizer" type="float" unit="degF" desc="HRSG outlet exhaust temperature before economizer">350.0</AttrDef>
+      <AttrDef name="HRSG_exhaust_temp_outlet" type="float" unit="degF" desc="Temperature_outlet_exhaust_HRSG">350.0</AttrDef>
+      <AttrDef name="HRSG_exhaust_temp_outlet_before_preheater" type="float" unit="degF" desc="Temperature_outlet_exhaust_HRSG_before_preheater">350.0</AttrDef>
+
+      <Options name="OTSG_fuel_type" default="Gas">
+        <Option>Gas</Option>
+        <Option>Oil</Option>
+      </Options>
+      <AttrDef name="fuel_input_type_OTSG" options="OTSG_fuel_type"/>
+
+      <Options name="gas_turbine_type" default="C">
+        <Option>A</Option>
+        <Option>B</Option>
+        <Option>C</Option>
+        <Option>D</Option>
+      </Options>
+      <AttrDef name="gas_turbine_type" options="gas_turbine_type"/>
+
+    </ClassAttrs>
 
     <ClassAttrs name="HeavyOilDilution">
       <Options name="dilution_API" default="55.20">
@@ -466,7 +525,11 @@
         <Option>Diluent</Option>
         <Option>Dilbit</Option>
       </Options>
-
+      <Options name="dilution_API" default="55.20">
+        <Option>55.20</Option>
+        <Option>23.0</Option>
+      </Options>
+      <AttrDef name="diluent_API" options="dilution_API" type="float" unit="degAPI"/>
       <AttrDef name="dilution_type" options="diluent_or_dilbit"/>
       <AttrDef name="diluent_temp" unit="degF" type="float" desc="Diluent temperature">60.0</AttrDef>
       <AttrDef name="diluent_press" unit="psia" type="float" desc="Diluent pressure">14.7</AttrDef>
@@ -592,12 +655,19 @@
         <Option>NG_engine</Option>
         <Option>Electric_motor</Option>
       </Options>
+      <Options name="Flood gases" default="NG">
+        <Option desc="Natural gas">NG</Option>
+        <Option desc="Nitrogen">N2</Option>
+        <Option desc="Carbon dioxide">CO2</Option>
+      </Options>
       <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
       <AttrDef name="eta_compressor" type="float" unit="percent" desc="gas reinjection compressor efficiency">75.0</AttrDef>
       <AttrDef name="N2_flooding_temp" type="float" unit="degF" desc="nitrogen flooding temperature">197.0</AttrDef>
       <AttrDef name="C1_flooding_temp" type="float" unit="degF" desc="methane flooding temperature">60</AttrDef>
       <AttrDef name="N2_flooding_press" type="float" unit="psia" desc="nitrogen flooding pressure">125.0</AttrDef>
       <AttrDef name="C1_flooding_press" type="float" unit="psia" desc="methane flooding pressure">600</AttrDef>
+      <AttrDef name="flood_gas_type" desc="Flood gas" options="Flood gases" type="str"/>
+      <AttrDef name="frac_CO2_breakthrough" desc="Fraction of CO2 breaking through to producers" unit="percent" type="float">59</AttrDef>
     </ClassAttrs>
 
     <ClassAttrs name="TransmissionCompressor">

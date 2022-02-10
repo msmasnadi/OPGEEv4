@@ -115,7 +115,7 @@ class Field(Container):
 
         self.LNG_temp = model.const("LNG-temp")
 
-        self.heater_treater = self.attr("heater_treater")
+
         self.stab_column = self.attr("stabilizer_column")
         self.upgrader_type = self.attr("upgrader_type")
         self.prime_mover_type_lifting = self.attr("prime_mover_type_gas_lifting")
