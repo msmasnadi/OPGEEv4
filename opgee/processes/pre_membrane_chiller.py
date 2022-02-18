@@ -3,6 +3,7 @@ from ..emissions import EM_FUGITIVES
 from ..energy import EN_ELECTRICITY
 from ..log import getLogger
 from ..process import Process
+from ..import_export import ImportExport
 
 _logger = getLogger(__name__)
 
@@ -40,6 +41,10 @@ class PreMembraneChiller(Process):
         # energy-use
         energy_use = self.energy
         energy_use.set_rate(EN_ELECTRICITY, energy_consumption)
+
+        # import/export
+        import_product = ImportExport()
+        import_product.add_import_from_energy(self.name, energy_use)
 
         # emissions
         emissions = self.emissions

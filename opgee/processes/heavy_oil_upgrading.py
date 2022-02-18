@@ -7,6 +7,7 @@ from ..log import getLogger
 from ..process import Process
 from ..stream import PHASE_GAS
 from ..core import STP
+from ..import_export import ImportExport
 
 _logger = getLogger(__name__)
 
@@ -119,6 +120,10 @@ class HeavyOilUpgrading(Process):
         energy_use.set_rate(EN_UPG_PROC_GAS, upgrader_process_gas_consumption.to("mmBtu/day"))
         energy_use.set_rate(EN_PETCOKE, petro_coke_consumption.to("mmBtu/day"))
         energy_use.set_rate(EN_ELECTRICITY, elect_import.to("mmBtu/day"))
+
+        # import/export
+        import_product = ImportExport()
+        import_product.add_import_from_energy(self.name, energy_use)
 
         # emission
         emissions = self.emissions

@@ -10,6 +10,7 @@ from ..stream import PHASE_GAS
 from ..thermodynamics import component_MW
 from .compressor import Compressor
 from .shared import predict_blower_energy_use, get_energy_carrier
+from ..import_export import ImportExport
 
 _logger = getLogger(__name__)
 
@@ -128,6 +129,10 @@ class Demethanizer(Process):
         energy_use = self.energy
         energy_carrier = get_energy_carrier(self.prime_mover_type)
         energy_use.set_rate(energy_carrier, inlet_compressor_energy_consump + outlet_compressor_energy_consump)
+
+        # import/export
+        import_product = ImportExport()
+        import_product.add_import_from_energy(self.name, energy_use)
 
         # emissions
         emissions = self.emissions

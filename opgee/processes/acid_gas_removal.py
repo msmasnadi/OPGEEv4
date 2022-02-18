@@ -5,6 +5,7 @@ from ..energy import EN_NATURAL_GAS
 from ..log import getLogger
 from ..process import Process, run_corr_eqns
 from .shared import predict_blower_energy_use, get_energy_carrier
+from ..import_export import ImportExport
 
 _logger = getLogger(__name__)
 
@@ -113,6 +114,10 @@ class AcidGasRemoval(Process):
         energy_use = self.energy
         energy_carrier = get_energy_carrier(self.prime_mover_type)
         energy_use.set_rate(energy_carrier, compressor_energy_consumption)
+
+        # import/export
+        import_product = ImportExport()
+        import_product.add_import_from_energy(self.name, energy_use)
 
         # emissions
         emissions = self.emissions

@@ -216,8 +216,11 @@ class Field(Container):
 
             self.check_balances()
 
+            # TODO: Compute emissions from Exploration and Drilling
+
             # Perform aggregations
             self.get_energy_rates()
+
             self.get_emission_rates(analysis, procs_to_exclude=self.procs_beyond_boundary)
 
             if compute_ci:

@@ -5,6 +5,7 @@ from ..emissions import EM_COMBUSTION
 from ..log import getLogger
 from ..process import Process
 from .shared import get_energy_carrier
+from ..import_export import ImportExport
 
 _logger = getLogger(__name__)
 
@@ -62,6 +63,10 @@ class WaterInjection(Process):
 
         energy_carrier = get_energy_carrier(self.prime_mover_type)
         energy_use.set_rate(energy_carrier, water_pump_power)
+
+        # import/export
+        import_product = ImportExport()
+        import_product.add_import_from_energy(self.name, energy_use)
 
         # emission
         emissions = self.emissions

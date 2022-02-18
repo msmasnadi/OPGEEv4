@@ -6,6 +6,7 @@ from ..log import getLogger
 from ..process import Process
 from ..stream import PHASE_LIQUID
 from ..error import OpgeeException
+from ..import_export import ImportExport
 
 _logger = getLogger(__name__)
 
@@ -76,6 +77,10 @@ class CrudeOilDewatering(Process):
         energy_consumption =\
             heat_duty / self.eta_gas if self.prime_mover_type == "NG_engine" else heat_duty / self.eta_electricity
         energy_use.set_rate(energy_carrier, energy_consumption.to("mmBtu/day"))
+
+        # import/export
+        import_product = ImportExport()
+        import_product.add_import_from_energy(self.name, energy_use)
 
         # emissions
         emissions = self.emissions

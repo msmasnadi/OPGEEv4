@@ -6,6 +6,7 @@ from ..process import Process
 from ..stream import Stream
 from .compressor import Compressor
 from .shared import get_energy_carrier
+from ..import_export import ImportExport
 
 _logger = getLogger(__name__)
 
@@ -74,6 +75,10 @@ class TransmissionCompressor(Process):
         energy_carrier = get_energy_carrier(self.prime_mover_type)
         energy_use.set_rate(energy_carrier, energy_consumption_init +
                             energy_consumption_booster * num_compressor_stations)
+
+        # import/export
+        import_product = ImportExport()
+        import_product.add_import_from_energy(self.name, energy_use)
 
         gas_to_storage = self.find_output_stream("gas for storage")
         gas_to_storage.copy_gas_rates_from(input, tp=TemperaturePressure(output_temp_init, output_press_init))

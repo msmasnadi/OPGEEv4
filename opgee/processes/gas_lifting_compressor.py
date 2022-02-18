@@ -4,6 +4,7 @@ from .. import ureg
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
+from ..import_export import ImportExport
 
 _logger = getLogger(__name__)
 
@@ -59,6 +60,10 @@ class GasLiftingCompressor(Process):
         energy_use = self.energy
         energy_carrier = get_energy_carrier(field.prime_mover_type_lifting)
         energy_use.set_rate(energy_carrier, energy_consumption)
+
+        # import/export
+        import_product = ImportExport()
+        import_product.add_import_from_energy(self.name, energy_use)
 
         # emissions
         emissions = self.emissions

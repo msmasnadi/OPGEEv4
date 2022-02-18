@@ -13,16 +13,16 @@ class ImportExport(OpgeeObject):
     EXPORT = 'export'
     NET_IMPORTS = 'net imports'
 
-    NATURAL_GAS = "NG"
-    UPG_PROC_GAS = "upg_proc_gas"
-    NGL_LPG = "NLG_LPG"
-    DILUENT = "diluent"
-    CRUDE_OIL = "crude_oil"  # does not contain diluent
-    DIESEL = "diesel"
-    RESID = "resid"
-    PETCOKE = "petcoke"
-    ELECTRICITY = "electricity"
-    WATER = "water"
+    NATURAL_GAS = "Natural gas"
+    UPG_PROC_GAS = "Upgrader proc. gas"
+    NGL_LPG = "NGL"
+    DILUENT = "Diluent"
+    CRUDE_OIL = "Crude oil"  # does not contain diluent
+    DIESEL = "Diesel"
+    RESID = "Residual fuel"
+    PETCOKE = "Pet. coke"
+    ELECTRICITY = "Electricity"
+    WATER = "Water"
 
     unit_dict = {NATURAL_GAS : "mmbtu/day",
                  UPG_PROC_GAS: "mmbtu/day",
@@ -96,6 +96,17 @@ class ImportExport(OpgeeObject):
         :return: none
         """
         self.add_import_export(proc_name, self.IMPORT, item, value)
+
+    def add_import_from_energy(self, proc_name, energy):
+        """
+        Add imports from energy use
+
+        :param proc_name: (str) the name of a process
+        :param energy: OPGEE.energy
+        :return: none
+        """
+        for energy_carrier in energy.carriers:
+            self.add_import_export(proc_name, self.IMPORT, energy_carrier, energy.get_rate(energy_carrier))
 
     def add_export(self, proc_name, item, value):
         """

@@ -1,10 +1,10 @@
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
-from ..stream import Stream
 from .compressor import Compressor
 from .shared import get_energy_carrier
 from ..core import STP
+from ..import_export import ImportExport
 
 _logger = getLogger(__name__)
 
@@ -55,6 +55,10 @@ class PostStorageCompressor(Process):
         gas_to_distribution.tp.set(T=output_temp, P=self.discharge_press)
 
         gas_to_distribution.subtract_gas_rates_from(gas_fugitives)
+
+        # import/export
+        import_product = ImportExport()
+        import_product.add_import_from_energy(self.name, energy_use)
 
         # emissions
         emissions = self.emissions

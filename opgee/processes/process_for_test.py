@@ -112,3 +112,18 @@ class PetcokeTransport(Process):
 class ElectricityGenAndImports(Process):
     def run(self, analysis):
         self.print_running_msg()
+
+
+class SurveyTruck(Process):
+    def run(self, analysis):
+        self.print_running_msg()
+
+    def __str__(self):
+        return f'<SurveyTruck>'
+
+class SurveyShip(Process):
+    def run(self, analysis):
+        self.print_running_msg()
+
+    def __str__(self):
+        return f'<SurveyShip>'

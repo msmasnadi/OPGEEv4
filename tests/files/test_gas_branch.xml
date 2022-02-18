@@ -278,7 +278,7 @@
 			<Contains>oil for transport</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilTransport" dst="After" name="crude oil transport to after">
+		<Stream src="CrudeOilTransport" dst="After" name="crude oil transport to after" boundary="Transportation">
 			<Contains>oil for refinery</Contains>
 		</Stream>
 

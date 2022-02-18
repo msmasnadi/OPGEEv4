@@ -4,6 +4,7 @@ from ..energy import EN_ELECTRICITY
 from ..error import OpgeeException
 from ..log import getLogger
 from ..process import Process
+from ..import_export import ImportExport
 
 _logger = getLogger(__name__)
 
@@ -123,6 +124,11 @@ class WaterTreatment(Process):
         energy_use_makeup, emissions_makeup = self.intermediate_results["Makeup Water"]
         energy_use_prod.set_rate(EN_ELECTRICITY, prod_water_elec.to("mmBtu/day"))
         energy_use_makeup.set_rate(EN_ELECTRICITY, makeup_water_elec.to("mmBtu/day"))
+
+        # import/export
+        import_product = ImportExport()
+        import_product.add_import_from_energy(self.name, energy_use_makeup)
+        import_product.add_import_from_energy(self.name, energy_use_prod)
 
         self.sum_intermediate_results()
 

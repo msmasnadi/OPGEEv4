@@ -3,6 +3,7 @@ from ..log import getLogger
 from ..process import Process
 from opgee.processes.transport_energy import TransportEnergy
 from .shared import get_energy_carrier
+from ..import_export import ImportExport
 
 _logger = getLogger(__name__)
 
@@ -40,6 +41,10 @@ class DiluentTransport(Process):
 
         for name, value in fuel_consumption.items():
             energy_use.set_rate(get_energy_carrier(name), value.to("mmBtu/day"))
+
+        # import/export
+        import_product = ImportExport()
+        import_product.add_import_from_energy(self.name, energy_use)
 
         # emission
         emissions = self.emissions

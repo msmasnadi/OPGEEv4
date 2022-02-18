@@ -4,6 +4,7 @@ from ..energy import EN_NATURAL_GAS, EN_DIESEL
 from ..log import getLogger
 from ..process import Process
 from ..stream import PHASE_GAS
+from ..import_export import ImportExport
 
 _logger = getLogger(__name__)
 
@@ -74,6 +75,10 @@ class RyanHolmes(Process):
         energy_use.set_rate(EN_NATURAL_GAS,
                             turbine_energy_consumption + compressor_energy_consumption + heater_energy_consumption)
         energy_use.set_rate(EN_DIESEL, diesel_energy_consumption)
+
+        # import/export
+        import_product = ImportExport()
+        import_product.add_import_from_energy(self.name, energy_use)
 
         # emissions
         emissions = self.emissions

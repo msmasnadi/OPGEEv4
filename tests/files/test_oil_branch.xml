@@ -82,11 +82,11 @@
 			<Contains>gas for gas gathering</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to after" boundary="Production">
+		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to after">
 			<Contains>gas for flaring</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilStorage" dst="CrudeOilTransport" name="crude oil storage to crude oil transport">
+		<Stream src="CrudeOilStorage" dst="CrudeOilTransport" name="crude oil storage to crude oil transport" boundary="Production">
 			<Contains>oil for transport</Contains>
 		</Stream>
 

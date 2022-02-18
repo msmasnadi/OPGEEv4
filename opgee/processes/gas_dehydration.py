@@ -8,6 +8,7 @@ from ..log import getLogger
 from ..process import Process
 from ..process import run_corr_eqns
 from ..thermodynamics import component_MW
+from ..import_export import ImportExport
 
 _logger = getLogger(__name__)
 
@@ -104,6 +105,10 @@ class GasDehydration(Process):
         energy_use = self.energy
         energy_use.set_rate(EN_NATURAL_GAS, reboiler_fuel_use)
         energy_use.set_rate(EN_ELECTRICITY, air_cooler_energy_consumption)
+
+        # import/export
+        import_product = ImportExport()
+        import_product.add_import_from_energy(self.name, energy_use)
 
         # emissions
         emissions = self.emissions

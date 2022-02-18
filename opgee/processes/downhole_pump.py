@@ -7,6 +7,7 @@ from ..log import getLogger
 from ..process import Process
 from ..stream import Stream
 from .shared import get_energy_carrier
+from ..import_export import ImportExport
 
 _logger = getLogger(__name__)
 
@@ -132,6 +133,10 @@ class DownholePump(Process):
         energy_use = self.energy
         energy_carrier = get_energy_carrier(self.prime_mover_type)
         energy_use.set_rate(energy_carrier, energy_consumption_sum)
+
+        # import/export
+        import_product = ImportExport()
+        import_product.add_import_from_energy(self.name, energy_use)
 
         # emission
         emissions = self.emissions

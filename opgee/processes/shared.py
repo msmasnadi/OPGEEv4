@@ -2,6 +2,7 @@ from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL, EN_RESID
 from ..error import OpgeeException
 from ..stream import Stream, PHASE_GAS
 
+
 # TODO: This didn't belong in the abstract Process class, so I moved it here
 def get_gas_lifting_init_stream(gas,
                                 imported_fuel_gas_comp,
@@ -25,6 +26,7 @@ def get_gas_lifting_init_stream(gas,
     stream = Stream("gas lifting stream", tp)
     stream.set_rates_from_series(series, PHASE_GAS)
     return stream
+
 
 #
 # Helper function shared by acid_gas_removal and demethanizer

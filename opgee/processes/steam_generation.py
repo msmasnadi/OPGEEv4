@@ -4,6 +4,7 @@ from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY
 from ..error import BalanceError
 from ..log import getLogger
 from ..process import Process
+from ..import_export import ImportExport
 
 _logger = getLogger(__name__)
 
@@ -117,6 +118,10 @@ class SteamGeneration(Process):
                                                             fuel_consumption_solar * self.eta_air_blower_solar)
         total_power_required = water_pump_power + OTSG_air_blower + HRSG_air_blower + solar_thermal_pumping
         energy_use.set_rate(EN_ELECTRICITY, total_power_required - electricity_HRSG.to("mmBtu/day"))
+
+        # import/export
+        import_product = ImportExport()
+        import_product.add_import_from_energy(self.name, energy_use)
 
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")

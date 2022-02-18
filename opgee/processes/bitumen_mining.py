@@ -5,6 +5,7 @@ from ..core import TemperaturePressure
 from ..log import getLogger
 from ..process import Process
 from ..stream import PHASE_GAS
+from ..import_export import ImportExport
 
 _logger = getLogger(__name__)
 
@@ -86,6 +87,10 @@ class BitumenMining(Process):
         energy_use.set_rate(EN_NATURAL_GAS, NG_consumption.to("mmBtu/day"))
         energy_use.set_rate(EN_DIESEL, diesel_consumption.to("mmBtu/day"))
         energy_use.set_rate(EN_ELECTRICITY, electricity_consumption.to("mmBtu/day"))
+
+        # import/export
+        import_product = ImportExport()
+        import_product.add_import_from_energy(self.name, energy_use)
 
         # emissions
         emissions = self.emissions
