@@ -87,18 +87,19 @@ class WaterTreatment(Process):
 
         # produced water stream
         prod_water_to_reinjection = self.find_output_stream("produced water for water injection", raiseError=False)
+        prod_water_to_downstream = ureg.Quantity(0,"tonne/day")
         if prod_water_to_reinjection is not None:
             prod_water_mass = min(total_water_inj_demand * water_density, prod_water_mass_rate)
             prod_water_to_reinjection.set_liquid_flow_rate("H2O", prod_water_mass.to("tonne/day"), tp=input.tp)
+            prod_water_to_downstream += prod_water_to_reinjection.liquid_flow_rate("H2O")
 
         prod_water_to_steam = self.find_output_stream("produced water for steam generation", raiseError=False)
         if prod_water_to_steam is not None:
             prod_water_mass = min(total_steam_inj_demand * water_density, prod_water_mass_rate)
             prod_water_to_steam.set_liquid_flow_rate("H2O", prod_water_mass.to("tonne/day"), tp=input.tp)
+            prod_water_to_downstream += prod_water_to_steam.liquid_flow_rate("H2O")
 
-        water_for_disp = totol_makeup_water_mass + prod_water_mass_rate - \
-                         prod_water_to_reinjection.liquid_flow_rate("H20") + \
-                         prod_water_to_steam.liquid_flow_rate("H2O")
+        water_for_disp = totol_makeup_water_mass + prod_water_mass_rate - prod_water_to_downstream
         #TODO: How to deal with surface and subsurface water disposal?
         surface_disp_rate = water_for_disp * self.frac_disp_surface
         subsurface_disp_rate = water_for_disp * self.frac_disp_subsurface
