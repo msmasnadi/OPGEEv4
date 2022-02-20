@@ -57,7 +57,7 @@ class StorageCompressor(Process):
 
         # import/export
         import_product = ImportExport()
-        import_product.add_import_from_energy(self.name, energy_use)
+        import_product.set_import_from_energy(self.name, energy_use)
 
         gas_to_well = self.find_output_stream("gas for well")
         gas_to_well.copy_flow_rates_from(input, phase=PHASE_GAS)

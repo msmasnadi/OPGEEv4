@@ -7,22 +7,21 @@ from .log import getLogger
 
 _logger = getLogger(__name__)
 
+NATURAL_GAS = "Natural gas"
+UPG_PROC_GAS = "Upgrader proc. gas"
+NGL_LPG = "NGL"
+DILUENT = "Diluent"
+CRUDE_OIL = "Crude oil"  # does not contain diluent
+DIESEL = "Diesel"
+RESID = "Residual fuel"
+PETCOKE = "Pet. coke"
+ELECTRICITY = "Electricity"
+WATER = "Water"
 
 class ImportExport(OpgeeObject):
     IMPORT = 'import'
     EXPORT = 'export'
     NET_IMPORTS = 'net imports'
-
-    NATURAL_GAS = "Natural gas"
-    UPG_PROC_GAS = "Upgrader proc. gas"
-    NGL_LPG = "NGL"
-    DILUENT = "Diluent"
-    CRUDE_OIL = "Crude oil"  # does not contain diluent
-    DIESEL = "Diesel"
-    RESID = "Residual fuel"
-    PETCOKE = "Pet. coke"
-    ELECTRICITY = "Electricity"
-    WATER = "Water"
 
     unit_dict = {NATURAL_GAS : "mmbtu/day",
                  UPG_PROC_GAS: "mmbtu/day",
@@ -33,7 +32,7 @@ class ImportExport(OpgeeObject):
                  RESID       : "mmbtu/day",
                  PETCOKE     : "mmbtu/day",
                  ELECTRICITY : "kWh/day",
-                 WATER       : "gal/day"}
+                 WATER       : "tonne/day"}
 
     imports_set = set(unit_dict.keys())
 
@@ -55,9 +54,9 @@ class ImportExport(OpgeeObject):
         self.import_df = self._create_dataframe()
         self.export_df = self._create_dataframe()
 
-    def add_import_export(self, proc_name, imp_exp, item, value):
+    def set_import_export(self, proc_name, imp_exp, item, value):
         """
-        Add imports for a given ``item`` by process ``proc_name``, of
+        Set imports for a given ``item`` by process ``proc_name``, of
         quantity ``value``.
 
         :param proc_name: (str) the name of a process
@@ -84,9 +83,9 @@ class ImportExport(OpgeeObject):
 
         df.loc[proc_name, item] = value
 
-    def add_import(self, proc_name, item, value):
+    def set_import(self, proc_name, item, value):
         """
-        Add imports for a given ``item`` by process ``proc_name``, of
+        Set imports for a given ``item`` by process ``proc_name``, of
         quantity ``value``.
 
         :param proc_name: (str) the name of a process
@@ -95,22 +94,22 @@ class ImportExport(OpgeeObject):
            is passed, it is converted to the import's standard units.
         :return: none
         """
-        self.add_import_export(proc_name, self.IMPORT, item, value)
+        self.set_import_export(proc_name, self.IMPORT, item, value)
 
-    def add_import_from_energy(self, proc_name, energy):
+    def set_import_from_energy(self, proc_name, energy):
         """
-        Add imports from energy use
+        Set imports from energy use
 
         :param proc_name: (str) the name of a process
         :param energy: OPGEE.energy
         :return: none
         """
         for energy_carrier in energy.carriers:
-            self.add_import_export(proc_name, self.IMPORT, energy_carrier, energy.get_rate(energy_carrier))
+            self.set_import_export(proc_name, self.IMPORT, energy_carrier, energy.get_rate(energy_carrier))
 
-    def add_export(self, proc_name, item, value):
+    def set_export(self, proc_name, item, value):
         """
-        Add imports for a given ``item`` by process ``proc_name``, of
+        Set imports for a given ``item`` by process ``proc_name``, of
         quantity ``value``.
 
         :param proc_name: (str) the name of a process
@@ -119,7 +118,7 @@ class ImportExport(OpgeeObject):
            is passed, it is converted to the import's standard units.
         :return: none
         """
-        self.add_import_export(proc_name, self.EXPORT, item, value)
+        self.set_import_export(proc_name, self.EXPORT, item, value)
 
     def importing_processes(self):
         """

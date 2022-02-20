@@ -4,7 +4,7 @@ from ..energy import EN_ELECTRICITY
 from ..error import OpgeeException
 from ..log import getLogger
 from ..process import Process
-from ..import_export import ImportExport
+from ..import_export import ImportExport, WATER
 
 _logger = getLogger(__name__)
 
@@ -45,7 +45,6 @@ class WaterTreatment(Process):
 
         # mass rate
         input = self.find_input_streams("water", combine=True)
-        # input = self.find_input_streams("water")
         prod_water_mass_rate = input.liquid_flow_rate("H2O")
 
         water = self.field.water
@@ -55,23 +54,25 @@ class WaterTreatment(Process):
         # calculate makeup water volume rate
         if self.water_reinjection:
             total_water_inj_demand = self.oil_volume_rate * self.WOR * self.frac_water_reinj
+        elif self.water_flooding:
+            total_water_inj_demand = self.oil_volume_rate * self.WIR
         else:
-            if self.water_flooding:
-                total_water_inj_demand = self.oil_volume_rate * self.WIR
+            total_water_inj_demand = ureg.Quantity(0.0, "barrel_water/day")
 
-        # TODO: if neither water_reinjection nor water_flooding are true, total_water_inj_demand will be unbound
-
-        makeup_water_volume_reinjection = max(total_water_inj_demand - prod_water_volume, ureg.Quantity(0.0, "barrel_water/day"))
+        makeup_water_volume_reinjection = max(total_water_inj_demand - prod_water_volume,
+                                              ureg.Quantity(0.0, "barrel_water/day"))
         makeup_water_mass_reinjection = makeup_water_volume_reinjection * water_density
 
         if self.steam_flooding:
             total_steam_inj_demand = self.oil_volume_rate * self.SOR
         else:
             total_steam_inj_demand = ureg.Quantity(0.0, "m**3/day")
-        makeup_water_volume_steam = max(total_steam_inj_demand - prod_water_volume, ureg.Quantity(0.0, "barrel_water/day"))
+        makeup_water_volume_steam = max(total_steam_inj_demand - prod_water_volume,
+                                        ureg.Quantity(0.0, "barrel_water/day"))
         makeup_water_mass_steam = makeup_water_volume_steam * water_density
 
         total_makeup_water_volume = makeup_water_volume_steam + makeup_water_volume_reinjection
+        totol_makeup_water_mass = makeup_water_mass_steam + makeup_water_mass_reinjection
 
         makeup_water_to_reinjection = self.find_output_stream("makeup water for water injection", raiseError=False)
         if makeup_water_to_reinjection is not None:
@@ -95,19 +96,12 @@ class WaterTreatment(Process):
             prod_water_mass = min(total_steam_inj_demand * water_density, prod_water_mass_rate)
             prod_water_to_steam.set_liquid_flow_rate("H2O", prod_water_mass.to("tonne/day"), tp=input.tp)
 
-
-        output_surface_disposal = self.find_output_stream("water for surface disposal")
-        # water_for_disp = (1 - frac_prod_water_as_steam - frac_prod_water_as_water) * prod_water_mass_rate
-        # surface_disp_rate = water_for_disp * self.frac_disp_surface + steam_rate
-        # # surface disp rate is frac*tonne/day
-        # output_surface_disposal.set_liquid_flow_rate("H2O", surface_disp_rate.to("tonne/day"),
-        #                                              t=self.std_temp, p=self.std_press)
-
-        output_subsurface_disposal = self.find_output_stream("water for subsurface disposal")
-        # subsurface_disp_rate = water_for_disp * self.frac_disp_subsurface
-        # # subsurface disp rate is frac*tonne/day
-        # output_subsurface_disposal.set_liquid_flow_rate("H2O", subsurface_disp_rate.to("tonne/day"),
-        #                                                 t=input.temperature, p=input.pressure)
+        water_for_disp = totol_makeup_water_mass + prod_water_mass_rate - \
+                         prod_water_to_reinjection.liquid_flow_rate("H20") + \
+                         prod_water_to_steam.liquid_flow_rate("H2O")
+        #TODO: How to deal with surface and subsurface water disposal?
+        surface_disp_rate = water_for_disp * self.frac_disp_surface
+        subsurface_disp_rate = water_for_disp * self.frac_disp_subsurface
 
         # enegy use
         prod_water_elec = self.get_water_treatment_elec(self.water_treatment_table, prod_water_volume)
@@ -127,8 +121,9 @@ class WaterTreatment(Process):
 
         # import/export
         import_product = ImportExport()
-        import_product.add_import_from_energy(self.name, energy_use_makeup)
-        import_product.add_import_from_energy(self.name, energy_use_prod)
+        import_product.set_import_from_energy(self.name, energy_use_makeup)
+        import_product.set_import_from_energy(self.name, energy_use_prod)
+        import_product.set_import(self.name, WATER, makeup_water_mass_reinjection)
 
         self.sum_intermediate_results()
 
@@ -138,7 +133,8 @@ class WaterTreatment(Process):
         stages = sorted(water_treatment_table.index.unique())
 
         if self.num_stages > len(stages) or self.num_stages < 0:
-            raise OpgeeException(f"water treatment: number of stages ({self.num_stages}) must be > 0 and <= {len(stages)}")
+            raise OpgeeException(
+                f"water treatment: number of stages ({self.num_stages}) must be > 0 and <= {len(stages)}")
 
         for stage in stages[:self.num_stages]:
             stage_row = water_treatment_table.loc[stage]
@@ -150,4 +146,3 @@ class WaterTreatment(Process):
             water_volume_rate *= (1 - loss_factor)
 
         return electricity
-

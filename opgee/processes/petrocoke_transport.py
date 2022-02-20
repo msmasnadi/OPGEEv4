@@ -3,7 +3,7 @@ from ..log import getLogger
 from ..process import Process
 from opgee.processes.transport_energy import TransportEnergy
 from .shared import get_energy_carrier
-from ..import_export import ImportExport
+from ..import_export import ImportExport, NGL_LPG
 
 _logger = getLogger(__name__)
 
@@ -59,7 +59,10 @@ class PetrocokeTransport(Process):
 
         # import/export
         import_product = ImportExport()
-        import_product.add_import_from_energy(self.name, energy_use)
+        import_product.set_import_from_energy(self.name, energy_use)
+        import_product.set_export(self.name, NGL_LPG, petrocoke_LHV_rate)
+
+
         # emission
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")

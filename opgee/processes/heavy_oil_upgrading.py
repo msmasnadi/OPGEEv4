@@ -123,7 +123,7 @@ class HeavyOilUpgrading(Process):
 
         # import/export
         import_product = ImportExport()
-        import_product.add_import_from_energy(self.name, energy_use)
+        import_product.set_import_from_energy(self.name, energy_use)
 
         # emission
         emissions = self.emissions
