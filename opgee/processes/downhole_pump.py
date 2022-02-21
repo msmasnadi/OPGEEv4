@@ -135,8 +135,8 @@ class DownholePump(Process):
         energy_use.set_rate(energy_carrier, energy_consumption_sum)
 
         # import/export
-        import_product = ImportExport()
-        import_product.set_import_from_energy(self.name, energy_use)
+        # import_product = field.import_export
+        self.set_import_from_energy(energy_use)
 
         # emission
         emissions = self.emissions

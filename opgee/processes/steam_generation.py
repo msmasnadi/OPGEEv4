@@ -60,6 +60,7 @@ class SteamGeneration(Process):
     def run(self, analysis):
         self.print_running_msg()
         self.set_iteration_value(0)
+        field = self.field
 
         # mass rate
         steam_injection_volume_rate = self.SOR * self.oil_volume_rate
@@ -120,8 +121,8 @@ class SteamGeneration(Process):
         energy_use.set_rate(EN_ELECTRICITY, total_power_required - electricity_HRSG.to("mmBtu/day"))
 
         # import/export
-        import_product = ImportExport()
-        import_product.set_import_from_energy(self.name, energy_use)
+        # import_product = field.import_export
+        self.set_import_from_energy(energy_use)
 
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")

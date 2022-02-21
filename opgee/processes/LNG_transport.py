@@ -24,6 +24,7 @@ class LNGTransport(Process):
 
     def run(self, analysis):
         self.print_running_msg()
+        field = self.field
 
         input = self.find_input_stream("gas for transport")
 
@@ -50,8 +51,8 @@ class LNGTransport(Process):
             energy_use.set_rate(get_energy_carrier(name), value.to("mmBtu/day"))
 
         # import/export
-        import_product = ImportExport()
-        import_product.set_import_from_energy(self.name, energy_use)
+        import_product = field.import_export
+        self.set_import_from_energy(energy_use)
         import_product.set_export(self.name, NGL_LPG, gas_LHV_rate)
 
         # emission

@@ -42,6 +42,7 @@ class WaterTreatment(Process):
 
     def run(self, analysis):
         self.print_running_msg()
+        field = self.field
 
         # mass rate
         input = self.find_input_streams("water", combine=True)
@@ -121,9 +122,9 @@ class WaterTreatment(Process):
         energy_use_makeup.set_rate(EN_ELECTRICITY, makeup_water_elec.to("mmBtu/day"))
 
         # import/export
-        import_product = ImportExport()
-        import_product.set_import_from_energy(self.name, energy_use_makeup)
-        import_product.set_import_from_energy(self.name, energy_use_prod)
+        import_product = field.import_export
+        self.set_import_from_energy(energy_use_makeup)
+        self.set_import_from_energy(energy_use_prod)
         import_product.set_import(self.name, WATER, makeup_water_mass_reinjection)
 
         self.sum_intermediate_results()

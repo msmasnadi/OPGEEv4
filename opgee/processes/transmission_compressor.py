@@ -34,6 +34,7 @@ class TransmissionCompressor(Process):
 
     def run(self, analysis):
         self.print_running_msg()
+        field = self.field
 
         input = self.find_input_stream("gas for transmission")
 
@@ -77,8 +78,8 @@ class TransmissionCompressor(Process):
                             energy_consumption_booster * num_compressor_stations)
 
         # import/export
-        import_product = ImportExport()
-        import_product.set_import_from_energy(self.name, energy_use)
+        # import_product = field.import_export
+        self.set_import_from_energy(energy_use)
 
         gas_to_storage = self.find_output_stream("gas for storage")
         gas_to_storage.copy_gas_rates_from(input, tp=TemperaturePressure(output_temp_init, output_press_init))

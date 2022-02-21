@@ -289,6 +289,9 @@ class Process(XmlInstantiable, AttributeMixin):
 
         return self.import_export.imports_exports()[ImportExport.NET_IMPORTS]
 
+    def set_import_from_energy(self, energy_use):
+        imp_exp = self.field.import_export
+        imp_exp.set_import_from_energy(self.name, energy_use)
 
     #
     # end of pass through energy and emissions methods

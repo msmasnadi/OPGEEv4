@@ -96,16 +96,16 @@ class ImportExport(OpgeeObject):
         """
         self.set_import_export(proc_name, self.IMPORT, item, value)
 
-    def set_import_from_energy(self, proc_name, energy):
+    def set_import_from_energy(self, proc_name, energy_use):
         """
         Set imports from energy use
 
         :param proc_name: (str) the name of a process
-        :param energy: OPGEE.energy
+        :param energy_use: OPGEE.energy
         :return: none
         """
-        for energy_carrier in energy.carriers:
-            self.set_import_export(proc_name, self.IMPORT, energy_carrier, energy.get_rate(energy_carrier))
+        for energy_carrier in energy_use.carriers:
+            self.set_import_export(proc_name, self.IMPORT, energy_carrier, energy_use.get_rate(energy_carrier))
 
     def set_export(self, proc_name, item, value):
         """

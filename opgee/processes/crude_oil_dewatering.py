@@ -79,8 +79,8 @@ class CrudeOilDewatering(Process):
         energy_use.set_rate(energy_carrier, energy_consumption.to("mmBtu/day"))
 
         # import/export
-        import_product = ImportExport()
-        import_product.set_import_from_energy(self.name, energy_use)
+        # import_product = field.import_export
+        self.set_import_from_energy(energy_use)
 
         # emissions
         emissions = self.emissions

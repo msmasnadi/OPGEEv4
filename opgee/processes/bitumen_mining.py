@@ -48,6 +48,7 @@ class BitumenMining(Process):
 
     def run(self, analysis):
         self.print_running_msg()
+        field = self.field
 
         # mass rate
         input = self.find_input_stream("oil")
@@ -89,8 +90,8 @@ class BitumenMining(Process):
         energy_use.set_rate(EN_ELECTRICITY, electricity_consumption.to("mmBtu/day"))
 
         # import/export
-        import_product = ImportExport()
-        import_product.set_import_from_energy(self.name, energy_use)
+        # import_product = field.import_export
+        self.set_import_from_energy(energy_use)
 
         # emissions
         emissions = self.emissions

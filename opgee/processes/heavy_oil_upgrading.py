@@ -29,6 +29,7 @@ class HeavyOilUpgrading(Process):
 
     def run(self, analysis):
         self.print_running_msg()
+        field = self.field
 
         if not self.all_streams_ready("oil for upgrading"):
             return
@@ -122,8 +123,8 @@ class HeavyOilUpgrading(Process):
         energy_use.set_rate(EN_ELECTRICITY, elect_import.to("mmBtu/day"))
 
         # import/export
-        import_product = ImportExport()
-        import_product.set_import_from_energy(self.name, energy_use)
+        # import_product = field.import_export
+        self.set_import_from_energy(energy_use)
 
         # emission
         emissions = self.emissions

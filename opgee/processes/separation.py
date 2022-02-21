@@ -49,6 +49,7 @@ class Separation(Process):
 
     def run(self, analysis):
         self.print_running_msg()
+        field = self.field
 
         # mass rate
         input = self.find_input_stream("crude oil")
@@ -81,8 +82,8 @@ class Separation(Process):
         energy_use.set_rate(energy_carrier, energy_consumption_sum)
 
         # import/export
-        import_product = ImportExport()
-        import_product.set_import_from_energy(self.name, energy_use)
+        # import_product = field.import_export
+        self.set_import_from_energy(energy_use)
 
         # emission rate
         emissions = self.emissions

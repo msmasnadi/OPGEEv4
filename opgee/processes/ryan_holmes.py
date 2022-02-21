@@ -77,8 +77,8 @@ class RyanHolmes(Process):
         energy_use.set_rate(EN_DIESEL, diesel_energy_consumption)
 
         # import/export
-        import_product = ImportExport()
-        import_product.set_import_from_energy(self.name, energy_use)
+        # import_product = field.import_export
+        self.set_import_from_energy(energy_use)
 
         # emissions
         emissions = self.emissions
