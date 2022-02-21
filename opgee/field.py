@@ -56,7 +56,8 @@ class Field(Container):
             boundary = stream.boundary
             if boundary:
                 if boundary not in known_boundaries:
-                    raise OpgeeException(f"{self}: {stream} boundary {boundary} is not a known boundary name. Must be one of {known_boundaries}")
+                    raise OpgeeException(
+                        f"{self}: {stream} boundary {boundary} is not a known boundary name. Must be one of {known_boundaries}")
 
                 other = boundary_dict.get(boundary)
                 if other:
@@ -101,7 +102,7 @@ class Field(Container):
 
         self.wellhead_tp = None
 
-        self.stp = None # TODO: eliminate uses of this in favor or opgee.core.STP
+        self.stp = None  # TODO: eliminate uses of this in favor or opgee.core.STP
 
         self.import_export = ImportExport()
 
@@ -114,7 +115,6 @@ class Field(Container):
         self.stp = TemperaturePressure(model.const("std-temperature"), model.const("std-pressure"))
 
         self.LNG_temp = model.const("LNG-temp")
-
 
         self.stab_column = self.attr("stabilizer_column")
         self.upgrader_type = self.attr("upgrader_type")
@@ -217,6 +217,7 @@ class Field(Container):
             self.check_balances()
 
             # TODO: Compute emissions from Exploration and Drilling
+            self.get_net_imported_product()
 
             # Perform aggregations
             self.get_energy_rates()
@@ -226,7 +227,7 @@ class Field(Container):
             if compute_ci:
                 self.compute_carbon_intensity(analysis)
             else:
-                self.carbon_intensity = None    # avoid reporting a stale result
+                self.carbon_intensity = None  # avoid reporting a stale result
 
     def reset(self):
         self.reset_streams()
@@ -238,7 +239,7 @@ class Field(Container):
 
     def reset_processes(self):
         for proc in self.processes():
-            proc.reset()    # also resets iteration
+            proc.reset()  # also resets iteration
 
     def reset_streams(self):
         for stream in self.streams():
@@ -354,7 +355,7 @@ class Field(Container):
 
             # See if first proc is inside or beyond the boundar, then make sure the rest are the same
             is_inside = procs[0] not in beyond
-            is_beyond = not is_inside               # improves readability
+            is_beyond = not is_inside  # improves readability
             for proc in procs:
                 if (is_inside and proc in beyond) or (is_beyond and proc not in beyond):
                     msgs.append(f"{agg} spans the {stream.boundary} boundary.")
@@ -630,7 +631,7 @@ class Field(Container):
                 else:
                     _collect(process_list, child)
 
-        processes = self.builtin_procs.copy()   # copy since we're appending to this list recursively
+        processes = self.builtin_procs.copy()  # copy since we're appending to this list recursively
         _collect(processes, self)
         return processes
 

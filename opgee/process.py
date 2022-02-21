@@ -22,6 +22,7 @@ from .utils import getBooleanXML
 from .drivers import get_efficiency
 from .combine_streams import combine_streams
 from .thermodynamics import component_MW
+from .import_export import ImportExport
 
 _logger = getLogger(__name__)
 
@@ -192,6 +193,7 @@ class Process(XmlInstantiable, AttributeMixin):
 
         self.energy = Energy()
         self.emissions = Emissions()
+        self.import_export = ImportExport()
 
         self.intermediate_results = None
 
@@ -278,6 +280,15 @@ class Process(XmlInstantiable, AttributeMixin):
         Return the energy consumption rates.
         """
         return self.energy.rates()
+
+    def get_net_imported_product(self):
+        """
+        Return the net imported product energy rate (water is mass rate)
+        :return:
+        """
+
+        return self.import_export.imports_exports()[ImportExport.NET_IMPORTS]
+
 
     #
     # end of pass through energy and emissions methods

@@ -8,6 +8,7 @@ from .attributes import AttrDefs, AttributeMixin
 from .core import XmlInstantiable
 from .emissions import Emissions
 from .energy import Energy
+from .import_export import ImportExport
 from .log import getLogger
 
 _logger = getLogger(__name__)
@@ -25,6 +26,7 @@ class Container(XmlInstantiable, AttributeMixin):
 
         self.emissions = Emissions()
         self.energy = Energy()
+        self.import_export = ImportExport()
         self.ghgs = 0.0
 
         self.aggs  = self.adopt(aggs)
@@ -116,3 +118,20 @@ class Container(XmlInstantiable, AttributeMixin):
                 data += child_data
 
         return data
+
+    def get_net_imported_product(self):
+        """
+        Return a energy rate (water is mass rate) of net imported product.
+        The positive value means the amount needs imported, while the negative value mean the amount needs exported
+
+        """
+        data = self.import_export.import_df
+        data[:] = 0
+
+        for child in self.children():
+            child_data = child.get_net_imported_product()
+            data += child_data
+
+        return data
+
+
