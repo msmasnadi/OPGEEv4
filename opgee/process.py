@@ -286,8 +286,9 @@ class Process(XmlInstantiable, AttributeMixin):
         Return the net imported product energy rate (water is mass rate)
         :return:
         """
+        net_import = ImportExport.NET_IMPORTS
 
-        return self.import_export.imports_exports()[ImportExport.NET_IMPORTS]
+        return self.import_export.imports_exports()[net_import]
 
     def set_import_from_energy(self, energy_use):
         imp_exp = self.field.import_export
