@@ -126,6 +126,7 @@ class Field(Container):
         self.transport_share_fuel = model.transport_share_fuel
         self.transport_parameter = model.transport_parameter
         self.transport_by_mode = model.transport_by_mode
+        self.upstream_CI = model.upstream_CI
 
         self.imported_gas_comp = model.imported_gas_comp
 
@@ -217,7 +218,6 @@ class Field(Container):
             self.check_balances()
 
             # TODO: Compute emissions from Exploration and Drilling
-            self.get_net_imported_product()
 
             # Perform aggregations
             self.get_energy_rates()
@@ -304,11 +304,32 @@ class Field(Container):
         :return: (pint.Quantity) carbon intensity in units of g CO2e/MJ
         """
         rates = self.emissions.rates(analysis.gwp)
-        emissions = rates.loc['GHG'].sum()
+        onsite_emissions = rates.loc['GHG'].sum()
+        imported_emissions = self.get_imported_emissions(self.get_net_imported_product())
+        total_emissions = onsite_emissions + imported_emissions
+
         energy = self.boundary_energy_flow_rate(analysis)
 
-        self.carbon_intensity = ci = (emissions / energy).to('grams/MJ')
+        self.carbon_intensity = ci = (total_emissions / energy).to('grams/MJ')
         return ci
+
+    def get_imported_emissions(self, net_import):
+        """
+        Calculate imported product emissions based on the upstream CI from GREET1_2016
+
+        :param net_import: (Pandas.Series) net import energy rates (water is mass rate)
+        :return: total emissions (gCO2)
+        """
+
+        imported_emissions = ureg.Quantity(0, "tonne/day")
+        for product, energy_rate in net_import.items():
+            if energy_rate.m <= 0:
+                continue
+            else:
+                imported_emissions += energy_rate * self.upstream_CI.loc[product, "EF"]
+
+        return imported_emissions
+
 
     def validate(self, analysis):
         """

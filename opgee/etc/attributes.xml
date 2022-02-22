@@ -175,17 +175,28 @@
         <Option desc="Dilution">Dilution</Option>
       </Options>
 
-
-
       <AttrDef name="upgrader_type" desc="Upgrader type" options="upgrader_type" type="str"/>
       <AttrDef name="gas_processing_path" desc="Associated gas processing path" options="gas_processing_path" type="str"/>
       <AttrDef name="FOR" unit="scf/bbl_oil" desc="Ratio of flaring to oil production" type="float">141.3</AttrDef>
       <AttrDef name="VOR" unit="scf/bbl_oil" desc="Ratio of venting to oil production" type="float">5.0</AttrDef>
-<!--      <AttrDef name="fraction_diluent" unit="frac" desc="Volume fraction of diluent in diluted crude" type="float">0.0</AttrDef>-->
       <AttrDef name="oil_processing_path" desc="Associated oil processing path" options="oil_processing_path" type="str"/>
       <AttrDef name="temperature_mined_bitumen" desc="Mined bitumen temperature" type="float" unit="degF">80.0</AttrDef>
       <AttrDef name="pressure_mined_bitumen" desc="Mined bitumen pressure" type="float" unit="psia">14.70</AttrDef>
       <AttrDef name="stabilizer_column" type="binary" desc="stabilizer colume">1</AttrDef>
+
+      <!-- Transportation Parameter -->
+      <AttrDef name="frac_transport_tanker" type="float" unit="frac" desc="fraction of product transported by ocean tanker">1.0</AttrDef>
+      <AttrDef name="frac_transport_barge" type="float" unit="frac" desc="fraction of product transported by barge">0.0</AttrDef>
+      <AttrDef name="frac_transport_pipeline" type="float" unit="frac" desc="fraction of product transported by pipeline">1.0</AttrDef>
+      <AttrDef name="frac_transport_rail" type="float" unit="frac" desc="fraction of product transported by rail">0.0</AttrDef>
+      <AttrDef name="frac_transport_truck" type="float" unit="frac" desc="fraction of product transported by truck">0.0</AttrDef>
+
+      <AttrDef name="transport_dist_tanker" type="float" unit="mile" desc="transportation distance by ocean tanker">5082.0</AttrDef>
+      <AttrDef name="transport_dist_barge" type="float" unit="mile" desc="transportation distance by barge">500.0</AttrDef>
+      <AttrDef name="transport_dist_pipeline" type="float" unit="mile" desc="transportation distance by pipeline">750.0</AttrDef>
+      <AttrDef name="transport_dist_rail" type="float" unit="mile" desc="transportation distance by rail">800.0</AttrDef>
+      <AttrDef name="transport_dist_truck" type="float" unit="mile" desc="transportation distance by truck">100.0</AttrDef>
+
 
       <!-- LandUse impacts -->
       <Options name="ecosystem_C_richness" default="Moderate">

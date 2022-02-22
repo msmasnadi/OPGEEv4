@@ -6,6 +6,7 @@ from ..log import getLogger
 from ..process import Process
 from ..stream import PHASE_GAS, Stream
 from .shared import get_gas_lifting_init_stream
+from ..import_export import NATURAL_GAS
 
 _logger = getLogger(__name__)
 
@@ -27,6 +28,10 @@ class GasPartition(Process):
         self.imported_gas_stream.set_rates_from_series(
             self.imported_fuel_gas_mass_fracs * ureg.Quantity(1, "tonne/day"),
             phase=PHASE_GAS)
+        self.fraction_remaining_gas_inj = field.attr("fraction_remaining_gas_inj")
+        self.natural_gas_reinjection = field.attr("natural_gas_reinjection")
+        self.gas_flooding = field.attr("gas_flooding")
+        self.flood_gas_type = field.attr("flood_gas_type")
         self.GLIR = field.attr("GLIR")
         self.oil_prod = field.attr("oil_prod")
         self.WOR = field.attr("WOR")
@@ -38,6 +43,7 @@ class GasPartition(Process):
 
     def run(self, analysis):
         self.print_running_msg()
+        field = self.field
 
         if not self.all_streams_ready("gas for gas partition"):
             return
@@ -70,40 +76,50 @@ class GasPartition(Process):
             self.field.save_process_data(methane_from_gas_lifting=gas_lifting.gas_flow_rate("C1"))
             return
 
-        gas_to_reinjection = self.find_output_stream("gas for gas reinjection compressor")
-        gas_to_reinjection.copy_flow_rates_from(input)
-        gas_to_reinjection.subtract_gas_rates_from(gas_lifting)
-
-        # exported gas can have negative flow rates which means the imported gas
         exported_gas = self.find_output_stream("gas for transmission")
+        exported_gas.copy_flow_rates_from(input)
+        exported_gas.subtract_gas_rates_from(gas_lifting)
+        exported_gas.set_tp(input_tp)
 
-        excluded = [s.strip() for s in getParam("OPGEE.ExcludeFromReinjectionEnergySummary").split(",")]
-        energy_sum = self.field.sum_process_energy(processes_to_exclude=excluded)
-        NG_energy_sum = energy_sum.get_rate(EN_NATURAL_GAS)
+        gas_to_reinjection = self.find_output_stream("gas for gas reinjection compressor")
+        if self.natural_gas_reinjection or (self.gas_flooding and self.flood_gas_type == "NG"):
+            gas_to_reinjection.copy_flow_rates_from(exported_gas)
+            gas_to_reinjection.multiply_flow_rates(self.fraction_remaining_gas_inj)
 
-        NG_LHV = self.gas.mass_energy_density(gas_to_reinjection)
-        is_gas_to_reinjection_empty = False
-        if NG_LHV.m == 0:
-            is_gas_to_reinjection_empty = True
-            NG_LHV = self.gas.mass_energy_density(self.imported_gas_stream)
+        gas_mass_rate = exported_gas.total_gas_rate()
+        gas_mass_energy_density = self.gas.mass_energy_density(exported_gas)
+        gas_LHV_rate = gas_mass_rate * gas_mass_energy_density
+        import_product = field.import_export
+        import_product.set_export(self.name, NATURAL_GAS, gas_LHV_rate)
 
-        NG_mass = NG_energy_sum / NG_LHV
-        NG_consumption_stream = Stream("NG_consump_stream", gas_to_reinjection.tp)
 
-        if is_gas_to_reinjection_empty:
-            NG_consumption_series = self.imported_fuel_gas_mass_fracs * NG_mass
-        else:
-            NG_consumption_series = self.gas.component_mass_fractions(
-                self.gas.component_molar_fractions(gas_to_reinjection)) * NG_mass
+        # excluded = [s.strip() for s in getParam("OPGEE.ExcludeFromReinjectionEnergySummary").split(",")]
+        # energy_sum = self.field.sum_process_energy(processes_to_exclude=excluded)
+        # NG_energy_sum = energy_sum.get_rate(EN_NATURAL_GAS)
+        #
+        # NG_LHV = self.gas.mass_energy_density(gas_to_reinjection)
+        # is_gas_to_reinjection_empty = False
+        # if NG_LHV.m == 0:
+        #     is_gas_to_reinjection_empty = True
+        #     NG_LHV = self.gas.mass_energy_density(self.imported_gas_stream)
+        #
+        # NG_mass = NG_energy_sum / NG_LHV
+        # NG_consumption_stream = Stream("NG_consump_stream", gas_to_reinjection.tp)
+        #
+        # if is_gas_to_reinjection_empty:
+        #     NG_consumption_series = self.imported_fuel_gas_mass_fracs * NG_mass
+        # else:
+        #     NG_consumption_series = self.gas.component_mass_fractions(
+        #         self.gas.component_molar_fractions(gas_to_reinjection)) * NG_mass
+        #
+        # NG_consumption_stream.set_rates_from_series(NG_consumption_series, PHASE_GAS)
+        #
+        # tot_exported_mass = gas_to_reinjection.total_flow_rate() - NG_consumption_stream.total_flow_rate()
+        # if tot_exported_mass.m >= 0:
+        #     exported_gas.copy_flow_rates_from(gas_to_reinjection)
+        #     exported_gas.subtract_gas_rates_from(NG_consumption_stream)
+        #     exported_gas.set_tp(input_tp)
+        #
+        # if is_gas_to_reinjection_empty is False and tot_exported_mass.m >= 0:
+        #     gas_to_reinjection.subtract_gas_rates_from(exported_gas)
 
-        NG_consumption_stream.set_rates_from_series(NG_consumption_series, PHASE_GAS)
-
-        tot_exported_mass = gas_to_reinjection.total_flow_rate() - NG_consumption_stream.total_flow_rate()
-        if tot_exported_mass.m >= 0:
-            exported_gas.copy_flow_rates_from(gas_to_reinjection)
-            exported_gas.subtract_gas_rates_from(NG_consumption_stream)
-            exported_gas.set_tp(input_tp)
-
-        if is_gas_to_reinjection_empty is False and tot_exported_mass.m >= 0:
-            gas_to_reinjection.subtract_gas_rates_from(exported_gas)
-        gas_to_reinjection.set_tp(input_tp)

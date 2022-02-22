@@ -20,7 +20,9 @@ class CrudeOilTransport(Process):
         self.oil = field.oil
         self.transport_share_fuel = field.transport_share_fuel.loc["Crude"]
         self.transport_parameter = field.transport_parameter[["Crude", "Units"]]
-        self.transport_by_mode = field.transport_by_mode.loc["Crude"]
+        self.frac_transport_mode = field.attrs_with_prefix("frac_transport_").rename("Fraction")
+        self.transport_dist = field.attrs_with_prefix("transport_dist_").rename("Distance")
+        self.transport_by_mode = self.frac_transport_mode.to_frame().join(self.transport_dist)
 
     def run(self, analysis):
         self.print_running_msg()

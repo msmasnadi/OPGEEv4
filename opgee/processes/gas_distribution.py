@@ -1,6 +1,7 @@
 from ..emissions import EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
+from ..import_export import NATURAL_GAS
 
 _logger = getLogger(__name__)
 
@@ -33,6 +34,12 @@ class GasDistribution(Process):
         gas_to_customer = self.find_output_stream("gas")
         gas_to_customer.copy_flow_rates_from(input)
         gas_to_customer.subtract_gas_rates_from(gas_fugitives)
+
+        gas_mass_rate = gas_to_customer.total_gas_rate()
+        gas_mass_energy_density = self.gas.mass_energy_density(gas_to_customer)
+        gas_LHV_rate = gas_mass_rate * gas_mass_energy_density
+        import_product = field.import_export
+        import_product.set_export(self.name, NATURAL_GAS, gas_LHV_rate)
 
         # emissions
         emissions = self.emissions

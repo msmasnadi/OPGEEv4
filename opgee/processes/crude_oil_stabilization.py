@@ -6,7 +6,6 @@ from ..process import Process
 from ..stream import Stream, PHASE_LIQUID, PHASE_GAS
 from .shared import get_energy_carrier
 from .compressor import Compressor
-from ..import_export import ImportExport
 
 _logger = getLogger(__name__)
 
@@ -92,7 +91,6 @@ class CrudeOilStabilization(Process):
         energy_use.set_rate(energy_carrier, energy_consumption.to("mmBtu/day"))
 
         # import/export
-        # import_product = field.import_export
         self.set_import_from_energy(energy_use)
 
         # emission rate
