@@ -305,7 +305,8 @@ class Field(Container):
         """
         rates = self.emissions.rates(analysis.gwp)
         onsite_emissions = rates.loc['GHG'].sum()
-        imported_emissions = self.get_imported_emissions(self.get_net_imported_product())
+        series = self.get_net_imported_product()
+        imported_emissions = self.get_imported_emissions(series)
         total_emissions = onsite_emissions + imported_emissions
 
         energy = self.boundary_energy_flow_rate(analysis)

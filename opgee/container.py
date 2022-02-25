@@ -125,7 +125,8 @@ class Container(XmlInstantiable, AttributeMixin):
         The positive value means the amount needs imported, while the negative value mean the amount needs exported
 
         """
-        data = self.import_export.imports_exports()[ImportExport.NET_IMPORTS]
+        imp_exp = self.import_export.imports_exports()
+        data = imp_exp[ImportExport.NET_IMPORTS]
 
         for child in self.children():
             child_data = child.get_net_imported_product()

@@ -139,8 +139,13 @@ class ImportExport(OpgeeObject):
 
         :return: (pandas.DataFrame) total imports, exports, and net imports by resource
         """
+        def _sum(series, name):
+            from . import ureg
+            # Sum of an empty series is returned as int(0); need to initialize units
+            return series.sum() if len(series) > 0 else ureg.Quantity(0.0, self.unit_dict[name])
+
         def _totals(df):
-            totals = {name : df[name].sum() for name in df.columns}
+            totals = {name : _sum(df[name], name) for name in df.columns}
             return pd.Series(totals)
 
         imports = _totals(self.import_df)
