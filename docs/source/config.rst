@@ -10,8 +10,7 @@ The ``opg`` script relies on a configuration file to:
 The configuration file and variables are described below.
 
 .. seealso::
-   Usage of the ``config`` sub-command is described on the :ref:`opg config <config>`
-   page. See :doc:`opgee.config` for documentation of the API to the configuration system.
+   See :doc:`opgee.config` for documentation of the API to the configuration system.
 
    ``opgee`` uses the Python :mod:`ConfigParser` package. See the documentation
    there for more details.

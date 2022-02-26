@@ -53,21 +53,31 @@ The built-in model XML is organized into the following files:
   ``AttrDef``, ``ClassAttrs``, ``Options``, ``Option``, and ``Requires``.
 
 
-Avoiding unnecessary dependencies / maximizing flexibility
----------------------------------------------------------------
+.. |br| raw:: html
+
+   <br />
+
+Minimize explicit dependencies to maximize flexibility
+--------------------------------------------------------
 
 To facilitate customization of the built-in model we try to adhere to the following
 principles:
 
-1. **Do not hardcode dependencies among processes.** Reference streams by their
-   contents, not by an expected source or destination, as the latter may break
-   if a user modifies the process network.
+1. **Do not hardcode dependencies among processes.** |br|
+   Reference streams by their contents, not by an expected source or destination, as
+   the latter may break if a user modifies the process network. Use the ``Process`` methods
+   :py:func:`~opgee.process.Process.find_input_stream()`,
+   :py:func:`~opgee.process.Process.find_input_streams()`,
+   :py:func:`~opgee.process.Process.find_output_stream()`, and
+   :py:func:`~opgee.process.Process.find_output_streams()`.
 
-2. **Keep stream contents as generic as possible.** Avoid names that encode the
-   endpoints of the stream, using instead as generic a name for the contents as
-   possible.
+2. **Keep stream contents as generic as possible.** |br|
+   Avoid names that encode the endpoints of the stream, using instead as generic a name
+   for the contents as possible. Use content names that describe the main contents of the
+   stream, like "crude oil" or "dehydrated gas". **Do not** include the name of the source or
+   destination processes in the contents.
 
-3. **Store data that needs to be shared with other processes in the ``Field`` object.**
-   Use the API provided by ``Field``: the methods ``save_process_data()`` and ``get_process_data()``.
-
+3. **Store data that needs to be shared with other processes in the Field instance.** |br|
+   Use the API provided by ``Field`` methods :py:func:`~opgee.field.Field.save_process_data()`
+   and :py:func:`~opgee.field.Field.get_process_data()`.
 
