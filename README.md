@@ -4,59 +4,46 @@
 
 # OPGEE v4
 
-`opgee` is a Python package that provides classes, functions, and scripts that implement the OPGEE model.
+`opgee` is a Python package that provides classes, functions, scripts, and data that implement the OPGEE model.
 
 ## Core functionality
 
-* TBD
+OPGEEv4 is a Python implementation of the Excel-based OPGEEv3. Version 4, however, is implemented
+as a more general platform supporting the creation of connected processes and streams that define
+an ordered system of processing steps and flows among processes. The functionality of the processes
+is defined by subclasses of a generic `Process` class, instances of which are created as defined
+in the input XML file.
+
+The main features of OPGEEv4 are:
+
+* Ability to define oil and gas fields and all their attendant processes and streams
+
+* Ordered execution of processes, allowing for cyclic processes
+
+* Tracking of energy use, including imports and exports to/from the field
+
+* Tracking of greenhouse gas emissions
+
+* Calculation of carbon intensity (CI) for oil or gas
+
+* Browser-based graphical user interface (GUI) to view the process and stream network, run the model, modify parameters, and view results
+
+* Graphical display of energy use and emissions by process or aggregation of processes
+
+* Ability to customize many aspects of the system to add new flows to streams, new processes and aggregates, and more.
+
+* Support for Monte Carlo simulation
 
 ## How do I get set up?
 
-* Eventually, see http://opgee.readthedocs.io/en/latest/install.html. But that's not hosted yet.
+* Documentation will be available at http://opgee.readthedocs.io/en/latest/install.html once the OPGEEv4 repo becomes public.
 
 ## Who do I talk to?
 
 * TBD
 
-## To Do
-* Finish developing facility merge user model/attribute defs with default (or other) defs.
-
-* Handle Fuel Gas Imports
-  * Exchanges of energy carriers from outside system boundary
-  * Add a Natural Gas Pipeline process: exports generate a credit (depends on functional unit)
-
-
-* Design
-    * How best to show results
-
-* Rich
-    * Smart defaults
-    * MCS
-    * GUI development
-        * Graphing
-        * dynamic changes to settings -> re-run
-        * can we keep display mostly consistent between structures?
-    * Save and reload (.opg file format)
-
-* Adam
-    * Legal conversation: licensing / flavor of open source
-        * Keeping Rich's code open source
-
-* Wennan
-    * outstanding procecesses
-    * better treatment of fugitives
-    * incorporate external developments
-        * Jeff's fugitives model
-        * John Chan's flaring model
-    * streams that leave system boundary
-    * generic mass balance check
-    * documentation
-    * TODOs 
-    
-* Someday maybe
-    * Conversion of R code that builds the database into something managable
-    * Creation XML from 300 fields in OPGEEv3
-
 # Release Notes
 
-## Version 4.0.0-alpha.0 (xx-xxx-2021)
+## Version 4.0.0-alpha.0 (2022-03-01)
+
+First alpha version made public. Still testing against Excel version and adding essential features.
