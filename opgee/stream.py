@@ -438,11 +438,11 @@ class Stream(XmlInstantiable, AttributeMixin):
 
         # TODO: why does this happen? Ignoring this silently seems inappropriate
         if not tp:
-            _logger.warn("Called Stream.set_tp() with None")
+            _logger.warning("Called Stream.set_tp() with None")
             return
 
         if tp.P.m == 0:
-            _logger.warn("Called Stream.set_tp() with zero pressure")
+            _logger.warning("Called Stream.set_tp() with zero pressure")
             return
 
         self.tp = copy(tp)
