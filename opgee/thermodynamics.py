@@ -597,11 +597,13 @@ class Oil(AbstractSubstance):
 
     def volume_flow_rate(self, stream, oil_specific_gravity, gas_specific_gravity, gas_oil_ratio):
         """
+        TODO: NEEDS DOC
 
         :param stream:
         :param oil_specific_gravity:
         :param gas_specific_gravity:
         :param gas_oil_ratio:
+
         :return:(float) oil volume flow rate (unit = bbl/day)
         """
 
@@ -613,10 +615,12 @@ class Oil(AbstractSubstance):
 
     def mass_energy_density(self, API=None, use_LHV=True, with_unit=True):
         """
+        TODO: NEEDS DOC
 
         :param API:
         :param use_LHV: whether to use LHV or HHV
         :param with_unit: (float) lower or higher heating value (unit = btu/lb)
+
         :return: heating value mass
         """
         # Oil lower heating value correlation
@@ -631,6 +635,12 @@ class Oil(AbstractSubstance):
     # TODO: used only in tests
     def volume_energy_density(self, stream, oil_specific_gravity, gas_specific_gravity, gas_oil_ratio):
         """
+        TODO: NEEDS DOC
+
+        :param stream:
+        :param oil_specific_gravity:
+        :param gas_specific_gravity:
+        :param gas_oil_ratio:
 
         :return:(float) volume energy density (unit = mmBtu/bbl)
         """
@@ -648,6 +658,7 @@ class Oil(AbstractSubstance):
         Calculate the energy flow rate in "mmbtu/day" in LHV.
 
         :stream: (opgee.Stream) the `Stream` to consider
+
         :return:(pint.Quantity) energy flow rate in "mmBtu/day"
         """
         mass_flow_rate = stream.hydrocarbon_rate(PHASE_LIQUID)
@@ -1102,8 +1113,10 @@ class Gas(AbstractSubstance):
     # TODO: used only in tests
     def volume_energy_density(self, stream):
         """
+        TODO: NEEDS DOC
 
         :param stream:
+
         :return:(float) gas volume energy density (unit = btu/scf)
         """
         mass_flow_rate = stream.gas_flow_rates()  # pandas.Series
@@ -1118,9 +1131,11 @@ class Gas(AbstractSubstance):
 
     def energy_flow_rate(self, stream):
         """
+        Calculate the energy flow rate in "mmbtu/day" in LHV.
 
-        :param stream:
-        :return: (float) energy flow rate (unit = mmBtu/day)
+        :stream: (opgee.Stream) the `Stream` to consider
+
+        :return:(pint.Quantity) energy flow rate in "mmBtu/day"
         """
         total_mass_flow_rate = stream.total_gas_rate()
         mass_energy_density = self.mass_energy_density(stream)
@@ -1131,7 +1146,7 @@ class Gas(AbstractSubstance):
 
 class Water(AbstractSubstance):
     """
-    water class includes the method to calculate water density, water volume flow rate, etc.
+    Water class includes the method to calculate water density, water volume flow rate, etc.
     """
 
     # Required for the lookup steam table, which has a max of 2 digits.

@@ -4,9 +4,15 @@
 
 # OPGEE v4
 
-`opgee` is a Python package that provides classes, functions, scripts, and data that implement the OPGEE model.
+OPGEEv4 is implemented as the `opgee` Python package, which provides classes, functions, 
+scripts, and data that implement the OPGEE model.
 
 ## Core functionality
+
+OPGEEv4 is a tool for translating a physical description of a set of oil and gas fields and their 
+constituent conversion and transport processes into a runnable LCA model. OPGEE reads a model 
+description file, written in XML format, which drives the instantiation of classes representing 
+each LCA component, connecting these as required to implement the corresponding model.
 
 OPGEEv4 is a Python implementation of the Excel-based OPGEEv3. Version 4, however, is implemented
 as a more general platform supporting the creation of connected processes and streams that define
