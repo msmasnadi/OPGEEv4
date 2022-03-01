@@ -2,7 +2,7 @@
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
 
 	<Analysis name="test_gas_path_2">
-		<A name="functional_unit">oil</A>
+		<A name="functional_unit">gas</A>
 		<A name="energy_basis">LHV</A>
 	  <A name="GWP_horizon">100</A>
 	  <A name="GWP_version">AR5</A>
@@ -280,7 +280,7 @@
 			<Contains>gas fugitives</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilStorage" dst="CrudeOilTransport" name="crude oil storage to crude oil transport" boundary = "Production">
+		<Stream src="CrudeOilStorage" dst="CrudeOilTransport" name="crude oil storage to crude oil transport">
 			<Contains>oil for transport</Contains>
 		</Stream>
 
@@ -509,7 +509,7 @@
 			<Contains>gas fugitives</Contains>
 		</Stream>
 
-		<Stream src="GasPartition" dst="TransmissionCompressor" name="gas partition to transmission compressor">
+		<Stream src="GasPartition" dst="TransmissionCompressor" name="gas partition to transmission compressor" boundary = "Production">
 			<Contains>gas for transmission</Contains>
 		</Stream>
 
