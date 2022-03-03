@@ -329,9 +329,7 @@ class Field(Container):
         for product, energy_rate in net_import.items():
             energy_rate = ureg.Quantity(energy_rate, "mmbtu/day") \
                 if isinstance(energy_rate, pint.Quantity) is False else energy_rate
-            if energy_rate.m <= 0:
-                continue
-            else:
+            if energy_rate.m > 0:
                 imported_emissions += energy_rate * self.upstream_CI.loc[product, "EF"]
 
         return imported_emissions
