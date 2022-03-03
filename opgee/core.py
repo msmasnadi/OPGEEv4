@@ -274,7 +274,7 @@ class TemperaturePressure(OpgeeObject):
 
     def set(self, T=None, P=None):
         if T is None and P is None:
-            _logger.warn("Tried to set TemperaturePressure with both values None")
+            _logger.warning("Tried to set TemperaturePressure with both values None")
             return
 
         if T is not None:

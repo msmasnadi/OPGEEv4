@@ -23,7 +23,7 @@ from opgee.version import VERSION
 # -- Project information -----------------------------------------------------
 
 project = 'OPGEE'
-copyright = '2021, Adam Brandt, Richard Plevin'
+copyright = '2022, Adam Brandt, Richard Plevin'
 author = 'Adam Brandt, Richard Plevin'
 
 # The short X.Y version.

@@ -40,6 +40,7 @@ Application Programming Interface (API)
    :maxdepth: 1
 
    api
+   guidelines
 
 Indices and tables
 ==================
