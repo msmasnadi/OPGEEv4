@@ -148,15 +148,3 @@ def test_process_data(procB, name, value):
 def test_bad_process_data(procB):
     with pytest.raises(OpgeeException, match='Process data dictionary does not include .*'):
         procB.field.get_process_data("nonexistent-data-key", raiseError=True)
-
-
-def test_combust_stream(procB):
-    from opgee.core import TemperaturePressure
-    stream = Stream("test_stream", TemperaturePressure(ureg.Quantity(100, "degF"),
-                                                       ureg.Quantity(100, "psia")))
-    stream.set_gas_flow_rate("C1", ureg.Quantity(10, "tonne/day"))
-    stream.set_gas_flow_rate("C2", ureg.Quantity(20, "tonne/day"))
-    stream.set_gas_flow_rate("N2", ureg.Quantity(15, "tonne/day"))
-
-    result = procB.combust_stream(stream)
-    assert result.gas_flow_rate("CO2") == ureg.Quantity(85.97773950086344, "tonne/day")

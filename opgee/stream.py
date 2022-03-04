@@ -549,7 +549,6 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.initialized = True
         self.components[PHASE_GAS] -= stream.components[PHASE_GAS]
 
-    # TODO: not yet used or tested
     def add_combustion_CO2_from(self, stream):
         """
         Compute the amount of CO2 from the combustible components in `stream`

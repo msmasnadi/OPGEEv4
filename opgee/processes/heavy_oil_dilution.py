@@ -54,12 +54,10 @@ class HeavyOilDilution(Process):
     def impute(self):
 
         input_streams = self.find_input_streams("oil for dilution")
-
-        # TODO: reliance on stream names is very brittle. Look for stream content instead.
-        if "bitumen mining to heavy oil dilution" in input_streams:
-            input_bitumen = input_streams["bitumen mining to heavy oil dilution"]
+        bitumen_stream = self.find_input_stream("bitumen for dilution")
+        if bitumen_stream is not None:
             bitumen_mass_rate = self.get_bitumen_mass_rate()
-            input_bitumen.set_liquid_flow_rate("oil", bitumen_mass_rate.to("tonne/day"), tp=self.bitumen_tp)
+            bitumen_stream.set_liquid_flow_rate("oil", bitumen_mass_rate.to("tonne/day"), tp=self.bitumen_tp)
 
         input = self.find_input_streams("oil for dilution", combine=True)
 

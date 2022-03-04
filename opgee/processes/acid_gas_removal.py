@@ -95,11 +95,10 @@ class AcidGasRemoval(Process):
         condenser_thermal_load = ureg.Quantity(max(0.0, corr_result_df["Condenser"] * gas_multiplier), "kW")
         cooler_thermal_load = ureg.Quantity(max(0.0, corr_result_df["Cooler"] * gas_multiplier), "kW")
 
-        # TODO: Wennan, are these variables needed? They are currently unused.
-        reboiler_fuel_use = reboiler_heavy_duty * self.eta_reboiler_AGR
-        pump_duty = ureg.Quantity(max(0, corr_result_df["Pump"] * gas_multiplier), "kW")
-        condenser_energy_consumption = predict_blower_energy_use(self, condenser_thermal_load)
-        amine_cooler_energy_consumption = predict_blower_energy_use(self, cooler_thermal_load)
+        # reboiler_fuel_use = reboiler_heavy_duty * self.eta_reboiler_AGR
+        # pump_duty = ureg.Quantity(max(0, corr_result_df["Pump"] * gas_multiplier), "kW")
+        # condenser_energy_consumption = predict_blower_energy_use(self, condenser_thermal_load)
+        # amine_cooler_energy_consumption = predict_blower_energy_use(self, cooler_thermal_load)
 
         overall_compression_ratio = ureg.Quantity(feed_gas_press, "psia") / input.tp.P
         compressor_energy_consumption, temp, _ = \

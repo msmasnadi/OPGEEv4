@@ -7,7 +7,7 @@ from .core import elt_name, instantiate_subelts, dict_from_list, TemperaturePres
 from .error import (OpgeeException, OpgeeStopIteration, OpgeeMaxIterationsReached,
                     OpgeeIterationConverged, ModelValidationError, ZeroEnergyFlowError)
 from .log import getLogger
-from .process import Process, Aggregator, Environment, Reservoir, SurfaceSource, ExternalSupply, Customer
+from .process import Process, Aggregator, Environment, Reservoir, SurfaceSource, Customer
 from .process_groups import ProcessChoice
 from .stream import Stream
 from .thermodynamics import Oil, Gas, Water
@@ -75,10 +75,8 @@ class Field(Container):
         self.reservoir = Reservoir()
         self.customer = Customer()
         self.surface_source = SurfaceSource()
-        self.external_supply = ExternalSupply()
 
-        self.builtin_procs = [self.environment, self.reservoir, self.surface_source,
-                              self.external_supply, self.customer]
+        self.builtin_procs = [self.environment, self.reservoir, self.surface_source, self.customer]
         all_procs = self.collect_processes()  # includes reservoir and environment
         self.process_dict = self.adopt(all_procs, asDict=True)
 
@@ -216,8 +214,6 @@ class Field(Container):
             self.run_processes(analysis)
 
             self.check_balances()
-
-            # TODO: Compute emissions from Exploration and Drilling
 
             # Perform aggregations
             self.get_energy_rates()

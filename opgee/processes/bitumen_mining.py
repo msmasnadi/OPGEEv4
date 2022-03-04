@@ -103,7 +103,7 @@ class BitumenMining(Process):
 
     def impute(self):
 
-        input_dilution = self.find_output_stream("oil for dilution")
+        input_dilution = self.find_output_stream("bitumen for dilution")
 
         oil_mass_rate = input_dilution.liquid_flow_rate("oil")
         input = self.find_input_stream("oil")
