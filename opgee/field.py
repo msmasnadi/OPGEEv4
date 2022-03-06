@@ -6,7 +6,7 @@ from .core import elt_name, instantiate_subelts, dict_from_list, TemperaturePres
 from .error import (OpgeeException, OpgeeStopIteration, OpgeeMaxIterationsReached,
                     OpgeeIterationConverged, ModelValidationError, ZeroEnergyFlowError)
 from .log import getLogger
-from .process import Process, Aggregator, Environment, Reservoir, SurfaceSource, ExternalSupply, Customer
+from .process import Process, Aggregator, Environment, Reservoir, SurfaceSource, ExternalSupply
 from .process_groups import ProcessChoice
 from .stream import Stream
 from .thermodynamics import Oil, Gas, Water
@@ -51,6 +51,7 @@ class Field(Container):
 
         self.known_boundaries = known_boundaries = set(getParamAsList('OPGEE.Boundaries'))
 
+        # TBD: deprecated in favor of subsequent loop over procs
         # Save references to boundary streams by name; fail if duplicate definitions are found.
         for stream in streams:
             boundary = stream.boundary
@@ -67,17 +68,35 @@ class Field(Container):
                 boundary_dict[boundary] = stream
                 _logger.debug(f"{self}: {stream} defines boundary '{boundary}'")
 
+        # TBD: use this instead
+        # Save references to boundary processes by name; fail if duplicate definitions are found.
+        for proc in procs:
+            boundary = proc.boundary
+            if boundary:
+                if boundary not in known_boundaries:
+                    raise OpgeeException(
+                        f"{self}: {proc} boundary {boundary} is not a known boundary name. Must be one of {known_boundaries}")
+
+                other = boundary_dict.get(boundary)
+                if other:
+                    raise OpgeeException(
+                        f"{self}: Duplicate declaration of boundary '{boundary}' in processes {proc} and {other}")
+
+                boundary_dict[boundary] = proc
+                _logger.debug(f"{self}: {proc} defines boundary '{boundary}'")
+
         self.process_choice_dict = process_choice_dict
 
         # Each Field has one of these built-in processes
         self.environment = Environment()
         self.reservoir = Reservoir()
-        self.customer = Customer()
+
+        # deprecated
         self.surface_source = SurfaceSource()
         self.external_supply = ExternalSupply()
 
-        self.builtin_procs = [self.environment, self.reservoir, self.surface_source,
-                              self.external_supply, self.customer]
+        self.builtin_procs = [self.environment, self.reservoir,
+                              self.surface_source, self.external_supply] # deprecated
         all_procs = self.collect_processes()  # includes reservoir and environment
         self.process_dict = self.adopt(all_procs, asDict=True)
 
@@ -93,7 +112,7 @@ class Field(Container):
         self.carbon_intensity = ureg.Quantity(0.0, "g/MJ")
         self.procs_beyond_boundary = None
 
-        self.graph = self.cycles = self.run_order = None
+        self.graph = self.cycles = None
 
         self.process_data = {}
 
@@ -105,6 +124,23 @@ class Field(Container):
         self.stp = None  # TODO: eliminate uses of this in favor or opgee.core.STP
 
         self.import_export = ImportExport()
+
+    def _check_run_after_procs(self):
+        """
+        For procs tagged run-after="True", allow outputs only to other "run-after"
+        procs or to Environment.
+        """
+        def _run_after_ok(proc):
+            for dst in proc.successors():
+                if not (dst.run_after or isinstance(dst, Environment)):
+                    return False
+            return True
+
+        bad = [proc for proc in self.processes() if proc.run_after and not _run_after_ok(proc)]
+        if bad:
+            raise OpgeeException(f"Processes {bad} are tagged 'run-after=True' but have output streams to non run-after procs other than Environment")
+
+        return True
 
     def _after_init(self):
         self.check_attr_constraints(self.attr_dict)
@@ -136,17 +172,18 @@ class Field(Container):
         self.steam_generator = SteamGenerator(self)
 
         self.resolve_process_choices()
+        self._check_run_after_procs()       # TBD: write test
 
         # we use networkx to reason about the directed graph of Processes (nodes)
         # and Streams (edges).
         self.graph = g = self._connect_processes()
 
         self.cycles = cycles = list(nx.simple_cycles(g))
-        self.run_order = None if self.cycles else nx.topological_sort(g)
 
         if cycles:
             _logger.debug(f"Field '{self.name}' has cycles: {cycles}")
 
+        # TBD: document the "_after_init" processing order
         for iterator in [self.processes(), self.streams()]:
             for obj in iterator:
                 obj._after_init()
@@ -204,6 +241,7 @@ class Field(Container):
         if self.is_enabled():
             _logger.debug(f"Running '{self}'")
 
+            # TBD: revise to use boundary_process()
             # Cache the sets of processes within and outside the current boundary. We use
             # this information in compute_carbon_intensity() to ignore irrelevant procs.
             boundary_stream = self.boundary_stream(analysis)
@@ -254,6 +292,7 @@ class Field(Container):
         for p in self.processes():
             p.check_balances()
 
+    # TBD: deprecated in favor of boundary_process, below
     def boundary_stream(self, analysis) -> Stream:
         """
         Return the currently chosen boundary stream, per the `Analysis` instance.
@@ -264,6 +303,17 @@ class Field(Container):
             return self.boundary_dict[analysis.boundary]
         except KeyError:
             raise OpgeeException(f"{self} does not declare boundary stream '{analysis.boundary}'.")
+
+    def boundary_process(self, analysis) -> Process:
+        """
+        Return the currently chosen boundary process, per the `Analysis` instance.
+
+        :return: (opgee.Process) the currently chosen boundary process
+        """
+        try:
+            return self.boundary_dict[analysis.boundary]
+        except KeyError:
+            raise OpgeeException(f"{self} does not declare boundary process '{analysis.boundary}'.")
 
     def defined_boundaries(self):
         """
@@ -283,6 +333,11 @@ class Field(Container):
         boundary_stream = self.boundary_stream(analysis)
         boundary_name = boundary_stream.boundary
 
+        boundary_proc = self.boundary_process(analysis)
+        boundary_name = boundary_proc.boundary
+
+        # TBD: revise to find and sum input streams carrying functional unit
+        # TBD: maybe combine the streams into one and then just grab oil or gas?
         obj = self.oil if analysis.fn_unit == 'oil' else self.gas
         energy = obj.energy_flow_rate(boundary_stream)
 
@@ -347,6 +402,7 @@ class Field(Container):
         :raises ModelValidationError: raised if any validation condition is violated.
         """
 
+        # TBD: revise this to be based on self.boundary_process(analysis)
         # Cycles cannot span the current boundary. Test this by checking that the boundary
         # stream's src_proc and dst_proc are not in the same cycle. (N.B. __init__ evaluates
         # and stores cycles.)
@@ -424,12 +480,13 @@ class Field(Container):
 
     def _compute_graph_sections(self):
         """
-        Divide the nodes of ``self.graph`` into three disjoint sets:
+        Divide the nodes of ``self.graph`` into four disjoint sets:
         1. Nodes neither in cycle nor dependent on cycles
         2. Nodes in cycles
         3. Nodes dependent on cycles
+        4. Nodes tagged "run-after=True" in the XML, sorted topologically
 
-        :return: (3-tuple of sets of Processes)
+        :return: (4-tuple of sets of Processes)
         """
         processes = self.processes()
         cycles = self.cycles
@@ -439,14 +496,18 @@ class Field(Container):
 
         if cycles:
             for process in processes:
-                if process not in procs_in_cycles and self._depends_on_cycle(process):
+                if (not isinstance(process, Environment) and # exclude since hard-coded as run_after=True
+                        process not in procs_in_cycles and
+                        self._depends_on_cycle(process)):
                     cycle_dependent.add(process)
 
-        cycle_independent = set(processes) - procs_in_cycles - cycle_dependent
-        return cycle_independent, procs_in_cycles, cycle_dependent
+        run_afters = {process for process in processes if process.run_after}
+
+        cycle_independent = set(processes) - procs_in_cycles - cycle_dependent - run_afters
+        return cycle_independent, procs_in_cycles, cycle_dependent, run_afters
 
     def run_processes(self, analysis):
-        cycle_independent, procs_in_cycles, cycle_dependent = self._compute_graph_sections()
+        cycle_independent, procs_in_cycles, cycle_dependent, run_afters = self._compute_graph_sections()
 
         # helper function
         def run_procs_in_order(processes):
@@ -504,6 +565,9 @@ class Field(Container):
 
         # run all processes dependent on cycles, which are now complete
         run_procs_in_order(cycle_dependent)
+
+        # finally, run all "run-after=True" procs, in sort order
+        run_procs_in_order(run_afters)
 
     def _connect_processes(self):
         """
@@ -597,8 +661,8 @@ class Field(Container):
         streams = [s for s in self.streams() if s.has_exogenous_data]
         return streams
 
-    def set_extend(self, extend):
-        self.extend = extend
+    def set_extend(self, value):
+        self.extend = getBooleanXML(value)
 
     def set_modifies(self, modifies):
         self.modifies = modifies
@@ -631,8 +695,8 @@ class Field(Container):
                     streams=streams, group_names=group_names,
                     process_choice_dict=process_choice_dict)
 
-        obj.set_enabled(getBooleanXML(attrib.get('enabled', '1')))
-        obj.set_extend(getBooleanXML(attrib.get('extend', '0')))
+        obj.set_enabled(attrib.get('enabled', '1'))
+        obj.set_extend(attrib.get('extend', '0'))
         obj.set_modifies(attrib.get('modifies'))
 
         return obj

@@ -205,7 +205,9 @@
       <xs:attribute name='extend' default='0' type='xs:boolean'/>
       <xs:attribute name='impute-start' default='0' type='xs:boolean'/>
       <xs:attribute name='cycle-start' default='0' type='xs:boolean'/>
+      <xs:attribute name="boundary" type='xs:string'/>
       <xs:attribute name='delete' type='xs:boolean'/>
+      <xs:attribute name='after' type='xs:boolean'/>  <!-- run this process after "normal" processing completes -->
     </xs:complexType>
 	</xs:element>
 

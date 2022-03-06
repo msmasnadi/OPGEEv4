@@ -55,3 +55,6 @@ def test_process_loop():
     analysis = process_loop_model.get_analysis('test')
     field = analysis.get_field('test')
     field.run(analysis, compute_ci=False)
+
+
+# TBD: add tests that no elements of cycle are tagged run-after=True in XML

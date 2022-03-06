@@ -21,7 +21,7 @@
 		<Process class="StorageWell"/>
 		<Process class="StorageSeparator"/>
 		<Process class="PostStorageCompressor"/>
-		<Process class="Customer"/>
+		<Process class="After"/>
 
         <Stream src="BoundaryBefore" dst="TransmissionCompressor" name="before to transmission compressor" boundary="Production">
             <Component name="N2" phase="gas">25.7</Component>
@@ -103,10 +103,9 @@
 			<Contains>gas fugitives</Contains>
 		</Stream>
 
-		<Stream src="GasDistribution" dst="Customer" name="gas distribution to customer">
+		<Stream src="GasDistribution" dst="After" name="gas distribution to customer">
 			<Contains>gas</Contains>
 		</Stream>
-
 
     </Field>
 

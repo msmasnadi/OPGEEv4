@@ -136,7 +136,7 @@ class ResultsPane(OpgeePane):
                 return _zero_flow_at_boundary_msg
 
             fn_unit = analysis.fn_unit.title()
-            boundary_stream = field.boundary_stream(analysis)
+            boundary_stream = field.boundary_stream(analysis)   # TBD: review to use field.boundary_process(analysis)
             beyond = boundary_stream.beyond_boundary()
 
             # Show results for top-level aggregators and procs for the selected field that are within the boundary

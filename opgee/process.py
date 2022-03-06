@@ -170,18 +170,23 @@ class Process(XmlInstantiable, AttributeMixin):
     # the processes that have set iteration values
     iterating_processes = []
 
-    def __init__(self, name, desc=None, attr_dict=None, cycle_start=False, impute_start=False):
+    def __init__(self, name, desc=None, attr_dict=None, cycle_start=False, impute_start=False,
+                 boundary=None):
         name = name or self.__class__.__name__
         super().__init__(name)
 
         self.attr_dict = attr_dict or {}
         self.attr_defs = AttrDefs.get_instance()
 
+        self.boundary = boundary    # the name of the boundary this Process defines, or None
+
         self._model = None  # @property "model" caches model here after first lookup
 
         self.desc = desc or name
         self.impute_start = getBooleanXML(impute_start)
         self.cycle_start = getBooleanXML(cycle_start)
+
+        self.run_after = False  # whether to run this process after normal processing completes
 
         self.extend = False
         self.field = None  # the Field we're part of, set on first lookup
@@ -217,6 +222,54 @@ class Process(XmlInstantiable, AttributeMixin):
         self.energy.reset()
         self.emissions.reset()
         self.reset_iteration()
+
+    def set_run_after(self, value):
+        self.run_after = value
+
+    def within_boundary(self):
+        """
+        If `self` is a boundary Process, return the list of processes upstream of the boundary.
+        The boundary Process must not be in a cycle.
+        """
+        if self.boundary is None:
+            raise OpgeeException(f"within_boundary: '{self}' is not a boundary process].")
+
+        visited = dict()
+
+        def _visit(proc):
+            if proc is None or visited.get(id(proc), False):
+                return
+
+            visited[id(proc)] = proc
+
+            for p in proc.predecessors():
+                _visit(p)
+
+        _visit(self)
+        return set(visited)
+
+    def beyond_boundary(self):
+        """
+        If `self` is a boundary Process, return the list of processes beyond the boundary.
+        The boundary Process must not be in a cycle.
+        """
+        if self.boundary is None:
+            raise OpgeeException(f"beyond_boundary: '{self}' is not a boundary process.")
+
+        visited = dict()
+
+        def _visit(proc):
+            if proc is None or visited.get(id(proc), False):
+                return
+
+            visited[id(proc)] = proc
+
+            for p in proc.successors():
+                _visit(p)
+
+        _visit(self)
+        return set(visited)
+
 
     #
     # Pass-through convenience methods for energy and emissions
@@ -786,16 +839,20 @@ class Process(XmlInstantiable, AttributeMixin):
         desc = a.get('desc')
         impute_start = a.get('impute-start')
         cycle_start = a.get('cycle-start')
+        boundary = a.get('boundary')  # optional
 
         classname = a['class']  # required by XML schema
         subclass = _get_subclass(Process, classname)
         attr_dict = subclass.instantiate_attrs(elt, is_process=True)
 
         obj = subclass(name, desc=desc, attr_dict=attr_dict,
-                       cycle_start=cycle_start, impute_start=impute_start)
+                       cycle_start=cycle_start, impute_start=impute_start,
+                       boundary=boundary)
 
-        obj.set_enabled(getBooleanXML(a.get('enabled', '1')))
-        obj.set_extend(getBooleanXML(a.get('extend', '0')))
+        obj.set_enabled(a.get('enabled', '1'))
+        obj.set_extend(a.get('extend', '0'))
+
+        obj.set_run_after(getBooleanXML(a.get('run-after', '0')))
 
         return obj
 
@@ -813,18 +870,7 @@ class Reservoir(Process):
         self.print_running_msg()
 
 
-class Customer(Process):
-    """
-    Customer represents the process after gas distribution.
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__("Customer", desc='The Customer')
-
-    def run(self, analysis):
-        self.print_running_msg()
-
-
+# Deprecated
 class SurfaceSource(Process):
     """
     SurfaceSource represents oil, gas and water source in the surface.
@@ -837,6 +883,8 @@ class SurfaceSource(Process):
     def run(self, analysis):
         self.print_running_msg()
 
+#
+# Deprecated
 #
 # TODO: Unclear whether this needs to be a Process since it's never actually run.
 #       However, it does allow us to attach streams to it for use by other processes.
@@ -906,8 +954,7 @@ class Environment(Process):
 
     def __init__(self, *args, **kwargs):
         super().__init__('Environment', desc='The Environment')
-
-    # TBD: decide whether emissions are in streams or in separate calls inside Processes
+        self.set_run_after(True)
 
     def run(self, analysis):
         self.print_running_msg()
