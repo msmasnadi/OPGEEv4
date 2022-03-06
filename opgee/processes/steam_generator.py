@@ -374,8 +374,8 @@ class SteamGenerator(OpgeeObject):
         :return: (float) LHV fuel series and LHV stream series
         """
 
-        LHV_fuel = pd.Series()
-        LHV_stream = pd.Series()
+        LHV_fuel = pd.Series(dtype="pint[joule/gram]")
+        LHV_stream = pd.Series(dtype="pint[joule/gram]")
 
         for name in temp_series.index:
             temp = (comp_series * self.gas.combustion_enthalpy(comp_series, temp_series[name])).sum()

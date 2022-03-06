@@ -28,10 +28,8 @@ class GasLiftingCompressor(Process):
 
         loss_rate = self.venting_fugitive_rate()
 
-        # TODO: Wennan, this intermediate copy should not be necessary
-        gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
         gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp)
+        gas_fugitives.copy_flow_rates_from(self.set_gas_fugitives(input, loss_rate))
         gas_fugitives.set_tp(field.stp)
 
         lifting_gas = self.find_output_stream("lifting gas")

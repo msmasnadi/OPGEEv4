@@ -289,10 +289,6 @@ class AbstractSubstance(OpgeeObject):
         self.model = field.model
 
         self.dry_air = DryAir(field)
-        # self.wet_air = WetAir(field)              # TODO: unused
-        # self.wet_air_MW = self.wet_air.mol_weight # TODO: unused
-        # self.dry_air_MW = self.dry_air.mol_weight   # TODO: unused. (Just used self.dry_air.mol_weight in the two places it was used)
-
 
         components = ChemicalInfo.names()
         self.component_MW = ChemicalInfo.mol_weights()
@@ -306,7 +302,6 @@ class AbstractSubstance(OpgeeObject):
             {name: heating_value(name, use_LHV=False, with_units=False) for name in components},
             dtype="pint[joule/mole]")
         self.component_HHV_mass = self.component_LHV_molar / self.component_MW  # joule/gram
-
 
         self.component_Cp_STP = pd.Series({name: Cp(name, 288.706, with_units=False) for name in components},
                                           dtype="pint[joule/g/kelvin]")

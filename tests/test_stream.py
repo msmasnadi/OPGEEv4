@@ -1,20 +1,25 @@
 import pytest
 from opgee.error import OpgeeException
 from opgee.process import Process
+from opgee import ureg
 
 from .utils_for_tests import load_test_model
+
 
 class Proc1(Process):
     def run(self, analysis):
         pass
 
+
 class Proc2(Process):
     def run(self, analysis):
         pass
 
+
 class Proc3(Process):
     def run(self, analysis):
         pass
+
 
 class Proc4(Process):
     def run(self, analysis):
@@ -25,11 +30,13 @@ class Proc4(Process):
 def stream_model(configure_logging_for_tests):
     return load_test_model('test_stream.xml')
 
+
 def test_carbon_number():
     from opgee.stream import is_carbon_number
     assert is_carbon_number("C2") and is_carbon_number("C200")
 
     assert not is_carbon_number("foo")
+
 
 def test_find_stream(stream_model):
     analysis = stream_model.get_analysis('test')
@@ -70,6 +77,7 @@ def test_find_stream(stream_model):
     with pytest.raises(OpgeeException, match=f".*no input streams contain '{bad_name}'"):
         proc3.find_input_streams(bad_name, combine=False, as_list=False, raiseError=True)
 
+
 def test_initialization(stream_model):
     analysis = stream_model.get_analysis('test')
     field = analysis.get_field('test')
@@ -86,3 +94,11 @@ def test_initialization(stream_model):
     stream2.set_gas_flow_rate("CO2", 10)
     assert stream2.is_initialized() and not stream2.has_zero_flow()
 
+
+def test_combustion_stream(stream_model):
+    analysis = stream_model.get_analysis('test')
+    field = analysis.get_field('test')
+    stream1 = field.find_stream("combustion stream")
+    CO2_stream = field.find_stream("combusted final stream")
+    CO2_stream.add_combustion_CO2_from(stream1)
+    assert CO2_stream.gas_flow_rate("CO2") == ureg.Quantity(pytest.approx(8.950127703143934), "t/d")

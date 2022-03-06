@@ -1,19 +1,20 @@
 import networkx as nx
+import pint
 from . import ureg
 from .config import getParamAsList
 from .container import Container
-from .core import elt_name, instantiate_subelts, dict_from_list, TemperaturePressure
+from .core import elt_name, instantiate_subelts, dict_from_list, TemperaturePressure, STP
 from .error import (OpgeeException, OpgeeStopIteration, OpgeeMaxIterationsReached,
                     OpgeeIterationConverged, ModelValidationError, ZeroEnergyFlowError)
 from .log import getLogger
-from .process import Process, Aggregator, Environment, Reservoir, SurfaceSource, ExternalSupply
+from .process import Process, Aggregator, Environment, Reservoir, SurfaceSource
 from .process_groups import ProcessChoice
 from .stream import Stream
 from .thermodynamics import Oil, Gas, Water
 from opgee.processes.steam_generator import SteamGenerator
 from .utils import getBooleanXML, flatten
 from .energy import Energy
-from .import_export import ImportExport
+from .import_export import ImportExport, NATURAL_GAS, CRUDE_OIL, WATER
 
 _logger = getLogger(__name__)
 
@@ -93,10 +94,8 @@ class Field(Container):
 
         # deprecated
         self.surface_source = SurfaceSource()
-        self.external_supply = ExternalSupply()
 
-        self.builtin_procs = [self.environment, self.reservoir,
-                              self.surface_source, self.external_supply] # deprecated
+        self.builtin_procs = [self.environment, self.reservoir, self.surface_source]
         all_procs = self.collect_processes()  # includes reservoir and environment
         self.process_dict = self.adopt(all_procs, asDict=True)
 
@@ -121,7 +120,7 @@ class Field(Container):
 
         self.wellhead_tp = None
 
-        self.stp = None  # TODO: eliminate uses of this in favor or opgee.core.STP
+        self.stp = STP
 
         self.import_export = ImportExport()
 
@@ -147,9 +146,6 @@ class Field(Container):
 
         self.model = model = self.find_parent('Model')
 
-        # TODO: eliminate this
-        self.stp = TemperaturePressure(model.const("std-temperature"), model.const("std-pressure"))
-
         self.LNG_temp = model.const("LNG-temp")
 
         self.stab_column = self.attr("stabilizer_column")
@@ -170,6 +166,8 @@ class Field(Container):
         self.gas = Gas(self)
         self.water = Water(self)
         self.steam_generator = SteamGenerator(self)
+        self.product_names = self.import_export.imports_exports().index.drop(WATER)
+        self.product_boundaries = model.product_boundaries
 
         self.resolve_process_choices()
         self._check_run_after_procs()       # TBD: write test
@@ -254,8 +252,6 @@ class Field(Container):
             self.run_processes(analysis)
 
             self.check_balances()
-
-            # TODO: Compute emissions from Exploration and Drilling
 
             # Perform aggregations
             self.get_energy_rates()
@@ -360,9 +356,12 @@ class Field(Container):
         """
         rates = self.emissions.rates(analysis.gwp)
         onsite_emissions = rates.loc['GHG'].sum()
-        series = self.get_net_imported_product()
-        imported_emissions = self.get_imported_emissions(series)
-        total_emissions = onsite_emissions + imported_emissions
+        net_import = self.get_net_imported_product()
+        imported_emissions = self.get_imported_emissions(net_import)
+        fn_unit = NATURAL_GAS if analysis.fn_unit == 'gas' else CRUDE_OIL
+        byproduct_names = self.product_names.drop(fn_unit)
+        byproduct_carbon_credit = self.get_carbon_credit(byproduct_names, analysis)
+        total_emissions = onsite_emissions + imported_emissions - byproduct_carbon_credit
 
         energy = self.boundary_energy_flow_rate(analysis)
 
@@ -379,13 +378,30 @@ class Field(Container):
 
         imported_emissions = ureg.Quantity(0, "tonne/day")
         for product, energy_rate in net_import.items():
-            if energy_rate.m <= 0:
-                continue
-            else:
+            energy_rate = ureg.Quantity(energy_rate, "mmbtu/day") \
+                if isinstance(energy_rate, pint.Quantity) is False else energy_rate
+            if energy_rate.m > 0:
                 imported_emissions += energy_rate * self.upstream_CI.loc[product, "EF"]
 
         return imported_emissions
 
+    def get_carbon_credit(self, byproduct_names, analysis):
+        """
+        Calculate carbon credit from byproduct
+
+        :param net_import: (Pandas.Series) net import energy rates (water is mass rate)
+        :return: total emissions (gCO2)
+        """
+
+        carbon_credit = ureg.Quantity(0, "tonne/day")
+        export = self.import_export.export_df
+        process_names = set(export.index)
+        for name in byproduct_names:
+            process_name = self.product_boundaries.loc[name, analysis.boundary]
+            if process_name and process_name in process_names:
+                carbon_credit += export.loc[process_name, name] * self.upstream_CI.loc[name, "EF"]
+
+        return carbon_credit
 
     def validate(self, analysis):
         """

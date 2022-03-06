@@ -52,5 +52,15 @@
 			<Contains>crude oil</Contains>
 		</Stream>
 
+		<Stream src="Proc1" dst="Proc2" name="combustion stream">
+			<Component name="C2" phase="gas">1.0</Component>
+			<Component name="C3" phase="gas">1.0</Component>
+			<Component name="C4" phase="gas">1.0</Component>
+		</Stream>
+
+		<Stream src="Proc1" dst="Proc2" name="combusted final stream">
+			<Contains>gas</Contains>
+		</Stream>
+
 	</Field>
 </Model>

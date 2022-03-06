@@ -351,7 +351,7 @@ class Process(XmlInstantiable, AttributeMixin):
     #
 
     def set_gas_fugitives(self, stream, loss_rate) -> Stream:
-        # TODO: complete
+        # TODO: complete this using Jeff's code
         """
         initialize the gas fugitives stream, get loss rate, copy..
 
@@ -790,27 +790,6 @@ class Process(XmlInstantiable, AttributeMixin):
                                     dtype="pint[g/mmBtu]")
         return emission_series
 
-    # TODO: This is currently used only once, in flaring.py. All that's really needed is the mass rate
-    #       of CO2, so there's no reason to create a new Stream. Just sum the CO2 and use Stream.add_rate().
-    #       I created (but haven't tested) a Stream.add_combustion_CO2_from(other_stream) which does this.
-    #       (This seemed better located in the Stream class. So this should be removed once uses are changed.)
-    @staticmethod
-    def combust_stream(stream):
-        """
-        Combust the carbon containing gas and returning the new stream with only CO2
-
-        :return: (Stream)
-        """
-
-        result = Stream("combusted_stream", stream.tp)
-        CO2 = (stream.components.loc[stream.emission_composition, PHASE_GAS] /
-               component_MW[stream.emission_composition] *
-               Stream.carbon_number *
-               component_MW["CO2"]).sum()
-
-        result.set_gas_flow_rate("CO2", CO2)
-        return result
-
     def all_streams_ready(self, input_stream_contain):
         """
         Check if all the steams from enabled process are ready
@@ -821,8 +800,7 @@ class Process(XmlInstantiable, AttributeMixin):
         """
         input_streams = self.find_input_streams(input_stream_contain)
         for stream in input_streams.values():
-            # TODO: improve the logic
-            if stream.src_proc.enabled and stream.is_uninitialized() and stream.src_name != "GasDehydration":
+            if stream.src_proc.enabled and stream.is_uninitialized():
                 return False
         return True
 
@@ -879,66 +857,6 @@ class SurfaceSource(Process):
 
     def __init__(self, *args, **kwargs):
         super().__init__("SurfaceSource", desc='The Surface Source')
-
-    def run(self, analysis):
-        self.print_running_msg()
-
-#
-# Deprecated
-#
-# TODO: Unclear whether this needs to be a Process since it's never actually run.
-#       However, it does allow us to attach streams to it for use by other processes.
-#
-class ExternalSupply(Process):
-    """
-    ExternalSupply represents all resources acquired from outside the system boundaries,
-    e.g., municipal water, utility gas and electricity. It's purpose is simply to tally
-    these as demanded.
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__("ExternalSupply", desc='Resources outside system boundaries')
-        self.reset_totals()
-
-    def reset_totals(self):
-        self.water       = ureg.Quantity(0.0, "tonne/day")   # municipal water
-        self.gas         = ureg.Quantity(0.0, "tonne/day")   # utility natural gas
-        self.electricity = ureg.Quantity(0.0, "mmbtu/day")   # grid electricity
-
-    def reset(self):
-        super().reset()
-        self.reset_totals()
-
-    def use_gas(self, stream, quantity):
-        """
-        Record use of a ``quantity`` of imported utility natural gas
-
-        :param quantity: (pint.Quantity) in units of mass/time
-        :param stream: (Stream) input stream to the process requesting the resource
-        :return: none
-        """
-        self.gas += quantity
-        stream.add_flow_rate('C1', PHASE_GAS, quantity)
-
-    def use_water(self, stream, quantity):
-        """
-        Record use of a ``quantity`` of imported municipal water
-
-        :param quantity: (pint.Quantity) in units of mass/time
-        :return: none
-        """
-        self.water += quantity
-        stream.add_flow_rate('H2O', PHASE_LIQUID, quantity)
-
-    # Electricity is not handled in Streams, so no stream argument here.
-    def use_electricity(self, quantity):
-        """
-        Record use of a ``quantity`` of imported grid electricity
-
-        :param quantity: (pint.Quantity) in units of energy/time
-        :return: none
-        """
-        self.electricity += quantity
 
     def run(self, analysis):
         self.print_running_msg()

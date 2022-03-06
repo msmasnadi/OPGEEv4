@@ -230,7 +230,7 @@
 		</Stream>
 
 		<Stream src="BitumenMining" dst="HeavyOilDilution" name="bitumen mining to heavy oil dilution">
-			<Contains>oil for dilution</Contains>
+			<Contains>bitumen for dilution</Contains>
 		</Stream>
 
 		<Stream src="Reservoir" dst="BitumenMining" name="reservoir to bitumen mining">
@@ -301,7 +301,7 @@
 		</Stream>
 
 		<Stream src="BitumenMining" dst="HeavyOilDilution" name="bitumen mining to heavy oil dilution">
-			<Contains>oil for dilution</Contains>
+			<Contains>bitumen for dilution</Contains>
 		</Stream>
 
 		<Stream src="BitumenMining" dst="Environment" name="bitumen mining to environment">
