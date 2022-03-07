@@ -55,8 +55,9 @@ class TableManager(OpgeeObject):
 
     _table_def_dict = {tbl_def.basename: tbl_def for tbl_def in table_defs}
 
-    def __init__(self):
+    def __init__(self, updates=None):
         self.table_dict = {}
+        self.updates = updates
 
     def get_table(self, name, raiseError=True):
         """
@@ -94,6 +95,8 @@ class TableManager(OpgeeObject):
 
             if tbl_def.fillna is not None:
                 df.fillna(tbl_def.fillna, inplace=True)
+
+            # TBD: apply table updates from user
 
             self.table_dict[name] = df
 
