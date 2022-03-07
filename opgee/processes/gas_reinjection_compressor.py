@@ -74,9 +74,7 @@ class GasReinjectionCompressor(Process):
         import_product.set_import(self.name, NATURAL_GAS, gas_LHV_rate)
 
         loss_rate = self.venting_fugitive_rate()
-        gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
-        gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, tp=field.stp)
+        gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
         discharge_press = self.res_press + ureg.Quantity(500, "psi")
         overall_compression_ratio = discharge_press / input.tp.P

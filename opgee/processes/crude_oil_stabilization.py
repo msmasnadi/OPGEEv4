@@ -63,9 +63,7 @@ class CrudeOilStabilization(Process):
         output_stab_gas.set_rates_from_series(gas_removed_mass_rate, PHASE_GAS)
 
         loss_rate = self.venting_fugitive_rate()
-        gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
-        gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, tp=field.stp)
+        gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
         output = self.find_output_stream("oil for storage")
         oil_for_storage = oil_mass_rate - output_stab_gas.total_gas_rate() - gas_fugitives.total_gas_rate()

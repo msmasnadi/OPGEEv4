@@ -22,9 +22,7 @@ class GasGathering(Process):
         input = self.find_input_streams("gas for gas gathering", combine=True)
 
         loss_rate = self.venting_fugitive_rate()
-        gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
-        gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, tp=self.field.stp)
+        gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
         gas_to_dehydration = self.find_output_stream("gas")
         gas_to_dehydration.copy_flow_rates_from(input)

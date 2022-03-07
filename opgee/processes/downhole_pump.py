@@ -47,12 +47,7 @@ class DownholePump(Process):
         input.add_flow_rates_from(lift_gas)
 
         loss_rate = self.venting_fugitive_rate()
-        gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
-        gas_fugitives = self.find_output_stream("gas fugitives")        # TODO: Wennan, set_gas_fugitives() returns the same stream you're getting here
-        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp)
-
-        # TODO: The three lines above can probably be just this:
-        # gas_fugitives = self.set_gas_fugitives(input, loss_rate)
+        gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
         output = self.find_output_stream("crude oil")
 

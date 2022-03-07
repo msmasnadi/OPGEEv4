@@ -52,9 +52,7 @@ class GasDehydration(Process):
             return
 
         loss_rate = self.venting_fugitive_rate()
-        gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
-        gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, tp=field.stp)
+        gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
         try:
             output = self.gas_path_dict[self.gas_path]

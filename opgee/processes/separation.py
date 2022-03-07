@@ -55,9 +55,7 @@ class Separation(Process):
         input = self.find_input_stream("crude oil")
 
         loss_rate = self.venting_fugitive_rate()
-        gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
-        gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp)
+        gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
         gas_after = self.find_output_stream("gas")
         # Check

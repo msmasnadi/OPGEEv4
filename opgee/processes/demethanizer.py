@@ -47,9 +47,7 @@ class Demethanizer(Process):
         input = self.find_input_streams("gas for demethanizer", combine=True)
 
         loss_rate = self.venting_fugitive_rate()
-        gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)
-        gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(gas_fugitives_temp, tp=field.stp)
+        gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
         # Demethanizer modeling based on Aspen HYSYS
         feed_gas_press = min(max(self.feed_press_demethanizer.to("psia").m, 600.0), 1000.0)
