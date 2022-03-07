@@ -4,11 +4,11 @@ from ..core import TemperaturePressure
 from ..error import OpgeeException
 from ..log import getLogger
 from ..process import Process
-from ..stream import PHASE_GAS
+from ..stream import PHASE_GAS, Stream
 
 from .compressor import Compressor
 from .shared import get_energy_carrier
-from ..import_export import ImportExport
+from ..import_export import NATURAL_GAS
 
 _logger = getLogger(__name__)
 
@@ -42,12 +42,12 @@ class GasReinjectionCompressor(Process):
         if input.is_uninitialized() and not self.gas_flooding:
             return
 
-        input_gas_vol_rate =\
-            ureg.Quantity(0, "mmscf/day")\
-                if input.is_uninitialized()\
+        input_gas_vol_rate = \
+            ureg.Quantity(0, "mmscf/day") \
+                if input.is_uninitialized() \
                 else input.total_gas_rate() / field.gas.density(input)
 
-        imported_gas = self.find_output_stream("imported gas")
+        imported_gas = Stream("imported_gas", tp=input.tp)
         if self.gas_flooding:
             known_types = ["N2", "NG"]
             if self.flood_gas_type not in known_types:
@@ -58,8 +58,7 @@ class GasReinjectionCompressor(Process):
                     imported_gas.set_gas_flow_rate("N2", N2_mass_rate)
                     imported_gas.set_tp(self.N2_flooding_tp)
                 elif self.flood_gas_type == "NG":
-                    adjust_flow_vol_rate = \
-                        self.gas_flooding_vol_rate \
+                    adjust_flow_vol_rate = self.gas_flooding_vol_rate \
                             if self.gas_flooding_vol_rate.m <= input_gas_vol_rate.m \
                             else self.gas_flooding_vol_rate - input_gas_vol_rate
                     offset_mass_frac = field.gas.component_mass_fractions(self.offset_gas_comp)
@@ -67,6 +66,12 @@ class GasReinjectionCompressor(Process):
                     imported_gas.set_rates_from_series(adjust_flow_vol_rate * offset_mass_frac * offset_density,
                                                        phase=PHASE_GAS)
                     imported_gas.set_tp(self.C1_flooding_tp)
+
+        gas_mass_rate = imported_gas.total_gas_rate()
+        gas_mass_energy_density = self.gas.mass_energy_density(imported_gas)
+        gas_LHV_rate = gas_mass_rate * gas_mass_energy_density
+        import_product = field.import_export
+        import_product.set_import(self.name, NATURAL_GAS, gas_LHV_rate)
 
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives_temp = self.set_gas_fugitives(input, loss_rate)

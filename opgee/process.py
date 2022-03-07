@@ -848,20 +848,6 @@ class Reservoir(Process):
         self.print_running_msg()
 
 
-# Deprecated
-class SurfaceSource(Process):
-    """
-    SurfaceSource represents oil, gas and water source in the surface.
-    Each Field object holds a single SurfaceSource instance.
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__("SurfaceSource", desc='The Surface Source')
-
-    def run(self, analysis):
-        self.print_running_msg()
-
-
 class Environment(Process):
     """
     Represents the environment, which in OPGEE is just a sink for emissions. The Environment
