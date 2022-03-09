@@ -34,12 +34,12 @@ class Flaring(Process):
         volume_of_gas_flared = self.oil_volume_rate * self.FOR
         frac_gas_flared = min(ureg.Quantity(1, "frac"), volume_of_gas_flared / gas_volume_rate)
 
-        methane_slip = self.find_output_stream("methane slip")
+        methane_slip = Stream("methane_slip", tp=input.tp)
         methane_slip.copy_flow_rates_from(input)
         multiplier = (frac_gas_flared * (1 - self.combusted_gas_frac)).m
         methane_slip.multiply_flow_rates(multiplier)
 
-        gas_to_flare = self.find_output_stream("gas flaring")
+        gas_to_flare = Stream("methane_slip", tp=input.tp)
         gas_to_flare.copy_flow_rates_from(input)
         gas_to_flare.multiply_flow_rates(frac_gas_flared.m)
         gas_to_flare.subtract_gas_rates_from(methane_slip)

@@ -4,6 +4,7 @@ from ..emissions import EM_VENTING, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
 from .shared import get_gas_lifting_init_stream
+from ..stream import Stream
 
 _logger = getLogger(__name__)
 
@@ -72,13 +73,11 @@ class Venting(Process):
         if self.field.get_process_data("gas_lifting_stream") is None:
             self.field.save_process_data(gas_lifting_stream=gas_stream)
 
-        gas_to_vent = self.find_output_stream("gas venting")
+        gas_to_vent = Stream("venting_gas", tp=field.stp)
         gas_to_vent.copy_flow_rates_from(input, tp=field.stp)
         gas_to_vent.multiply_flow_rates(venting_frac.m)
 
-        gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(input, tp=field.stp)
-        gas_fugitives.multiply_flow_rates(fugitive_frac.m)
+        gas_fugitives = self.set_gas_fugitives(input, fugitive_frac.m)
 
         gas_to_gathering = self.find_output_stream("gas for gas gathering")
         gas_to_gathering.copy_flow_rates_from(input, tp=input.tp)

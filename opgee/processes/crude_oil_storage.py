@@ -4,6 +4,7 @@ from ..log import getLogger
 from ..process import Process
 from ..stream import PHASE_GAS
 from ..import_export import CRUDE_OIL
+from ..stream import Stream
 
 _logger = getLogger(__name__)
 
@@ -55,7 +56,7 @@ class CrudeOilStorage(Process):
         output_VRU.set_rates_from_series(vapor_to_VRU, PHASE_GAS)
         output_VRU.set_tp(stp)
 
-        gas_fugitive_stream = self.find_output_stream("gas fugitives")
+        gas_fugitive_stream = Stream("gas_fugitives", tp=self.field.stp)
         gas_fugitive_stream.set_rates_from_series(gas_fugitives, PHASE_GAS)
         gas_fugitive_stream.set_tp(stp)
 
