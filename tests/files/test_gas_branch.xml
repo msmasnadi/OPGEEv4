@@ -48,22 +48,18 @@
 				<ProcessRef name="Demethanizer"/>
 				<StreamRef name="gas dehydration to acid gas removal"/>
 				<StreamRef name="acid gas removal to demethanizer"/>
-				<StreamRef name="acid gas removal to environment"/>
 				<StreamRef name="demethanizer to gas partition"/>
-				<StreamRef name="demethanizer to environment"/>
 				<StreamRef name="demethanizer to NGL"/>
 			</ProcessGroup>
 			<ProcessGroup name="Acid Gas">
 				<ProcessRef name="AcidGasRemoval"/>
 				<StreamRef name="gas dehydration to acid gas removal"/>
-				<StreamRef name="acid gas removal to environment"/>
 				<StreamRef name="acid gas removal to gas partition"/>
 			</ProcessGroup>
 			<ProcessGroup name="Wet Gas">
 				<ProcessRef name="Demethanizer"/>
 				<StreamRef name="gas dehydration to demethanizer"/>
 				<StreamRef name="demethanizer to gas partition"/>
-				<StreamRef name="demethanizer to environment"/>
 				<StreamRef name="demethanizer to NGL"/>
 			</ProcessGroup>
 			<ProcessGroup name="CO2-EOR Ryan Holmes">
@@ -73,12 +69,9 @@
 				<StreamRef name="gas dehydration to Ryan-Holmes"/>
 				<StreamRef name="Ryan-Holmes to CO2 reinjection compressor"/>
 				<StreamRef name="Ryan-Holmes to gas partition"/>
-				<StreamRef name="Ryan-Holmes to environment"/>
 				<StreamRef name="Ryan-Holmes to NGL"/>
 				<StreamRef name="CO2 reinjection compressor to CO2 injection well"/>
-				<StreamRef name="CO2 reinjection compressor to environment"/>
 				<StreamRef name="flooding CO2"/>
-				<StreamRef name="CO2 injection well to environment"/>
 				<StreamRef name="CO2 injection well to reservoir"/>
 				
 			</ProcessGroup>
@@ -86,9 +79,7 @@
 				<ProcessRef name="SourGasCompressor"/>
 				<ProcessRef name="SourGasInjection"/>
 				<StreamRef name="gas dehydration to sour gas compressor"/>
-				<StreamRef name="sour gas compressor to environment"/>
 				<StreamRef name="sour gas compressor to sour gas injection"/>
-				<StreamRef name="sour gas injection to environment"/>
 				<StreamRef name="sour gas injection to reservoir"/>
 
 			</ProcessGroup>
@@ -103,17 +94,12 @@
 				<ProcessRef name="Demethanizer"/>
 				<StreamRef name="gas dehydration to pre membrane chiller"/>
 				<StreamRef name="pre membrane chiller to pre membrane compressor"/>
-				<StreamRef name="pre membrane chiller to environment"/>
-				<StreamRef name="pre membrane compressor to environment"/>
 				<StreamRef name="pre membrane compressor to CO2 membrane"/>
 				<StreamRef name="CO2 membrane to acid gas removal"/>
 				<StreamRef name="CO2 membrane to CO2 reinjection compressor"/>
-				<StreamRef name="acid gas removal to environment"/>
 				<StreamRef name="acid gas removal to CO2 reinjection compressor"/>
 				<StreamRef name="CO2 reinjection compressor to CO2 injection well"/>
-				<StreamRef name="CO2 reinjection compressor to environment"/>
 				<StreamRef name="flooding CO2"/>
-				<StreamRef name="CO2 injection well to environment"/>
 				<StreamRef name="CO2 injection well to reservoir"/>
 				<StreamRef name="acid gas removal to demethanizer"/>
 				<StreamRef name="demethanizer to gas partition"/>
@@ -128,7 +114,6 @@
 				<ProcessRef name="CrudeOilStabilization"/>
 				<ProcessRef name="CrudeOilStorage"/>
 				<StreamRef name="crude oil dewatering to crude oil stabilization"/>
-				<StreamRef name="crude oil stabilization to environment"/>
 				<StreamRef name="crude oil stabilization to crude oil storage"/>
 			</ProcessGroup>
 
@@ -244,14 +229,6 @@
 			<Contains>gas</Contains>
 		</Stream>
 
-		<Stream src="Flaring" dst="Environment" name="flaring to environment - flaring">
-			<Contains>gas flaring</Contains>
-		</Stream>
-
-		<Stream src="Flaring" dst="Environment" name="flaring to environment - methane">
-			<Contains>methane slip</Contains>
-		</Stream>
-
 		<Stream src="Venting" dst="GasGathering" name="venting to gas gathering">
 			<Contains>gas for gas gathering</Contains>
 		</Stream>
@@ -268,14 +245,6 @@
 			<Contains>oil for storage</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilStabilization" dst="Environment" name="crude oil stabilization to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
-
-		<Stream src="CrudeOilStorage" dst="Environment" name="crude oil storage to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
-
 		<Stream src="CrudeOilStorage" dst="CrudeOilTransport" name="crude oil storage to crude oil transport" boundary = "Production">
 			<Contains>oil for transport</Contains>
 		</Stream>
@@ -284,45 +253,20 @@
 			<Contains>oil for refinery</Contains>
 		</Stream>
 
-		<Stream src="GasGathering" dst="Environment" name="gas gathering to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
-
 		<Stream src="GasGathering" dst="GasDehydration" name="gas gathering to gas dehydration">
 			<Contains>gas</Contains>
 		</Stream>
 
-		<Stream src="GasDehydration" dst="Environment" name="gas dehydration to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
 
 		<Stream src="GasDehydration" dst="AcidGasRemoval" name="gas dehydration to acid gas removal">
 			<Contains>gas for AGR</Contains>
 		</Stream>
 
-		<Stream src="VRUCompressor" dst="Environment" name="VRU compressor to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
 
 		<Stream src="CrudeOilStorage" dst="VRUCompressor" name="crude oil storage to VRU compressor">
 			<Contains>gas for VRU</Contains>
 		</Stream>
 
-		<Stream src="Venting" dst="Environment" name="venting to environment">
-			<Contains>gas venting</Contains>
-		</Stream>
-
-		<Stream src="Venting" dst="Environment" name="gas fugitive to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
-
-		<Stream src="Separation" dst="Environment" name="gas fugitives from separator">
-			<Contains>gas fugitives</Contains>
-		</Stream>
-
-		<Stream src="DownholePump" dst="Environment" name="gas fugitives from downhole pump">
-			<Contains>gas fugitives</Contains>
-		</Stream>
 
 		<Stream src="ReservoirWellInterface" dst="DownholePump" name="reservoir well interface to downhole pump">
 			<Contains>crude oil</Contains>
@@ -364,17 +308,11 @@
 			<Contains>gas for compressor</Contains>
 		</Stream>
 
-		<Stream src="PreMembraneChiller" dst="Environment" name="pre membrane chiller to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
 
 		<Stream src="PreMembraneCompressor" dst="CO2Membrane" name="pre membrane compressor to CO2 membrane">
 			<Contains>gas for CO2 membrane</Contains>
 		</Stream>
 
-		<Stream src="PreMembraneCompressor" dst="Environment" name="pre membrane compressor to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
 
 		<Stream src="CO2Membrane" dst="AcidGasRemoval" name="CO2 membrane to acid gas removal">
 			<Contains>gas for AGR</Contains>
@@ -384,9 +322,6 @@
 			<Contains>gas for CO2 compressor</Contains>
 		</Stream>
 
-		<Stream src="AcidGasRemoval" dst="Environment" name="acid gas removal to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
 
 		<Stream src="AcidGasRemoval" dst="CO2ReinjectionCompressor" name="acid gas removal to CO2 reinjection compressor">
 			<Contains>gas for CO2 compressor</Contains>
@@ -404,9 +339,6 @@
 			<Contains>gas for Ryan Holmes</Contains>
 		</Stream>
 
-		<Stream src="RyanHolmes" dst="Environment" name="Ryan-Holmes to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
 
 		<Stream src="RyanHolmes" dst="GasPartition" name="Ryan-Holmes to gas partition">
 			<Contains>gas for gas partition</Contains>
@@ -424,13 +356,6 @@
 			<Contains>gas for CO2 injection well</Contains>
 		</Stream>
 
-		<Stream src="CO2ReinjectionCompressor" dst="Environment" name="CO2 reinjection compressor to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
-
-		<Stream src="CO2InjectionWell" dst="Environment" name="CO2 injection well to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
 
 		<Stream src="CO2InjectionWell" dst="Reservoir" name="CO2 injection well to reservoir" impute="false">
 			<Contains>gas for reservoir</Contains>
@@ -440,17 +365,10 @@
 			<Contains>gas for sour gas compressor</Contains>
 		</Stream>
 
-		<Stream src="SourGasCompressor" dst="Environment" name="sour gas compressor to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
-
 		<Stream src="SourGasCompressor" dst="SourGasInjection" name="sour gas compressor to sour gas injection">
 			<Contains>gas for sour gas injection</Contains>
 		</Stream>
 
-		<Stream src="SourGasInjection" dst="Environment" name="sour gas injection to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
 
 		<Stream src="SourGasInjection" dst="Reservoir" name="sour gas injection to reservoir" impute="false">
 			<Contains>gas for reservoir</Contains>
@@ -460,9 +378,6 @@
 			<Contains>gas for gas partition</Contains>
 		</Stream>
 
-		<Stream src="Demethanizer" dst="Environment" name="demethanizer to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
 
 		<Stream src="Demethanizer" dst="NGL" name="demethanizer to NGL">
 			<Contains>gas for NGL</Contains>
@@ -481,9 +396,6 @@
 			<Contains>lifting gas</Contains>
 		</Stream>
 
-		<Stream src="GasLiftingCompressor" dst="Environment" name="gas lifting compressor to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
 
 		<Stream src="GasPartition" dst="GasReinjectionCompressor" name="gas partition to gas reinjection compressor">
 			<Contains>gas for gas reinjection compressor</Contains>
@@ -493,25 +405,16 @@
 			<Contains>gas for gas reinjection well</Contains>
 		</Stream>
 
-		<Stream src="GasReinjectionWell" dst="Environment" name="gas reinjection well to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
 
 		<Stream src="GasReinjectionWell" dst="Reservoir" name="gas reinjection well to reservoir" impute="false">
 			<Contains>gas for reservoir</Contains>
 		</Stream>
 
-		<Stream src="GasReinjectionCompressor" dst="Environment" name="gas reinjection compressor to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
 
 		<Stream src="GasPartition" dst="TransmissionCompressor" name="gas partition to transmission compressor">
 			<Contains>gas for transmission</Contains>
 		</Stream>
 
-		<Stream src="TransmissionCompressor" dst="Environment" name="transmission compressor to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
 
 		<Stream src="TransmissionCompressor" dst="After" name="transmission compression to after">
 			<Contains>gas for storage</Contains>

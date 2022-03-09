@@ -359,8 +359,8 @@ class Process(XmlInstantiable, AttributeMixin):
         :param stream:
         :return:
         """
-        gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_gas_rates_from(stream, tp=self.field.stp)
+        gas_fugitives = Stream("gas fugitives", tp=self.field.stp)
+        gas_fugitives.copy_gas_rates_from(stream)
         gas_fugitives.multiply_flow_rates(loss_rate)
 
         return gas_fugitives
