@@ -272,10 +272,6 @@
 			<Contains>gas fugitives</Contains>
 		</Stream>
 
-<!--		<Stream src="HeavyOilDilution" dst="CrudeOilStorage" name="crude oil dilution to crude oil storage">-->
-<!--			<Contains>oil for storage</Contains>-->
-<!--		</Stream>-->
-
 		<Stream src="CrudeOilStorage" dst="Environment" name="crude oil storage to environment">
 			<Contains>gas fugitives</Contains>
 		</Stream>

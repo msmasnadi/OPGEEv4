@@ -94,8 +94,7 @@ class Stream(XmlInstantiable, AttributeMixin):
     _gases = ['N2', 'O2', 'CO2', 'H2O', 'H2', 'H2S', 'SO2', "CO"]
     _other = ['Na+', 'Cl-', 'Si-']
 
-    # TODO: consider renaming this. Maybe "combustible_components"?
-    emission_composition = _hydrocarbons + _gases
+    combustible_components = _hydrocarbons + _gases
     _carbon_number_dict = {f'C{n}': float(n) for n in range(1, max_carbon_number + 1)}
 
     for gas in _gases:
@@ -495,9 +494,8 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param stream: (Stream) to copy
         :return: none
         """
-        # TODO: should this produce a warning?
         if stream.is_uninitialized():
-            return
+            return OpgeeException(f"copy NULL stream from {stream.name}")
 
         self.initialized = True
         self.components[PHASE_LIQUID] = stream.components[PHASE_LIQUID]
@@ -559,7 +557,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         """
         from .thermodynamics import component_MW
 
-        combustibles = stream.emission_composition
+        combustibles = stream.combustible_components
 
         rate = (stream.components.loc[combustibles, PHASE_GAS] / component_MW[combustibles] *
                 Stream.carbon_number * component_MW["CO2"]).sum()

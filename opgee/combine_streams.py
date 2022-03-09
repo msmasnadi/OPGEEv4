@@ -29,13 +29,6 @@ def combine_streams(streams, API):
     if not non_empty_streams:
         return Stream("empty_stream", TemperaturePressure(None, None))
 
-    # TODO: This should no longer be necessary
-    for stream in non_empty_streams:
-        if stream.tp.P is None:
-            raise OpgeeException(f"combine_streams: steam pressure of '{stream.name}' is None")
-        elif stream.tp.P.m == 0.0:
-            raise OpgeeException(f"combine_streams: steam pressure of '{stream.name}' is Zero")
-
     comp_matrix = sum([stream.components for stream in streams])
 
     stream_temperature = pd.Series([stream.tp.T.to("kelvin").m for stream in non_empty_streams],

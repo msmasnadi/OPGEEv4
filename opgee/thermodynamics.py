@@ -9,6 +9,7 @@ from .core import OpgeeObject, STP, TemperaturePressure
 from .error import OpgeeException
 from .stream import PHASE_LIQUID, Stream, PHASE_GAS, PHASE_SOLID
 
+
 class ChemicalInfo(OpgeeObject):
     instance = None
 
@@ -157,6 +158,7 @@ def Enthalpy(component, kelvin, phase=PHASE_GAS, with_units=True):
 
     return H
 
+
 # TODO called twice. Simplify?
 def Tsat(component, Psat, with_units=True):
     """
@@ -175,6 +177,7 @@ def Tsat(component, Psat, with_units=True):
 
     return result
 
+
 # TODO only used once. Simplify?
 def Tc(component, with_units=True):
     """
@@ -191,6 +194,7 @@ def Tc(component, with_units=True):
         tc = ureg.Quantity(tc, "kelvin")
 
     return tc
+
 
 # TODO only used once. Simplify?
 def Pc(component, with_units=True):
@@ -240,6 +244,7 @@ class Air(OpgeeObject):
         result = self.mixture.rho("g", self.mol_fraction, std_temp.m, std_press.m)
         return ureg.Quantity(result, "kg/m**3")
 
+
 # Deprecated? Currently unused.
 class WetAir(Air):
     """
@@ -279,6 +284,7 @@ class AbstractSubstance(OpgeeObject):
     """
     AbstractSubstance class is superclass of Oil, Gas and Water
     """
+
     def __init__(self, field):
         """
 
@@ -592,7 +598,7 @@ class Oil(AbstractSubstance):
 
     def volume_flow_rate(self, stream, oil_specific_gravity, gas_specific_gravity, gas_oil_ratio):
         """
-        TODO: NEEDS DOC
+        Calculate the oil volume flow rate
 
         :param stream:
         :param oil_specific_gravity:
@@ -610,7 +616,7 @@ class Oil(AbstractSubstance):
 
     def mass_energy_density(self, API=None, use_LHV=True, with_unit=True):
         """
-        TODO: NEEDS DOC
+        Calculate oil heating value
 
         :param API:
         :param use_LHV: whether to use LHV or HHV
@@ -630,7 +636,7 @@ class Oil(AbstractSubstance):
     # TODO: used only in tests
     def volume_energy_density(self, stream, oil_specific_gravity, gas_specific_gravity, gas_oil_ratio):
         """
-        TODO: NEEDS DOC
+        Calculate oil volume energy density
 
         :param stream:
         :param oil_specific_gravity:
@@ -1108,7 +1114,7 @@ class Gas(AbstractSubstance):
     # TODO: used only in tests
     def volume_energy_density(self, stream):
         """
-        TODO: NEEDS DOC
+        Calculate gas volume density
 
         :param stream:
 

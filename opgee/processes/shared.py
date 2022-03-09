@@ -3,7 +3,6 @@ from ..error import OpgeeException
 from ..stream import Stream, PHASE_GAS
 
 
-# TODO: This didn't belong in the abstract Process class, so I moved it here
 def get_gas_lifting_init_stream(gas,
                                 imported_fuel_gas_comp,
                                 imported_fuel_gas_mass_fracs,
