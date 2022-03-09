@@ -81,7 +81,7 @@
 				<xs:element minOccurs='0' ref="A"/>
 				<xs:element minOccurs='0' ref="Analysis"/>
         <xs:element minOccurs='0' ref='Field'/>
-				<!-- xs:element minOccurs='0' maxOccurs='1' ref='ProcessDatabase'/ -->
+        <xs:element minOccurs="0" ref='TableUpdate'/>
 			</xs:choice>
       <xs:attribute name='schema_version' use='optional' type='xs:string'/> <!-- default is "4.0.0.a" -->
 		</xs:complexType>
@@ -125,6 +125,26 @@
 			<xs:attribute name='extend' default='0' type='xs:boolean'/>
       <xs:attribute name='delete' type='xs:boolean'/>
       <xs:attribute name="modifies" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Cell">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base='xs:string'>
+          <xs:attribute name='row' use='required' type='xs:string'/>
+          <xs:attribute name='col' use='required' type='xs:string'/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TableUpdate">
+    <xs:complexType>
+      <xs:choice maxOccurs='unbounded'>
+        <xs:element minOccurs='1' ref='Cell'/>
+      </xs:choice>
+      <xs:attribute name='name' use='required' type='xs:string'/>
     </xs:complexType>
   </xs:element>
 

@@ -8,10 +8,11 @@ from . import ureg
 from .analysis import Analysis
 from .container import Container
 from .core import instantiate_subelts, elt_name
-from .error import OpgeeException, XmlFormatError
+from .error import OpgeeException
 from .field import Field
 from .log import getLogger
 from .table_manager import TableManager
+from .table_update import TableUpdate
 
 DEFAULT_SCHEMA_VERSION = "4.0.0.a"
 
@@ -19,7 +20,7 @@ _logger = getLogger(__name__)
 
 class Model(Container):
 
-    def __init__(self, name, analyses, fields, attr_dict=None):
+    def __init__(self, name, analyses, fields, table_updates, attr_dict=None):
         super().__init__(name, attr_dict=attr_dict)
 
         Model.instance = self
@@ -29,7 +30,7 @@ class Model(Container):
         self.analysis_dict = self.adopt(analyses, asDict=True)
         self.field_dict = self.adopt(fields, asDict=True)
 
-        self.table_mgr = tbl_mgr = TableManager()
+        self.table_mgr = tbl_mgr = TableManager(updates=table_updates)
 
         # load all the GWP options
         df = tbl_mgr.get_table('GWP')
@@ -41,6 +42,7 @@ class Model(Container):
 
         df = tbl_mgr.get_table('constants')
         self.constants = {name: ureg.Quantity(float(row.value), row.unit) for name, row in df.iterrows()}
+        self.table_updates = None
 
         self.process_EF_df = tbl_mgr.get_table("process-specific-EF")
 
@@ -79,6 +81,8 @@ class Model(Container):
         for iterator in [self.fields(), self.analyses()]:
             for obj in iterator:
                 obj._after_init()
+
+        # TBD: apply table updates
 
     def set_pathnames(self, pathnames):
         self.pathnames = pathnames
@@ -136,9 +140,10 @@ class Model(Container):
         """
         analyses = instantiate_subelts(elt, Analysis)
         fields = instantiate_subelts(elt, Field)
+        table_updates = instantiate_subelts(elt, TableUpdate)
         attr_dict = cls.instantiate_attrs(elt)
 
-        obj = Model(elt_name(elt), analyses, fields, attr_dict=attr_dict)
+        obj = Model(elt_name(elt), analyses, fields, table_updates, attr_dict=attr_dict)
 
         # do stuff that requires the fully instantiated hierarchy
         obj._after_init()

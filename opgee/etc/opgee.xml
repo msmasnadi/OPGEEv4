@@ -34,6 +34,10 @@
 		<Field name="US_FW"/>			<!-- include one field only -->
 	</Analysis>
 
+	<TableUpdate name="some-table">
+		<Cell row="foo" col="bar">123.456</Cell>
+	</TableUpdate>
+
 	<Field name="test">
 		<Group>testing</Group>	<!-- to allow multiple fields to be identified easily in Analysis -->
 
