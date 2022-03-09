@@ -25,9 +25,6 @@ class TableUpdate(XmlInstantiable):
         super().__init__(name)
         self.cells = cells
 
-    def apply(self, tbl_mgr):
-        pass
-
     @classmethod
     def from_xml(cls, elt):
         cells = instantiate_subelts(elt, Cell)
