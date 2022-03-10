@@ -156,7 +156,7 @@
 			<Contains>gas</Contains>
 		</Stream>
 		<Aggregator name="Exploration">
-			<Process class="Exploration"/>
+			<Process class="Exploration" after="true"/>
 		</Aggregator>
 		<Aggregator name="DrillingAndDevelopment">
 			<Process class="DrillingAndDevelopment" desc="Drilling &amp; development">

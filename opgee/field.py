@@ -123,7 +123,7 @@ class Field(Container):
 
     def _check_run_after_procs(self):
         """
-        For procs tagged run-after="True", allow outputs only to other "run-after" procs.
+        For procs tagged 'after="True"', allow outputs only to other "after" procs.
         """
         def _run_after_ok(proc):
             for dst in proc.successors():
@@ -133,7 +133,7 @@ class Field(Container):
 
         bad = [proc for proc in self.processes() if proc.run_after and not _run_after_ok(proc)]
         if bad:
-            raise OpgeeException(f"Processes {bad} are tagged 'run-after=True' but have output streams to non run-after processes")
+            raise OpgeeException(f"Processes {bad} are tagged 'after=True' but have output streams to non-'after' processes")
 
         return True
 
@@ -498,7 +498,7 @@ class Field(Container):
         1. Nodes neither in cycle nor dependent on cycles
         2. Nodes in cycles
         3. Nodes dependent on cycles
-        4. Nodes tagged "run-after=True" in the XML, sorted topologically
+        4. Nodes tagged "after='true'" in the XML, sorted topologically
 
         :return: (4-tuple of sets of Processes)
         """
@@ -578,7 +578,7 @@ class Field(Container):
         # run all processes dependent on cycles, which are now complete
         run_procs_in_order(cycle_dependent)
 
-        # finally, run all "run-after=True" procs, in sort order
+        # finally, run all "after='True'" procs, in sort order
         run_procs_in_order(run_afters)
 
     def _connect_processes(self):
