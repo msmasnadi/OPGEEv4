@@ -130,6 +130,54 @@ class Model(Container):
         for child in self.children():
             child.validate()
 
+    def partial_ci_values(self, analysis, field, nodes):
+        from .error import ZeroEnergyFlowError
+
+        try:
+            energy = field.boundary_energy_flow_rate(analysis)
+        except ZeroEnergyFlowError:
+            _logger.error(f"Can't save results: zero energy flow at system boundary for {field}")
+            return None
+
+        def partial_ci(obj):
+            ghgs = obj.emissions.data.sum(axis='columns')['GHG']
+            ci = ghgs / energy
+            # convert to g/MJ, but we don't need units in CSV file
+            return ci.to("grams/MJ").m
+
+        results = [(obj.name, partial_ci(obj)) for obj in nodes]
+        return results
+
+    def save_results(self, tuples, csvpath, by_process=False):
+        """
+        Save the carbon intensity (CI) results for the indicated (field, analysis)
+        tuples to the indicated CSV pathname, ``csvpath``. By default, results are
+        written for top-level processes and aggregators. If ``by_process`` is True,
+        the results are written out for all processes, ignoring aggregators.
+
+        :param tuples: (sequence of tuples of (analysis, field) instances)
+        :param by_process: (bool) if True, write results by process. If False,
+            write results for top-level processes and aggregators only.
+        :return: none
+        """
+        import pandas as pd
+
+        rows = []
+
+        for (field, analysis) in tuples:
+            nodes = field.processes() if by_process else field.children()
+            ci_tuples = self.partial_ci_values(analysis, field, nodes)
+            for name, ci in ci_tuples:
+                rows.append({'analysis' : analysis.name,
+                           'field' : field.name,
+                           'node' : name,
+                            'CI' : ci})
+
+        df = pd.DataFrame(data=rows)
+        _logger.info(f"Writing '{csvpath}'")
+        df.to_csv(csvpath, index=False)
+
+
     @classmethod
     def from_xml(cls, elt):
         """

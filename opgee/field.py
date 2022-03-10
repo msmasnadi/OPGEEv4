@@ -456,7 +456,7 @@ class Field(Container):
 
     def report(self, analysis):
         """
-        Print a text report showing Streams, energy, and emissions. Must
+        Print a text report showing Streams, energy, and emissions.
         """
         from .utils import dequantify_dataframe
 
