@@ -103,7 +103,6 @@
 				<StreamRef name="CO2 injection well to reservoir"/>
 				<StreamRef name="acid gas removal to demethanizer"/>
 				<StreamRef name="demethanizer to gas partition"/>
-
 			</ProcessGroup>
 
 		</ProcessChoice>
@@ -133,6 +132,11 @@
 				<StreamRef name="crude oil dewatering to heavy oil dilution"/>
 			</ProcessGroup>
 		</ProcessChoice>
+
+		<Aggregator name="ExplorationAndDrilling">
+			<Process class="Exploration" after="true"/>
+			<Process class="Drilling" after="true"/>
+		</Aggregator>
 
 		<Aggregator name="ProductionExtraction">
 			<Process class="DownholePump"/>

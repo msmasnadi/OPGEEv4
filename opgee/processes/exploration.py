@@ -13,3 +13,7 @@ class Exploration(Process):
     def run(self, analysis):
         self.print_running_msg()
 
+        field = self.field
+        export_df = field.import_export.export_df
+
+

@@ -77,14 +77,6 @@
 			<Contains>gas</Contains>
 		</Stream>
 
-		<Stream src="Separation" dst="Environment" name="gas fugitives from separator">
-			<Contains>gas fugitives</Contains>
-		</Stream>
-
-		<Stream src="DownholePump" dst="Environment" name="gas fugitives from downhole pump">
-			<Contains>gas fugitives</Contains>
-		</Stream>
-
 		<Stream src="ReservoirWellInterface" dst="DownholePump" name="reservoir well interface to downhole pump">
 			<Contains>crude oil</Contains>
 		</Stream>
@@ -132,6 +124,8 @@
 		<A name="gas_comp_C4">1.0</A>
 		<A name="gas_comp_H2S">1.0</A>
 		<A name="GOR">1205.4</A>
+
+		<Process class="After"/>
 
 		<Process class="Reservoir" desc="Oil reservoir">
 			<A name="leak_rate">0.0022</A>
@@ -260,6 +254,6 @@
 			<Process class="NGLOrDiluentProdAndImports" desc="NGL or Diluent Prod and Imports"/>
 		</Aggregator>
 
-		<Stream src="DownholePump" dst="Environment" boundary="Production"/>
+		<Stream src="DownholePump" dst="After" boundary="Production"/>
 	</Field>
 </Model>
