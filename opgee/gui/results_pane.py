@@ -146,7 +146,7 @@ class ResultsPane(OpgeePane):
                                "value": [pair[1] for pair in top_level],
                                "unit": [fn_unit] * len(top_level)})
 
-            fig = go.Figure(data=[go.Bar(name=row.category, x=[row.unit], y=[row.value], width=[0.7]) for idx, row in df.iterrows()],
+            fig = go.Figure(data=[go.Bar(name=row.category, x=[row.unit], y=[row.value.m], width=[0.7]) for idx, row in df.iterrows()],
                             layout=go.Layout(barmode='stack'))
 
             fig.update_layout(yaxis_title=f"MJ per MJ of {fn_unit}",
