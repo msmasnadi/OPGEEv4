@@ -32,6 +32,7 @@
 
 		<Process class="CrudeOilStorage" enabled="false"/>
 		<Process class="Output"/>
+		<Process class="After"/>
 
 		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
 			<Contains>crude oil</Contains>
@@ -68,16 +69,8 @@
 			<Contains>water for subsurface disposal</Contains>
 		</Stream>
 
-		<Stream src="Separation" dst="Output" name="gas after separator">
+		<Stream src="Separation" dst="Output" name="gas after separator" boundary="Production">
 			<Contains>gas</Contains>
-		</Stream>
-
-		<Stream src="Separation" dst="Environment" name="gas fugitives from separator">
-			<Contains>gas fugitives</Contains>
-		</Stream>
-
-		<Stream src="DownholePump" dst="Environment" name="gas fugitives from downhole pump" boundary="Production"> <!-- arbitrary boundary just to get test working -->
-			<Contains>gas fugitives</Contains>
 		</Stream>
 
 		<Stream src="ReservoirWellInterface" dst="DownholePump" name="reservoir well interface to downhole pump">
@@ -93,15 +86,15 @@
 		</Stream>
 
 		<!-- TODO: Output should not be a source -->
-		<Stream src="Output" dst="DownholePump" name="lifting gas" impute="False">
+		<Stream src="After" dst="DownholePump" name="lifting gas" impute="False">
 			<Contains>lifting gas</Contains>
 		</Stream>
 
-		<Stream src="Output" dst="ReservoirWellInterface" name="flooding CO2" impute="False">
+		<Stream src="After" dst="ReservoirWellInterface" name="flooding CO2" impute="False">
 			<Contains>CO2</Contains>
 		</Stream>
 
-		<Stream src="Output" dst="WaterTreatment" name="blowdown recycled to treatment" impute="False">
+		<Stream src="After" dst="WaterTreatment" name="blowdown recycled to treatment" impute="False">
 			<Contains>water</Contains>
 		</Stream>
 	</Field>
