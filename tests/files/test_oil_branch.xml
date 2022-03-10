@@ -70,13 +70,6 @@
 		<Stream src="Before" dst="CrudeOilStorage" name="crude oil dilution to crude oil storage">
 			<Contains>oil for storage</Contains>
 		</Stream>
-		<Stream src="CrudeOilStorage" dst="Environment" name="crude oil storage to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
-
-		<Stream src="CrudeOilStabilization" dst="Environment" name="crude oil stabilization to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
 
 		<Stream src="CrudeOilStabilization" dst="After" name="gas from stabilization">
 			<Contains>gas for gas gathering</Contains>
@@ -96,10 +89,6 @@
 
 		<Stream src="CrudeOilStorage" dst="VRUCompressor" name="crude oil storage to VRU compressor">
 			<Contains>gas for VRU</Contains>
-		</Stream>
-
-		<Stream src="VRUCompressor" dst="Environment" name="VRU compressor to environment">
-			<Contains>gas fugitives</Contains>
 		</Stream>
 
 		<Stream src="VRUCompressor" dst="After" name="VRU compressor to gas gathering">
@@ -149,10 +138,6 @@
 			<A name="pressure">150.0</A>
 		</Stream>
 
-		<Stream src="HeavyOilUpgrading" dst="Environment" name="heavy oil upgrading to environment">
-			<Contains>process gas</Contains>
-		</Stream>
-
 		<Stream src="HeavyOilUpgrading" dst="After" name="heavy oil upgrading to flaring">
 			<Contains>gas for flaring</Contains>
 		</Stream>
@@ -186,11 +171,6 @@
 		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to VRU compressor">
 			<Contains>gas for VRU</Contains>
 		</Stream>
-
-		<Stream src="CrudeOilStorage" dst="Environment" name="crude oil storage to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
-
 	</Field>
 
 	<Field name='heavy_oil_diluent'>
@@ -276,10 +256,6 @@
 			<Contains>oil for VRU</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilStorage" dst="Environment" name="crude oil storage to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
-
 		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to flaring">
 			<Contains>gas for flaring</Contains>
 		</Stream>
@@ -302,10 +278,6 @@
 
 		<Stream src="BitumenMining" dst="HeavyOilDilution" name="bitumen mining to heavy oil dilution">
 			<Contains>bitumen for dilution</Contains>
-		</Stream>
-
-		<Stream src="BitumenMining" dst="Environment" name="bitumen mining to environment">
-			<Contains>gas fugitive</Contains>
 		</Stream>
 
 		<Stream src="BitumenMining" dst="After" name="bitumen mining to flaring">

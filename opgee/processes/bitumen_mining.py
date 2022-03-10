@@ -4,8 +4,7 @@ from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
 from ..core import TemperaturePressure
 from ..log import getLogger
 from ..process import Process
-from ..stream import PHASE_GAS
-from ..import_export import ImportExport
+from ..stream import PHASE_GAS, Stream
 
 _logger = getLogger(__name__)
 
@@ -69,7 +68,7 @@ class BitumenMining(Process):
         mine_flaring_rate = self.FOR * oil_rate
         mine_offgas_rate = self.VOR * oil_rate
 
-        gas_fugitives = self.find_output_stream("gas fugitive")
+        gas_fugitives = Stream("gas_fugitives", tp=self.field.stp)
         gas_fugitives.set_rates_from_series(mine_offgas_rate, PHASE_GAS)
 
         gas_flaring = self.find_output_stream("gas for flaring")

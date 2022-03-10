@@ -7,7 +7,7 @@ from ..log import getLogger
 from ..process import Process
 from ..stream import PHASE_GAS
 from ..core import STP
-from ..import_export import ImportExport
+from ..stream import Stream
 
 _logger = getLogger(__name__)
 
@@ -82,7 +82,7 @@ class HeavyOilUpgrading(Process):
         proc_gas_exported = proc_gas_dict["Fraction PG exported"]
         proc_gas_flared = proc_gas_dict["Fraction PG flared"]
 
-        output_proc_gas = self.find_output_stream("process gas")
+        output_proc_gas = Stream("proccess_gas", tp=self.field.stp)
         proc_gas_mass_rate = (self.upgrader_gas_comp *
                               self.oil.component_MW[self.upgrader_gas_comp.index] *
                               proc_gas_exported *
