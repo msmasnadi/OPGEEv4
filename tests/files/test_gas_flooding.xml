@@ -31,9 +31,6 @@
             <Contains>gas for gas reinjection well</Contains>
         </Stream>
 
-        <Stream src="GasReinjectionCompressor" dst="Environment" name="gas reinjection compressor to environment">
-            <Contains>gas fugitives</Contains>
-        </Stream>
     </Field>
 
 </Model>

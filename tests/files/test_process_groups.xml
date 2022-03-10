@@ -52,7 +52,7 @@
     <Process class="GasDehydration"/>
     <Process class="AcidGasRemoval"/>
     <Process class="After"/>
-    <Stream src="Reservoir" dst="Environment" boundary="Production"/>
+    <Stream src="Reservoir" dst="After" boundary="Production"/>
     <Stream src="GasDehydration" dst="AcidGasRemoval" name="s1"/>
       <Stream src="GasDehydration" dst="AcidGasRemoval" name="s2"/>
   </Field>

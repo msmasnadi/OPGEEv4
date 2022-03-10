@@ -12,11 +12,12 @@
 	<Field name="test1">
 		<Group>Foo</Group>
 		<A name="country">USA</A>
+		<Process class="After"/>
 
 		<Process class="ProcA" desc="Test process 1"/>
 		<Process class="ProcB" desc="Test process 2"/>
 
-		<Stream src="ProcB" dst="Environment" boundary="Production"/>
+		<Stream src="ProcB" dst="After" boundary="Production"/>
 	</Field>
 
 	<Field name="test2">
@@ -25,8 +26,9 @@
 
 		<Process class="ProcA" desc="Test process 1"/>
 		<Process class="ProcB" desc="Test process 2"/>
+		<Process class="After"/>
 
-		<Stream src="ProcB" dst="Environment" boundary="Production"/>
+		<Stream src="ProcB" dst="After" boundary="Production"/>
 	</Field>
 
 	<Field name="test3">
@@ -35,8 +37,9 @@
 
 		<Process class="ProcA" desc="Test process 1"/>
 		<Process class="ProcB" desc="Test process 2"/>
+		<Process class="After"/>
 
-		<Stream src="ProcB" dst="Environment" boundary="Production"/>
+		<Stream src="ProcB" dst="After" boundary="Production"/>
 	</Field>
 
 </Model>

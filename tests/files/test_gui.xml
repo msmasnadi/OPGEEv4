@@ -91,14 +91,6 @@
 			<Contains>gas</Contains>
 		</Stream>
 
-		<Stream src="Separation" dst="Environment" name="gas fugitives from separator">
-			<Contains>gas fugitives</Contains>
-		</Stream>
-
-		<Stream src="DownholePump" dst="Environment" name="gas fugitives from downhole pump">
-			<Contains>gas fugitives</Contains>
-		</Stream>
-
 		<Stream src="ReservoirWellInterface" dst="DownholePump" name="reservoir well interface to downhole pump">
 			<Contains>crude oil</Contains>
 		</Stream>
@@ -182,24 +174,8 @@
 			<Contains>gas</Contains>
 		</Stream>
 
-		<Stream src="Separation" dst="Environment" name="gas fugitives from separator">
-			<Contains>gas fugitives</Contains>
-		</Stream>
-
 		<Stream src="After" dst="Output">
 			<Contains>crude oil</Contains>
-		</Stream>
-
-		<Stream src="After" dst="Environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
-
-<!--		<Stream src="Separation" dst="Environment" name="gas fugitives from separator">-->
-<!--			<Contains>gas fugitives</Contains>-->
-<!--		</Stream>-->
-
-		<Stream src="DownholePump" dst="Environment" name="gas fugitives from downhole pump">
-			<Contains>gas fugitives</Contains>
 		</Stream>
 
 	</Field>
