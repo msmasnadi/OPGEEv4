@@ -10,6 +10,13 @@ class ProcB(Process):
     def run(self, analysis):
         pass
 
+class Before(Process):
+    def run(self, analysis):
+        pass
+
+    def impute(self):
+        pass
+
 class Output(Process):
     def run(self, analysis):
         pass

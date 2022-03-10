@@ -42,6 +42,17 @@ class CrudeOilStorage(Process):
         gas_exsolved_upon_flashing = oil_mass_rate * loss_rate * self.tonne_to_bbl / \
                                      self.CH4_comp if self.oil_sands_mine == "None" else ureg.Quantity(0, "tonne/day")
 
+        # TODO: for Wennan
+        # # maybe give "x" a more meaningful name
+        # x = gas_exsolved_upon_flashing * self.storage_gas_comp
+        #
+        # vapor_to_flare = self.f_FG_CS_FL * x
+        # vapor_to_VRU = self.f_FG_CS_VRU * x
+        #
+        # #gas_fugitives = (1 - self.f_FG_CS_VRU - self.f_FG_CS_FL) * x
+        # # Even better:
+        # gas_fugitives = x - vapor_to_VRU - vapor_to_flare
+
         vapor_to_flare = self.f_FG_CS_FL * gas_exsolved_upon_flashing * self.storage_gas_comp
         vapor_to_VRU = self.f_FG_CS_VRU * gas_exsolved_upon_flashing * self.storage_gas_comp
         gas_fugitives = (1 - self.f_FG_CS_VRU - self.f_FG_CS_FL) * gas_exsolved_upon_flashing * self.storage_gas_comp

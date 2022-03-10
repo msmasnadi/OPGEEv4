@@ -126,7 +126,7 @@ class SteamGenerator(OpgeeObject):
         recoverable_enthalpy_blowdown_water = self.eta_blowdown_heat_rec_OTSG * \
                                               (blowdown_before_heat_recovery_enthalpy_rate -
                                                blowdown_after_heat_recovery_enthalpy_rate) \
-            if self.blowdown_heat_recovery else ureg.Quantity(0, "MJ/day")
+            if self.blowdown_heat_recovery else ureg.Quantity(0.0, "MJ/day")
         steam_out_enthalpy_rate = desired_steam_enthalpy_rate + blowdown_before_heat_recovery_enthalpy_rate
         # OTSG combustion
         gas_combusted = (self.imported_fuel_gas_comp * self.OTSG_frac_import_gas +
@@ -173,9 +173,9 @@ class SteamGenerator(OpgeeObject):
                    (1 + eta_heater * (constant_outlet - constant_before_preheater))
 
         # TODO: as above
-        recoverable_heat_before_economizer = ureg.Quantity(0, "MJ/day") if not self.economizer_OTSG else \
+        recoverable_heat_before_economizer = ureg.Quantity(0.0, "MJ/day") if not self.economizer_OTSG else \
             (d_eco - d_eco * d_heater) * delta_H / (1 - d_eco * d_heater)
-        recoverable_heat_before_preheater = ureg.Quantity(0, "MJ/day") if not self.economizer_OTSG else \
+        recoverable_heat_before_preheater = ureg.Quantity(0.0, "MJ/day") if not self.economizer_OTSG else \
             (d_heater - d_eco * d_heater) * delta_H / (1 - d_eco * d_heater)
 
         fuel_demand_for_steam_enthalpy_change = delta_H - recoverable_heat_before_economizer - recoverable_heat_before_preheater
@@ -241,7 +241,7 @@ class SteamGenerator(OpgeeObject):
         recoverable_enthalpy_blowdown_water = self.eta_blowdown_heat_rec_HRSG * \
                                               (blowdown_before_heat_recovery_enthalpy_rate -
                                                blowdown_after_heat_recovery_enthalpy_rate) \
-            if self.blowdown_heat_recovery else ureg.Quantity(0, "MJ/day")
+            if self.blowdown_heat_recovery else ureg.Quantity(0.0, "MJ/day")
 
         steam_out_enthalpy_rate = desired_steam_enthalpy_rate + blowdown_before_heat_recovery_enthalpy_rate
 
@@ -263,7 +263,7 @@ class SteamGenerator(OpgeeObject):
         exhaust_consump_LHV_stream = temp.sum() / exhaust_consump_MW / exhaust_consump_sum
         exhaust_consump = exhaust_consump.drop(labels=["C1"])
 
-        inlet_temp = ureg.Quantity(1300, "degF") if self.duct_firing else \
+        inlet_temp = ureg.Quantity(1300.0, "degF") if self.duct_firing else \
             self.gas_turbine_tlb["Turbine exhaust temp."][self.gas_turbine_type]
 
         if self.duct_firing:
@@ -273,7 +273,7 @@ class SteamGenerator(OpgeeObject):
         else:
             inlet, inlet_sum, inlet_MW, inlet_LHV_fuel, inlet_LHV_stream, duct_additional_fuel = \
                 exhaust_consump, exhaust_consump_sum, exhaust_consump_MW, exhaust_consump_LHV_fuel, \
-                exhaust_consump_LHV_stream, ureg.Quantity(0, "frac")
+                exhaust_consump_LHV_stream, ureg.Quantity(0.0, "frac")
 
         LHV_fuel, LHV_stream = self.get_LHV_fuel_and_stream_series(inlet,
                                                                    self.HRSG_exhaust_temp_series,
@@ -295,14 +295,14 @@ class SteamGenerator(OpgeeObject):
         denominator = 1 - eta_eco * const_heater + eta_eco * const_eco
         H_eco = const_eco * delta_H / denominator
         H_heater = const_heater * delta_H / denominator
-        recoverable_heat_before_economizer = (H_eco - H_heater) * eta_eco if self.economizer_HRSG else ureg.Quantity(
-            0, "MJ/day")
+        recoverable_heat_before_economizer = ((H_eco - H_heater) * eta_eco if
+                                              self.economizer_HRSG else ureg.Quantity(0.0, "MJ/day"))
         H_fuel_inlet_HRSG = (delta_H - recoverable_heat_before_economizer) / frac_steam
         mass_fuel_inlet_HRSG = H_fuel_inlet_HRSG / inlet_LHV_stream
-        recoverable_heat_before_preheater = mass_fuel_inlet_HRSG * \
+        recoverable_heat_before_preheater = (mass_fuel_inlet_HRSG *
                                             (LHV_stream["outlet"] -
-                                             LHV_stream["outlet_before_preheater"]) * \
-                                            eta_heater if self.preheater_HRSG else ureg.Quantity(0, "MJ/day")
+                                             LHV_stream["outlet_before_preheater"]) *
+                                            eta_heater if self.preheater_HRSG else ureg.Quantity(0.0, "MJ/day"))
 
         GT_frac_electricity = self.gas_turbine_tlb["Turbine efficiency"][self.gas_turbine_type]
         GT_frac_loss = self.gas_turbine_tlb["Turbine loss"][self.gas_turbine_type]
@@ -435,7 +435,7 @@ class SteamGenerator(OpgeeObject):
                                + self.HRSG_frac_prod_gas * self.prod_gas_products_comp) + \
                               (self.O2_excess_HRSG - 1) / self.O2_excess_HRSG * air_requirement_fuel
         exhaust_consump_sum = exhaust_consump.sum()
-        exhaust_consump["C1"] = ureg.Quantity(100, "percent")
+        exhaust_consump["C1"] = ureg.Quantity(100.0, "percent")
         exhaust_consump = pd.Series(exhaust_consump, dtype="pint[percent]")
         exhaust_consump_MW = self.gas.molar_weight_from_molar_fracs(
             exhaust_consump.drop(labels=["C1"])) / exhaust_consump.drop(labels=["C1"]).sum()
@@ -454,7 +454,7 @@ class SteamGenerator(OpgeeObject):
                           + self.HRSG_frac_prod_gas * self.prod_gas_products_comp) + \
                          (O2_excess_duct - 1) / O2_excess_duct * exhaust_consump
             HRSG_inlet_sum = HRSG_inlet.sum()
-            HRSG_inlet["C1"] = ureg.Quantity(100, "percent")
+            HRSG_inlet["C1"] = ureg.Quantity(100.0, "percent")
             HRSG_inlet = pd.Series(HRSG_inlet, dtype="pint[percent]")
             HRSG_inlet_MW = self.gas.molar_weight_from_molar_fracs(
                 HRSG_inlet.drop(labels=["C1"])) / HRSG_inlet.drop(labels=["C1"]).sum()

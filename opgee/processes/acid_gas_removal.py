@@ -94,7 +94,7 @@ class AcidGasRemoval(Process):
         cooler_thermal_load = ureg.Quantity(max(0.0, corr_result_df["Cooler"] * gas_multiplier), "kW")
 
         # reboiler_fuel_use = reboiler_heavy_duty * self.eta_reboiler_AGR
-        # pump_duty = ureg.Quantity(max(0, corr_result_df["Pump"] * gas_multiplier), "kW")
+        # pump_duty = ureg.Quantity(max(0.0, corr_result_df["Pump"] * gas_multiplier), "kW")
         # condenser_energy_consumption = predict_blower_energy_use(self, condenser_thermal_load)
         # amine_cooler_energy_consumption = predict_blower_energy_use(self, cooler_thermal_load)
 

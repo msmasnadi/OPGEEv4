@@ -124,7 +124,7 @@ class HeavyOilDilution(Process):
 
         bitumen_mass_rate = self.oil_prod_rate * self.bitumen_SG * self.water_density \
             if upgrader_mining_prod_offsite == 0 and \
-               self.oil_sand_mine == non_integrated_with_upgrader else ureg.Quantity(0, "tonne/day")
+               self.oil_sand_mine == non_integrated_with_upgrader else ureg.Quantity(0.0, "tonne/day")
 
         return bitumen_mass_rate
 

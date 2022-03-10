@@ -122,7 +122,7 @@ class DownholePump(Process):
         pressure_drop_fric = (fluid_lifted_density * self.friction_factor * self.depth * fluid_velocity ** 2 /
                               (2 * self.prod_tubing_diam))
         pressure_drop_total = pressure_drop_fric + pressure_drop_elev
-        pressure_for_lifting = max(ureg.Quantity(0, "psia"), wellhead_P + pressure_drop_total - input.tp.P)
+        pressure_for_lifting = max(ureg.Quantity(0.0, "psia"), wellhead_P + pressure_drop_total - input.tp.P)
         liquid_flow_rate_per_well = (average_volume_oil_lifted + volume_water_lifted) / self.num_prod_wells
         brake_horse_power = 1.05 * (liquid_flow_rate_per_well * pressure_for_lifting) / self.eta_pump_well
         energy_consumption_of_stages = self.get_energy_consumption_stages(self.prime_mover_type, [brake_horse_power])

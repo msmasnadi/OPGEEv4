@@ -119,8 +119,8 @@ class TransportEnergy(OpgeeObject):
                 barge_hp,
                 "barge")
 
-        pipeline_origin_energy_intensity = ureg.Quantity(0, "btu/tonne/mile")
-        rail_origin_energy_intensity = ureg.Quantity(200, "btu/tonne/mile")
+        pipeline_origin_energy_intensity = ureg.Quantity(0.0, "btu/tonne/mile")
+        rail_origin_energy_intensity = ureg.Quantity(200.0, "btu/tonne/mile")
         truck_origin_energy_intensity = energy_intensity_truck
 
         transport_dest_energy_consumption = pd.Series([ocean_tanker_dest_energy_intensity, barge_dest_energy_intensity,
@@ -157,8 +157,8 @@ class TransportEnergy(OpgeeObject):
     @staticmethod
     def get_parameter_dict(parameter_table):
         """
-        Given Dataframe with name, value and unit. Return parameter diction where key is the name and value is the
-        ureg.Quantity with unit specified.
+        Given Dataframe with name, value and unit. Return parameter dictionary where key is
+        the name and value is the ureg.Quantity with unit specified.
 
         :return:
         """
@@ -166,7 +166,7 @@ class TransportEnergy(OpgeeObject):
         parameter_unit = parameter_table["Units"]
         parameter_dict = {}
         for name, value in parameter_value.iteritems():
-            parameter_dict[name] = ureg.Quantity(value, parameter_unit[name])
+            parameter_dict[name] = ureg.Quantity(float(value), parameter_unit[name])
 
         return parameter_dict
 

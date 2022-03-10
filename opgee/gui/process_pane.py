@@ -14,7 +14,7 @@ _logger = getLogger(__name__)
 
 class ProcessPane(OpgeePane):
 
-    def get_layout(self, field, show_streams_to_env=False, show_stream_contents=False, show_disabled_procs=False,
+    def get_layout(self, field, show_stream_contents=False, show_disabled_procs=False,
                    layout_name='breadthfirst'):
         # the main row
         layout = html.Div([
@@ -35,7 +35,6 @@ class ProcessPane(OpgeePane):
                 className="row",
                 children=[
                     field_network_graph(field,
-                                        show_streams_to_env=show_streams_to_env,
                                         show_stream_contents=show_stream_contents,
                                         show_disabled_procs=show_disabled_procs,
                                         layout_name=layout_name)
@@ -209,17 +208,15 @@ class ProcessPane(OpgeePane):
 
         @app.callback(
             Output('field-network-graph-div', 'children'),
-            Input('show-streams-to-env', 'value'),
             Input('show-stream-contents', 'value'),
             Input('show-disabled-procs', 'value'),
             Input('graph-layout-selector', 'value'),
             State('analysis-and-field', 'data'),
         )
-        def redraw_network_graph(show_streams_to_env, show_stream_contents, show_disabled_procs,
+        def redraw_network_graph(show_stream_contents, show_disabled_procs,
                                  layout_name, analysis_and_field):
             analysis, field = get_analysis_and_field(model, analysis_and_field)
             return field_network_graph(field,
-                                       show_streams_to_env=show_streams_to_env,
                                        show_stream_contents=show_stream_contents,
                                        show_disabled_procs=show_disabled_procs,
                                        layout_name=layout_name)
@@ -228,7 +225,7 @@ class ProcessPane(OpgeePane):
 # Load extra layouts
 # cyto.load_extra_layouts()   # required for cose-bilkent
 
-def field_network_graph(field, show_streams_to_env=False, show_stream_contents=False, show_disabled_procs=False,
+def field_network_graph(field, show_stream_contents=False, show_disabled_procs=False,
                         layout_name='breadthfirst'):
 
     def edge_class(stream):
@@ -245,7 +242,6 @@ def field_network_graph(field, show_streams_to_env=False, show_stream_contents=F
     edges = [{'data': {'id': name, 'source': s.src_name, 'target': s.dst_name,
                        'contents': ', '.join(s.contents)}, 'classes': edge_class(s)}
              for name, s in field.stream_dict.items() if (
-                     (show_streams_to_env or s.dst_name != "Environment") and
                      s.dst_proc and s.src_proc and
                      (show_disabled_procs or (s.dst_proc.enabled and s.src_proc.enabled))
              )]

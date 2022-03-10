@@ -3,8 +3,7 @@ from opgee import ureg
 from opgee.energy import EN_NATURAL_GAS, EN_CRUDE_OIL
 from opgee.emissions import EM_FLARING
 from opgee.error import OpgeeException
-from opgee.process import Process, _get_subclass, Environment, Reservoir
-from opgee.stream import Stream
+from opgee.process import Process, _get_subclass, Reservoir
 
 class NotProcess(): pass
 
@@ -61,10 +60,6 @@ def process(test_model):
     field = analysis.get_field('test')
     proc = field.find_process('ProcA')
     return proc
-
-
-def test_get_environment(process):
-    assert isinstance(process.get_environment(), Environment)
 
 
 def test_get_reservoir(process):

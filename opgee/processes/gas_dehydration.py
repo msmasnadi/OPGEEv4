@@ -87,10 +87,10 @@ class GasDehydration(Process):
         x4 = self.reflux_ratio.m
         x5 = self.regeneration_feed_temp.to("degF").m
         corr_result_df = run_corr_eqns(x1, x2, x3, x4, x5, self.gas_dehydration_tbl)
-        reboiler_heavy_duty = ureg.Quantity(max(0, corr_result_df["Reboiler"] * gas_multiplier), "kW")
+        reboiler_heavy_duty = ureg.Quantity(max(0., corr_result_df["Reboiler"] * gas_multiplier), "kW")
         pump_duty = ureg.Quantity(max(0, corr_result_df["Pump"] * gas_multiplier), "kW")
-        condenser_thermal_load = ureg.Quantity(max(0, corr_result_df["Condenser"] * gas_multiplier), "kW")
-        water_output = ureg.Quantity(max(0, corr_result_df["Resid water"]), "lb/mmscf")
+        condenser_thermal_load = ureg.Quantity(max(0., corr_result_df["Condenser"] * gas_multiplier), "kW")
+        water_output = ureg.Quantity(max(0., corr_result_df["Resid water"]), "lb/mmscf")
 
         reboiler_fuel_use = reboiler_heavy_duty * self.eta_reboiler_dehydrator
         blower_air_quantity = condenser_thermal_load / self.air_elevation_const / self.air_cooler_delta_T

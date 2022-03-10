@@ -43,7 +43,7 @@ class GasReinjectionCompressor(Process):
             return
 
         input_gas_vol_rate = \
-            ureg.Quantity(0, "mmscf/day") \
+            ureg.Quantity(0., "mmscf/day") \
                 if input.is_uninitialized() \
                 else input.total_gas_rate() / field.gas.density(input)
 
@@ -76,7 +76,7 @@ class GasReinjectionCompressor(Process):
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
-        discharge_press = self.res_press + ureg.Quantity(500, "psi")
+        discharge_press = self.res_press + ureg.Quantity(500., "psi")
         overall_compression_ratio = discharge_press / input.tp.P
         energy_consumption, output_temp, output_press = \
             Compressor.get_compressor_energy_consumption(

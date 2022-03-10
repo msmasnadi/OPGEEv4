@@ -181,3 +181,15 @@ def loadModuleFromPath(module_path, raiseError=True):
             raise OpgeeException(errorString)
 
     return module
+
+def dequantify_dataframe(df):
+    import pandas as pd
+
+    items = {}
+
+    for name, series in df.iteritems():
+        d = {idx: quantity.m for idx, quantity in series.iteritems()}
+        items[name] = d
+
+    new_df = pd.DataFrame(items)
+    return new_df

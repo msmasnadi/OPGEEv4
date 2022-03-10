@@ -26,7 +26,7 @@ class GasPartition(Process):
         self.imported_fuel_gas_mass_fracs = field.gas.component_mass_fractions(self.imported_fuel_gas_comp)
         self.imported_gas_stream = Stream("imported_gas", STP)
         self.imported_gas_stream.set_rates_from_series(
-            self.imported_fuel_gas_mass_fracs * ureg.Quantity(1, "tonne/day"),
+            self.imported_fuel_gas_mass_fracs * ureg.Quantity(1., "tonne/day"),
             phase=PHASE_GAS)
         self.fraction_remaining_gas_inj = field.attr("fraction_remaining_gas_inj")
         self.natural_gas_reinjection = field.attr("natural_gas_reinjection")

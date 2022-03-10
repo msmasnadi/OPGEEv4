@@ -84,7 +84,7 @@ class Container(XmlInstantiable, AttributeMixin):
         return aggs
 
     def print_running_msg(self):
-        _logger.info(f"Running {type(self)} name='{self.name}'")
+        _logger.debug(f"Running {type(self)} name='{self.name}'")
 
     def get_energy_rates(self):
         """

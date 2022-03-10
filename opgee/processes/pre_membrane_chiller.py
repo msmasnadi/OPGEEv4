@@ -14,7 +14,7 @@ class PreMembraneChiller(Process):
         self.field = field = self.get_field()
         self.outlet_temp = field.attr("chiller_outlet_temp")
         self.fug_emissions_chiller = field.attr("fug_emissions_chiller")
-        self.pressure_drop = ureg.Quantity(56, "delta_degC")
+        self.pressure_drop = ureg.Quantity(56.0, "delta_degC")
         self.feed_stream_mass_rate = ureg.Quantity(6.111072, "tonne/day")
         self.compressor_load = ureg.Quantity(3.44, "MW")
 

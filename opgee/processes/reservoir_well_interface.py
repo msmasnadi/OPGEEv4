@@ -90,7 +90,7 @@ class ReservoirWellInterface(Process):
         # reservoir and flowing pressures at wellbore interface
         prod_liquid_flowing_BHP = (input_stream.tp.P - fluid_rate_per_well / self.productivity_index).to("psia")
 
-        boundary = ureg.Quantity(2000, "psia")
+        boundary = ureg.Quantity(2000., "psia")
         if res_press <= boundary:
             # flowing bottomhole pressure at producer (gas phase, low pressure)
             delta_P_square = (gas_viscosity * z_factor * std_P * stream_temp *

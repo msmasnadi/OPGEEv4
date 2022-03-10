@@ -55,7 +55,7 @@ class WaterInjection(Process):
         diff_press = wellbore_flowing_press - water_gravitation_head
 
         pumping_press = diff_press + friction_loss - self.press_pump \
-            if diff_press + friction_loss >= 0 else ureg.Quantity(0, "psia")
+            if diff_press + friction_loss >= 0 else ureg.Quantity(0.0, "psia")
         pumping_hp = pumping_press * single_well_water_volume / self.eta_pump
 
         # energy-use

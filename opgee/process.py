@@ -13,15 +13,15 @@ from .attributes import AttrDefs, AttributeMixin
 from .config import getParamAsBoolean
 from .core import OpgeeObject, XmlInstantiable, elt_name, instantiate_subelts, magnitude
 from .container import Container
-from .error import OpgeeException, AbstractMethodError, OpgeeIterationConverged, OpgeeMaxIterationsReached
-from .emissions import Emissions, EM_OTHER
+from .error import (OpgeeException, AbstractMethodError, OpgeeIterationConverged,
+                    OpgeeMaxIterationsReached, ModelValidationError)
+from .emissions import Emissions
 from .energy import Energy
 from .log import getLogger
-from .stream import Stream, PHASE_GAS, PHASE_LIQUID
+from .stream import Stream
 from .utils import getBooleanXML
 from .drivers import get_efficiency
 from .combine_streams import combine_streams
-from .thermodynamics import component_MW
 from .import_export import ImportExport
 
 _logger = getLogger(__name__)
@@ -204,6 +204,11 @@ class Process(XmlInstantiable, AttributeMixin):
 
         self.iv = IntermediateValues()
 
+        # Support for stream validation. Subclasses can set these ivars
+        # or redefine the methods required_inputs() / required_outputs()
+        self._required_inputs = []
+        self._required_outputs = []
+
         # Support for cycles
         self.iteration_count = 0
         self.iteration_value = None
@@ -215,8 +220,37 @@ class Process(XmlInstantiable, AttributeMixin):
     # Optional for Process subclasses
     def _after_init(self):
         self.check_attr_constraints(self.attr_dict)
+        self.validate_streams()
         self.process_EF = self.get_process_EF()
         self.field = self.get_field()
+
+    # TODO: stream validation and documentation
+    def required_inputs(self):
+        return self._required_inputs
+
+    def required_outputs(self):
+        return self._required_outputs
+
+    def validate_streams(self):
+        """
+        Verify that each Process is connected to all required input and output streams.
+
+        :return: none
+        :raises ModelValidationError: if any required input or output streams are missing.
+        """
+        msgs = []
+
+        for contents in self.required_inputs():
+            if not self.find_input_stream(contents, as_list=True):
+                msgs.append(f"{self} is missing an input stream containing '{contents}'")
+
+        for contents in self.required_outputs():
+            if not self.find_output_stream(contents, as_list=True):
+                msgs.append(f"{self} is missing an output stream containing '{contents}'")
+
+        if msgs:
+            msg = '\n'.msgs
+            raise ModelValidationError(msg)
 
     def reset(self):
         self.energy.reset()
@@ -398,9 +432,6 @@ class Process(XmlInstantiable, AttributeMixin):
     def clear_visit_count(self):
         self.visit_count = 0
 
-    def get_environment(self):
-        return self.field.environment
-
     def get_reservoir(self):
         return self.field.reservoir
 
@@ -561,7 +592,7 @@ class Process(XmlInstantiable, AttributeMixin):
             attribute for the model. If a list/tuple/Series of floats is passed in
             `value`, all of the contained values must pass this test.
         """
-        print(f"{self.name}:count = {self.visit_count}")
+        _logger.debug(f"{self.name}:count = {self.visit_count}")
         if self.iteration_converged:
             return  # nothing left to do
 
@@ -579,9 +610,9 @@ class Process(XmlInstantiable, AttributeMixin):
             delta = magnitude(abs(value - prior_value))
             is_converged = delta <= m.maximum_change
             if not is_converged:
-                print(f"process: {self.name}")
-                print(f"current value is {value}")
-                print(f"prior value is {prior_value}")
+                _logger.debug(f"process: {self.name}")
+                _logger.debug(f"current value is {value}")
+                _logger.debug(f"prior value is {prior_value}")
             return is_converged
 
         if prior_value is not None:
@@ -595,9 +626,9 @@ class Process(XmlInstantiable, AttributeMixin):
                     self.iteration_converged = True
                     self.check_iterator_convergence()
                 else:
-                    print(f"process: {self.name}")
-                    print(f"current value is {value}")
-                    print(f"prior value is {prior_value}")
+                    _logger.debug(f"process: {self.name}")
+                    _logger.debug(f"current value is {value}")
+                    _logger.debug(f"prior value is {prior_value}")
             else:
                 pairs = zip(prior_value, value) if isinstance(value, (tuple, list)) \
                     else [(prior_value, value)]  # make a list of the one pair
@@ -703,7 +734,7 @@ class Process(XmlInstantiable, AttributeMixin):
         pass
 
     def print_running_msg(self):
-        _logger.info(f"Running {type(self)} name='{self.name}'")
+        _logger.debug(f"Running {type(self)} name='{self.name}'")
 
     def venting_fugitive_rate(self):
         return self.attr('leak_rate')
@@ -848,43 +879,36 @@ class Reservoir(Process):
         self.print_running_msg()
 
 
-class Environment(Process):
-    """
-    Represents the environment, which in OPGEE is just a sink for emissions. The Environment
-    has only inputs (no outputs) and can be the destination (but not source) of streams. This
-    restriction might change if air-capture of CO2 were introduced into the model. Each Analysis
-    object holds a single Environment instance.
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__('Environment', desc='The Environment')
-        self.set_run_after(True)
-
-    def run(self, analysis):
-        self.print_running_msg()
-
-        emissions = self.emissions
-        emissions.reset()
-
-        # TBD: unclear whether this is useful
-        for stream in self.inputs:
-            emissions.add_from_stream(EM_OTHER, stream)
-
-        emissions.compute_GHG(analysis.gwp)  # compute and cache GWP in emissions instance
-
-    def report(self, analysis):
-        print(f"{self}: cumulative emissions to Environment:\n{self.emissions}")
-
-
-# Required to load some test XML files
-class Before(Process):
-    def run(self, analysis):
-        pass
-
-    def impute(self):
-        pass
+# class Environment(Process):
+#     """
+#     Represents the environment, which in OPGEE is just a sink for emissions. The Environment
+#     has only inputs (no outputs) and can be the destination (but not source) of streams. This
+#     restriction might change if air-capture of CO2 were introduced into the model. Each Analysis
+#     object holds a single Environment instance.
+#     """
+#
+#     def __init__(self, *args, **kwargs):
+#         super().__init__('Environment', desc='The Environment')
+#         self.set_run_after(True)
+#
+#     def run(self, analysis):
+#         self.print_running_msg()
+#
+#         emissions = self.emissions
+#         emissions.reset()
+#
+#         # TBD: unclear whether this is useful
+#         for stream in self.inputs:
+#             emissions.add_from_stream(EM_OTHER, stream)
+#
+#         emissions.compute_GHG(analysis.gwp)  # compute and cache GWP in emissions instance
+#
+#     def report(self, analysis):
+#         print(f"{self}: cumulative emissions to Environment:\n{self.emissions}")
 
 
+# TBD: move this to tests/utils_for_tests.py after removing references from opgee.xml
+# Required to load opgee.xml and some test XML files
 class After(Process):
     def run(self, analysis):
         pass

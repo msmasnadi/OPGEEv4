@@ -86,6 +86,9 @@ class TableManager(OpgeeObject):
                 df = pd.read_csv(s, index_col=tbl_def.index_col, header=[0, 1])
 
                 unitful_cols = [name for name, unit in df.columns if unit != '_']
+                for col in unitful_cols:
+                    df[col] = df[col].astype(float) # force numeric values to float to avoid complaints from pint
+
                 df_units = df[unitful_cols].pint.quantify(level=-1)
                 df[unitful_cols] = df_units[unitful_cols]
                 df.columns = df.columns.droplevel(1)        # drop the units from the column index

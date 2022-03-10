@@ -68,8 +68,8 @@ class Demethanizer(Process):
         x4 = mol_frac_C1
         x5 = mol_frac_C2
         corr_result_df = run_corr_eqns(x1, x2, x3, x4, x5, self.demethanizer_tbl)
-        reboiler_heavy_duty = ureg.Quantity(max(0, corr_result_df.loc["Reboiler", :].sum() * gas_multiplier), "kW")
-        cooler_thermal_load = ureg.Quantity(max(0, corr_result_df.loc["HEX", :].sum() * gas_multiplier), "kW")
+        reboiler_heavy_duty = ureg.Quantity(max(0., corr_result_df.loc["Reboiler", :].sum() * gas_multiplier), "kW")
+        cooler_thermal_load = ureg.Quantity(max(0., corr_result_df.loc["HEX", :].sum() * gas_multiplier), "kW")
         NGL_label = ["NGL C1", "NGL C2", "NGL C3", "NGL C4"]
         fuel_gas_label = ["fuel gas C1", "fuel gas C2", "fuel gas C3", "fuel gas C4"]
         hydrocarbon_label = ["C1", "C2", "C3", "C4"]
@@ -98,7 +98,7 @@ class Demethanizer(Process):
         gas_to_LNG.tp.set(T=STP.T)
         gas_to_LNG.subtract_gas_rates_from(gas_to_gather)
         C2_mass_rate = gas_to_LNG.gas_flow_rate("C2")
-        gas_to_LNG.set_gas_flow_rate("C2", ureg.Quantity(0, "tonne/day"))
+        gas_to_LNG.set_gas_flow_rate("C2", ureg.Quantity(0., "tonne/day"))
 
         # TODO: ethane to petrochemicals
 

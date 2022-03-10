@@ -7,7 +7,7 @@ from .core import elt_name, instantiate_subelts, dict_from_list, TemperaturePres
 from .error import (OpgeeException, OpgeeStopIteration, OpgeeMaxIterationsReached,
                     OpgeeIterationConverged, ModelValidationError, ZeroEnergyFlowError)
 from .log import getLogger
-from .process import Process, Aggregator, Environment, Reservoir
+from .process import Process, Aggregator, Reservoir
 from .process_groups import ProcessChoice
 from .stream import Stream
 from .thermodynamics import Oil, Gas, Water
@@ -22,9 +22,8 @@ _logger = getLogger(__name__)
 class Field(Container):
     """
     A `Field` contains all the `Process` instances associated with a single oil or
-    gas field, and the `Stream` instances that connect them. It also holds instances
-    of `Reservoir` and `Environment`, which are sources and sinks, respectively, in
-    the process structure.
+    gas field, and the `Stream` instances that connect them. It also holds an instance
+    of `Reservoir`, which is a source (it has outputs only), in the process structure.
 
     Fields can contain mutually exclusive process choice sets that group processes to
     be enabled or disabled together as a coherent group. The "active" set is determimed
@@ -89,11 +88,12 @@ class Field(Container):
         self.process_choice_dict = process_choice_dict
 
         # Each Field has one of these built-in processes
-        self.environment = Environment()
         self.reservoir = Reservoir()
 
-        self.builtin_procs = [self.environment, self.reservoir]
-        all_procs = self.collect_processes()  # includes reservoir and environment
+        # Additional builtin processes can be instantiated and added here if needed
+        self.builtin_procs = [self.reservoir]
+
+        all_procs = self.collect_processes()  # includes Reservoir
         self.process_dict = self.adopt(all_procs, asDict=True)
 
         self.extend = False
@@ -123,18 +123,17 @@ class Field(Container):
 
     def _check_run_after_procs(self):
         """
-        For procs tagged run-after="True", allow outputs only to other "run-after"
-        procs or to Environment.
+        For procs tagged run-after="True", allow outputs only to other "run-after" procs.
         """
         def _run_after_ok(proc):
             for dst in proc.successors():
-                if not (dst.run_after or isinstance(dst, Environment)):
+                if not dst.run_after:
                     return False
             return True
 
         bad = [proc for proc in self.processes() if proc.run_after and not _run_after_ok(proc)]
         if bad:
-            raise OpgeeException(f"Processes {bad} are tagged 'run-after=True' but have output streams to non run-after procs other than Environment")
+            raise OpgeeException(f"Processes {bad} are tagged 'run-after=True' but have output streams to non run-after processes")
 
         return True
 
@@ -217,7 +216,7 @@ class Field(Container):
                 f"Expected one start process upstream from start streams, got {len(start_procs)}: {start_procs}")
 
         start_proc = start_procs.pop()
-        _logger.info(f"Running impute() methods for {start_proc}")
+        _logger.debug(f"Running impute() methods for {start_proc}")
 
         try:
             _impute_upstream(start_proc)
@@ -373,7 +372,7 @@ class Field(Container):
         :return: total emissions (gCO2)
         """
 
-        imported_emissions = ureg.Quantity(0, "tonne/day")
+        imported_emissions = ureg.Quantity(0.0, "tonne/day")
         for product, energy_rate in net_import.items():
             energy_rate = ureg.Quantity(energy_rate, "mmbtu/day") \
                 if isinstance(energy_rate, pint.Quantity) is False else energy_rate
@@ -390,7 +389,7 @@ class Field(Container):
         :return: total emissions (gCO2)
         """
 
-        carbon_credit = ureg.Quantity(0, "tonne/day")
+        carbon_credit = ureg.Quantity(0.0, "tonne/day")
         export = self.import_export.export_df
         process_names = set(export.index)
         for name in byproduct_names:
@@ -459,15 +458,17 @@ class Field(Container):
         """
         Print a text report showing Streams, energy, and emissions. Must
         """
+        from .utils import dequantify_dataframe
+
         name = self.name
 
-        print(f"\n*** Streams for field '{name}'")
+        _logger.debug(f"\n*** Streams for field '{name}'")
         for stream in self.streams():
-            print(f"{stream}\n{stream.components}\n")
+            _logger.debug(f"{stream} (tonne/day)\n{dequantify_dataframe(stream.components)}\n")
 
-        print(f"{self} Energy consumption:\n{self.energy.data}")
-        print(f"\nCumulative emissions to Environment:\n{self.emissions.data}")
-        print(f"Total: {self.ghgs} CO2eq")
+        _logger.debug(f"{self}\nEnergy consumption:\n{self.energy.data}")
+        _logger.debug(f"\nCumulative emissions to environment (tonne/day):\n{dequantify_dataframe(self.emissions.data)}")
+        _logger.debug(f"Total: {self.ghgs} CO2eq")
 
     def _is_cycle_member(self, process):
         """
@@ -509,9 +510,7 @@ class Field(Container):
 
         if cycles:
             for process in processes:
-                if (not isinstance(process, Environment) and # exclude since hard-coded as run_after=True
-                        process not in procs_in_cycles and
-                        self._depends_on_cycle(process)):
+                if process not in procs_in_cycles and self._depends_on_cycle(process):
                     cycle_dependent.add(process)
 
         run_afters = {process for process in processes if process.run_after}
@@ -573,7 +572,7 @@ class Field(Container):
                         proc.run_if_enabled(analysis)
 
                 except OpgeeIterationConverged as e:
-                    _logger.info(e)
+                    _logger.debug(e)
                     break
 
         # run all processes dependent on cycles, which are now complete
@@ -771,7 +770,8 @@ class Field(Container):
         :return: None
         """
         attr_dict = self.attr_dict
-        self.dump()
+        # self.dump()
+
         #
         # Turn off all processes identified in groups, then turn on those in the selected groups.
         #

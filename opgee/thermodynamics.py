@@ -315,7 +315,7 @@ class AbstractSubstance(OpgeeObject):
                                       dtype="pint[kelvin]")
         self.component_Pc = pd.Series({name: Pc(name, with_units=False) for name in components},
                                       dtype="pint[Pa]")
-        temp = ureg.Quantity(60, "degF")
+        temp = ureg.Quantity(60., "degF")
         press = ureg.Quantity(14.7, "psia")
         self.component_gas_rho_STP = pd.Series({name: rho(name, temp, press, PHASE_GAS)
                                                 for name in components}, dtype="pint[kg/m**3]")
@@ -702,14 +702,14 @@ class Oil(AbstractSubstance):
         nitrogen_weight_percent = ureg.Quantity(0.2, "percent")
         sulfur_weight_percent = ureg.Quantity(-0.121 * API.m + 5.4293, "percent")
         hydrogen_weight_percent = ureg.Quantity(0.111 * API.m + 8.7523, "percent")
-        carbon_weight_percent = (ureg.Quantity(100, "percent") -
+        carbon_weight_percent = (ureg.Quantity(100., "percent") -
                                  nitrogen_weight_percent -
                                  sulfur_weight_percent -
                                  hydrogen_weight_percent)
-        nitrogen_mol_percent = nitrogen_weight_percent / ureg.Quantity(14, "g/mol")
-        sulfur_mol_percent = sulfur_weight_percent / ureg.Quantity(32, "g/mol")
-        hydrogen_mol_percent = hydrogen_weight_percent / ureg.Quantity(1, "g/mol")
-        carbon_mol_percent = carbon_weight_percent / ureg.Quantity(12, "g/mol")
+        nitrogen_mol_percent = nitrogen_weight_percent / ureg.Quantity(14., "g/mol")
+        sulfur_mol_percent = sulfur_weight_percent / ureg.Quantity(32., "g/mol")
+        hydrogen_mol_percent = hydrogen_weight_percent / ureg.Quantity(1., "g/mol")
+        carbon_mol_percent = carbon_weight_percent / ureg.Quantity(12., "g/mol")
 
         return pd.Series([carbon_mol_percent, sulfur_mol_percent, hydrogen_mol_percent, nitrogen_mol_percent],
                          index=["C", "S", "H", "N"], dtype="pint[mol/kg]")
@@ -846,7 +846,7 @@ class Gas(AbstractSubstance):
         temperature = temperature.to("kelvin").m
         mass_flow_rate = stream.gas_flow_rates()  # pandas.Series
         if mass_flow_rate.empty:
-            return ureg.Quantity(0, "btu/degF/day")
+            return ureg.Quantity(0., "btu/degF/day")
 
         specific_heat = pd.Series({name: Cp(name, temperature, with_units=False) for name in mass_flow_rate.index},
                                   dtype="pint[joule/g/kelvin]")
@@ -1064,7 +1064,7 @@ class Gas(AbstractSubstance):
         mass_flow_rate = stream.gas_flow_rates()
 
         if len(mass_flow_rate) == 0:
-            return ureg.Quantity(0, "MJ/kg")
+            return ureg.Quantity(0., "MJ/kg")
 
         total_mass_rate = stream.total_gas_rate()
 

@@ -135,7 +135,6 @@ def gui_switches():
     radio_options = [dict(label='Show', value=1), dict(label='Hide', value=0)]
 
     options = [
-        ('Streams to Environment', 'show-streams-to-env', 0),
         ('Stream contents', 'show-stream-contents', 0),
         ('Disabled procs', 'show-disabled-procs', 0)
     ]
