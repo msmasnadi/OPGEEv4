@@ -41,7 +41,7 @@
 		<Process class="WaterTreatment"/>
 		<Process class="SteamGeneration"/>
 		<Process class="WaterInjection"/>
-
+		<Process class="After"/>
 		<Process class="Output"/>
 
 		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
@@ -97,20 +97,12 @@
 			<Contains>blowdown water</Contains>
 		</Stream>
 
-		<Stream src="SteamGeneration" dst="Environment" name="steam generation to environment" boundary="Production"> <!-- arbitrary boundary for testing -->
+		<Stream src="SteamGeneration" dst="After" name="steam generation to environment" boundary="Production"> <!-- arbitrary boundary for testing -->
 			<Contains>waste water</Contains>
 		</Stream>
 
 		<Stream src="Separation" dst="Output" name="gas after separator">
 			<Contains>gas</Contains>
-		</Stream>
-
-		<Stream src="Separation" dst="Environment" name="gas fugitives from separator">
-			<Contains>gas fugitives</Contains>
-		</Stream>
-
-		<Stream src="DownholePump" dst="Environment" name="gas fugitives from downhole pump">
-			<Contains>gas fugitives</Contains>
 		</Stream>
 
 		<Stream src="ReservoirWellInterface" dst="DownholePump" name="reservoir well interface to downhole pump">
@@ -183,6 +175,7 @@
 		<Process class="SteamGeneration"/>
 		<Process class="WaterInjection"/>
 		<Process class="Output"/>
+		<Process class="After"/>
 
 		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
 			<Contains>crude oil</Contains>
@@ -237,20 +230,12 @@
 			<Contains>blowdown water</Contains>
 		</Stream>
 
-		<Stream src="SteamGeneration" dst="Environment" name="steam generation to environment" boundary="Production">	<!-- set boundary arbitrarily -->
+		<Stream src="SteamGeneration" dst="After" name="steam generation to environment" boundary="Production">	<!-- set boundary arbitrarily -->
 			<Contains>waste water</Contains>
 		</Stream>
 
 		<Stream src="Separation" dst="Output" name="gas after separator">
 			<Contains>gas</Contains>
-		</Stream>
-
-		<Stream src="Separation" dst="Environment" name="gas fugitives from separator">
-			<Contains>gas fugitives</Contains>
-		</Stream>
-
-		<Stream src="DownholePump" dst="Environment" name="gas fugitives from downhole pump">
-			<Contains>gas fugitives</Contains>
 		</Stream>
 
 		<Stream src="ReservoirWellInterface" dst="DownholePump" name="reservoir well interface to downhole pump">
