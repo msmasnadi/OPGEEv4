@@ -35,10 +35,6 @@
 			<Contains>gas for transmission</Contains>
 		</Stream>
 
-		<Stream src="TransmissionCompressor" dst="Environment" name="transmission compressor to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
-
 		<Stream src="TransmissionCompressor" dst="StorageCompressor" name="transmission compressor to storage compressor">
 			<Contains>gas for storage</Contains>
 		</Stream>
@@ -51,25 +47,15 @@
 			<Contains>gas for distribution</Contains>
 		</Stream>
 
-		<Stream src="StorageCompressor" dst="Environment" name="storage compressor to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
-
 		<Stream src="StorageCompressor" dst="StorageWell" name="storage compressor to storage well">
 			<Contains>gas for well</Contains>
 		</Stream>
 
-		<Stream src="StorageWell" dst="Environment" name="storage well to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
 
 		<Stream src="StorageWell" dst="StorageSeparator" name="storage well to storage separator">
 			<Contains>gas for separator</Contains>
 		</Stream>
 
-		<Stream src="StorageSeparator" dst="Environment" name="storage separator to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
 
 		<Stream src="StorageSeparator" dst="PostStorageCompressor" name="storage separator to post storage compressor">
 			<Contains>gas for storage</Contains>
@@ -79,13 +65,6 @@
 			<Contains>gas for distribution</Contains>
 		</Stream>
 
-		<Stream src="PostStorageCompressor" dst="Environment" name="post storage compressor to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
-
-		<Stream src="LNGLiquefaction" dst="Environment" name="LNG liquefaction to environment">
-			<Contains>gas fugitives</Contains>
-		</Stream>
 
 		<Stream src="LNGLiquefaction" dst="LNGTransport" name="LNG liquefaction to LNG transportation">
 			<Contains>gas for transport</Contains>
@@ -97,10 +76,6 @@
 
 		<Stream src="LNGRegasification" dst="GasDistribution" name="LNG transportation to gas distribution">
 			<Contains>gas for distribution</Contains>
-		</Stream>
-
-		<Stream src="GasDistribution" dst="Environment" name="gas distribution to environment">
-			<Contains>gas fugitives</Contains>
 		</Stream>
 
 		<Stream src="GasDistribution" dst="After" name="gas distribution to customer">

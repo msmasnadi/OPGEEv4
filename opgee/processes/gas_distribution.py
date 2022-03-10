@@ -27,9 +27,7 @@ class GasDistribution(Process):
         if input.is_uninitialized():
             return
 
-        gas_fugitives = self.find_output_stream("gas fugitives")
-        gas_fugitives.copy_flow_rates_from(input, tp=field.stp)
-        gas_fugitives.multiply_flow_rates(self.frac_loss.m)
+        gas_fugitives = self.set_gas_fugitives(input, self.frac_loss.m)
 
         gas_to_customer = self.find_output_stream("gas")
         gas_to_customer.copy_flow_rates_from(input)
