@@ -36,6 +36,14 @@ class RunCommand(SubcommandABC):
         parser.add_argument('-n', '--no-default-model', action='store_true',
                             help=clean_help('''Don't load the built-in opgee.xml model definition.'''))
 
+        parser.add_argument('-o', '--output',
+                            help=clean_help('''Write CI output to specified CSV file for all top-level processes 
+                            and aggregators, for all fields run'''))
+
+        parser.add_argument('-p', '--processes',
+                            help=clean_help('''Write CI output to specified CSV file for all processes, for all fields run, 
+                            rather than by top-level processes and aggregators (as with --output)'''))
+
         return parser
 
     def run(self, args, tool):
@@ -91,3 +99,9 @@ class RunCommand(SubcommandABC):
         for field, analysis in selected_fields:
             field.run(analysis)
             field.report(analysis)
+
+        if args.output:
+            model.save_results(selected_fields, args.output)
+
+        if args.processes:
+            model.save_results(selected_fields, args.processes, by_process=True)

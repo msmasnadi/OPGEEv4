@@ -861,7 +861,7 @@ class Process(XmlInstantiable, AttributeMixin):
         obj.set_enabled(a.get('enabled', '1'))
         obj.set_extend(a.get('extend', '0'))
 
-        obj.set_run_after(getBooleanXML(a.get('run-after', '0')))
+        obj.set_run_after(getBooleanXML(a.get('after', '0')))
 
         return obj
 
