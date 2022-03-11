@@ -9,6 +9,11 @@ class TransportEnergy(OpgeeObject):
     def __init__(self, field):
         self.field = field
 
+    # TODO: if you need to call other methods of the class, then don't make it a @staticmethod
+    #       Then you can just call self.get_water_transport_energy_consumption() rather than using the
+    #       classname. Embedding the class name prevents the class from being subclassed, since the
+    #       subclass will still refer to the hardcoded classname rather than the new subclass.
+
     @staticmethod
     def get_transport_energy_dict(field,
                                   parameter_table,
@@ -22,6 +27,12 @@ class TransportEnergy(OpgeeObject):
             raise OpgeeException(f"{prod_type} is not in the known product type: {known_types}")
 
         parameter_dict = TransportEnergy.get_parameter_dict(parameter_table)
+
+        # TODO: is it necessary to say "ocean_tanker" rather than just "tanker"? Longer names
+        #       that don't add clarity are worse than clear, shorter names. As a general
+        #       observation, your variable names tend to be much longer than necessary for clarity.
+        #       You will never find a huge block of text like the one below in my code. It's very
+        #       difficult to read, largely because all the names are excessively long.
         ocean_tanker_load_factor_dest = parameter_dict["load_factor_to_dest_tanker"]
         barge_load_factor_dest = parameter_dict["load_factor_to_dest_barge"]
         ocean_tanker_load_factor_origin = parameter_dict["load_factor_to_orig_tanker"]
@@ -43,6 +54,18 @@ class TransportEnergy(OpgeeObject):
         transport_distance = transport_by_mode["Distance"]
         residual_oil_LHV = field.model.const("residual-oil-LHV")
         residual_oil_density = field.model.const("residual-oil-density")
+
+        # TODO: Avoid redundant code by distilling out the commonality and calling a local function, e.g.,
+        def transp_energy(load_factor, mode):
+            # TODO: try to find shorter meaningful names, like TransportEnergy.maritime_energy_use()
+            #       Long names are tedious to read and force strange formatting of the code, which is also harder to read.
+            return TransportEnergy.get_water_transport_energy_consumption(
+                residual_oil_LHV,
+                residual_oil_density,
+                load_factor, mode)
+
+        # TODO: then you can do this. Use same approach below for transport_energy_density()
+        # ocean_tanker_dest_energy_consumption = transp_energy(ocean_tanker_load_factor_dest, "tanker")
 
         ocean_tanker_dest_energy_consumption = \
             TransportEnergy.get_water_transport_energy_consumption(
@@ -126,6 +149,12 @@ class TransportEnergy(OpgeeObject):
         transport_dest_energy_consumption = pd.Series([ocean_tanker_dest_energy_intensity, barge_dest_energy_intensity,
                                                        pipeline_dest_energy_intensity, energy_intensity_rail_transport,
                                                        energy_intensity_truck], dtype="pint[btu/tonne/mile]")
+
+        # save to the field and retrieve them from exploration
+        if prod_type == "crude":
+            field.save_process_data(ocean_tanker_dest_energy_intensity=ocean_tanker_dest_energy_intensity)
+            field.save_process_data(energy_intensity_truck=energy_intensity_truck)
+
         transport_origin_energy_consumption = pd.Series(
             [ocean_tanker_origin_energy_intensity, barge_origin_energy_intensity,
              pipeline_origin_energy_intensity, rail_origin_energy_intensity,

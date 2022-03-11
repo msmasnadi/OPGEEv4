@@ -212,6 +212,54 @@
       <AttrDef name="ecosystem_richness" options="ecosystem_C_richness" desc="Ecosystem carbon richness" type="str"/>
       <AttrDef name="field_development_intensity" options="field_development_intensity" desc="Field development intensity" type="str"/>
 
+      <!-- Exploration -->
+      <AttrDef name="number_wells_dry" type="int" desc="Number of dry wells drilled per field found">1</AttrDef>
+      <AttrDef name="number_wells_exploratory" type="int" desc="Number of exploratory/scientific wells drilled after field discovery">3</AttrDef>
+      <AttrDef name="weight_land_survey" type="float" unit="tonne" desc="Weight of land survey vehicle">25.0</AttrDef>
+      <AttrDef name="weight_ocean_survey" type="float" unit="tonne" desc="Weight of ocean survey vehicle">100.0</AttrDef>
+      <AttrDef name="distance_survey" type="float" unit="mile" desc="Distance of travel for survey">10000.0</AttrDef>
+
+      <Options name="rig_efficiency" default="Medium">
+        <Option desc="Mud pump 60%, Rotary Table 40%">Low</Option>
+        <Option desc="Mud pump 65%, Rotary Table 45%">Medium</Option>
+        <Option desc="Mud pump 70%, Rotary Table 50%">High</Option>
+      </Options>
+      <Options name="well_complexity" default="Moderate">
+        <Option desc="Surface casing plus production casing">Simple</Option>
+        <Option desc="Surface, intermediate, production">Moderate</Option>
+        <Option desc="Surface, Intermediate 1, Intermediate 2, Production">Complex</Option>
+      </Options>
+      <Options name="well_size" default="Medium">
+        <Option>Small</Option>
+        <Option>Medium</Option>
+        <Option>Large</Option>
+      </Options>
+      <Options name="field_productivity_category" default="Medium">
+        <Option desc="USA">Low</Option>
+        <Option desc="Global average">Medium</Option>
+        <Option desc="OPEC">High</Option>
+      </Options>
+      <Options name="timeframe_land_use" default="30">
+        <Option>30</Option>
+        <Option>150</Option>
+      </Options>
+      <AttrDef name="eta_rig" type="str" options="rig_efficiency" desc="Rig efficiency"/>
+      <AttrDef name="well_complexity" options="well_complexity" desc="Well complexity" type="str"/>
+      <AttrDef name="well_size" desc="Hole size" type="str" options="well_size"/>
+      <AttrDef name="fraction_wells_horizontal" type="float" desc="Horizontal well?">0</AttrDef>
+      <AttrDef name="length_lateral" unit="ft" type="float" desc="Length of lateral">5000</AttrDef>
+      <AttrDef name="well_productivity_crude_oil" options="field_productivity_category" type="str"/>
+      <AttrDef name="well_productivity_natural_gas" options="field_productivity_category" type="str"/>
+      <AttrDef name="fraction_wells_fractured" desc="Fraction of wells fractured" type="float">0</AttrDef>
+      <AttrDef name="volume_per_well_fractured" desc="Fracturing fluid injection volume" type="float" unit="Mgal’’">3</AttrDef>
+      <AttrDef name="pressure_gradient_fracturing" desc="Fracturing pressure gradient (rock strength)" unit="psi/ft">0.7</AttrDef>
+      <AttrDef name="timeframe_land_use" desc="Timeframe of land use analysis" unit="years" options="timeframe_land_use">1</AttrDef>
+      <AttrDef name="flaring_fracturing_flowback" desc="Fracturing flowback flared?" type="binary">0</AttrDef>
+      <AttrDef name="REC_fracturing_flowback" desc="Fracturing flowback captured with reduced emissons completions?" type="binary">1</AttrDef>
+      <AttrDef name="number_well_workovers" desc="Workovers needed over lifetime of well" type="float">4.0</AttrDef>
+      <AttrDef name="vertical_drilling_intensity" unit="gallon/ft" type="float" desc="Vertical drilling intensity">0.326</AttrDef>
+      <AttrDef name="horizontal_drilling_intensity" unit="gallon/ft" type="float" desc="Horizontal drilling intensity">0.624</AttrDef>
+
       <AttrDef name="steam_quality_outlet" type="float" unit="frac" desc="Steam quality at generator outlet">0.7</AttrDef>
       <AttrDef name="steam_quality_after_blowdown" type="float" desc="Desired steam quality after blowdown and recycle (if any)">0.7</AttrDef>
       <AttrDef name="fraction_blowdown_recycled" type="float" desc="Percentage of blowdown water recycled ">0.7</AttrDef>
@@ -316,10 +364,6 @@
     <ClassAttrs name="SurveyShip">
       <AttrDef name="distance" type="float" desc="Distance of travel for survey" unit="mi">10000</AttrDef>
       <AttrDef name="weight" type="float" desc="Weight of ocean survey vehicle" unit="tons">100</AttrDef>
-    </ClassAttrs>
-    <ClassAttrs name="Exploration">
-      <AttrDef name="number_wells_dry" type="int" desc="Number of dry wells drilled per field found">1</AttrDef>
-      <AttrDef name="number_wells_exploratory" type="int" desc="Number of exploratory/scientific wells drilled after field discovery">3</AttrDef>
     </ClassAttrs>
     <ClassAttrs name="DrillingAndDevelopment">
       <Options name="rig_efficiency" default="Medium">
