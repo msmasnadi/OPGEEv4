@@ -126,6 +126,12 @@ class TransportEnergy(OpgeeObject):
         transport_dest_energy_consumption = pd.Series([ocean_tanker_dest_energy_intensity, barge_dest_energy_intensity,
                                                        pipeline_dest_energy_intensity, energy_intensity_rail_transport,
                                                        energy_intensity_truck], dtype="pint[btu/tonne/mile]")
+
+        # save to the field and retrieve them from exploration
+        if prod_type == "crude":
+            field.save_process_data(ocean_tanker_dest_energy_intensity=ocean_tanker_dest_energy_intensity)
+            field.save_process_data(energy_intensity_truck=energy_intensity_truck)
+
         transport_origin_energy_consumption = pd.Series(
             [ocean_tanker_origin_energy_intensity, barge_origin_energy_intensity,
              pipeline_origin_energy_intensity, rail_origin_energy_intensity,
