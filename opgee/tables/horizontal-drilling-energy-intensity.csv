@@ -1,0 +1,14 @@
+Rig Efficiency,Hole Size,Simple,Moderate,Complex
+_,_,gallon/ft,gallon/ft,gallon/ft
+Low,Small,0.24,0.32,0.52
+Low,Med,0.23,0.32,0.43
+Low,Large,0.23,0.3,0.41
+Low,Extra large,0.27,0.31,0.5
+Med,Small,0.22,0.3,0.48
+Med,Med,0.21,0.3,0.4
+Med,Large,0.21,0.28,0.38
+Med,Extra large,0.58,0.28,0.46
+High,Small,0.2,0.28,0.45
+High,Med,0.2,0.28,0.37
+High,Large,0.2,0.26,0.35
+High,Extra large,0.23,0.27,0.43
