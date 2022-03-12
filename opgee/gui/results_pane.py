@@ -89,20 +89,13 @@ class ResultsPane(OpgeePane):
 
             analysis, field = get_analysis_and_field(model, analysis_and_field)
 
-            try:
-               energy = field.boundary_energy_flow_rate(analysis)
-            except ZeroEnergyFlowError:
+            # Show results for top-level aggregators and procs for the selected field
+            top_level = model.partial_ci_values(analysis, field, field.children())
+
+            if top_level is None:
                 return _zero_flow_at_boundary_msg
 
             fn_unit = analysis.fn_unit.title()
-
-            def partial_ci(obj):
-                ghgs = obj.emissions.data.sum(axis='columns')['GHG']
-                ci = ghgs / energy
-                return ci.to('grams/MJ')
-
-            # Show results for top-level aggregators and procs for the selected field
-            top_level = [(obj.name, partial_ci(obj)) for obj in field.children()]
 
             df = pd.DataFrame({"category": [pair[0] for pair in top_level],
                                "value": [pair[1] for pair in top_level],
@@ -110,7 +103,7 @@ class ResultsPane(OpgeePane):
 
             fig = go.Figure(data=[go.Bar(name=row.category,
                                          x=[row.unit],
-                                         y=[row.value.m], width=[0.7]) for idx, row in df.iterrows()],
+                                         y=[row.value], width=[0.7]) for idx, row in df.iterrows()],
                             layout=go.Layout(barmode='stack'))
 
             fig.update_layout(yaxis_title=f"g CO2 per MJ of {fn_unit}",  # doesn't render in latex: r'g CO$_2$ MJ$^{-1}$',
