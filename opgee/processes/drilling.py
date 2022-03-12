@@ -7,16 +7,3 @@ _logger = getLogger(__name__)
 class Drilling(Process):
     def run(self, analysis):
         self.print_running_msg()
-
-class DrillingAndDevelopment(Process):
-    def run(self, analysis):
-        self.print_running_msg()
-
-class LandUse(Process):
-    def run(self, analysis):
-        self.print_running_msg()
-
-
-class Fracking(Process):
-    def run(self, analysis):
-        self.print_running_msg()

@@ -12,4 +12,4 @@ std_temperature            = ureg.Quantity(60.0, "degF")        # STP is defined
 std_pressure               = ureg.Quantity(14.676, "psia")
 tonne_to_bbl               = ureg.Quantity(7.33, "bbl_oil/tonne")
 universal_gas_constant     = ureg.Quantity(8.314462618, "joule/mol/kelvin")
-year_to_day                = ureg.Quantity(365., "day")
+year_to_day                = ureg.Quantity(365., "day/year")

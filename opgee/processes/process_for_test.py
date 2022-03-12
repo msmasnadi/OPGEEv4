@@ -127,3 +127,17 @@ class SurveyShip(Process):
 
     def __str__(self):
         return f'<SurveyShip>'
+
+
+class DrillingAndDevelopment(Process):
+    def run(self, analysis):
+        self.print_running_msg()
+
+class LandUse(Process):
+    def run(self, analysis):
+        self.print_running_msg()
+
+
+class Fracking(Process):
+    def run(self, analysis):
+        self.print_running_msg()

@@ -155,6 +155,8 @@ class Field(Container):
         self.transport_parameter = model.transport_parameter
         self.transport_by_mode = model.transport_by_mode
         self.upstream_CI = model.upstream_CI
+        self.vertical_drill_df = model.vertical_drill_df
+        self.horizontal_drill_df = model.horizontal_drill_df
 
         self.imported_gas_comp = model.imported_gas_comp
 
@@ -354,9 +356,6 @@ class Field(Container):
         onsite_emissions = rates.loc['GHG'].sum()
         net_import = self.get_net_imported_product()
         imported_emissions = self.get_imported_emissions(net_import)
-        # exploration_emissions = self.get_exploration_emissions()
-        # drilling_emissions = self.get_drilling_emissions()
-
         fn_unit = NATURAL_GAS if analysis.fn_unit == 'gas' else CRUDE_OIL
         byproduct_names = self.product_names.drop(fn_unit)
         byproduct_carbon_credit = self.get_carbon_credit(byproduct_names, analysis)
@@ -366,34 +365,6 @@ class Field(Container):
 
         self.carbon_intensity = ci = (total_emissions / energy).to('grams/MJ')
         return ci
-
-    def get_exploration_emissions(self):
-        """
-        Calculate the exploration emissions
-
-        :return:
-        """
-        oil_sands_mine = self.attr("oil_sands_mine")
-        offshore = self.attr("offshore")
-        ocean_tank_energy_intensity = self.get_process_data("ocean_tanker_dest_energy_intensity")
-        truck_energy_intensity = self.get_process_data("energy_intensity_truck")
-        weight_land_survey = self.attr("weight_land_survey")
-        weight_ocean_survey = self.attr("weight_ocean_survey")
-        distance_survey = self.attr("distance_survey")
-        number_wells_dry = self.attr("number_wells_dry")
-        number_wells_exploratory = self.attr("number_wells_exploratory")
-        vertical_drilling_intensity = self.attr("vertical_drilling_intensity")
-        horizontal_drilling_intensity = self.attr("horizontal_drilling_intensity")
-
-        export_LHV = self.import_export.export_df.drop(columns=["Water"]).sum().sum() \
-            if oil_sands_mine is not None else ureg.Quantity(0.0, "mmbtu/day")
-        survey_vehicle_energy_consumption =\
-            truck_energy_intensity * weight_land_survey * distance_survey if offshore else \
-                ocean_tank_energy_intensity * weight_ocean_survey * distance_survey
-
-
-
-
 
     def get_imported_emissions(self, net_import):
         """

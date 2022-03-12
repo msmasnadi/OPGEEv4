@@ -44,6 +44,9 @@ class Model(Container):
         self.constants = {name: ureg.Quantity(float(row.value), row.unit) for name, row in df.iterrows()}
         self.table_updates = None
 
+        self.vertical_drill_df = tbl_mgr.get_table("vertical-drilling-energy-intensity")
+        self.horizontal_drill_df = tbl_mgr.get_table("horizontal-drilling-energy-intensity")
+
         self.process_EF_df = tbl_mgr.get_table("process-specific-EF")
 
         self.imported_gas_comp = tbl_mgr.get_table("imported-gas-comp")

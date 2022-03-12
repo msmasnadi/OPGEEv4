@@ -219,9 +219,9 @@
       <AttrDef name="weight_ocean_survey" type="float" unit="tonne" desc="Weight of ocean survey vehicle">100.0</AttrDef>
       <AttrDef name="distance_survey" type="float" unit="mile" desc="Distance of travel for survey">10000.0</AttrDef>
 
-      <Options name="rig_efficiency" default="Medium">
+      <Options name="rig_efficiency" default="Med">
         <Option desc="Mud pump 60%, Rotary Table 40%">Low</Option>
-        <Option desc="Mud pump 65%, Rotary Table 45%">Medium</Option>
+        <Option desc="Mud pump 65%, Rotary Table 45%">Med</Option>
         <Option desc="Mud pump 70%, Rotary Table 50%">High</Option>
       </Options>
       <Options name="well_complexity" default="Moderate">
@@ -229,10 +229,11 @@
         <Option desc="Surface, intermediate, production">Moderate</Option>
         <Option desc="Surface, Intermediate 1, Intermediate 2, Production">Complex</Option>
       </Options>
-      <Options name="well_size" default="Medium">
+      <Options name="well_size" default="Med">
         <Option>Small</Option>
-        <Option>Medium</Option>
+        <Option>Med</Option>
         <Option>Large</Option>
+        <Option>Extra Large</Option>
       </Options>
       <Options name="field_productivity_category" default="Medium">
         <Option desc="USA">Low</Option>
@@ -246,7 +247,7 @@
       <AttrDef name="eta_rig" type="str" options="rig_efficiency" desc="Rig efficiency"/>
       <AttrDef name="well_complexity" options="well_complexity" desc="Well complexity" type="str"/>
       <AttrDef name="well_size" desc="Hole size" type="str" options="well_size"/>
-      <AttrDef name="fraction_wells_horizontal" type="float" desc="Horizontal well?">0</AttrDef>
+      <AttrDef name="fraction_wells_horizontal" type="float" unit="frac" desc="Horizontal well?">0</AttrDef>
       <AttrDef name="length_lateral" unit="ft" type="float" desc="Length of lateral">5000</AttrDef>
       <AttrDef name="well_productivity_crude_oil" options="field_productivity_category" type="str"/>
       <AttrDef name="well_productivity_natural_gas" options="field_productivity_category" type="str"/>
@@ -257,8 +258,7 @@
       <AttrDef name="flaring_fracturing_flowback" desc="Fracturing flowback flared?" type="binary">0</AttrDef>
       <AttrDef name="REC_fracturing_flowback" desc="Fracturing flowback captured with reduced emissons completions?" type="binary">1</AttrDef>
       <AttrDef name="number_well_workovers" desc="Workovers needed over lifetime of well" type="float">4.0</AttrDef>
-      <AttrDef name="vertical_drilling_intensity" unit="gallon/ft" type="float" desc="Vertical drilling intensity">0.326</AttrDef>
-      <AttrDef name="horizontal_drilling_intensity" unit="gallon/ft" type="float" desc="Horizontal drilling intensity">0.624</AttrDef>
+      <AttrDef name="field_production_lifetime" type="float" desc="Estimated field lifetime at current production rates" unit="years">30.0</AttrDef>
 
       <AttrDef name="steam_quality_outlet" type="float" unit="frac" desc="Steam quality at generator outlet">0.7</AttrDef>
       <AttrDef name="steam_quality_after_blowdown" type="float" desc="Desired steam quality after blowdown and recycle (if any)">0.7</AttrDef>

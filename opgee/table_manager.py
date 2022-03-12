@@ -50,6 +50,8 @@ class TableManager(OpgeeObject):
         TableDef("imported-gas-comp", index_col=0, has_units=True),
         TableDef("upstream-CI", index_col=0, has_units=True),
         TableDef("product-boundaries", index_col=0),
+        TableDef("vertical-drilling-energy-intensity", index_col=[0,1], has_units=True),
+        TableDef("horizontal-drilling-energy-intensity", index_col=[0,1], has_units=True),
         TableDef("demethanizer", index_col=0, index_row=[0,1])
     ]
 
