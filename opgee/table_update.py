@@ -1,23 +1,16 @@
 #
 # Classes to support user modification of built-in tables
 #
-from .core import instantiate_subelts, elt_name, XmlInstantiable
+from .core import elt_name, XmlInstantiable, OpgeeObject
 
-class Cell(XmlInstantiable):
+class Cell(OpgeeObject):
 
     def __init__(self, row, col, value):
-        name = None
-        super().__init__(name)
+        super().__init__()
 
         self.row = row
         self.col = col
         self.value = value
-
-    @classmethod
-    def from_xml(cls, elt):
-        attr = elt.attrib
-        return Cell(attr['row'], attr['col'], elt.text)
-
 
 class TableUpdate(XmlInstantiable):
 
@@ -27,6 +20,6 @@ class TableUpdate(XmlInstantiable):
 
     @classmethod
     def from_xml(cls, elt):
-        cells = instantiate_subelts(elt, Cell)
+        sub_elts = elt.findall('Cell')
+        cells = [Cell(e.attrib['row'], e.attrib['col'], e.text) for e in sub_elts]
         return TableUpdate(elt_name(elt), cells)
-

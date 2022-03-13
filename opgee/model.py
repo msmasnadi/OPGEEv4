@@ -193,7 +193,7 @@ class Model(Container):
         """
         analyses = instantiate_subelts(elt, Analysis)
         fields = instantiate_subelts(elt, Field)
-        table_updates = instantiate_subelts(elt, TableUpdate)
+        table_updates = instantiate_subelts(elt, TableUpdate, as_dict=True)
         attr_dict = cls.instantiate_attrs(elt)
 
         obj = Model(elt_name(elt), analyses, fields, table_updates, attr_dict=attr_dict)
