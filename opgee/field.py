@@ -144,13 +144,19 @@ class Field(Container):
 
         self.LNG_temp = model.const("LNG-temp")
 
+        # TODO: neither of these are used anywhere
         self.stab_column = self.attr("stabilizer_column")
         self.upgrader_type = self.attr("upgrader_type")
+
         self.prime_mover_type_lifting = self.attr("prime_mover_type_gas_lifting")
         self.eta_compressor_lifting = self.attr("eta_compressor_lifting")
 
         self.wellhead_tp = TemperaturePressure(self.attr("wellhead_temperature"), self.attr("wellhead_pressure"))
 
+        # TODO: Why are these copied into the Field object? Why not access them from Model?
+        # TODO: It's good practice to declare all instance vars in __init__ (set to None perhaps)
+        #       other programmers (and PyCharm) recognize them as proper instance variables and
+        #       not random values set in other methods.
         self.transport_share_fuel = model.transport_share_fuel
         self.transport_parameter = model.transport_parameter
         self.transport_by_mode = model.transport_by_mode

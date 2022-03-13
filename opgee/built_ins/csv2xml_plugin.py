@@ -17,16 +17,21 @@ def read_fields(csv_path, from_package=False):
     from ..pkg_utils import resourceStream
 
     stream = resourceStream(csv_path) if from_package else csv_path
-    df = pd.read_csv(stream, index_col=2)
+    df = pd.read_csv(stream, index_col=0)
 
-    metadata = df[['Description', 'Unit']].copy()
-    metadata.Unit.fillna('', inplace=True)
+    dtypes = df['Type']
+    df.drop('Type', axis='columns', inplace=True)
 
-    df.drop(['Category', 'Description', 'Unit'], axis='columns', inplace=True)
     dft = df.transpose()
-    return (metadata, dft)
+    return (dft, dtypes)
 
-def import_fields(csv_path, xml_path, count=0, from_package=False):
+    # metadata = df[['Description', 'Unit']].copy()
+    # metadata.Unit.fillna('', inplace=True)
+    # df.drop(['Category', 'Description', 'Unit'], axis='columns', inplace=True)
+    # dft = df.transpose()
+    # return (metadata, dft)
+
+def import_fields(csv_path, xml_path, analysis_name, count=0, from_package=False):
     """
     Import Field information from a CSV file.
 
@@ -40,48 +45,46 @@ def import_fields(csv_path, xml_path, count=0, from_package=False):
     from lxml import etree as ET
     import numpy as np
 
-    metadata, fields = read_fields(csv_path, from_package=from_package)
+    fields, dtypes = read_fields(csv_path, from_package=from_package)
+
+    known_types = {'int' : int, 'float' : float, 'str' : str}
 
     if count:
         fields = fields.loc[fields.index[:count]]
 
     root = ET.Element('Model')
-    analysis = ET.SubElement(root, 'Analysis')
 
-    unneeded = ('name')     # redundant
+    if not analysis_name:
+        p = Path(csv_path)
+        analysis_name = p.name[:-(len(p.suffix))]
+
+    analysis = ET.SubElement(root, 'Analysis', attrib={'name' : analysis_name})
 
     # Convert fields to xml
-    for idx, row in fields.iterrows():
-        field = ET.SubElement(analysis, 'Field', attrib={'name' : idx})
-        # create <A> attributes
-        for name, md in metadata.iterrows():
+    for field_name, row in fields.iterrows():
+        field = ET.SubElement(analysis, 'Field',
+                              attrib={'name' : field_name, 'modifies' : 'US_FW'})
 
-            if name in unneeded:
-                continue
-
-            value = row[name]
+        for attr, value in row.items():
 
             # don't include unspecified attributes
             try:
                 if np.isnan(value):
                     continue
             except:
-                pass  # fails for non-numeric types; ignore it
+                pass  # np.isnan() fails for non-numeric types; ignore it
 
             if value == '' or value is None:
                 continue
 
-            attrib = dict(name=name)
-            unit = md['Unit']
-            if unit:
-                attrib['unit'] = unit
-
-            desc = md['Description']
-            if desc:
-                attrib['desc'] = desc
-
+            attrib = dict(name=attr)
             a = ET.SubElement(field, 'A', attrib=attrib)
-            a.text = str(value)
+            dtype = dtypes[attr]
+            type_fn = known_types[dtype]
+            try:
+                a.text = str(type_fn(value))
+            except Exception as e:
+                print(e)
 
     _logger.info('Writing %s', xml_path)
 
@@ -95,11 +98,14 @@ class XmlCommand(SubcommandABC):
         super().__init__('csv2xml', subparsers, kwargs, group='project')
 
     def addArgs(self, parser):
+        parser.add_argument('-a', '--analysis',
+                            help='''The name to give the <Analysis> element. Default is the file basename 
+                            with the extension removed.''')
         parser.add_argument('-n', '--count', type=int, default=0,
                             help=clean_help('''The number of rows to import from the CSV file. 
                             Default is 0, which means import all rows.'''))
 
-        parser.add_argument('-p', '--from-package', action='store_true',
+        parser.add_argument('-p', '--fromPackage', action='store_true',
                             help=clean_help('''If specified, the inputCSV argument is treated as relative to 
                             the opgee package and loaded as an internal resource.'''))
 
@@ -140,4 +146,4 @@ class XmlCommand(SubcommandABC):
         if output_path.exists() and not args.overwrite:
             raise CommandlineError(f"Refusing to overwrite '{output_path}'; use --overwrite to override this.")
 
-        import_fields(input_csv, output_xml, count=args.count, from_package=from_package)
+        import_fields(input_csv, output_xml, args.analysis, count=args.count, from_package=from_package)
