@@ -3,6 +3,10 @@ from opgee.error import OpgeeException
 from opgee.table_manager import TableManager
 from .utils_for_tests import path_to_test_file
 
+def test_updates(test_model):
+    df = test_model.upstream_CI
+    assert df.loc['NGL', 'EF'].m == 1234.5 and df.loc['Natural gas', 'EF'].m == 12345.67
+
 def test_add_table():
     table_name = 'test_table'
     csv_path = path_to_test_file(f'{table_name}.csv')

@@ -103,7 +103,11 @@ class TableManager(OpgeeObject):
             if tbl_def.fillna is not None:
                 df.fillna(tbl_def.fillna, inplace=True)
 
-            # TBD: apply table updates from user
+            # apply XML table updates from user
+            update = self.updates.get(name)
+            if update and update.enabled:
+                for cell in update.cells:
+                    df.loc[cell.row, cell.col] = cell.value
 
             self.table_dict[name] = df
 
