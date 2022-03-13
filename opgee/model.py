@@ -46,6 +46,8 @@ class Model(Container):
 
         self.vertical_drill_df = tbl_mgr.get_table("vertical-drilling-energy-intensity")
         self.horizontal_drill_df = tbl_mgr.get_table("horizontal-drilling-energy-intensity")
+        self.fracture_energy = tbl_mgr.get_table("fracture-consumption-table")
+        self.land_use_EF = tbl_mgr.get_table("land-use-EF")
 
         self.process_EF_df = tbl_mgr.get_table("process-specific-EF")
 

@@ -199,14 +199,14 @@
 
 
       <!-- LandUse impacts -->
-      <Options name="ecosystem_C_richness" default="Moderate">
-        <Option desc="Low carbon richness (semi-arid grasslands)">Low</Option>
-        <Option desc="Moderate carbon richness (mixed)">Moderate</Option>
-        <Option desc="High carbon richness (forested)">High</Option>
+      <Options name="ecosystem_C_richness" default="Med carbon">
+        <Option desc="Low carbon richness (semi-arid grasslands)">Low carbon</Option>
+        <Option desc="Moderate carbon richness (mixed)">Med carbon</Option>
+        <Option desc="High carbon richness (forested)">High carbon</Option>
       </Options>
-      <Options name="field_development_intensity" default="Moderate">
+      <Options name="field_development_intensity" default="Med">
         <Option desc="Low intensity development and low oxidation">Low</Option>
-        <Option desc="Moderate intensity development and moderate oxidation">Moderate</Option>
+        <Option desc="Moderate intensity development and moderate oxidation">Med</Option>
         <Option desc="High intensity development and high oxidation">High</Option>
       </Options>
       <AttrDef name="ecosystem_richness" options="ecosystem_C_richness" desc="Ecosystem carbon richness" type="str"/>

@@ -1,0 +1,14 @@
+Ecosystem richness,Field development intensity,Soil carbon,Biomass,Foregone sequestration
+_,_,g/MJ,g/MJ,g/MJ
+Low carbon,Low,0.03,0,0
+Low carbon,Med,0.13,0,0
+Low carbon,High,0.35,0,0
+Med carbon,Low,0.22,0.34,0.01
+Med carbon,Med,0.57,0.68,0.01
+Med carbon,High,1.93,1.47,0.01
+High carbon,Low,0.4,0.68,0.01
+High carbon,Med,1.01,1.36,0.01
+High carbon,High,3.51,2.94,0.02
+Oil sands mining,Low,0.96,0.24,0.01
+Oil sands mining,Med,1.4,0.31,0.01
+Oil sands mining,High,2.39,0.47,0.01

@@ -356,14 +356,19 @@ class Field(Container):
         onsite_emissions = rates.loc['GHG'].sum()
         net_import = self.get_net_imported_product()
         imported_emissions = self.get_imported_emissions(net_import)
-        fn_unit = NATURAL_GAS if analysis.fn_unit == 'gas' else CRUDE_OIL
-        byproduct_names = self.product_names.drop(fn_unit)
-        byproduct_carbon_credit = self.get_carbon_credit(byproduct_names, analysis)
-        total_emissions = onsite_emissions + imported_emissions - byproduct_carbon_credit
+        total_emissions = onsite_emissions + imported_emissions
 
-        energy = self.boundary_energy_flow_rate(analysis)
+        #TODO: add option for displacement method
+        # fn_unit = NATURAL_GAS if analysis.fn_unit == 'gas' else CRUDE_OIL
+        # byproduct_names = self.product_names.drop(fn_unit)
+        # byproduct_carbon_credit = self.get_carbon_credit(byproduct_names, analysis)
+        # total_emissions = onsite_emissions + imported_emissions - byproduct_carbon_credit
+        # energy = self.boundary_energy_flow_rate(analysis)
 
-        self.carbon_intensity = ci = (total_emissions / energy).to('grams/MJ')
+        export_df = self.import_export.export_df
+        export_LHV = export_df.drop(columns=["Water"]).sum().sum()
+
+        self.carbon_intensity = ci = (total_emissions / export_LHV).to('grams/MJ')
         return ci
 
     def get_imported_emissions(self, net_import):

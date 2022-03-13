@@ -39,6 +39,8 @@
 		<A name="transport_dist_pipeline">0</A>
 		<A name="transport_dist_rail">0</A>
 		<A name="transport_dist_truck">0</A>
+		<A name="ecosystem_richness">Low carbon</A>
+		<A name="field_development_intensity">Low</A>
 
 		<Process class="After"/>
 
@@ -134,6 +136,7 @@
 		</ProcessChoice>
 
 		<Aggregator name="ExplorationAndDrilling">
+
 			<Process class="Exploration" after="true"/>
 			<Process class="Drilling" after="true"/>
 		</Aggregator>
@@ -189,7 +192,9 @@
 		<Process class="GasReinjectionCompressor"/>
 		<Process class="GasReinjectionWell"/>
 
-
+		<Stream src="Exploration" dst="Drilling" name="exploration to drilling">
+			<Contains>None</Contains>
+		</Stream>
 		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
 			<Contains>crude oil</Contains>
 		</Stream>

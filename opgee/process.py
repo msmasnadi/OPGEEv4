@@ -878,6 +878,12 @@ class Reservoir(Process):
     def run(self, analysis):
         self.print_running_msg()
 
+class Before(Process):
+    def run(self, analysis):
+        pass
+
+    def impute(self):
+        pass
 
 # class Environment(Process):
 #     """

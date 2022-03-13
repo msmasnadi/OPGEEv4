@@ -12,7 +12,6 @@ class Exploration(Process):
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
-        self.gas = field.gas
         self.vertical_drill_df = field.vertical_drill_df
         self.horizontal_drill_df = field.horizontal_drill_df
 
@@ -53,16 +52,20 @@ class Exploration(Process):
 
         export_df = field.import_export.export_df
         export_LHV = export_df.drop(columns=["Water"]).sum().sum() \
-            if self.oil_sands_mine is not None else ureg.Quantity(0.0, "mmbtu/day")
+            if self.oil_sands_mine == "None" else ureg.Quantity(0.0, "mmbtu/day")
         cumulative_export_LHV = export_LHV * year_to_day * self.field_production_lifetime
         survey_vehicle_energy_consumption = \
             truck_energy_intensity * self.weight_land_survey * self.distance_survey if not self.offshore else \
                 ocean_tank_energy_intensity * self.weight_ocean_survey * self.distance_survey
         drill_consumption_per_well = self.drill_energy_consumption / self.num_wells \
-            if self.oil_sands_mine is not None else ureg.Quantity(0.0, "mmbtu")
+            if self.oil_sands_mine == "None" else ureg.Quantity(0.0, "mmbtu")
         drill_energy_consumption = drill_consumption_per_well * (self.number_wells_dry + self.number_wells_exploratory)
         frac_energy_consumption = (survey_vehicle_energy_consumption + drill_energy_consumption) / cumulative_export_LHV
         diesel_consumption = frac_energy_consumption * export_LHV
+
+        field.save_process_data(cumulative_export_LHV=cumulative_export_LHV)
+        field.save_process_data(drill_energy_consumption=drill_energy_consumption)
+        field.save_process_data(num_wells=self.num_wells)
 
         # energy-use
         energy_use = self.energy

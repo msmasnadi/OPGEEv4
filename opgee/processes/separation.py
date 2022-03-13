@@ -104,6 +104,10 @@ class Separation(Process):
 
         input = self.find_input_stream("crude oil")
         input.copy_flow_rates_from(output, tp=field.wellhead_tp)
+        oil_LHV_rate = oil.energy_flow_rate(input)
+        gas_LHV_rate = field.gas.energy_flow_rate(input)
+        field.save_process_data(wellhead_LHV_rate=gas_LHV_rate+oil_LHV_rate)
+
 
     def get_stages_temperature_and_pressure(self):
 
