@@ -10,12 +10,13 @@ class ProcB(Process):
     def run(self, analysis):
         pass
 
-class Before(Process):
-    def run(self, analysis):
-        pass
-
-    def impute(self):
-        pass
+# TODO: reinstate this once Before is removed from opgee.xml and process.py
+# class Before(Process):
+#     def run(self, analysis):
+#         pass
+#
+#     def impute(self):
+#         pass
 
 class Output(Process):
     def run(self, analysis):

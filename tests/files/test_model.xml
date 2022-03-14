@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
 
+	<!-- for testing table updates -->
+	<TableUpdate name="upstream-CI">
+		<Cell row="NGL" col="EF">1234.5</Cell>
+		<Cell row="Natural gas" col="EF">12345.67</Cell>
+	</TableUpdate>
+
 	<Analysis name="test">
 		<A name="functional_unit">oil</A>
 		<A name="boundary">Production</A>
