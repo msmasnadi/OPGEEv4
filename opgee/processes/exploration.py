@@ -51,7 +51,7 @@ class Exploration(Process):
         truck_energy_intensity = field.get_process_data("energy_intensity_truck")
 
         export_df = field.import_export.export_df
-        export_LHV = export_df.drop(columns=["Water"]).sum().sum() \
+        export_LHV = export_df.drop(columns=["Water"]).sum(axis='columns').sum() \
             if self.oil_sands_mine == "None" else ureg.Quantity(0.0, "mmbtu/day")
         cumulative_export_LHV = export_LHV * year_to_day * self.field_production_lifetime
         survey_vehicle_energy_consumption = \
