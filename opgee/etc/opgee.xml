@@ -196,6 +196,9 @@
 		<Process class="GasReinjectionCompressor"/>
 		<Process class="GasReinjectionWell"/>
 
+		<Process class="Boundary" boundary="Production"/>
+		<Process class="Boundary" boundary="Transportation"/>
+
 		<Stream src="Exploration" dst="Drilling" name="exploration to drilling">
 			<Contains>None</Contains>
 		</Stream>
@@ -258,13 +261,18 @@
 			<Contains>oil for storage</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilStorage" dst="CrudeOilTransport" name="crude oil storage to crude oil transport" boundary = "Production">
+		<Stream src="CrudeOilStorage" dst="CrudeOilTransport" name="crude oil storage to crude oil transport">
 			<Contains>oil for transport</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilTransport" dst="After" name="crude oil transport to after" boundary="Transportation">
+		<Stream src="CrudeOilTransport" dst="ProductionBoundary"/>
+
+		<Stream src="CrudeOilTransport" dst="After" name="crude oil transport to after">
 			<Contains>oil for refinery</Contains>
 		</Stream>
+
+		<Stream src="After" dst="TransportationBoundary"/>
+
 
 		<Stream src="GasGathering" dst="GasDehydration" name="gas gathering to gas dehydration">
 			<Contains>gas</Contains>
@@ -466,6 +474,7 @@
 		</Aggregator>
 
 		<Aggregator name="ProductionExtraction">
+			<Process class="ReservoirWellInterface"/>
 			<Process class="DownholePump"/>
 			<Process class="CrudeOilStorage"/>
 			<Process class="GasLiftingCompressor"/>
@@ -500,7 +509,10 @@
 		<Aggregator name="OilTransport">
 			<Process class="CrudeOilTransport"/>
 		</Aggregator>
+
 		<Process class="Output"/>
+		<Process class="Boundary" boundary="Production"/>
+		<Process class="Boundary" boundary="Transportation"/>
 
 		<Stream src="Reservoir" dst="ReservoirWellInterface" name="reservoir to reservoir well interface">
 			<Contains>crude oil</Contains>
@@ -542,13 +554,17 @@
 			<Contains>gas for flaring</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilStorage" dst="CrudeOilTransport" name="crude oil storage to crude oil transport" boundary="Production">
+		<Stream src="CrudeOilStorage" dst="CrudeOilTransport" name="crude oil storage to crude oil transport">
 			<Contains>oil for transport</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilTransport" dst="After" name="crude oil transport to after" boundary="Transportation">
+
+		<Stream src="CrudeOilTransport" dst="After" name="crude oil transport to after">
 			<Contains>oil for refinery</Contains>
 		</Stream>
+
+		<Stream src="CrudeOilTransport" dst="ProductionBoundary"/>
+		<Stream src="After" dst="TransportationBoundary"/>
 
 		<Stream src="CrudeOilStorage" dst="VRUCompressor" name="crude oil storage to VRU compressor">
 			<Contains>gas for VRU</Contains>
@@ -572,14 +588,15 @@
 		<Process class="CrudeOilTransport"/>
 		<Process class="PetrocokeTransport"/>
 
-		<Process class="CrudeOilStabilization" enabled="false">
-		</Process>
+		<Process class="CrudeOilStabilization" enabled="false"/>
 
 		<Process class="HeavyOilUpgrading"/>
 		<Process class="CrudeOilStorage"/>
 		<Process class="HeavyOilDilution" enabled="false"/>
 		<Process class="BitumenMining" enabled="false"/>
 		<Process class="Flaring" enabled="false"/>
+
+		<Process class="Boundary" boundary="Production"/>
 
 		<Stream src="Before" dst="HeavyOilUpgrading" name="before to heavy oil upgrading">
 			<Contains>oil for upgrading</Contains>
@@ -608,7 +625,7 @@
 			<Contains>oil for storage</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to after" boundary="Production">
+		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to after">
 			<Contains>gas for flaring</Contains>
 			<Contains>gas for VRU</Contains>
 		</Stream>
@@ -633,6 +650,9 @@
 		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to VRU compressor">
 			<Contains>gas for VRU</Contains>
 		</Stream>
+
+		<Stream src="CrudeOilTransport" dst="ProductionBoundary"/>
+
 	</Field>
 
 	<Field name='heavy_oil_diluent'>
@@ -652,9 +672,13 @@
 		<Process class="BitumenMining"/>
 		<Process class="DiluentTransport"/>
 
-		<Stream src="HeavyOilDilution" dst="After" name="heavy oil dilution to after" boundary="Production">
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="HeavyOilDilution" dst="After" name="heavy oil dilution to after">
 			<Contains>oil for storage</Contains>
 		</Stream>
+
+		<Stream src="After" dst="ProductionBoundary"/>
 
 		<Stream src="Before" dst="HeavyOilDilution" name="before to heavy oil dilution">
 			<Contains>oil for dilution</Contains>
@@ -693,6 +717,7 @@
 		<Process class="Before"/>
 		<Process class="After"/>
 		<Process class="Output"/>
+		<Process class="Boundary" boundary="Production"/>
 
 		<Process class="HeavyOilDilution" impute-start="true">
 			<A name="fraction_diluent">0.3</A>
@@ -725,6 +750,8 @@
 		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to VRU compressor">
 			<Contains>gas for VRU</Contains>
 		</Stream>
+
+		<Stream src="After" dst="ProductionBoundary"/>
 
 		<Stream src="DiluentTransport" dst="HeavyOilDilution" name="dilution transport to heavy oil dilution">
 			<Contains>oil for dilution</Contains>
@@ -789,6 +816,7 @@
 		<Process class="WaterInjection"/>
 		<Process class="After"/>
 		<Process class="Output"/>
+		<Process class="Boundary" boundary="Production"/>
 
 		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
 			<Contains>crude oil</Contains>
@@ -843,9 +871,11 @@
 			<Contains>blowdown water</Contains>
 		</Stream>
 
-		<Stream src="SteamGeneration" dst="After" name="steam generation to environment" boundary="Production"> <!-- arbitrary boundary for testing -->
+		<Stream src="SteamGeneration" dst="After" name="steam generation to environment">
 			<Contains>waste water</Contains>
 		</Stream>
+
+		<Stream src="After" dst="ProductionBoundary"/>
 
 		<Stream src="Separation" dst="Output" name="gas after separator">
 			<Contains>gas</Contains>
@@ -904,8 +934,8 @@
 		<A name="WOR">7.77</A>
 		<A name="FOR">75.0</A>
 		<A name="prod_index">6.8</A>
-		<Process class="Separation" impute-start="true">
-		</Process>
+
+		<Process class="Separation" impute-start="true"/>
 
 		<Process class="ReservoirWellInterface" cycle-start="true"/>
 
@@ -922,6 +952,9 @@
 		<Process class="WaterInjection"/>
 		<Process class="Output"/>
 		<Process class="After"/>
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="After" dst="ProductionBoundary"/>
 
 		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
 			<Contains>crude oil</Contains>
@@ -976,7 +1009,7 @@
 			<Contains>blowdown water</Contains>
 		</Stream>
 
-		<Stream src="SteamGeneration" dst="After" name="steam generation to environment" boundary="Production">	<!-- set boundary arbitrarily -->
+		<Stream src="SteamGeneration" dst="After" name="steam generation to environment">
 			<Contains>waste water</Contains>
 		</Stream>
 

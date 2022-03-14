@@ -17,7 +17,7 @@ def test_graphing(opgee, args):
         opgee.run(None, args)
         good = True
     except Exception as e:
-        # print(e)
+        print(e)
         good = False
 
     assert good

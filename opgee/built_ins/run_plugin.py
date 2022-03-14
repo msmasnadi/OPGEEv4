@@ -97,7 +97,7 @@ class RunCommand(SubcommandABC):
             selected_fields = [(field, analysis) for analysis in selected_analyses for field in analysis.fields()]
 
         for field, analysis in selected_fields:
-            field.run(analysis)
+            field.run(analysis)         # TODO: need to reset?
             field.report(analysis)
 
         if args.output:

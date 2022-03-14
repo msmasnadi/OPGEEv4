@@ -33,6 +33,7 @@
 		<Process class="CrudeOilStorage" enabled="false"/>
 		<Process class="Output"/>
 		<Process class="After"/>
+		<Process class="Boundary" boundary="Production"/>
 
 		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
 			<Contains>crude oil</Contains>
@@ -69,9 +70,11 @@
 			<Contains>water for subsurface disposal</Contains>
 		</Stream>
 
-		<Stream src="Separation" dst="Output" name="gas after separator" boundary="Production">
+		<Stream src="Separation" dst="Output" name="gas after separator">
 			<Contains>gas</Contains>
 		</Stream>
+
+		<Stream src="Output" dst="ProductionBoundary"/>
 
 		<Stream src="ReservoirWellInterface" dst="DownholePump" name="reservoir well interface to downhole pump">
 			<Contains>crude oil</Contains>

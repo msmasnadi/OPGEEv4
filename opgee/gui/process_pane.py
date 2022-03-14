@@ -230,24 +230,30 @@ def field_network_graph(field, show_stream_contents=False, show_disabled_procs=F
 
     def edge_class(stream):
         if stream.enabled and stream.dst_proc.enabled and stream.src_proc.enabled:
-            return 'boundary-edge' if stream.boundary else 'enabled-edge'
+            return 'enabled-edge'
         else:
             return 'disabled-edge'
 
+    def node_class(proc):
+        return 'disabled-node' if not proc.enabled else (
+          'boundary-node' if proc.boundary else 'enabled-node'
+        )
+
     nodes = [{'data': {'id': name, 'label': name},
-              'classes': ('enabled-node' if proc.enabled else 'disabled-node')} for name, proc in
-             field.process_dict.items()
-             if show_disabled_procs or proc.enabled]  # , 'size': 150  didn't work
+              'classes': node_class(proc)}
+             for name, proc in field.process_dict.items()
+                 if show_disabled_procs or proc.enabled
+             ]
 
     edges = [{'data': {'id': name, 'source': s.src_name, 'target': s.dst_name,
                        'contents': ', '.join(s.contents)}, 'classes': edge_class(s)}
-             for name, s in field.stream_dict.items() if (
-                     s.dst_proc and s.src_proc and
-                     (show_disabled_procs or (s.dst_proc.enabled and s.src_proc.enabled))
-             )]
+             for name, s in field.stream_dict.items()
+                if (s.dst_proc and s.src_proc and
+                    (show_disabled_procs or (s.dst_proc.enabled and s.src_proc.enabled)))
+             ]
 
     enabled_edge_color = 'maroon'
-    boundary_edge_color = 'blue'
+    boundary_node_color = 'brown'
     disabled_edge_color = 'gray'
     node_color = 'sandybrown'
 
@@ -284,6 +290,12 @@ def field_network_graph(field, show_stream_contents=False, show_disabled_procs=F
                 }
             },
             {
+                'selector': '.boundary-node',
+                'style': {
+                    'background-color': boundary_node_color,
+                }
+            },
+            {
                 'selector': '.disabled-node',
                 'style': {
                     'background-color': 'lightgray',
@@ -314,14 +326,14 @@ def field_network_graph(field, show_stream_contents=False, show_disabled_procs=F
                     "font-size": "14px",
                 },
             },
-            {
-                'selector': '.boundary-edge',
-                'style': {
-                    'target-arrow-color': boundary_edge_color,
-                    'line-color': boundary_edge_color,
-                    'width': 2,
-                }
-            },
+            # {
+            #     'selector': '.boundary-edge',
+            #     'style': {
+            #         'target-arrow-color': boundary_edge_color,
+            #         'line-color': boundary_edge_color,
+            #         'width': 2,
+            #     }
+            # },
             {
                 'selector': '.disabled-edge',
                 'style': {
