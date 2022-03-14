@@ -4,7 +4,8 @@ from .. import ureg
 from ..core import TemperaturePressure, STP
 from ..log import getLogger
 from ..process import Process
-from ..stream import Stream
+from ..stream import Stream, PHASE_GAS
+
 _logger = getLogger(__name__)  # data logging
 
 
@@ -20,9 +21,16 @@ class ReservoirWellInterface(Process):
         self.productivity_index = field.attr("prod_index")
         self.permeability = field.attr("res_perm")
         self.thickness = field.attr("res_thickness")
+        self.gas_flooding = field.attr("gas_flooding")
+        self.flood_gas_type = field.attr("flood_gas_type")
+        self.oil_prod = field.attr("oil_prod")
+        self.GFIR = field.attr("GFIR")
+        self.frac_CO2_breakthrough = self.attr("frac_CO2_breakthrough")
+        self.CO2_flooding_vol_rate = self.oil_prod * self.GFIR * self.frac_CO2_breakthrough
 
     def run(self, analysis):
         self.print_running_msg()
+        field = self.field
 
         # mass rate
         input = self.find_input_stream("crude oil")
@@ -32,16 +40,12 @@ class ReservoirWellInterface(Process):
         # Check
         self.set_iteration_value(output.total_flow_rate())
 
-        flooding_CO2 = self.find_input_stream("CO2", raiseError=False)
-        # output.add_flow_rates_from(flooding_CO2)
-        if flooding_CO2 is not None:
-            flooding_CO2.set_tp(self.res_tp)
-
-            reset_stream = Stream("reset_stream", input.tp)
-            reset_stream.copy_flow_rates_from(input)
-            reset_stream.add_flow_rates_from(flooding_CO2)
-
-            output.copy_flow_rates_from(reset_stream)
+        if self.gas_flooding and self.flood_gas_type == "CO2":
+            flooding_CO2_rate = field.gas.component_gas_rho_STP["CO2"] * self.CO2_flooding_vol_rate
+            output.copy_flow_rates_from(input)
+            output.add_flow_rate("CO2", PHASE_GAS, flooding_CO2_rate)
+        else:
+            output.copy_flow_rates_from(input)
 
         # bottom hole flowing pressure
         bottomhole_flowing_press = self.get_bottomhole_press(input)

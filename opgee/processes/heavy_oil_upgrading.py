@@ -36,9 +36,8 @@ class HeavyOilUpgrading(Process):
 
         # mass rate
         input_oil = self.find_input_streams("oil for upgrading", combine=True)
-        input_gas = self.find_input_stream("gas for upgrading")
 
-        if input_oil.is_uninitialized() or input_gas.is_uninitialized():
+        if input_oil.is_uninitialized():
             return
 
         df = self.model.heavy_oil_upgrading

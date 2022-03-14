@@ -417,6 +417,9 @@
       <AttrDef name="eta_pump_well" type="float" unit="percent" desc="pump efficiency">65</AttrDef>
       <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
     </ClassAttrs>
+    <ClassAttrs name="ReservoirWellInterface">
+      <AttrDef name="frac_CO2_breakthrough" desc="Fraction of CO2 breaking through to producers" unit="percent" type="float">59</AttrDef>
+    </ClassAttrs>
     <ClassAttrs name="WaterInjection">
       <Options name="prime_mover_type" default="NG_engine">
         <Option>NG_engine</Option>
@@ -722,7 +725,7 @@
       <AttrDef name="N2_flooding_press" type="float" unit="psia" desc="nitrogen flooding pressure">125.0</AttrDef>
       <AttrDef name="C1_flooding_press" type="float" unit="psia" desc="methane flooding pressure">600</AttrDef>
       <AttrDef name="flood_gas_type" desc="Flood gas" options="Flood gases" type="str"/>
-      <AttrDef name="frac_CO2_breakthrough" desc="Fraction of CO2 breaking through to producers" unit="percent" type="float">59</AttrDef>
+
     </ClassAttrs>
 
     <ClassAttrs name="TransmissionCompressor">

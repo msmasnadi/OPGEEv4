@@ -74,9 +74,11 @@ class SteamGeneration(Process):
         output_waste_water.set_liquid_flow_rate("H2O",
                                                 waste_water_from_blowdown.to("tonne/day"),
                                                 tp=self.waste_water_reinjection_tp)
-        output_recycled_blowdown_water = self.find_output_stream("blowdown water")
-        output_recycled_blowdown_water.set_liquid_flow_rate("H2O", recycled_blowdown_water.to("tonne/day"),
-                                                            tp=self.waste_water_reinjection_tp)
+        #TODO: output it to the production boundary
+        # if recycled_blowdown_water.m != 0:
+        #     output_recycled_blowdown_water = self.find_output_stream("blowdown water")
+        #     output_recycled_blowdown_water.set_liquid_flow_rate("H2O", recycled_blowdown_water.to("tonne/day"),
+        #                                                         tp=self.waste_water_reinjection_tp)
 
         input_prod_water = self.find_input_stream("produced water for steam generation")
         prod_water_mass_rate = input_prod_water.liquid_flow_rate("H2O")

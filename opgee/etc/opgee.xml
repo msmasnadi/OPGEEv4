@@ -7,16 +7,18 @@
      define custom starting points.
      -->
 <Model schema_version="4.0.0.a" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="opgee.xsd">
-	<Analysis name="test_gas_path_2">
+	<Analysis name="test_analysis">
 		<A name="functional_unit">oil</A>
 		<A name="energy_basis">LHV</A>
 	  <A name="GWP_horizon">100</A>
 	  <A name="GWP_version">AR5</A>
-		<Field name="test_gas_path_2"/>
+		<Field name="gas_lifting_field"/>
+		<Field name="oil_stab_field"/>
+		<Field name="steam_flooding_field"/>
 	</Analysis>
 
 <!--	test gas lifting case-->
-	<Field name="test_gas_path_2">
+	<Field name="gas_lifting_field">
 		<A name="country">USA</A>
 		<A name="water_reinjection">1</A>
 		<A name="downhole_pump">0</A>
@@ -146,6 +148,7 @@
 		</Aggregator>
 
 		<Aggregator name="ProductionExtraction">
+			<Process class="ReservoirWellInterface" cycle-start="true"/>
 			<Process class="DownholePump"/>
 			<Process class="CrudeOilStorage"/>
 			<Process class="GasLiftingCompressor"/>
@@ -158,12 +161,18 @@
 			<Process class="CrudeOilStabilization"/>
 			<Process class="VRUCompressor"/>
 			<Process class="Venting"/>
+			<Process class="SourGasInjection"/>
+			<Process class="GasLiftingCompressor"/>
+			<Process class="GasReinjectionCompressor"/>
+			<Process class="WaterTreatment"/>
+			<Process class="BitumenMining"/>
 		</Aggregator>
 
 		<Aggregator name="SurfaceProcessing">
 			<Process class="HeavyOilDilution"/>
 			<Process class="HeavyOilUpgrading"/>
 			<Process class="GasGathering"/>
+			<Process class="GasPartition"/>
 			<Process class="GasDehydration"/>
 			<Process class="AcidGasRemoval"/>
 			<Process class="Demethanizer"/>
@@ -171,6 +180,7 @@
 			<Process class="PreMembraneCompressor"/>
 			<Process class="CO2Membrane"/>
 			<Process class="RyanHolmes"/>
+			<Process class="GasReinjectionWell"/>
 		</Aggregator>
 
 		<Aggregator name="GasTransport">
@@ -181,20 +191,9 @@
 			<Process class="CrudeOilTransport"/>
 		</Aggregator>
 
-		<Process class="ReservoirWellInterface" cycle-start="true"/>
-
-		<Process class="BitumenMining"/>
-
-		<Process class="HeavyOilUpgrading" enabled="false"/>
-		<Process class="HeavyOilDilution" enabled="false"/>
-
-		<Process class="WaterTreatment"/>
-		<Process class="NGL"/>
-		<Process class="GasPartition"/>
-		<Process class="SourGasInjection"/>
-		<Process class="GasLiftingCompressor"/>
-		<Process class="GasReinjectionCompressor"/>
-		<Process class="GasReinjectionWell"/>
+		<Aggregator name="LiquifiedNaturalGas">
+			<Process class="NGL"/>
+		</Aggregator>
 
 		<Stream src="Exploration" dst="Drilling" name="exploration to drilling">
 			<Contains>None</Contains>
@@ -424,40 +423,35 @@
 
 	</Field>
 
-	<Analysis name="test_oil_branch_stab">
-		<A name="functional_unit">oil</A>
-		<A name="energy_basis">LHV</A>
-	  <A name="GWP_horizon">100</A>
-	  <A name="GWP_version">AR5</A>
-		<Field name="oil_stabilization"/>
-	</Analysis>
-
-	<Analysis name="test_oil_branch_upgrading">
-		<A name="functional_unit">oil</A>
-		<A name="energy_basis">LHV</A>
-	  <A name="GWP_horizon">100</A>
-	  <A name="GWP_version">AR5</A>
-		<Field name="heavy_oil_upgrading"/>
-	</Analysis>
-
-	<Analysis name="test_oil_branch_diluent">
-		<A name="functional_unit">oil</A>
-		<A name="energy_basis">LHV</A>
-	  <A name="GWP_horizon">100</A>
-	  <A name="GWP_version">AR5</A>
-		<Field name="heavy_oil_diluent"/>
-	</Analysis>
-
-	<Analysis name="test_oil_branch_bitumen">
-		<A name="functional_unit">oil</A>
-		<A name="energy_basis">LHV</A>
-	  <A name="GWP_horizon">100</A>
-	  <A name="GWP_version">AR5</A>
-		<Field name="bitumen_dilution"/>
-	</Analysis>
-
-
-	<Field name="oil_stabilization">
+	<Field name="oil_stab_field">
+		<A name="downhole_pump">1</A>
+		<A name="water_reinjection">1</A>
+		<A name="natural_gas_reinjection">0</A>
+		<A name="water_flooding">0</A>
+		<A name="gas_lifting">0</A>
+		<A name="gas_flooding">0</A>
+		<A name="steam_flooding">0</A>
+		<A name="oil_sands_mine">None</A>
+		<A name="country">Angola</A>
+		<A name="name">Takula</A>
+		<A name="age">35</A>
+		<A name="depth">3200.0</A>
+		<A name="oil_prod">105000.0</A>
+		<A name="num_prod_wells">69</A>
+		<A name="num_water_inj_wells">21</A>
+		<A name="res_press">1300.0</A>
+		<A name="API">32.0</A>
+		<A name="WOR">4.0</A>
+		<A name="WIR">4.67</A>
+		<A name="gas_processing_path">None</A>
+		<A name="frac_transport_tanker">1.0</A>
+		<A name="frac_transport_barge">0.0</A>
+		<A name="frac_transport_pipeline">1.0</A>
+		<A name="frac_transport_rail">0.0</A>
+		<A name="transport_dist_tanker">7696.26</A>
+		<A name="transport_dist_barge">0.0</A>
+		<A name="transport_dist_pipeline">24.0</A>
+		<A name="transport_dist_rail">0.0</A>
 
 		<Process class="After"/>
 		<Aggregator name="ExplorationAndDrilling">
@@ -466,41 +460,46 @@
 		</Aggregator>
 
 		<Aggregator name="ProductionExtraction">
+			<Process class="ReservoirWellInterface"/>
 			<Process class="DownholePump"/>
 			<Process class="CrudeOilStorage"/>
-			<Process class="GasLiftingCompressor"/>
-			<Process class="CO2ReinjectionCompressor"/>
-			<Process class="SourGasCompressor"/>
-			<Process class="CO2InjectionWell"/>
-			<Process class="Flaring"/>
+			<Process class="GasLiftingCompressor" enabled="false"/>
+			<Process class="CO2ReinjectionCompressor" enabled="false"/>
+			<Process class="SourGasCompressor" enabled="false"/>
+			<Process class="CO2InjectionWell" enabled="false"/>
+			<Process class="Flaring" enabled="false"/>
 			<Process class="Separation" impute-start="true"/>
 			<Process class="CrudeOilDewatering"/>
 			<Process class="CrudeOilStabilization"/>
 			<Process class="VRUCompressor"/>
-			<Process class="Venting"/>
+			<Process class="Venting" enabled="false"/>
 		</Aggregator>
 
 		<Aggregator name="SurfaceProcessing">
 			<Process class="HeavyOilDilution"/>
 			<Process class="HeavyOilUpgrading"/>
-			<Process class="GasGathering"/>
-			<Process class="GasDehydration"/>
-			<Process class="AcidGasRemoval"/>
-			<Process class="Demethanizer"/>
-			<Process class="PreMembraneChiller"/>
-			<Process class="PreMembraneCompressor"/>
-			<Process class="CO2Membrane"/>
-			<Process class="RyanHolmes"/>
+			<Process class="GasGathering" enabled="false"/>
+			<Process class="GasDehydration" enabled="false"/>
+			<Process class="AcidGasRemoval" enabled="false"/>
+			<Process class="Demethanizer" enabled="false"/>
+			<Process class="PreMembraneChiller" enabled="false"/>
+			<Process class="PreMembraneCompressor" enabled="false"/>
+			<Process class="CO2Membrane" enabled="false"/>
+			<Process class="RyanHolmes" enabled="false"/>
 		</Aggregator>
 
 		<Aggregator name="GasTransport">
-			<Process class="TransmissionCompressor"/>
+			<Process class="TransmissionCompressor" enabled="false"/>
 		</Aggregator>
 
 		<Aggregator name="OilTransport">
 			<Process class="CrudeOilTransport"/>
 		</Aggregator>
 		<Process class="Output"/>
+
+		<Stream src="Exploration" dst="Drilling" name="exploration to drilling">
+			<Contains>None</Contains>
+		</Stream>
 
 		<Stream src="Reservoir" dst="ReservoirWellInterface" name="reservoir to reservoir well interface">
 			<Contains>crude oil</Contains>
@@ -513,6 +512,12 @@
 		</Stream>
 		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
 			<Contains>crude oil</Contains>
+		</Stream>
+		<Stream src="Separation" dst="After" name="separation to flaring">
+			<Contains>gas</Contains>
+		</Stream>
+		<Stream src="Separation" dst="After" name="separator to produced water treatment">
+			<Contains>water</Contains>
 		</Stream>
 		<Stream src="CrudeOilDewatering" dst="CrudeOilStabilization" name="before to crude oil stabilization">
 			<Contains>oil for stabilization</Contains>
@@ -557,205 +562,33 @@
 		<Stream src="VRUCompressor" dst="After" name="VRU compressor to gas gathering">
 			<Contains>gas for gas gathering</Contains>
 		</Stream>
-	</Field>
-
-	<Field name="heavy_oil_upgrading">
-		<A name="country">USA</A>
-		<A name="API">8.6</A>
-		<A name="oil_processing_path">Upgrading</A>
-		<A name="upgrader_type">Delayed coking</A>
-
-		<Process class="Before" desc="" impute-start="true">
-		</Process>
-		<Process class="After"/>
-		<Process class="Output"/>
-		<Process class="CrudeOilTransport"/>
-		<Process class="PetrocokeTransport"/>
-
-		<Process class="CrudeOilStabilization" enabled="false">
-		</Process>
-
-		<Process class="HeavyOilUpgrading"/>
-		<Process class="CrudeOilStorage"/>
-		<Process class="HeavyOilDilution" enabled="false"/>
-		<Process class="BitumenMining" enabled="false"/>
-		<Process class="Flaring" enabled="false"/>
-
-		<Stream src="Before" dst="HeavyOilUpgrading" name="before to heavy oil upgrading">
-			<Contains>oil for upgrading</Contains>
-			<Component name="oil" phase="liquid">21043.6</Component>
-			<A name="temperature">165.0</A>
-			<A name="pressure">100.0</A>
-		</Stream>
-
-		<Stream src="Output" dst="HeavyOilUpgrading" name="output to heavy oil upgrading">
-			<Contains>gas for upgrading</Contains>
-			<Component name="N2" phase="gas">5.1003</Component>
-			<Component name="CO2" phase="gas">0.0416</Component>
-			<Component name="C1" phase="gas">736.7043</Component>
-			<Component name="C2" phase="gas">28.7480</Component>
-			<Component name="C3" phase="gas">19.9757</Component>
-			<Component name="C4" phase="gas">0.0244</Component>
-			<A name="temperature">90.0</A>
-			<A name="pressure">150.0</A>
-		</Stream>
 
 		<Stream src="HeavyOilUpgrading" dst="After" name="heavy oil upgrading to flaring">
 			<Contains>gas for flaring</Contains>
 		</Stream>
 
-		<Stream src="HeavyOilUpgrading" dst="CrudeOilStorage" name="heavy oil upgrading to crude oil storage">
+		<Stream src="CrudeOilDewatering" dst="HeavyOilUpgrading" name="upgrader">
+			<Contains>oil for upgrading</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilDewatering" dst="HeavyOilDilution" name="dilution">
+			<Contains>oil for dilution</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilDewatering" dst="CrudeOilStorage" name="storage">
 			<Contains>oil for storage</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to after" boundary="Production">
-			<Contains>gas for flaring</Contains>
-			<Contains>gas for VRU</Contains>
+		<Stream src="Output" dst="DownholePump" name="lifting gas" impute="False">
+			<Contains>lifting gas</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilStorage" dst="CrudeOilTransport" name="crude oil storage to crude oil transport">
-			<Contains>oil for transport</Contains>
-		</Stream>
-
-		<Stream src="HeavyOilUpgrading" dst="PetrocokeTransport" name="heavy oil upgrading to petrocoke transport">
-			<Contains>petrocoke for transport</Contains>
-		</Stream>
-
-		<Stream src="PetrocokeTransport" dst="After" name="petrocoke transport to after">
-			<Contains>petrocoke for market</Contains>
-			<Contains>exported petrocoke</Contains>
-		</Stream>
-
-		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to flaring">
-			<Contains>gas for flaring</Contains>
-		</Stream>
-
-		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to VRU compressor">
-			<Contains>gas for VRU</Contains>
+		<Stream src="CrudeOilDewatering" dst="After" name="crude oil dewatering to produced water treatment">
+			<Contains>water</Contains>
 		</Stream>
 	</Field>
 
-	<Field name='heavy_oil_diluent'>
-		<A name="country">USA</A>
-		<A name="API">8.0</A>
-		<A name="oil_prod">83709.0</A>
-		<A name="GOR">132.23</A>
-		<A name="oil_processing_path">Dilution</A>
-
-		<Process class="Before"/>
-		<Process class="After"/>
-		<Process class="Output"/>
-
-		<Process class="HeavyOilDilution">
-			<A name="fraction_diluent">0.398</A>
-		</Process>
-		<Process class="BitumenMining"/>
-		<Process class="DiluentTransport"/>
-
-		<Stream src="HeavyOilDilution" dst="After" name="heavy oil dilution to after" boundary="Production">
-			<Contains>oil for storage</Contains>
-		</Stream>
-
-		<Stream src="Before" dst="HeavyOilDilution" name="before to heavy oil dilution">
-			<Contains>oil for dilution</Contains>
-			<Component name="oil" phase="liquid">12928.2</Component>
-			<A name="temperature">165.0</A>
-			<A name="pressure">100.0</A>
-		</Stream>
-
-		<Stream src="DiluentTransport" dst="HeavyOilDilution" name="dilution transport to heavy oil dilution">
-			<Contains>oil for dilution</Contains>
-		</Stream>
-
-		<Stream src="Before" dst="DiluentTransport" name="before to diluent transport">
-			<Contains>oil for transport</Contains>
-		</Stream>
-
-		<Stream src="BitumenMining" dst="HeavyOilDilution" name="bitumen mining to heavy oil dilution">
-			<Contains>bitumen for dilution</Contains>
-		</Stream>
-
-		<Stream src="Reservoir" dst="BitumenMining" name="reservoir to bitumen mining">
-			<Contains>oil</Contains>
-		</Stream>
-	</Field>
-
-	<Field name='bitumen_dilution'>
-		<A name="country">USA</A>
-		<A name="API">32.0</A>
-		<A name="oil_prod">2098.0</A>
-		<A name="GOR">2429.0</A>
-		<A name="oil_sands_mine">Non-integrated with upgrader</A>
-		<A name="FOR">2.0</A>
-		<A name="VOR">0.0</A>
-		<A name="downhole_pump">0</A>
-
-		<Process class="Before"/>
-		<Process class="After"/>
-		<Process class="Output"/>
-
-		<Process class="HeavyOilDilution" impute-start="true">
-			<A name="fraction_diluent">0.3</A>
-		</Process>
-		<Process class="BitumenMining"/>
-		<Process class="DiluentTransport"/>
-		<Process class="Flaring" enabled="false"/>
-		<Process class="CrudeOilStorage"/>
-
-		<Stream src="Before" dst="HeavyOilDilution" name="before to heavy oil dilution">
-			<Contains>oil for dilution</Contains>
-			<A name="temperature">165.0</A>
-			<A name="pressure">100.0</A>
-		</Stream>
-
-		<Stream src="HeavyOilDilution" dst="CrudeOilStorage" name="heavy oil dilution to crude oil storage">
-			<Contains>oil for storage</Contains>
-		</Stream>
-
-		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to after" boundary="Production">
-			<Contains>oil for transport</Contains>
-			<Contains>oil for flaring</Contains>
-			<Contains>oil for VRU</Contains>
-		</Stream>
-
-		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to flaring">
-			<Contains>gas for flaring</Contains>
-		</Stream>
-
-		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to VRU compressor">
-			<Contains>gas for VRU</Contains>
-		</Stream>
-
-		<Stream src="DiluentTransport" dst="HeavyOilDilution" name="dilution transport to heavy oil dilution">
-			<Contains>oil for dilution</Contains>
-		</Stream>
-
-		<Stream src="Before" dst="DiluentTransport" name="before to diluent transport">
-			<Contains>oil for transport</Contains>
-		</Stream>
-
-		<Stream src="Reservoir" dst="BitumenMining" name="reservoir to bitumen mining">
-			<Contains>oil</Contains>
-		</Stream>
-
-		<Stream src="BitumenMining" dst="HeavyOilDilution" name="bitumen mining to heavy oil dilution">
-			<Contains>bitumen for dilution</Contains>
-		</Stream>
-
-		<Stream src="BitumenMining" dst="After" name="bitumen mining to flaring">
-			<Contains>gas for flaring</Contains>
-		</Stream>
-	</Field>
-
-	<Analysis name="test_steam_generation">
-		<A name="functional_unit">oil</A>
-		<A name="energy_basis">LHV</A>
-	  <A name="GWP_horizon">100</A>
-	  <A name="GWP_version">AR5</A>
-		<Field name="test_steam"/>
-	</Analysis>
-
-	<Field name="test_steam">
+	<Field name="steam_flooding_field">
 		<A name="country">USA</A>
 		<A name="steam_flooding">1</A>
 		<A name="age">55.0</A>
@@ -772,23 +605,57 @@
 		<A name="fraction_steam_cogen">0.5</A>
 		<A name="FOR">5.0</A>
 		<A name="prod_index">6.8</A>
-
-		<Process class="Separation" impute-start="true"/>
-		<Process class="ReservoirWellInterface" cycle-start="true"/>
-
-		<Process class="DownholePump"/>
-		<Process class="CrudeOilDewatering"/>
-
-		<Process class="CrudeOilStabilization" enabled="false"/>
-		<Process class="HeavyOilUpgrading" enabled="false"/>
-		<Process class="HeavyOilDilution" enabled="false"/>
-		<Process class="CrudeOilStorage" enabled="false"/>
-
-		<Process class="WaterTreatment"/>
-		<Process class="SteamGeneration"/>
-		<Process class="WaterInjection"/>
 		<Process class="After"/>
 		<Process class="Output"/>
+
+		<Aggregator name="ExplorationAndDrilling">
+			<Process class="Exploration" after="true"/>
+			<Process class="Drilling" after="true"/>
+		</Aggregator>
+
+		<Aggregator name="ProductionExtraction">
+			<Process class="ReservoirWellInterface"/>
+			<Process class="DownholePump"/>
+			<Process class="CrudeOilStorage"/>
+			<Process class="GasLiftingCompressor" enabled="false"/>
+			<Process class="CO2ReinjectionCompressor" enabled="false"/>
+			<Process class="SourGasCompressor" enabled="false"/>
+			<Process class="CO2InjectionWell" enabled="false"/>
+			<Process class="Flaring" enabled="false"/>
+			<Process class="Separation" impute-start="true"/>
+			<Process class="CrudeOilDewatering"/>
+			<Process class="CrudeOilStabilization"/>
+			<Process class="VRUCompressor" enabled="false"/>
+			<Process class="WaterTreatment"/>
+			<Process class="SteamGeneration"/>
+			<Process class="WaterInjection"/>
+			<Process class="Venting" enabled="false"/>
+		</Aggregator>
+
+		<Aggregator name="SurfaceProcessing">
+			<Process class="HeavyOilDilution"/>
+			<Process class="HeavyOilUpgrading"/>
+			<Process class="GasGathering" enabled="false"/>
+			<Process class="GasDehydration" enabled="false"/>
+			<Process class="AcidGasRemoval" enabled="false"/>
+			<Process class="Demethanizer" enabled="false"/>
+			<Process class="PreMembraneChiller" enabled="false"/>
+			<Process class="PreMembraneCompressor" enabled="false"/>
+			<Process class="CO2Membrane" enabled="false"/>
+			<Process class="RyanHolmes" enabled="false"/>
+		</Aggregator>
+
+		<Aggregator name="GasTransport">
+			<Process class="TransmissionCompressor" enabled="false"/>
+		</Aggregator>
+
+		<Aggregator name="OilTransport">
+			<Process class="CrudeOilTransport"/>
+		</Aggregator>
+
+		<Stream src="Exploration" dst="Drilling" name="exploration to drilling">
+			<Contains>None</Contains>
+		</Stream>
 
 		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
 			<Contains>crude oil</Contains>
@@ -798,29 +665,32 @@
 			<Contains>water</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="Output" name="stabilization">
+		<Stream src="CrudeOilDewatering" dst="CrudeOilStabilization" name="stabilization">
 			<Contains>oil for stabilization</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="Output" name="upgrader">
-			<Contains>oil for upgrader</Contains>
+		<Stream src="CrudeOilDewatering" dst="HeavyOilUpgrading" name="upgrader">
+			<Contains>oil for upgrading</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="Output" name="dilution">
+		<Stream src="CrudeOilDewatering" dst="HeavyOilDilution" name="dilution">
 			<Contains>oil for dilution</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="Output" name="storage">
+		<Stream src="CrudeOilDewatering" dst="CrudeOilStorage" name="storage">
 			<Contains>oil for storage</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilStorage" dst="CrudeOilTransport" name="crude oil storage to crude oil transport" boundary = "Production">
+			<Contains>oil for transport</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilTransport" dst="After" name="crude oil transport to after" boundary="Transportation">
+			<Contains>oil for refinery</Contains>
 		</Stream>
 
 		<Stream src="Separation" dst="WaterTreatment" name="separator to produced water treatment">
 			<Contains>water</Contains>
-		</Stream>
-
-		<Stream src="WaterTreatment" dst="Output" name="produced water treatment to output">
-			<Contains>water for surface disposal</Contains>
-			<Contains>water for subsurface disposal</Contains>
 		</Stream>
 
 		<Stream src="WaterTreatment" dst="SteamGeneration" name="produced water treatment to steam generation">
@@ -839,15 +709,12 @@
 			<Contains>makeup water for water injection</Contains>
 		</Stream>
 
-		<Stream src="SteamGeneration" dst="WaterTreatment" name="steam generation to produced water treatment">
-			<Contains>blowdown water</Contains>
-		</Stream>
 
-		<Stream src="SteamGeneration" dst="After" name="steam generation to environment" boundary="Production"> <!-- arbitrary boundary for testing -->
+		<Stream src="SteamGeneration" dst="After" name="steam generation to environment"> <!-- arbitrary boundary for testing -->
 			<Contains>waste water</Contains>
 		</Stream>
 
-		<Stream src="Separation" dst="Output" name="gas after separator">
+		<Stream src="Separation" dst="After" name="gas after separator">
 			<Contains>gas</Contains>
 		</Stream>
 
@@ -863,149 +730,33 @@
 			<Contains>crude oil</Contains>
 		</Stream>
 
-		<!-- TODO: "Output" should never be a source -->
 		<Stream src="Output" dst="DownholePump" name="lifting gas" impute="False">
 			<Contains>lifting gas</Contains>
 		</Stream>
 
-		<Stream src="Output" dst="ReservoirWellInterface" name="flooding CO2" impute="False">
-			<Contains>CO2</Contains>
-		</Stream>
-
-		<Stream src="Output" dst="WaterTreatment" name="blowdown recycled to treatment" impute="False">
-			<Contains>water</Contains>
-		</Stream>
-	</Field>
-
-	<Analysis name="test_water_injection">
-		<A name="functional_unit">oil</A>
-		<A name="energy_basis">LHV</A>
-	  <A name="GWP_horizon">100</A>
-	  <A name="GWP_version">AR5</A>
-		<Field name="test_water"/>
-	</Analysis>
-
-	<Field name="test_water">
-		<A name="country">USA</A>
-		<A name="downhole_pump">1</A>
-		<A name="water_reinjection">0</A>
-		<A name="water_flooding">1</A>
-		<A name="age">16.0</A>
-		<A name="depth">3600.0</A>
-		<A name="oil_prod">36000.0</A>
-		<A name="num_prod_wells">99</A>
-		<A name="num_water_inj_wells">83</A>
-		<A name="well_diam">2.78</A>
-		<A name="res_press">774.0</A>
-		<A name="res_temp">134.8</A>
-		<A name="API">16.9</A>
-		<A name="GOR">100.0</A>
-		<A name="WIR">8.77</A>
-		<A name="WOR">7.77</A>
-		<A name="FOR">75.0</A>
-		<A name="prod_index">6.8</A>
-		<Process class="Separation" impute-start="true">
-		</Process>
-
-		<Process class="ReservoirWellInterface" cycle-start="true"/>
-
-		<Process class="DownholePump"/>
-		<Process class="CrudeOilDewatering"/>
-
-		<Process class="CrudeOilStabilization" enabled="false"/>
-		<Process class="HeavyOilUpgrading" enabled="false"/>
-		<Process class="HeavyOilDilution" enabled="false"/>
-		<Process class="CrudeOilStorage" enabled="false"/>
-
-		<Process class="WaterTreatment"/>
-		<Process class="SteamGeneration"/>
-		<Process class="WaterInjection"/>
-		<Process class="Output"/>
-		<Process class="After"/>
-
-		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
-			<Contains>crude oil</Contains>
-		</Stream>
-
-		<Stream src="CrudeOilDewatering" dst="WaterTreatment" name="crude oil dewatering to produced water treatment">
-			<Contains>water</Contains>
-		</Stream>
-
-		<Stream src="CrudeOilDewatering" dst="Output" name="stabilization">
-			<Contains>oil for stabilization</Contains>
-		</Stream>
-
-		<Stream src="CrudeOilDewatering" dst="Output" name="upgrader">
-			<Contains>oil for upgrader</Contains>
-		</Stream>
-
-		<Stream src="CrudeOilDewatering" dst="Output" name="dilution">
-			<Contains>oil for dilution</Contains>
-		</Stream>
-
-		<Stream src="CrudeOilDewatering" dst="Output" name="storage">
+		<Stream src="HeavyOilUpgrading" dst="CrudeOilStorage" name="crude oil upgrading to crude oil storage">
 			<Contains>oil for storage</Contains>
 		</Stream>
 
-		<Stream src="Separation" dst="WaterTreatment" name="separator to produced water treatment">
-			<Contains>water</Contains>
+		<Stream src="HeavyOilDilution" dst="CrudeOilStorage" name="crude oil dilution to crude oil storage">
+			<Contains>oil for storage</Contains>
 		</Stream>
 
-		<Stream src="WaterTreatment" dst="Output" name="produced water treatment to output">
-			<Contains>water for surface disposal</Contains>
-			<Contains>water for subsurface disposal</Contains>
+		<Stream src="CrudeOilStabilization" dst="After" name="gas from stabilization">
+			<Contains>gas for gas gathering</Contains>
 		</Stream>
 
-		<Stream src="WaterTreatment" dst="SteamGeneration" name="produced water treatment to steam generation">
-			<Contains>produced water for steam generation</Contains>
+		<Stream src="CrudeOilStabilization" dst="CrudeOilStorage" name="crude oil stabilization to crude oil storage">
+			<Contains>oil for storage</Contains>
 		</Stream>
 
-		<Stream src="WaterTreatment" dst="SteamGeneration" name="makeup water treatment to steam generation">
-			<Contains>makeup water for steam generation</Contains>
+		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to flaring">
+			<Contains>gas for flaring</Contains>
 		</Stream>
 
-		<Stream src="WaterTreatment" dst="WaterInjection" name="produced water treatment to water injection">
-			<Contains>produced water for water injection</Contains>
-		</Stream>
-
-		<Stream src="WaterTreatment" dst="WaterInjection" name="makeup water treatment to water injection">
-			<Contains>makeup water for water injection</Contains>
-		</Stream>
-
-		<Stream src="SteamGeneration" dst="WaterTreatment" name="steam generation to produced water treatment">
-			<Contains>blowdown water</Contains>
-		</Stream>
-
-		<Stream src="SteamGeneration" dst="After" name="steam generation to environment" boundary="Production">	<!-- set boundary arbitrarily -->
-			<Contains>waste water</Contains>
-		</Stream>
-
-		<Stream src="Separation" dst="Output" name="gas after separator">
-			<Contains>gas</Contains>
-		</Stream>
-
-		<Stream src="ReservoirWellInterface" dst="DownholePump" name="reservoir well interface to downhole pump">
-			<Contains>crude oil</Contains>
-		</Stream>
-
-		<Stream src="Reservoir" dst="ReservoirWellInterface" name="reservoir to reservoir well interface">
-			<Contains>crude oil</Contains>
-		</Stream>
-
-		<Stream src="DownholePump" dst="Separation" name="downhole pump to separator">
-			<Contains>crude oil</Contains>
-		</Stream>
-
-		<Stream src="Output" dst="DownholePump" name="lifting gas" impute="False">
-			<Contains>lifting gas</Contains>
-		</Stream>
-
-		<Stream src="Output" dst="ReservoirWellInterface" name="flooding CO2" impute="False">
-			<Contains>CO2</Contains>
-		</Stream>
-
-		<Stream src="Output" dst="WaterTreatment" name="blowdown recycled to treatment" impute="False">
-			<Contains>water</Contains>
+		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to VRU compressor">
+			<Contains>gas for VRU</Contains>
 		</Stream>
 	</Field>
+
 </Model>

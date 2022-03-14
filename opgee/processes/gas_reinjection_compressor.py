@@ -31,7 +31,6 @@ class GasReinjectionCompressor(Process):
         self.offset_gas_comp = field.imported_gas_comp["Gas Flooding"]
         self.oil_prod = field.attr("oil_prod")
         self.gas_flooding_vol_rate = self.oil_prod * self.GFIR
-        self.frac_CO2_breakthrough = self.attr("frac_CO2_breakthrough")
 
     def run(self, analysis):
         self.print_running_msg()
