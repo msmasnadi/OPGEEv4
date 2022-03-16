@@ -26,12 +26,14 @@ def test_oil_specific_gravity(oil_instance):
     oil_SG = oil_instance.specific_gravity(oil_instance.API)
     assert oil_SG == ureg.Quantity(pytest.approx(oil_instance.oil_specific_gravity.m), "frac")
 
-# TODO: Fix or delete this
-# def test_reservoir_solution_GOR(oil_instance):
-#     res_GOR = oil_instance.reservoir_solution_GOR()
-#     assert res_GOR == ureg.Quantity(pytest.approx(291.334541), "scf/bbl_oil")
+
+def test_reservoir_solution_GOR(oil_instance):
+    res_GOR = oil_instance.reservoir_solution_GOR()
+    assert res_GOR == ureg.Quantity(pytest.approx(291.334541), "scf/bbl_oil")
+
 
 test_tp = TemperaturePressure(ureg.Quantity(200.0, "degF"), ureg.Quantity(1556.0, "psia"))
+
 
 def test_bubble_point_pressure(oil_instance):
     stream = Stream("test_stream", test_tp)
@@ -150,6 +152,7 @@ def test_liquid_fuel_comp(oil_instance):
 def gas_instance(test_model):
     field = test_model.get_field("test")
     return field.gas
+
 
 @pytest.fixture
 def stream():
@@ -319,7 +322,6 @@ def water_instance(test_model):
     field = test_model.get_field("test")
     return field.water
 
-
 def test_water_density(water_instance):
     density = water_instance.density()
     assert density == ureg.Quantity(pytest.approx(1004.12839, rel=1e-5), "kg/m**3")
@@ -365,6 +367,7 @@ def test_steam_enthalpy(water_instance):
     mass_rate = ureg.Quantity(5.52E7, "kg/day")
     enthalpy = water_instance.steam_enthalpy(press, steam_quality, mass_rate)
     assert enthalpy == ureg.Quantity(pytest.approx(1.28341315e+08), "MJ/day")
+
 
 def test_check_balance():
     from opgee.processes.steam_generation import SteamGeneration

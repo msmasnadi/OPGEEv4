@@ -372,7 +372,11 @@ class Field(Container):
         # energy = self.boundary_energy_flow_rate(analysis)
 
         export_df = self.import_export.export_df
-        export_LHV = export_df.drop(columns=["Water"]).sum().sum()
+        export_LHV = export_df.drop(columns=["Water"]).sum(axis='columns').sum()
+        export_LHV = export_LHV if isinstance(export_LHV, pint.Quantity) else ureg.Quantity(export_LHV, "mmbtu/d")
+
+        if export_LHV.m == 0:
+            return OpgeeException("Zero export LHV")
 
         self.carbon_intensity = ci = (total_emissions / export_LHV).to('grams/MJ')
         return ci
