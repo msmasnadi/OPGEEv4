@@ -570,6 +570,9 @@ class Process(XmlInstantiable, AttributeMixin):
         :return: (Stream) a stream with the sum of all input components
         """
         from .core import STP
+        if not self.inputs:
+            raise OpgeeException(f"Can't sum input streams -- {self} has none.")
+
         comp_matrix = sum([stream.components for stream in self.inputs])
         stream = Stream('boundary-stream', STP, comp_matrix=comp_matrix)
         return stream

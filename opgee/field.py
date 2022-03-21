@@ -290,18 +290,6 @@ class Field(Container):
         for p in self.processes():
             p.check_balances()
 
-    # TBD: deprecated in favor of boundary_process, below
-    # def boundary_stream(self, analysis) -> Stream:
-    #     """
-    #     Return the currently chosen boundary stream, per the `Analysis` instance.
-    #
-    #     :return: (opgee.Stream) the currently chosen boundary stream
-    #     """
-    #     try:
-    #         return self.boundary_dict[analysis.boundary]
-    #     except KeyError:
-    #         raise OpgeeException(f"{self} does not declare boundary stream '{analysis.boundary}'.")
-
     def boundary_process(self, analysis) -> Process:
         """
         Return the currently chosen boundary process, per the `Analysis` instance.

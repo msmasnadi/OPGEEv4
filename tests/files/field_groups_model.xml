@@ -16,8 +16,9 @@
 
 		<Process class="ProcA" desc="Test process 1"/>
 		<Process class="ProcB" desc="Test process 2"/>
+		<Process class="Boundary" boundary="Production"/>
 
-		<Stream src="ProcB" dst="After" boundary="Production"/>
+		<Stream src="ProcB" dst="ProductionBoundary"/>
 	</Field>
 
 	<Field name="test2">
@@ -26,9 +27,9 @@
 
 		<Process class="ProcA" desc="Test process 1"/>
 		<Process class="ProcB" desc="Test process 2"/>
-		<Process class="After"/>
+		<Process class="Boundary" boundary="Production"/>
 
-		<Stream src="ProcB" dst="After" boundary="Production"/>
+		<Stream src="ProcB" dst="ProductionBoundary"/>
 	</Field>
 
 	<Field name="test3">
@@ -37,9 +38,9 @@
 
 		<Process class="ProcA" desc="Test process 1"/>
 		<Process class="ProcB" desc="Test process 2"/>
-		<Process class="After"/>
+		<Process class="Boundary" boundary="Production"/>
 
-		<Stream src="ProcB" dst="After" boundary="Production"/>
+		<Stream src="ProcB" dst="ProductionBoundary"/>
 	</Field>
 
 </Model>
