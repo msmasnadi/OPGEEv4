@@ -56,13 +56,13 @@
 
 		<Process class="ProcA" desc="Test process 1"/>
 		<Process class="ProcB" desc="Test process 2"/>
-		<Process class="After"/>
+		<Process class="Boundary" boundary="Production"/>
 
 		<Stream src="ProcA" dst="ProcB">
 			<Contains>crude oil</Contains>
 		</Stream>
 
-		<Stream	src="ProcB" dst="After" boundary="Production">
+		<Stream	src="ProcB" dst="ProductionBoundary">
 			<A name="temperature">90.0</A>
 			<A name="pressure">150.0</A>
 			<Component name="oil" phase="liquid">100</Component>
@@ -76,13 +76,13 @@
 
 		<Process class="ProcA" desc="Test process 1"/>
 		<Process class="ProcB" desc="Test process 2"/>
-		<Process class="After"/>
+		<Process class="Boundary" boundary="Production"/>
 
 		<Stream src="ProcA" dst="ProcB">
 			<Contains>crude oil</Contains>
 		</Stream>
 
-		<Stream	src="ProcB" dst="After" boundary="Production">
+		<Stream	src="ProcB" dst="ProductionBoundary">
 			<A name="temperature">90.0</A>
 			<A name="pressure">150.0</A>
 			<Component name="oil" phase="liquid">100</Component>
