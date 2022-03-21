@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
 
-	<Analysis name="test_boundary_streams">
+	<Analysis name="test_boundary_procs">
 		<A name="functional_unit">gas</A>
 		<A name="energy_basis">LHV</A>
 		<A name="GWP_horizon">100</A>
@@ -11,10 +11,10 @@
 
 	<Field name="field1">
 		<Process class="BoundaryStreamsProcA"/>
-		<Process class="BoundaryStreamsProcB"/>
-		<Process class="BoundaryStreamsProcC"/>
+		<Process class="Boundary" boundary="Production"/>
+		<Process class="Boundary" boundary="Distribution"/>
 
-		<Stream src="BoundaryStreamsProcA" dst="BoundaryStreamsProcB" name="production site boundary" boundary="Production">
+		<Stream src="BoundaryStreamsProcA" dst="ProductionBoundary">
 			<Component name="N2" phase="gas">25.7</Component>
 			<Component name="CO2" phase="gas">0.2</Component>
 			<Component name="C1" phase="gas">435.0</Component>
@@ -26,7 +26,7 @@
 			<Contains>gas from production site</Contains>
 		</Stream>
 
-		<Stream src="BoundaryStreamsProcB" dst="BoundaryStreamsProcC" name="distribution boundary" boundary="Distribution">
+		<Stream src="ProductionBoundary" dst="DistributionBoundary">
 			<Contains>gas for transmission</Contains>
 		</Stream>
 

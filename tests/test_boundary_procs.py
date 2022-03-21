@@ -13,21 +13,21 @@ class BoundaryStreamsProcC(Process):
 
 @pytest.fixture(scope="module")
 def boundary_model(configure_logging_for_tests):
-    return load_test_model('test_boundary_streams.xml')
+    return load_test_model('test_boundary_procs.xml')
 
 def test_boundary_streams(boundary_model):
-    analysis = boundary_model.get_analysis('test_boundary_streams')
+    analysis = boundary_model.get_analysis('test_boundary_procs')
     field = analysis.get_field('field1')
 
     boundaries = field.defined_boundaries()
 
     assert set(boundaries) == {'Production', 'Distribution', 'Transportation'}
 
-    s = field.boundary_dict['Production']
-    assert s.name == 'production site boundary'
+    proc = field.boundary_dict['Production']
+    assert proc.name == 'ProductionBoundary'
 
-    s = field.boundary_dict['Distribution']
-    assert s.name == 'distribution boundary'
+    proc = field.boundary_dict['Distribution']
+    assert proc.name == 'DistributionBoundary'
 
     # no need to run the field
     # field.run(analysis)
