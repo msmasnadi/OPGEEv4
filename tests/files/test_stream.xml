@@ -24,7 +24,7 @@
 		<Process class="Proc2" desc="Test process 2"/>
 		<Process class="Proc3" desc="Test process 3"/>
 		<Process class="Proc4" desc="Test process 4"/>
-		<Process class="After"/>
+		<Process class="Boundary" boundary="Production"/>
 
 		<Stream src="Proc1" dst="Proc2" name="stream1">
 			<Contains>crude oil</Contains>
@@ -44,7 +44,7 @@
 			<Contains>hydrogen</Contains>
 		</Stream>
 
-		<Stream src="Proc4" dst="After" boundary="Production"/>
+		<Stream src="Proc4" dst="ProductionBoundary"/>
 
 		<Stream src="Reservoir" dst="Proc1" name="initialized">
 			<A name="temperature">90.0</A>

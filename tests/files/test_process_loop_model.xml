@@ -23,7 +23,7 @@
 		<Process class="LoopProc1" desc="Test process 1"/>
 		<Process class="LoopProc2" desc="Test process 2"/>
 		<Process class="LoopProc3" desc="Test process 3"/>
-		<Process class="LoopProc4" desc="Test process 4"/>
+		<Process class="Boundary" boundary="Production" desc="Test process 4"/>
 
 		<Stream src="LoopProc1" dst="LoopProc2">
 			<A name="temperature">90.0</A>
@@ -41,7 +41,7 @@
 			<Contains>hydrogen</Contains>
 		</Stream>
 
-		<Stream src="LoopProc3" dst="LoopProc4" boundary="Production">
+		<Stream src="LoopProc3" dst="ProductionBoundary">
 			<Contains>CO2</Contains>
 		</Stream>
 	</Field>
