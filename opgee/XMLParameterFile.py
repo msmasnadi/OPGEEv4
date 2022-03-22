@@ -1,6 +1,8 @@
-# Created on July 5, 2013
+# Created on July 5, 2013 as part of pygcam
+# Copied into OPGEEv4 Mar 20, 2022
 #
-# Copyright (c) 2013-2017. The Regents of the University of California (Regents).
+# Copyright (c) 2013-2022. The Regents of the University of California (Regents) and
+# Richard Plevin.
 # See the file COPYRIGHT.txt for details.
 
 from collections import OrderedDict, defaultdict
@@ -10,10 +12,10 @@ import numpy as np
 import os
 import pandas as pd
 
-from ..config import getParam
-from ..log import getLogger
-from ..utils import importFromDotSpec
-from ..XMLFile import XMLFile
+from .config import getParam
+from .log import getLogger
+from .utils import importFromDotSpec
+from .XMLFile import XMLFile
 
 from .Database import getDatabase
 from .distro import DistroGen
@@ -41,12 +43,10 @@ DATAFILE_ELT         = 'DataFile'
 PYTHON_FUNC_ELT      = 'PythonFunc'
 WRITE_FUNC_ELT       = 'WriteFunc'
 
-# TBD: test these
 # These attributes of a <Distribution> element are not parameters to the
 # random variable distribution itself, so we exclude these from the
 # list we pass when creating the RV.
-#DISTRO_META_ATTRS     = ['name', 'type', 'apply']
-DISTRO_MODIF_ATTRS    = ['lowbound', 'highbound'] # , 'updatezero']
+DISTRO_MODIF_ATTRS    = ['lowbound', 'highbound']
 
 
 class XMLCorrelation(XMLWrapper):
@@ -100,7 +100,7 @@ class XMLCorrelation(XMLWrapper):
 
         corrMat = np.zeros((count, count), dtype=float)
 
-        for i in xrange(count):
+        for i in range(count):
             corrMat[i][i] = 1.0  # diagonal must be 1
 
         for corr in cls.instances:

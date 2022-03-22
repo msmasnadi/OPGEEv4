@@ -1,6 +1,7 @@
 # Created on 5/11/15
+# Copied into OPGEEv4 on 3/20/2022
 #
-# Copyright (c) 2015-2017. The Regents of the University of California (Regents).
+# Copyright (c) 2015-2022. The Regents of the University of California (Regents).
 # See the file COPYRIGHT.txt for details.
 import os
 from collections import OrderedDict, defaultdict
@@ -8,10 +9,10 @@ from datetime import datetime
 
 import pandas as pd
 
-from ..config import getParam
-from ..log import getLogger
-from ..XMLFile import XMLFile
-from .error import PygcamMcsUserError, PygcamMcsSystemError, FileMissingError
+from .config import getParam
+from .log import getLogger
+from .XMLFile import XMLFile
+from .error import McsUserError, McsSystemError, FileMissingError
 from .Database import getDatabase
 from .XML import XMLWrapper, findAndSave, getBooleanXML
 
@@ -43,10 +44,10 @@ class XMLConstraint(XMLWrapper):
         if self.op:
             known = self.equal + self.notEqual + self.strMatch
             if not self.op in known:
-                raise PygcamMcsUserError('Unknown operator in constraint: %s' % self.op)
+                raise McsUserError('Unknown operator in constraint: %s' % self.op)
 
             if not self.value:
-                raise PygcamMcsUserError('Constraint with operator "%s" is missing a value' % self.op)
+                raise McsUserError('Constraint with operator "%s" is missing a value' % self.op)
 
     def asString(self):
         if self.op in self.equal:
@@ -125,7 +126,7 @@ class XMLResult(XMLWrapper):
         objs = self.element.findall(eltName)
         filename = objs[0].get('name')
         if os.path.isabs(filename):
-            raise PygcamMcsUserError("For %s named %s: path (%s) must be relative" % (eltName, self.name, filename))
+            raise McsUserError("For %s named %s: path (%s) must be relative" % (eltName, self.name, filename))
 
         return filename
 
@@ -300,7 +301,7 @@ def extractResult(context, scenario, outputDef, type):
 
     queryResult = getCachedFile(csvPath)
     _logger.debug("queryResult:\n%s", queryResult.df)
- 
+
     paramName   = outputDef.name
     whereClause = outputDef.whereClause
     _logger.debug("whereClause: %s", whereClause)
@@ -315,7 +316,7 @@ def extractResult(context, scenario, outputDef, type):
     count = selected.shape[0]
 
     if count == 0:
-        raise PygcamMcsUserError('Query for "{}" matched no results'.format(outputDef.name))
+        raise McsUserError('Query for "{}" matched no results'.format(outputDef.name))
 
     if 'region' in selected.columns:
         firstRegion = selected.region.iloc[0]
@@ -373,7 +374,7 @@ def collectResults(context, type):
     scenario = context.scenario
 
     if type == RESULT_TYPE_DIFF and not baseline:
-        raise PygcamMcsUserError("saveResults: must specify baseline for DIFF results")
+        raise McsUserError("saveResults: must specify baseline for DIFF results")
 
     resultsFile = getSimResultFile(context.simId)
     rf = XMLResultFile.getInstance(resultsFile)
@@ -421,7 +422,7 @@ def saveResults(context, resultList):
             session.rollback()
             db.endSession(session)
             # TBD: distinguish database save errors from data access errors?
-            raise PygcamMcsSystemError("saveResults failed: %s" % e)
+            raise McsSystemError("saveResults failed: %s" % e)
 
     db.commitWithRetry(session)
     db.endSession(session)

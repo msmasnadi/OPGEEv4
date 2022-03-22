@@ -1,9 +1,10 @@
 # Created on Mar 20, 2012
+# Copied into OPGEEv4 on Mar 20, 2022
 #
 # @author: Rich Plevin
 # @author: Sam Fendell
 #
-# Copyright (c) 2012-2015. The Regents of the University of California (Regents)
+# Copyright (c) 2012-2022. The Regents of the University of California (Regents)
 # and Richard Plevin. See the file COPYRIGHT.txt for details.
 '''
 This module is based on code originally developed by Sam Fendell.
@@ -15,8 +16,8 @@ from inspect import getargspec
 import numpy as np
 from scipy.stats import lognorm, triang, uniform, norm, rv_discrete
 
-from pygcam.log import getLogger
-from .error import PygcamMcsUserError
+from .log import getLogger
+from .error import McsUserError
 
 _logger = getLogger(__name__)
 
@@ -54,13 +55,13 @@ def uniformMinMax(min, max):
 
 def uniformRange(range):
     if range <= 0.0:
-        raise PygcamMcsUserError("Uniform range must be > 0.0; %f was given" % range)
+        raise McsUserError("Uniform range must be > 0.0; %f was given" % range)
 
     return uniformMinMax(-range, range)
 
 def uniformFactor(factor):
     if factor < 0.0 or factor > 1.0:
-        raise PygcamMcsUserError("Uniform factor must be between 0.0 and 1.0; %f was given" % factor)
+        raise McsUserError("Uniform factor must be between 0.0 and 1.0; %f was given" % factor)
 
     return uniformMinMax(1 - factor, 1 + factor)
 
@@ -113,7 +114,7 @@ def logfactor(factor):
     are 1/factor and factor, respectively.
     """
     if factor < 1.0:
-        raise PygcamMcsUserError("LogFactor 'factor' must be >= 1; a value of %f was given." % factor)
+        raise McsUserError("LogFactor 'factor' must be >= 1; a value of %f was given." % factor)
 
     return lognormalRvFor95th(1 / factor, factor)
 
@@ -126,26 +127,26 @@ def triangle(min, mode, max):  # @ReservedAssignment
 
     scale = max - min
     if scale == 0:
-        raise PygcamMcsUserError("Scale of triangle distribution is zero")
+        raise McsUserError("Scale of triangle distribution is zero")
 
     c = (mode - min) / scale  # central value (mode) of the triangle
     return triang(c, loc=min, scale=scale)
 
 def triangleRange(range):
     if range <= 0.0:
-        raise PygcamMcsUserError("Triangle range must be between > 0.0; %f was given" % range)
+        raise McsUserError("Triangle range must be between > 0.0; %f was given" % range)
 
     return triangle(-range, 0, range)
 
 def triangleFactor(factor):
     if factor < 0.0 or factor > 1.0:
-        raise PygcamMcsUserError("Triangle factor must be between 0.0 and 1.0; %f was given" % factor)
+        raise McsUserError("Triangle factor must be between 0.0 and 1.0; %f was given" % factor)
 
     return triangle(1 - factor, 1, 1 + factor)
 
 def triangleLogfactor(logfactor):
     if logfactor < 1.0:
-        raise PygcamMcsUserError("Triangle logfactor must be > 1.0; %f was given" % logfactor)
+        raise McsUserError("Triangle logfactor must be > 1.0; %f was given" % logfactor)
 
     return triangle(1.0/logfactor, 1, logfactor)
 

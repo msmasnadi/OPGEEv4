@@ -1,10 +1,11 @@
 '''
 Created on Dec 20, 2012
+Copied into OPGEEv4 Mar 20, 2022
 
 @author: Rich Plevin
 @author: Sam Fendell
 
-Copyright (c) 2012-2015. The Regents of the University of California (Regents)
+Copyright (c) 2012-2022. The Regents of the University of California (Regents)
 and Richard Plevin. See the file COPYRIGHT.txt for details.
 
 Implements the Latin Hypercube Sampling technique as described by Iman and Conover, 1982,
