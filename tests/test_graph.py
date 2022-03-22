@@ -8,7 +8,7 @@ DEVNULL = 'nul' if IsWindows else '/dev/null'
 @pytest.mark.parametrize(
     "args", [
         ['graph', '--classes', 'core', '--classes-output', DEVNULL],
-        ['graph', '--field', 'test', '--field-output', DEVNULL],
+        ['graph', '--field', 'test_gas_path_2', '--field-output', DEVNULL],
         ['graph', '--hierarchy-output', DEVNULL],
     ]
 )

@@ -24,7 +24,7 @@
 		<Process class="Impute2" desc="Test process 2"/>
 		<Process class="Impute3" desc="Test process 3"/>
 		<Process class="Impute4" desc="Test process 4"/>
-		<Process class="After"/>
+		<Process class="Boundary" boundary="Production"/>
 
 		<Stream src="Impute1" dst="Impute2">
 			<Contains>crude oil</Contains>
@@ -46,6 +46,6 @@
 			<Contains>CO2</Contains>
 		</Stream>
 
-		<Stream src="Impute1" dst="After" boundary="Production"/>
+		<Stream src="Impute1" dst="ProductionBoundary"/>
 	</Field>
 </Model>
