@@ -583,7 +583,14 @@ class Field(Container):
 
             # Iterate on the processes in cycle until a termination condition is met and an
             # OpgeeStopIteration exception is thrown.
-            while True:
+            def allConverged(proc_list):
+                for proc in proc_list:
+                    if proc.iteration_converged is False:
+                        return False
+
+                return True
+
+            while allConverged(ordered_cycle) is False:
                 try:
                     for proc in ordered_cycle:
                         proc.run_if_enabled(analysis)
