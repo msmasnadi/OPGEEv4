@@ -79,12 +79,9 @@ class CrudeOilStorage(Process):
         output_transport.set_liquid_flow_rate("oil", oil_to_transport_mass_rate)
         output_transport.set_tp(stp)
 
-        # # import/export
-        # oil_mass_rate = output_transport.liquid_flow_rate("oil")
-        # oil_mass_energy_density = self.oil.mass_energy_density()
-        # oil_LHV_rate = oil_mass_rate * oil_mass_energy_density
-        # import_product = field.import_export
-        # import_product.set_export(self.name, CRUDE_OIL, oil_LHV_rate)
+        self.set_iteration_value(
+            output_flare.total_flow_rate() + output_VRU.total_flow_rate()
+            + gas_fugitive_stream.total_flow_rate() + output_transport.total_flow_rate())
 
         # No energy-use for storage
 

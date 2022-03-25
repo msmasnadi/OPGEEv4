@@ -44,7 +44,7 @@ class DownholePump(Process):
             return
 
         lift_gas = self.find_input_stream('lifting gas')
-        input.add_flow_rates_from(lift_gas)
+        field.save_process_data(dp_input_before=input)
 
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
@@ -52,9 +52,11 @@ class DownholePump(Process):
         output = self.find_output_stream("crude oil")
 
         # Check
-        self.set_iteration_value(output.total_flow_rate())
         output.copy_flow_rates_from(input, tp=field.wellhead_tp)
+        if lift_gas.initialized:
+            output.add_flow_rates_from(lift_gas)
         output.subtract_gas_rates_from(gas_fugitives)
+        self.set_iteration_value(output.total_flow_rate())
 
         # energy use
         oil = field.oil
@@ -143,6 +145,8 @@ class DownholePump(Process):
         emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
 
         emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
+
+        field.save_process_data(dp_input_after=input)
 
     def impute(self):
         output = self.find_output_stream("crude oil")

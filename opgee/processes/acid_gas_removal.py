@@ -70,6 +70,10 @@ class AcidGasRemoval(Process):
             gas_to_CO2_reinjection.subtract_gas_rates_from(gas_to_demethanizer)
             gas_to_CO2_reinjection.subtract_gas_rates_from(gas_fugitives)
 
+        self.set_iteration_value(
+            gas_to_demethanizer.total_flow_rate() +
+            gas_to_CO2_reinjection.total_flow_rate() if gas_to_CO2_reinjection is not None else ureg.Quantity(0, "tonne/day"))
+
         # AGR modeling based on Aspen HYSYS
         feed_gas_mol_fracs = self.gas.component_molar_fractions(input)
         mol_frac_CO2 = min(max(feed_gas_mol_fracs["CO2"].to("frac").m if "CO2" in feed_gas_mol_fracs.index else 0, 0.0),

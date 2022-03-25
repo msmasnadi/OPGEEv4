@@ -56,6 +56,7 @@ class CrudeOilDewatering(Process):
 
         output_tp = TemperaturePressure(temp, input_P)
         output_oil.set_liquid_flow_rate("oil", oil_rate, tp=output_tp)
+        self.set_iteration_value(output_oil.total_flow_rate())
 
         water_to_treatment = self.find_output_stream("water")
         water_to_treatment.set_liquid_flow_rate("H2O", water_rate, tp=output_tp)

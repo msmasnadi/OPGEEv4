@@ -36,9 +36,7 @@ class GasPartition(Process):
         self.oil_prod = field.attr("oil_prod")
         self.WOR = field.attr("WOR")
         self.water_prod = self.oil_prod * self.WOR
-        self.is_first_loop = True
-
-    def _reset_before_iteration(self):
+        self.iteration_tolerance = field.model.attr("iteration_tolerance")
         self.is_first_loop = True
 
     def run(self, analysis):
@@ -71,7 +69,7 @@ class GasPartition(Process):
         iteration_series[iteration_series < 0] = 0
         self.set_iteration_value(iteration_series)
 
-        if sum(iteration_series) != 0.0:
+        if sum(iteration_series) >= self.iteration_tolerance:
             gas_lifting.copy_flow_rates_from(input)
             self.field.save_process_data(methane_from_gas_lifting=gas_lifting.gas_flow_rate("C1"))
             return

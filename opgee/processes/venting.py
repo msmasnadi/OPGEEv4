@@ -83,9 +83,7 @@ class Venting(Process):
         gas_to_gathering.copy_flow_rates_from(input, tp=input.tp)
         gas_to_gathering.multiply_flow_rates(1 - venting_frac.m - fugitive_frac.m)
 
-        self.set_iteration_value(gas_to_vent.total_flow_rate() +
-                                 gas_fugitives.total_flow_rate() +
-                                 gas_to_gathering.total_flow_rate())
+        self.set_iteration_value(gas_to_gathering.total_flow_rate())
 
         # emissions
         emissions = self.emissions

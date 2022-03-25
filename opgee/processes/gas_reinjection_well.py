@@ -24,9 +24,11 @@ class GasReinjectionWell(Process):
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
-        gas_to_reservoir = self.find_output_stream("gas for reservoir")
-        gas_to_reservoir.copy_flow_rates_from(input)
-        gas_to_reservoir.subtract_gas_rates_from(gas_fugitives)
+        # gas_to_reservoir = self.find_output_stream("gas for reservoir")
+        # gas_to_reservoir.copy_flow_rates_from(input)
+        # gas_to_reservoir.subtract_gas_rates_from(gas_fugitives)
+        #
+        # self.set_iteration_value(gas_to_reservoir.total_flow_rate())
 
         # emissions
         emissions = self.emissions

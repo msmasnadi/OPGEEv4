@@ -32,6 +32,8 @@ class GasLiftingCompressor(Process):
         lifting_gas = self.find_output_stream("lifting gas")
         lifting_gas.copy_flow_rates_from(input)
 
+        self.set_iteration_value(lifting_gas.total_flow_rate())
+
         input_tp = input.tp
 
         discharge_press = (self.res_press + input_tp.P) / 2 + ureg.Quantity(100.0, "psia")
@@ -67,6 +69,3 @@ class GasLiftingCompressor(Process):
         emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
 
         emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
-
-        if self.field.get_process_data("methane_from_gas_lifting") is None:
-            self.field.save_process_data(methane_from_gas_lifting=lifting_gas.gas_flow_rate("C1"))

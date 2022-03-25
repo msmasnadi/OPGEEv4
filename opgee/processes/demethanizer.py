@@ -100,6 +100,8 @@ class Demethanizer(Process):
         C2_mass_rate = gas_to_LNG.gas_flow_rate("C2")
         gas_to_LNG.set_gas_flow_rate("C2", ureg.Quantity(0., "tonne/day"))
 
+        self.set_iteration_value(gas_to_gather.total_flow_rate() + gas_to_LNG.total_flow_rate())
+
         # TODO: ethane to petrochemicals
 
         input_tp = input.tp

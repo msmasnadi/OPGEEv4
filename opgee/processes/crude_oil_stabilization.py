@@ -69,6 +69,8 @@ class CrudeOilStabilization(Process):
         oil_for_storage = oil_mass_rate - output_stab_gas.total_gas_rate() - gas_fugitives.total_gas_rate()
         output.set_liquid_flow_rate("oil", oil_for_storage, tp=self.stab_tp)
 
+        self.set_iteration_value(output_stab_gas.total_flow_rate() + output.total_flow_rate())
+
         # energy use
         heat_duty = oil_mass_rate * oil_specific_heat * (self.stab_tp.T - input_T) * (1 + self.eps_stab)
         energy_use = self.energy

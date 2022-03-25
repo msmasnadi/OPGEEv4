@@ -64,6 +64,8 @@ class GasDehydration(Process):
         output_gas.copy_flow_rates_from(input)
         output_gas.subtract_gas_rates_from(gas_fugitives)
 
+        self.set_iteration_value(output_gas.total_flow_rate())
+
         feed_gas_temp, feed_gas_press = input.tp.get()
 
         # how much moisture in gas

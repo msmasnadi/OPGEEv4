@@ -11,6 +11,7 @@
     <ClassAttrs name="Model">
       <!-- Maximum number of iterations for process loops -->
       <AttrDef name="maximum_iterations" type="int">10</AttrDef>
+      <AttrDef name="iteration_tolerance" type="float">0.000001</AttrDef>
 
       <!-- Change threshold for iteration loops. Requires a Process to set a change variable. -->
       <AttrDef name="maximum_change" type="float">0.001</AttrDef>
@@ -724,6 +725,8 @@
       <AttrDef name="C1_flooding_temp" type="float" unit="degF" desc="methane flooding temperature">60</AttrDef>
       <AttrDef name="N2_flooding_press" type="float" unit="psia" desc="nitrogen flooding pressure">125.0</AttrDef>
       <AttrDef name="C1_flooding_press" type="float" unit="psia" desc="methane flooding pressure">600</AttrDef>
+      <AttrDef name="CO2_flooding_temp" type="float" unit="degF" desc="CO2 flooding temperature">60</AttrDef>
+      <AttrDef name="CO2_flooding_press" type="float" unit="psia" desc="CO2 flooding pressure">600.0</AttrDef>
       <AttrDef name="flood_gas_type" desc="Flood gas" options="Flood gases" type="str"/>
 
     </ClassAttrs>

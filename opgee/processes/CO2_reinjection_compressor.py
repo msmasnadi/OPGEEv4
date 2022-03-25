@@ -4,6 +4,7 @@ from opgee.processes.compressor import Compressor
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
+import pint
 from ..import_export import ImportExport
 
 _logger = getLogger(__name__)
@@ -18,6 +19,11 @@ class CO2ReinjectionCompressor(Process):
         self.res_press = field.attr("res_press")
         self.eta_compressor = self.attr("eta_compressor")
         self.prime_mover_type = self.attr("prime_mover_type")
+        self.gas_flooding = field.attr("gas_flooding")
+        self.flood_gas_type = self.attr("flood_gas_type")
+        self.GFIR = field.attr("GFIR")
+        self.oil_prod = field.attr("oil_prod")
+        self.gas_flooding_vol_rate = self.oil_prod * self.GFIR
 
     def run(self, analysis):
         self.print_running_msg()
@@ -33,6 +39,13 @@ class CO2ReinjectionCompressor(Process):
         gas_to_well.copy_flow_rates_from(input)
         gas_to_well.subtract_gas_rates_from(gas_fugitives)
 
+        total_CO2_mass_rate = input.gas_flow_rate("CO2")
+        if self.gas_flooding and self.flood_gas_type == "CO2":
+            CO2_mass_rate = self.gas_flooding_vol_rate * field.gas.component_gas_rho_STP["CO2"]
+            imported_CO2_mass_rate = CO2_mass_rate - gas_to_well.gas_flow_rate("CO2")
+            total_CO2_mass_rate += imported_CO2_mass_rate
+        input.set_gas_flow_rate("CO2", total_CO2_mass_rate)
+
         discharge_press = self.res_press + ureg.Quantity(500.0, "psia")
         overall_compression_ratio = discharge_press / input.pressure
         energy_consumption, temp, _ = Compressor.get_compressor_energy_consumption(self.field,
@@ -43,8 +56,6 @@ class CO2ReinjectionCompressor(Process):
 
         # gas_to_well.set_temperature_and_pressure(temp, input.pressure)
         gas_to_well.tp.set(T=temp, P=input.pressure)
-
-        self.field.save_process_data(CO2_injection_rate=gas_to_well.gas_flow_rate("CO2"))
 
         # energy-use
         energy_use = self.energy

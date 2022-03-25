@@ -59,9 +59,9 @@ class Separation(Process):
 
         gas_after = self.find_output_stream("gas")
         # Check
-        self.set_iteration_value(gas_after.total_flow_rate())
         gas_after.copy_gas_rates_from(input)
         gas_after.subtract_gas_rates_from(gas_fugitives)
+        self.set_iteration_value(gas_after.total_flow_rate())
 
         # energy rate
 

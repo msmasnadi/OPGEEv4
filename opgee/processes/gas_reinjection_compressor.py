@@ -5,6 +5,7 @@ from ..error import OpgeeException
 from ..log import getLogger
 from ..process import Process
 from ..stream import PHASE_GAS, Stream
+import pint
 
 from .compressor import Compressor
 from .shared import get_energy_carrier
@@ -27,6 +28,9 @@ class GasReinjectionCompressor(Process):
                                                   self.attr("N2_flooding_press"))
         self.C1_flooding_tp = TemperaturePressure(self.attr("C1_flooding_temp"),
                                                   self.attr("C1_flooding_press"))
+        self.CO2_flooding_tp = TemperaturePressure(self.attr("CO2_flooding_temp"),
+                                                  self.attr("CO2_flooding_press"))
+
         self.GFIR = field.attr("GFIR")
         self.offset_gas_comp = field.imported_gas_comp["Gas Flooding"]
         self.oil_prod = field.attr("oil_prod")
@@ -48,7 +52,7 @@ class GasReinjectionCompressor(Process):
 
         imported_gas = Stream("imported_gas", tp=input.tp)
         if self.gas_flooding:
-            known_types = ["N2", "NG"]
+            known_types = ["N2", "NG", "CO2"]
             if self.flood_gas_type not in known_types:
                 raise OpgeeException(f"{self.flood_gas_type} is not in the known gas type: {known_types}")
             else:
@@ -65,6 +69,10 @@ class GasReinjectionCompressor(Process):
                     imported_gas.set_rates_from_series(adjust_flow_vol_rate * offset_mass_frac * offset_density,
                                                        phase=PHASE_GAS)
                     imported_gas.set_tp(self.C1_flooding_tp)
+                else:
+                    CO2_mass_rate = self.gas_flooding_vol_rate * field.gas.component_gas_rho_STP["CO2"]
+                    imported_gas.set_gas_flow_rate("CO2", CO2_mass_rate)
+                    imported_gas.set_tp(self.N2_flooding_tp)
 
         gas_mass_rate = imported_gas.total_gas_rate()
         gas_mass_energy_density = self.gas.mass_energy_density(imported_gas)
@@ -75,6 +83,10 @@ class GasReinjectionCompressor(Process):
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
+        total_rate_for_compression = Stream("imported_gas", tp=input.tp)
+        total_rate_for_compression.add_flow_rates_from(input)
+        total_rate_for_compression.add_flow_rates_from(imported_gas)
+
         discharge_press = self.res_press + ureg.Quantity(500., "psi")
         overall_compression_ratio = discharge_press / input.tp.P
         energy_consumption, output_temp, output_press = \
@@ -83,11 +95,13 @@ class GasReinjectionCompressor(Process):
                 self.prime_mover_type,
                 self.eta_compressor,
                 overall_compression_ratio,
-                input)
+                total_rate_for_compression)
 
         gas_to_well = self.find_output_stream("gas for gas reinjection well")
         gas_to_well.copy_flow_rates_from(input)
         gas_to_well.subtract_gas_rates_from(gas_fugitives)
+
+        self.set_iteration_value(gas_to_well.total_flow_rate())
 
         # energy-use
         energy_use = self.energy
@@ -95,7 +109,6 @@ class GasReinjectionCompressor(Process):
         energy_use.set_rate(energy_carrier, energy_consumption)
 
         # import/export
-        # import_product = field.import_export
         self.set_import_from_energy(energy_use)
 
         # emissions

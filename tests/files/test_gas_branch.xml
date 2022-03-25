@@ -74,7 +74,7 @@
 				<StreamRef name="Ryan-Holmes to NGL"/>
 				<StreamRef name="CO2 reinjection compressor to CO2 injection well"/>
 				<StreamRef name="flooding CO2"/>
-				<StreamRef name="CO2 injection well to reservoir"/>
+<!--				<StreamRef name="CO2 injection well to reservoir"/>-->
 				
 			</ProcessGroup>
 			<ProcessGroup name="Sour Gas Reinjection">
@@ -82,7 +82,7 @@
 				<ProcessRef name="SourGasInjection"/>
 				<StreamRef name="gas dehydration to sour gas compressor"/>
 				<StreamRef name="sour gas compressor to sour gas injection"/>
-				<StreamRef name="sour gas injection to reservoir"/>
+<!--				<StreamRef name="sour gas injection to reservoir"/>-->
 
 			</ProcessGroup>
 
@@ -102,7 +102,7 @@
 				<StreamRef name="acid gas removal to CO2 reinjection compressor"/>
 				<StreamRef name="CO2 reinjection compressor to CO2 injection well"/>
 				<StreamRef name="flooding CO2"/>
-				<StreamRef name="CO2 injection well to reservoir"/>
+<!--				<StreamRef name="CO2 injection well to reservoir"/>-->
 				<StreamRef name="acid gas removal to demethanizer"/>
 				<StreamRef name="demethanizer to gas partition"/>
 			</ProcessGroup>
@@ -142,7 +142,7 @@
 		</Aggregator>
 
 		<Aggregator name="ProductionExtraction">
-			<Process class="DownholePump"/>
+			<Process class="DownholePump" cycle-start="true"/>
 			<Process class="CrudeOilStorage"/>
 			<Process class="GasLiftingCompressor"/>
 			<Process class="CO2ReinjectionCompressor"/>
@@ -177,7 +177,7 @@
 			<Process class="CrudeOilTransport"/>
 		</Aggregator>
 
-		<Process class="ReservoirWellInterface" cycle-start="true"/>
+		<Process class="ReservoirWellInterface"/>
 
 		<Process class="BitumenMining"/>
 
@@ -366,9 +366,9 @@
 		</Stream>
 
 
-		<Stream src="CO2InjectionWell" dst="Reservoir" name="CO2 injection well to reservoir" impute="false">
-			<Contains>gas for reservoir</Contains>
-		</Stream>
+<!--		<Stream src="CO2InjectionWell" dst="Reservoir" name="CO2 injection well to reservoir" impute="false">-->
+<!--			<Contains>gas for reservoir</Contains>-->
+<!--		</Stream>-->
 
 		<Stream src="GasDehydration" dst="SourGasCompressor" name="gas dehydration to sour gas compressor">
 			<Contains>gas for sour gas compressor</Contains>
@@ -379,9 +379,9 @@
 		</Stream>
 
 
-		<Stream src="SourGasInjection" dst="Reservoir" name="sour gas injection to reservoir" impute="false">
-			<Contains>gas for reservoir</Contains>
-		</Stream>
+<!--		<Stream src="SourGasInjection" dst="Reservoir" name="sour gas injection to reservoir" impute="false">-->
+<!--			<Contains>gas for reservoir</Contains>-->
+<!--		</Stream>-->
 
 		<Stream src="Demethanizer" dst="GasPartition" name="demethanizer to gas partition">
 			<Contains>gas for gas partition</Contains>
@@ -415,9 +415,9 @@
 		</Stream>
 
 
-		<Stream src="GasReinjectionWell" dst="Reservoir" name="gas reinjection well to reservoir" impute="false">
-			<Contains>gas for reservoir</Contains>
-		</Stream>
+<!--		<Stream src="GasReinjectionWell" dst="Reservoir" name="gas reinjection well to reservoir" impute="false">-->
+<!--			<Contains>gas for reservoir</Contains>-->
+<!--		</Stream>-->
 
 
 		<Stream src="GasPartition" dst="TransmissionCompressor" name="gas partition to transmission compressor">

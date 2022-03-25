@@ -22,6 +22,7 @@ class Flaring(Process):
 
     def run(self, analysis):
         self.print_running_msg()
+        field = self.field
 
         if not self.all_streams_ready("gas"):
             return
@@ -39,7 +40,7 @@ class Flaring(Process):
         multiplier = (frac_gas_flared * (1 - self.combusted_gas_frac)).m
         methane_slip.multiply_flow_rates(multiplier)
 
-        gas_to_flare = Stream("methane_slip", tp=input.tp)
+        gas_to_flare = Stream("gas_to_flare", tp=input.tp)
         gas_to_flare.copy_flow_rates_from(input)
         gas_to_flare.multiply_flow_rates(frac_gas_flared.m)
         gas_to_flare.subtract_gas_rates_from(methane_slip)
@@ -49,9 +50,7 @@ class Flaring(Process):
         venting_gas.subtract_gas_rates_from(gas_to_flare)
         venting_gas.subtract_gas_rates_from(methane_slip)
 
-        self.set_iteration_value(methane_slip.total_flow_rate() +
-                                 gas_to_flare.total_flow_rate() +
-                                 venting_gas.total_flow_rate())
+        self.set_iteration_value(venting_gas.total_flow_rate())
 
         # emissions
         emissions = self.emissions
