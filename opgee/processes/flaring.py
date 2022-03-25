@@ -17,7 +17,6 @@ class Flaring(Process):
         self.mol_per_scf = field.model.const("mol-per-scf")
         self.FOR = field.attr("FOR")
         self.oil_volume_rate = field.attr("oil_prod")
-        # TODO: need to work on this
         self.combusted_gas_frac = field.attr("combusted_gas_frac")
 
     def run(self, analysis):

@@ -20,20 +20,20 @@ class HeavyOilDilution(Process):
         self.oil_sand_mine = field.attr("oil_sands_mine")
 
         self.bitumen_API = field.attr("API_bitumen")
-        self.bitumen_SG  = self.oil.specific_gravity(self.bitumen_API)
-        self.bitumen_tp  = TemperaturePressure(field.attr("temperature_mined_bitumen"),
-                                               field.attr("pressure_mined_bitumen"))
+        self.bitumen_SG = self.oil.specific_gravity(self.bitumen_API)
+        self.bitumen_tp = TemperaturePressure(field.attr("temperature_mined_bitumen"),
+                                              field.attr("pressure_mined_bitumen"))
 
         self.diluent_API = self.attr("diluent_API")
         self.dilution_SG = self.oil.specific_gravity(self.diluent_API)
 
         self.dilution_type = self.attr("dilution_type")
-        self.diluent_tp        = TemperaturePressure(self.attr("diluent_temp"),
-                                                     self.attr("diluent_temp"))
+        self.diluent_tp = TemperaturePressure(self.attr("diluent_temp"),
+                                              self.attr("diluent_temp"))
         self.before_diluent_tp = TemperaturePressure(self.attr("before_diluent_temp"),
                                                      self.attr("before_diluent_press"))
-        self.final_mix_tp      = TemperaturePressure(self.attr("final_mix_temp"),
-                                                     self.attr("final_mix_press"))
+        self.final_mix_tp = TemperaturePressure(self.attr("final_mix_temp"),
+                                                self.attr("final_mix_press"))
 
     def run(self, analysis):
         self.print_running_msg()
@@ -81,8 +81,8 @@ class HeavyOilDilution(Process):
                 total_mass_diluted_oil - total_mass_oil_bitumen_before_dilution
 
         # TODO: unused variable
-        diluted_oil_bitumen_SG = self.oil_SG if expected_volume_oil_bitumen <= 0 else \
-            total_mass_diluted_oil / expected_volume_oil_bitumen / self.water_density
+        # diluted_oil_bitumen_SG = self.oil_SG if expected_volume_oil_bitumen <= 0 else \
+        #     total_mass_diluted_oil / expected_volume_oil_bitumen / self.water_density
 
         stream = Stream("diluent", self.before_diluent_tp)
         diluent_density = self.oil.density(stream, self.dilution_SG, self.oil.gas_specific_gravity,
@@ -93,12 +93,13 @@ class HeavyOilDilution(Process):
         diluent_energy_density_vol = diluent_energy_density_mass * diluent_density
         heavy_oil_energy_density_vol = heavy_oil_energy_density_mass * heavy_oil_density
 
-        # TODO: unused variable
-        final_diluent_LHV_vol = diluent_energy_density_vol if frac_diluent == 1.0 or self.dilution_type == "Diluent" else \
-            (diluent_energy_density_vol * expected_volume_oil_bitumen - total_volume_oil_bitumen_before_dilution * heavy_oil_energy_density_vol) / required_volume_diluent
-
-        final_diluent_LHV_mass = diluent_energy_density_mass if frac_diluent == 1.0 or self.dilution_type == "Diluent" else \
-            (diluent_energy_density_vol * total_mass_diluted_oil - total_mass_oil_bitumen_before_dilution * heavy_oil_energy_density_vol) / required_mass_dilution
+        final_diluent_LHV_mass = \
+            diluent_energy_density_mass if frac_diluent == 1.0 or self.dilution_type == "Diluent" \
+                else (
+                             diluent_energy_density_vol *
+                             total_mass_diluted_oil -
+                             total_mass_oil_bitumen_before_dilution *
+                             heavy_oil_energy_density_vol) / required_mass_dilution
 
         input_dilution_transport = input_streams["dilution transport to heavy oil dilution"]
         input_dilution_transport.set_liquid_flow_rate("oil", required_mass_dilution.to("tonne/day"), tp=self.diluent_tp)
@@ -127,6 +128,3 @@ class HeavyOilDilution(Process):
                self.oil_sand_mine == non_integrated_with_upgrader else ureg.Quantity(0.0, "tonne/day")
 
         return bitumen_mass_rate
-
-
-
