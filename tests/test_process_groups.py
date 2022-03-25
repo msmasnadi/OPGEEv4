@@ -23,7 +23,7 @@ def test_parsing(gas_paths):
 
     dry_gas = gas_paths.get_group('Dry Gas')
     proc_names, stream_names = dry_gas.process_and_stream_refs()
-    assert set(stream_names) == {'s2'} and set(proc_names) == {'After'}
+    assert set(stream_names) == {'s2'} and set(proc_names) == {'ProductionBoundary'}
 
 
 def test_missing_group(gas_paths):

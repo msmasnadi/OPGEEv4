@@ -1,7 +1,6 @@
 import pandas as pd
 
 from .core import TemperaturePressure
-from .error import OpgeeException
 from .log import getLogger
 from .stream import PHASE_LIQUID, Stream
 from .thermodynamics import Oil, Gas, Water
@@ -9,7 +8,7 @@ from .thermodynamics import Oil, Gas, Water
 _logger = getLogger(__name__)
 
 # TODO: improve this to use temp and press
-def combine_streams(streams, API):
+def combine_streams(streams, API):      # TODO: should API have a default value?
     """
     Thermodynamically combine multiple streams' components into a new
     anonymous Stream. This is used on input streams since it makes no

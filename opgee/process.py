@@ -224,6 +224,16 @@ class Process(XmlInstantiable, AttributeMixin):
         self.process_EF = self.get_process_EF()
         self.field = self.get_field()
 
+    def __str__(self):
+        type_str = type(self).__name__
+        if type_str == self.name:
+            name_str = ""
+        else:
+            name_str = f' name="{self.name}"' if self.name else ''
+
+        boundary = (self.boundary + " ") if self.boundary else ""
+        return f'<{type_str}{name_str} {boundary}enabled={self.enabled}>'
+
     # TODO: stream validation and documentation
     def required_inputs(self):
         return self._required_inputs
@@ -303,7 +313,6 @@ class Process(XmlInstantiable, AttributeMixin):
 
         _visit(self)
         return set(visited)
-
 
     #
     # Pass-through convenience methods for energy and emissions
@@ -551,6 +560,22 @@ class Process(XmlInstantiable, AttributeMixin):
 
     def add_input_stream(self, stream):
         self.inputs.append(stream)
+
+    def sum_input_streams(self):
+        """
+        Create a stream from the sum the components of all input streams. This is intended for
+        use at the process boundary to simplify allocation, displacment, and carbon intensity.
+        If you need to combine streams thermodynamically, use ``combine_streams()``.
+
+        :return: (Stream) a stream with the sum of all input components
+        """
+        from .core import STP
+        if not self.inputs:
+            raise OpgeeException(f"Can't sum input streams -- {self} has none.")
+
+        comp_matrix = sum([stream.components for stream in self.inputs])
+        stream = Stream('boundary-stream', STP, comp_matrix=comp_matrix)
+        return stream
 
     def set_extend(self, extend):
         self.extend = extend
@@ -864,6 +889,22 @@ class Process(XmlInstantiable, AttributeMixin):
         obj.set_run_after(getBooleanXML(a.get('after', '0')))
 
         return obj
+
+
+class Boundary(Process):
+    """
+    Used to define system boundaries in XML, e.g., <Process class="Boundary" name="Production">
+    """
+    def __init__(self, *args, **kwargs):
+        boundary = kwargs.get("boundary")
+        if not boundary:
+            raise OpgeeException(f"XML processes of class 'Boundary' must define a boundary attribute")
+
+        name = f"{boundary}Boundary"        # e.g., "ProductionBoundary"
+        super().__init__(name, **kwargs)
+
+    def run(self, analysis):
+        pass
 
 
 class Reservoir(Process):

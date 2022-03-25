@@ -51,24 +51,23 @@ class Field(Container):
 
         self.known_boundaries = known_boundaries = set(getParamAsList('OPGEE.Boundaries'))
 
-        # TBD: deprecated in favor of subsequent loop over procs
-        # Save references to boundary streams by name; fail if duplicate definitions are found.
-        for stream in streams:
-            boundary = stream.boundary
-            if boundary:
-                if boundary not in known_boundaries:
-                    raise OpgeeException(
-                        f"{self}: {stream} boundary {boundary} is not a known boundary name. Must be one of {known_boundaries}")
+        # # TBD: deprecated in favor of subsequent loop over procs
+        # # Save references to boundary streams by name; fail if duplicate definitions are found.
+        # for stream in streams:
+        #     boundary = stream.boundary
+        #     if boundary:
+        #         if boundary not in known_boundaries:
+        #             raise OpgeeException(
+        #                 f"{self}: {stream} boundary {boundary} is not a known boundary name. Must be one of {known_boundaries}")
+        #
+        #         other = boundary_dict.get(boundary)
+        #         if other:
+        #             raise OpgeeException(
+        #                 f"{self}: Duplicate declaration of boundary '{boundary}' in streams {stream} and {other}")
+        #
+        #         boundary_dict[boundary] = stream
+        #         _logger.debug(f"{self}: {stream} defines boundary '{boundary}'")
 
-                other = boundary_dict.get(boundary)
-                if other:
-                    raise OpgeeException(
-                        f"{self}: Duplicate declaration of boundary '{boundary}' in streams {stream} and {other}")
-
-                boundary_dict[boundary] = stream
-                _logger.debug(f"{self}: {stream} defines boundary '{boundary}'")
-
-        # TBD: use this instead
         # Save references to boundary processes by name; fail if duplicate definitions are found.
         for proc in procs:
             boundary = proc.boundary
@@ -243,11 +242,10 @@ class Field(Container):
         if self.is_enabled():
             _logger.debug(f"Running '{self}'")
 
-            # TBD: revise to use boundary_process()
             # Cache the sets of processes within and outside the current boundary. We use
             # this information in compute_carbon_intensity() to ignore irrelevant procs.
-            boundary_stream = self.boundary_stream(analysis)
-            self.procs_beyond_boundary = boundary_stream.beyond_boundary()
+            boundary_proc = self.boundary_process(analysis)
+            self.procs_beyond_boundary = boundary_proc.beyond_boundary()
 
             self.reset()
             self._impute()
@@ -292,18 +290,6 @@ class Field(Container):
         for p in self.processes():
             p.check_balances()
 
-    # TBD: deprecated in favor of boundary_process, below
-    def boundary_stream(self, analysis) -> Stream:
-        """
-        Return the currently chosen boundary stream, per the `Analysis` instance.
-
-        :return: (opgee.Stream) the currently chosen boundary stream
-        """
-        try:
-            return self.boundary_dict[analysis.boundary]
-        except KeyError:
-            raise OpgeeException(f"{self} does not declare boundary stream '{analysis.boundary}'.")
-
     def boundary_process(self, analysis) -> Process:
         """
         Return the currently chosen boundary process, per the `Analysis` instance.
@@ -330,22 +316,17 @@ class Field(Container):
         :param raiseError: (bool) whether to raise an error if the energy flow is zero at the boundary
         :return: (pint.Quantity) the energy flow at the boundary
         """
-        boundary_stream = self.boundary_stream(analysis)
-        boundary_name = boundary_stream.boundary
-
         boundary_proc = self.boundary_process(analysis)
-        boundary_name = boundary_proc.boundary
+        stream = boundary_proc.sum_input_streams()
 
-        # TBD: revise to find and sum input streams carrying functional unit
-        # TBD: maybe combine the streams into one and then just grab oil or gas?
         obj = self.oil if analysis.fn_unit == 'oil' else self.gas
-        energy = obj.energy_flow_rate(boundary_stream)
+        energy = obj.energy_flow_rate(stream)
 
         if energy.m == 0:
             if raiseError:
-                raise ZeroEnergyFlowError(boundary_stream)
+                raise ZeroEnergyFlowError(boundary_proc)
             else:
-                _logger.warning(f"Zero energy flow rate for {boundary_name} boundary stream {boundary_stream}")
+                _logger.warning(f"Zero energy flow rate for {boundary_proc.boundary} boundary process {boundary_proc}")
 
         return energy
 
@@ -372,13 +353,13 @@ class Field(Container):
         # energy = self.boundary_energy_flow_rate(analysis)
 
         export_df = self.import_export.export_df
+
+        boundary_energy_flow_rate = self.boundary_energy_flow_rate(analysis)
+        self.carbon_intensity = ci = (total_emissions / boundary_energy_flow_rate).to('grams/MJ')
+
         export_LHV = export_df.drop(columns=["Water"]).sum(axis='columns').sum()
-        export_LHV = export_LHV if isinstance(export_LHV, pint.Quantity) else ureg.Quantity(export_LHV, "mmbtu/d")
+        # self.carbon_intensity = ci = (total_emissions / export_LHV).to('grams/MJ')
 
-        if export_LHV.m == 0:
-            return OpgeeException("Zero export LHV")
-
-        self.carbon_intensity = ci = (total_emissions / export_LHV).to('grams/MJ')
         return ci
 
     def get_imported_emissions(self, net_import):
@@ -431,25 +412,21 @@ class Field(Container):
         :raises ModelValidationError: raised if any validation condition is violated.
         """
 
-        # TBD: revise this to be based on self.boundary_process(analysis)
         # Cycles cannot span the current boundary. Test this by checking that the boundary
-        # stream's src_proc and dst_proc are not in the same cycle. (N.B. __init__ evaluates
-        # and stores cycles.)
-        stream = self.boundary_stream(analysis)
+        # proc is not in any cycle. (N.B. __init__ evaluates and stores cycles.)
+        proc = self.boundary_process(analysis)
 
         # Check that there are Processes outside the current boundary. If not, nothing more to do.
-        beyond = stream.beyond_boundary()
+        beyond = proc.beyond_boundary()
         if not beyond:
             return
 
         # Accumulate error msgs so user can correct them all at once.
         msgs = []
 
-        src = stream.src_proc
-        dst = stream.dst_proc
         for cycle in self.cycles:
-            if src in cycle and dst in cycle:
-                msgs.append(f"{stream.boundary} boundary {stream} spans a process cycle.")
+            if proc in cycle:
+                msgs.append(f"{proc.boundary} boundary {proc} is in one or more cycles.")
                 break
 
         # There will generally be far fewer Processes outside the system boundary than within,
@@ -460,12 +437,12 @@ class Field(Container):
             if not procs:
                 continue
 
-            # See if first proc is inside or beyond the boundar, then make sure the rest are the same
+            # See if first proc is inside or beyond the boundary, then make sure the rest are the same
             is_inside = procs[0] not in beyond
             is_beyond = not is_inside  # improves readability
             for proc in procs:
                 if (is_inside and proc in beyond) or (is_beyond and proc not in beyond):
-                    msgs.append(f"{agg} spans the {stream.boundary} boundary.")
+                    msgs.append(f"{agg} spans the {proc.boundary} boundary.")
 
         if msgs:
             msg = "\n - ".join(msgs)
@@ -583,14 +560,7 @@ class Field(Container):
 
             # Iterate on the processes in cycle until a termination condition is met and an
             # OpgeeStopIteration exception is thrown.
-            def allConverged(proc_list):
-                for proc in proc_list:
-                    if proc.iteration_converged is False:
-                        return False
-
-                return True
-
-            while allConverged(ordered_cycle) is False:
+            while True:
                 try:
                     for proc in ordered_cycle:
                         proc.run_if_enabled(analysis)
