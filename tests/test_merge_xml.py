@@ -3,7 +3,7 @@ import os
 from lxml import etree as ET
 from tempfile import mkdtemp
 from .utils_for_tests import path_to_test_file
-from opgee.xml_utils import merge_siblings, prettify
+from opgee.xml_utils import merge_siblings, str_to_xml
 from opgee.tool import opg
 
 def assert_same_xml(x1, x2):
@@ -12,25 +12,25 @@ def assert_same_xml(x1, x2):
     assert x1_str == x2_str
 
 def test_merge_siblings():
-    x1 = prettify(ET.XML("""
+    x1 = str_to_xml("""
     <foo>
         <bar>
             <baz name="horace">abcdef</baz>
             <baz name="a">xyz</baz>
             <baz name="c">lmnop</baz>            
         </bar>
-    </foo>"""))
+    </foo>""")
 
-    x2 = prettify(ET.XML("""
+    x2 = str_to_xml("""
     <foo>
         <bar>
             <baz name="b">abc</baz>
             <baz name="c" delete="1"/>
             <baz name="c">replaced</baz>    
         </bar>
-    </foo>"""))
+    </foo>""")
 
-    expected = prettify(ET.XML("""
+    expected = str_to_xml("""
     <foo>
         <bar>
             <baz name="horace">abcdef</baz>
@@ -39,13 +39,13 @@ def test_merge_siblings():
             <baz name="c">replaced</baz>
       </bar>
     </foo>
-    """))
+    """)
 
     merge_siblings(x1, x2)
     assert_same_xml(x1, expected)
 
 
-merged_1 = prettify(ET.XML("""
+merged_1 = str_to_xml("""
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
   <Analysis name="test">
     <Field name="test"/>
@@ -81,9 +81,9 @@ merged_1 = prettify(ET.XML("""
     </Stream>
   </Field>
 </Model>
-"""))
+""")
 
-merged_2 = prettify(ET.XML("""
+merged_2 = str_to_xml("""
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
   <Analysis name="test">
     <Field name="test"/>
@@ -123,7 +123,7 @@ merged_2 = prettify(ET.XML("""
     </Stream>
   </Field>
 </Model>
-"""))
+""")
 
 in1 = path_to_test_file('test_merge_1.xml')
 in2 = path_to_test_file('test_merge_2.xml')
@@ -147,7 +147,7 @@ def test_merge(cmdline, expected):
     with open(f"{out_dir}/merged.xml", 'rb') as f:
         merged_xml = f.read()
 
-    merged_root = prettify(ET.XML(merged_xml))
+    merged_root = str_to_xml(merged_xml)
 
     # Delete the <AttrDefs> for comparison
     attr_defs = merged_root.find('AttrDefs')
