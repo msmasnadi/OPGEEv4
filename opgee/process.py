@@ -231,8 +231,7 @@ class Process(XmlInstantiable, AttributeMixin):
         else:
             name_str = f' name="{self.name}"' if self.name else ''
 
-        boundary = (self.boundary + " ") if self.boundary else ""
-        return f'<{type_str}{name_str} {boundary}enabled={self.enabled}>'
+        return f'<{type_str}{name_str} enabled={self.enabled}>'
 
     # TODO: stream validation and documentation
     def required_inputs(self):
@@ -903,8 +902,29 @@ class Boundary(Process):
         name = f"{boundary}Boundary"        # e.g., "ProductionBoundary"
         super().__init__(name, **kwargs)
 
+        self.is_chosen_boundary = None     # set if _after_init()
+
+
+    def _after_init(self):
+        super()._after_init(self)
+
+        field = self.get_field()
+        analysis = self.find_parent('Analysis')
+        proc = field.boundary_process(analysis)
+        self.is_chosen_boundary = (proc == self)
+
+
     def run(self, analysis):
-        pass
+        # If we're an intermediate boundary, copy all inputs to outputs based on contents
+        if not self.is_chosen_boundary:
+            for in_stream in self.inputs:
+                # If not exactly one stream that declares the same contents, raises error
+                out_stream = self.find_output_stream(in_stream.contents, raiseError=False)
+
+                if out_stream is None:
+                    raise ModelValidationError(f"Missing output stream for '{in_stream.contents}' in {self} boundary")
+
+                out_stream.copy_flow_rates_from(in_stream)
 
 
 class Reservoir(Process):
@@ -925,33 +945,6 @@ class Before(Process):
 
     def impute(self):
         pass
-
-# class Environment(Process):
-#     """
-#     Represents the environment, which in OPGEE is just a sink for emissions. The Environment
-#     has only inputs (no outputs) and can be the destination (but not source) of streams. This
-#     restriction might change if air-capture of CO2 were introduced into the model. Each Analysis
-#     object holds a single Environment instance.
-#     """
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__('Environment', desc='The Environment')
-#         self.set_run_after(True)
-#
-#     def run(self, analysis):
-#         self.print_running_msg()
-#
-#         emissions = self.emissions
-#         emissions.reset()
-#
-#         # TBD: unclear whether this is useful
-#         for stream in self.inputs:
-#             emissions.add_from_stream(EM_OTHER, stream)
-#
-#         emissions.compute_GHG(analysis.gwp)  # compute and cache GWP in emissions instance
-#
-#     def report(self, analysis):
-#         print(f"{self}: cumulative emissions to Environment:\n{self.emissions}")
 
 
 # TBD: move this to tests/utils_for_tests.py after removing references from opgee.xml

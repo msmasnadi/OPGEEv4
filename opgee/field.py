@@ -51,23 +51,6 @@ class Field(Container):
 
         self.known_boundaries = known_boundaries = set(getParamAsList('OPGEE.Boundaries'))
 
-        # # TBD: deprecated in favor of subsequent loop over procs
-        # # Save references to boundary streams by name; fail if duplicate definitions are found.
-        # for stream in streams:
-        #     boundary = stream.boundary
-        #     if boundary:
-        #         if boundary not in known_boundaries:
-        #             raise OpgeeException(
-        #                 f"{self}: {stream} boundary {boundary} is not a known boundary name. Must be one of {known_boundaries}")
-        #
-        #         other = boundary_dict.get(boundary)
-        #         if other:
-        #             raise OpgeeException(
-        #                 f"{self}: Duplicate declaration of boundary '{boundary}' in streams {stream} and {other}")
-        #
-        #         boundary_dict[boundary] = stream
-        #         _logger.debug(f"{self}: {stream} defines boundary '{boundary}'")
-
         # Save references to boundary processes by name; fail if duplicate definitions are found.
         for proc in procs:
             boundary = proc.boundary
