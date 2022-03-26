@@ -5,24 +5,24 @@
 # Richard Plevin.
 # See the file COPYRIGHT.txt for details.
 
-from collections import OrderedDict, defaultdict
-from lxml import etree as ET
-from math import ceil
-import numpy as np
 import os
+from collections import OrderedDict, defaultdict
+from math import ceil
+from typing import Optional
+
+import numpy as np
 import pandas as pd
+from lxml import etree as ET
 
 from .config import getParam
-from .log import getLogger
-from .utils import importFromDotSpec
-from .XMLFile import XMLFile
-
-from .Database import getDatabase
 from .distro import DistroGen
-from .error import PygcamMcsUserError, PygcamMcsSystemError, DistributionSpecError
-from .util import mkdirs, loadObjectFromPath
-from .XML import XMLWrapper, findAndSave, getBooleanXML
-from .XMLConfigFile import XMLConfigFile
+from .error import McsUserError, McsSystemError, DistributionSpecError
+from .log import getLogger
+from .mcs_utils import loadObjectFromPath
+from .utils import importFromDotSpec, getBooleanXML
+from .utils import mkdirs
+from .XML import XMLWrapper, findAndSave
+from .XMLFile import XMLFile
 
 _logger = getLogger(__name__)
 
@@ -80,7 +80,7 @@ class XMLCorrelation(XMLWrapper):
             self.value = float(target.text)
 
         except ValueError:
-            raise PygcamMcsUserError("In parameter %s, the value of a Correlation element (%s) is not numeric"
+            raise McsUserError("In parameter %s, the value of a Correlation element (%s) is not numeric"
                                      % (self.paramName, element.text))
 
         _logger.debug('Defined correlation of %.3f between %s and %s',
@@ -114,17 +114,17 @@ class XMLCorrelation(XMLWrapper):
             # TBD: Restrict correlation to Distribution, or ok with PythonFunc or DataFile?
 
             if src1.isShared() != src2.isShared():
-                raise PygcamMcsUserError('''
-    Parameters '%s' and '%s' cannot be correlated because
-    one is 'shared' and the other is 'independent'.''' % (corr.paramName, corr.otherName))
+                raise McsUserError(f'''
+    Parameters '{corr.paramName}' and '{corr.otherName}' cannot be correlated because
+    one is 'shared' and the other is 'independent'.''')
 
             if src1.isShared():
                 varNum1 = p1.rv.getVarNum()
                 varNum2 = p2.rv.getVarNum()
 
                 if varNum1 == varNum2:
-                    raise PygcamMcsUserError('''
-    Parameter '%s' has a single (shared) random variable; it cannot be self-correlated.''' % corr.paramName)
+                    raise McsUserError(f'''
+    Parameter '{corr.paramName}' has a single (shared) random variable; it cannot be self-correlated.''')
                 corrMat[varNum1][varNum2] = corrMat[varNum2][varNum1] = coef
 
             else:
@@ -132,8 +132,8 @@ class XMLCorrelation(XMLWrapper):
                 # can be correlated if they have the same number of RVs, and the RVs of
                 # a single param can be correlated pairwise amongst themselves.
                 if p1 == p2:
-                    raise PygcamMcsUserError('''
-    Parameter '%s' has %d independent random variables; it cannot be self-correlated.''' % (corr.paramName, len(p1.getVars())))
+                    raise McsUserError(f'''
+    Parameter '{corr.paramName}' has {len(p1.getVars())} independent random variables; it cannot be self-correlated.''')
                     # Create pairwise correlations among the RVs. This is probably a bad idea if
                     # the query returns more than a few dozen elements, as is usually the case.
                     # vars = p1.getVars()
@@ -150,9 +150,9 @@ class XMLCorrelation(XMLWrapper):
                     p2Vars = p2.getVars()
 
                     if len(p1Vars) != len(p2Vars):
-                        raise PygcamMcsUserError('''
-    Parameters '%s' and '%s' cannot be correlated because
-    they have a different number of random variables.''' % (corr.paramName, corr.otherName))
+                        raise McsUserError(f'''
+    Parameters '{corr.paramName}' and '{corr.otherName}' cannot be correlated because
+    they have a different number of random variables.''')
 
                     varNumPairs = [(pair[0].rv.getVarNum(), pair[1].rv.getVarNum()) for pair in zip(p1Vars, p2Vars)]
 
@@ -167,7 +167,7 @@ class XMLCorrelation(XMLWrapper):
         for obj in cls.instances:
             obj.other = XMLParameter.getInstance(obj.otherName)
             if obj.other is None:
-                raise PygcamMcsUserError('Unknown parameter "%s" in Correlation for %s' % (obj.otherName, obj.paramName))
+                raise McsUserError('Unknown parameter "%s" in Correlation for %s' % (obj.otherName, obj.paramName))
 
 
 class XMLQuery(XMLWrapper):
@@ -238,7 +238,7 @@ class XMLTrialData(XMLWrapper):
         return False
 
     def ppf(self, *args):
-        raise PygcamMcsSystemError('Called abstract "ppf" method of %s' % self.___class__.name)
+        raise McsSystemError('Called abstract "ppf" method of %s' % self.___class__.name)
 
 
 class XMLDistribution(XMLTrialData):
@@ -256,7 +256,7 @@ class XMLDistribution(XMLTrialData):
         super(XMLDistribution, self).__init__(element, param)
 
         self.argDict  = {}
-        self.modDict = defaultdict(lambda: None)
+        self.modDict = defaultdict(lambda: None) # type: dict[str]
         self.modDict['apply'] = 'direct'    # set default value
 
         # Distribution attributes are {apply, highbound, lowbound}, enforced by XSD file
@@ -337,7 +337,7 @@ class XMLDistribution(XMLTrialData):
         try:
             trialFunc = loadObjectFromPath(objname, modulePath)
         except Exception as e:
-            raise PygcamMcsUserError("Failed to load trial function '{}': {}".format(funcRef, e))
+            raise McsUserError("Failed to load trial function '{}': {}".format(funcRef, e))
 
         return trialFunc
 
@@ -410,7 +410,7 @@ class XMLDataFile(XMLTrialData):
         count  = len(args[0])
 
         if name not in self.df:
-            raise PygcamMcsUserError("Variable '%s' was not found in '%s'" % self.getFilename())
+            raise McsUserError("Variable '%s' was not found in '%s'" % self.getFilename())
 
         vector = self.df[name]
 
@@ -472,7 +472,7 @@ class XMLVariable(XMLWrapper):
             self.storedValue = float(value)
         except Exception:
             name = self.param.getName()
-            raise PygcamMcsSystemError("Value '%s' for parameter %s is not a float" % (value, name))
+            raise McsSystemError("Value '%s' for parameter %s is not a float" % (value, name))
 
     def getFloatValue(self):
         return self.storedValue
@@ -588,13 +588,13 @@ class XMLParameter(XMLWrapper):
 
             else:
                 # Schema validation should prevent this; just an extra precaution.
-                raise PygcamMcsUserError(f"Unexpected sub-element of <Parameter>: <{tag}>")
+                raise McsUserError(f"Unexpected sub-element of <Parameter>: <{tag}>")
 
     @classmethod
     def saveInstance(cls, obj):
         name = obj.getName()
         if name in cls.instances:
-            raise PygcamMcsUserError(f"Error: attempt to redefine parameter '{name}'")
+            raise McsUserError(f"Error: attempt to redefine parameter '{name}'")
 
         cls.instances[name] = obj
 
@@ -668,7 +668,7 @@ class XMLParameter(XMLWrapper):
         """
         if not self.query:
             if not self.dataSrc.isTrialFunc():
-                raise PygcamMcsUserError("XMLParameter %s has no <Query> and no trial function" % self.getName())
+                raise McsUserError("XMLParameter %s has no <Query> and no trial function" % self.getName())
 
             # trial functions are handled in updateElements()
             self.rv = XMLRandomVar(None, self)
@@ -680,7 +680,7 @@ class XMLParameter(XMLWrapper):
             # Query returns a list of Element instances or None
             elements = self.query.runQuery(tree)
             if elements is None or len(elements) == 0:
-                raise PygcamMcsUserError("XPath query '%s' returned nothing for parameter %s" % (self.query.getXPath(), self.getName()))
+                raise McsUserError("XPath query '%s' returned nothing for parameter %s" % (self.query.getXPath(), self.getName()))
 
             _logger.debug("Param %s: %d elements found", self.getName(), len(elements))
 
@@ -709,7 +709,7 @@ class XMLParameter(XMLWrapper):
             return
 
         if not self.vars:
-            raise PygcamMcsSystemError("Called updateElements with no variables defined in self.vars")
+            raise McsSystemError("Called updateElements with no variables defined in self.vars")
 
         isFactor = dataSrc.isFactor()
         isDelta  = dataSrc.isDelta()
@@ -747,7 +747,7 @@ def trialRelativePath(relPath, prefix):
     """
     parentDir = '../'
     if not relPath.startswith(parentDir):
-        raise PygcamMcsUserError("trialRelativePath: expected path starting with '%s', got '%s'" % \
+        raise McsUserError("trialRelativePath: expected path starting with '%s', got '%s'" % \
                                  (parentDir, relPath))
 
     newPath = os.path.join(prefix, 'trial-xml', relPath[len(parentDir):])
@@ -835,7 +835,7 @@ class XMLInputFile(XMLWrapper):
         try:
             fn = loadObjectFromPath(objname, modulePath)
         except Exception as e:
-            raise PygcamMcsUserError("Failed to load trial function '%s': %s" % (funcRef, e))
+            raise McsUserError("Failed to load trial function '%s': %s" % (funcRef, e))
 
         self.writeFuncs[funcRef] = fn
 
@@ -865,7 +865,7 @@ class XMLInputFile(XMLWrapper):
 
         self.findAndSaveParams(element)
 
-    def loadFiles(self, context, scenNames, writeConfigFiles=True):
+    def loadFiles(self, context, scenNames):
         """
         Find the distinct pathnames associated with our component name. Each scenario
         that refers to this path is stored in a set in self.inputFiles, keyed by pathname.
@@ -876,19 +876,16 @@ class XMLInputFile(XMLWrapper):
 
         compName = self.getComponentName()  # an identifier in the config file, e.g., "land2"
 
-        useCopy = not writeConfigFiles  # if we're not writing the configs, use the saved original
-
         ctx = copy.copy(context)
         simId = context.simId
 
         for scenName in scenNames:
             ctx.setVars(scenario=scenName)
-            configFile = XMLConfigFile.getConfigForScenario(ctx, useCopy=useCopy)
 
             # If compName ends in '.xml', assume its value is the full relative path, with
             # substitution for {scenario}, e.g., "../local-xml/{scenario}/mcsValues.xml"
             isXML = compName.lower().endswith('.xml')
-            relPath = compName if isXML else configFile.getComponentPathname(compName)
+            relPath = compName if isXML else "this function probably is deprecated"
 
             # If another scenario "registered" this XML file, we don't do so again.
             if not relPath in self.xmlFileMap:
@@ -896,12 +893,6 @@ class XMLInputFile(XMLWrapper):
                 self.xmlFileMap[relPath] = xmlFile  # unique for all scenarios so we read once
                 self.xmlFiles.append(xmlFile)       # per input file in one scenario
 
-            # TBD: In either case, we need to update the config files' XML trees because
-            # TBD: some parameter(s) modify the file for this component, in all cases.
-            # TBD: This new path has to be coordinated between config file and actual file.
-            if writeConfigFiles and not isXML:
-                trialRelPath = trialRelativePath(relPath, '../..')
-                configFile.updateComponentPathname(compName, trialRelPath)
 
     def runQueries(self):
         """
@@ -933,10 +924,10 @@ class XMLInputFile(XMLWrapper):
                 param.runQuery(None)    # side-effect is to generate XML RVs
 
         # If a file (e.g., protected land) has only a writeFunc defined, there will be no parameters
-        if tuples:
+        # if tuples:
             #_logger.debug("Saving tuples to db: %s", tuples)
-            db = getDatabase()
-            db.saveParameterNames(tuples)
+            # db = getDatabase()
+            # db.saveParameterNames(tuples)
 
     def callFileFunctions(self, xmlFile, trialDir):
         """
@@ -952,7 +943,7 @@ class XMLInputFile(XMLWrapper):
             try:
                 fn(self, xmlFile, trialDir)     # fn can modify self.tree as needed
             except Exception as e:
-                raise PygcamMcsUserError("Call to user WriteFunc '%s' failed: %s" % (fn, e))
+                raise McsUserError("Call to user WriteFunc '%s' failed: %s" % (fn, e))
 
 
 class XMLParameterFile(XMLFile):
@@ -979,18 +970,13 @@ class XMLParameterFile(XMLFile):
 
         _logger.debug("Loaded parameter file: %s", filename)
 
-    def loadInputFiles(self, context, scenNames, writeConfigFiles=True):
+    def loadInputFiles(self, context, scenNames):
         """
         Load the input files, for each scenario in scenNames. Scenarios are
         found in {simDir}/{scenName}.
         """
         for inputFile in self.inputFiles.values():
-            inputFile.loadFiles(context, scenNames, writeConfigFiles=writeConfigFiles)
-
-        if writeConfigFiles:
-            # Writes all modified configs. Config files' XML trees are updated
-            # as InputFile elements are processed.
-            XMLConfigFile.writeAll(context)
+            inputFile.loadFiles(context, scenNames)
 
     def getFilename(self):
         return self.filename
@@ -1039,7 +1025,6 @@ def decache():
     '''
     Clear all instance caches so a new run can begin cleanly
     '''
-    XMLConfigFile.decache()
     XMLCorrelation.decache()
     XMLDataFile.decache()
     XMLRandomVar.decache()

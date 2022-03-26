@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Parameters>
+	<Analysis name="whatever">
+		<Parameter name="analysis-something">
+			<A name="something"/>
+			<Normal mean="xx" std="yy"/>
+		</Parameter>
+	</Analysis>
+	<Field name="whatever">
+		<Parameter name="my first parameter">
+			<A name="something"/>
+			<Uniform min="xx" max="yy"/>
+		</Parameter>
+		<Parameter name="param 2">
+			<A name="something else"/>
+			<Triangle min="xx" mode="yy" max="zz"/>
+		</Parameter>
+		<Process name="proc name">
+			<Parameter>
+				<A name="proc attr"/>
+				<Lognormal logmean="xx" logstd="yy"/>
+			</Parameter>
+		</Process>
+		<Stream src="Output" dst="HeavyOilUpgrading" name="output to heavy oil upgrading">
+			<Parameter name="stream-X-N2">
+				<Component name="N2" phase="gas"/>
+				<Normal mean="5.1003" std="1.3"/>
+			</Parameter>
+			<Parameter name="stream-X-temp">
+				<A name="temperature"/>
+				<Normal mean="90.0" std="6.9"/>
+			</Parameter>
+			<Parameter name="stream-X-pressure">
+				<A name="pressure"/>
+				<Normal mean="150.0" std="10.6"/>
+			</Parameter>
+		</Stream>
+	</Field>
+	<Correlations>
+		<Correlation p1="stream-X-temp" p2="stream-X-pressure">-0.9</Correlation>
+	</Correlations>
+</Parameters>
