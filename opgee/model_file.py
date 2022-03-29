@@ -118,6 +118,7 @@ class ModelFile(XMLFile):
         found = base_root.findall('AttrDefs')
         if found is None:
             raise XmlFormatError(f"Missing <AttrDefs> as child of <Model> in '{pathnames}'")
+
         elif len(found) > 1:
             raise XmlFormatError("Multiple <AttrDefs> appear as children of <Model> in '{pathnames}'")
 
@@ -164,3 +165,36 @@ class ModelFile(XMLFile):
     @classmethod
     def attr_defs(cls):
         return cls._attr_defs
+
+    @classmethod
+    def from_xml_string(cls, xml_string):
+        """
+        Create a ModelFile instance from an XML string representing the XML model structure.
+        This provides an alternative to storing the model in a separate XML file, e.g., for
+        keeping all test code in one Python file.
+
+        :param xml_string: (str) String representation of a <Model> structure and all
+            nested elements.
+        :return: (opgee.ModelFile) the ModelFile instance.
+        """
+        import os
+        from tempfile import mkstemp
+
+        fd, tmp_file = mkstemp(suffix='.xml', text=True)
+        os.write(fd, str.encode(xml_string))
+        os.close(fd)
+
+        try:
+            model_file = ModelFile([tmp_file],
+                                   add_stream_components=False,
+                                   use_class_path=False,
+                                   use_default_model=False,
+                                   instantiate_model=True,
+                                   save_to_path=None)
+        except Exception as e:
+            raise XmlFormatError(f"Failed to create ModelFile from string: {e}")
+
+        finally:
+            os.remove(tmp_file)
+
+        return model_file

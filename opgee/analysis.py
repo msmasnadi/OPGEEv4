@@ -91,7 +91,7 @@ class Analysis(Container):
         :raises ModelValidationError: if any logical requirement is violated
         """
         for field in self.fields():
-            field.validate(self)
+            field.validate()
 
     def get_field(self, name, raiseError=True) -> Field:
         """
@@ -174,14 +174,15 @@ class Analysis(Container):
     #         result = 0
     #     return result
 
-    def run(self):
+    def run(self, compute_ci=True):
         """
         Run all children and collect emissions and energy use for all Containers and Processes.
 
+        :param compute_ci: (bool) whether to compute carbon intensity for each field that is run.
         :return: None
         """
         for field in self.fields():
-            field.run(self)
+            field.run(self, compute_ci=compute_ci)
 
     @classmethod
     def from_xml(cls, elt):

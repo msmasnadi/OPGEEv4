@@ -902,27 +902,27 @@ class Boundary(Process):
         name = f"{boundary}Boundary"        # e.g., "ProductionBoundary"
         super().__init__(name, **kwargs)
 
-        self.is_chosen_boundary = None     # set if _after_init()
-
-
     def _after_init(self):
-        super()._after_init(self)
+        super()._after_init()
 
+    def is_chosen_boundary(self, analysis):
         field = self.get_field()
-        analysis = self.find_parent('Analysis')
         proc = field.boundary_process(analysis)
-        self.is_chosen_boundary = (proc == self)
-
+        return proc == self
 
     def run(self, analysis):
         # If we're an intermediate boundary, copy all inputs to outputs based on contents
-        if not self.is_chosen_boundary:
+        if not self.is_chosen_boundary(analysis):
             for in_stream in self.inputs:
+                contents = in_stream.contents
+                if len(contents) != 1:
+                    raise ModelValidationError(f"Streams to and from boundaries must have only a single Content declaration; {self} inputs are {contents}")
+
                 # If not exactly one stream that declares the same contents, raises error
-                out_stream = self.find_output_stream(in_stream.contents, raiseError=False)
+                out_stream = self.find_output_stream(contents[0], raiseError=False)
 
                 if out_stream is None:
-                    raise ModelValidationError(f"Missing output stream for '{in_stream.contents}' in {self} boundary")
+                    raise ModelValidationError(f"Missing output stream for '{contents[0]}' in {self} boundary")
 
                 out_stream.copy_flow_rates_from(in_stream)
 

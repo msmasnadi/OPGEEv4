@@ -201,9 +201,12 @@ class Field(Container):
         # We require that all start streams emerge from one Process.
         start_procs = {p for p in self.processes() if p.impute_start} or {stream.src_proc for stream in start_streams}
 
-        if len(start_procs) != 1:
+        start_count = len(start_procs)
+        if start_count != 1:
+            procs = f": {start_procs}" if start_count else ""
+
             raise OpgeeException(
-                f"Expected one start process upstream from start streams, got {len(start_procs)}: {start_procs}")
+                f"Expected one start process upstream from start streams, got {len(start_procs)}{procs}")
 
         start_proc = start_procs.pop()
         _logger.debug(f"Running impute() methods for {start_proc}")
@@ -273,9 +276,13 @@ class Field(Container):
         for p in self.processes():
             p.check_balances()
 
+    def boundary_processes(self):
+        boundary_procs = [proc for proc in self.processes() if proc.boundary]
+        return boundary_procs
+
     def boundary_process(self, analysis) -> Process:
         """
-        Return the currently chosen boundary process, per the `Analysis` instance.
+        Return the currently chosen boundary process.
 
         :return: (opgee.Process) the currently chosen boundary process
         """
@@ -295,7 +302,7 @@ class Field(Container):
         Return the energy flow rate for the user's chosen system boundary, functional unit
         (oil vs gas)
 
-        :param analysis: (opgee.Analysis) the chosen `Analysis` object
+        :param analysis: (Analysis) the analysis this field is part of
         :param raiseError: (bool) whether to raise an error if the energy flow is zero at the boundary
         :return: (pint.Quantity) the energy flow at the boundary
         """
@@ -380,7 +387,7 @@ class Field(Container):
 
         return carbon_credit
 
-    def validate(self, analysis):
+    def validate(self):
         """
         Perform logical checks on the field after loading the entire model to ensure the field
         is "well-defined". This allows the processing code to avoid testing validity at run-time.
@@ -390,42 +397,43 @@ class Field(Container):
         - Aggregators cannot span the current boundary.
         - The chosen system boundary is defined for this field
 
-        :param analysis: (opgee.Analysis) the current `Analysis`
         :return: none
         :raises ModelValidationError: raised if any validation condition is violated.
         """
 
-        # Cycles cannot span the current boundary. Test this by checking that the boundary
-        # proc is not in any cycle. (N.B. __init__ evaluates and stores cycles.)
-        proc = self.boundary_process(analysis)
-
-        # Check that there are Processes outside the current boundary. If not, nothing more to do.
-        beyond = proc.beyond_boundary()
-        if not beyond:
-            return
-
         # Accumulate error msgs so user can correct them all at once.
         msgs = []
 
-        for cycle in self.cycles:
-            if proc in cycle:
-                msgs.append(f"{proc.boundary} boundary {proc} is in one or more cycles.")
-                break
+        for proc in self.boundary_processes():
+            # Cycles cannot span the current boundary. Test this by checking that the boundary
+            # proc is not in any cycle. (N.B. __init__ evaluates and stores cycles.)
 
-        # There will generally be far fewer Processes outside the system boundary than within,
-        # so we check that procs outside the boundary are not in Aggregators with members inside.
-        aggs = self.descendant_aggs()
-        for agg in aggs:
-            procs = agg.descendant_procs()
-            if not procs:
+            # Check that there are Processes outside the current boundary. If not, nothing more to do.
+            beyond = proc.beyond_boundary()
+            if not beyond:
                 continue
 
-            # See if first proc is inside or beyond the boundary, then make sure the rest are the same
-            is_inside = procs[0] not in beyond
-            is_beyond = not is_inside  # improves readability
-            for proc in procs:
-                if (is_inside and proc in beyond) or (is_beyond and proc not in beyond):
-                    msgs.append(f"{agg} spans the {proc.boundary} boundary.")
+
+
+            for cycle in self.cycles:
+                if proc in cycle:
+                    msgs.append(f"{proc.boundary} boundary {proc} is in one or more cycles.")
+                    break
+
+            # There will generally be far fewer Processes outside the system boundary than within,
+            # so we check that procs outside the boundary are not in Aggregators with members inside.
+            aggs = self.descendant_aggs()
+            for agg in aggs:
+                procs = agg.descendant_procs()
+                if not procs:
+                    continue
+
+                # See if first proc is inside or beyond the boundary, then make sure the rest are the same
+                is_inside = procs[0] not in beyond
+                is_beyond = not is_inside  # improves readability
+                for proc in procs:
+                    if (is_inside and proc in beyond) or (is_beyond and proc not in beyond):
+                        msgs.append(f"{agg} spans the {proc.boundary} boundary.")
 
         if msgs:
             msg = "\n - ".join(msgs)
