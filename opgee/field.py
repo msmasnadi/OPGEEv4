@@ -209,7 +209,7 @@ class Field(Container):
                 f"Expected one start process upstream from start streams, got {len(start_procs)}{procs}")
 
         start_proc = start_procs.pop()
-        _logger.debug(f"Running impute() methods for {start_proc}")
+        _logger.debug(f"Running impute() for {start_proc}")
 
         try:
             _impute_upstream(start_proc)

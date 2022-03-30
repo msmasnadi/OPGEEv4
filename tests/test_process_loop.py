@@ -1,6 +1,8 @@
+import networkx as nx
+
 from opgee import ureg
 from opgee.stream import Stream
-from opgee.process import Process
+from opgee.process import Process, ProcessCycle
 from .utils_for_tests import load_test_model
 
 class LoopProc1(Process):
@@ -58,3 +60,43 @@ def test_process_loop():
 
 
 # TBD: add tests that no elements of cycle are tagged run-after=True in XML
+
+
+def cycle_graph():
+    """
+    Generate a graph with nested cycles
+    """
+    g = nx.MultiDiGraph()
+    nodes = ('A', 'B', 'C', 'D', 'E')
+    edges = [
+        ('A', 'B'), ('B', 'C'), ('C', 'D'), ('D', 'E'),
+        ('E', 'A'),  # outer cycle
+        ('C', 'B'),  # inner cycle
+        ('D', 'B')   # inner cycle
+    ]
+
+    for node in nodes:
+        g.add_node(node)
+
+    for src, dst in edges:
+        g.add_edge(src, dst)
+
+    return g
+
+def test_nested_cycles():
+    g = cycle_graph()
+
+    # We'll only need to run the outer loops; they will contain all other processes
+    outers = ProcessCycle.cycles(g)
+    assert len(outers) == 1
+
+    outer = outers[0]
+    assert outer.node_set == set(['A', 'B', 'C', 'D', 'E'])
+
+    assert len(outer.contains) == 1
+    mid = outer.contains.pop()
+    assert mid.node_set == set(['B', 'C', 'D'])
+
+    assert len(mid.contains) == 1
+    inner = mid.contains.pop()
+    assert inner.node_set == set(['B', 'C'])
