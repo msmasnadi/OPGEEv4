@@ -141,66 +141,6 @@ def run_corr_eqns(x1, x2, x3, x4, x5, coef_df):
     result = df.sum(axis="rows")
     return result
 
-# TODO: Modify OPGEE to run non-cyclic processes, then cyclic processes but
-#       with separate iteration / convergence testing for each ProcessCycle.
-#       On each run of an outer loop, reset convergence test for inner loop.
-#
-class ProcessCycle():
-    """
-    Represents process cycles, including possibly nested cycles, so they can be run
-    recursively.
-    """
-    def __init__(self, nodes):
-        self.nodes = nodes
-        self.node_set = set(nodes)
-        self.contains = set()    # ProcessCycles within this cycle
-        self.is_inner = False   # set to True if within another cycle
-
-    def __str__(self):
-        return f"<ProcessCycle {self.nodes}>"
-
-    def show(self, level=0):
-        """
-        Show the cycles recursively with indentation showing containment.
-        """
-        indent = '  '
-        print(f"{indent * level}{self}")
-        for inner in self.contains:
-            inner.show(level=level+1)
-
-    def add_inner_cycle(self, cycle):
-        self.contains.add(cycle)
-
-    def is_within(self, cycle):
-        is_within = self.node_set.issubset(cycle.node_set)
-
-        if is_within:
-            self.is_inner = True
-
-        return is_within
-
-    @classmethod
-    def cycles(cls, graph):
-        import networkx as nx
-
-        # sort cycles by length since an inner cycle can be within an outer
-        # cycle only if the inner one is shorter than the outer one.
-        with_lengths = [(len(nodes), nodes) for nodes in nx.simple_cycles(graph)]
-        cycles = [cls(nodes) for _, nodes in sorted(with_lengths)]
-
-        num_cycles = len(cycles)
-        for i in range(num_cycles):
-            inner = cycles[i]
-            for j in range(i+1, num_cycles):
-                outer = cycles[j]
-                if inner.is_within(outer):
-                    outer.add_inner_cycle(inner)
-                    break  # can't be in two outer loops that don't nest
-
-        outer_cycles = [cycle for cycle in cycles if not cycle.is_inner]
-        return outer_cycles
-
-
 class Process(XmlInstantiable, AttributeMixin):
     """
     The "leaf" node in the container/process hierarchy. ``Process`` is an abstract superclass: actual runnable Process
@@ -753,7 +693,7 @@ class Process(XmlInstantiable, AttributeMixin):
 
     def reset_iteration(self):
         self.clear_visit_count()
-        self.iteration_value = None
+            self.iteration_value = None
         self.iteration_converged = False
         self._reset_before_iteration()
 
