@@ -429,6 +429,7 @@ class Process(XmlInstantiable, AttributeMixin):
 
         return self.field
 
+    # TODO: visit counting by processes may be deprecated
     def visit(self):
         self.visit_count += 1
         return self.visit_count
@@ -693,7 +694,7 @@ class Process(XmlInstantiable, AttributeMixin):
 
     def reset_iteration(self):
         self.clear_visit_count()
-            self.iteration_value = None
+        self.iteration_value = None
         self.iteration_converged = False
         self._reset_before_iteration()
 
@@ -733,9 +734,10 @@ class Process(XmlInstantiable, AttributeMixin):
         if self.enabled:
             self.run(analysis)
 
-            m = self.model
-            if self.visit() >= m.maximum_iterations:
-                raise OpgeeMaxIterationsReached(f"Maximum iterations ({m.maximum_iterations}) reached in {self}")
+            # Deprecated?
+            # m = self.model
+            # if self.visit() >= m.maximum_iterations:
+            #     raise OpgeeMaxIterationsReached(f"Maximum iterations ({m.maximum_iterations}) reached in {self}")
 
     def impute(self):
         """

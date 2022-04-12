@@ -183,7 +183,7 @@ class Field(Container):
             # recurse upstream, calling impute()
             if proc and proc.enabled:
                 if proc.visit() >= max_iter:
-                    raise OpgeeMaxIterationsReached(f"Maximum iterations ({max_iter}) reached in {self}")
+                    raise OpgeeMaxIterationsReached(f"Maximum iterations ({max_iter}) reached in impute")
 
                 proc.impute()
 
@@ -413,8 +413,6 @@ class Field(Container):
             if not beyond:
                 continue
 
-
-
             for cycle in self.cycles:
                 if proc in cycle:
                     msgs.append(f"{proc.boundary} boundary {proc} is in one or more cycles.")
@@ -522,9 +520,12 @@ class Field(Container):
         # If user has indicated a process with start-cycle="true", start there, otherwise
         # find a process with cycle-independent processes as inputs, and start there.
         start_procs = [proc for proc in procs_in_cycles if proc.cycle_start]
+
         if len(start_procs) > 1:
             raise OpgeeException(
-                f"""Only one process per cycle can have cycle-start="true"; found {len(start_procs)}: {start_procs}""")
+                f"""Only one process can have cycle-start="true"; found {len(start_procs)}: {start_procs}""")
+
+        max_iter = self.model.maximum_iterations
 
         if procs_in_cycles:
             # Walk the cycle, starting at the indicated start process to generate an ordered list
@@ -533,25 +534,34 @@ class Field(Container):
             if start_procs:
                 ordered_cycle = []
 
-                # recursive function to walk successors until we've visited all the procs in the cycle
+                # recursive function to walk successors until we've visited all the procs in cycles
                 def process_successors(proc):
-                    if unvisited:
-                        if proc in unvisited:
-                            unvisited.remove(proc)
-                            ordered_cycle.append(proc)
+                    if proc in unvisited:
+                        unvisited.remove(proc)
+                        ordered_cycle.append(proc)
 
-                            for successor in proc.successors():
-                                process_successors(successor)
+                        for successor in proc.successors():
+                            process_successors(successor)
 
                 process_successors(start_procs[0])
+
+                # add in any processes in cycles not reachable from the start proc
+                for other in list(unvisited):
+                    process_successors(other)
+
             else:
                 # TBD: Compute ordering by looking for procs in cycle that are successors to
                 #      cycle_independent procs. For now, just copy run using procs_in_cycles.
                 ordered_cycle = procs_in_cycles
 
             # Iterate on the processes in cycle until a termination condition is met and an
-            # OpgeeStopIteration exception is thrown.
+            # OpgeeStopIteration exception is thrown, or we exceed max iterations.
+            iter_count = 0
             while True:
+                iter_count += 1
+                if iter_count > max_iter:
+                    raise OpgeeMaxIterationsReached(f"Maximum iterations ({max_iter}) reached without convergence")
+
                 try:
                     for proc in ordered_cycle:
                         proc.run_if_enabled(analysis)
