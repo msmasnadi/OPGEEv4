@@ -42,12 +42,12 @@ class Flaring(Process):
         gas_to_flare = Stream("gas_to_flare", tp=input.tp)
         gas_to_flare.copy_flow_rates_from(input)
         gas_to_flare.multiply_flow_rates(frac_gas_flared.m)
-        gas_to_flare.subtract_gas_rates_from(methane_slip)
+        gas_to_flare.subtract_rates_from(methane_slip)
 
         venting_gas = self.find_output_stream("gas")
         venting_gas.copy_flow_rates_from(input)
-        venting_gas.subtract_gas_rates_from(gas_to_flare)
-        venting_gas.subtract_gas_rates_from(methane_slip)
+        venting_gas.subtract_rates_from(gas_to_flare)
+        venting_gas.subtract_rates_from(methane_slip)
 
         self.set_iteration_value(venting_gas.total_flow_rate())
 

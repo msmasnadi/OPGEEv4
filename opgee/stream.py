@@ -534,10 +534,11 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.initialized = True
         self.components += stream.components
 
-    def subtract_gas_rates_from(self, stream):
+    def subtract_rates_from(self, stream, phase=PHASE_GAS):
         """
         Subtract the gas mass flow rates of ``stream`` from our own.
 
+        :param phase: solid, liquid, gas phase
         :param stream: (Stream) the source of the rates to subtract
         :return: none
         """
@@ -545,7 +546,7 @@ class Stream(XmlInstantiable, AttributeMixin):
             return
 
         self.initialized = True
-        self.components[PHASE_GAS] -= stream.components[PHASE_GAS]
+        self.components[phase] -= stream.components[phase]
 
     def add_combustion_CO2_from(self, stream):
         """

@@ -31,7 +31,7 @@ class PreMembraneCompressor(Process):
 
         gas_to_CO2_membrane = self.find_output_stream("gas for CO2 membrane")
         gas_to_CO2_membrane.copy_flow_rates_from(input)
-        gas_to_CO2_membrane.subtract_gas_rates_from(gas_fugitives)
+        gas_to_CO2_membrane.subtract_rates_from(gas_fugitives)
 
         overall_compression_ratio = self.discharge_press / input.pressure
         energy_consumption, output_temp, output_press = \

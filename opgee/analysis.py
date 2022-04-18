@@ -164,7 +164,7 @@ class Analysis(Container):
     #     hydrocarbons = Stream._hydrocarbons
     #     carbon_number = gas
     #     gas = carbon_to_molecule(gas) if gas in hydrocarbons else gas
-    #     non_methane_hydrocarbons = Stream._non_mathane_hydrocarbons
+    #     non_methane_hydrocarbons = Stream._non_methane_hydrocarbons
     #
     #     if carbon_number in non_methane_hydrocarbons:
     #         result = self.gwp["VOC"]

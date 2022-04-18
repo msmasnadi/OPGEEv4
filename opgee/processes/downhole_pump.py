@@ -18,9 +18,6 @@ class DownholePump(Process):
         self.field = field = self.get_field()
         self.downhole_pump = field.attr("downhole_pump")
         self.gas_lifting = field.attr("gas_lifting")
-        if not self.downhole_pump and not self.gas_lifting:
-            self.enabled = False
-            return
         self.res_temp = field.attr("res_temp")
         self.oil_volume_rate = field.attr("oil_prod")
         self.eta_pump_well = self.attr("eta_pump_well")
@@ -33,9 +30,15 @@ class DownholePump(Process):
         self.gravitational_acceleration = field.model.const("gravitational-acceleration")
         self.prime_mover_type = self.attr("prime_mover_type")
 
+        self.oil_sand_mine = field.attr("oil_sands_mine")
+
     def run(self, analysis):
         self.print_running_msg()
         field = self.field
+
+        if self.oil_sand_mine != "None":
+            self.enabled = False
+            return
 
         # mass rate
         input = self.find_input_stream("crude oil")
@@ -55,7 +58,7 @@ class DownholePump(Process):
         output.copy_flow_rates_from(input, tp=field.wellhead_tp)
         if lift_gas.initialized:
             output.add_flow_rates_from(lift_gas)
-        output.subtract_gas_rates_from(gas_fugitives)
+        output.subtract_rates_from(gas_fugitives)
         self.set_iteration_value(output.total_flow_rate())
 
         # energy use

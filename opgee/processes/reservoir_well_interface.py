@@ -16,6 +16,7 @@ class ReservoirWellInterface(Process):
 
         self.res_tp = TemperaturePressure(field.attr("res_temp"),
                                           field.attr("res_press"))
+        self.oil_sand_mine = field.attr("oil_sands_mine")
 
         self.num_prod_wells = field.attr("num_prod_wells")
         self.productivity_index = field.attr("prod_index")
@@ -31,6 +32,10 @@ class ReservoirWellInterface(Process):
     def run(self, analysis):
         self.print_running_msg()
         field = self.field
+
+        if self.oil_sand_mine != "None":
+            self.enabled = False
+            return
 
         # mass rate
         input = self.find_input_stream("crude oil")

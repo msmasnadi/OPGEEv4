@@ -99,7 +99,7 @@ class GasReinjectionCompressor(Process):
 
         gas_to_well = self.find_output_stream("gas for gas reinjection well")
         gas_to_well.copy_flow_rates_from(input)
-        gas_to_well.subtract_gas_rates_from(gas_fugitives)
+        gas_to_well.subtract_rates_from(gas_fugitives)
 
         self.set_iteration_value(gas_to_well.total_flow_rate())
 

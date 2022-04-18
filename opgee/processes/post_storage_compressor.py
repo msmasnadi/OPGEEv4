@@ -53,7 +53,7 @@ class PostStorageCompressor(Process):
         gas_to_distribution.copy_gas_rates_from(input)
         gas_to_distribution.tp.set(T=output_temp, P=self.discharge_press)
 
-        gas_to_distribution.subtract_gas_rates_from(gas_fugitives)
+        gas_to_distribution.subtract_rates_from(gas_fugitives)
 
         # import/export
         # import_product = field.import_export

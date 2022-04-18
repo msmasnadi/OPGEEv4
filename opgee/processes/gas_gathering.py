@@ -25,7 +25,7 @@ class GasGathering(Process):
 
         gas_to_dehydration = self.find_output_stream("gas")
         gas_to_dehydration.copy_flow_rates_from(input)
-        gas_to_dehydration.subtract_gas_rates_from(gas_fugitives)
+        gas_to_dehydration.subtract_rates_from(gas_fugitives)
 
         self.set_iteration_value(gas_to_dehydration.total_flow_rate())
 

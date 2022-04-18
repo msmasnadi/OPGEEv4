@@ -90,13 +90,13 @@ class Demethanizer(Process):
 
         gas_to_gather = self.find_output_stream("gas for gas partition")
         gas_to_gather.copy_flow_rates_from(input)
-        gas_to_gather.subtract_gas_rates_from(gas_fugitives)
+        gas_to_gather.subtract_rates_from(gas_fugitives)
         gas_to_gather.set_rates_from_series(fuel_gas_mass, PHASE_GAS)
 
         gas_to_LNG = self.find_output_stream("gas for NGL")
         gas_to_LNG.copy_flow_rates_from(input)
         gas_to_LNG.tp.set(T=STP.T)
-        gas_to_LNG.subtract_gas_rates_from(gas_to_gather)
+        gas_to_LNG.subtract_rates_from(gas_to_gather)
         C2_mass_rate = gas_to_LNG.gas_flow_rate("C2")
         gas_to_LNG.set_gas_flow_rate("C2", ureg.Quantity(0., "tonne/day"))
 

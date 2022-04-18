@@ -19,13 +19,17 @@ class HeavyOilUpgrading(Process):
         self.oil = self.field.oil
         self.water = self.field.water
         self.upgrader_gas_comp = field.imported_gas_comp["Upgrader Gas"]
-        self.oil_sand_mine = self.attr("oil_sands_mine")
+        self.oil_sands_mine = field.attr("oil_sands_mine")
         self.fraction_elec_onsite = field.attr("fraction_elec_onsite")
         self.cogeneration_upgrading = self.attr("cogeneration_upgrading")
         self.NG_heating_value = self.model.const("NG-heating-value")
         self.petro_coke_heating_value = self.model.const("petrocoke-heating-value")
         self.mole_to_scf = self.model.const("mol-per-scf")
-        self.upgrader_type = self.field.attr("upgrader_type")
+        self.upgrader_type = field.attr("upgrader_type")
+
+        self.upgrading_insitu_oil = True \
+            if self.upgrader_type != "None" and \
+               self.oil_sands_mine != "Non-integrated with upgrader" else False
 
     def run(self, analysis):
         self.print_running_msg()
@@ -35,9 +39,11 @@ class HeavyOilUpgrading(Process):
             return
 
         # mass rate
-        input_oil = self.find_input_streams("oil for upgrading", combine=True)
+        input_oil = self.find_input_stream("oil for upgrading", raiseError=False)
+        input_bitumen = self.find_input_stream("bitumen for upgrading", raiseError=False)
 
-        if input_oil.is_uninitialized():
+        if (input_oil is not None and input_oil.is_uninitialized()) or\
+                (input_bitumen is not None and input_bitumen.is_initialized()):
             return
 
         df = self.model.heavy_oil_upgrading
@@ -53,16 +59,24 @@ class HeavyOilUpgrading(Process):
         heavy_oil_upgrading_table = df[self.upgrader_type]
         heavy_oil_upgrading_table.index = df["Items"]
 
-        upgrading_insitu = True if self.upgrader_type is not None and self.oil_sand_mine != "Without upgrader" else False
         upgrader_process_gas_MW = (self.upgrader_gas_comp * self.oil.component_MW[self.upgrader_gas_comp.index]).sum()
         upgrader_process_gas_heating_value = (self.upgrader_gas_comp *
                                               self.oil.component_LHV_molar[self.upgrader_gas_comp.index] *
                                               self.mole_to_scf).sum()
-
-        oil_mass_rate = input_oil.liquid_flow_rate("oil")  # TODO: if upgrading_insitu else oil_vol_rate
-        oil_vol_rate = oil_mass_rate / (self.oil.oil_specific_gravity * self.water.density())
         SCO_bitumen_ratio = heavy_oil_upgrading_table["SCO/bitumen ratio"]
-        SCO_output = oil_vol_rate * SCO_bitumen_ratio
+
+        oil_mass_rate = input_oil.liquid_flow_rate("oil") if input_oil is not None else ureg.Quantity(0.0, "tonne/day")
+        oil_vol_rate = oil_mass_rate / (self.oil.oil_specific_gravity * self.water.density())
+        bitumen_mass_rate =\
+            input_bitumen.liquid_flow_rate("oil") if input_bitumen is not None else ureg.Quantity(0.0, "tonne/day")
+        bitumen_vol_rate = bitumen_mass_rate / (self.oil.oil_specific_gravity * self.water.density())
+        if self.upgrading_insitu_oil:
+            SCO_output = (bitumen_vol_rate + oil_vol_rate) * SCO_bitumen_ratio
+        else:
+            if self.oil_sands_mine == "Integrated with upgrader":
+                SCO_output = SCO_bitumen_ratio * oil_vol_rate
+            else:
+                SCO_output = ureg.Quantity(0.0, "tonne/day")
 
         coke_dict = d["Coke yield per bbl SCO output"] * SCO_output
         coke_to_stockpile_and_transport = coke_dict["Fraction coke exported"] + coke_dict["Fraction coke stockpiled"]
@@ -81,7 +95,7 @@ class HeavyOilUpgrading(Process):
         proc_gas_exported = proc_gas_dict["Fraction PG exported"]
         proc_gas_flared = proc_gas_dict["Fraction PG flared"]
 
-        output_proc_gas = Stream("proccess_gas", tp=self.field.stp)
+        output_proc_gas = Stream("process_gas", tp=self.field.stp)
         proc_gas_mass_rate = (self.upgrader_gas_comp *
                               self.oil.component_MW[self.upgrader_gas_comp.index] *
                               proc_gas_exported *
@@ -122,7 +136,6 @@ class HeavyOilUpgrading(Process):
         energy_use.set_rate(EN_ELECTRICITY, elect_import.to("mmBtu/day"))
 
         # import/export
-        # import_product = field.import_export
         self.set_import_from_energy(energy_use)
 
         # emission
@@ -131,4 +144,3 @@ class HeavyOilUpgrading(Process):
         combustion_emission = (energy_for_combustion * self.process_EF).sum()
         emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
         emissions.set_from_series(EM_FLARING, proc_gas_flaring_rate.pint.to("tonne/day"))
-

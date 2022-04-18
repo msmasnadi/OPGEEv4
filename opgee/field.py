@@ -124,6 +124,7 @@ class Field(Container):
         """
         For procs tagged 'after="True"', allow outputs only to other "after" procs.
         """
+
         def _run_after_ok(proc):
             for dst in proc.successors():
                 if not dst.run_after:
@@ -132,7 +133,8 @@ class Field(Container):
 
         bad = [proc for proc in self.processes() if proc.run_after and not _run_after_ok(proc)]
         if bad:
-            raise OpgeeException(f"Processes {bad} are tagged 'after=True' but have output streams to non-'after' processes")
+            raise OpgeeException(
+                f"Processes {bad} are tagged 'after=True' but have output streams to non-'after' processes")
 
         return True
 
@@ -173,7 +175,7 @@ class Field(Container):
         self.product_boundaries = model.product_boundaries
 
         self.resolve_process_choices()
-        self._check_run_after_procs()       # TBD: write test
+        self._check_run_after_procs()  # TBD: write test
 
         # we use networkx to reason about the directed graph of Processes (nodes)
         # and Streams (edges).
@@ -345,7 +347,7 @@ class Field(Container):
         imported_emissions = self.get_imported_emissions(net_import)
         total_emissions = onsite_emissions + imported_emissions
 
-        #TODO: add option for displacement method
+        # TODO: add option for displacement method
         # fn_unit = NATURAL_GAS if analysis.fn_unit == 'gas' else CRUDE_OIL
         # byproduct_names = self.product_names.drop(fn_unit)
         # byproduct_carbon_credit = self.get_carbon_credit(byproduct_names, analysis)
@@ -461,7 +463,8 @@ class Field(Container):
             _logger.debug(f"{stream} (tonne/day)\n{dequantify_dataframe(stream.components)}\n")
 
         _logger.debug(f"{self}\nEnergy consumption:\n{self.energy.data}")
-        _logger.debug(f"\nCumulative emissions to environment (tonne/day):\n{dequantify_dataframe(self.emissions.data)}")
+        _logger.debug(
+            f"\nCumulative emissions to environment (tonne/day):\n{dequantify_dataframe(self.emissions.data)}")
         _logger.debug(f"Total: {self.ghgs} CO2eq")
 
     def _is_cycle_member(self, process):
@@ -558,9 +561,16 @@ class Field(Container):
                 #      cycle_independent procs. For now, just copy run using procs_in_cycles.
                 ordered_cycle = procs_in_cycles
 
-            # Iterate on the processes in cycle until a termination condition is met and an
+            def allConverged(proc_list):
+                for proc in proc_list:
+                    if not proc.iteration_converged:
+                        return False
+
+                return True
+
+            # Iterate on the processes in cycle until all processes are converged and an
             # OpgeeStopIteration exception is thrown.
-            while True:
+            while not allConverged(ordered_cycle):
                 try:
                     for proc in ordered_cycle:
                         proc.run_if_enabled(analysis)

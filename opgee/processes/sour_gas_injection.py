@@ -24,7 +24,7 @@ class SourGasInjection(Process):
 
         gas_to_reservoir = self.find_output_stream("gas for reservoir")
         gas_to_reservoir.copy_flow_rates_from(input)
-        gas_to_reservoir.subtract_gas_rates_from(gas_fugitives)
+        gas_to_reservoir.subtract_rates_from(gas_fugitives)
 
         # emissions
         emissions = self.emissions

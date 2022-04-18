@@ -7,7 +7,6 @@
 	  <A name="GWP_horizon">100</A>
 	  <A name="GWP_version">AR5</A>
 	  <Field name="test"/>
-<!--		<Field name="bitumen"/> -->
 	</Analysis>
 
 	<Field name="test">
@@ -43,19 +42,19 @@
 			<Contains>water</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="Output" name="stabilization">
+		<Stream src="CrudeOilDewatering" dst="After" name="stabilization">
 			<Contains>oil for stabilization</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="Output" name="upgrader">
+		<Stream src="CrudeOilDewatering" dst="After" name="upgrader">
 			<Contains>oil for upgrader</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="Output" name="dilution">
+		<Stream src="CrudeOilDewatering" dst="After" name="dilution">
 			<Contains>oil for dilution</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="Output" name="storage">
+		<Stream src="CrudeOilDewatering" dst="After" name="storage">
 			<Contains>oil for storage</Contains>
 		</Stream>
 
@@ -63,14 +62,14 @@
 			<Contains>water</Contains>
 		</Stream>
 
-		<Stream src="WaterTreatment" dst="Output" name="produced water treatment to steam">
+		<Stream src="WaterTreatment" dst="After" name="produced water treatment to steam">
 			<Contains>water for steam generation</Contains>
 			<Contains>water for reinjection</Contains>
 			<Contains>water for surface disposal</Contains>
 			<Contains>water for subsurface disposal</Contains>
 		</Stream>
 
-		<Stream src="Separation" dst="Output" name="gas after separator">
+		<Stream src="Separation" dst="After" name="gas after separator">
 			<Contains>gas</Contains>
 		</Stream>
 
@@ -89,15 +88,15 @@
 		</Stream>
 
 		<!-- TODO: Output should not be a source -->
-		<Stream src="After" dst="DownholePump" name="lifting gas" impute="False">
+		<Stream src="Output" dst="DownholePump" name="lifting gas" impute="False">
 			<Contains>lifting gas</Contains>
 		</Stream>
 
-		<Stream src="After" dst="ReservoirWellInterface" name="flooding CO2" impute="False">
+		<Stream src="Output" dst="ReservoirWellInterface" name="flooding CO2" impute="False">
 			<Contains>CO2</Contains>
 		</Stream>
 
-		<Stream src="After" dst="WaterTreatment" name="blowdown recycled to treatment" impute="False">
+		<Stream src="Output" dst="WaterTreatment" name="blowdown recycled to treatment" impute="False">
 			<Contains>water</Contains>
 		</Stream>
 	</Field>

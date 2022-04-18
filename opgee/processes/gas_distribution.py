@@ -31,7 +31,7 @@ class GasDistribution(Process):
 
         gas_to_customer = self.find_output_stream("gas")
         gas_to_customer.copy_flow_rates_from(input)
-        gas_to_customer.subtract_gas_rates_from(gas_fugitives)
+        gas_to_customer.subtract_rates_from(gas_fugitives)
 
         gas_mass_rate = gas_to_customer.total_gas_rate()
         gas_mass_energy_density = self.gas.mass_energy_density(gas_to_customer)

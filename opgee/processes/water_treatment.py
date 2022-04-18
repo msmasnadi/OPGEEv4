@@ -40,9 +40,15 @@ class WaterTreatment(Process):
 
         self.init_intermediate_results(["Produced Water", "Makeup Water"])
 
+        self.oil_sand_mine = field.attr("oil_sands_mine")
+
     def run(self, analysis):
         self.print_running_msg()
         field = self.field
+
+        if self.oil_sand_mine != "None":
+            self.enabled = False
+            return
 
         # mass rate
         input = self.find_input_streams("water", combine=True)

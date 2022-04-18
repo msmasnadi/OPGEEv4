@@ -57,7 +57,7 @@ class StorageCompressor(Process):
         gas_to_well = self.find_output_stream("gas for well")
         gas_to_well.copy_flow_rates_from(input, phase=PHASE_GAS)
         gas_to_well.tp.set(T=output_temp, P=self.discharge_press)
-        gas_to_well.subtract_gas_rates_from(gas_fugitives)
+        gas_to_well.subtract_rates_from(gas_fugitives)
 
         # emissions
         emissions = self.emissions

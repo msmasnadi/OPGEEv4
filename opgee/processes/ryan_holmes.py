@@ -34,17 +34,17 @@ class RyanHolmes(Process):
 
         gas_to_partition = self.find_output_stream("gas for gas partition")
         gas_to_partition.copy_flow_rates_from(input)
-        gas_to_partition.subtract_gas_rates_from(gas_fugitives)
+        gas_to_partition.subtract_rates_from(gas_fugitives)
         gas_to_partition.multiply_factor_from_series(self.RH_process_tbl.loc[:, "Light HC"], PHASE_GAS)
 
         gas_to_NGL = self.find_output_stream("gas for NGL")
         gas_to_NGL.copy_flow_rates_from(input)
-        gas_to_NGL.subtract_gas_rates_from(gas_fugitives)
+        gas_to_NGL.subtract_rates_from(gas_fugitives)
         gas_to_NGL.multiply_factor_from_series(self.RH_process_tbl.loc[:, "Heavy HC"], PHASE_GAS)
 
         gas_to_CO2_reinjection = self.find_output_stream("gas for CO2 compressor")
         gas_to_CO2_reinjection.copy_flow_rates_from(input)
-        gas_to_CO2_reinjection.subtract_gas_rates_from(gas_fugitives)
+        gas_to_CO2_reinjection.subtract_rates_from(gas_fugitives)
         gas_to_CO2_reinjection.multiply_factor_from_series(self.RH_process_tbl.loc[:, "CO2-rich"], PHASE_GAS)
 
         # Ryan-Holmes Process

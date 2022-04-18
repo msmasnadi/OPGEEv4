@@ -4,6 +4,7 @@ from opgee import ureg
 from ..constants import year_to_day
 from ..energy import EN_DIESEL
 from ..emissions import EM_COMBUSTION
+from .transport_energy import TransportEnergy
 
 _logger = getLogger(__name__)
 
@@ -43,10 +44,26 @@ class Exploration(Process):
              self.horizontal_drill_energy_intensity * self.frac_wells_horizontal * self.length_lateral) * self.num_wells
         self.drill_energy_consumption = field.model.const("diesel-LHV") * self.drill_fuel_consumption
 
+        self.transport_share_fuel = field.transport_share_fuel.loc["Crude"]
+        self.transport_parameter = field.transport_parameter[["Crude", "Units"]]
+        self.frac_transport_mode = field.attrs_with_prefix("frac_transport_").rename("Fraction")
+        self.transport_dist = field.attrs_with_prefix("transport_dist_").rename("Distance")
+        self.transport_by_mode = self.frac_transport_mode.to_frame().join(self.transport_dist)
+
     def run(self, analysis):
         self.print_running_msg()
 
         field = self.field
+
+        oil_mass_energy_density = field.oil.mass_energy_density()
+        if self.field.get_process_data("crude_LHV") is None:
+            self.field.save_process_data(crude_LHV=oil_mass_energy_density)
+        _ = TransportEnergy.get_transport_energy_dict(field,
+                                                      self.transport_parameter,
+                                                      self.transport_share_fuel,
+                                                      self.transport_by_mode,
+                                                      ureg.Quantity(1.0, "btu/day"),
+                                                      "Crude")
         ocean_tank_energy_intensity = field.get_process_data("ocean_tanker_dest_energy_intensity")
         truck_energy_intensity = field.get_process_data("energy_intensity_truck")
 

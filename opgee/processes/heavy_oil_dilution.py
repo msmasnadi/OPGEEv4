@@ -2,6 +2,10 @@ from .. import ureg
 from ..core import TemperaturePressure
 from ..process import Process
 from ..stream import Stream
+from opgee.processes.transport_energy import TransportEnergy
+from .shared import get_energy_carrier
+from ..emissions import EM_COMBUSTION
+from ..import_export import ImportExport, DILUENT
 
 
 class HeavyOilDilution(Process):
@@ -35,35 +39,35 @@ class HeavyOilDilution(Process):
         self.final_mix_tp = TemperaturePressure(self.attr("final_mix_temp"),
                                                 self.attr("final_mix_press"))
 
+        self.transport_share_fuel = field.transport_share_fuel.loc["Diluent"]
+        self.transport_parameter = field.transport_parameter[["Diluent", "Units"]]
+        self.transport_by_mode = field.transport_by_mode.loc["Diluent"]
+
     def run(self, analysis):
         self.print_running_msg()
+        field =self.field
 
         if self.frac_diluent.m == 0.0 or not self.all_streams_ready("oil for dilution"):
             return
 
         # mass rate
-        input = self.find_input_streams("oil for dilution", combine=True)
+        input_oil = self.find_input_stream("oil for dilution", raiseError=False)
+        input_bitumen = self.find_input_stream("bitumen for dilution", raiseError=False)
 
-        if input.is_uninitialized():
+        if (input_oil is not None and input_oil.is_uninitialized()) or \
+                (input_bitumen is not None and input_bitumen.is_initialized()):
             return
 
         output = self.find_output_stream("oil for storage")
-        total_mass_rate = input.liquid_flow_rate("oil")
-        output.set_liquid_flow_rate("oil", total_mass_rate, TP=self.final_mix_tp)
-
-    def impute(self):
-
-        input_streams = self.find_input_streams("oil for dilution")
-        bitumen_stream = self.find_input_stream("bitumen for dilution")
-        if bitumen_stream is not None:
-            bitumen_mass_rate = self.get_bitumen_mass_rate()
-            bitumen_stream.set_liquid_flow_rate("oil", bitumen_mass_rate.to("tonne/day"), tp=self.bitumen_tp)
-
-        input = self.find_input_streams("oil for dilution", combine=True)
+        oil_mass_rate = input_oil.liquid_flow_rate("oil") if input_oil is not None else ureg.Quantity(0.0, "tonne/day")
+        bitumen_mass_rate =\
+            input_bitumen.liquid_flow_rate("oil") if input_bitumen is not None else ureg.Quantity(0.0, "tonne/day")
+        total_mass_rate = oil_mass_rate + bitumen_mass_rate
+        output.set_liquid_flow_rate("oil", total_mass_rate, tp=self.final_mix_tp)
 
         frac_diluent = self.frac_diluent
 
-        total_mass_oil_bitumen_before_dilution = input.liquid_flow_rate("oil")
+        total_mass_oil_bitumen_before_dilution = total_mass_rate
         final_SG = self.oil_SG if self.oil_sand_mine is None else self.bitumen_SG
         total_volume_oil_bitumen_before_dilution = 0 if frac_diluent == 1 else \
             total_mass_oil_bitumen_before_dilution / final_SG / self.water_density
@@ -101,30 +105,29 @@ class HeavyOilDilution(Process):
                              total_mass_oil_bitumen_before_dilution *
                              heavy_oil_energy_density_vol) / required_mass_dilution
 
-        input_dilution_transport = input_streams["dilution transport to heavy oil dilution"]
-        input_dilution_transport.set_liquid_flow_rate("oil", required_mass_dilution.to("tonne/day"), tp=self.diluent_tp)
-
         self.field.save_process_data(final_diluent_LHV_mass=final_diluent_LHV_mass)
 
-    def get_bitumen_mass_rate(self):
-        """
-        Calculate bitumen mass rate
+        oil_mass_energy_density = self.oil.mass_energy_density(self.diluent_API)
+        oil_LHV_rate = required_mass_dilution * oil_mass_energy_density
 
-        :return:
-        """
-        upgrader_type = self.field.attr("upgrader_type")
+        fuel_consumption = TransportEnergy.get_transport_energy_dict(self.field,
+                                                                     self.transport_parameter,
+                                                                     self.transport_share_fuel,
+                                                                     self.transport_by_mode,
+                                                                     oil_LHV_rate,
+                                                                     "Diluent")
 
-        # TODO: Reliance on string matching is brittle. If a modeler changes a name, the code breaks.
-        #       Rethink this. One option is to have a file that registers names that are relied on in the
-        #       code and assigns them to "official" variable names so they are centralized and documented.
-        non_integrated_with_upgrader = "Non-integrated with upgrader"
+        energy_use = self.energy
+        for name, value in fuel_consumption.items():
+            energy_use.set_rate(get_energy_carrier(name), value.to("mmBtu/day"))
 
-        upgrader_mining_prod_offsite = 1 if (self.oil_sand_mine is None or
-                                             self.oil_sand_mine == non_integrated_with_upgrader) \
-                                            and self.downhole_pump == 0 and upgrader_type is not None else 0
+        # import/export
+        import_product = field.import_export
+        self.set_import_from_energy(energy_use)
+        import_product.set_export(self.name, DILUENT, oil_LHV_rate)
 
-        bitumen_mass_rate = self.oil_prod_rate * self.bitumen_SG * self.water_density \
-            if upgrader_mining_prod_offsite == 0 and \
-               self.oil_sand_mine == non_integrated_with_upgrader else ureg.Quantity(0.0, "tonne/day")
-
-        return bitumen_mass_rate
+        # emission
+        emissions = self.emissions
+        energy_for_combustion = energy_use.data.drop("Electricity")
+        combustion_emission = (energy_for_combustion * self.process_EF).sum()
+        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)

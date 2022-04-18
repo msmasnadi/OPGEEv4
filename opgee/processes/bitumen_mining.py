@@ -22,6 +22,7 @@ class BitumenMining(Process):
     field data stored:
         -
     """
+
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
@@ -37,6 +38,16 @@ class BitumenMining(Process):
 
         self.mined_bitumen_tp = TemperaturePressure(field.attr("temperature_mined_bitumen"),
                                                     field.attr("pressure_mined_bitumen"))
+        self.downhole_pump = field.attr("downhole_pump")
+        self.oil_prod_rate = field.attr("oil_prod")
+        self.upgrader_type = self.field.attr("upgrader_type")
+        self.upgrader_mining_prod_offsite = True \
+            if self.oil_sands_mine != "Integrated with upgrader" and \
+               self.downhole_pump == 0 and \
+               self.upgrader_type != None else False
+        self.upgrading_insitu_oil = True \
+            if self.upgrader_type != None and \
+               self.oil_sands_mine != "Non-integrated with upgrader" else False
 
         self.gas_comp = field.attrs_with_prefix("gas_comp_")
         self.FOR = field.attr("FOR")
@@ -49,14 +60,24 @@ class BitumenMining(Process):
         self.print_running_msg()
         field = self.field
 
-        # mass rate
-        input = self.find_input_stream("oil")
+        bitumen_to_dilution_mass_rate = \
+            self.oil_prod_rate * self.bitumen_SG * self.water_density \
+                if self.upgrader_mining_prod_offsite is False and \
+                   self.oil_sands_mine == "Non-integrated with upgrader" \
+                else ureg.Quantity(0.0, "tonne/day")
 
-        if input.is_uninitialized():
-            return
+        bitumen_to_dilution_stream = self.find_output_stream("bitumen for dilution")
 
-        bitumen_mass_rate = input.liquid_flow_rate("oil")
-        bitumen_volume_rate = bitumen_mass_rate / self.bitumen_SG / self.water_density
+        bitumen_to_upgrading_mass_rate = \
+            self.oil_prod_rate * self.bitumen_SG * self.water_density \
+                if self.upgrading_insitu_oil is False and \
+                   self.oil_sands_mine is "Integrated with upgrader" and \
+                   self.downhole_pump is False \
+                else ureg.Quantity(0.0, "tonne/day")
+
+
+        bitumen_mass_rate_tot = bitumen_to_dilution_mass_rate + bitumen_to_upgrading_mass_rate
+        bitumen_volume_rate = bitumen_mass_rate_tot / self.bitumen_SG / self.water_density
 
         d = self.model.mining_energy_intensity
 
@@ -89,7 +110,6 @@ class BitumenMining(Process):
         energy_use.set_rate(EN_ELECTRICITY, electricity_consumption.to("mmBtu/day"))
 
         # import/export
-        # import_product = field.import_export
         self.set_import_from_energy(energy_use)
 
         # emissions
@@ -100,10 +120,10 @@ class BitumenMining(Process):
 
         emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
 
-    def impute(self):
-
-        input_dilution = self.find_output_stream("bitumen for dilution")
-
-        oil_mass_rate = input_dilution.liquid_flow_rate("oil")
-        input = self.find_input_stream("oil")
-        input.set_liquid_flow_rate("oil", oil_mass_rate, self.mined_bitumen_tp)
+    # def impute(self):
+    #
+    #     input_dilution = self.find_output_stream("bitumen for dilution")
+    #
+    #     oil_mass_rate = input_dilution.liquid_flow_rate("oil")
+    #     input = self.find_input_stream("oil")
+    #     input.set_liquid_flow_rate("oil", oil_mass_rate, self.mined_bitumen_tp)

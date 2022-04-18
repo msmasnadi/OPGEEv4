@@ -3,25 +3,14 @@
 	<Analysis name="test">
 		<A name="functional_unit">oil</A>
 		<A name="energy_basis">LHV</A>
-		<Field name="test"/>
+		<Field name="test_single_loop"/>
+		<Field name="test_double_loops"/>
 	</Analysis>
 
-	<Field name="test">
-		<A name="country">USA</A>
-		<A name="offshore">0</A>
-		<A name="age">86</A>
-		<A name="depth">4936</A>
-		<A name="oil_prod">101295</A>
-		<A name="num_prod_wells">41539</A>
-		<A name="num_water_inj_wells">34426</A>
-		<A name="well_diam">3.01</A>
-		<A name="prod_index">37.53</A>
-		<A name="res_press">887.31</A>
-		<A name="res_temp">70.84</A>
-		<A name="GOR">1205.4</A>
+	<Field name="test_single_loop">
 
 		<Process class="LoopProc1" desc="Test process 1"/>
-		<Process class="LoopProc2" desc="Test process 2"/>
+		<Process class="LoopProc2" desc="Test process 2" cycle-start="true"/>
 		<Process class="LoopProc3" desc="Test process 3"/>
 		<Process class="Boundary" boundary="Production" desc="Test process 4"/>
 
@@ -29,20 +18,63 @@
 			<A name="temperature">90.0</A>
 			<A name="pressure">150.0</A>
 			<Component name="oil" phase="liquid">100</Component>
+			<Component name="H2O" phase="liquid">80</Component>
+			<Component name="C1" phase="gas">200</Component>
 			<Contains>crude oil</Contains>
 		</Stream>
 
 		<!-- Creates a process loop -->
 		<Stream src="LoopProc2" dst="LoopProc3">
-			<Contains>natural gas</Contains>
+			<Contains>crude oil</Contains>
 		</Stream>
 
 		<Stream src="LoopProc3" dst="LoopProc2">
-			<Contains>hydrogen</Contains>
+			<Contains>water</Contains>
 		</Stream>
 
 		<Stream src="LoopProc3" dst="ProductionBoundary">
-			<Contains>CO2</Contains>
+			<Contains>export oil</Contains>
+		</Stream>
+	</Field>
+
+
+	<Field name="test_double_loops">
+
+		<Process class="LoopProc1" desc="Test process 1" impute-start="true"/>
+		<Process class="LoopProc2" desc="Test process 2" cycle-start="true"/>
+		<Process class="LoopProc3" desc="Test process 3"/>
+		<Process class="LoopProc4" desc="Test process 4"/>
+		<Process class="Boundary" boundary="Production" desc="Test process 4"/>
+
+		<!-- Creates a process loop -->
+		<Stream src="LoopProc1" dst="LoopProc2">
+			<A name="temperature">90.0</A>
+			<A name="pressure">150.0</A>
+			<Component name="oil" phase="liquid">100</Component>
+			<Component name="H2O" phase="liquid">80</Component>
+			<Component name="C1" phase="gas">200</Component>
+			<Contains>crude oil</Contains>
+		</Stream>
+
+		<!-- Creates a process loop -->
+		<Stream src="LoopProc2" dst="LoopProc3">
+			<Contains>crude oil</Contains>
+		</Stream>
+
+		<Stream src="LoopProc3" dst="LoopProc2">
+			<Contains>water</Contains>
+		</Stream>
+
+		<Stream src="LoopProc3" dst="LoopProc4">
+			<Contains>export oil</Contains>
+		</Stream>
+
+		<Stream src="LoopProc4" dst="LoopProc1">
+			<Contains>lifting gas</Contains>
+		</Stream>
+
+		<Stream src="LoopProc4" dst="ProductionBoundary">
+			<Contains>export oil</Contains>
 		</Stream>
 	</Field>
 </Model>

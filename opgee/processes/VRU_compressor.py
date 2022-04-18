@@ -42,7 +42,7 @@ class VRUCompressor(Process):
                 input)
 
         gas_to_gathering.copy_flow_rates_from(input)
-        gas_to_gathering.subtract_gas_rates_from(gas_fugitives)
+        gas_to_gathering.subtract_rates_from(gas_fugitives)
         gas_to_gathering.tp.set(T=output_temp, P=self.discharge_press)
 
         self.set_iteration_value(gas_to_gathering.total_flow_rate())

@@ -904,7 +904,10 @@ class Boundary(Process):
         super().__init__(name, **kwargs)
 
     def run(self, analysis):
-        pass
+        gas = self.find_input_stream("boundary gas")
+        petrocoke = self.find_input_stream("boundary petrocoke")
+
+
 
 
 class Reservoir(Process):
@@ -919,41 +922,6 @@ class Reservoir(Process):
     def run(self, analysis):
         self.print_running_msg()
 
-class Before(Process):
-    def run(self, analysis):
-        pass
-
-    def impute(self):
-        pass
-
-# class Environment(Process):
-#     """
-#     Represents the environment, which in OPGEE is just a sink for emissions. The Environment
-#     has only inputs (no outputs) and can be the destination (but not source) of streams. This
-#     restriction might change if air-capture of CO2 were introduced into the model. Each Analysis
-#     object holds a single Environment instance.
-#     """
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__('Environment', desc='The Environment')
-#         self.set_run_after(True)
-#
-#     def run(self, analysis):
-#         self.print_running_msg()
-#
-#         emissions = self.emissions
-#         emissions.reset()
-#
-#         # TBD: unclear whether this is useful
-#         for stream in self.inputs:
-#             emissions.add_from_stream(EM_OTHER, stream)
-#
-#         emissions.compute_GHG(analysis.gwp)  # compute and cache GWP in emissions instance
-#
-#     def report(self, analysis):
-#         print(f"{self}: cumulative emissions to Environment:\n{self.emissions}")
-
-
 # TBD: move this to tests/utils_for_tests.py after removing references from opgee.xml
 # Required to load opgee.xml and some test XML files
 class After(Process):
@@ -963,6 +931,12 @@ class After(Process):
     def impute(self):
         pass
 
+class Before(Process):
+    def run(self, analysis):
+        pass
+
+    def impute(self):
+        pass
 
 #
 # This class is defined here rather than in container.py to avoid import loops and to

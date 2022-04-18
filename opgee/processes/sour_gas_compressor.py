@@ -38,7 +38,7 @@ class SourGasCompressor(Process):
 
         gas_to_injection = self.find_output_stream("gas for sour gas injection")
         gas_to_injection.copy_flow_rates_from(input)
-        gas_to_injection.subtract_gas_rates_from(gas_fugitives)
+        gas_to_injection.subtract_rates_from(gas_fugitives)
 
         total_CO2_mass_rate = input.gas_flow_rate("CO2")
         if self.gas_flooding and self.flood_gas_type == "CO2":

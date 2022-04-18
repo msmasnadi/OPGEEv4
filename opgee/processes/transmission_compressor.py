@@ -81,20 +81,20 @@ class TransmissionCompressor(Process):
 
         gas_to_storage = self.find_output_stream("gas for storage")
         gas_to_storage.copy_gas_rates_from(input, tp=TemperaturePressure(output_temp_init, output_press_init))
-        gas_to_storage.subtract_gas_rates_from(gas_fugitives)
+        gas_to_storage.subtract_rates_from(gas_fugitives)
         gas_to_storage.multiply_flow_rates(self.gas_to_storage_frac.m)
 
         gas_tp = TemperaturePressure(output_temp_init, self.transmission_sys_discharge)
         gas_to_liquefaction = self.find_output_stream("LNG")
         gas_to_liquefaction.copy_gas_rates_from(input, tp=gas_tp)
-        gas_to_liquefaction.subtract_gas_rates_from(gas_fugitives)
+        gas_to_liquefaction.subtract_rates_from(gas_fugitives)
         gas_to_liquefaction.multiply_flow_rates(self.natural_gas_to_liquefaction_frac.m)
 
         gas_to_distribution = self.find_output_stream("gas for distribution")
         gas_to_distribution.copy_gas_rates_from(input, tp=gas_tp)
-        gas_to_distribution.subtract_gas_rates_from(gas_fugitives)
-        gas_to_distribution.subtract_gas_rates_from(gas_to_storage)
-        gas_to_distribution.subtract_gas_rates_from(gas_to_liquefaction)
+        gas_to_distribution.subtract_rates_from(gas_fugitives)
+        gas_to_distribution.subtract_rates_from(gas_to_storage)
+        gas_to_distribution.subtract_rates_from(gas_to_liquefaction)
 
         # emissions
         emissions = self.emissions

@@ -4,8 +4,8 @@
 	<Analysis name="test_gas_path_2">
 		<A name="functional_unit">oil</A>
 		<A name="energy_basis">LHV</A>
-	  <A name="GWP_horizon">100</A>
-	  <A name="GWP_version">AR5</A>
+		<A name="GWP_horizon">100</A>
+		<A name="GWP_version">AR5</A>
 		<Field name="test_gas_path_2"/>
 	</Analysis>
 
@@ -170,7 +170,6 @@
 		</Aggregator>
 
 		<Aggregator name="GasTransport">
-			<Process class="TransmissionCompressor"/>
 		</Aggregator>
 
 		<Aggregator name="OilTransport">
@@ -191,6 +190,9 @@
 		<Process class="GasLiftingCompressor"/>
 		<Process class="GasReinjectionCompressor"/>
 		<Process class="GasReinjectionWell"/>
+
+		<Process class="Boundary" boundary="Production"/>
+		<Process class="Boundary" boundary="Transportation"/>
 
 		<Stream src="Exploration" dst="Drilling" name="exploration to drilling">
 			<Contains>None</Contains>
@@ -254,11 +256,11 @@
 			<Contains>oil for storage</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilStorage" dst="CrudeOilTransport" name="crude oil storage to crude oil transport" boundary = "Production">
-			<Contains>oil for transport</Contains>
+		<Stream src="CrudeOilStorage" dst="ProductionBoundary" name="crude oil storage to production boundary">
+			<Contains>production boundary oil</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilTransport" dst="After" name="crude oil transport to after" boundary="Transportation">
+		<Stream src="CrudeOilTransport" dst="After" name="crude oil transport to after">
 			<Contains>oil for refinery</Contains>
 		</Stream>
 
@@ -266,11 +268,9 @@
 			<Contains>gas</Contains>
 		</Stream>
 
-
 		<Stream src="GasDehydration" dst="AcidGasRemoval" name="gas dehydration to acid gas removal">
 			<Contains>gas for AGR</Contains>
 		</Stream>
-
 
 		<Stream src="CrudeOilStorage" dst="VRUCompressor" name="crude oil storage to VRU compressor">
 			<Contains>gas for VRU</Contains>
@@ -293,10 +293,6 @@
 			<Contains>CO2</Contains>
 		</Stream>
 
-<!--		<Stream src="Output" dst="WaterTreatment" name="blowdown recycled to treatment" impute="False">-->
-<!--			<Contains>water</Contains>-->
-<!--		</Stream>-->
-
 		<Stream src="CrudeOilStorage" dst="Flaring" name="crude oil storage to flaring">
 			<Contains>gas for flaring</Contains>
 		</Stream>
@@ -309,6 +305,10 @@
 			<Contains>gas</Contains>
 		</Stream>
 
+		<Stream src="HeavyOilUpgrading" dst="ProductionBoundary" name="heavy oil upgrading to production boundary">
+			<Contains>boundary petrocoke</Contains>
+		</Stream>
+
 		<Stream src="GasDehydration" dst="PreMembraneChiller" name="gas dehydration to pre membrane chiller">
 			<Contains>gas for chiller</Contains>
 		</Stream>
@@ -316,7 +316,6 @@
 		<Stream src="PreMembraneChiller" dst="PreMembraneCompressor" name="pre membrane chiller to pre membrane compressor">
 			<Contains>gas for compressor</Contains>
 		</Stream>
-
 
 		<Stream src="PreMembraneCompressor" dst="CO2Membrane" name="pre membrane compressor to CO2 membrane">
 			<Contains>gas for CO2 membrane</Contains>
@@ -365,11 +364,6 @@
 			<Contains>gas for CO2 injection well</Contains>
 		</Stream>
 
-
-<!--		<Stream src="CO2InjectionWell" dst="Reservoir" name="CO2 injection well to reservoir" impute="false">-->
-<!--			<Contains>gas for reservoir</Contains>-->
-<!--		</Stream>-->
-
 		<Stream src="GasDehydration" dst="SourGasCompressor" name="gas dehydration to sour gas compressor">
 			<Contains>gas for sour gas compressor</Contains>
 		</Stream>
@@ -377,11 +371,6 @@
 		<Stream src="SourGasCompressor" dst="SourGasInjection" name="sour gas compressor to sour gas injection">
 			<Contains>gas for sour gas injection</Contains>
 		</Stream>
-
-
-<!--		<Stream src="SourGasInjection" dst="Reservoir" name="sour gas injection to reservoir" impute="false">-->
-<!--			<Contains>gas for reservoir</Contains>-->
-<!--		</Stream>-->
 
 		<Stream src="Demethanizer" dst="GasPartition" name="demethanizer to gas partition">
 			<Contains>gas for gas partition</Contains>
@@ -415,21 +404,14 @@
 		</Stream>
 
 
-<!--		<Stream src="GasReinjectionWell" dst="Reservoir" name="gas reinjection well to reservoir" impute="false">-->
-<!--			<Contains>gas for reservoir</Contains>-->
-<!--		</Stream>-->
-
-
-		<Stream src="GasPartition" dst="TransmissionCompressor" name="gas partition to transmission compressor">
-			<Contains>gas for transmission</Contains>
+		<Stream src="GasPartition" dst="ProductionBoundary" name="gas partition to production boundary">
+			<Contains>boundary gas</Contains>
 		</Stream>
 
-
-		<Stream src="TransmissionCompressor" dst="After" name="transmission compression to after">
-			<Contains>gas for storage</Contains>
-			<Contains>LNG</Contains>
-			<Contains>gas for distribution</Contains>
+		<Stream src="ProductionBoundary" dst="CrudeOilTransport" name="production boundary to crude oil transport">
+			<Contains>oil for transport</Contains>
 		</Stream>
+
 
 	</Field>
 

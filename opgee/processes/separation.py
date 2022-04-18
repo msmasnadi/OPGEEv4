@@ -47,9 +47,15 @@ class Separation(Process):
         self.water_content = self.attr("water_content_oil_emulsion")
         self.compressor_eff = self.attr("eta_compressor").to("frac")
 
+        self.oil_sand_mine = field.attr("oil_sands_mine")
+
     def run(self, analysis):
         self.print_running_msg()
         field = self.field
+
+        if self.oil_sand_mine != "None":
+            self.enabled = False
+            return
 
         # mass rate
         input = self.find_input_stream("crude oil")
@@ -60,7 +66,7 @@ class Separation(Process):
         gas_after = self.find_output_stream("gas")
         # Check
         gas_after.copy_gas_rates_from(input)
-        gas_after.subtract_gas_rates_from(gas_fugitives)
+        gas_after.subtract_rates_from(gas_fugitives)
         self.set_iteration_value(gas_after.total_flow_rate())
 
         # energy rate
