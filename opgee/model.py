@@ -140,6 +140,7 @@ class Model(Container):
 
         try:
             energy = field.boundary_energy_flow_rate(analysis)
+
         except ZeroEnergyFlowError:
             _logger.error(f"Can't save results: zero energy flow at system boundary for {field}")
             return None

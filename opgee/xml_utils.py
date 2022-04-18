@@ -14,7 +14,8 @@ from .error import OpgeeException
 _logger = getLogger(__name__)
 
 
-def prettify(elt):
+def str_to_xml(s):
+    elt = ET.XML(s)
     parser = ET.XMLParser(remove_blank_text=True)
     xml = ET.tostring(elt)
     file_obj = StringIO(xml.decode('utf-8'))

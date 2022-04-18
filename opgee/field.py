@@ -51,23 +51,6 @@ class Field(Container):
 
         self.known_boundaries = known_boundaries = set(getParamAsList('OPGEE.Boundaries'))
 
-        # # TBD: deprecated in favor of subsequent loop over procs
-        # # Save references to boundary streams by name; fail if duplicate definitions are found.
-        # for stream in streams:
-        #     boundary = stream.boundary
-        #     if boundary:
-        #         if boundary not in known_boundaries:
-        #             raise OpgeeException(
-        #                 f"{self}: {stream} boundary {boundary} is not a known boundary name. Must be one of {known_boundaries}")
-        #
-        #         other = boundary_dict.get(boundary)
-        #         if other:
-        #             raise OpgeeException(
-        #                 f"{self}: Duplicate declaration of boundary '{boundary}' in streams {stream} and {other}")
-        #
-        #         boundary_dict[boundary] = stream
-        #         _logger.debug(f"{self}: {stream} defines boundary '{boundary}'")
-
         # Save references to boundary processes by name; fail if duplicate definitions are found.
         for proc in procs:
             boundary = proc.boundary
@@ -124,7 +107,6 @@ class Field(Container):
         """
         For procs tagged 'after="True"', allow outputs only to other "after" procs.
         """
-
         def _run_after_ok(proc):
             for dst in proc.successors():
                 if not dst.run_after:
@@ -133,8 +115,7 @@ class Field(Container):
 
         bad = [proc for proc in self.processes() if proc.run_after and not _run_after_ok(proc)]
         if bad:
-            raise OpgeeException(
-                f"Processes {bad} are tagged 'after=True' but have output streams to non-'after' processes")
+            raise OpgeeException(f"Processes {bad} are tagged 'after=True' but have output streams to non-'after' processes")
 
         return True
 
@@ -175,7 +156,7 @@ class Field(Container):
         self.product_boundaries = model.product_boundaries
 
         self.resolve_process_choices()
-        self._check_run_after_procs()  # TBD: write test
+        self._check_run_after_procs()       # TBD: write test
 
         # we use networkx to reason about the directed graph of Processes (nodes)
         # and Streams (edges).
@@ -202,7 +183,7 @@ class Field(Container):
             # recurse upstream, calling impute()
             if proc and proc.enabled:
                 if proc.visit() >= max_iter:
-                    raise OpgeeMaxIterationsReached(f"Maximum iterations ({max_iter}) reached in {self}")
+                    raise OpgeeMaxIterationsReached(f"Maximum iterations ({max_iter}) reached in impute")
 
                 proc.impute()
 
@@ -220,12 +201,15 @@ class Field(Container):
         # We require that all start streams emerge from one Process.
         start_procs = {p for p in self.processes() if p.impute_start} or {stream.src_proc for stream in start_streams}
 
-        if len(start_procs) != 1:
+        start_count = len(start_procs)
+        if start_count != 1:
+            procs = f": {start_procs}" if start_count else ""
+
             raise OpgeeException(
-                f"Expected one start process upstream from start streams, got {len(start_procs)}: {start_procs}")
+                f"Expected one start process upstream from start streams, got {len(start_procs)}{procs}")
 
         start_proc = start_procs.pop()
-        _logger.debug(f"Running impute() methods for {start_proc}")
+        _logger.debug(f"Running impute() for {start_proc}")
 
         try:
             _impute_upstream(start_proc)
@@ -292,9 +276,13 @@ class Field(Container):
         for p in self.processes():
             p.check_balances()
 
+    def boundary_processes(self):
+        boundary_procs = [proc for proc in self.processes() if proc.boundary]
+        return boundary_procs
+
     def boundary_process(self, analysis) -> Process:
         """
-        Return the currently chosen boundary process, per the `Analysis` instance.
+        Return the currently chosen boundary process.
 
         :return: (opgee.Process) the currently chosen boundary process
         """
@@ -314,7 +302,7 @@ class Field(Container):
         Return the energy flow rate for the user's chosen system boundary, functional unit
         (oil vs gas)
 
-        :param analysis: (opgee.Analysis) the chosen `Analysis` object
+        :param analysis: (Analysis) the analysis this field is part of
         :param raiseError: (bool) whether to raise an error if the energy flow is zero at the boundary
         :return: (pint.Quantity) the energy flow at the boundary
         """
@@ -347,7 +335,7 @@ class Field(Container):
         imported_emissions = self.get_imported_emissions(net_import)
         total_emissions = onsite_emissions + imported_emissions
 
-        # TODO: add option for displacement method
+        #TODO: add option for displacement method
         # fn_unit = NATURAL_GAS if analysis.fn_unit == 'gas' else CRUDE_OIL
         # byproduct_names = self.product_names.drop(fn_unit)
         # byproduct_carbon_credit = self.get_carbon_credit(byproduct_names, analysis)
@@ -399,7 +387,7 @@ class Field(Container):
 
         return carbon_credit
 
-    def validate(self, analysis):
+    def validate(self):
         """
         Perform logical checks on the field after loading the entire model to ensure the field
         is "well-defined". This allows the processing code to avoid testing validity at run-time.
@@ -409,42 +397,41 @@ class Field(Container):
         - Aggregators cannot span the current boundary.
         - The chosen system boundary is defined for this field
 
-        :param analysis: (opgee.Analysis) the current `Analysis`
         :return: none
         :raises ModelValidationError: raised if any validation condition is violated.
         """
 
-        # Cycles cannot span the current boundary. Test this by checking that the boundary
-        # proc is not in any cycle. (N.B. __init__ evaluates and stores cycles.)
-        proc = self.boundary_process(analysis)
-
-        # Check that there are Processes outside the current boundary. If not, nothing more to do.
-        beyond = proc.beyond_boundary()
-        if not beyond:
-            return
-
         # Accumulate error msgs so user can correct them all at once.
         msgs = []
 
-        for cycle in self.cycles:
-            if proc in cycle:
-                msgs.append(f"{proc.boundary} boundary {proc} is in one or more cycles.")
-                break
+        for proc in self.boundary_processes():
+            # Cycles cannot span the current boundary. Test this by checking that the boundary
+            # proc is not in any cycle. (N.B. __init__ evaluates and stores cycles.)
 
-        # There will generally be far fewer Processes outside the system boundary than within,
-        # so we check that procs outside the boundary are not in Aggregators with members inside.
-        aggs = self.descendant_aggs()
-        for agg in aggs:
-            procs = agg.descendant_procs()
-            if not procs:
+            # Check that there are Processes outside the current boundary. If not, nothing more to do.
+            beyond = proc.beyond_boundary()
+            if not beyond:
                 continue
 
-            # See if first proc is inside or beyond the boundary, then make sure the rest are the same
-            is_inside = procs[0] not in beyond
-            is_beyond = not is_inside  # improves readability
-            for proc in procs:
-                if (is_inside and proc in beyond) or (is_beyond and proc not in beyond):
-                    msgs.append(f"{agg} spans the {proc.boundary} boundary.")
+            for cycle in self.cycles:
+                if proc in cycle:
+                    msgs.append(f"{proc.boundary} boundary {proc} is in one or more cycles.")
+                    break
+
+            # There will generally be far fewer Processes outside the system boundary than within,
+            # so we check that procs outside the boundary are not in Aggregators with members inside.
+            aggs = self.descendant_aggs()
+            for agg in aggs:
+                procs = agg.descendant_procs()
+                if not procs:
+                    continue
+
+                # See if first proc is inside or beyond the boundary, then make sure the rest are the same
+                is_inside = procs[0] not in beyond
+                is_beyond = not is_inside  # improves readability
+                for proc in procs:
+                    if (is_inside and proc in beyond) or (is_beyond and proc not in beyond):
+                        msgs.append(f"{agg} spans the {proc.boundary} boundary.")
 
         if msgs:
             msg = "\n - ".join(msgs)
@@ -463,8 +450,7 @@ class Field(Container):
             _logger.debug(f"{stream} (tonne/day)\n{dequantify_dataframe(stream.components)}\n")
 
         _logger.debug(f"{self}\nEnergy consumption:\n{self.energy.data}")
-        _logger.debug(
-            f"\nCumulative emissions to environment (tonne/day):\n{dequantify_dataframe(self.emissions.data)}")
+        _logger.debug(f"\nCumulative emissions to environment (tonne/day):\n{dequantify_dataframe(self.emissions.data)}")
         _logger.debug(f"Total: {self.ghgs} CO2eq")
 
     def _is_cycle_member(self, process):
@@ -534,9 +520,12 @@ class Field(Container):
         # If user has indicated a process with start-cycle="true", start there, otherwise
         # find a process with cycle-independent processes as inputs, and start there.
         start_procs = [proc for proc in procs_in_cycles if proc.cycle_start]
+
         if len(start_procs) > 1:
             raise OpgeeException(
-                f"""Only one process per cycle can have cycle-start="true"; found {len(start_procs)}: {start_procs}""")
+                f"""Only one process can have cycle-start="true"; found {len(start_procs)}: {start_procs}""")
+
+        max_iter = self.model.maximum_iterations
 
         if procs_in_cycles:
             # Walk the cycle, starting at the indicated start process to generate an ordered list
@@ -545,32 +534,34 @@ class Field(Container):
             if start_procs:
                 ordered_cycle = []
 
-                # recursive function to walk successors until we've visited all the procs in the cycle
+                # recursive function to walk successors until we've visited all the procs in cycles
                 def process_successors(proc):
-                    if unvisited:
-                        if proc in unvisited:
-                            unvisited.remove(proc)
-                            ordered_cycle.append(proc)
+                    if proc in unvisited:
+                        unvisited.remove(proc)
+                        ordered_cycle.append(proc)
 
-                            for successor in proc.successors():
-                                process_successors(successor)
+                        for successor in proc.successors():
+                            process_successors(successor)
 
                 process_successors(start_procs[0])
+
+                # add in any processes in cycles not reachable from the start proc
+                for other in list(unvisited):
+                    process_successors(other)
+
             else:
                 # TBD: Compute ordering by looking for procs in cycle that are successors to
                 #      cycle_independent procs. For now, just copy run using procs_in_cycles.
                 ordered_cycle = procs_in_cycles
 
-            def allConverged(proc_list):
-                for proc in proc_list:
-                    if not proc.iteration_converged:
-                        return False
+            # Iterate on the processes in cycle until a termination condition is met and an
+            # OpgeeStopIteration exception is thrown, or we exceed max iterations.
+            iter_count = 0
+            while True:
+                iter_count += 1
+                if iter_count > max_iter:
+                    raise OpgeeMaxIterationsReached(f"Maximum iterations ({max_iter}) reached without convergence")
 
-                return True
-
-            # Iterate on the processes in cycle until all processes are converged and an
-            # OpgeeStopIteration exception is thrown.
-            while not allConverged(ordered_cycle):
                 try:
                     for proc in ordered_cycle:
                         proc.run_if_enabled(analysis)

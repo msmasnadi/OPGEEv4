@@ -1,8 +1,9 @@
-from opgee import ureg
-from opgee.stream import Stream, PHASE_LIQUID
-from opgee.process import Process
-from .utils_for_tests import load_test_model
+import networkx as nx
 
+from opgee import ureg
+from opgee.stream import Stream
+from opgee.process import Process #, ProcessCycle
+from .utils_for_tests import load_test_model
 
 class LoopProc1(Process):
     def run(self, analysis):
@@ -15,60 +16,87 @@ class LoopProc1(Process):
 
 class LoopProc2(Process):
     def run(self, analysis):
-        crude_oil = self.find_input_stream('crude oil')
-        recycled_water = self.find_input_stream("water")
+        h2_stream  = self.find_input_stream('hydrogen')
+        h2_rate = h2_stream.gas_flow_rate('H2')
 
-        output = self.find_output_stream("crude oil")
-        output.copy_flow_rates_from(crude_oil)
-        output.add_flow_rates_from(recycled_water)
-        self.set_iteration_value(output.total_flow_rate())
+        ng_stream = self.find_output_stream('natural gas')
+        ng_rate = h2_rate * 2
+        ng_stream.set_gas_flow_rate('C1', ng_rate)
+
+        # use this variable to detect process loop stabilization
+        self.set_iteration_value(ng_rate)
 
 
 class LoopProc3(Process):
     def run(self, analysis):
-        input = self.find_input_stream("crude oil")
-        water = input.liquid_flow_rate("H2O")
-        water_requirement = ureg.Quantity(160, "tonne/day")
+        ng_stream = self.find_input_stream('natural gas')
+        ng_rate = ng_stream.gas_flow_rate('C1')
 
-        recycling_water = min(water * 0.8, water_requirement)
-        recycle_stream = self.find_output_stream("water")
-        recycle_stream.set_liquid_flow_rate("H2O", recycling_water)
+        h2_stream  = self.find_output_stream('hydrogen')
+        co2_stream = self.find_output_stream('CO2')
 
-        export = self.find_output_stream("export oil")
-        export.copy_flow_rates_from(input)
-        export.subtract_rates_from(recycle_stream, phase=PHASE_LIQUID)
+        h2_rate  = ng_rate * 0.5
+        co2_rate = ng_rate * 1.5
 
-        self.set_iteration_value(export.total_flow_rate())  # test multiple values
+        h2_stream.set_gas_flow_rate('H2', h2_rate)
+        co2_stream.set_gas_flow_rate('CO2', co2_rate)
+
+        self.set_iteration_value((h2_rate, co2_rate)) # test multiple values
 
 
 class LoopProc4(Process):
     def run(self, analysis):
-        input = self.find_input_stream("export oil")
-        gas = input.gas_flow_rate("C1")
-        lifting_gas_requirement = ureg.Quantity(350, "tonne/day")
+        from opgee.emissions import EM_FLARING
+        co2_stream = self.find_input_stream('CO2')
+        co2_rate = co2_stream.gas_flow_rate('CO2')
 
-        lifting_gas = min(gas * 0.8, lifting_gas_requirement)
-        lifting_gas_stream = self.find_output_stream("lifting gas")
-        lifting_gas_stream.set_gas_flow_rate("C1", lifting_gas)
+        self.add_emission_rate(EM_FLARING, 'CO2', co2_rate)
 
-        export = self.find_output_stream("export oil")
-        export.copy_flow_rates_from(input)
-        export.subtract_rates_from(lifting_gas_stream)
-
-        self.set_iteration_value(export.total_flow_rate())
-
-
-def test_process_single_loop():
+def test_process_loop():
     process_loop_model = load_test_model('test_process_loop_model.xml')
     analysis = process_loop_model.get_analysis('test')
-    field = analysis.get_field('test_single_loop')
+    field = analysis.get_field('test')
     field.run(analysis, compute_ci=False)
 
-
-def test_process_double_loops():
-    process_loop_model = load_test_model('test_process_loop_model.xml')
-    analysis = process_loop_model.get_analysis('test')
-    field = analysis.get_field('test_double_loops')
-    field.run(analysis, compute_ci=False)
 
 # TBD: add tests that no elements of cycle are tagged run-after=True in XML
+
+
+# def cycle_graph():
+#     """
+#     Generate a graph with nested cycles
+#     """
+#     g = nx.MultiDiGraph()
+#     nodes = ('A', 'B', 'C', 'D', 'E')
+#     edges = [
+#         ('A', 'B'), ('B', 'C'), ('C', 'D'), ('D', 'E'),
+#         ('E', 'A'),  # outer cycle
+#         ('C', 'B'),  # inner cycle
+#         ('D', 'B')   # inner cycle
+#     ]
+#
+#     for node in nodes:
+#         g.add_node(node)
+#
+#     for src, dst in edges:
+#         g.add_edge(src, dst)
+#
+#     return g
+#
+# def test_nested_cycles():
+#     g = cycle_graph()
+#
+#     # We'll only need to run the outer loops; they will contain all other processes
+#     outers = ProcessCycle.cycles(g)
+#     assert len(outers) == 1
+#
+#     outer = outers[0]
+#     assert outer.node_set == set(['A', 'B', 'C', 'D', 'E'])
+#
+#     assert len(outer.contains) == 1
+#     mid = outer.contains.pop()
+#     assert mid.node_set == set(['B', 'C', 'D'])
+#
+#     assert len(mid.contains) == 1
+#     inner = mid.contains.pop()
+#     assert inner.node_set == set(['B', 'C'])

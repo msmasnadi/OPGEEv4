@@ -141,7 +141,6 @@ def run_corr_eqns(x1, x2, x3, x4, x5, coef_df):
     result = df.sum(axis="rows")
     return result
 
-
 class Process(XmlInstantiable, AttributeMixin):
     """
     The "leaf" node in the container/process hierarchy. ``Process`` is an abstract superclass: actual runnable Process
@@ -231,8 +230,7 @@ class Process(XmlInstantiable, AttributeMixin):
         else:
             name_str = f' name="{self.name}"' if self.name else ''
 
-        boundary = (self.boundary + " ") if self.boundary else ""
-        return f'<{type_str}{name_str} {boundary}enabled={self.enabled}>'
+        return f'<{type_str}{name_str} enabled={self.enabled}>'
 
     # TODO: stream validation and documentation
     def required_inputs(self):
@@ -431,6 +429,7 @@ class Process(XmlInstantiable, AttributeMixin):
 
         return self.field
 
+    # TODO: visit counting by processes may be deprecated
     def visit(self):
         self.visit_count += 1
         return self.visit_count
@@ -735,9 +734,10 @@ class Process(XmlInstantiable, AttributeMixin):
         if self.enabled:
             self.run(analysis)
 
-            m = self.model
-            if self.visit() >= m.maximum_iterations:
-                raise OpgeeMaxIterationsReached(f"Maximum iterations ({m.maximum_iterations}) reached in {self}")
+            # Deprecated?
+            # m = self.model
+            # if self.visit() >= m.maximum_iterations:
+            #     raise OpgeeMaxIterationsReached(f"Maximum iterations ({m.maximum_iterations}) reached in {self}")
 
     def impute(self):
         """
@@ -903,11 +903,29 @@ class Boundary(Process):
         name = f"{boundary}Boundary"        # e.g., "ProductionBoundary"
         super().__init__(name, **kwargs)
 
+    def _after_init(self):
+        super()._after_init()
+
+    def is_chosen_boundary(self, analysis):
+        field = self.get_field()
+        proc = field.boundary_process(analysis)
+        return proc == self
+
     def run(self, analysis):
-        gas = self.find_input_stream("boundary gas")
-        petrocoke = self.find_input_stream("boundary petrocoke")
+        # If we're an intermediate boundary, copy all inputs to outputs based on contents
+        if not self.is_chosen_boundary(analysis):
+            for in_stream in self.inputs:
+                contents = in_stream.contents
+                if len(contents) != 1:
+                    raise ModelValidationError(f"Streams to and from boundaries must have only a single Content declaration; {self} inputs are {contents}")
 
+                # If not exactly one stream that declares the same contents, raises error
+                out_stream = self.find_output_stream(contents[0], raiseError=False)
 
+                if out_stream is None:
+                    raise ModelValidationError(f"Missing output stream for '{contents[0]}' in {self} boundary")
+
+                out_stream.copy_flow_rates_from(in_stream)
 
 
 class Reservoir(Process):
@@ -922,6 +940,14 @@ class Reservoir(Process):
     def run(self, analysis):
         self.print_running_msg()
 
+class Before(Process):
+    def run(self, analysis):
+        pass
+
+    def impute(self):
+        pass
+
+
 # TBD: move this to tests/utils_for_tests.py after removing references from opgee.xml
 # Required to load opgee.xml and some test XML files
 class After(Process):
@@ -931,12 +957,6 @@ class After(Process):
     def impute(self):
         pass
 
-class Before(Process):
-    def run(self, analysis):
-        pass
-
-    def impute(self):
-        pass
 
 #
 # This class is defined here rather than in container.py to avoid import loops and to
