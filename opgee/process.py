@@ -193,8 +193,6 @@ class Process(XmlInstantiable, AttributeMixin):
         self.inputs = []  # Stream instances, set in Field.connect_processes()
         self.outputs = []  # ditto
 
-        self.visit_count = 0  # increment the Process has been run
-
         self.energy = Energy()
         self.emissions = Emissions()
         self.import_export = ImportExport()
@@ -209,6 +207,7 @@ class Process(XmlInstantiable, AttributeMixin):
         self._required_outputs = []
 
         # Support for cycles
+        self.visit_count = 0        # increment when the Process has been run
         self.iteration_count = 0
         self.iteration_value = None
         self.iteration_converged = False
@@ -231,6 +230,10 @@ class Process(XmlInstantiable, AttributeMixin):
             name_str = f' name="{self.name}"' if self.name else ''
 
         return f'<{type_str}{name_str} enabled={self.enabled}>'
+
+    @classmethod
+    def clear_iterating_process_list(cls):
+        cls.iterating_processes = []
 
     # TODO: stream validation and documentation
     def required_inputs(self):
@@ -436,9 +439,6 @@ class Process(XmlInstantiable, AttributeMixin):
 
     def visited(self):
         return self.visit_count
-
-    def clear_visit_count(self):
-        self.visit_count = 0
 
     def get_reservoir(self):
         return self.field.reservoir
@@ -693,9 +693,11 @@ class Process(XmlInstantiable, AttributeMixin):
             proc.reset_iteration()
 
     def reset_iteration(self):
-        self.clear_visit_count()
+        self.visit_count = 0
+        self.iteration_count = 0
         self.iteration_value = None
         self.iteration_converged = False
+        self.iteration_registered = False
         self._reset_before_iteration()
 
     def _reset_before_iteration(self):
@@ -764,6 +766,7 @@ class Process(XmlInstantiable, AttributeMixin):
     def venting_fugitive_rate(self):
         return self.attr('leak_rate')
 
+    # TODO: these two static methods should be simple functions in a file in the processes directory
     @staticmethod
     def get_energy_consumption_stages(prime_mover_type, brake_horsepower_of_stages):
         energy_consumption_of_stages = []
@@ -774,6 +777,7 @@ class Process(XmlInstantiable, AttributeMixin):
 
         return energy_consumption_of_stages
 
+    # TODO: see above
     @staticmethod
     def get_energy_consumption(prime_mover_type, brake_horsepower):
         eff = get_efficiency(prime_mover_type, brake_horsepower)

@@ -176,15 +176,11 @@ class Field(Container):
         return f"<Field '{self.name}'>"
 
     def _impute(self):
-        max_iter = self.model.maximum_iterations
-
         # recursive helper function
         def _impute_upstream(proc):
-            # recurse upstream, calling impute()
-            if proc and proc.enabled:
-                if proc.visit() >= max_iter:
-                    raise OpgeeMaxIterationsReached(f"Maximum iterations ({max_iter}) reached in impute")
-
+            # recurse upstream, calling impute(), but don't cycle
+            if proc and proc.enabled and not proc.visited():
+                proc.visit()
                 proc.impute()
 
                 upstream_procs = {stream.src_proc for stream in proc.inputs if stream.impute}
@@ -214,6 +210,7 @@ class Field(Container):
         try:
             _impute_upstream(start_proc)
         except OpgeeStopIteration:
+            # TODO: shouldn't be possible
             raise OpgeeException("Impute failed due to a process loop. Use Stream attribute impute='0' to break cycle.")
 
     def run(self, analysis, compute_ci=True):
@@ -256,6 +253,7 @@ class Field(Container):
         self.reset_processes()
 
     def reset_iteration(self):
+        Process.clear_iterating_process_list()
         for proc in self.processes():
             proc.reset_iteration()
 

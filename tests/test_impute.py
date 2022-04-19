@@ -41,12 +41,13 @@ def test_impute_cycle_good(good_model):
     t, p = stream.tp.get()
     assert p == ureg.Quantity(150.0, 'psia') and t == ureg.Quantity(90.0, "degF")
 
-def test_impute_cycle_bad(bad_model):
-    model = bad_model
-    model.validate()
-    analysis = model.get_analysis('test')
-    field = analysis.get_field('test')
-
-    with pytest.raises(OpgeeException, match=r"Impute failed.*"):
-        field._impute()
+# Deprecated since impute no longer follows cycles
+# def test_impute_cycle_bad(bad_model):
+#     model = bad_model
+#     model.validate()
+#     analysis = model.get_analysis('test')
+#     field = analysis.get_field('test')
+#
+#     with pytest.raises(OpgeeException, match=r"Impute failed.*"):
+#         field._impute()
 
