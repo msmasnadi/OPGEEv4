@@ -98,14 +98,14 @@ class Model(Container):
     def analyses(self):
         return self.analysis_dict.values()
 
-    def get_analysis(self, name, raiseError=True):
+    def get_analysis(self, name, raiseError=True) -> Analysis:
         analysis = self.analysis_dict.get(name)
         if analysis is None and raiseError:
             raise OpgeeException(f"Analysis named '{name}' is not defined")
 
         return analysis
 
-    def get_field(self, name, raiseError=True):
+    def get_field(self, name, raiseError=True) -> Field:
         field = self.field_dict.get(name)
         if field is None and raiseError:
             raise OpgeeException(f"Field named '{name}' is not defined in Model")

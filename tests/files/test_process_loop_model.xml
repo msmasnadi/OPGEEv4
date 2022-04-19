@@ -26,14 +26,17 @@
 		<!-- Creates a process loop -->
 		<Stream src="LoopProc2" dst="LoopProc3">
 			<Contains>crude oil</Contains>
+			<Contains>natural gas</Contains>
 		</Stream>
 
 		<Stream src="LoopProc3" dst="LoopProc2">
 			<Contains>water</Contains>
+			<Contains>hydrogen</Contains>
 		</Stream>
 
 		<Stream src="LoopProc3" dst="ProductionBoundary">
 			<Contains>export oil</Contains>
+			<Contains>CO2</Contains>
 		</Stream>
 	</Field>
 
@@ -59,14 +62,17 @@
 		<!-- Creates a process loop -->
 		<Stream src="LoopProc2" dst="LoopProc3">
 			<Contains>crude oil</Contains>
+			<Contains>natural gas</Contains>
 		</Stream>
 
 		<Stream src="LoopProc3" dst="LoopProc2">
 			<Contains>water</Contains>
+			<Contains>hydrogen</Contains>
 		</Stream>
 
 		<Stream src="LoopProc3" dst="LoopProc4">
 			<Contains>export oil</Contains>
+			<Contains>CO2</Contains>
 		</Stream>
 
 		<Stream src="LoopProc4" dst="LoopProc1">
