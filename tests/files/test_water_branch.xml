@@ -41,8 +41,9 @@
 		<Process class="WaterTreatment"/>
 		<Process class="SteamGeneration"/>
 		<Process class="WaterInjection"/>
-		<Process class="After"/>
 		<Process class="Output"/>
+
+		<Process class="Boundary" boundary="Production"/>
 
 		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
 			<Contains>crude oil</Contains>
@@ -97,7 +98,7 @@
 			<Contains>blowdown water</Contains>
 		</Stream>
 
-		<Stream src="SteamGeneration" dst="After" name="steam generation to environment" boundary="Production"> <!-- arbitrary boundary for testing -->
+		<Stream src="SteamGeneration" dst="ProductionBoundary" name="steam generation to environment">
 			<Contains>waste water</Contains>
 		</Stream>
 
@@ -175,7 +176,7 @@
 		<Process class="SteamGeneration"/>
 		<Process class="WaterInjection"/>
 		<Process class="Output"/>
-		<Process class="After"/>
+		<Process class="Boundary" boundary="Production"/>
 
 		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
 			<Contains>crude oil</Contains>
@@ -230,7 +231,7 @@
 			<Contains>blowdown water</Contains>
 		</Stream>
 
-		<Stream src="SteamGeneration" dst="After" name="steam generation to environment" boundary="Production">	<!-- set boundary arbitrarily -->
+		<Stream src="SteamGeneration" dst="ProductionBoundary" name="steam generation to environment">
 			<Contains>waste water</Contains>
 		</Stream>
 
