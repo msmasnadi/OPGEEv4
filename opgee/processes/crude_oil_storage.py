@@ -71,7 +71,7 @@ class CrudeOilStorage(Process):
         gas_fugitive_stream.set_rates_from_series(gas_fugitives, PHASE_GAS)
         gas_fugitive_stream.set_tp(stp)
 
-        output_transport = self.find_output_stream("production boundary oil")
+        output_transport = self.find_output_stream("oil")
         oil_to_transport_mass_rate = (oil_mass_rate -
                                       output_VRU.total_gas_rate() -
                                       output_flare.total_gas_rate() -

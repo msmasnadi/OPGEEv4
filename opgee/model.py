@@ -75,6 +75,8 @@ class Model(Container):
         self.upstream_CI = tbl_mgr.get_table("upstream-CI")
         self.product_boundaries = tbl_mgr.get_table("product-boundaries")
 
+        self.component_LHV = tbl_mgr.get_table("component-LHV")
+
         # TBD: should these be settable per Analysis?
         # parameters controlling process cyclic calculations
         self.maximum_iterations = self.attr('maximum_iterations')

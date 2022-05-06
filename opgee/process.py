@@ -16,13 +16,14 @@ from .container import Container
 from .error import (OpgeeException, AbstractMethodError, OpgeeIterationConverged,
                     OpgeeMaxIterationsReached, ModelValidationError)
 from .emissions import Emissions
-from .energy import Energy
+from .energy import Energy, EN_NATURAL_GAS, EN_CRUDE_OIL, EN_PETCOKE, EN_NGL
 from .log import getLogger
 from .stream import Stream
 from .utils import getBooleanXML
 from .drivers import get_efficiency
 from .combine_streams import combine_streams
 from .import_export import ImportExport
+from .constants import petrocoke_LHV
 
 _logger = getLogger(__name__)
 
@@ -212,6 +213,7 @@ class Process(XmlInstantiable, AttributeMixin):
         self.iteration_value = None
         self.iteration_converged = False
         self.iteration_registered = False
+        self.in_cycle = False
 
         self.process_EF = None
 
@@ -617,7 +619,7 @@ class Process(XmlInstantiable, AttributeMixin):
             `value`, all of the contained values must pass this test.
         """
         _logger.debug(f"{self.name}:count = {self.visit_count}")
-        if self.iteration_converged:
+        if not self.in_cycle or self.iteration_converged:
             return  # nothing left to do
 
         m = self.model
@@ -917,12 +919,11 @@ class Boundary(Process):
 
     def run(self, analysis):
         # If we're an intermediate boundary, copy all inputs to outputs based on contents
-        if not self.is_chosen_boundary(analysis):
+        if not self.is_chosen_boundary(analysis) and not self.field.get_process_data("is_boundary_processed"):
             for in_stream in self.inputs:
                 contents = in_stream.contents
                 if len(contents) != 1:
                     raise ModelValidationError(f"Streams to and from boundaries must have only a single Content declaration; {self} inputs are {contents}")
-
                 # If not exactly one stream that declares the same contents, raises error
                 out_stream = self.find_output_stream(contents[0], raiseError=False)
 
@@ -930,6 +931,20 @@ class Boundary(Process):
                     raise ModelValidationError(f"Missing output stream for '{contents[0]}' in {self} boundary")
 
                 out_stream.copy_flow_rates_from(in_stream)
+
+        # Hit the user choose boundary
+        elif self.is_chosen_boundary(analysis) and not self.field.get_process_data("export_prod_LHV_sum"):
+            export_prod_LHV_sum = ureg.Quantity(0, "mmbtu/day")
+            for in_stream in self.inputs:
+                mass_rate = in_stream.components.sum(axis=1)
+                export_prod_LHV = mass_rate[self.field.product_LHV.index].dot(self.field.product_LHV)["LHV"]
+                export_prod_LHV_sum += export_prod_LHV
+
+                if in_stream.contents[0] == "oil":
+                    self.field.save_process_data(export_oil_LHV=export_prod_LHV)
+
+            self.field.save_process_data(export_prod_LHV_sum=export_prod_LHV_sum)
+            self.field.save_process_data(is_boundary_processed=True)
 
 
 class Reservoir(Process):

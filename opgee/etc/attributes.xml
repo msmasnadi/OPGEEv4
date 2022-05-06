@@ -10,7 +10,7 @@
   <AttrDefs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="attributes.xsd">
     <ClassAttrs name="Model">
       <!-- Maximum number of iterations for process loops -->
-      <AttrDef name="maximum_iterations" type="int">10</AttrDef>
+      <AttrDef name="maximum_iterations" type="int">100</AttrDef>
       <AttrDef name="iteration_tolerance" type="float">0.000001</AttrDef>
 
       <!-- Change threshold for iteration loops. Requires a Process to set a change variable. -->

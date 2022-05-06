@@ -257,7 +257,7 @@
 		</Stream>
 
 		<Stream src="CrudeOilStorage" dst="ProductionBoundary" name="crude oil storage to production boundary">
-			<Contains>production boundary oil</Contains>
+			<Contains>oil</Contains>
 		</Stream>
 
 		<Stream src="CrudeOilTransport" dst="After" name="crude oil transport to after">
@@ -306,7 +306,11 @@
 		</Stream>
 
 		<Stream src="HeavyOilUpgrading" dst="ProductionBoundary" name="heavy oil upgrading to production boundary">
-			<Contains>boundary petrocoke</Contains>
+			<Contains>petrocoke</Contains>
+		</Stream>
+
+		<Stream src="ProductionBoundary" dst="After" name="production boundary to petrocoke transport">
+			<Contains>petrocoke</Contains>
 		</Stream>
 
 		<Stream src="GasDehydration" dst="PreMembraneChiller" name="gas dehydration to pre membrane chiller">
@@ -403,13 +407,20 @@
 			<Contains>gas for gas reinjection well</Contains>
 		</Stream>
 
-
 		<Stream src="GasPartition" dst="ProductionBoundary" name="gas partition to production boundary">
-			<Contains>boundary gas</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="ProductionBoundary" dst="CrudeOilTransport" name="production boundary to crude oil transport">
-			<Contains>oil for transport</Contains>
+			<Contains>oil</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilTransport" dst="TransportationBoundary" name="crude oil transport to transportation boundary">
+			<Contains>oil</Contains>
+		</Stream>
+
+		<Stream src="TransportationBoundary" dst="After" name="transportation boundary to after">
+			<Contains>oil</Contains>
 		</Stream>
 
 

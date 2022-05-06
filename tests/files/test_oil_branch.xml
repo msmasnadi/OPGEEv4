@@ -80,7 +80,7 @@
 		</Stream>
 
 		<Stream src="CrudeOilStorage" dst="ProductionBoundary" name="crude oil storage to production boundary">
-			<Contains>production boundary oil</Contains>
+			<Contains>oil</Contains>
 		</Stream>
 
 		<Stream src="CrudeOilStorage" dst="VRUCompressor" name="crude oil storage to VRU compressor">
@@ -141,11 +141,15 @@
 		</Stream>
 
 		<Stream src="CrudeOilStorage" dst="ProductionBoundary" name="crude oil storage to production boundary">
-			<Contains>production boundary oil</Contains>
+			<Contains>oil</Contains>
 		</Stream>
 
-		<Stream src="HeavyOilUpgrading" dst="PetrocokeTransport" name="heavy oil upgrading to petrocoke transport">
-			<Contains>petrocoke for transport</Contains>
+		<Stream src="HeavyOilUpgrading" dst="ProductionBoundary" name="heavy oil upgrading to production boundary">
+			<Contains>petrocoke</Contains>
+		</Stream>
+
+		<Stream src="ProductionBoundary" dst="PetrocokeTransport" name="production boundary to petrocoke transport">
+			<Contains>petrocoke</Contains>
 		</Stream>
 
 		<Stream src="PetrocokeTransport" dst="After" name="petrocoke transport to after">
@@ -195,7 +199,7 @@
 		</Stream>
 
 		<Stream src="CrudeOilStorage" dst="ProductionBoundary" name="crude oil storage to production boundary">
-			<Contains>production boundary oil</Contains>
+			<Contains>oil</Contains>
 		</Stream>
 
 		<Stream src="Before" dst="HeavyOilDilution" name="before to heavy oil dilution">
@@ -250,7 +254,7 @@
 		</Stream>
 
 		<Stream src="CrudeOilStorage" dst="ProductionBoundary" name="crude oil storage to production boundary">
-			<Contains>production boundary oil</Contains>
+			<Contains>oil</Contains>
 		</Stream>
 
 		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to flaring">

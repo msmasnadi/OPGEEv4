@@ -36,7 +36,9 @@
 		<Process class="CrudeOilStabilization" enabled="false"/>
 		<Process class="HeavyOilUpgrading" enabled="false"/>
 		<Process class="HeavyOilDilution" enabled="false"/>
-		<Process class="CrudeOilStorage" enabled="false"/>
+		<Process class="CrudeOilStorage"/>
+
+		<Process class="Boundary" boundary="Production"/>
 
 		<Process class="WaterTreatment"/>
 		<Process class="SteamGeneration"/>
@@ -52,20 +54,24 @@
 			<Contains>water</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="Output" name="stabilization">
+		<Stream src="CrudeOilDewatering" dst="After" name="stabilization">
 			<Contains>oil for stabilization</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="Output" name="upgrader">
+		<Stream src="CrudeOilDewatering" dst="After" name="upgrader">
 			<Contains>oil for upgrader</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="Output" name="dilution">
+		<Stream src="CrudeOilDewatering" dst="After" name="dilution">
 			<Contains>oil for dilution</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="Output" name="storage">
+		<Stream src="CrudeOilDewatering" dst="CrudeOilStorage" name="storage">
 			<Contains>oil for storage</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilStorage" dst="ProductionBoundary" name="crude oil storage to production boundary">
+			<Contains>oil</Contains>
 		</Stream>
 
 		<Stream src="Separation" dst="WaterTreatment" name="separator to produced water treatment">
@@ -169,13 +175,15 @@
 		<Process class="CrudeOilStabilization" enabled="false"/>
 		<Process class="HeavyOilUpgrading" enabled="false"/>
 		<Process class="HeavyOilDilution" enabled="false"/>
-		<Process class="CrudeOilStorage" enabled="false"/>
+		<Process class="CrudeOilStorage"/>
 
 		<Process class="WaterTreatment"/>
 		<Process class="SteamGeneration"/>
 		<Process class="WaterInjection"/>
 		<Process class="Output"/>
 		<Process class="After"/>
+
+		<Process class="Boundary" boundary="Production"/>
 
 		<Stream src="Separation" dst="CrudeOilDewatering" name="separator to crude oil dewatering">
 			<Contains>crude oil</Contains>
@@ -185,20 +193,24 @@
 			<Contains>water</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="Output" name="stabilization">
+		<Stream src="CrudeOilDewatering" dst="After" name="stabilization">
 			<Contains>oil for stabilization</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="Output" name="upgrader">
+		<Stream src="CrudeOilDewatering" dst="After" name="upgrader">
 			<Contains>oil for upgrader</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="Output" name="dilution">
+		<Stream src="CrudeOilDewatering" dst="After" name="dilution">
 			<Contains>oil for dilution</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="Output" name="storage">
+		<Stream src="CrudeOilDewatering" dst="CrudeOilStorage" name="storage">
 			<Contains>oil for storage</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilStorage" dst="ProductionBoundary" name="crude oil storage to production boundary">
+			<Contains>oil</Contains>
 		</Stream>
 
 		<Stream src="Separation" dst="WaterTreatment" name="separator to produced water treatment">

@@ -74,7 +74,7 @@ class GasPartition(Process):
             self.field.save_process_data(methane_from_gas_lifting=gas_lifting.gas_flow_rate("C1"))
             return
 
-        exported_gas = self.find_output_stream("production boundary gas")
+        exported_gas = self.find_output_stream("gas")
         exported_gas.copy_flow_rates_from(input)
         exported_gas.subtract_rates_from(gas_lifting)
         exported_gas.set_tp(input_tp)
@@ -84,11 +84,11 @@ class GasPartition(Process):
             gas_to_reinjection.copy_flow_rates_from(exported_gas)
             gas_to_reinjection.multiply_flow_rates(self.fraction_remaining_gas_inj)
 
-        gas_mass_rate = exported_gas.total_gas_rate()
-        gas_mass_energy_density = self.gas.mass_energy_density(exported_gas)
-        gas_LHV_rate = gas_mass_rate * gas_mass_energy_density
-        import_product = field.import_export
-        import_product.set_export(self.name, NATURAL_GAS, gas_LHV_rate)
+        # gas_mass_rate = exported_gas.total_gas_rate()
+        # gas_mass_energy_density = self.gas.mass_energy_density(exported_gas)
+        # gas_LHV_rate = gas_mass_rate * gas_mass_energy_density
+        # import_product = field.import_export
+        # import_product.set_export(self.name, NATURAL_GAS, gas_LHV_rate)
 
         # excluded = [s.strip() for s in getParam("OPGEE.ExcludeFromReinjectionEnergySummary").split(",")]
         # energy_sum = self.field.sum_process_energy(processes_to_exclude=excluded)
