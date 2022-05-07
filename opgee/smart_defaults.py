@@ -8,7 +8,7 @@
 #   - Define a procedure for assigning smart defaults
 #     - Walk the model structure and check attributes at each level to find any
 #       smart defaults / distros.
-#       - Maybe 2-level dict; registry[class_name][attr_name]
+#       - 3-level dict: registry[dep_type][class_name][attr_name]
 #     - Find attributes that have only simple-default="True", or tag values with
 #       smart defaults in the attribute definition? This splits the handling of
 #       smart defaults between the XML and code, which is undesirable. Better to
@@ -20,9 +20,12 @@
 #    - Descend hierarchy, Model -> Analysis -> Field -> Process / Stream and
 #      check for class name in registry[Distribution][class_name]. If found,
 #      walk the next level of dict (by attr_name) and operate of the model object.
+#   Questions
+#   - Does it make sense for an attribute to have both a SmartDefault and Distribution?
 #
 from collections import defaultdict
 import networkx as nx
+import pandas as pd
 from opgee.core import OpgeeObject
 from opgee.error import OpgeeException
 
@@ -31,13 +34,13 @@ class Dependency(OpgeeObject):
     """
     Creates a registry containing both SmartDefaults and Distributions, along
     with their dependencies so we can process these in the required order. The
-    ``registry`` is a 3-level dict, ``registry[subclass][class_name][attr_name]``
-    where ``subclass`` is a subclass of ``Dependency`` with which the ``register``
-    decorator was used; ``class_name`` is the name of the OPGEE class containing
-    attributes (i.e., a subclass of ``AttributeMixin``); and ``attr_name`` is the
-    name of an attribute in that class's ``attr_dict``.
+    ``registry`` is a DataFrame with columns 'dep_type', 'class_name', 'attr_name'
+    and 'dep_obj', where ``dep_type`` is the name of a subclass of ``Dependency``
+    with which the ``register`` decorator was used; ``class_name`` is the name of
+    the OPGEE class containing attributes (i.e., a subclass of ``AttributeMixin``);
+    and ``attr_name`` is the name of an attribute in that class's ``attr_dict``.
     """
-    registry = defaultdict(lambda: defaultdict(dict))
+    registry = pd.DataFrame(columns=['dep_type', 'class_name', 'attr_name', 'dep_obj'])
 
     def __init__(self, func_class, func_name, func, attr_name, dependencies):
         self.func_class = func_class    # the class containing func
@@ -47,8 +50,13 @@ class Dependency(OpgeeObject):
         self.dependencies = dependencies
         self.dep_type = dep_type = type(self).__name__      # 'Distribution' or 'SmartDefault'
 
+        self.run_index = None # set by run_order() to help with sorting model objects
+
         print(f'Saving {dep_type} for attribute {attr_name} of class {func_class}')
-        self.registry[dep_type][func_class][attr_name] = self
+
+        Dependency.registry = Dependency.registry.append(dict(dep_type=dep_type, class_name=func_class,
+                                                              attr_name=attr_name, dep_obj=self),
+                                                         ignore_index=True)
 
     @classmethod
     def register(cls, attr_name, dependencies):
@@ -82,6 +90,17 @@ class Dependency(OpgeeObject):
         return decorator
 
     @classmethod
+    def run_order(cls):
+        g = Dependency.graph()
+        ordered = nx.topological_sort(g)
+
+        # TBD: obj is a str, not Dependency...
+        # for i, obj in enumerate(ordered):
+        #     obj.run_index = i
+
+        return ordered
+
+    @classmethod
     def graph(cls):
         """
         Create a directed graph of the dependencies among attributes
@@ -89,10 +108,23 @@ class Dependency(OpgeeObject):
         :return: (networkx.DiGraph) the graph
         """
         g = nx.DiGraph()
-        for obj in cls.registry.values():
+        for obj in cls.instances:
             g.add_edges_from([(dep, obj.attr_name) for dep in obj.dependencies])
 
         return g
+
+    @classmethod
+    def find_class(cls, dep_type, cls_name):
+        pass
+
+    @classmethod
+    def find(cls, dep_type, class_name, attr_name):
+        rows = cls.registry.query("dep_type == @dep_type and class_name == @class_name and attr_name == @attr_name")
+        if len(rows) == 0:
+            raise OpgeeException(f"Attribute {attr_name} has no {dep_type} registered for class {class_name}.")
+
+        dep_obj = rows[0].attr_name
+        return dep_obj
 
     # TBD: resolve the issue of finding Analysis from Field
     def find_attr_obj(self, obj, attr_name):
@@ -163,23 +195,6 @@ class Distribution(Dependency):
         return result
 
 
-class MyClass:
-    @SmartDefault.register('Field.abcdef', ['Field.foo', 'Analysis.bar'])
-    def test_smart_dflt(self, foo, bar):
-        print(f"Called test_smart_dflt({self}, foo:{foo} bar:{bar})")
-        return 10000
-
-    @Distribution.register('Field.WOR-SD', ['Field.age'])
-    def test_dep(self, age):
-        print(f"Called test_dep({self}, age:{age})")
-        return 1000
-
-    @Distribution.register('Field.WOR', ['Field.age', 'Field.WOR-SD'])
-    def test_wor(self, age, wor_sd):
-        print(f"Called test_wor({self}, age:{age}, wor_sd:{wor_sd})")
-        return 1000
-
-
 # def set_smart_default(cls, attr_name):
 #     class_name = cls.__name__
 #     func = smart_default_registry.get((class_name, attr_name))
@@ -187,15 +202,3 @@ class MyClass:
 #         func(cls, attr_name)
 #     else:
 #         raise OpgeeException(f"There is no function registered to handle attribute {attr_name} for class {class_name}")
-
-if __name__ == '__main__':
-    attr_dict = {'Field.foo': 3, 'Analysis.bar': 4, 'Field.baz': 10, 'Field.age': 20}
-
-    obj = MyClass()
-
-    wor_sd = Dependency.registry[Distribution]['MyClass']['Field.WOR-SD']
-    wor_sd.set_value(obj, attr_dict)
-    g = Dependency.graph()
-    run_order = nx.topological_sort(g)
-    run_order = list(run_order)
-    pass
