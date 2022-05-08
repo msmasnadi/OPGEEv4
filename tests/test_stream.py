@@ -102,3 +102,30 @@ def test_combustion_stream(stream_model):
     CO2_stream = field.find_stream("combusted final stream")
     CO2_stream.add_combustion_CO2_from(stream1)
     assert CO2_stream.gas_flow_rate("CO2") == ureg.Quantity(pytest.approx(8.950127703143934), "t/d")
+
+
+def test_electricity(stream_model):
+    from copy import copy
+
+    analysis = stream_model.get_analysis('test')
+    field = analysis.get_field('test')
+
+    # copy so we don't alter model, in case we add more tests after this
+    stream = copy(field.find_stream('initialized'))
+
+    assert stream.electricity_flow_rate() == ureg.Quantity(0.0, "kWh/day")
+
+    rate = ureg.Quantity(100.00, "kWh/day")
+    stream.set_electricity_flow_rate(rate)
+    assert stream.electricity_flow_rate() == rate
+
+    factor = 3
+    stream.multiply_flow_rates(factor)
+    assert stream.electricity_flow_rate() == rate * factor
+
+    stream2 = copy(stream)
+    stream.add_flow_rates_from(stream2)
+    assert stream.electricity_flow_rate() == rate * factor * 2
+
+    stream2.copy_electricity_rate_from(stream)
+    assert stream2.electricity_flow_rate() == stream.electricity_flow_rate()
