@@ -120,6 +120,8 @@ class Stream(XmlInstantiable, AttributeMixin):
         # TBD: rename this self.comp_matrix for clarity
         self.components = self.create_component_matrix() if comp_matrix is None else comp_matrix
 
+        self.electricity = ureg.Quantity(0.0, "kWh/day")
+
         self.tp = copy(tp)
 
         # These values are used by self.reset() to restore the stream to it's initial state per the XML.
@@ -323,7 +325,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param name: (str) the name of a stream component
         :param phase: (str) the name of a phase of matter ('gas', 'liquid' or 'solid')
         :param rate: (float) the flow rate for the given stream component
-        :return: None
+        :return: none
         """
         rate = rate.to("tonne/day") if isinstance(rate, pint.Quantity) else rate
         # TBD: Check that this comment remains true with updates to pint. (If not, update the code)
@@ -425,6 +427,27 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.initialized = True
         self.components.loc[series.index, phase] = series * self.components.loc[series.index, phase]
 
+    def set_electricity_flow_rate(self, rate):
+        """
+        Set the electricity flow rate.
+
+        :param rate: (pint.Quantity) the flow rate (energy per day)
+        :return: none
+        """
+        self.electricity = rate
+
+    def electricity_flow_rate(self):
+        """
+        Get the electricity flow rate.
+
+        :return: (pint.Quantity) the flow rate (energy per day)
+        """
+        return self.electricity
+
+    def set_temperature_and_pressure(self, t, p):
+        self.temperature = t
+        self.pressure = p
+
     def set_tp(self, tp):
         """
         Set the stream's temperature and pressure, unless the pressure is zero,
@@ -465,6 +488,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         else:
             self.components[:] = stream.components
 
+        self.electricity = stream.electricity
         self.tp.copy_from(tp or stream.tp)
 
         self.initialized = True
@@ -500,16 +524,28 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.initialized = True
         self.components[PHASE_LIQUID] = stream.components[PHASE_LIQUID]
 
+    def copy_electricity_rate_from(self, stream):
+        """
+        Copy electricity flow rate from `stream` to `self`
+
+        :param stream: (Stream) to copy electricity from
+        :return: none
+        """
+        self.electricity = stream.electricity
+
     def multiply_flow_rates(self, factor):
         """
-        Multiply the Stream's mass flow rates by ``factor``.
+        Multiply all our mass flow and electricity rates by `factor`.
 
         :param factor: (float) the value to multiply by
         :return: none
         """
         factor = factor.to("fraction") if isinstance(factor, pint.Quantity) else factor
         self.initialized = True
-        self.components *= magnitude(factor, 'fraction')
+
+        multiplier = magnitude(factor, 'fraction')
+        self.components *= multiplier
+        self.electricity *= multiplier
 
     def add_flow_rate(self, name, phase, rate):
         """
@@ -523,7 +559,7 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     def add_flow_rates_from(self, stream):
         """
-        Add the mass flow rates from ``stream`` to our own.
+        Add the mass flow rates and electricity rate from `stream` to our own.
 
         :param stream: (Stream) the source of the rates to add
         :return: none
@@ -533,6 +569,8 @@ class Stream(XmlInstantiable, AttributeMixin):
 
         self.initialized = True
         self.components += stream.components
+        self.electricity += stream.electricity
+
 
     def subtract_rates_from(self, stream, phase=PHASE_GAS):
         """
