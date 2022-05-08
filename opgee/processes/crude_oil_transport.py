@@ -28,7 +28,7 @@ class CrudeOilTransport(Process):
         self.print_running_msg()
         field = self.field
 
-        input_oil = self.find_input_stream("oil for transport")
+        input_oil = self.find_input_stream("oil")
 
         if input_oil.is_uninitialized():
             return
@@ -40,7 +40,7 @@ class CrudeOilTransport(Process):
         if self.field.get_process_data("crude_LHV") is None:
             self.field.save_process_data(crude_LHV=oil_mass_energy_density)
 
-        output = self.find_output_stream("oil for refinery")
+        output = self.find_output_stream("oil")
         output.copy_flow_rates_from(input_oil)
 
         # energy use

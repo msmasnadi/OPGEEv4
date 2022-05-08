@@ -86,7 +86,7 @@ class HeavyOilUpgrading(Process):
             self.field.save_process_data(
                 frac_coke_exported=d["Coke yield per bbl SCO output"]["Fraction coke exported"])
 
-        coke_to_transport = self.find_output_stream("petrocoke for transport")
+        coke_to_transport = self.find_output_stream("petrocoke")
         coke_to_transport.set_solid_flow_rate("PC", coke_to_stockpile_and_transport)
 
         proc_gas_dict = d["Process gas (PG) yield per bbl SCO output"] * SCO_output

@@ -54,6 +54,7 @@ class TableManager(OpgeeObject):
         TableDef("horizontal-drilling-energy-intensity", index_col=[0,1], has_units=True),
         TableDef("fracture-consumption-table", index_col=0),
         TableDef("land-use-EF", index_col=[0,1], has_units=True),
+        TableDef("component-LHV", index_col=0, has_units=True),
         TableDef("demethanizer", index_col=0, index_row=[0,1])
     ]
 

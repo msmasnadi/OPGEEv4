@@ -29,7 +29,7 @@
 			<Process class="HeavyOilDilution" enabled="false"/>
 		</Aggregator>
 
-		<Process class="CrudeOilStorage" enabled="false"/>
+		<Process class="CrudeOilStorage"/>
 		<Process class="Output"/>
 		<Process class="After"/>
 		<Process class="Boundary" boundary="Production"/>
@@ -54,8 +54,12 @@
 			<Contains>oil for dilution</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilDewatering" dst="After" name="storage">
+		<Stream src="CrudeOilDewatering" dst="CrudeOilStorage" name="storage">
 			<Contains>oil for storage</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilStorage" dst="ProductionBoundary" name="crude oil storage to production boundary">
+			<Contains>oil</Contains>
 		</Stream>
 
 		<Stream src="Separation" dst="WaterTreatment" name="separator to produced water treatment">
@@ -69,11 +73,9 @@
 			<Contains>water for subsurface disposal</Contains>
 		</Stream>
 
-		<Stream src="Separation" dst="After" name="gas after separator">
+		<Stream src="Separation" dst="ProductionBoundary" name="gas after separator">
 			<Contains>gas</Contains>
 		</Stream>
-
-		<Stream src="Output" dst="ProductionBoundary"/>
 
 		<Stream src="ReservoirWellInterface" dst="DownholePump" name="reservoir well interface to downhole pump">
 			<Contains>crude oil</Contains>

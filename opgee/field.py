@@ -3,6 +3,7 @@ import pint
 from . import ureg
 from .config import getParamAsList
 from .container import Container
+from .constants import petrocoke_LHV
 from .core import elt_name, instantiate_subelts, dict_from_list, TemperaturePressure, STP
 from .error import (OpgeeException, OpgeeStopIteration, OpgeeMaxIterationsReached,
                     OpgeeIterationConverged, ModelValidationError, ZeroEnergyFlowError)
@@ -154,6 +155,10 @@ class Field(Container):
         self.steam_generator = SteamGenerator(self)
         self.product_names = self.import_export.imports_exports().index.drop(WATER)
         self.product_boundaries = model.product_boundaries
+
+        self.product_LHV = model.component_LHV
+        self.product_LHV.loc['oil'] = self.oil.mass_energy_density()
+        self.product_LHV.loc['PC'] = petrocoke_LHV
 
         self.resolve_process_choices()
         self._check_run_after_procs()       # TBD: write test
@@ -501,6 +506,9 @@ class Field(Container):
 
     def run_processes(self, analysis):
         cycle_independent, procs_in_cycles, cycle_dependent, run_afters = self._compute_graph_sections()
+
+        for proc in procs_in_cycles:
+            proc.in_cycle = True
 
         # helper function
         def run_procs_in_order(processes):

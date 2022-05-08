@@ -27,7 +27,7 @@ class PetrocokeTransport(Process):
         self.print_running_msg()
         field = self.field
 
-        input_coke = self.find_input_stream("petrocoke for transport")
+        input_coke = self.find_input_stream("petrocoke")
 
         if input_coke.is_uninitialized():
             return
