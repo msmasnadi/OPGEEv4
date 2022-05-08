@@ -38,11 +38,10 @@
 		<Process class="HeavyOilDilution" enabled="false"/>
 		<Process class="CrudeOilStorage"/>
 
-		<Process class="Boundary" boundary="Production"/>
-
 		<Process class="WaterTreatment"/>
 		<Process class="SteamGeneration"/>
 		<Process class="WaterInjection"/>
+		<Process class="After"/>
 		<Process class="Output"/>
 
 		<Process class="Boundary" boundary="Production"/>
@@ -181,8 +180,8 @@
 		<Process class="WaterTreatment"/>
 		<Process class="SteamGeneration"/>
 		<Process class="WaterInjection"/>
+		<Process class="After"/>
 		<Process class="Output"/>
-		<Process class="Boundary" boundary="Production"/>
 
 		<Process class="Boundary" boundary="Production"/>
 
