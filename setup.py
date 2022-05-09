@@ -3,17 +3,18 @@ from setuptools import setup
 
 requirements = [
     'colour>=0.1.5',    # used with dash app
-    'dash>=1.19.0',
+    'dash>=2.3.1',
     'ipython>=7.18.0',
-    'Jinja2>=3.0',      # required by flask, via dash
+    'Jinja2>=3.0.1',      # required by flask, via dash
     'lxml>=4.8.0',
     'networkx>=2.5.0',
 
     'numpy<=1.21.0,>=1.19.2',
     'pandas>=1.3.5',
 
-    'pint>=0.19',
+    'pint>=0.19.2',
     'pint-pandas>=0.2',
+
     'pydot>=1.4.0',
     'pytest>=6.1.0',
     'sphinx>=3.2.0'
