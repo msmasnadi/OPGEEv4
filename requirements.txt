@@ -4,11 +4,7 @@ configparser~=5.0.1
 coverage~=6.3.2
 coveralls~=3.3.1
 dash~=1.19.0
-dash-core-components~=1.15.0
-dash-cytoscape~=0.2.0
-dash-html-components~=1.1.2
-dash-renderer~=1.1.2
-dash-table~=4.4.1
+dash-cytoscape~=0.3.0
 docopt~=0.6.2
 future==0.18.2
 ipython==7.18.1
