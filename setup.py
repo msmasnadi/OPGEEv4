@@ -9,8 +9,8 @@ requirements = [
     'lxml>=4.8.0',
     'networkx>=2.5.0',
 
-    'numpy>=1.21.0',
-    'pandas>=1.4.0',
+    'numpy<=1.21.0,>=1.19.2',
+    'pandas>=1.3.5',
 
     'pint>=0.19',
     'pint-pandas>=0.2',
