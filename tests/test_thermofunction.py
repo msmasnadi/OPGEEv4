@@ -350,7 +350,7 @@ def test_water_heat_capacity(water_instance):
 def test_water_saturated_temperature(water_instance):
     Psat = ureg.Quantity(1122.00, "psia")
     Tsat = water_instance.saturated_temperature(Psat)
-    assert Tsat.to("degC") == ureg.Quantity(pytest.approx(292.660571), "degC")
+    assert Tsat.to("degC") == ureg.Quantity(pytest.approx(292.660571, abs=0.025), "degC")
 
 
 def test_water_enthalpy_PT(water_instance):

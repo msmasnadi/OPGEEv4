@@ -1,22 +1,24 @@
-name: opgee
+name: opgee-test
 channels:
   - anaconda
   - conda-forge
   - defaults
 dependencies:
   - colour
+  - coverage
+  - codecov
   - dash
   - decorator
   - ipython
-  - jinja2>=3.0.1
+  - jinja2
   - libpng
   - libtiff
-  - lxml>=4.8.0
+  - lxml
   - networkx
-  - numpy>=1.21.0
-  - pandas>=1.4.2
-  - pint>=0.19.2
-  - pint-pandas>=0.2
+  - numpy
+  - pandas
+  - pint
+  - pint-pandas
   - pip
   - pydot
   - pyparsing
@@ -24,13 +26,13 @@ dependencies:
   - python=3.8
   - setuptools
   - sphinx
-  - sphinx-argparse>=0.2.5
+  - sphinx-argparse
   - sphinx_rtd_theme
   - sphinxcontrib-serializinghtml
   - traitlets
   - urllib3
   - pip:
-    - dash-cytoscape>=0.3.0
+    - dash-cytoscape
     - thermosteam==0.28.5
-    - semver>=2.13.0
-    - pyXSteam==0.4.8
+    - semver
+    - pyXSteam
