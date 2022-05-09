@@ -1,8 +1,6 @@
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc, html, dash_table
 import dash_cytoscape as cyto
 from dash.dependencies import Input, Output, State
-import dash_table
 from textwrap import dedent as d
 
 from ..core import name_of

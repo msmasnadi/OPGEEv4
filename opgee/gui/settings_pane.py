@@ -1,6 +1,5 @@
 from collections import defaultdict
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc, html
 from dash.dependencies import Input, Output, State
 from pathlib import Path
 
@@ -97,7 +96,7 @@ class SettingsPane(OpgeePane):
         app.callback(Output('save-button-status', 'children'),
                      Input('save-settings-button', 'n_clicks'),
                      Input('settings-filename', 'value'),
-                     state=state_list)(func)
+                     *state_list)(func)
 
     @staticmethod
     def save_attributes(xml_path, ids, values, analysis, field):
