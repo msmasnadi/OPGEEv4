@@ -4,11 +4,11 @@ def test_unixpath():
     assert unixPath(r"\Users\foo\bar") == "/Users/foo/bar"
 
 def test_expanduser():
-    home = os.getenv('HOME')
+    home = getHomeDir()
     assert pathjoin("~", "foo", expanduser=True) == unixPath(f"{home}/foo")
 
 def test_abspath():
-    home = os.getenv('HOME')
+    home = getHomeDir()
     os.chdir(home)
     assert pathjoin("foo", "bar", abspath=True) == unixPath(f"{home}/foo/bar")
 

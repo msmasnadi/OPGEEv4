@@ -34,6 +34,6 @@ dependencies:
   - urllib3
   - pip:
     - dash-cytoscape==0.3.0
-    - thermosteam>=0.28.5
+    - thermosteam==0.28.5
     - semver>=2.13.0
     - pyXSteam==0.4.8
