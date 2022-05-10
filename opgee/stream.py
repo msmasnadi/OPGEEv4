@@ -164,50 +164,6 @@ class Stream(XmlInstantiable, AttributeMixin):
 
         self.tp.copy_from(self.initial_tp)
 
-    def within_boundary(self):
-        """
-        If `self` is a boundary stream, return the list of processes within the boundary.
-        The boundary stream must not be in a cycle.
-        """
-        if self.boundary is None:
-            raise OpgeeException(f"within_boundary: '{self}' is not a boundary stream.")
-
-        visited = dict()
-
-        def _visit(proc):
-            if proc is None or visited.get(id(proc), False):
-                return
-
-            visited[id(proc)] = proc
-
-            for p in proc.predecessors():
-                _visit(p)
-
-        _visit(self.src_proc)
-        return set(visited)
-
-    def beyond_boundary(self):
-        """
-        If `self` is a boundary stream, return the list of processes beyond the boundary.
-        The boundary stream must not be in a cycle.
-        """
-        if self.boundary is None:
-            raise OpgeeException(f"beyond_boundary: '{self}' is not a boundary stream.")
-
-        visited = dict()
-
-        def _visit(proc):
-            if proc is None or visited.get(id(proc), False):
-                return
-
-            visited[id(proc)] = proc
-
-            for p in proc.successors():
-                _visit(p)
-
-        _visit(self.dst_proc)
-        return set(visited)
-
     @classmethod
     def units(cls):
         return cls._units
@@ -377,7 +333,9 @@ class Stream(XmlInstantiable, AttributeMixin):
         return self.components.gas[Stream.VOCs]
 
     def non_zero_flow_rates(self):
-        return self.components.query('solid > 0 or liquid > 0 or gas > 0')
+        zero = ureg.Quantity(0.0, 'tonne/day')
+        c = self.components
+        return c[(c.solid > zero) | (c.liquid > zero) | (c.gas > zero)]
 
     def set_gas_flow_rate(self, name, rate):
         """
@@ -443,10 +401,6 @@ class Stream(XmlInstantiable, AttributeMixin):
         :return: (pint.Quantity) the flow rate (energy per day)
         """
         return self.electricity
-
-    def set_temperature_and_pressure(self, t, p):
-        self.temperature = t
-        self.pressure = p
 
     def set_tp(self, tp):
         """

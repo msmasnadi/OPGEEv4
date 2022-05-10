@@ -94,6 +94,13 @@ def test_initialization(stream_model):
     stream2.set_gas_flow_rate("CO2", 10)
     assert stream2.is_initialized() and not stream2.has_zero_flow()
 
+    assert stream2.solid_flow_rate('PC').m == 0
+
+    rates = stream1.non_zero_flow_rates()
+    assert len(rates) == 1 and rates.index[0] == 'oil'
+    oil = rates.loc['oil']
+    assert oil.solid.m == 0.0 and oil.gas.m == 0.0 and oil.liquid.m == 100.0
+
 
 def test_combustion_stream(stream_model):
     analysis = stream_model.get_analysis('test')
@@ -102,6 +109,22 @@ def test_combustion_stream(stream_model):
     CO2_stream = field.find_stream("combusted final stream")
     CO2_stream.add_combustion_CO2_from(stream1)
     assert CO2_stream.gas_flow_rate("CO2") == ureg.Quantity(pytest.approx(8.950127703143934), "t/d")
+
+def test_stream_utils(stream_model):
+    from opgee.core import TemperaturePressure
+    from opgee.stream import Stream
+    tp = None
+    s = Stream('stream1', tp)
+    assert s.tp == None
+
+    tp = TemperaturePressure(100, 200)
+    s.set_tp(tp)
+
+    s.set_tp(None)  # TBD: silently does nothing. Probably should raise error instead
+
+    # check that T & P are unchanged
+    s.tp.T.m == 100.0
+    s.tp.P.m == 200.0
 
 
 def test_electricity(stream_model):
