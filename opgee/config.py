@@ -217,6 +217,8 @@ def getHomeDir():
         drive = drive or env.get('HOMEDRIVE') or 'C:'
         home = os.path.realpath(drive + path)
         home = home.replace('\\', '/')            # avoids '\' quoting issues
+    elif env.get('TRAVIS') == 'true':
+        home = os.getenv('HOME')
     else:
         home = env.get('OPGEE_HOME') or os.getenv('HOME')
 
