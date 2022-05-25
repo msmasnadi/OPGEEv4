@@ -67,9 +67,6 @@ Process subclasses
 .. automodule:: opgee.processes.demethanizer
    :members:
 
-.. automodule:: opgee.processes.dilution_transport
-   :members:
-
 .. automodule:: opgee.processes.downhole_pump
    :members:
 
