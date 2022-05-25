@@ -23,6 +23,7 @@ pyxsteam~=0.4.8
 scipy~=1.8.0
 semver>=2.13.0
 setuptools~=61.2.0
+sphinx>=4.3.0
 sphinx-argparse~=0.3.1
 sphinx_rtd_theme>=0.5.1
 thermosteam>=0.28.5

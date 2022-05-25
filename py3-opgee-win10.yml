@@ -26,9 +26,9 @@ dependencies:
   - pytest
   - python=3.8
   - setuptools
-  - sphinx
-  - sphinx-argparse>=0.2.5
-  - sphinx_rtd_theme
+  - sphinx>=4.3.0
+  - sphinx-argparse~=0.3.1
+  - sphinx_rtd_theme>=0.5.1
   - sphinxcontrib-serializinghtml
   - traitlets
   - urllib3
