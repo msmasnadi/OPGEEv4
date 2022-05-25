@@ -4,6 +4,8 @@ lxml>=4.8.0
 matplotlib>=3.5.2
 numpy>=1.21.0
 pandas>=1.4.2
+pint>=0.19.2
+pint-pandas>=0.2
 pytest
 pyXSteam>=0.4.8
 scipy>=1.8.1
