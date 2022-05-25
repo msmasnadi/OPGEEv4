@@ -68,21 +68,20 @@ class BitumenMining(Process):
         self.print_running_msg()
         field = self.field
 
-        bitumen_to_dilution_mass_rate = \
-            self.oil_prod_rate * self.bitumen_SG * self.water_density \
-                if self.upgrader_mining_prod_offsite is False and \
-                   self.oil_sands_mine == "Non-integrated with upgrader" \
-                else ureg.Quantity(0.0, "tonne/day")
+        bitumen_to_dilution_mass_rate = (
+            self.oil_prod_rate * self.bitumen_SG * self.water_density
+                if (not self.upgrader_mining_prod_offsite and
+                   self.oil_sands_mine == "Non-integrated with upgrader")
+                else ureg.Quantity(0.0, "tonne/day"))
 
         bitumen_to_dilution_stream = self.find_output_stream("bitumen for dilution")
 
-        bitumen_to_upgrading_mass_rate = \
-            self.oil_prod_rate * self.bitumen_SG * self.water_density \
-                if self.upgrading_insitu_oil is False and \
-                   self.oil_sands_mine is "Integrated with upgrader" and \
-                   self.downhole_pump is False \
-                else ureg.Quantity(0.0, "tonne/day")
-
+        bitumen_to_upgrading_mass_rate = (
+            self.oil_prod_rate * self.bitumen_SG * self.water_density
+                if (not self.upgrading_insitu_oil and
+                    not self.downhole_pump and
+                    self.oil_sands_mine == "Integrated with upgrader")
+                else ureg.Quantity(0.0, "tonne/day"))
 
         bitumen_mass_rate_tot = bitumen_to_dilution_mass_rate + bitumen_to_upgrading_mass_rate
         bitumen_volume_rate = bitumen_mass_rate_tot / self.bitumen_SG / self.water_density
