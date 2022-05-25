@@ -39,7 +39,7 @@ OPGEE.ShowStackTrace = True
 
 [my_project]
 # OPGEE.ClassPath = %(Home)s/my_directory/my_opgee_procs.py
-OPGEE.StreamComponents = foo, bar , baz
+# OPGEE.StreamComponents = foo, bar , baz
 """
 
 # The unixPath and pathjoin funcs are here rather than in utils.py
