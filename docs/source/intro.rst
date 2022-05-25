@@ -9,20 +9,20 @@ OPGEEv4 is installable as a Python package from the “pip” package server. Th
 package includes these components:
 
     * Classes implementing the required LCA components for the default set of fields,
-      processes, technologies, and streams. User-defined classes can augment those provided
-      in the package.
+  processes, technologies, and streams. User-defined classes can augment those provided
+  in the package.
 
     * Configuration default files customized for the three supported computing platforms,
-      Windows 10, Linux, and macOS.
+  Windows 10, Linux, and macOS.
 
     * The default LCA model, expressed in the opgee.xml file. This file describes a runnable
-      model equivalent to the contents of the OPGEEv3 Excel workbook. It also provides the
-      basis for customizations by the user: any and all components defined in this file can
-      be modified or deleted, and new components can be defined in a user’s model description
-      file to create a custom model.
+  model equivalent to the contents of the OPGEEv3 Excel workbook. It also provides the
+  basis for customizations by the user: any and all components defined in this file can
+  be modified or deleted, and new components can be defined in a user’s model description
+  file to create a custom model.
 
     * Source files for the documentation system, from which this online documentation is generated.
-      Users can optionally build the documentation on their own systems.
+  Users can optionally build the documentation on their own systems.
 
     * Tutorials and example files demonstrating customization of the model.
 
