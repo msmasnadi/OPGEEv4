@@ -1,5 +1,5 @@
 """
-... Created in 2016 as part of OPGEE.
+... Created in 2016 as part of pygcam.
    Imported into opgee on 3/29/21
 
 .. Logging support.
@@ -11,7 +11,7 @@
    initialized, and all subsequently registered loggers are initialized
    upon instantiation.
 
-.. Copyright (c) 2016-2021 Richard Plevin
+.. Copyright (c) 2016-2022 Richard Plevin
    See the https://opensource.org/licenses/MIT for license details.
 """
 import os

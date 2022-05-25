@@ -4,7 +4,7 @@
 .. Adapted from tool.py in pygcam.
    Added to opgee on 3/29/21.
 
-.. Copyright (c) 2016-2021 Richard Plevin
+.. Copyright (c) 2016-2022 Richard Plevin
    See the https://opensource.org/licenses/MIT for license details.
 '''
 import argparse

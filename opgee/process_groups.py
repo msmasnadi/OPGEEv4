@@ -1,3 +1,11 @@
+#
+# Support for process groups
+#
+# Author: Richard Plevin and Wennan Long
+#
+# Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
+# See LICENSE.txt for license details.
+#
 from collections import OrderedDict
 from .core import XmlInstantiable, elt_name, instantiate_subelts
 from .error import OpgeeException

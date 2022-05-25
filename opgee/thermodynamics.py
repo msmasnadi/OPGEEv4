@@ -1,3 +1,11 @@
+#
+# Thermodynamic information classes
+#
+# Author: Wennan Long
+#
+# Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
+# See LICENSE.txt for license details.
+#
 import math
 import pandas as pd
 from pandas import Series

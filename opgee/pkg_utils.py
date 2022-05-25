@@ -1,9 +1,10 @@
 '''
-.. Created on: 2/12/15 as part of pygcam
-   Imported into opgee on 3/29/21
+.. Created as part of pygcam (2015)
+   Imported into opgee (2021)
+
    Common functions and data
 
-.. Copyright (c) 2015-2021 Richard Plevin
+.. Copyright (c) 2015-2022 Richard Plevin
    See the https://opensource.org/licenses/MIT for license details.
 '''
 import pkgutil

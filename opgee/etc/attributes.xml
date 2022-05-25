@@ -178,7 +178,7 @@
 
       <AttrDef name="upgrader_type" desc="Upgrader type" options="upgrader_type" type="str"/>
       <AttrDef name="gas_processing_path" desc="Associated gas processing path" options="gas_processing_path" type="str"/>
-      <AttrDef name="FOR" unit="scf/bbl_oil" desc="Ratio of flaring to oil production" type="float">141.3</AttrDef>
+      <AttrDef name="FOR" unit="scf/bbl_oil" desc="Ratio of flaring to oil production" type="float">141.3</AttrDef>  <!-- TODO: in Excel, this references Flaring!M49, which is computed -->
       <AttrDef name="VOR" unit="scf/bbl_oil" desc="Ratio of venting to oil production" type="float">5.0</AttrDef>
       <AttrDef name="oil_processing_path" desc="Associated oil processing path" options="oil_processing_path" type="str"/>
       <AttrDef name="temperature_mined_bitumen" desc="Mined bitumen temperature" type="float" unit="degF">80.0</AttrDef>

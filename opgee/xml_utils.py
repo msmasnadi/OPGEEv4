@@ -1,8 +1,8 @@
 '''
-.. Created 2020 as part of pygcam.
-   Imported into opgee on 4/22/21
+.. Created as part of pygcam (2020)
+   Imported into opgee (2021)
 
-.. Copyright (c) 2015-2021 Richard Plevin
+.. Copyright (c) 2015-2022 Richard Plevin
    See the https://opensource.org/licenses/MIT for license details.
 '''
 from copy import deepcopy

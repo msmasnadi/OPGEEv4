@@ -1,11 +1,12 @@
 #!/usr/bin/env python
-
-'''
-.. The "opg" commandline program
-
-.. Copyright (c) 2021 Richard Plevin and Stanford University
-   See the https://opensource.org/licenses/MIT for license details.
-'''
+#
+# The "opg" commandline program
+#
+# Author: Richard Plevin and Wennan Long
+#
+# Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
+# See LICENSE.txt for license details.
+#
 from opgee.tool import main # pragma: no cover
 
 main()                      # pragma: no cover

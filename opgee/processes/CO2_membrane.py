@@ -1,3 +1,11 @@
+#
+# CO2InjectionWell class
+#
+# Author: Richard Plevin and Wennan Long
+#
+# Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
+# See LICENSE.txt for license details.
+#
 from ..log import getLogger
 from ..process import Process
 from ..stream import PHASE_GAS
