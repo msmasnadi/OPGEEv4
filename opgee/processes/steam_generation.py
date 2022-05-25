@@ -1,3 +1,11 @@
+#
+# SteamGeneration class
+#
+# Author: Wennan Long
+#
+# Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
+# See LICENSE.txt for license details.
+#
 from ..core import TemperaturePressure
 from ..emissions import EM_COMBUSTION
 from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY
