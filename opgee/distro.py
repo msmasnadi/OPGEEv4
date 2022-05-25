@@ -1,22 +1,22 @@
 # Created on Mar 20, 2012
+# Incorporated into pygcam (2015)
+# Incorporated into OPGEE (2022)
 #
 # @author: Rich Plevin
 # @author: Sam Fendell
 #
-# Copyright (c) 2012-2015. The Regents of the University of California (Regents)
-# and Richard Plevin. See the file COPYRIGHT.txt for details.
-'''
-This module is based on code originally developed by Sam Fendell.
-'''
+# Copyright (c) the authors, 2012-2022.
+# See the https://opensource.org/licenses/MIT for license details.
+#
 import math
 import re
 from inspect import getargspec
 
 import numpy as np
-from scipy.stats import lognorm, triang, uniform, norm, rv_discrete
+from scipy.stats import lognorm, triang, uniform, norm, rv_discrete, truncnorm
 
-from pygcam.log import getLogger
-from .error import PygcamMcsUserError
+from .log import getLogger
+from .error import OpgeeException
 
 _logger = getLogger(__name__)
 
@@ -54,13 +54,13 @@ def uniformMinMax(min, max):
 
 def uniformRange(range):
     if range <= 0.0:
-        raise PygcamMcsUserError("Uniform range must be > 0.0; %f was given" % range)
+        raise OpgeeException("Uniform range must be > 0.0; %f was given" % range)
 
     return uniformMinMax(-range, range)
 
 def uniformFactor(factor):
     if factor < 0.0 or factor > 1.0:
-        raise PygcamMcsUserError("Uniform factor must be between 0.0 and 1.0; %f was given" % factor)
+        raise OpgeeException("Uniform factor must be between 0.0 and 1.0; %f was given" % factor)
 
     return uniformMinMax(1 - factor, 1 + factor)
 
@@ -106,14 +106,13 @@ def lognormalRvForIQR(q1, q3):
     sigma = iqr / 1.34896
     return lognormalRvForNormal(mu, sigma)
 
-
 def logfactor(factor):
     """
     Define a lognormal distribution assuming the 2.5% and 97.5% values
     are 1/factor and factor, respectively.
     """
     if factor < 1.0:
-        raise PygcamMcsUserError("LogFactor 'factor' must be >= 1; a value of %f was given." % factor)
+        raise OpgeeException("LogFactor 'factor' must be >= 1; a value of %f was given." % factor)
 
     return lognormalRvFor95th(1 / factor, factor)
 
@@ -126,31 +125,34 @@ def triangle(min, mode, max):  # @ReservedAssignment
 
     scale = max - min
     if scale == 0:
-        raise PygcamMcsUserError("Scale of triangle distribution is zero")
+        raise OpgeeException("Scale of triangle distribution is zero")
 
     c = (mode - min) / scale  # central value (mode) of the triangle
     return triang(c, loc=min, scale=scale)
 
 def triangleRange(range):
     if range <= 0.0:
-        raise PygcamMcsUserError("Triangle range must be between > 0.0; %f was given" % range)
+        raise OpgeeException("Triangle range must be between > 0.0; %f was given" % range)
 
     return triangle(-range, 0, range)
 
 def triangleFactor(factor):
     if factor < 0.0 or factor > 1.0:
-        raise PygcamMcsUserError("Triangle factor must be between 0.0 and 1.0; %f was given" % factor)
+        raise OpgeeException("Triangle factor must be between 0.0 and 1.0; %f was given" % factor)
 
     return triangle(1 - factor, 1, 1 + factor)
 
 def triangleLogfactor(logfactor):
     if logfactor < 1.0:
-        raise PygcamMcsUserError("Triangle logfactor must be > 1.0; %f was given" % logfactor)
+        raise OpgeeException("Triangle logfactor must be > 1.0; %f was given" % logfactor)
 
     return triangle(1.0/logfactor, 1, logfactor)
 
 def binary():
     return rv_discrete(name="binary", values=[(0, 1), (0.5, 0.5)])
+
+def weighted_binary(prob_of_one):
+    return rv_discrete(name="weighted_binary", values=[(0, 1), (1-prob_of_one, prob_of_one)])
 
 def integers(min, max):
     min = int(min)
@@ -159,6 +161,26 @@ def integers(min, max):
     nums  = list(range(min, max + 1))
     probs = [1.0/count] * count
     return rv_discrete(name='integers', values=[nums, probs])
+
+
+class truncated_normal():
+    def __init__(self, mean, stdev, low, high):
+        self.mean = mean
+        self.stdev = stdev
+        self.low = low
+        self.high = high
+
+        # Get a and b parameters for truncated standard normal distribution
+        # See https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.truncnorm.html
+        a, b = (low - mean) / stdev, (high - mean) / stdev
+        self.rv = truncnorm(a, b)
+
+    def ppf(self, q):
+        y = self.rv.ppf(q)
+        # shift standard normal back to original shape and location
+        shifted = y * self.stdev + self.mean
+        return shifted
+
 
 class constant():
     """

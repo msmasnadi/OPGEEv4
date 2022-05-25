@@ -1,7 +1,7 @@
 '''
-.. Created as part of pygcam. Imported into opgee on 3/29/21.
+.. Created as part of pygcam. Imported into opgee (2021).
 
-.. Copyright (c) 2016-2021 Richard Plevin
+.. Copyright (c) 2016-2022 Richard Plevin
    See the https://opensource.org/licenses/MIT for license details.
 '''
 from abc import ABCMeta, abstractmethod

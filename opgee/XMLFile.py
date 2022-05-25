@@ -1,3 +1,10 @@
+'''
+.. Created as part of pygcam (2015)
+   Imported into opgee (2021)
+
+.. Copyright (c) 2015-2022 Richard Plevin
+   See the https://opensource.org/licenses/MIT for license details.
+'''
 from lxml import etree as ET
 import os
 import pkg_resources as pkg

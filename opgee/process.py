@@ -1,9 +1,11 @@
-'''
-.. OPGEE process support
-
-.. Copyright (c) 2021 Richard Plevin and Adam Brandt
-   See the https://opensource.org/licenses/MIT for license details.
-'''
+#
+# OPGEE process support
+#
+# Author: Richard Plevin and Wennan Long
+#
+# Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
+# See LICENSE.txt for license details.
+#
 import pandas as pd
 import pint
 from typing import Union, Optional

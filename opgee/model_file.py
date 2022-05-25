@@ -1,3 +1,11 @@
+#
+# OPGEE ModelFile class
+#
+# Author: Richard Plevin
+#
+# Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
+# See LICENSE.txt for license details.
+#
 from copy import deepcopy
 import os
 from pathlib import Path

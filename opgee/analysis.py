@@ -1,3 +1,9 @@
+#
+# Author: Richard Plevin
+#
+# Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
+# See LICENSE.txt for license details.
+#
 import re
 from .config import getParamAsList
 from .container import Container
@@ -183,6 +189,22 @@ class Analysis(Container):
         """
         for field in self.fields():
             field.run(self, compute_ci=compute_ci)
+
+    def instances_by_class(self, cls):
+        """
+        Find one or more instances of ``cls`` known to this Analysis instance.
+        If ``cls`` is ``Analysis``, just return ``self``; if ``cls`` is ``Field``,
+        return all fields from our ``field_dict``.
+
+        :param cls: (Class) the class to find
+        :return: (Analysis instance or iterator of Field instances), or None if ``cls``
+          is neither ``Field`` nor ``Analysis``.
+        """
+        if issubclass(cls, self.__class__):
+            return self
+
+        if issubclass(cls, Field):
+            return self.field_dict.values()
 
     @classmethod
     def from_xml(cls, elt):

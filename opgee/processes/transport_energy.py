@@ -1,3 +1,11 @@
+#
+# TransportEnergy class
+#
+# Author: Wennan Long
+#
+# Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
+# See LICENSE.txt for license details.
+#
 import pandas as pd
 from opgee import ureg
 from opgee.core import OpgeeObject
@@ -29,10 +37,7 @@ class TransportEnergy(OpgeeObject):
         parameter_dict = TransportEnergy.get_parameter_dict(parameter_table)
 
         # TODO: is it necessary to say "ocean_tanker" rather than just "tanker"? Longer names
-        #       that don't add clarity are worse than clear, shorter names. As a general
-        #       observation, your variable names tend to be much longer than necessary for clarity.
-        #       You will never find a huge block of text like the one below in my code. It's very
-        #       difficult to read, largely because all the names are excessively long.
+        #       that don't add clarity are worse than clear, shorter names.
         ocean_tanker_load_factor_dest = parameter_dict["load_factor_to_dest_tanker"]
         barge_load_factor_dest = parameter_dict["load_factor_to_dest_barge"]
         ocean_tanker_load_factor_origin = parameter_dict["load_factor_to_orig_tanker"]

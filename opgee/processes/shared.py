@@ -1,3 +1,11 @@
+#
+# Functions used by Process subclasses
+#
+# Author: Wennan Long
+#
+# Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
+# See LICENSE.txt for license details.
+#
 from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL, EN_RESID
 from ..error import OpgeeException
 from ..stream import Stream, PHASE_GAS

@@ -1,5 +1,11 @@
-# pkgutil doesn't provide a method to discover all the files in a package subdirectory
-# so we identify the basenames of the files here and then extract them into a structure.
+#
+# TableManager class
+#
+# Author: Richard Plevin and Wennan Long
+#
+# Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
+# See LICENSE.txt for license details.
+#
 import os
 import pandas as pd
 from .core import OpgeeObject

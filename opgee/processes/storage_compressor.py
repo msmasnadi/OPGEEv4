@@ -1,3 +1,11 @@
+#
+# StorageCompressor class
+#
+# Author: Wennan Long
+#
+# Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
+# See LICENSE.txt for license details.
+#
 from ..stream import Stream, PHASE_GAS
 from .shared import get_energy_carrier
 from opgee.processes.compressor import Compressor

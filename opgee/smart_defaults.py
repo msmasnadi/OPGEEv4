@@ -1,4 +1,11 @@
 #
+# Smart Defaults
+#
+# Author: Richard Plevin
+#
+# Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
+# See LICENSE.txt for license details.
+#
 # TODO:
 #   - Should defaults and distros be assigned at a class level?
 #     - Attributes are defined at this level, so it makes sense.
@@ -23,7 +30,6 @@
 #   Questions
 #   - Does it make sense for an attribute to have both a SmartDefault and Distribution?
 #
-from collections import defaultdict
 import networkx as nx
 import pandas as pd
 from opgee.core import OpgeeObject
@@ -54,9 +60,10 @@ class Dependency(OpgeeObject):
 
         print(f'Saving {dep_type} for attribute {attr_name} of class {func_class}')
 
-        Dependency.registry = Dependency.registry.append(dict(dep_type=dep_type, class_name=func_class,
-                                                              attr_name=attr_name, dep_obj=self),
-                                                         ignore_index=True)
+        # Append to the registry (N.B. df.append method is deprecated)
+        d = dict(dep_type=dep_type, class_name=func_class, attr_name=attr_name, dep_obj=self)
+        df = pd.DataFrame(data=[d])
+        Dependency.registry = pd.concat([Dependency.registry, df], ignore_index=True)
 
     @classmethod
     def register(cls, attr_name, dependencies):
@@ -94,10 +101,6 @@ class Dependency(OpgeeObject):
         g = Dependency.graph()
         ordered = nx.topological_sort(g)
 
-        # TBD: obj is a str, not Dependency...
-        # for i, obj in enumerate(ordered):
-        #     obj.run_index = i
-
         return ordered
 
     @classmethod
@@ -108,7 +111,7 @@ class Dependency(OpgeeObject):
         :return: (networkx.DiGraph) the graph
         """
         g = nx.DiGraph()
-        for obj in cls.instances:
+        for obj in cls.registry.dep_obj:
             g.add_edges_from([(dep, obj.attr_name) for dep in obj.dependencies])
 
         return g
@@ -123,7 +126,7 @@ class Dependency(OpgeeObject):
         if len(rows) == 0:
             raise OpgeeException(f"Attribute {attr_name} has no {dep_type} registered for class {class_name}.")
 
-        dep_obj = rows[0].attr_name
+        dep_obj = rows.dep_obj.values[0]
         return dep_obj
 
     # TBD: resolve the issue of finding Analysis from Field
@@ -182,6 +185,31 @@ class SmartDefault(Dependency):
         obj.set_attr(self.attr_name, result)
 
         return result
+
+    @classmethod
+    def apply_defaults(cls, analysis):
+        """
+        Apply all SmartDefaults for the given ``analysis`` object.
+
+        Descends from Analysis, to Fields, to Processes, applying smart where
+        default value was not provided by user. Defaults are processed in
+        dependency order.
+
+        :param analysis: (opgee.Analysis)
+        :return: none
+        """
+        # TBD: Validation: ensure that no smart default depends on a contained element
+        #      Raise error if there are cycles in dependency network
+        # Processing:
+        # - Sort dependencies
+        # - Walk dependency structure
+        #   - dep.class_name == 'Analysis', use analysis object
+        #   - dep.class_name == 'Field', iterate over analysis' fields
+        #   - dep.class_name in process_dict (below), iterate over all fields and see if
+        #     the named process class appears in that Field, then apply default in each.
+        from .process import Process
+        process_dict = {cls.__name__: cls for cls in Process.__subclasses__()}
+        pass
 
 #
 # TBD: might fold into one class or distill upward to superclass.

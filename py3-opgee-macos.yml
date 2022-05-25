@@ -8,6 +8,7 @@ dependencies:
   - dash>=2.3.1
   - decorator
   - ipython
+  - ipyparallel
   - jinja2>=3.0.1
   - libpng
   - libtiff

@@ -1,3 +1,7 @@
+#
+# Author: Richard Plevin
+# See LICENSE.txt for license details.
+#
 import pint
 import pint_pandas
 from .pkg_utils import resourceStream

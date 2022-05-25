@@ -1,10 +1,11 @@
-'''
-.. Error classes
-
-.. Copyright (c) 2021 Richard Plevin and Stanford University
-   See the https://opensource.org/licenses/MIT for license details.
-'''
-
+#
+# Error classes
+#
+# Author: Richard Plevin
+#
+# Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
+# See LICENSE.txt for license details.
+#
 
 class OpgeeException(Exception):
     pass

@@ -1,3 +1,11 @@
+#
+# Field class
+#
+# Author: Richard Plevin and Wennan Long
+#
+# Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
+# See LICENSE.txt for license details.
+#
 import networkx as nx
 import pint
 from . import ureg
@@ -5,17 +13,18 @@ from .config import getParamAsList
 from .container import Container
 from .constants import petrocoke_LHV
 from .core import elt_name, instantiate_subelts, dict_from_list, TemperaturePressure, STP
+from .energy import Energy
 from .error import (OpgeeException, OpgeeStopIteration, OpgeeMaxIterationsReached,
                     OpgeeIterationConverged, ModelValidationError, ZeroEnergyFlowError)
+from .import_export import ImportExport, WATER
 from .log import getLogger
 from .process import Process, Aggregator, Reservoir
 from .process_groups import ProcessChoice
+from .smart_defaults import SmartDefault, Distribution
 from .stream import Stream
 from .thermodynamics import Oil, Gas, Water
-from opgee.processes.steam_generator import SteamGenerator
-from .utils import getBooleanXML, flatten
-from .energy import Energy
-from .import_export import ImportExport, NATURAL_GAS, CRUDE_OIL, WATER
+from .processes.steam_generator import SteamGenerator
+from .utils import getBooleanXML, flatten, roundup
 
 _logger = getLogger(__name__)
 
@@ -837,3 +846,207 @@ class Field(Container):
 
         debug(f"\n{self}:")
         visit(self.reservoir)
+
+    def instances_by_class(self, cls):
+        """
+        Find one or more instances of ``cls`` known to this Field instance.
+        If ``cls`` is ``Field``, just return ``self``; if ``cls`` is a subclass
+        of ``Process``, find any instances in the field's ``process_dict``.
+
+        :param cls: (Class) the class to find
+        :return: (Field or list of instances of the Process subclass) if found,
+          else None
+        """
+        if issubclass(cls, self.__class__):
+            return self
+
+        if issubclass(cls, Process):
+            results = []
+
+            # TODO: replace loop with dict keyed on process name
+            for proc in self.process_dict.values():
+                if isinstance(proc, cls):
+                    results.append(proc)
+
+            return results or None
+
+        else:
+            return None
+
+    #
+    # Smart Defaults and Distributions
+    #
+
+    @SmartDefault.register('WOR', ['steam_flooding', 'age', 'SOR'])
+    def WOR_default(self, steam_flooding, age, SOR):
+        from math import exp
+
+        # =IF(Steam_flooding_01=0,
+        #     IF(4.021*EXP(0.024*Field_age)-4.021<=100, 4.021*EXP(0.024*Field_age)-4.021, 100),
+        #     SOR)
+        if steam_flooding:
+            return SOR
+
+        tmp = 4.021 * exp(0.024 * age) - 4.021
+        return tmp if tmp <= 100 else 100
+
+    @SmartDefault.register('SOR', ['steam_flooding'])
+    def SOR_default(self, steam_flooding):
+        return 3.0 if steam_flooding else 1.0
+
+    # NOTE: If GOR is not known, it can be computed from API_grav, but we avoid
+    # registering the dependency as this would create a dependency cycle.
+    @SmartDefault.register('GOR', ['API'])
+    def GOR_default(self, API):
+        # =IF(API_grav<20,1122.4,IF(AND(API_grav>=20,API_grav<=30),1205.4,2429.3))
+        if API < 20:
+            return 1122.4           # TODO: explain these constants
+        elif 20 <= API <= 30:
+            return 1205.4
+        else:
+            return 2429.3
+
+    # TODO: handle special case of API depending on GOR
+    # @SmartDefault.register('API', ['GOR'])
+    # def api_default(self, GOR):
+    #     # =IF(GOR > 10000, Z73, 32.8) [Z73 = constant 47]
+    #     return 47.0 if GOR > 10000 else 32.8
+
+    # TODO: Is the default always 7, or always the value of WOR plus 1?
+    @SmartDefault.register('WIR', ['WOR'])
+    def WIR_default(self, wor):
+        # =J86+1  [J86 is WOR default, 6]
+        return wor + 1
+
+    @SmartDefault.register('flood_gas_type', ['GFIR'])
+    def flood_gas_type_default(self, gfir):
+        print(f"Called flood_gas_type_default({self}, {gfir})")
+        return 10000 # TBD
+
+    @SmartDefault.register('stabilizer', ['GOR', 'gas_lifting', 'oil_sands_mine'])
+    def stabilizer_default(self, GOR, gas_lifting, oil_sands_mine):
+        # =IF(OR(J55+J56=1,AND(J85<=500,J52=0)),0,1)
+        # J52 = gas_lifting (binary)
+        # J55 = oil_sands_mine, integrated with upgrader (binary)
+        # J56 = oil_sands_mine, non-integrated with upgrader (binary)
+        # J85 = GOR
+        #
+        # Note: in OPGEEv4, there's one attribute 'oil_sands_mine' that can have values
+        # 'None', 'Integrated with upgrader', or 'Non-integrated with upgrader'.
+        return 0 if (oil_sands_mine != 'None') or (not gas_lifting and GOR <= 500) else 1
+
+    # gas flooding injection ratio
+    @SmartDefault.register('GFIR', ['flood_gas_type', 'GOR'])
+    def GFIR_default(self, flood_gas_type, GOR):
+        # =IF(Flood_gas_type=1, 1.5*J85, IF(Flood_gas_type=2, 1200,  IF(Flood_gas_type=3, 10000,  1.5*J85)))
+        # J85 is GOR
+        if flood_gas_type == 1:
+            return 1.5 * GOR
+
+        elif flood_gas_type == 2:
+            return 1200
+
+        elif flood_gas_type == 3:
+            return 10000
+
+        else:
+            return 1.5 * GOR
+
+    @SmartDefault.register('depth', ['GOR'])
+    def depth_default(self, GOR):
+        # =IF(GOR > 10000, Z62, 7122), where Z62 has constant 8285 [gas field default depth]
+        gas_field_default_depth = 8285.
+        return gas_field_default_depth if GOR > 1000 else 7122.
+
+    @SmartDefault.register('res_pres', ['country', 'depth', 'steam_flooding'])
+    def res_press_default(self, country, depth, steam_flooding):
+        # =IF(AND('Active Field'!J59="California",'Active Field'!J54=1),100,0.5*(J62*0.43))
+        # J59 = country, J62 = depth, J54 = steam_flooding
+        return 100.0 if (country == 'California' and steam_flooding) else 0.5 * depth * 0.43
+
+    @SmartDefault.register('res_temp', ['depth'])
+    def res_temp_default(self, depth):
+        # = 70+1.8*J62/100 [J62 = depth]
+        return 70 + 1.8 * depth/100.0
+
+    @SmartDefault.register('heater_treater', ['API'])
+    def heater_treater_default(self, API):
+        # =IF(J73<18,1,0)  [J73 is API gravity]
+        return API < 18
+
+    @SmartDefault.register('num_prod_wells', ['oil_sands_mine', 'oil_prod'])
+    def num_producing_wells_default(self, oil_sands_mine, oil_prod):
+        # =IF(OR(Oil_sands_mine_int_01=1,Oil_sands_mine_nonint_01=1),0,IF(ROUND(J63/87.5,0)<1,1,ROUNDUP(J63/87.5,0)))
+        # J63 = oil_prod
+        return 0 if oil_sands_mine != 'None' else max(1.0, round(oil_prod/87.5, 0))
+
+    @SmartDefault.register('num_water_inj_wells', ['oil_sands_mine', 'oil_prod', 'num_prod_wells'])
+    def oil_prod_default(self, oil_sands_mine, oil_prod, num_prod_wells):
+        # =IF(OR(Oil_sands_mine_int_01=1,Oil_sands_mine_nonint_01=1),
+        #     0,
+        #     IF($J$63<=10,                     [J63 = oil_prod]
+        #        ROUNDUP(J64*0.143,0),          [J64 = num_prod_wells]
+        #        IF(AND($J$63>10,$J$63<=100),
+        #           ROUNDUP(J64*0.267,0),
+        #           IF(AND($J$63>100, $J$63<=1000),
+        #              ROUNDUP(J64*0.512,0),
+        #              ROUNDUP(J64*0.829,0)))))
+        if oil_sands_mine != 'None':
+            return 0
+
+        if oil_prod <= 10:
+            fraction = 0.143
+        elif 10 < oil_prod <= 100:
+            fraction = 0.267
+        elif 100 < oil_prod <= 1000:
+            fraction = 0.512
+        else:
+            fraction = 0.829
+
+        return roundup(num_prod_wells * fraction, 0)
+
+    @SmartDefault.register('fraction_diluent', ['oil_sands_mine', 'upgrader_type'])
+    def fraction_diluent_default(self, oil_sands_mine, upgrader_type):
+        # =IF(AND(J56=1,J111=0),0.3,0) [J56 = 'oil sands mine nonint'; ; J111 = upgrader_type
+        return 0.3 if (oil_sands_mine == 'Non-integrated with upgrader' and upgrader_type == 'None') else 0.0
+
+    @SmartDefault.register('fraction_elec_onsite', ['offshore'])
+    def fraction_elec_onsite_default(self, offshore):
+        return 1.0 if offshore else 0.0
+
+    @SmartDefault.register('fraction_remaining_gas_inj', ['natural_gas_reinjection', 'gas_flooding'])
+    def fraction_remaining_gas_inj_default(self, natural_gas_reinjection, gas_flooding):
+        # =IF(J53=1,1,IF(J50=1,0.5,0)) [J53 = gas_flooding, J50 = natural_gas_reinjection]
+        return 1.0 if gas_flooding else (0.5 if natural_gas_reinjection else 0.0)
+
+    @SmartDefault.register('ecosystem_richness', ['offshore'])
+    def ecosystem_richness_default(self, offshore):
+        # Excel has 3 separate booleans for low, med, high ecosystem richness, but we have
+        # just one attribute here; value is one of ('Low carbon', 'Med carbon', 'High carbon').
+        # Low : =IF(J70=1,1,0) [J70 = offshore]
+        # Med : =IF(J70=1,0,1)
+        # High: =IF(J70=1,0,0) # TODO: high carbon isn't used?
+        return 'Low carbon' if offshore else 'Med carbon'
+
+    @SmartDefault.register('field_development_intensity', ['offshore'])
+    def field_development_intensity_default(self, offshore):
+        # Excel has 3 separate booleans for low, med, high intensity, but we have
+        # just one attribute here; value is one of ('Low', 'Med', 'High').
+        # Low : =IF(J70=1,1,0) [J70 = offshore]
+        # Med : =IF(J70=1,0,1)
+        # High: =IF(J70=1,0,0) # TODO: high intensity isn't used?
+        return 'Low' if offshore else 'Med'
+
+
+    # TODO: decide how to handle "associated gas defaults", which is just global vs CA-LCFS values currently
+
+
+    @Distribution.register('WOR-SD', ['age'])
+    def WOR_sd_distro(self, age):
+        print(f"Called wor_sd_distro({self}, age:{age})")
+        return 10000 # TBD
+
+    @Distribution.register('WOR', ['age', 'WOR-SD'])
+    def WOR_distro(self, age, wor_sd):
+        print(f"Called wor_distro({self}, age:{age}, wor_sd:{wor_sd})")
+        return 10000 # TBD

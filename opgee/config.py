@@ -2,7 +2,7 @@
 .. Created 2016 as part of pygcam.
    Imported into opgee on 3/29/21
 
-.. Copyright (c) 2015-2021 Richard Plevin
+.. Copyright (c) 2015-2022 Richard Plevin
    See the https://opensource.org/licenses/MIT for license details.
 '''
 import os

@@ -1,3 +1,11 @@
+#
+# Compressor class
+#
+# Author: Wennan Long
+#
+# Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
+# See LICENSE.txt for license details.
+#
 from opgee import ureg
 from opgee.core import OpgeeObject
 from opgee.error import OpgeeException
