@@ -163,6 +163,8 @@ class Field(Container):
         self.water = Water(self)
         self.steam_generator = SteamGenerator(self)
         self.product_names = self.import_export.imports_exports().index.drop(WATER)
+
+        # TODO: the only use of this is in a function that isn't called. Maybe deprecated.
         self.product_boundaries = model.product_boundaries
 
         self.product_LHV = model.component_LHV
@@ -381,6 +383,7 @@ class Field(Container):
 
         return imported_emissions
 
+    # Deprecated? Or just not used yet?
     def get_carbon_credit(self, byproduct_names, analysis):
         """
         Calculate carbon credit from byproduct
@@ -917,11 +920,6 @@ class Field(Container):
     def WIR_default(self, wor):
         # =J86+1  [J86 is WOR default, 6]
         return wor + 1
-
-    @SmartDefault.register('flood_gas_type', ['GFIR'])
-    def flood_gas_type_default(self, gfir):
-        print(f"Called flood_gas_type_default({self}, {gfir})")
-        return 10000 # TBD
 
     @SmartDefault.register('stabilizer', ['GOR', 'gas_lifting', 'oil_sands_mine'])
     def stabilizer_default(self, GOR, gas_lifting, oil_sands_mine):

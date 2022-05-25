@@ -22,7 +22,6 @@ from .energy import Energy, EN_NATURAL_GAS, EN_CRUDE_OIL, EN_PETCOKE, EN_NGL
 from .log import getLogger
 from .stream import Stream
 from .utils import getBooleanXML
-from .drivers import get_efficiency
 from .combine_streams import combine_streams
 from .import_export import ImportExport
 from .constants import petrocoke_LHV
@@ -256,15 +255,15 @@ class Process(XmlInstantiable, AttributeMixin):
         msgs = []
 
         for contents in self.required_inputs():
-            if not self.find_input_stream(contents, as_list=True):
+            if not self.find_input_streams(contents, as_list=True):
                 msgs.append(f"{self} is missing an input stream containing '{contents}'")
 
         for contents in self.required_outputs():
-            if not self.find_output_stream(contents, as_list=True):
+            if not self.find_output_streams(contents, as_list=True):
                 msgs.append(f"{self} is missing an output stream containing '{contents}'")
 
         if msgs:
-            msg = '\n'.msgs
+            msg = '\n'.join(msgs)
             raise ModelValidationError(msg)
 
     def reset(self):
@@ -769,25 +768,6 @@ class Process(XmlInstantiable, AttributeMixin):
 
     def venting_fugitive_rate(self):
         return self.attr('leak_rate')
-
-    # TODO: these two static methods should be simple functions in a file in the processes directory
-    @staticmethod
-    def get_energy_consumption_stages(prime_mover_type, brake_horsepower_of_stages):
-        energy_consumption_of_stages = []
-        for brake_horsepower in brake_horsepower_of_stages:
-            eff = get_efficiency(prime_mover_type, brake_horsepower)
-            energy_consumption = (brake_horsepower * eff).to("mmBtu/day")
-            energy_consumption_of_stages.append(energy_consumption)
-
-        return energy_consumption_of_stages
-
-    # TODO: see above
-    @staticmethod
-    def get_energy_consumption(prime_mover_type, brake_horsepower):
-        eff = get_efficiency(prime_mover_type, brake_horsepower)
-        energy_consumption = (brake_horsepower * eff).to("mmBtu/day")
-
-        return energy_consumption
 
     def init_intermediate_results(self, names):
         """

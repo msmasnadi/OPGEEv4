@@ -6,10 +6,11 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-from opgee import ureg
-from opgee.core import OpgeeObject
-from opgee.error import OpgeeException
-from opgee.process import Process
+from .. import ureg
+from ..core import OpgeeObject
+from ..error import OpgeeException
+from ..process import Process
+from .shared import get_energy_consumption
 
 _power = [1, 1 / 2, 1 / 3, 1 / 4, 1 / 5]
 
@@ -144,6 +145,6 @@ class Compressor(OpgeeObject):
         volume_flow_rate_STP = field.gas.tot_volume_flow_rate_STP(inlet_stream)
         total_energy = total_work * volume_flow_rate_STP
         brake_horse_power = total_energy / eta_compressor
-        energy_consumption = Process.get_energy_consumption(prime_mover_type, brake_horse_power)
+        energy_consumption = get_energy_consumption(prime_mover_type, brake_horse_power)
 
         return energy_consumption, outlet_temp, outlet_press

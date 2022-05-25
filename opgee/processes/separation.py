@@ -6,16 +6,16 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-from .shared import get_energy_carrier
+from opgee.processes.compressor import Compressor
+
+from .shared import get_energy_carrier, get_energy_consumption_stages
 from ..combine_streams import combine_streams
 from ..core import TemperaturePressure
-from opgee.processes.compressor import Compressor
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
 from ..stream import Stream, PHASE_LIQUID
 from ..thermodynamics import rho
-from ..import_export import ImportExport
 
 _logger = getLogger(__name__)
 
@@ -85,8 +85,8 @@ class Separation(Process):
         compressor_brake_horsepower_of_stages = self.compressor_brake_horsepower_of_stages(self.field,
                                                                                            gas_after,
                                                                                            gas_compression_volume_stages)
-        energy_consumption_of_stages = self.get_energy_consumption_stages(self.prime_mover_type,
-                                                                          compressor_brake_horsepower_of_stages)
+        energy_consumption_of_stages = get_energy_consumption_stages(self.prime_mover_type,
+                                                                     compressor_brake_horsepower_of_stages)
         energy_consumption_sum = sum(energy_consumption_of_stages)
 
         energy_use = self.energy

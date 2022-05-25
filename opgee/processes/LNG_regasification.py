@@ -1,6 +1,6 @@
 from ..log import getLogger
 from ..process import Process
-from .shared import get_energy_carrier
+from .shared import get_energy_carrier, get_energy_consumption
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..import_export import ImportExport
 
@@ -34,7 +34,7 @@ class LNGRegasification(Process):
         gas_LHV_rate = gas_mass_rate * gas_mass_energy_density
         total_regasification_requirement = self.energy_intensity_regas * gas_LHV_rate
 
-        energy_consumption = self.get_energy_consumption(self.prime_mover_type, total_regasification_requirement)
+        energy_consumption = get_energy_consumption(self.prime_mover_type, total_regasification_requirement)
         gas_to_distribution = self.find_output_stream("gas for distribution")
         gas_to_distribution.copy_flow_rates_from(input)
 

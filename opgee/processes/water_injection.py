@@ -12,7 +12,7 @@ from .. import ureg
 from ..emissions import EM_COMBUSTION
 from ..log import getLogger
 from ..process import Process
-from .shared import get_energy_carrier
+from .shared import get_energy_carrier, get_energy_consumption
 from ..import_export import ImportExport
 
 _logger = getLogger(__name__)
@@ -67,7 +67,7 @@ class WaterInjection(Process):
         pumping_hp = pumping_press * single_well_water_volume / self.eta_pump
 
         # energy-use
-        water_pump_power = self.get_energy_consumption(self.prime_mover_type, pumping_hp)
+        water_pump_power = get_energy_consumption(self.prime_mover_type, pumping_hp)
         energy_use = self.energy
 
         energy_carrier = get_energy_carrier(self.prime_mover_type)

@@ -17,6 +17,7 @@ from ..process import Process
 from ..process import run_corr_eqns
 from ..thermodynamics import component_MW
 from ..import_export import ImportExport
+from .shared import get_energy_consumption
 
 _logger = getLogger(__name__)
 
@@ -107,7 +108,7 @@ class GasDehydration(Process):
         blower_CFM = blower_air_quantity / self.air_density_ratio
         blower_delivered_hp = blower_CFM * self.water_press / self.air_cooler_fan_eff
         blower_fan_motor_hp = blower_delivered_hp / self.air_cooler_speed_reducer_eff
-        air_cooler_energy_consumption = self.get_energy_consumption("Electric_motor", blower_fan_motor_hp)
+        air_cooler_energy_consumption = get_energy_consumption("Electric_motor", blower_fan_motor_hp)
 
         # energy-use
         energy_use = self.energy

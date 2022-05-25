@@ -11,11 +11,11 @@ import numpy as np
 from .. import ureg
 from ..core import TemperaturePressure
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
+from ..import_export import ImportExport
 from ..log import getLogger
 from ..process import Process
 from ..stream import Stream
-from .shared import get_energy_carrier
-from ..import_export import ImportExport
+from .shared import get_energy_carrier, get_energy_consumption_stages
 
 _logger = getLogger(__name__)
 
@@ -138,7 +138,7 @@ class DownholePump(Process):
         pressure_for_lifting = max(ureg.Quantity(0.0, "psia"), wellhead_P + pressure_drop_total - input.tp.P)
         liquid_flow_rate_per_well = (average_volume_oil_lifted + volume_water_lifted) / self.num_prod_wells
         brake_horse_power = 1.05 * (liquid_flow_rate_per_well * pressure_for_lifting) / self.eta_pump_well
-        energy_consumption_of_stages = self.get_energy_consumption_stages(self.prime_mover_type, [brake_horse_power])
+        energy_consumption_of_stages = get_energy_consumption_stages(self.prime_mover_type, [brake_horse_power])
         energy_consumption_sum = sum(energy_consumption_of_stages) * self.num_prod_wells
 
         energy_use = self.energy

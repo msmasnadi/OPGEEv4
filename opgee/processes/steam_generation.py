@@ -13,6 +13,7 @@ from ..error import BalanceError
 from ..log import getLogger
 from ..process import Process
 from ..import_export import ImportExport
+from .shared import get_energy_consumption
 
 _logger = getLogger(__name__)
 
@@ -120,13 +121,13 @@ class SteamGeneration(Process):
         energy_use.set_rate(EN_NATURAL_GAS, NG_consumption.to("mmBtu/day"))
 
         water_pump_hp = self.get_feedwater_horsepower(steam_injection_volume_rate, makeup_water_to_prod_water_frac)
-        water_pump_power = self.get_energy_consumption("Electric_motor", water_pump_hp)
-        OTSG_air_blower = self.get_energy_consumption("Electric_motor",
-                                                      fuel_consumption_OTSG * self.eta_air_blower_OTSG)
-        HRSG_air_blower = self.get_energy_consumption("Electric_motor",
-                                                      fuel_consumption_HRSG * self.eta_air_blower_HRSG)
-        solar_thermal_pumping = self.get_energy_consumption("Electric_motor",
-                                                            fuel_consumption_solar * self.eta_air_blower_solar)
+        water_pump_power = get_energy_consumption("Electric_motor", water_pump_hp)
+        OTSG_air_blower = get_energy_consumption("Electric_motor",
+                                                 fuel_consumption_OTSG * self.eta_air_blower_OTSG)
+        HRSG_air_blower = get_energy_consumption("Electric_motor",
+                                                 fuel_consumption_HRSG * self.eta_air_blower_HRSG)
+        solar_thermal_pumping = get_energy_consumption("Electric_motor",
+                                                       fuel_consumption_solar * self.eta_air_blower_solar)
         total_power_required = water_pump_power + OTSG_air_blower + HRSG_air_blower + solar_thermal_pumping
         energy_use.set_rate(EN_ELECTRICITY, total_power_required - electricity_HRSG.to("mmBtu/day"))
 
