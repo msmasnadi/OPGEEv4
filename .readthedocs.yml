@@ -9,12 +9,15 @@ version: 2
 sphinx:
   configuration: docs/source/conf.py
   fail_on_warning: true
-  
+
 # Optionally build your docs in additional formats such as PDF and ePub
 # formats: all
 
 # Optionally set the version of Python and requirements required to build your docs
+# Also install opgee before building the docs
 python:
   version: 3.8
   install:
     - requirements: docs/requirements.txt
+    - method: pip
+      path: .
