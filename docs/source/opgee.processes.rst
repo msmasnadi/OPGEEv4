@@ -24,7 +24,6 @@ The following elements of each process should be defined in the class header com
 
 * Whether the process defines an impute() method for use in initialization from exogenous data.
 
-
 Process subclasses
 -------------------
 
@@ -55,6 +54,9 @@ Process subclasses
 .. automodule:: opgee.processes.bitumen_mining
    :members:
 
+.. automodule:: opgee.processes.compressor
+   :members:
+
 .. automodule:: opgee.processes.crude_oil_dewatering
    :members:
 
@@ -62,6 +64,9 @@ Process subclasses
    :members:
 
 .. automodule:: opgee.processes.crude_oil_storage
+   :members:
+
+.. automodule:: opgee.processes.crude_oil_transport
    :members:
 
 .. automodule:: opgee.processes.demethanizer
@@ -118,6 +123,9 @@ Process subclasses
 .. automodule:: opgee.processes.pre_membrane_compressor
    :members:
 
+.. automodule:: opgee.processes.petrocoke_transport
+   :members:
+
 .. automodule:: opgee.processes.reservoir_well_interface
    :members:
 
@@ -127,6 +135,9 @@ Process subclasses
 .. automodule:: opgee.processes.separation
    :members:
 
+.. automodule:: opgee.processes.shared
+   :members:
+
 .. automodule:: opgee.processes.sour_gas_compressor
    :members:
 
@@ -134,6 +145,9 @@ Process subclasses
    :members:
 
 .. automodule:: opgee.processes.steam_generation
+   :members:
+
+.. automodule:: opgee.processes.steam_generator
    :members:
 
 .. automodule:: opgee.processes.storage_compressor
@@ -148,6 +162,9 @@ Process subclasses
 .. automodule:: opgee.processes.transmission_compressor
    :members:
 
+.. automodule:: opgee.processes.transport_energy
+   :members:
+
 .. automodule:: opgee.processes.venting
    :members:
 
@@ -156,4 +173,3 @@ Process subclasses
 
 .. automodule:: opgee.processes.water_treatment
    :members:
-
