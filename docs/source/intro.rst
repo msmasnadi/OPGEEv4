@@ -5,7 +5,7 @@ The ``opgee`` package comprises a set of data files, Python modules, and a main 
 implement the `Oil Production Greenhouse gas Emissions Estimator <https://eao.stanford.edu/research-areas/opgee>`_ (OPGEE).
 This site documents OPGEEv4. Note that OPGEEv3 and earlier versions were implemented in Excel.
 
-OPGEEv4 is installable as a Python package from the “pip” package server. The Python
+OPGEEv4 is [NOT QUITE YET] installable as a Python package from the “pip” package server. The Python
 package includes these components:
 
     * Classes implementing the required LCA components for the default set of fields,
@@ -13,7 +13,7 @@ package includes these components:
       in the package.
 
     * Configuration default files customized for the three supported computing platforms,
-      Windows 10, Linux, and macOS.
+      Windows 10 and macOS.
 
     * The default LCA model, expressed in the opgee.xml file. This file describes a runnable
       model equivalent to the contents of the OPGEEv3 Excel workbook. It also provides the
