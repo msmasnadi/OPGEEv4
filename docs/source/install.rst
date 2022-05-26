@@ -17,9 +17,10 @@ platform.
 
    * Download the .yml file for your platform from the OPGEEv4 github repository:
 
-       * `py3_opgee_win10.yml <https://github.com/arbrandt/OPGEEv4/blob/master/py3_opgee_win10.yml>`_
-       * `py3_opgee_macos.yml <https://github.com/arbrandt/OPGEEv4/blob/master/py3_opgee_macos.yml>`_
-       * `py3_opgee_linux.yml <https://github.com/arbrandt/OPGEEv4/blob/master/py3_opgee_linux.yml>`_
+       * `py3-opgee-win10.yml <https://raw.githubusercontent.com/Stanford-EAO/OPGEEv4/master/py3-opgee-win10.yml>`_
+       * `py3-opgee-macos.yml <https://raw.githubusercontent.com/Stanford-EAO/OPGEEv4/master/py3-opgee-macos.yml>`_
+
+.. * `py3-opgee-linux.yml <https://raw.githubusercontent.com/Stanford-EAO/OPGEEv4/master/py3-opgee-linux.yml>`_
 
 3. Run the following command, replacing the ``/path/to/file.yml`` with the
    path to the file you downloaded in step 2:
@@ -52,11 +53,11 @@ Working with opgee source code
 --------------------------------
 
 If you are interested in working with the source code (e.g., writing plugins or
-adding functionality), you should clone the code repository (https://github.com/arbrandt/OPGEEv4)
+adding functionality), you should clone the code repository (https://github.com/Stanford-EAO/OPGEEv4)
 to create a local copy. You can then install ``opgee`` in "developer" mode using the ``setup.py``
 script found in the top-level ``OPGEEv4`` directory. This creates links from the
 installed package to the source code repository so changes to the source code are
-available immediately without requiring reinstallation of ``opgee``.
+available immediately without requiring re-installation of ``opgee``.
 
 .. code-block:: bash
 
@@ -68,7 +69,7 @@ available immediately without requiring reinstallation of ``opgee``.
    cd (wherever you want)
 
    # Clone the git repository
-   git clone https://github.com/arbrandt/OPGEEv4
+   git clone https://github.com/Stanford-EAO/OPGEEv4
    cd OPGEEv4
 
    # Install opgee in developer mode

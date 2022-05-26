@@ -11,7 +11,6 @@ import numpy as np
 from .. import ureg
 from ..core import TemperaturePressure
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
-from ..import_export import ImportExport
 from ..log import getLogger
 from ..process import Process
 from ..stream import Stream
@@ -29,12 +28,11 @@ class DownholePump(Process):
         self.res_temp = field.attr("res_temp")
         self.oil_volume_rate = field.attr("oil_prod")
         self.eta_pump_well = self.attr("eta_pump_well")
-        self.prod_tubing_diam = field.attr("well_diam")
-        self.prod_tubing_radius = self.prod_tubing_diam / 2
+        self.prod_tubing_diam = diameter = field.attr("well_diam")
+        self.prod_tubing_xsection_area = np.pi * (diameter / 2) ** 2
         self.depth = field.attr("depth")
         self.friction_factor = field.attr("friction_factor")
         self.num_prod_wells = field.attr("num_prod_wells")
-        self.prod_tubing_xsection_area = np.pi * self.prod_tubing_radius ** 2
         self.gravitational_acceleration = field.model.const("gravitational-acceleration")
         self.prime_mover_type = self.attr("prime_mover_type")
 

@@ -4,22 +4,23 @@ from setuptools import setup
 requirements = [
     'colour>=0.1.5',    # used with dash app
     'dash>=2.3.1',
+    'dash-cytoscape>=0.3.0',
     'ipython>=7.18.0',
     'Jinja2>=3.0.1',      # required by flask, via dash
     'lxml>=4.8.0',
     'networkx>=2.5.0',
 
     'numpy<=1.21.0,>=1.19.2',
-    'pandas>=1.3.5',
+    'pandas>=1.4.2',
 
     'pint>=0.19.2',
     'pint-pandas>=0.2',
 
     'pydot>=1.4.0',
     'pytest>=6.1.0',
-    'sphinx>=3.2.0'
-    'sphinx-argparse>=0.2.0',
-    'sphinx-rtd-theme>=0.4.0',
+    'sphinx>=4.3.0'
+    'sphinx-argparse>=0.2.5',
+    'sphinx-rtd-theme>=0.5.1',
     'thermosteam==0.28.5',
 ]
 
