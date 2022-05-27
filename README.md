@@ -42,7 +42,7 @@ The main features of OPGEEv4 are:
 
 ## How do I get set up?
 
-* Documentation will be available at http://opgee.readthedocs.io/en/latest/install.html once the OPGEEv4 repo becomes public.
+* Documentation is available at http://opgee.readthedocs.io/.
 
 ## Who do I talk to?
 
