@@ -2,8 +2,8 @@
 # Default parameter distributions. User can redefine distributions for any attribute,
 # overriding the defaults defined here.
 #
-from scipy.stats import lognorm, triang, uniform, norm
-from smart_defaults import Distribution, SmartDefault
+from ..smart_defaults import Distribution, SmartDefault
+from distro import get_frozen_rv
 
 # TBD: How to handle distributions on tabular data?
 #      Define an attribute that's set from a cell in a table? Cumbersome.
@@ -20,7 +20,7 @@ def wor_sd_dist(age):
     return # something
 
 @Distribution.register("Field.WOR", deps=["WOR-MEAN", "WOR-SD"])
-def wor_dist(mu, sd):
-    return norm(loc=mu, scale=sd)
+def wor_dist(mean, stdev):
+    return get_frozen_rv('normal', mean=mean, stdev=stdev)
 
 

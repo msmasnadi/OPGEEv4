@@ -8,17 +8,18 @@
 # Copyright (c) the authors, 2012-2022.
 # See the https://opensource.org/licenses/MIT for license details.
 #
+import inspect
 import math
 import re
-from inspect import getargspec
 
 import numpy as np
 from scipy.stats import lognorm, triang, uniform, norm, rv_discrete, truncnorm
 
-from .log import getLogger
-from .error import OpgeeException
+from ..log import getLogger
+from ..error import OpgeeException, DistributionSpecError
 
 _logger = getLogger(__name__)
+
 
 def parseDistroKey(key):
     '''
@@ -290,7 +291,7 @@ class DistroGen(object):
     def __init__(self, distName, func):
         self.name = distName
         self.func = func
-        self.sig  = DistroGen.signature(distName, getargspec(func).args)
+        self.sig  = DistroGen.signature(distName, inspect.signature(func).parameters)
         DistroGen.instances[self.sig] = self
 
     def __str__(self):
@@ -370,3 +371,16 @@ class DistroGen(object):
         cls('sequence', lambda values: sequence(values))
 
         cls('linked', lambda parameter: linkedDistro(parameter))       # TBD: could be generalized
+
+
+
+
+def get_frozen_rv(distro_name, **kwargs):
+    sig = DistroGen.signature(distro_name, kwargs.keys())
+    gen = DistroGen.generator(sig)
+
+    if gen is None:
+        raise DistributionSpecError(f"Unknown distribution signature {sig}")
+
+    rv = gen.makeRV(kwargs)  # generate a frozen RV with the specified arguments
+    return rv

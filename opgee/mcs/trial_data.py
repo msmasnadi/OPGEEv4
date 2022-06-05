@@ -5,28 +5,19 @@
 # Copyright (c) Richard Plevin, 2012-2022.
 # See the https://opensource.org/licenses/MIT for license details.
 #
+import os
 from collections import OrderedDict, defaultdict
 from math import ceil
-import numpy as np
-import os
 
-from .config import getParam
-from .core import OpgeeObject
+import numpy as np
+
 from .distro import DistroGen
-from .error import OpgeeException
-from .log import getLogger
+from ..config import getParam
+from ..core import OpgeeObject
+from ..error import McsUserError, McsSystemError, DistributionSpecError
+from ..log import getLogger
 
 _logger = getLogger(__name__)
-
-class McsUserError(OpgeeException):
-    pass
-
-class McsSystemError(OpgeeException):
-    pass
-
-class DistributionSpecError(OpgeeException):
-    pass
-
 
 class TrialData(OpgeeObject):
     """

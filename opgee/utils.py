@@ -42,7 +42,69 @@ def splitAndStrip(s, delim):
     items = [item.strip() for item in s.split(delim)]
     return items
 
+def mkdirs(newdir, mode=0o770):
+    """
+    Try to create the full path `newdir` and ignore the error if it already exists.
 
+    :param newdir: the directory to create (along with any needed parent directories)
+    :return: nothing
+    """
+    from errno import EEXIST
+
+    try:
+        os.makedirs(newdir, mode)
+    except OSError as e:
+        if e.errno != EEXIST:
+            raise
+
+def rmlink(path):
+    if os.path.lexists(path) and os.path.islink(path):
+        os.remove(path)
+
+def symlink(src, dst):
+    rmlink(dst)
+    _logger.debug('ln -s %s %s', src, dst)
+    try:
+        os.symlink(src, dst)
+    except Exception:
+        print("Can't symlink %s to %s" % (src, dst))
+        raise
+
+def removeTree(path, ignore_errors=True):
+    from .config import getParam
+    import shutil
+
+    if not os.path.lexists(path):
+        return
+
+    refWorkspace = os.path.realpath(getParam('OPGEE.RefWorkspace'))     # TODO fix this
+    thisPath = os.path.realpath(path)
+    if os.path.commonprefix((refWorkspace, thisPath)) == refWorkspace:
+        raise OpgeeException("Refusing to delete '{path}', which is part of the reference workspace")
+
+    _logger.debug("shutil.rmtree('%s')", thisPath)
+    shutil.rmtree(thisPath, ignore_errors=ignore_errors)
+
+def filecopy(src, dst, removeDst=True):
+    'Copy src file to dst, optionally removing dst first to avoid writing through symlinks'
+    from shutil import copy2        # equivalent to "cp -p"
+
+    _logger.debug("copyfile(%s,%s,%s)" % (src, dst, removeDst))
+    if removeDst and os.path.islink(dst):
+        os.remove(dst)
+
+    copy2(src, dst)
+
+def copyfiles(files, dstdir, removeDst=True):
+    '''
+    :param files: a list of files to copy
+    :param dstdir: the directory to copy to
+    :param removeDst: if True-like, remove destination file before copying
+    :return: nothing
+    '''
+    mkdirs(dstdir)
+    for f in files:
+        filecopy(f, dstdir, removeDst=removeDst)
 
 # used only in opgee modules
 def getBooleanXML(value):
@@ -184,6 +246,19 @@ def loadModuleFromPath(module_path, raiseError=True):
             raise OpgeeException(errorString)
 
     return module
+
+def getResource(relpath):
+    """
+    Extract a resource (e.g., file) from the given relative path in
+    the pygcam package.
+
+    :param relpath: (str) a path relative to the pygcam package
+    :return: the file contents
+    """
+    import pkgutil
+
+    contents = pkgutil.get_data('opgee', relpath)
+    return contents.decode('utf-8')
 
 def dequantify_dataframe(df):
     import pandas as pd
