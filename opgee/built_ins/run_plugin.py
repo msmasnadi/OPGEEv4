@@ -4,7 +4,7 @@
 .. Copyright (c) 2021 Richard Plevin and Stanford University
    See the https://opensource.org/licenses/MIT for license details.
 """
-from ..subcommand import SubcommandABC, clean_help
+from ..subcommand import SubcommandABC
 from ..log import getLogger
 
 _logger = getLogger(__name__)
@@ -18,31 +18,31 @@ class RunCommand(SubcommandABC):
         from ..utils import ParseCommaList
 
         parser.add_argument('-a', '--analyses', action=ParseCommaList,
-                            help=clean_help('''Run only the specified analysis or analyses. Argument may be a 
-                            comma-delimited list of Analysis names.'''))
+                            help='''Run only the specified analysis or analyses. Argument may be a 
+                            comma-delimited list of Analysis names.''')
 
         parser.add_argument('-f', '--fields', action=ParseCommaList,
-                            help=clean_help('''Run only the specified field or fields. Argument may be a 
+                            help='''Run only the specified field or fields. Argument may be a 
                             comma-delimited list of Field names. To specify a field within a specific Analysis,
                             use the syntax "analysis_name.field_name". Otherwise the field will be run for each
-                            Analysis the field name occurs within (respecting the --analyses flag).'''))
+                            Analysis the field name occurs within (respecting the --analyses flag).''')
 
         parser.add_argument('-m', '--model-file', action='append',
-                            help=clean_help('''XML model definition files to load. If --no_default_model is *not* specified,
+                            help='''XML model definition files to load. If --no_default_model is *not* specified,
                             the built-in files etc/opgee.xml and etc/attributes.xml are loaded first, and the XML files specified 
-                            here will be merged with these. Otherwise only the given files are loaded; they are merged in the
-                            order stated.'''))
+                            here will be merged with these. If --no_default_model is specified, only the given files are loaded;
+                            they are merged in the order stated.''')
 
         parser.add_argument('-n', '--no-default-model', action='store_true',
-                            help=clean_help('''Don't load the built-in opgee.xml model definition.'''))
+                            help='''Don't load the built-in opgee.xml model definition.''')
 
         parser.add_argument('-o', '--output',
-                            help=clean_help('''Write CI output to specified CSV file for all top-level processes 
-                            and aggregators, for all fields run'''))
+                            help='''Write CI output to specified CSV file for all top-level processes 
+                            and aggregators, for all fields run''')
 
         parser.add_argument('-p', '--processes',
-                            help=clean_help('''Write CI output to specified CSV file for all processes, for all fields run, 
-                            rather than by top-level processes and aggregators (as with --output)'''))
+                            help='''Write CI output to specified CSV file for all processes, for all fields run, 
+                            rather than by top-level processes and aggregators (as with --output)''')
 
         return parser
 

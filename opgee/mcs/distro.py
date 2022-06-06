@@ -296,7 +296,7 @@ class DistroGen(object):
 
     def __str__(self):
         classname = type(self).__name__
-        _logger.debug("<%s dist=%s func=%s sig=%s>", classname, self.distName, self.func, self.sig)
+        _logger.debug("<%s dist=%s func=%s sig=%s>", classname, self.name, self.func, self.sig)
 
     @classmethod
     def signature(cls, distName, keywords):

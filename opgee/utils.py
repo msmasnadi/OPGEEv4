@@ -88,16 +88,16 @@ def filecopy(src, dst, removeDst=True):
 
     copy2(src, dst)
 
-def copyfiles(files, dstdir, removeDst=True):
-    '''
-    :param files: a list of files to copy
-    :param dstdir: the directory to copy to
-    :param removeDst: if True-like, remove destination file before copying
-    :return: nothing
-    '''
-    mkdirs(dstdir)
-    for f in files:
-        filecopy(f, dstdir, removeDst=removeDst)
+# def copyfiles(files, dstdir, removeDst=True):
+#     '''
+#     :param files: a list of files to copy
+#     :param dstdir: the directory to copy to
+#     :param removeDst: if True-like, remove destination file before copying
+#     :return: nothing
+#     '''
+#     mkdirs(dstdir)
+#     for f in files:
+#         filecopy(f, dstdir, removeDst=removeDst)
 
 # used only in opgee modules
 def getBooleanXML(value):

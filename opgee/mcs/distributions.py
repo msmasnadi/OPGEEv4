@@ -2,9 +2,13 @@
 # Default parameter distributions. User can redefine distributions for any attribute,
 # overriding the defaults defined here.
 #
+from ..log import getLogger
 from ..smart_defaults import SmartDefault
 from .simulation import Distribution
 from .distro import get_frozen_rv
+
+_logger = getLogger(__name__)
+
 
 # TBD: How to handle distributions on tabular data?
 #      Define an attribute that's set from a cell in a table? Cumbersome.

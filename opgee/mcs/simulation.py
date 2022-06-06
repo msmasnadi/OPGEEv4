@@ -7,7 +7,7 @@
 # See LICENSE.txt for license details.
 #
 import os
-from ..config import getParam, pathjoin
+from ..config import pathjoin
 from ..core import OpgeeObject
 from ..error import McsSystemError, McsUserError
 from ..smart_defaults import Dependency
@@ -15,6 +15,8 @@ from ..utils import mkdirs, removeTree
 from .LHS import lhs
 
 TRIAL_DATA_CSV = 'trial_data.csv'
+RESULTS_DIR = 'results'
+MODEL_FILE = 'merged_model.xml'
 
 class Distribution(Dependency):
     @classmethod
@@ -29,7 +31,7 @@ class Distribution(Dependency):
         dep_objs = list(rows.dep_obj.values)
         return dep_objs
 
-# TBD: maybe have a "results" subdir, with file f"{analysis.name}.csv" for results of 1 analysis?
+# TBD: maybe have a "results" subdir, with file  for results of 1 analysis?
 
 class Simulation(OpgeeObject):
     """
@@ -54,9 +56,16 @@ class Simulation(OpgeeObject):
     """
     def __init__(self, pathname):
         self.pathname = pathname
+
         self.trial_data_path = pathjoin(pathname, TRIAL_DATA_CSV)
         self.trial_data_df = None # loaded on demand by ``trial_data`` method.
+
         self.analysis_name = None
+
+        self.results_dir = pathjoin(pathname, RESULTS_DIR)      # stores f"{analysis.name}.csv"
+        # self.results_file = None
+
+        self.model_file = pathjoin(pathname, MODEL_FILE)
 
     @classmethod
     def new(cls, pathname, overwrite=False):
@@ -80,12 +89,11 @@ class Simulation(OpgeeObject):
         sim = cls(pathname)
         return sim
 
-    # TBD: need a way to indication correlations
-    def generate(self, analysis, N, attr_dict, corr_mat=None):
+    # TBD: need a way to specify correlations
+    def generate(self, N, attr_dict, corr_mat=None):
         """
         Generate simulation data for the given ``Analysis`` object.
 
-        :param analysis: (opgee.Analysis) the ``Analysis`` to use.
         :param N: (int) the number of trials to generate data for
         :param attr_dict: (dict) dictionary of attribute values
         :param corr_mat: a numpy matrix representing the correlation
@@ -94,7 +102,7 @@ class Simulation(OpgeeObject):
            the parameter list.
         :return: none
         """
-        self.analysis_name = analysis.name
+        # self.analysis_name = analysis.name
 
         cols = []
         rv_list = []

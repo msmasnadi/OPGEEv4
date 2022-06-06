@@ -32,9 +32,11 @@
 #
 import networkx as nx
 import pandas as pd
-from opgee.core import OpgeeObject
-from opgee.error import OpgeeException
+from .core import OpgeeObject
+from .error import OpgeeException
+from .log import getLogger
 
+_logger = getLogger(__name__)
 
 class Dependency(OpgeeObject):
     """
@@ -58,7 +60,7 @@ class Dependency(OpgeeObject):
 
         self.run_index = None # set by run_order() to help with sorting model objects
 
-        print(f'Saving {dep_type} for attribute {attr_name} of class {func_class}')
+        _logger.debug(f'Saving {dep_type} for attribute {attr_name} of class {func_class}')
 
         # Append to the registry (N.B. df.append method is deprecated)
         d = dict(dep_type=dep_type, class_name=func_class, attr_name=attr_name, dep_obj=self)
