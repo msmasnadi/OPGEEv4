@@ -63,33 +63,26 @@ def rmlink(path):
 
 def symlink(src, dst):
     rmlink(dst)
-    _logger.debug('ln -s %s %s', src, dst)
+    _logger.debug(f"ln -s '{src}', '{dst}'")
     try:
         os.symlink(src, dst)
     except Exception:
-        print("Can't symlink %s to %s" % (src, dst))
+        print(f"Can't symlink '{src} to '{dst}'")
         raise
 
 def removeTree(path, ignore_errors=True):
-    from .config import getParam
     import shutil
 
     if not os.path.lexists(path):
         return
-
-    refWorkspace = os.path.realpath(getParam('OPGEE.RefWorkspace'))     # TODO fix this
-    thisPath = os.path.realpath(path)
-    if os.path.commonprefix((refWorkspace, thisPath)) == refWorkspace:
-        raise OpgeeException("Refusing to delete '{path}', which is part of the reference workspace")
-
-    _logger.debug("shutil.rmtree('%s')", thisPath)
-    shutil.rmtree(thisPath, ignore_errors=ignore_errors)
+    _logger.debug(f"shutil.rmtree('{path}')")
+    shutil.rmtree(path, ignore_errors=ignore_errors)
 
 def filecopy(src, dst, removeDst=True):
     'Copy src file to dst, optionally removing dst first to avoid writing through symlinks'
     from shutil import copy2        # equivalent to "cp -p"
 
-    _logger.debug("copyfile(%s,%s,%s)" % (src, dst, removeDst))
+    _logger.debug(f"copyfile({src}, dst, removeDst)")
     if removeDst and os.path.islink(dst):
         os.remove(dst)
 

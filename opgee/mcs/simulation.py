@@ -9,8 +9,25 @@
 import os
 from ..config import getParam, pathjoin
 from ..core import OpgeeObject
-from ..error import McsSystemError
-from ..utils import mkdirs
+from ..error import McsSystemError, McsUserError
+from ..smart_defaults import Dependency
+from ..utils import mkdirs, removeTree
+from .LHS import lhs
+
+TRIAL_DATA_CSV = 'trial_data.csv'
+
+class Distribution(Dependency):
+    @classmethod
+    def distributions(cls):
+        """
+        Return a list of the defined Distribution instances.
+
+        :return: (list of opgee.mcs.Distribution) the instances
+        """
+        rows = cls.registry.query("dep_type == 'Distribution'")
+
+        dep_objs = list(rows.dep_obj.values)
+        return dep_objs
 
 # TBD: maybe have a "results" subdir, with file f"{analysis.name}.csv" for results of 1 analysis?
 
@@ -37,19 +54,63 @@ class Simulation(OpgeeObject):
     """
     def __init__(self, pathname):
         self.pathname = pathname
-        self.trial_data_path = None
+        self.trial_data_path = pathjoin(pathname, TRIAL_DATA_CSV)
         self.trial_data_df = None # loaded on demand by ``trial_data`` method.
-        pass
+        self.analysis_name = None
 
     @classmethod
-    def new(cls, pathname):
+    def new(cls, pathname, overwrite=False):
         """
         Create the simulation directory and the ``sandboxes`` sub-directory.
 
         :param pathname: (str) the top-level pathname
+        :param overwrite: (bool) if True, overwrite directory if it already exists,
+          otherwise refuse to do so.
         :return: a new ``Simulation`` instance
         """
-        pass
+        if os.path.lexists(pathname):
+            if not overwrite:
+                raise McsUserError(
+                    f"Directory '{pathname}' already exists. Use Simulation.new(pathname, overwrite=True) to replace it.")
+
+            removeTree(pathname, ignore_errors=False)
+
+        mkdirs(pathname)
+
+        sim = cls(pathname)
+        return sim
+
+    # TBD: need a way to indication correlations
+    def generate(self, analysis, N, attr_dict, corr_mat=None):
+        """
+        Generate simulation data for the given ``Analysis`` object.
+
+        :param analysis: (opgee.Analysis) the ``Analysis`` to use.
+        :param N: (int) the number of trials to generate data for
+        :param attr_dict: (dict) dictionary of attribute values
+        :param corr_mat: a numpy matrix representing the correlation
+           between each pair of parameters. corrMat[i,j] gives the
+           desired correlation between the i'th and j'th entries of
+           the parameter list.
+        :return: none
+        """
+        self.analysis_name = analysis.name
+
+        cols = []
+        rv_list = []
+        for dep_obj in Distribution.distributions():
+            args = [attr_dict[attr_name] for attr_name in dep_obj.dependencies]
+            rv = dep_obj.func(*args)
+            rv_list.append(rv)
+            cols.append(dep_obj.attr_name)
+
+        self.trial_data_df = df = lhs(rv_list, N, columns=cols, corrMat=corr_mat)
+        df.index.name = 'trial_num'
+        self.save_trial_data()
+
+    def save_trial_data(self):
+        self.trial_data_df.to_csv(self.trial_data_path)
+
 
     def trial_dir(self, trial_num, mkdir=False):
         """
@@ -80,7 +141,7 @@ class Simulation(OpgeeObject):
 
     def trial_data(self):
         """
-        Read trial_data.csv from the top-level directory and return the DataFrame.
+        Read the trial data CSV from the top-level directory and return the DataFrame.
         The data is cached in the ``Simulation`` instance for re-use.
 
         :return: (pd.DataFrame) the values drawn for each field, parameter, and trial.
@@ -91,7 +152,7 @@ class Simulation(OpgeeObject):
         if self.trial_data_df:
             return self.trial_data_df
 
-        path = pathjoin(self.pathname, 'trial_data.csv')
+        path = self.trial_data_path
         if not os.path.lexists(path):
             raise McsSystemError(f"Can't read trial data: '{path}' doesn't exist.")
 
@@ -101,7 +162,6 @@ class Simulation(OpgeeObject):
         except Exception as e:
             raise McsSystemError(f"Can't read trial data from '{path}': {e}")
 
-        self.trial_data_path = path
         self.trial_data_df = df
         return df
 
@@ -119,8 +179,3 @@ class Simulation(OpgeeObject):
 
         s = df[trial_num]
         return s
-
-    def save_trial_data(self):
-        # TBD: just write the file or also perform all the draws from distros?
-        pass
-

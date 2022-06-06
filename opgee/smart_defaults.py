@@ -85,7 +85,12 @@ class Dependency(OpgeeObject):
         def decorator(user_func):
             # func.__qualname__ is a string of format "func_class.func_name"
             qualname = user_func.__qualname__
-            func_class, func_name = qualname.split('.')
+            items = qualname.split('.')
+            if len(items) == 1:
+                func_class = None,
+                func_name = items[0]
+            else:
+                func_class, func_name = items
 
             def wrapped_func(*args):
                 print(f'Calling {qualname} for attribute {attr_name} with dependencies {dependencies}')
@@ -210,18 +215,6 @@ class SmartDefault(Dependency):
         from .process import Process
         process_dict = {cls.__name__: cls for cls in Process.__subclasses__()}
         pass
-
-#
-# TBD: might fold into one class or distill upward to superclass.
-#
-class Distribution(Dependency):
-    # TBD: something like this
-    def set_value(self, obj, attr_dict):
-        values = [attr_dict[attr_name] for attr_name in self.dependencies]
-        result = self.func(obj, *values)
-        attr_dict[self.attr_name] = result
-        return result
-
 
 # def set_smart_default(cls, attr_name):
 #     class_name = cls.__name__

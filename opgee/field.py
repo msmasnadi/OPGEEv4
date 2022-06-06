@@ -20,11 +20,12 @@ from .import_export import ImportExport, WATER
 from .log import getLogger
 from .process import Process, Aggregator, Reservoir
 from .process_groups import ProcessChoice
-from .smart_defaults import SmartDefault, Distribution
+from .smart_defaults import SmartDefault
 from .stream import Stream
 from .thermodynamics import Oil, Gas, Water
 from .processes.steam_generator import SteamGenerator
 from .utils import getBooleanXML, flatten, roundup
+from .mcs.simulation import Distribution
 
 _logger = getLogger(__name__)
 
@@ -1037,14 +1038,3 @@ class Field(Container):
 
 
     # TODO: decide how to handle "associated gas defaults", which is just global vs CA-LCFS values currently
-
-
-    @Distribution.register('WOR-SD', ['age'])
-    def WOR_sd_distro(self, age):
-        print(f"Called wor_sd_distro({self}, age:{age})")
-        return 10000 # TBD
-
-    @Distribution.register('WOR', ['age', 'WOR-SD'])
-    def WOR_distro(self, age, wor_sd):
-        print(f"Called wor_distro({self}, age:{age}, wor_sd:{wor_sd})")
-        return 10000 # TBD
