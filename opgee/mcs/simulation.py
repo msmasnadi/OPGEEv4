@@ -58,38 +58,37 @@ def read_distributions(pathname=None):
                 _logger.info(f"* Ignoring distribution on {name}, Binary distribution has prob_of_yes = {prob_of_yes}")
                 continue
 
-            elif prob_of_yes == '':
-                rv = get_frozen_rv('binary')
-            else:
-                rv = get_frozen_rv('weighted_binary', prob_of_one=prob_of_yes)
+            rv = get_frozen_rv('weighted_binary', prob_of_one=0.5 if prob_of_yes == '' else prob_of_yes)
 
         elif shape == 'uniform':
             if low == high:
                 _logger.info(f"* Ignoring distribution on {name}, Uniform high and low bounds are both {low}")
                 continue
 
-            else:
-                rv = get_frozen_rv('uniform', min=low, max=high)
+            rv = get_frozen_rv('uniform', min=low, max=high)
 
         elif shape == 'triangular':
             if low == high:
                 _logger.info(f"* Ignoring distribution on {name}, Triangle high and low bounds are both {low}")
                 continue
 
-            else:
-                rv = get_frozen_rv('triangle', min=low, mode=default, max=high)
+            rv = get_frozen_rv('triangle', min=low, mode=default, max=high)
 
         elif shape == 'normal':
             if stdev == 0.0:
                 _logger.info(f"* Ignoring distribution on {name}, Normal has stdev = 0")
                 continue
 
-            elif low == '' or high == '':
+            if low == '' or high == '':
                 rv = get_frozen_rv('normal', mean=mean, stdev=stdev)
             else:
                 rv = get_frozen_rv('truncated_normal', mean=mean, stdev=stdev, low=low, high=high)
 
         elif shape == 'lognormal':
+            if stdev == 0.0:
+                _logger.info(f"* Ignoring distribution on {name}, Lognormal has stdev = 0")
+                continue
+
             rv = get_frozen_rv('lognormal', logmean=mean, logstdev=stdev)
 
         else:
@@ -100,6 +99,12 @@ def read_distributions(pathname=None):
 
 
 class Distribution(Dependency):
+    def __init__(self, rv, attr_name):
+        func_name = ''   # unused in Distribution
+        func_class = ''  # unused in Distribution
+        deps = []        # unused in Distribution
+        super().__init__(func_class, func_name, rv, attr_name, deps)
+
     @classmethod
     def distributions(cls):
         """
@@ -114,10 +119,7 @@ class Distribution(Dependency):
 
     @classmethod
     def register_rv(cls, rv, attr_name):
-        func_name = ''   # TBD: prob deprecated
-        func_class = ''  # TBD: prob deprecated
-        deps = []
-        Distribution(func_class, func_name, rv, attr_name, deps)
+        Distribution(rv, attr_name)
 
     def __str__(self):
         deps = f" {self.dependencies}" if self.dependencies else ''
@@ -216,8 +218,13 @@ class Simulation(OpgeeObject):
         #   Processing will require stepping through each trial value
 
         for dep_obj in Distribution.distributions():
-            args = [attr_dict[attr_name] for attr_name in dep_obj.dependencies]
-            rv = dep_obj.func(*args)
+            args = [attr_dict[attr_name] for attr_name in dep_obj.dependencies if attr_name != '_']
+            if args:
+                print(f"{dep_obj.attr_name}: calling {dep_obj.func}({args})")
+                rv = dep_obj.func(*args)
+            else:
+                rv = dep_obj.func
+
             rv_list.append(rv)
             cols.append(dep_obj.attr_name)
 
