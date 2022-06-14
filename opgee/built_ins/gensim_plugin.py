@@ -13,6 +13,13 @@
 from ..log import getLogger
 from ..subcommand import SubcommandABC
 
+# TBD: Make use of this (or a different module?) a command-line option?
+#  Appears as unused in PyCharm, but this ensures that the @register decorators
+#  are run.
+#  Better alternative would be to allow attribute names in addition to
+#  numbers in the distributions CSV file.
+# from ..mcs import distributions
+
 _logger = getLogger(__name__)
 
 class GensimCommand(SubcommandABC):
@@ -25,11 +32,15 @@ class GensimCommand(SubcommandABC):
         parser.add_argument('-a', '--analysis',
                             help='''The name of the analysis for which to generate a simulation''')
 
+        parser.add_argument('-d', '--distributions',
+                            help='''The path to a CSV file with distribution definitions. If omitted, the 
+                            built-in file etc/parameter_distributions.csv is used.''')
+
         parser.add_argument('-m', '--model-file', action='append',
                             help='''XML model definition files to load. If --no_default_model is *not* specified,
-                            the built-in files etc/opgee.xml and etc/attributes.xml are loaded first, and the XML files specified 
-                            here will be merged with these. If --no_default_model is specified, only the given files are loaded;
-                            they are merged in the order stated.''')
+                            the built-in files etc/opgee.xml and etc/attributes.xml are loaded first, and the XML 
+                            files specified here will be merged with these. If --no_default_model is specified, 
+                            only the given files are loaded; they are merged in the order stated.''')
 
         parser.add_argument('-n', '--no-default-model', action='store_true',
                             help='''Don't load the built-in opgee.xml model definition.''')
@@ -49,7 +60,7 @@ class GensimCommand(SubcommandABC):
     def run(self, args, tool):
         from ..error import McsUserError, CommandlineError
         from ..model_file import ModelFile
-        from ..mcs.simulation import Simulation
+        from ..mcs.simulation import Simulation, read_distributions
 
         use_default_model = not args.no_default_model
         model_files = args.model_file
@@ -59,6 +70,8 @@ class GensimCommand(SubcommandABC):
 
         if not (use_default_model or model_files):
             raise CommandlineError("No model to run: the --model-file option was not used and --no-default-model was specified.")
+
+        read_distributions(pathname=args.distributions)
 
         sim = Simulation.new(args.simulation_dir, overwrite=args.overwrite)
 
@@ -74,8 +87,4 @@ class GensimCommand(SubcommandABC):
         if not analysis:
             raise CommandlineError(f"Analysis '{analysis_name}' was not found in model")
 
-        # TBD: Which attribute dictionary to use? There's one per Analysis and Field...
-        attr_dict = None
-
-        # TBD: Better to pass Analysis instance rather than name and attr_dict
-        sim.generate(args.analysis, args.trials, attr_dict)
+        sim.generate(analysis, args.trials)

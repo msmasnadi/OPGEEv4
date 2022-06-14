@@ -16,15 +16,15 @@ _logger = getLogger(__name__)
 
 # TBD: If deps lack class name, use class name of target attribute
 #      Possibly "Field" should be default class of target attribute?
-@SmartDefault.register("Field.WOR-MEAN", ["age"])
+@SmartDefault.register("WOR-MEAN", ["age"])
 def wor_mean_dist(age):
     return # something
 
-@SmartDefault.register("Field.WOR-SD", ["age"])
+@SmartDefault.register("WOR-SD", ["age"])
 def wor_sd_dist(age):
     return # something
 
-@Distribution.register("Field.WOR", ["WOR-MEAN", "WOR-SD"])
+@Distribution.register("WOR", ["WOR-MEAN", "WOR-SD"])
 def wor_dist(mean, stdev):
     return get_frozen_rv('normal', mean=mean, stdev=stdev)
 

@@ -51,18 +51,19 @@ class Dependency(OpgeeObject):
     registry = pd.DataFrame(columns=['dep_type', 'class_name', 'attr_name', 'dep_obj'])
 
     def __init__(self, func_class, func_name, func, attr_name, dependencies):
-        self.func_class = func_class    # the class containing func
-        self.func_name  = func_name
+        self.func_class = func_class    # the class containing func TBD: not currently used
+        self.func_name  = func_name     # TBD: not currently used
         self.func = func
         self.attr_name = attr_name
-        self.dependencies = dependencies
+        self.dependencies = dependencies or ['_'] # dummy dependency so these show up in graph
+
         self.dep_type = dep_type = type(self).__name__      # 'Distribution' or 'SmartDefault'
 
         self.run_index = None # set by run_order() to help with sorting model objects
 
         _logger.debug(f'Saving {dep_type} for attribute {attr_name} of class {func_class}')
 
-        # Append to the registry (N.B. df.append method is deprecated)
+        # Append to the registry (N.B. DataFrame.append() is deprecated)
         d = dict(dep_type=dep_type, class_name=func_class, attr_name=attr_name, dep_obj=self)
         df = pd.DataFrame(data=[d])
         Dependency.registry = pd.concat([Dependency.registry, df], ignore_index=True)

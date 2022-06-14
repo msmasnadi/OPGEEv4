@@ -336,13 +336,16 @@ class DistroGen(object):
         # logfactor=3 means Uniform(1/3, 3); used with apply="multiply"
         cls('uniform', uniformLogfactor)
 
+        cls('weighted_binary', weighted_binary)
+
         # LogUniform distribution from 1/n to n, e.g., factor=3 => uniform(1/3, 3)
         cls('loguniform', lambda factor: uniformMinMax(min=1 / factor, max=factor))
 
         cls('normal', lambda mean, std: norm(loc=mean, scale=std))
         cls('normal', lambda mean, stdev: norm(loc=mean, scale=stdev))          # alternate spelling
 
-        cls('lognormal', lambda mean, std: lognormalRv(mean, std))
+        cls('lognormal', lambda logmean, logstdev: lognormalRv(logmean, logstdev))
+        cls('lognormal', lambda mean, stdev: lognormalRvForNormal(mean, stdev))
         cls('lognormal', lambda low95, high95: lognormalRvFor95th(low95, high95))
         cls('lognormal', logfactor)
 
@@ -356,6 +359,8 @@ class DistroGen(object):
         cls('triangle', triangleLogfactor)    # args: logfactor: must be > 1
 
         cls('triangle', triangle)         # args: min, mode, max
+
+        cls('truncated_normal', truncated_normal)
 
         cls('binary', binary)
         cls('integers', integers)     # args: min, max (inclusive)

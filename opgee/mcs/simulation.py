@@ -10,13 +10,94 @@ import os
 from ..config import pathjoin
 from ..core import OpgeeObject
 from ..error import McsSystemError, McsUserError
+from ..log import getLogger
+from ..pkg_utils import resourceStream
 from ..smart_defaults import Dependency
 from ..utils import mkdirs, removeTree
 from .LHS import lhs
+from .distro import get_frozen_rv
+
+_logger = getLogger(__name__)
 
 TRIAL_DATA_CSV = 'trial_data.csv'
 RESULTS_DIR = 'results'
 MODEL_FILE = 'merged_model.xml'
+
+DISTROS_CSV = 'mcs/etc/parameter_distributions.csv'
+
+def read_distributions(pathname=None):
+    """
+    Read distributions from the designated CSV file. These are combined with those defined
+    using the @Distribution.register() decorator, used to define distributions with dependencies.
+
+    :param pathname: (str) the pathname of the CSV file describing parameter distributions
+    :return: (none)
+    """
+    import pandas as pd
+
+    distros_csv = pathname or resourceStream(DISTROS_CSV, stream_type='bytes', decode=None)
+
+    df = pd.read_csv(distros_csv, skip_blank_lines=True, comment='#').fillna('')
+
+    for row in df.itertuples(index=False, name='row'):
+        shape = row.distribution_type.lower()
+        name = row.variable_name
+        low = row.low_bound
+        high = row.high_bound
+        mean = row.mean
+        stdev = row.SD
+        default = row.default_value
+        prob_of_yes = row.prob_of_yes
+
+        if low == '' and high == '' and mean == '' and prob_of_yes == '':
+            _logger.info(f"* {name} depends on other distributions / smart defaults")        # TODO add in lookup of attribute value
+            continue
+
+        if shape == 'binary':
+            if prob_of_yes == 0 or prob_of_yes == 1:
+                _logger.info(f"* Ignoring distribution on {name}, Binary distribution has prob_of_yes = {prob_of_yes}")
+                continue
+
+            elif prob_of_yes == '':
+                rv = get_frozen_rv('binary')
+            else:
+                rv = get_frozen_rv('weighted_binary', prob_of_one=prob_of_yes)
+
+        elif shape == 'uniform':
+            if low == high:
+                _logger.info(f"* Ignoring distribution on {name}, Uniform high and low bounds are both {low}")
+                continue
+
+            else:
+                rv = get_frozen_rv('uniform', min=low, max=high)
+
+        elif shape == 'triangular':
+            if low == high:
+                _logger.info(f"* Ignoring distribution on {name}, Triangle high and low bounds are both {low}")
+                continue
+
+            else:
+                rv = get_frozen_rv('triangle', min=low, mode=default, max=high)
+
+        elif shape == 'normal':
+            if stdev == 0.0:
+                _logger.info(f"* Ignoring distribution on {name}, Normal has stdev = 0")
+                continue
+
+            elif low == '' or high == '':
+                rv = get_frozen_rv('normal', mean=mean, stdev=stdev)
+            else:
+                rv = get_frozen_rv('truncated_normal', mean=mean, stdev=stdev, low=low, high=high)
+
+        elif shape == 'lognormal':
+            rv = get_frozen_rv('lognormal', logmean=mean, logstdev=stdev)
+
+        else:
+            raise McsSystemError(f"Unknown distribution shape: '{shape}'")
+
+        # merge CSV-based distros with decorator-based ones
+        Distribution.register_rv(rv, name)
+
 
 class Distribution(Dependency):
     @classmethod
@@ -30,6 +111,18 @@ class Distribution(Dependency):
 
         dep_objs = list(rows.dep_obj.values)
         return dep_objs
+
+    @classmethod
+    def register_rv(cls, rv, attr_name):
+        func_name = ''   # TBD: prob deprecated
+        func_class = ''  # TBD: prob deprecated
+        deps = []
+        Distribution(func_class, func_name, rv, attr_name, deps)
+
+    def __str__(self):
+        deps = f" {self.dependencies}" if self.dependencies else ''
+
+        return f"<Distribution '{self.attr_name}'={self.func}{deps}>"
 
 # TBD: maybe have a "results" subdir, with file  for results of 1 analysis?
 
@@ -90,22 +183,38 @@ class Simulation(OpgeeObject):
         return sim
 
     # TBD: need a way to specify correlations
-    def generate(self, N, attr_dict, corr_mat=None):
+    def generate(self, analysis, N, corr_mat=None):
         """
         Generate simulation data for the given ``Analysis`` object.
 
+        :param analysis: (opgee.Analysis) the analysis to generate MCS for
         :param N: (int) the number of trials to generate data for
-        :param attr_dict: (dict) dictionary of attribute values
         :param corr_mat: a numpy matrix representing the correlation
            between each pair of parameters. corrMat[i,j] gives the
            desired correlation between the i'th and j'th entries of
            the parameter list.
         :return: none
         """
-        # self.analysis_name = analysis.name
+        # TBD: could create copy of Analysis.attr_dict, then for each Field,
+        #  merge its attr_dict onto the Analysis one to create one lookup table?
+        #  Nah, it's more efficient just to do lookup in Field, then fallback to
+        #  Analysis, since almost all are in Field. No copying required.
+        self.analysis_name = analysis.name
+        attr_dict = analysis.attr_dict
 
+        # TODO: revise to use rv_dict rather than @Distribution decorator
         cols = []
         rv_list = []
+
+        by_attr = Distribution.registry.set_index('attr_name')
+
+        # TBD: registry has multiple entries for some attributes -- both SmartDefault and Distribution
+        #   For MCS, use distribution if it exists, otherwise the SmartDefault -- but not both.
+        #   Better to have separate dicts for these rather than merged into one table?
+        #   - SmartDefaults (in non-mcs mode) run order requires only smart defaults
+        #   - Distribution run order may depend on SmartDefaults, but need to look for dependent Distribution first
+        #   Processing will require stepping through each trial value
+
         for dep_obj in Distribution.distributions():
             args = [attr_dict[attr_name] for attr_name in dep_obj.dependencies]
             rv = dep_obj.func(*args)

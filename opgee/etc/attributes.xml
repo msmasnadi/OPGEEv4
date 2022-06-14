@@ -187,8 +187,9 @@
       <AttrDef name="oil_processing_path" desc="Associated oil processing path" options="oil_processing_path" type="str"/>
       <AttrDef name="temperature_mined_bitumen" desc="Mined bitumen temperature" type="float" unit="degF">80.0</AttrDef>
       <AttrDef name="pressure_mined_bitumen" desc="Mined bitumen pressure" type="float" unit="psia">14.70</AttrDef>
-      <AttrDef name="stabilizer_column" type="binary" desc="stabilizer colume">1</AttrDef>
+      <AttrDef name="stabilizer_column" type="binary" desc="stabilizer column">1</AttrDef>
 
+      <!-- TODO: decide on consistent naming, either "fraction_xxx" or "frac_xxx", but not both! -->
       <!-- Transportation Parameter -->
       <AttrDef name="frac_transport_tanker" type="float" unit="frac" desc="fraction of product transported by ocean tanker">1.0</AttrDef>
       <AttrDef name="frac_transport_barge" type="float" unit="frac" desc="fraction of product transported by barge">0.0</AttrDef>
