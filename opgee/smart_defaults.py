@@ -50,7 +50,7 @@ class Dependency(OpgeeObject):
     """
     registry = pd.DataFrame(columns=['dep_type', 'class_name', 'attr_name', 'dep_obj'])
 
-    def __init__(self, func_class, func_name, func, attr_name, dependencies):
+    def __init__(self, attr_name, func, func_class=None, dependencies=None):
         self.func = func
         self.attr_name = attr_name
         self.dependencies = dependencies or ['_'] # dummy dependency so these show up in graph
@@ -97,7 +97,7 @@ class Dependency(OpgeeObject):
                 print(f'Calling {qualname} for attribute {attr_name} with dependencies {dependencies}')
                 return user_func(*args)
 
-            cls(func_class, func_name, wrapped_func, attr_name, dependencies)
+            cls(attr_name, wrapped_func, func_class=func_class, dependencies=dependencies)
             return wrapped_func
 
         return decorator

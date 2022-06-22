@@ -1,26 +1,28 @@
 from opgee.smart_defaults import Dependency
 from opgee.mcs.simulation import Simulation
-from opgee.mcs.distributions import *
+from opgee.smart_defaults import SmartDefault
+from opgee.mcs.simulation import Distribution
 from opgee.mcs.distro import get_frozen_rv
 
 @SmartDefault.register('TEST.abcdef', ['TEST.foo', 'TEST.bar'])
-def test_smart_dflt(foo, bar):
+def smart_dflt_1(foo, bar):
     print(f"Called test_smart_dflt(foo:{foo} bar:{bar})")
     return 10000
 
 @Distribution.register('TEST.WOR-SD', ['TEST.age'])
-def test_dep(age):
+def age_distro(age):
     print(f"Called test_dep(age:{age})")
     return get_frozen_rv('normal', mean=age, stdev=age/4)
 
 @Distribution.register('TEST.WOR', ['TEST.age', 'TEST.WOR-SD'])
-def test_wor(age, wor_sd):
+def wor_distro(age, wor_sd):
     print(f"Called test_wor(age:{age}, wor_sd:{wor_sd})")
     return get_frozen_rv('normal', mean=age, stdev=wor_sd)
 
 class PhonyAnalysis:
     def __init__(self, name):
         self.name = name
+        self.attr_dict = dict()
 
 def test_simulation():
     pathname = '/tmp/test-mcs'

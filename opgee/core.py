@@ -220,11 +220,22 @@ class A(OpgeeObject):
     using ``from_xml()`` approach since values are merged with metadata from `attributes.xml`.
     """
 
-    def __init__(self, name, value=None, pytype=None, unit=None):
+    def __init__(self, name, value=None, pytype=None, unit=None, explicit=False):
+        """
+        Creates an attribute instance.
+
+        :param name: (str) the attribute name
+        :param value: (str) string representation of attribute value
+        :param pytype: (type) the type the value should be coerced to (plus unit)
+        :param unit: (str) the attributes units
+        :param explicit: (bool) whether the value was explicit in the file; if not,
+          it implies the value was set from the default in the attribute definition.
+        """
         super().__init__()
         self.name = name
         self.unit = unit
         self.pytype = pytype
+        self.explicit = explicit
         self.value = self.set_value(value)
 
     def set_value(self, value):

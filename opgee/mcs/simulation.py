@@ -99,11 +99,6 @@ def read_distributions(pathname=None):
 
 
 class Distribution(Dependency):
-    def __init__(self, rv, attr_name):
-        func_name = ''   # unused in Distribution
-        func_class = ''  # unused in Distribution
-        deps = []        # unused in Distribution
-        super().__init__(func_class, func_name, rv, attr_name, deps)
 
     @classmethod
     def distributions(cls):
@@ -202,7 +197,7 @@ class Simulation(OpgeeObject):
         #  Nah, it's more efficient just to do lookup in Field, then fallback to
         #  Analysis, since almost all are in Field. No copying required.
         self.analysis_name = analysis.name
-        attr_dict = analysis.attr_dict
+        analysis_attr_dict = analysis.attr_dict
 
         # TODO: revise to use rv_dict rather than @Distribution decorator
         cols = []
@@ -218,7 +213,7 @@ class Simulation(OpgeeObject):
         #   Processing will require stepping through each trial value
 
         for dep_obj in Distribution.distributions():
-            args = [attr_dict[attr_name] for attr_name in dep_obj.dependencies if attr_name != '_']
+            args = [analysis_attr_dict[attr_name] for attr_name in dep_obj.dependencies if attr_name != '_']
             if args:
                 print(f"{dep_obj.attr_name}: calling {dep_obj.func}({args})")
                 rv = dep_obj.func(*args)

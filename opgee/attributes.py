@@ -296,7 +296,7 @@ class AttributeMixin():
         class_attrs = attr_defs.class_attrs(classname, raiseError=False)
 
         if class_attrs or process_attrs:
-            # Create a list of tuples of (name, value) to set attribute values below.
+            # Create a dict of explicit values to set attribute values below.
             user_values = {elt_name(a) : a.text for a in elt.findall('A')}
 
             # first copy Process attributes, if relevant. Then overwrite with subprocess attributes
@@ -311,8 +311,9 @@ class AttributeMixin():
             # set up all attributes with default values
             for name, attr_def in combined_dict.items():
                 user_value = user_values.get(name)
-                value = user_value or attr_def.default
-                attr_dict[name] = A(name, value=value, pytype=attr_def.pytype, unit=attr_def.unit)
+                explicit = user_value is not None
+                value = user_value if explicit else attr_def.default
+                attr_dict[name] = A(name, value=value, pytype=attr_def.pytype, unit=attr_def.unit, explicit=explicit)
 
         return attr_dict
 
