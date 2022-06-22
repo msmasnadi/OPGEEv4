@@ -47,6 +47,13 @@ def import_fields(csv_path, xml_path, analysis_name, count=0, from_package=False
 
     fields, dtypes = read_fields(csv_path, from_package=from_package)
 
+    # If we're translating attribute names here, just add the translations to this dict
+    v3tov4 = {'old name': 'new name',
+              'old name2': 'new name2',
+              # 'downhole_pump': 'DOWNHOLE_PUMP'
+              }
+    fields.rename(columns=v3tov4, inplace=True)
+
     known_types = {'int' : int, 'float' : float, 'str' : str}
 
     if count:
