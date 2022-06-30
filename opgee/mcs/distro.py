@@ -10,13 +10,15 @@
 #
 import inspect
 import math
+import os
 import re
 
 import numpy as np
 from scipy.stats import lognorm, triang, uniform, norm, rv_discrete, truncnorm
 
+from ..error import OpgeeException, DistributionSpecError, McsUserError
 from ..log import getLogger
-from ..error import OpgeeException, DistributionSpecError
+from ..pkg_utils import resourceStream
 
 _logger = getLogger(__name__)
 
@@ -224,6 +226,8 @@ class Empirical():
     """
     Create an empirical distribution and ppf from an array of observations.
     """
+    file_cache = {}     # maps pathname of CSV file to dataframe
+
     def __init__(self, values):
         self.values = sorted(values)
         self.count = len(values)
@@ -233,6 +237,31 @@ class Empirical():
         n = len(values)
         result = [values[int(n * percentile)] for percentile in q]
         return result
+
+    @classmethod
+    def from_csv(cls, pathname=None, colname=None): # both are required args, but must be keywords to use with DistroGen.makeRV()
+        import pandas as pd
+
+        df = cls.file_cache.get(pathname)
+
+        if df is None:
+            try:
+                csvdata = pathname if os.path.isabs(pathname) else resourceStream(pathname, stream_type='bytes', decode=None)
+                df = pd.read_csv(csvdata, index_col=False)
+            except Exception as e:
+                raise McsUserError(f"from_csv: Unable to read empirical data file '{pathname}': {e}")
+
+            cls.file_cache[pathname] = df
+
+        if colname not in df.columns:
+            raise McsUserError(f"from_csv: Column '{colname}' not found in '{pathname}'")
+
+        values = df[colname]
+        return cls(values)
+
+    @classmethod
+    def clear_file_cache(cls):
+        cls.file_cache.clear()
 
 class GridRV(object):
     '''
@@ -375,7 +404,9 @@ class DistroGen(object):
 
         cls('sequence', lambda values: sequence(values))
 
-        cls('linked', lambda parameter: linkedDistro(parameter))       # TBD: could be generalized
+        cls('linked', lambda parameter: linkedDistro(parameter)),       # TBD: could be generalized
+
+        cls('empirical', Empirical.from_csv)
 
 
 

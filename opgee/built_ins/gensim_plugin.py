@@ -5,20 +5,8 @@
 .. Copyright (c) 2016-2022 Richard Plevin
    See the https://opensource.org/licenses/MIT for license details.
 '''
-
-# TBD:
-#  - Could create a small sqlite3 database in the simulation directory to track running sim.
-#
-
 from ..log import getLogger
 from ..subcommand import SubcommandABC
-
-# TBD: Make use of this (or a different module?) a command-line option?
-#  Appears as unused in PyCharm, but this ensures that the @register decorators
-#  are run.
-#  Better alternative would be to allow attribute names in addition to
-#  numbers in the distributions CSV file.
-# from ..mcs import distributions
 
 _logger = getLogger(__name__)
 
@@ -59,8 +47,7 @@ class GensimCommand(SubcommandABC):
 
     def run(self, args, tool):
         from ..error import McsUserError, CommandlineError
-        from ..model_file import ModelFile
-        from ..mcs.simulation import Simulation, read_distributions
+        from ..mcs.simulation import Simulation, read_distributions, model_file_path
 
         use_default_model = not args.no_default_model
         model_files = args.model_file
@@ -73,18 +60,8 @@ class GensimCommand(SubcommandABC):
 
         read_distributions(pathname=args.distributions)
 
-        sim = Simulation.new(args.simulation_dir, overwrite=args.overwrite)
-
-        # Stores the merged model in the simulation folder to ensure the same one
-        # is used for all trials. Avoids having each worker regenerate this, and
-        # thus avoids different models being used if underlying files change while
-        # the simulation is running.
-        mf = ModelFile(model_files, use_default_model=use_default_model, save_to_path=sim.model_file)
-        model = mf.model
-
+        sim_dir = args.simulation_dir
         analysis_name = args.analysis
-        analysis = model.get_analysis(analysis_name, raiseError=False)
-        if not analysis:
-            raise CommandlineError(f"Analysis '{analysis_name}' was not found in model")
 
-        sim.generate(analysis, args.trials)
+        Simulation.new(sim_dir, model_files, analysis_name, args.trials,
+                       overwrite=args.overwrite, use_default_model=use_default_model)

@@ -6,8 +6,9 @@ from .csv2xml_plugin import XmlCommand
 from .merge_plugin import MergeCommand
 from .gensim_plugin import GensimCommand
 from .runsim_plugin import RunsimCommand
+from .genwor_plugin import GenworCommand
 
 BuiltinSubcommands = [
-    ConfigCommand, GraphCommand, GensimCommand, GUICommand,
+    ConfigCommand, GraphCommand, GensimCommand, GenworCommand, GUICommand,
     MergeCommand, RunCommand, RunsimCommand, XmlCommand
 ]

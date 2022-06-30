@@ -25,7 +25,6 @@ from .stream import Stream
 from .thermodynamics import Oil, Gas, Water
 from .processes.steam_generator import SteamGenerator
 from .utils import getBooleanXML, flatten, roundup
-from .mcs.simulation import Distribution
 
 _logger = getLogger(__name__)
 

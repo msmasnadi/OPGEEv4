@@ -6,11 +6,14 @@
 # Copyright (c) 2022 the author and The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
+import json
 import os
+#from collections import OrderedDict
 from ..config import pathjoin
 from ..core import OpgeeObject
-from ..error import McsSystemError, McsUserError
+from ..error import McsSystemError, McsUserError, CommandlineError, OpgeeException
 from ..log import getLogger
+from ..model_file import ModelFile
 from ..pkg_utils import resourceStream
 from ..smart_defaults import Dependency
 from ..utils import mkdirs, removeTree
@@ -19,11 +22,17 @@ from .distro import get_frozen_rv
 
 _logger = getLogger(__name__)
 
+
 TRIAL_DATA_CSV = 'trial_data.csv'
 RESULTS_DIR = 'results'
 MODEL_FILE = 'merged_model.xml'
+META_DATA_FILE = 'metadata.json'
 
 DISTROS_CSV = 'mcs/etc/parameter_distributions.csv'
+
+def model_file_path(sim_dir):
+    model_file = pathjoin(sim_dir, MODEL_FILE)
+    return model_file
 
 def read_distributions(pathname=None):
     """
@@ -48,8 +57,12 @@ def read_distributions(pathname=None):
         stdev = row.SD
         default = row.default_value
         prob_of_yes = row.prob_of_yes
+        pathname = row.pathname
 
-        if low == '' and high == '' and mean == '' and prob_of_yes == '':
+        if name == '':
+            continue
+
+        if low == '' and high == '' and mean == '' and prob_of_yes == '' and shape != 'empirical':
             _logger.info(f"* {name} depends on other distributions / smart defaults")        # TODO add in lookup of attribute value
             continue
 
@@ -91,11 +104,14 @@ def read_distributions(pathname=None):
 
             rv = get_frozen_rv('lognormal', logmean=mean, logstdev=stdev)
 
+        elif shape == 'empirical':
+            rv = get_frozen_rv('empirical', pathname=pathname, colname=name)
+
         else:
             raise McsSystemError(f"Unknown distribution shape: '{shape}'")
 
         # merge CSV-based distros with decorator-based ones
-        Distribution.register_rv(rv, name)
+        Distribution.register_rv(name, rv)
 
 
 class Distribution(Dependency):
@@ -113,8 +129,8 @@ class Distribution(Dependency):
         return dep_objs
 
     @classmethod
-    def register_rv(cls, rv, attr_name):
-        Distribution(rv, attr_name)
+    def register_rv(cls, attr_name, rv):
+        Distribution(attr_name, rv)
 
     def __str__(self):
         deps = f" {self.dependencies}" if self.dependencies else ''
@@ -128,9 +144,11 @@ class Simulation(OpgeeObject):
     ``Simulation`` represents the file and directory structure of a Monte Carlo simulation.
     Each simulation has an associated top-level directory which contains:
 
-    - `trial_data.csv`: values drawn from parameter distributions, with each row representing
-      a single trial, and each column representing the vector of values drawn for a single
-      parameter. This file is created by the "gensim" sub-command.
+    - `metadata.json`: currently, only the analysis name is stored here, but more stuff later.
+
+    - `{field_name}/trial_data.csv`: values drawn from parameter distributions, with each row
+      representing a single trial, and each column representing the vector of values drawn for
+      a single parameter. This file is created by the "gensim" sub-command.
 
     - `analysis_XXX.csv`: results for the analysis named `XXX`. Each column represents the
       results of a single output variable. Each row represents the value of all output variables
@@ -144,94 +162,102 @@ class Simulation(OpgeeObject):
       up to 1 million trials while ensuring that no directory contains more than 1000 items.
       Limiting directory size improves performance.
     """
-    def __init__(self, pathname):
-        self.pathname = pathname
+    def __init__(self, sim_dir, analysis_name=None, trials=0):
+        self.pathname = sim_dir
+        self.results_dir = pathjoin(sim_dir, RESULTS_DIR)
+        self.model_file = model_file_path(sim_dir)
 
-        self.trial_data_path = pathjoin(pathname, TRIAL_DATA_CSV)
         self.trial_data_df = None # loaded on demand by ``trial_data`` method.
+        self.trials = trials
 
-        self.analysis_name = None
+        self.analysis_name = analysis_name
+        self.analysis = None
+        self.metadata = None
 
-        self.results_dir = pathjoin(pathname, RESULTS_DIR)      # stores f"{analysis.name}.csv"
-        # self.results_file = None
+        if analysis_name:
+            self._save_meta_data()
+        else:
+            self._load_meta_data()
 
-        self.model_file = pathjoin(pathname, MODEL_FILE)
+        if not os.path.isdir(self.pathname):
+            raise McsUserError(f"Simulation directory '{self.pathname}' does not exist.")
+
+        mf = ModelFile(self.model_file, use_default_model=False)
+        self.model = mf.model
+
+        analysis = self.model.get_analysis(self.analysis_name, raiseError=False)
+        if not analysis:
+            raise CommandlineError(f"Analysis '{self.analysis_name}' was not found in model")
+
+        if trials > 0:
+            self.generate(analysis, trials)
+
+    def _save_meta_data(self):
+        # probably will add more stuff later...
+        self.metadata = {
+            'analysis_name': self.analysis_name,
+            'trials'       : self.trials
+        }
+
+        with open(self.metadata_path(), 'w') as fp:
+            json.dump(self.metadata, fp, indent=2)
+
+    def _load_meta_data(self):
+        with open(self.metadata_path(), 'r') as fp:
+            self.metadata = json.load(fp)
+
+        self.analysis_name = self.metadata['analysis_name']
+        self.trials        = self.metadata['trials']
 
     @classmethod
-    def new(cls, pathname, overwrite=False):
+    def new(cls, sim_dir, model_files, analysis_name, trials, overwrite=False, use_default_model=True):
         """
         Create the simulation directory and the ``sandboxes`` sub-directory.
 
-        :param pathname: (str) the top-level pathname
+        :param sim_dir: (str) the top-level simulation directory
+        :param model_files: (list of XML filenames) the XML files to load, in order to be merged
+        :param analysis_name: (str) the name of the analysis for which to generate the MCS
+        :param trials: (int) the number of trials to generate
         :param overwrite: (bool) if True, overwrite directory if it already exists,
           otherwise refuse to do so.
+        :param use_default_model: (bool) whether to use the default model in etc/opgee.xml as
+           the baseline model to merge with.
         :return: a new ``Simulation`` instance
         """
-        if os.path.lexists(pathname):
+        if os.path.lexists(sim_dir):
             if not overwrite:
-                raise McsUserError(
-                    f"Directory '{pathname}' already exists. Use Simulation.new(pathname, overwrite=True) to replace it.")
+                raise McsUserError(f"Directory '{sim_dir}' already exists. Use "
+                                    "Simulation.new(sim_dir, overwrite=True) to replace it.")
+            removeTree(sim_dir, ignore_errors=False)
 
-            removeTree(pathname, ignore_errors=False)
+        mkdirs(sim_dir)
 
-        mkdirs(pathname)
+        # Stores the merged model in the simulation folder to ensure the same one
+        # is used for all trials. Avoids having each worker regenerate this, and
+        # thus avoids different models being used if underlying files change while
+        # the simulation is running.
+        merged_model_file = model_file_path(sim_dir)
+        mf = ModelFile(model_files, use_default_model=use_default_model, save_to_path=merged_model_file)
 
-        sim = cls(pathname)
+        analysis = mf.model.get_analysis(analysis_name, raiseError=False)
+        if not analysis:
+            raise McsUserError(f"Analysis '{analysis_name}' was not found in model")
+
+        sim = cls(sim_dir, analysis_name=analysis_name, trials=trials)
         return sim
 
-    # TBD: need a way to specify correlations
-    def generate(self, analysis, N, corr_mat=None):
-        """
-        Generate simulation data for the given ``Analysis`` object.
+    def field_dir(self, field):
+        d = pathjoin(self.pathname, field.name)
+        return d
 
-        :param analysis: (opgee.Analysis) the analysis to generate MCS for
-        :param N: (int) the number of trials to generate data for
-        :param corr_mat: a numpy matrix representing the correlation
-           between each pair of parameters. corrMat[i,j] gives the
-           desired correlation between the i'th and j'th entries of
-           the parameter list.
-        :return: none
-        """
-        # TBD: could create copy of Analysis.attr_dict, then for each Field,
-        #  merge its attr_dict onto the Analysis one to create one lookup table?
-        #  Nah, it's more efficient just to do lookup in Field, then fallback to
-        #  Analysis, since almost all are in Field. No copying required.
-        self.analysis_name = analysis.name
-        analysis_attr_dict = analysis.attr_dict
+    def trial_data_path(self, field, mkdir=False):
+        d = self.field_dir(field)
+        if mkdir:
+            mkdirs(d)
+        path = pathjoin(d, TRIAL_DATA_CSV)
+        return path
 
-        # TODO: revise to use rv_dict rather than @Distribution decorator
-        cols = []
-        rv_list = []
-
-        by_attr = Distribution.registry.set_index('attr_name')
-
-        # TBD: registry has multiple entries for some attributes -- both SmartDefault and Distribution
-        #   For MCS, use distribution if it exists, otherwise the SmartDefault -- but not both.
-        #   Better to have separate dicts for these rather than merged into one table?
-        #   - SmartDefaults (in non-mcs mode) run order requires only smart defaults
-        #   - Distribution run order may depend on SmartDefaults, but need to look for dependent Distribution first
-        #   Processing will require stepping through each trial value
-
-        for dep_obj in Distribution.distributions():
-            args = [analysis_attr_dict[attr_name] for attr_name in dep_obj.dependencies if attr_name != '_']
-            if args:
-                print(f"{dep_obj.attr_name}: calling {dep_obj.func}({args})")
-                rv = dep_obj.func(*args)
-            else:
-                rv = dep_obj.func
-
-            rv_list.append(rv)
-            cols.append(dep_obj.attr_name)
-
-        self.trial_data_df = df = lhs(rv_list, N, columns=cols, corrMat=corr_mat)
-        df.index.name = 'trial_num'
-        self.save_trial_data()
-
-    def save_trial_data(self):
-        self.trial_data_df.to_csv(self.trial_data_path)
-
-
-    def trial_dir(self, trial_num, mkdir=False):
+    def trial_dir(self, field, trial_num, mkdir=False):
         """
         Return the full pathname to the data for trial ``trial_num``,
         optionally creating the directory.
@@ -242,12 +268,96 @@ class Simulation(OpgeeObject):
         """
         upper = trial_num // 1000
         lower = trial_num % 1000
-        trial_dir = pathjoin(self.pathname, 'trials', f"{upper:03d}", f"{lower:03d}")
+
+        trial_dir = pathjoin(self.field_dir(field), 'trials', f"{upper:03d}", f"{lower:03d}")
 
         if mkdir:
             mkdirs(trial_dir)
 
         return trial_dir
+
+    def metadata_path(self):
+        return pathjoin(self.pathname, META_DATA_FILE)
+
+    # TBD: need a way to specify correlations
+    def generate(self, analysis, N, corr_mat=None):
+        """
+        Generate simulation data for the given ``Analysis`` object.
+
+        :param N: (int) the number of trials to generate data for
+        :param corr_mat: a numpy matrix representing the correlation
+           between each pair of parameters. corrMat[i,j] gives the
+           desired correlation between the i'th and j'th entries of
+           the parameter list.
+        :return: none
+        """
+        # by_attr = Distribution.registry.set_index('attr_name')
+
+        def lookup(attr_name, field):
+            value = field.attr(attr_name)
+            if value is None:
+                # Fall back to checking Analysis attributes
+                value = analysis.attr(attr_name)
+                if value is None:
+                    raise OpgeeException(f"Attribute '{attr_name}' was not found in Field or Analysis")
+
+            return value
+
+        # TBD: registry has multiple entries for some attributes -- both SmartDefault and Distribution
+        #   For MCS, use distribution if it exists, otherwise the SmartDefault -- but not both.
+        #   Better to have separate dicts for these rather than merged into one table?
+        #   - SmartDefaults (in non-mcs mode) run order requires only smart defaults
+        #   - Distribution run order may depend on SmartDefaults, but need to look for dependent Distribution first
+        #   Processing will require stepping through each trial value
+
+        for field in analysis.fields():
+            # TODO: revise to use rv_dict rather than @Distribution decorator?
+            cols = []
+            rv_list = []
+
+            for dep_obj in Distribution.distributions():
+
+                # If a field has an explicit value for an attribute, ignore the distribution
+                target_attr = field.attr_dict.get(dep_obj.attr_name)
+                if target_attr is None:
+                    # TODO handle process subclasses
+                    # raise McsUserError(f"Attribute dependency '{dep_obj.attr_name}' was not found")
+                    _logger.debug(f"Attribute dependency '{dep_obj.attr_name}' was not found")
+                    continue
+
+                if target_attr.explicit:
+                    _logger.debug(f"{field} has an explicit value for '{dep_obj.attr_name}'; ignoring distribution")
+                    continue
+
+                # TBD: need to handle dependent distributions differently by drawing one value at a time for
+                #      the dependent distributions, creating the rv with those parameters, and then drawing a
+                #      value for the target distribution. Unfortunately, we can't simply vectorize this.
+                #      For distributions with no dependencies, we can use the old method, calling lhs() to
+                #      generate the full vector of values at once.
+                # TBD: develop the idea of generating empirical distributions to handle the dependencies
+                #      WOR-MEAN and -SD depend on field age. Draw a range of ages using LHS. Maybe N/10 values.
+                #      For each age, draw, say, 10 values of WOR-MEAN using LHS to cover the range of resulting
+                #      mean values for that age. How does WOR-STDEV relate to the mean? Should these be defined
+                #      as percentages of mean?
+                #
+
+                args = [lookup(attr_name, field) for attr_name in dep_obj.dependencies if attr_name != '_']
+                if args:
+                    _logger.debug(f"{dep_obj.attr_name}: calling {dep_obj.func}({args})")
+                    rv = dep_obj.func(*args)
+                else:
+                    rv = dep_obj.func
+
+                rv_list.append(rv)
+                cols.append(dep_obj.attr_name)
+
+            self.trial_data_df = df = lhs(rv_list, N, columns=cols, corrMat=corr_mat)
+            df.index.name = 'trial_num'
+            self.save_trial_data(field)
+
+    def save_trial_data(self, field):
+        filename = self.trial_data_path(field, mkdir=True)
+        self.trial_data_df.to_csv(filename)
 
     def consolidate_results(self):
         """
@@ -258,11 +368,12 @@ class Simulation(OpgeeObject):
         """
         pass
 
-    def trial_data(self):
+    def trial_data(self, field):
         """
         Read the trial data CSV from the top-level directory and return the DataFrame.
         The data is cached in the ``Simulation`` instance for re-use.
 
+        :param field: (opgee.Field) the field to read data for
         :return: (pd.DataFrame) the values drawn for each field, parameter, and trial.
         """
         import pandas as pd
@@ -271,7 +382,7 @@ class Simulation(OpgeeObject):
         if self.trial_data_df:
             return self.trial_data_df
 
-        path = self.trial_data_path
+        path = self.trial_data_path(field)
         if not os.path.lexists(path):
             raise McsSystemError(f"Can't read trial data: '{path}' doesn't exist.")
 
@@ -284,17 +395,22 @@ class Simulation(OpgeeObject):
         self.trial_data_df = df
         return df
 
-    def trial_values(self, trial_num):
+    def trial_values(self, field, trial_num):
         """
         Return the values for all parameters for trial ``trial_num``.
 
         :param trial_num: (int) trial number
         :return: (pd.Series) the values for all parameters for the given trial.
         """
-        df = self.trial_data()  # load data file on demand
+        df = self.trial_data(field)  # load data file on demand
 
         if trial_num not in df.index:
-            raise McsSystemError(f"Trial {trial_num} was not found in '{self.trial_data_path}'")
+            path = self.trial_data_path(field)
+            raise McsSystemError(f"Trial {trial_num} was not found in '{path}'")
 
         s = df[trial_num]
         return s
+
+    def run(self):
+        # Load the model file?
+        pass
