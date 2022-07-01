@@ -8,14 +8,12 @@
 #
 import json
 import os
-#from collections import OrderedDict
 from ..config import pathjoin
 from ..core import OpgeeObject
 from ..error import McsSystemError, McsUserError, CommandlineError, OpgeeException
 from ..log import getLogger
 from ..model_file import ModelFile
 from ..pkg_utils import resourceStream
-from ..smart_defaults import Dependency
 from ..utils import mkdirs, removeTree
 from .LHS import lhs
 from .distro import get_frozen_rv
@@ -27,6 +25,8 @@ TRIAL_DATA_CSV = 'trial_data.csv'
 RESULTS_DIR = 'results'
 MODEL_FILE = 'merged_model.xml'
 META_DATA_FILE = 'metadata.json'
+
+CLASS_DELIMITER = '.'
 
 DISTROS_CSV = 'mcs/etc/parameter_distributions.csv'
 
@@ -111,10 +111,31 @@ def read_distributions(pathname=None):
             raise McsSystemError(f"Unknown distribution shape: '{shape}'")
 
         # merge CSV-based distros with decorator-based ones
-        Distribution.register_rv(name, rv)
+        Distribution(name, rv)
 
 
-class Distribution(Dependency):
+def split_attr_name(attr_name):
+    splits = attr_name.split(CLASS_DELIMITER)
+    count = len(splits)
+    if count == 1:
+        class_name, attr_name = 'Field', splits[0]
+    elif count == 2:
+        class_name, attr_name = splits
+    else:
+        raise McsUserError(f"read_distributions: attribute name format is 'ATTR' (same as 'Field.ATTR) or 'CLASS.ATTR'; got '{attr_name}'")
+
+    return class_name, attr_name
+
+
+class Distribution(OpgeeObject):
+
+    instances = {}
+
+    def __init__(self, full_name, rv):
+        self.full_name = full_name
+        self.class_name, self.attr_name = split_attr_name(full_name)
+        self.rv = rv
+        self.instances[full_name] = self
 
     @classmethod
     def distributions(cls):
@@ -123,19 +144,11 @@ class Distribution(Dependency):
 
         :return: (list of opgee.mcs.Distribution) the instances
         """
-        rows = cls.registry.query("dep_type == 'Distribution'")
-
-        dep_objs = list(rows.dep_obj.values)
-        return dep_objs
-
-    @classmethod
-    def register_rv(cls, attr_name, rv):
-        Distribution(attr_name, rv)
+        return cls.instances.values()
 
     def __str__(self):
-        deps = f" {self.dependencies}" if self.dependencies else ''
+        return f"<Distribution '{self.full_name}' = {self.rv}>"
 
-        return f"<Distribution '{self.attr_name}'={self.func}{deps}>"
 
 # TBD: maybe have a "results" subdir, with file  for results of 1 analysis?
 
@@ -291,65 +304,41 @@ class Simulation(OpgeeObject):
            the parameter list.
         :return: none
         """
-        # by_attr = Distribution.registry.set_index('attr_name')
+        def lookup(full_name, field):
+            class_name, attr_name = split_attr_name(full_name)
 
-        def lookup(attr_name, field):
-            value = field.attr(attr_name)
-            if value is None:
-                # Fall back to checking Analysis attributes
-                value = analysis.attr(attr_name)
-                if value is None:
-                    raise OpgeeException(f"Attribute '{attr_name}' was not found in Field or Analysis")
+            if class_name == 'Field':
+                obj = field
 
-            return value
+            elif class_name == 'Analysis':
+                obj = analysis
 
-        # TBD: registry has multiple entries for some attributes -- both SmartDefault and Distribution
-        #   For MCS, use distribution if it exists, otherwise the SmartDefault -- but not both.
-        #   Better to have separate dicts for these rather than merged into one table?
-        #   - SmartDefaults (in non-mcs mode) run order requires only smart defaults
-        #   - Distribution run order may depend on SmartDefaults, but need to look for dependent Distribution first
-        #   Processing will require stepping through each trial value
+            else:
+                obj = field.find_process(class_name)
+                if obj is None:
+                    raise McsUserError(f"A process of class '{class_name}' was not found in {field}")
+
+            attr_obj = obj.attr_dict.get(attr_name)
+            if attr_obj is None:
+                raise McsUserError(f"The attribute '{attr_name}' was not found in '{obj}'")
+
+            return attr_obj
 
         for field in analysis.fields():
-            # TODO: revise to use rv_dict rather than @Distribution decorator?
             cols = []
             rv_list = []
+            distributions = Distribution.distributions()
 
-            for dep_obj in Distribution.distributions():
+            for dist in distributions:
+                target_attr = lookup(dist.full_name, field)
 
-                # If a field has an explicit value for an attribute, ignore the distribution
-                target_attr = field.attr_dict.get(dep_obj.attr_name)
-                if target_attr is None:
-                    # TODO handle process subclasses
-                    # raise McsUserError(f"Attribute dependency '{dep_obj.attr_name}' was not found")
-                    _logger.debug(f"Attribute dependency '{dep_obj.attr_name}' was not found")
-                    continue
-
+                # If the object has an explicit value for an attribute, we ignore the distribution
                 if target_attr.explicit:
-                    _logger.debug(f"{field} has an explicit value for '{dep_obj.attr_name}'; ignoring distribution")
+                    _logger.debug(f"{field} has an explicit value for '{dist.attr_name}'; ignoring distribution")
                     continue
 
-                # TBD: need to handle dependent distributions differently by drawing one value at a time for
-                #      the dependent distributions, creating the rv with those parameters, and then drawing a
-                #      value for the target distribution. Unfortunately, we can't simply vectorize this.
-                #      For distributions with no dependencies, we can use the old method, calling lhs() to
-                #      generate the full vector of values at once.
-                # TBD: develop the idea of generating empirical distributions to handle the dependencies
-                #      WOR-MEAN and -SD depend on field age. Draw a range of ages using LHS. Maybe N/10 values.
-                #      For each age, draw, say, 10 values of WOR-MEAN using LHS to cover the range of resulting
-                #      mean values for that age. How does WOR-STDEV relate to the mean? Should these be defined
-                #      as percentages of mean?
-                #
-
-                args = [lookup(attr_name, field) for attr_name in dep_obj.dependencies if attr_name != '_']
-                if args:
-                    _logger.debug(f"{dep_obj.attr_name}: calling {dep_obj.func}({args})")
-                    rv = dep_obj.func(*args)
-                else:
-                    rv = dep_obj.func
-
-                rv_list.append(rv)
-                cols.append(dep_obj.attr_name)
+                rv_list.append(dist.rv)
+                cols.append(dist.attr_name)
 
             self.trial_data_df = df = lhs(rv_list, N, columns=cols, corrMat=corr_mat)
             df.index.name = 'trial_num'
