@@ -5,6 +5,8 @@
 # Copyright (c) Richard Plevin, 2012-2022.
 # See the https://opensource.org/licenses/MIT for license details.
 #
+# TBD: Need to root out XML-related aspects and otherwise tailor this for OPGEE
+#
 import os
 from collections import OrderedDict, defaultdict
 from math import ceil

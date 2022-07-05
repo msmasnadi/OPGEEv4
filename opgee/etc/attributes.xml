@@ -135,9 +135,6 @@
       <AttrDef name="GOR" desc="Gas-to-oil ratio" unit="scf/bbl_oil" type="float">2429.3</AttrDef>
 
       <AttrDef name="WOR" desc="Water-to-oil ratio" unit="bbl_water/bbl_oil" type="float">6.0</AttrDef>
-      <AttrDef name="WOR-MEAN" desc="WOR mean (deps. on age)" unit="" type="float">6.0</AttrDef>
-      <AttrDef name="WOR-SD" desc="WOR std deviation (deps. on age)" unit="" type="float">1.4</AttrDef>
-
       <AttrDef name="WIR" desc="Water injection ratio" unit="bbl_water/bbl_oil" type="float">7.0</AttrDef>
       <AttrDef name="GLIR" desc="Gas lifting injection ratio" unit="scf/bbl_liquid" type="float">364.0</AttrDef>
       <AttrDef name="GFIR" desc="Gas flooding injection ratio" unit="scf/bbl_oil" type="float">3644.0</AttrDef>

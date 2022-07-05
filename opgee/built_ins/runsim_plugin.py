@@ -43,7 +43,7 @@ class RunsimCommand(SubcommandABC):
         # TBD: Load the model so we can access the attribute dictionary
         attr_dict = None
 
-        sim = Simulation.new(args.simulation_dir, overwrite=args.overwrite)
+        sim = Simulation(args.simulation_dir, overwrite=args.overwrite)
 
         # TBD: pass Analysis instance rather than name and attr_dict?
         sim.generate(args.analysis, args.trials, attr_dict)

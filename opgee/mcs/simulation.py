@@ -180,6 +180,9 @@ class Simulation(OpgeeObject):
         self.results_dir = pathjoin(sim_dir, RESULTS_DIR)
         self.model_file = model_file_path(sim_dir)
 
+        # TBD: to allow the same trial_num to be run across fields, cache field
+        #      trial_data in a dict by field name rather than a single DF
+
         self.trial_data_df = None # loaded on demand by ``trial_data`` method.
         self.trials = trials
 
@@ -292,6 +295,26 @@ class Simulation(OpgeeObject):
     def metadata_path(self):
         return pathjoin(self.pathname, META_DATA_FILE)
 
+    def lookup(self, full_name, analysis, field):
+        class_name, attr_name = split_attr_name(full_name)
+
+        if class_name == 'Field':
+            obj = field
+
+        elif class_name == 'Analysis':
+            obj = analysis
+
+        else:
+            obj = field.find_process(class_name)
+            if obj is None:
+                raise McsUserError(f"A process of class '{class_name}' was not found in {field}")
+
+        attr_obj = obj.attr_dict.get(attr_name)
+        if attr_obj is None:
+            raise McsUserError(f"The attribute '{attr_name}' was not found in '{obj}'")
+
+        return attr_obj
+
     # TBD: need a way to specify correlations
     def generate(self, analysis, N, corr_mat=None):
         """
@@ -304,33 +327,13 @@ class Simulation(OpgeeObject):
            the parameter list.
         :return: none
         """
-        def lookup(full_name, field):
-            class_name, attr_name = split_attr_name(full_name)
-
-            if class_name == 'Field':
-                obj = field
-
-            elif class_name == 'Analysis':
-                obj = analysis
-
-            else:
-                obj = field.find_process(class_name)
-                if obj is None:
-                    raise McsUserError(f"A process of class '{class_name}' was not found in {field}")
-
-            attr_obj = obj.attr_dict.get(attr_name)
-            if attr_obj is None:
-                raise McsUserError(f"The attribute '{attr_name}' was not found in '{obj}'")
-
-            return attr_obj
-
         for field in analysis.fields():
             cols = []
             rv_list = []
             distributions = Distribution.distributions()
 
             for dist in distributions:
-                target_attr = lookup(dist.full_name, field)
+                target_attr = self.lookup(dist.full_name, analysis, field)
 
                 # If the object has an explicit value for an attribute, we ignore the distribution
                 if target_attr.explicit:
@@ -368,6 +371,7 @@ class Simulation(OpgeeObject):
         import pandas as pd
 
         # TBD: allow option of using same draws across fields.
+
         if self.trial_data_df:
             return self.trial_data_df
 
@@ -384,7 +388,7 @@ class Simulation(OpgeeObject):
         self.trial_data_df = df
         return df
 
-    def trial_values(self, field, trial_num):
+    def trial_data(self, field, trial_num):
         """
         Return the values for all parameters for trial ``trial_num``.
 
@@ -400,6 +404,23 @@ class Simulation(OpgeeObject):
         s = df[trial_num]
         return s
 
-    def run(self):
-        # Load the model file?
-        pass
+    def set_trial_data(self, analysis, field, trial_num):
+        data = self.trial_data(field, trial_num)
+
+        for name, value in data:
+            attr = self.lookup(name, analysis, field)
+            attr.explicit = True
+            attr.set_attr(name, value)
+
+    def run(self, analysis, field, trial_nums):
+        for trial_num in trial_nums:
+            self.set_trial_data(analysis, field, trial_num)
+            field.run(analysis)
+
+            # results for a field in `analysis`. Each column represents the results
+            # of a single output variable. Each row represents the value of all output
+            # variables for one trial of a single field. The field name is thus
+            # included in each row, allowing results for all fields in a single
+            # analysis to be stored in one file.
+
+
