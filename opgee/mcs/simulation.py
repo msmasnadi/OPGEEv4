@@ -201,7 +201,7 @@ class Simulation(OpgeeObject):
         mf = ModelFile(self.model_file, use_default_model=False)
         self.model = mf.model
 
-        analysis = self.model.get_analysis(self.analysis_name, raiseError=False)
+        self.analysis = analysis = self.model.get_analysis(self.analysis_name, raiseError=False)
         if not analysis:
             raise CommandlineError(f"Analysis '{self.analysis_name}' was not found in model")
 
@@ -341,7 +341,7 @@ class Simulation(OpgeeObject):
                     continue
 
                 rv_list.append(dist.rv)
-                cols.append(dist.attr_name)
+                cols.append(dist.attr_name if dist.class_name == 'Field' else dist.full_name)
 
             self.trial_data_df = df = lhs(rv_list, N, columns=cols, corrMat=corr_mat)
             df.index.name = 'trial_num'
@@ -360,7 +360,7 @@ class Simulation(OpgeeObject):
         """
         pass
 
-    def trial_data(self, field):
+    def field_trial_data(self, field):
         """
         Read the trial data CSV from the top-level directory and return the DataFrame.
         The data is cached in the ``Simulation`` instance for re-use.
@@ -395,27 +395,45 @@ class Simulation(OpgeeObject):
         :param trial_num: (int) trial number
         :return: (pd.Series) the values for all parameters for the given trial.
         """
-        df = self.trial_data(field)  # load data file on demand
+        df = self.field_trial_data(field)  # load data file on demand
 
         if trial_num not in df.index:
             path = self.trial_data_path(field)
             raise McsSystemError(f"Trial {trial_num} was not found in '{path}'")
 
-        s = df[trial_num]
+        s = df.loc[trial_num]
         return s
 
     def set_trial_data(self, analysis, field, trial_num):
         data = self.trial_data(field, trial_num)
 
-        for name, value in data:
+        for name, value in data.iteritems():
             attr = self.lookup(name, analysis, field)
             attr.explicit = True
-            attr.set_attr(name, value)
+            attr.set_value(value)
 
-    def run(self, analysis, field, trial_nums):
+    def run_field(self, analysis, field, trial_nums):
         for trial_num in trial_nums:
+            _logger.debug(f"Running trial {trial_num} for {field}")
             self.set_trial_data(analysis, field, trial_num)
             field.run(analysis)
+
+    def run(self, trial_nums, field_names=None):
+        """
+        Run the given Monte Carlo trials for ``analysis``. If ``fields`` is
+        ``None``, all fields are run, otherwise, only the indicated fields are
+        run.
+
+        :param trial_nums: (list of int) trials to run
+        :param fields: (list of str) names of fields to run
+        :return: none
+        """
+        ana = self.analysis
+
+        fields = [ana.get_field(name) for name in field_names] if field_names else ana.fields()
+
+        for field in fields:
+            self.run_field(ana, field, trial_nums)
 
             # results for a field in `analysis`. Each column represents the results
             # of a single output variable. Each row represents the value of all output

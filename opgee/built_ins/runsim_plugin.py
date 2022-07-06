@@ -17,33 +17,29 @@ class RunsimCommand(SubcommandABC):
         super(RunsimCommand, self).__init__('runsim', subparsers, kwargs)
 
     def addArgs(self, parser):
-        parser.add_argument('-a', '--analysis',
-                            help='''The name of the analysis to run''')
-
-        parser.add_argument('--overwrite', action='store_true',
-                            help='''OVERWRITE prior results, if any.''')
+        # parser.add_argument('-a', '--analysis',
+        #                     help='''The name of the analysis to run''')
+        #
+        # parser.add_argument('--overwrite', action='store_true',
+        #                     help='''OVERWRITE prior results, if any.''')
 
         parser.add_argument('-s', '--simulation_dir',
                             help='''The top-level directory to use for this simulation "package"''')
 
-        parser.add_argument('-t', '--trials', type=int, default=0,
-                            help='''The number of trials to run. Must be <= the number specified when 
-                            creating this simulation. By default, all defined trials are run.''')
+        parser.add_argument('-t', '--trials', default='all',
+                            help='''The trials to run. Can be expressed as a string containing
+                            comma-delimited ranges and individual trail numbers, e.g. "1-20,22, 35, 42, 44-50").
+                            The special string "all" (the default) runs all defined trials.''')
 
         return parser   # for auto-doc generation
 
 
     def run(self, args, tool):
-        from ..error import McsUserError
+        from ..utils import parseTrialString
         from ..mcs.simulation import Simulation
 
-        if args.trials <= 0:
-            raise McsUserError("Trials argument must be an integer > 0")
+        sim = Simulation(args.simulation_dir)
 
-        # TBD: Load the model so we can access the attribute dictionary
-        attr_dict = None
+        trials = parseTrialString(args.trials)
+        sim.run(trials)
 
-        sim = Simulation(args.simulation_dir, overwrite=args.overwrite)
-
-        # TBD: pass Analysis instance rather than name and attr_dict?
-        sim.generate(args.analysis, args.trials, attr_dict)

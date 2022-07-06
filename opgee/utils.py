@@ -110,8 +110,8 @@ def getBooleanXML(value):
              value is passed.
     :raises: OpgeeException
     """
-    false = ["false", "no", "0", "none"]
-    true  = ["true", "yes", "1"]
+    false = ["false", "no", "0", "0.0", "none"]
+    true  = ["true", "yes", "1", "1.0"]
     valid = true + false
 
     val = str(value).strip().lower()
@@ -174,6 +174,28 @@ def coercible(value, pytype, raiseError=True, allow_truncation=False):
 
     return value
 
+TRIAL_STRING_DELIMITER = ','
+
+def parseTrialString(string):
+    """
+    Converts a comma-separated list of ranges into a list of numbers.
+    Ex. 1,3,4-6,2 becomes [1,3,4,5,6,2]. Duplicates are deleted. This
+    function is the inverse of :func:`createTrialString`.
+
+    :param string: (str) comma-separate list of ints or int ranges indicated
+      by two ints separated by a hyphen.
+    :return: (list) a list of ints
+    """
+    rangeStrs = string.split(TRIAL_STRING_DELIMITER)
+    res = set()
+    for rangeStr in rangeStrs:
+        r = [int(x) for x in rangeStr.strip().split('-')]
+        if len(r) == 2:
+            r = range(r[0], r[1] + 1)
+        elif len(r) != 1:
+            raise ValueError('Malformed trial string.')
+        res = res.union(set(r))
+    return list(res)
 
 def flatten(listOfLists):
     """
@@ -197,12 +219,12 @@ def mkdirs(newdir, mode=0o770):
     :param newdir: the directory to create (along with any needed parent directories)
     :return: nothing
     """
-    from errno import EEXIST        # pycharm thinks this is unknown but it's wrong
+    import errno    # PyCharm thinks this doesn't exist but it does.
 
     try:
         os.makedirs(newdir, mode)
     except OSError as e:
-        if e.errno != EEXIST:
+        if e.errno != errno.EEXIST:
             raise
 
 def loadModuleFromPath(module_path, raiseError=True):
