@@ -52,6 +52,9 @@
 
 		<Process class="After"/>
 
+		<Process class="Boundary" boundary="Production"/>
+		<Process class="Boundary" boundary="Transportation"/>
+
 		<ProcessChoice name="gas_processing_path">
 			<ProcessGroup name="Acid Wet Gas">
 				<ProcessRef name="AcidGasRemoval"/>
@@ -257,13 +260,24 @@
 			<Contains>oil for storage</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilStorage" dst="CrudeOilTransport" name="crude oil storage to crude oil transport" boundary = "Production">
-			<Contains>oil for transport</Contains>
+
+		<!-- Streams to and from boundary processes -->
+		<Stream src="CrudeOilStorage" dst="ProductionBoundary">
+			<Contains>oil</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilTransport" dst="After" name="crude oil transport to after" boundary="Transportation">
-			<Contains>oil for refinery</Contains>
+		<Stream src="ProductionBoundary" dst="CrudeOilTransport">
+			<Contains>oil</Contains>
 		</Stream>
+
+		<Stream src="CrudeOilTransport" dst="TransportationBoundary">
+			<Contains>oil</Contains>
+		</Stream>
+
+		<Stream src="TransportationBoundary" dst="After">
+			<Contains>oil</Contains>
+		</Stream>
+
 
 		<Stream src="GasGathering" dst="GasDehydration" name="gas gathering to gas dehydration">
 			<Contains>gas</Contains>
@@ -453,6 +467,9 @@
 		<A name="transport_dist_pipeline">24.0</A>
 		<A name="transport_dist_rail">0.0</A>
 
+		<Process class="Boundary" boundary="Production"/>
+		<Process class="Boundary" boundary="Transportation"/>
+
 		<Process class="After"/>
 		<Aggregator name="ExplorationAndDrilling">
 			<Process class="Exploration" after="true"/>
@@ -547,13 +564,24 @@
 			<Contains>gas for flaring</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilStorage" dst="CrudeOilTransport" name="crude oil storage to crude oil transport" boundary="Production">
-			<Contains>oil for transport</Contains>
+
+		<!-- Streams to and from boundary processes -->
+		<Stream src="CrudeOilStorage" dst="ProductionBoundary">
+			<Contains>oil</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilTransport" dst="After" name="crude oil transport to after" boundary="Transportation">
-			<Contains>oil for refinery</Contains>
+		<Stream src="ProductionBoundary" dst="CrudeOilTransport">
+			<Contains>oil</Contains>
 		</Stream>
+
+		<Stream src="CrudeOilTransport" dst="TransportationBoundary">
+			<Contains>oil</Contains>
+		</Stream>
+
+		<Stream src="TransportationBoundary" dst="After">
+			<Contains>oil</Contains>
+		</Stream>
+
 
 		<Stream src="CrudeOilStorage" dst="VRUCompressor" name="crude oil storage to VRU compressor">
 			<Contains>gas for VRU</Contains>
@@ -605,6 +633,10 @@
 		<A name="fraction_steam_cogen">0.5</A>
 		<A name="FOR">5.0</A>
 		<A name="prod_index">6.8</A>
+
+		<Process class="Boundary" boundary="Production"/>
+		<Process class="Boundary" boundary="Transportation"/>
+
 		<Process class="After"/>
 		<Process class="Output"/>
 
@@ -681,13 +713,24 @@
 			<Contains>oil for storage</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilStorage" dst="CrudeOilTransport" name="crude oil storage to crude oil transport" boundary = "Production">
-			<Contains>oil for transport</Contains>
+
+		<!-- Streams to and from boundary processes -->
+		<Stream src="CrudeOilStorage" dst="ProductionBoundary">
+			<Contains>oil</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilTransport" dst="After" name="crude oil transport to after" boundary="Transportation">
-			<Contains>oil for refinery</Contains>
+		<Stream src="ProductionBoundary" dst="CrudeOilTransport">
+			<Contains>oil</Contains>
 		</Stream>
+
+		<Stream src="CrudeOilTransport" dst="TransportationBoundary">
+			<Contains>oil</Contains>
+		</Stream>
+
+		<Stream src="TransportationBoundary" dst="After">
+			<Contains>oil</Contains>
+		</Stream>
+
 
 		<Stream src="Separation" dst="WaterTreatment" name="separator to produced water treatment">
 			<Contains>water</Contains>
@@ -710,7 +753,7 @@
 		</Stream>
 
 
-		<Stream src="SteamGeneration" dst="After" name="steam generation to environment"> <!-- arbitrary boundary for testing -->
+		<Stream src="SteamGeneration" dst="After" name="steam generation to environment">
 			<Contains>waste water</Contains>
 		</Stream>
 
