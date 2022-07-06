@@ -44,8 +44,9 @@ class ModelFile(XMLFile):
         1. If `add_stream_components` is True, load any extra stream components defined by config file
         variable "OPGEE.StreamComponents".
 
-        2. Reads the input XML filename using either from `filename` (if `stream` is None) or from
-        `stream`. In the latter case, the filename is used only as a description of the stream.
+        2. Reads the input XML filename using either from `pathnames` (if not None or empty list)
+        or from the default model. If ``use_default_model`` is True, etc/opgee.xml is loaded first
+        and other XML files are merged in, in the order given.
 
         3. If `use_class_path` is True, loads any Python files found in the path list defined by
         "OPGEE.ClassPath". Note that all classes referenced by the XML must be defined internally
@@ -53,8 +54,8 @@ class ModelFile(XMLFile):
 
         4. Construct the model data structure from the input XML file and store the result in `self.model`.
 
-        :param pathnames: (str, or list or tuple of str) the name(s) of the file(s) to read, if
-           `stream` is None, else the description of the file, e.g., "[opgee package]/etc/opgee.xml".
+        :param pathnames: (str, or list or tuple of str) the name(s) of the file(s) to read.
+           If None or empty list, ``use_default_model`` must be True, or there's nothing to load.
         :param add_stream_components: (bool) whether to load additional `Stream` components using the
            value of config parameter "OPGEE.StreamComponents".
         :param use_class_path: (bool) whether to load custom python classes from the path indicated by

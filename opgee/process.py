@@ -900,12 +900,19 @@ class Boundary(Process):
         return proc == self
 
     def run(self, analysis):
+        is_chosen_boundary = self.is_chosen_boundary(analysis)
+
+        # TODO this logic looks wrong since the branch that tests whether "is_boundary_processed"
+        #  doesn't set the flag to indicate that it's been processed. That happens in the other branch.
+        # Also, shouldn't have to test is_chosen_boundary in both branches.
+
         # If we're an intermediate boundary, copy all inputs to outputs based on contents
-        if not self.is_chosen_boundary(analysis) and not self.field.get_process_data("is_boundary_processed"):
+        if not is_chosen_boundary and not self.field.get_process_data("is_boundary_processed"):
             for in_stream in self.inputs:
                 contents = in_stream.contents
                 if len(contents) != 1:
                     raise ModelValidationError(f"Streams to and from boundaries must have only a single Content declaration; {self} inputs are {contents}")
+
                 # If not exactly one stream that declares the same contents, raises error
                 out_stream = self.find_output_stream(contents[0], raiseError=False)
 
@@ -915,17 +922,20 @@ class Boundary(Process):
                 out_stream.copy_flow_rates_from(in_stream)
 
         # Hit the user choose boundary
-        elif self.is_chosen_boundary(analysis) and not self.field.get_process_data("export_prod_LHV_sum"):
+        elif is_chosen_boundary and not self.field.get_process_data("export_prod_LHV_sum"):
             export_prod_LHV_sum = ureg.Quantity(0, "mmbtu/day")
             for in_stream in self.inputs:
                 mass_rate = in_stream.components.sum(axis=1)
                 export_prod_LHV = mass_rate[self.field.product_LHV.index].dot(self.field.product_LHV)["LHV"]
                 export_prod_LHV_sum += export_prod_LHV
 
+                # TODO: this is not a robust test
                 if in_stream.contents[0] == "oil":
                     self.field.save_process_data(export_oil_LHV=export_prod_LHV)
 
             self.field.save_process_data(export_prod_LHV_sum=export_prod_LHV_sum)
+
+            # TODO: why isn't this on previous branch of if-else rather than here?
             self.field.save_process_data(is_boundary_processed=True)
 
 

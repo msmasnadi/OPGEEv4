@@ -116,7 +116,7 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     def __init__(self, name, tp,
                  src_name=None, dst_name=None, comp_matrix=None,
-                 contents=None, impute=True, boundary=None):
+                 contents=None, impute=True):
         super().__init__(name)
 
         # TBD: rename this self.comp_matrix for clarity
@@ -136,8 +136,6 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.src_proc = None  # set in Field.connect_processes()
         self.dst_proc = None
         self.field = None
-
-        self.boundary = boundary    # the name of the boundary this stream defines, or None
 
         self.contents = contents or []  # generic description of what the stream carries
 
@@ -584,8 +582,6 @@ class Stream(XmlInstantiable, AttributeMixin):
         name = a.get('name') or f"{src} => {dst}"
         impute = getBooleanXML(a.get('impute', "1"))
 
-        boundary = a.get('boundary')  # optional
-
         # There should be 2 attributes: temperature and pressure
         attr_dict = cls.instantiate_attrs(elt)
         expected = {'temperature', 'pressure'}
@@ -624,7 +620,7 @@ class Stream(XmlInstantiable, AttributeMixin):
             matrix = None  # let the stream create it
 
         obj = Stream(name, tp, comp_matrix=matrix, src_name=src, dst_name=dst,
-                     contents=contents, impute=impute, boundary=boundary)
+                     contents=contents, impute=impute)
 
         return obj
 

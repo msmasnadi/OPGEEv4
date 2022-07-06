@@ -82,10 +82,9 @@ class GasPartition(Process):
             self.field.save_process_data(methane_from_gas_lifting=gas_lifting.gas_flow_rate("C1"))
             return
 
-        exported_gas = self.find_output_stream("gas")
-        exported_gas.copy_flow_rates_from(input)
+        exported_gas = self.find_output_stream("gas")           # TODO: not found in opgee.xml gas_lifting_field
+        exported_gas.copy_flow_rates_from(input, tp=input_tp)
         exported_gas.subtract_rates_from(gas_lifting)
-        exported_gas.set_tp(input_tp)
 
         gas_to_reinjection = self.find_output_stream("gas for gas reinjection compressor")
         if self.natural_gas_reinjection or (self.gas_flooding and self.flood_gas_type == "NG"):
