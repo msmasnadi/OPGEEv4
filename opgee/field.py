@@ -243,8 +243,8 @@ class Field(Container):
 
             # Cache the sets of processes within and outside the current boundary. We use
             # this information in compute_carbon_intensity() to ignore irrelevant procs.
-            boundary_proc = self.boundary_process(analysis)
-            self.procs_beyond_boundary = boundary_proc.beyond_boundary()
+            boundary_stream = self.boundary_process(analysis)
+            self.procs_beyond_boundary = boundary_stream.beyond_boundary()
 
             self.reset()
             self._impute()
@@ -290,9 +290,9 @@ class Field(Container):
         for p in self.processes():
             p.check_balances()
 
-    def boundary_processes(self):
-        boundary_procs = [proc for proc in self.processes() if proc.boundary]
-        return boundary_procs
+    def boundary_streams(self):
+        streams = [s for s in self.streams() if s.boundary]
+        return streams
 
     def boundary_process(self, analysis) -> Process:
         """
