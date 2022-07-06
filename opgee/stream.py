@@ -166,50 +166,6 @@ class Stream(XmlInstantiable, AttributeMixin):
 
         self.tp.copy_from(self.initial_tp)
 
-    def within_boundary(self):
-        """
-        If `self` is a boundary stream, return the list of processes within the boundary.
-        The boundary stream must not be in a cycle.
-        """
-        if self.boundary is None:
-            raise OpgeeException(f"within_boundary: '{self}' is not a boundary stream.")
-
-        visited = dict()
-
-        def _visit(proc):
-            if proc is None or visited.get(id(proc), False):
-                return
-
-            visited[id(proc)] = proc
-
-            for p in proc.predecessors():
-                _visit(p)
-
-        _visit(self.src_proc)
-        return set(visited)
-
-    def beyond_boundary(self):
-        """
-        If `self` is a boundary stream, return the list of processes beyond the boundary.
-        The boundary stream must not be in a cycle.
-        """
-        if self.boundary is None:
-            raise OpgeeException(f"beyond_boundary: '{self}' is not a boundary stream.")
-
-        visited = dict()
-
-        def _visit(proc):
-            if proc is None or visited.get(id(proc), False):
-                return
-
-            visited[id(proc)] = proc
-
-            for p in proc.successors():
-                _visit(p)
-
-        _visit(self.dst_proc)
-        return set(visited)
-
     @classmethod
     def units(cls):
         return cls._units

@@ -62,20 +62,20 @@ class Field(Container):
         self.known_boundaries = known_boundaries = set(getParamAsList('OPGEE.Boundaries'))
 
         # Save references to boundary processes by name; fail if duplicate definitions are found.
-        for stream in streams:
-            boundary = stream.boundary
+        for proc in procs:
+            boundary = proc.boundary
             if boundary:
                 if boundary not in known_boundaries:
                     raise OpgeeException(
-                        f"{self}: {stream} boundary {boundary} is not a known boundary name. Must be one of {known_boundaries}")
+                        f"{self}: {proc} boundary {boundary} is not a known boundary name. Must be one of {known_boundaries}")
 
                 other = boundary_dict.get(boundary)
                 if other:
                     raise OpgeeException(
-                        f"{self}: Duplicate declaration of boundary '{boundary}' in {stream} and {other}")
+                        f"{self}: Duplicate declaration of boundary '{boundary}' in {proc} and {other}")
 
-                boundary_dict[boundary] = stream
-                _logger.debug(f"{self}: {stream} defines boundary '{boundary}'")
+                boundary_dict[boundary] = proc
+                _logger.debug(f"{self}: {proc} defines boundary '{boundary}'")
 
         self.process_choice_dict = process_choice_dict
 
@@ -243,8 +243,8 @@ class Field(Container):
 
             # Cache the sets of processes within and outside the current boundary. We use
             # this information in compute_carbon_intensity() to ignore irrelevant procs.
-            boundary_stream = self.boundary_process(analysis)
-            self.procs_beyond_boundary = boundary_stream.beyond_boundary()
+            boundary_proc = self.boundary_process(analysis)
+            self.procs_beyond_boundary = boundary_proc.beyond_boundary()
 
             self.reset()
             self._impute()
@@ -290,9 +290,9 @@ class Field(Container):
         for p in self.processes():
             p.check_balances()
 
-    def boundary_streams(self):
-        streams = [s for s in self.streams() if s.boundary]
-        return streams
+    def boundary_processes(self):
+        boundary_procs = [proc for proc in self.processes() if proc.boundary]
+        return boundary_procs
 
     def boundary_process(self, analysis) -> Process:
         """
