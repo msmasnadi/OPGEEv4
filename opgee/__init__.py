@@ -6,6 +6,12 @@ import pint
 import pint_pandas
 from .pkg_utils import resourceStream
 
+import warnings
+
+#warnings.filterwarnings("ignore", category=DeprecationWarning)
+#warnings.filterwarnings("error", category=UserWarning) # turn warning into error to debug
+warnings.filterwarnings("ignore", category=UserWarning) # turn warning into error to debug
+
 #
 # Try to use the "ureg" from thermosteam to avoid mixing and matching registries.
 # If that fails, we create a new pint unit registry. In either case, we load our defs,

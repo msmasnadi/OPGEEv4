@@ -8,8 +8,8 @@
 #
 import math
 import pandas as pd
-from pandas import Series
 import pint
+import pint_pandas
 from pyXSteam.XSteam import XSteam
 from thermosteam import Chemical, Mixture
 from . import ureg
@@ -884,7 +884,7 @@ class Gas(AbstractSubstance):
         temp3 = 2 / 3 * temp3 ** 2
         temperature = ureg.Quantity(temp1 / (temp2 + temp3), "rankine")
         pressure = ureg.Quantity(temp1 / (temp2 + temp3) ** 2, "psia")
-        return Series(data=[temperature, pressure], index=["temperature", "pressure"])
+        return pd.Series(data=[temperature, pressure], index=["temperature", "pressure"])
 
     def corrected_pseudocritical_temperature(self, stream):
         """
