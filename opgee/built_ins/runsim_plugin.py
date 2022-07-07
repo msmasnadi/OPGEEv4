@@ -17,11 +17,18 @@ class RunsimCommand(SubcommandABC):
         super(RunsimCommand, self).__init__('runsim', subparsers, kwargs)
 
     def addArgs(self, parser):
+        from ..utils import ParseCommaList
+
         # parser.add_argument('-a', '--analysis',
         #                     help='''The name of the analysis to run''')
         #
         # parser.add_argument('--overwrite', action='store_true',
         #                     help='''OVERWRITE prior results, if any.''')
+
+        parser.add_argument('-f', '--fields', action=ParseCommaList,
+                            help='''Run only the specified field or fields. Argument may be a 
+                            comma-delimited list of Field names. Otherwise all fields defined in the
+                            analysis are run.''')
 
         parser.add_argument('-s', '--simulation_dir',
                             help='''The top-level directory to use for this simulation "package"''')
@@ -38,7 +45,7 @@ class RunsimCommand(SubcommandABC):
         from ..utils import parseTrialString
         from ..mcs.simulation import Simulation
 
-        sim = Simulation(args.simulation_dir)
+        sim = Simulation(args.simulation_dir, field_names=args.fields)
 
         trials = parseTrialString(args.trials)
         sim.run(trials)

@@ -10,7 +10,7 @@ import json
 import os
 from ..config import pathjoin
 from ..core import OpgeeObject
-from ..error import McsSystemError, McsUserError, CommandlineError, OpgeeException
+from ..error import McsSystemError, McsUserError, CommandlineError, ModelValidationError
 from ..log import getLogger
 from ..model_file import ModelFile
 from ..pkg_utils import resourceStream
@@ -175,7 +175,7 @@ class Simulation(OpgeeObject):
       up to 1 million trials while ensuring that no directory contains more than 1000 items.
       Limiting directory size improves performance.
     """
-    def __init__(self, sim_dir, analysis_name=None, trials=0):
+    def __init__(self, sim_dir, analysis_name=None, trials=0, field_names=None):
         self.pathname = sim_dir
         self.results_dir = pathjoin(sim_dir, RESULTS_DIR)
         self.model_file = model_file_path(sim_dir)
@@ -188,6 +188,7 @@ class Simulation(OpgeeObject):
 
         self.analysis_name = analysis_name
         self.analysis = None
+        self.field_names = field_names
         self.metadata = None
 
         if analysis_name:
@@ -206,13 +207,13 @@ class Simulation(OpgeeObject):
             raise CommandlineError(f"Analysis '{self.analysis_name}' was not found in model")
 
         if trials > 0:
-            self.generate(analysis, trials)
+            self.generate()
 
     def _save_meta_data(self):
-        # probably will add more stuff later...
         self.metadata = {
             'analysis_name': self.analysis_name,
-            'trials'       : self.trials
+            'trials'       : self.trials,
+            'field_names'  : self.field_names,  # None => process all Fields in the Analysis
         }
 
         with open(self.metadata_path(), 'w') as fp:
@@ -220,13 +221,15 @@ class Simulation(OpgeeObject):
 
     def _load_meta_data(self):
         with open(self.metadata_path(), 'r') as fp:
-            self.metadata = json.load(fp)
+            self.metadata = metadata = json.load(fp)
 
-        self.analysis_name = self.metadata['analysis_name']
-        self.trials        = self.metadata['trials']
+        self.analysis_name = metadata['analysis_name']
+        self.trials        = metadata['trials']
+        self.field_names   = metadata['field_names']
 
     @classmethod
-    def new(cls, sim_dir, model_files, analysis_name, trials, overwrite=False, use_default_model=True):
+    def new(cls, sim_dir, model_files, analysis_name, trials,
+            field_names=None, overwrite=False, use_default_model=True):
         """
         Create the simulation directory and the ``sandboxes`` sub-directory.
 
@@ -234,6 +237,8 @@ class Simulation(OpgeeObject):
         :param model_files: (list of XML filenames) the XML files to load, in order to be merged
         :param analysis_name: (str) the name of the analysis for which to generate the MCS
         :param trials: (int) the number of trials to generate
+        :param field_names: (list of str or None) Field names to limit the Simulation to use.
+           (None => use all Fields defined in the Analysis.)
         :param overwrite: (bool) if True, overwrite directory if it already exists,
           otherwise refuse to do so.
         :param use_default_model: (bool) whether to use the default model in etc/opgee.xml as
@@ -259,7 +264,7 @@ class Simulation(OpgeeObject):
         if not analysis:
             raise McsUserError(f"Analysis '{analysis_name}' was not found in model")
 
-        sim = cls(sim_dir, analysis_name=analysis_name, trials=trials)
+        sim = cls(sim_dir, analysis_name=analysis_name, trials=trials, field_names=field_names)
         return sim
 
     def field_dir(self, field):
@@ -295,14 +300,20 @@ class Simulation(OpgeeObject):
     def metadata_path(self):
         return pathjoin(self.pathname, META_DATA_FILE)
 
-    def lookup(self, full_name, analysis, field):
+    def chosen_fields(self):
+        a = self.analysis
+        names = self.field_names
+        fields = [a.get_field(name) for name in names] if names else a.fields()
+        return fields
+
+    def lookup(self, full_name, field):
         class_name, attr_name = split_attr_name(full_name)
 
         if class_name == 'Field':
             obj = field
 
         elif class_name == 'Analysis':
-            obj = analysis
+            obj = self.analysis
 
         else:
             obj = field.find_process(class_name)
@@ -316,24 +327,25 @@ class Simulation(OpgeeObject):
         return attr_obj
 
     # TBD: need a way to specify correlations
-    def generate(self, analysis, N, corr_mat=None):
+    def generate(self, corr_mat=None):
         """
-        Generate simulation data for the given ``Analysis`` object.
+        Generate simulation data for the given ``Analysis``.
 
-        :param N: (int) the number of trials to generate data for
         :param corr_mat: a numpy matrix representing the correlation
            between each pair of parameters. corrMat[i,j] gives the
            desired correlation between the i'th and j'th entries of
            the parameter list.
         :return: none
         """
-        for field in analysis.fields():
+        trials = self.trials
+
+        for field in self.chosen_fields():
             cols = []
             rv_list = []
             distributions = Distribution.distributions()
 
             for dist in distributions:
-                target_attr = self.lookup(dist.full_name, analysis, field)
+                target_attr = self.lookup(dist.full_name, field)
 
                 # If the object has an explicit value for an attribute, we ignore the distribution
                 if target_attr.explicit:
@@ -343,7 +355,7 @@ class Simulation(OpgeeObject):
                 rv_list.append(dist.rv)
                 cols.append(dist.attr_name if dist.class_name == 'Field' else dist.full_name)
 
-            self.trial_data_df = df = lhs(rv_list, N, columns=cols, corrMat=corr_mat)
+            self.trial_data_df = df = lhs(rv_list, trials, columns=cols, corrMat=corr_mat)
             df.index.name = 'trial_num'
             self.save_trial_data(field)
 
@@ -372,7 +384,7 @@ class Simulation(OpgeeObject):
 
         # TBD: allow option of using same draws across fields.
 
-        if self.trial_data_df:
+        if self.trial_data_df is not None:
             return self.trial_data_df
 
         path = self.trial_data_path(field)
@@ -404,21 +416,34 @@ class Simulation(OpgeeObject):
         s = df.loc[trial_num]
         return s
 
-    def set_trial_data(self, analysis, field, trial_num):
+    def set_trial_data(self, field, trial_num):
         data = self.trial_data(field, trial_num)
 
         for name, value in data.iteritems():
-            attr = self.lookup(name, analysis, field)
+            attr = self.lookup(name, field)
             attr.explicit = True
             attr.set_value(value)
 
-    def run_field(self, analysis, field, trial_nums):
+        self.analysis._after_init()
+        field._after_init()
+
+    def run_field(self, field, trial_nums):
+        analysis = self.analysis
+
         for trial_num in trial_nums:
             _logger.debug(f"Running trial {trial_num} for {field}")
-            self.set_trial_data(analysis, field, trial_num)
-            field.run(analysis)
+            self.set_trial_data(field, trial_num)
 
-    def run(self, trial_nums, field_names=None):
+            try:
+                field.run(analysis)
+                field.report()
+            except ModelValidationError as e:
+                _logger.error(f"Skipping trial {trial_num}: {e}")
+
+            # TBD: Save results (which?)
+
+
+    def run(self, trial_nums):
         """
         Run the given Monte Carlo trials for ``analysis``. If ``fields`` is
         ``None``, all fields are run, otherwise, only the indicated fields are
@@ -428,12 +453,8 @@ class Simulation(OpgeeObject):
         :param fields: (list of str) names of fields to run
         :return: none
         """
-        ana = self.analysis
-
-        fields = [ana.get_field(name) for name in field_names] if field_names else ana.fields()
-
-        for field in fields:
-            self.run_field(ana, field, trial_nums)
+        for field in self.chosen_fields():
+                self.run_field(field, trial_nums)
 
             # results for a field in `analysis`. Each column represents the results
             # of a single output variable. Each row represents the value of all output

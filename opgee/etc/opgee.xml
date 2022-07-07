@@ -18,7 +18,7 @@
 	</Analysis>
 
 <!--	test gas lifting case-->
-	<Field name="gas_lifting_field">
+	<Field name="gas_lifting_field" enabled="false">
 		<A name="country">USA</A>
 		<A name="water_reinjection">1</A>
 		<A name="downhole_pump">0</A>

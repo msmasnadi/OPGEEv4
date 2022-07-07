@@ -98,7 +98,7 @@ class RunCommand(SubcommandABC):
 
         for field, analysis in selected_fields:
             field.run(analysis)
-            field.report(analysis)
+            field.report()
 
         if args.output:
             model.save_results(selected_fields, args.output)

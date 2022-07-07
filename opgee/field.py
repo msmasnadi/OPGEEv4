@@ -452,7 +452,7 @@ class Field(Container):
             msg = "\n - ".join(msgs)
             raise ModelValidationError(f"Field validation failed:{msg}")
 
-    def report(self, analysis):
+    def report(self, include_streams=False):
         """
         Print a text report showing Streams, energy, and emissions.
         """
@@ -460,9 +460,10 @@ class Field(Container):
 
         name = self.name
 
-        _logger.debug(f"\n*** Streams for field '{name}'")
-        for stream in self.streams():
-            _logger.debug(f"{stream} (tonne/day)\n{dequantify_dataframe(stream.components)}\n")
+        if include_streams:
+            _logger.debug(f"\n*** Streams for field '{name}'")
+            for stream in self.streams():
+                _logger.debug(f"{stream} (tonne/day)\n{dequantify_dataframe(stream.components)}\n")
 
         _logger.debug(f"{self}\nEnergy consumption:\n{self.energy.data}")
         _logger.debug(f"\nCumulative emissions to environment (tonne/day):\n{dequantify_dataframe(self.emissions.data)}")
@@ -606,6 +607,8 @@ class Field(Container):
         # have no streams associated with them, but we still need to run the processes.
         for p in self.processes():
             g.add_node(p)
+            p.inputs.clear()   # since we append to inputs and outputs below
+            p.outputs.clear()
 
         for s in self.streams():
             s.src_proc = src = self.find_process(s.src_name)

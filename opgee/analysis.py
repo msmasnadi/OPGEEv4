@@ -8,7 +8,7 @@ import re
 from .config import getParamAsList
 from .container import Container
 from .core import elt_name, OpgeeObject
-from .error import OpgeeException, ModelValidationError
+from .error import OpgeeException
 from .emissions import Emissions
 from .field import Field
 from .log import getLogger
@@ -60,6 +60,7 @@ class Analysis(Container):
         self.check_attr_constraints(self.attr_dict)
 
         self.model = model = self.find_parent('Model')
+
         fields = [model.get_field(name) for name in self._field_names]
 
         for group in self.groups:

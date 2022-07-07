@@ -183,7 +183,7 @@ def main(args):
             analysis, field = get_analysis_and_field(model, analysis_and_field)
             field.resolve_process_choices()
             field.run(analysis)
-            field.report(analysis)
+            field.report()
             return "Model has been run"
         else:
             return "Model has not been run"

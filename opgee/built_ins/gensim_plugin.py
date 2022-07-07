@@ -17,12 +17,19 @@ class GensimCommand(SubcommandABC):
         super(GensimCommand, self).__init__('gensim', subparsers, kwargs)
 
     def addArgs(self, parser):
+        from ..utils import ParseCommaList
+
         parser.add_argument('-a', '--analysis',
                             help='''The name of the analysis for which to generate a simulation''')
 
         parser.add_argument('-d', '--distributions',
                             help='''The path to a CSV file with distribution definitions. If omitted, the 
                             built-in file etc/parameter_distributions.csv is used.''')
+
+        parser.add_argument('-f', '--fields', action=ParseCommaList,
+                            help='''Generate trial data for the specified field or fields only. Argument 
+                            may be a comma-delimited list of Field names. Otherwise trial data is generated
+                            for all fields defined in the analysis.''')
 
         parser.add_argument('-m', '--model-file', action='append',
                             help='''XML model definition files to load. If --no_default_model is *not* specified,
@@ -51,6 +58,7 @@ class GensimCommand(SubcommandABC):
 
         use_default_model = not args.no_default_model
         model_files = args.model_file
+        field_names = args.fields
 
         if args.trials <= 0:
             raise McsUserError("Trials argument must be an integer > 0")
@@ -64,4 +72,6 @@ class GensimCommand(SubcommandABC):
         analysis_name = args.analysis
 
         Simulation.new(sim_dir, model_files, analysis_name, args.trials,
-                       overwrite=args.overwrite, use_default_model=use_default_model)
+                       field_names=args.fields,
+                       overwrite=args.overwrite,
+                       use_default_model=use_default_model)

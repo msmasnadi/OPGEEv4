@@ -181,9 +181,9 @@ class Model(Container):
             ci_tuples = self.partial_ci_values(analysis, field, nodes)
             for name, ci in ci_tuples:
                 rows.append({'analysis' : analysis.name,
-                           'field' : field.name,
-                           'node' : name,
-                            'CI' : ci})
+                             'field' : field.name,
+                             'node' : name,
+                             'CI' : ci})
 
         df = pd.DataFrame(data=rows)
         _logger.info(f"Writing '{csvpath}'")
