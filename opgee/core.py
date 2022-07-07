@@ -112,7 +112,10 @@ def dict_from_list(objs):
 
 # Top of hierarchy, because it's useful to know which classes are "ours"
 class OpgeeObject():
-    pass
+    @classmethod
+    def clear(cls):
+        # Clear state stored in class variables
+        pass
 
 
 class XmlInstantiable(OpgeeObject):

@@ -18,13 +18,12 @@ from .container import Container
 from .error import (OpgeeException, AbstractMethodError, OpgeeIterationConverged,
                     OpgeeMaxIterationsReached, ModelValidationError)
 from .emissions import Emissions
-from .energy import Energy, EN_NATURAL_GAS, EN_CRUDE_OIL, EN_PETCOKE, EN_NGL
+from .energy import Energy #, EN_NATURAL_GAS, EN_CRUDE_OIL, EN_PETCOKE, EN_NGL
 from .log import getLogger
 from .stream import Stream
 from .utils import getBooleanXML
 from .combine_streams import combine_streams
 from .import_export import ImportExport
-from .constants import petrocoke_LHV
 
 _logger = getLogger(__name__)
 
@@ -237,6 +236,10 @@ class Process(XmlInstantiable, AttributeMixin):
     @classmethod
     def clear_iterating_process_list(cls):
         cls.iterating_processes = []
+
+    @classmethod
+    def clear(cls):
+        cls.clear_iterating_process_list()
 
     # TODO: stream validation and documentation
     def required_inputs(self):

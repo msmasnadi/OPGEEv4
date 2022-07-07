@@ -103,7 +103,6 @@ class Stream(XmlInstantiable, AttributeMixin):
         _carbon_number_dict[gas] = 1 if gas[0] == "C" else 0
     carbon_number = pd.Series(_carbon_number_dict, dtype="pint[dimensionless]")
 
-
     #: The stream components tracked by OPGEE. This list can be extended by calling ``Stream.extend_components(names)``,
     #: or more simply by defining configuration file variable ``OPGEE.StreamComponents``.
     component_names = _solids + _liquids + _gases + _other + _hydrocarbons

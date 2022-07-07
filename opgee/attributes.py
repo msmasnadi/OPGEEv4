@@ -197,6 +197,10 @@ class AttrDefs(OpgeeObject):
         self.classes = instantiate_subelts(root, ClassAttrs, as_dict=True)
 
     @classmethod
+    def clear(cls):
+        cls.instance = None
+
+    @classmethod
     def get_instance(cls):
         return cls.instance
 
