@@ -8,15 +8,12 @@
 #
 import math
 import pandas as pd
-import pint
-import pint_pandas
 from pyXSteam.XSteam import XSteam
 from thermosteam import Chemical, Mixture
 from . import ureg
 from .core import OpgeeObject, STP, TemperaturePressure
 from .error import OpgeeException
 from .stream import PHASE_LIQUID, Stream, PHASE_GAS, PHASE_SOLID
-
 
 class ChemicalInfo(OpgeeObject):
     instance = None
@@ -59,10 +56,6 @@ class ChemicalInfo(OpgeeObject):
     def names(cls):
         obj = cls.get_instance()
         return obj._component_names
-
-
-# TODO: replace uses of this global variable with calls to ChemicalInfo.mol_weights()
-component_MW = ChemicalInfo.mol_weights()
 
 
 def rho(component, temperature, pressure, phase):

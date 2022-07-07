@@ -15,8 +15,7 @@ from ..error import OpgeeException
 from ..log import getLogger
 from ..process import Process
 from ..process import run_corr_eqns
-from ..thermodynamics import component_MW
-from ..import_export import ImportExport
+from ..thermodynamics import ChemicalInfo
 from .shared import get_energy_consumption
 
 _logger = getLogger(__name__)
@@ -89,7 +88,7 @@ class GasDehydration(Process):
 
         gas_volume_rate = self.gas.tot_volume_flow_rate_STP(input)
         gas_multiplier = gas_volume_rate.to("mmscf/day").m / 1.0897  # multiplier for gas load in correlation equation
-        water_content_volume = water_content * gas_volume_rate / component_MW["H2O"] / self.mol_to_scf
+        water_content_volume = water_content * gas_volume_rate / ChemicalInfo.mol_weight("H2O") / self.mol_to_scf
         water_content_volume = water_content_volume / gas_multiplier
 
         x1 = feed_gas_press.to("psia").m

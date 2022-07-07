@@ -548,7 +548,9 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param stream: (Stream) a Stream with combustible components
         :return: (pint.Quantity(unit="tonne/day")) the mass rate of CO2 from combustion.
         """
-        from .thermodynamics import component_MW
+        from .thermodynamics import ChemicalInfo
+
+        component_MW = ChemicalInfo.mol_weights()
 
         combustibles = stream.combustible_components
 
