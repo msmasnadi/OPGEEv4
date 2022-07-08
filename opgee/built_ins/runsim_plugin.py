@@ -46,7 +46,7 @@ class RunsimCommand(SubcommandABC):
         from ..mcs.simulation import Simulation
 
         sim = Simulation(args.simulation_dir, field_names=args.fields)
-
-        trials = parseTrialString(args.trials)
+        trials = (range(sim.trials) if args.trials == 'all'
+                  else parseTrialString(args.trials))
         sim.run(trials)
 

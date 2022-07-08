@@ -371,13 +371,14 @@ class Field(Container):
         Calculate imported product emissions based on the upstream CI from GREET1_2016
 
         :param net_import: (Pandas.Series) net import energy rates (water is mass rate)
-        :return: total emissions (gCO2)
+        :return: total emissions (units of g CO2)
         """
-
         imported_emissions = ureg.Quantity(0.0, "tonne/day")
+
         for product, energy_rate in net_import.items():
-            energy_rate = ureg.Quantity(energy_rate, "mmbtu/day") \
-                if isinstance(energy_rate, pint.Quantity) is False else energy_rate
+            energy_rate = (energy_rate if isinstance(energy_rate, pint.Quantity)
+                           else ureg.Quantity(energy_rate, "mmbtu/day"))
+
             if energy_rate.m > 0:
                 imported_emissions += energy_rate * self.upstream_CI.loc[product, "EF"]
 
@@ -389,7 +390,7 @@ class Field(Container):
         Calculate carbon credit from byproduct
 
         :param net_import: (Pandas.Series) net import energy rates (water is mass rate)
-        :return: total emissions (gCO2)
+        :return: total emissions (units of g CO2)
         """
 
         carbon_credit = ureg.Quantity(0.0, "tonne/day")

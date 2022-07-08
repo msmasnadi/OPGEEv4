@@ -8,6 +8,8 @@
 #
 import json
 import os
+import pandas as pd
+
 from ..config import pathjoin
 from ..core import OpgeeObject
 from ..error import McsSystemError, McsUserError, CommandlineError, ModelValidationError
@@ -42,8 +44,6 @@ def read_distributions(pathname=None):
     :param pathname: (str) the pathname of the CSV file describing parameter distributions
     :return: (none)
     """
-    import pandas as pd
-
     distros_csv = pathname or resourceStream(DISTROS_CSV, stream_type='bytes', decode=None)
 
     df = pd.read_csv(distros_csv, skip_blank_lines=True, comment='#').fillna('')
@@ -380,8 +380,6 @@ class Simulation(OpgeeObject):
         :param field: (opgee.Field) the field to read data for
         :return: (pd.DataFrame) the values drawn for each field, parameter, and trial.
         """
-        import pandas as pd
-
         # TBD: allow option of using same draws across fields.
 
         if self.trial_data_df is not None:
@@ -428,7 +426,11 @@ class Simulation(OpgeeObject):
         field._after_init()
 
     def run_field(self, field, trial_nums):
+
         analysis = self.analysis
+
+        results = []
+        digits = 3
 
         for trial_num in trial_nums:
             _logger.debug(f"Running trial {trial_num} for {field}")
@@ -439,8 +441,45 @@ class Simulation(OpgeeObject):
                 field.report()
             except ModelValidationError as e:
                 _logger.error(f"Skipping trial {trial_num}: {e}")
+                continue
 
             # TBD: Save results (which?)
+            # energy: Series dtype = "mmbtu/d"
+            # emissions: DataFrame: cols are categories (Combustion, Land-use, Venting, Flaring, Fugitives, Other)
+            #                       rows are (VOC, CO, CH4, N2O, CO2, GHG)
+            # ghgs: Quantity "t/d" CO2e
+            # ci: Quantity "g/MJ" CO2e
+            #
+            energy = field.energy.data
+            emissions = field.emissions.data
+
+            ghg = emissions.loc['GHG']
+            total_ghg = ghg.sum()
+            ci = field.compute_carbon_intensity(analysis)
+
+            tup = (trial_num,
+                   round(ci.m, digits),
+                   round(total_ghg.m, digits),
+                   round(ghg['Combustion'].m, digits),
+                   round(ghg['Land-use'].m, digits),
+                   round((ghg['Venting'] + ghg['Flaring'] + ghg['Fugitives']).m, digits),
+                   round(ghg['Other'].m, digits))
+
+            results.append(tup)
+
+        cols = ['trial_num',
+                'CI',
+                'total_GHG',
+                'combustion',
+                'land_use',
+                'VFF',
+                'other']
+
+        df = pd.DataFrame.from_records(results, columns=cols)
+        mkdirs(self.results_dir)
+        pathname = pathjoin(self.results_dir, field.name + '.csv')
+        _logger.info(f"Writing '{pathname}'")
+        df.to_csv(pathname, index=False)
 
 
     def run(self, trial_nums):
