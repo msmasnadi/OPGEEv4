@@ -373,7 +373,7 @@ class Oil(AbstractSubstance):
         """
 
         gas_SG = self.total_molar_weight / self.dry_air.mol_weight
-        return gas_SG
+        return gas_SG.to("frac")
 
     @staticmethod
     def bubble_point_solution_GOR(gas_oil_ratio):
@@ -413,7 +413,7 @@ class Oil(AbstractSubstance):
         res_T = self.res_tp.T.to("rankine").m
         res_P = self.res_tp.P.to("psia").m
 
-        gas_SG = self.gas_specific_gravity.to("frac").m
+        gas_SG = self.gas_specific_gravity.m
         gor_bubble = self.bubble_point_solution_GOR(self.gas_oil_ratio).m
 
         empirical_res = (res_P ** (1 / self.pbub_a2) *
