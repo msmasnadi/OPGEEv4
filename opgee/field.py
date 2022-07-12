@@ -20,7 +20,7 @@ from .import_export import ImportExport, WATER
 from .log import getLogger
 from .process import Process, Aggregator, Reservoir
 from .process_groups import ProcessChoice
-from .smart_defaults import SmartDefault, Distribution
+from .smart_defaults import SmartDefault
 from .stream import Stream
 from .thermodynamics import Oil, Gas, Water
 from .processes.steam_generator import SteamGenerator
@@ -72,7 +72,7 @@ class Field(Container):
                 other = boundary_dict.get(boundary)
                 if other:
                     raise OpgeeException(
-                        f"{self}: Duplicate declaration of boundary '{boundary}' in processes {proc} and {other}")
+                        f"{self}: Duplicate declaration of boundary '{boundary}' in {proc} and {other}")
 
                 boundary_dict[boundary] = proc
                 _logger.debug(f"{self}: {proc} defines boundary '{boundary}'")
@@ -371,13 +371,14 @@ class Field(Container):
         Calculate imported product emissions based on the upstream CI from GREET1_2016
 
         :param net_import: (Pandas.Series) net import energy rates (water is mass rate)
-        :return: total emissions (gCO2)
+        :return: total emissions (units of g CO2)
         """
-
         imported_emissions = ureg.Quantity(0.0, "tonne/day")
+
         for product, energy_rate in net_import.items():
-            energy_rate = ureg.Quantity(energy_rate, "mmbtu/day") \
-                if isinstance(energy_rate, pint.Quantity) is False else energy_rate
+            energy_rate = (energy_rate if isinstance(energy_rate, pint.Quantity)
+                           else ureg.Quantity(energy_rate, "mmbtu/day"))
+
             if energy_rate.m > 0:
                 imported_emissions += energy_rate * self.upstream_CI.loc[product, "EF"]
 
@@ -389,7 +390,7 @@ class Field(Container):
         Calculate carbon credit from byproduct
 
         :param net_import: (Pandas.Series) net import energy rates (water is mass rate)
-        :return: total emissions (gCO2)
+        :return: total emissions (units of g CO2)
         """
 
         carbon_credit = ureg.Quantity(0.0, "tonne/day")
@@ -452,7 +453,7 @@ class Field(Container):
             msg = "\n - ".join(msgs)
             raise ModelValidationError(f"Field validation failed:{msg}")
 
-    def report(self, analysis):
+    def report(self, include_streams=False):
         """
         Print a text report showing Streams, energy, and emissions.
         """
@@ -460,9 +461,10 @@ class Field(Container):
 
         name = self.name
 
-        _logger.debug(f"\n*** Streams for field '{name}'")
-        for stream in self.streams():
-            _logger.debug(f"{stream} (tonne/day)\n{dequantify_dataframe(stream.components)}\n")
+        if include_streams:
+            _logger.debug(f"\n*** Streams for field '{name}'")
+            for stream in self.streams():
+                _logger.debug(f"{stream} (tonne/day)\n{dequantify_dataframe(stream.components)}\n")
 
         _logger.debug(f"{self}\nEnergy consumption:\n{self.energy.data}")
         _logger.debug(f"\nCumulative emissions to environment (tonne/day):\n{dequantify_dataframe(self.emissions.data)}")
@@ -606,6 +608,8 @@ class Field(Container):
         # have no streams associated with them, but we still need to run the processes.
         for p in self.processes():
             g.add_node(p)
+            p.inputs.clear()   # since we append to inputs and outputs below
+            p.outputs.clear()
 
         for s in self.streams():
             s.src_proc = src = self.find_process(s.src_name)
@@ -1037,14 +1041,3 @@ class Field(Container):
 
 
     # TODO: decide how to handle "associated gas defaults", which is just global vs CA-LCFS values currently
-
-
-    @Distribution.register('WOR-SD', ['age'])
-    def WOR_sd_distro(self, age):
-        print(f"Called wor_sd_distro({self}, age:{age})")
-        return 10000 # TBD
-
-    @Distribution.register('WOR', ['age', 'WOR-SD'])
-    def WOR_distro(self, age, wor_sd):
-        print(f"Called wor_distro({self}, age:{age}, wor_sd:{wor_sd})")
-        return 10000 # TBD

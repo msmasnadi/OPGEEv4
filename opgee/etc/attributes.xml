@@ -135,9 +135,6 @@
       <AttrDef name="GOR" desc="Gas-to-oil ratio" unit="scf/bbl_oil" type="float">2429.3</AttrDef>
 
       <AttrDef name="WOR" desc="Water-to-oil ratio" unit="bbl_water/bbl_oil" type="float">6.0</AttrDef>
-      <AttrDef name="WOR-MEAN" desc="WOR mean (deps. on age)" unit="" type="float">6.0</AttrDef>
-      <AttrDef name="WOR-SD" desc="WOR std deviation (deps. on age)" unit="" type="float">1.4</AttrDef>
-
       <AttrDef name="WIR" desc="Water injection ratio" unit="bbl_water/bbl_oil" type="float">7.0</AttrDef>
       <AttrDef name="GLIR" desc="Gas lifting injection ratio" unit="scf/bbl_liquid" type="float">364.0</AttrDef>
       <AttrDef name="GFIR" desc="Gas flooding injection ratio" unit="scf/bbl_oil" type="float">3644.0</AttrDef>
@@ -187,8 +184,9 @@
       <AttrDef name="oil_processing_path" desc="Associated oil processing path" options="oil_processing_path" type="str"/>
       <AttrDef name="temperature_mined_bitumen" desc="Mined bitumen temperature" type="float" unit="degF">80.0</AttrDef>
       <AttrDef name="pressure_mined_bitumen" desc="Mined bitumen pressure" type="float" unit="psia">14.70</AttrDef>
-      <AttrDef name="stabilizer_column" type="binary" desc="stabilizer colume">1</AttrDef>
+      <AttrDef name="stabilizer_column" type="binary" desc="stabilizer column">1</AttrDef>
 
+      <!-- TODO: decide on consistent naming, either "fraction_xxx" or "frac_xxx", but not both! -->
       <!-- Transportation Parameter -->
       <AttrDef name="frac_transport_tanker" type="float" unit="frac" desc="fraction of product transported by ocean tanker">1.0</AttrDef>
       <AttrDef name="frac_transport_barge" type="float" unit="frac" desc="fraction of product transported by barge">0.0</AttrDef>

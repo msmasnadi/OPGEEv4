@@ -93,7 +93,22 @@ remove-opgee:
 
 create-opgee: $(TEST_YML)
 	conda env create -f $(TEST_YML)
-	conda activate opgee
-	python setup.py develop
 
-rebuild-opgee: remove-opgee create-opgee
+install-opgee:
+	bash -l -c 'conda activate opgee && pip install -e .'
+
+rebuild-opgee: remove-opgee create-opgee install-opgee
+
+NUITKA_EXE    = opgee.exe
+NUITKA_OUTDIR = /tmp/opgee-nuitka
+NUITKA_LOG    = /tmp/opgee-nuitka.txt
+
+$(NUITKA_EXE):
+	python -m nuitka opgee/main.py -o $@ \
+		--output-dir=$(NUITKA_OUTDIR) \
+		--include-package-data=opgee \
+		--onefile \
+		--enable-plugin=numpy \
+		--warn-unusual-code \
+		--verbose --verbose-output=$(NUITKA_LOG)
+#		--standalone

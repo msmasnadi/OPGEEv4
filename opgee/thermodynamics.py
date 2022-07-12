@@ -8,15 +8,12 @@
 #
 import math
 import pandas as pd
-from pandas import Series
-import pint
 from pyXSteam.XSteam import XSteam
 from thermosteam import Chemical, Mixture
 from . import ureg
 from .core import OpgeeObject, STP, TemperaturePressure
 from .error import OpgeeException
 from .stream import PHASE_LIQUID, Stream, PHASE_GAS, PHASE_SOLID
-
 
 class ChemicalInfo(OpgeeObject):
     instance = None
@@ -25,7 +22,8 @@ class ChemicalInfo(OpgeeObject):
         non_hydrocarbon_gases = ["N2", "O2", "CO2", "H2O", "CO", "H2", "H2S", "SO2"]
         dict_non_hydrocarbon = {name: Chemical(name) for name in non_hydrocarbon_gases}
         carbon_number = [f'C{n + 1}' for n in range(Stream.max_carbon_number)]
-        chemical_dict = {name: Chemical(name) for name in carbon_number}
+        pubchem_cid_df = Stream.hydrocarbon_pubchem_cid_df.PubChem
+        chemical_dict = {name: Chemical("PubChem="+str(pubchem_cid_df[name])) for name in carbon_number}
         chemical_dict.update(dict_non_hydrocarbon)
         self._chemical_dict = chemical_dict
         self._component_names = list(self._chemical_dict.keys())
@@ -61,10 +59,6 @@ class ChemicalInfo(OpgeeObject):
         return obj._component_names
 
 
-# TODO: replace uses of this global variable with calls to ChemicalInfo.mol_weights()
-component_MW = ChemicalInfo.mol_weights()
-
-
 def rho(component, temperature, pressure, phase):
     """
     Return the density at the given `temperature`, `pressure`, and `phase`
@@ -82,7 +76,11 @@ def rho(component, temperature, pressure, phase):
     phases = {PHASE_GAS: "g", PHASE_LIQUID: "l", PHASE_SOLID: "s"}
 
     chemical = ChemicalInfo.chemical(component)
-    result = chemical.rho(phases[phase], temperature, pressure)
+    curr_phase = chemical.get_phase(temperature, pressure)
+    if curr_phase == phases[phase]:
+        result = chemical.rho(phases[phase], temperature, pressure)
+    else:
+        result = chemical.rho(curr_phase, temperature, pressure)
     return ureg.Quantity(result, "kg/m**3")
 
 
@@ -884,7 +882,7 @@ class Gas(AbstractSubstance):
         temp3 = 2 / 3 * temp3 ** 2
         temperature = ureg.Quantity(temp1 / (temp2 + temp3), "rankine")
         pressure = ureg.Quantity(temp1 / (temp2 + temp3) ** 2, "psia")
-        return Series(data=[temperature, pressure], index=["temperature", "pressure"])
+        return pd.Series(data=[temperature, pressure], index=["temperature", "pressure"])
 
     def corrected_pseudocritical_temperature(self, stream):
         """

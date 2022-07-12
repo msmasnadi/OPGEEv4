@@ -171,9 +171,10 @@ class ModelFile(XMLFile):
             pathnames.insert(0, opgee_xml if base_stream else base_path)
             model.set_pathnames(pathnames)
 
-    @classmethod
-    def attr_defs(cls):
-        return cls._attr_defs
+    # Deprecated
+    # @classmethod
+    # def attr_defs(cls):
+    #     return cls._attr_defs
 
     @classmethod
     def from_xml_string(cls, xml_string):

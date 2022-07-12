@@ -12,9 +12,12 @@ dependencies:
   - jinja2>=3.0.1
   - libpng
   - libtiff
+  - llvm-openmp
   - lxml>=4.8.0
   - networkx
+  - nuitka
   - numpy>=1.21.0
+  - ordered-set
   - pandas>=1.4.2
   - pint>=0.19.2
   - pint-pandas>=0.2
@@ -23,6 +26,7 @@ dependencies:
   - pyparsing
   - pytest
   - python=3.8
+  - semver>=2.13.0
   - setuptools
   - sphinx>=4.3.0
   - sphinx-argparse>=0.2.5
@@ -32,6 +36,5 @@ dependencies:
   - urllib3
   - pip:
     - dash-cytoscape>=0.3.0
-    - thermosteam==0.28.5
-    - semver>=2.13.0
     - pyXSteam==0.4.8
+    - thermosteam==0.28.5

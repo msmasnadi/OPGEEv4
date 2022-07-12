@@ -8,17 +8,20 @@
 # Copyright (c) the authors, 2012-2022.
 # See the https://opensource.org/licenses/MIT for license details.
 #
+import inspect
 import math
+import os
 import re
-from inspect import getargspec
 
 import numpy as np
 from scipy.stats import lognorm, triang, uniform, norm, rv_discrete, truncnorm
 
-from .log import getLogger
-from .error import OpgeeException
+from ..error import OpgeeException, DistributionSpecError, McsUserError
+from ..log import getLogger
+from ..pkg_utils import resourceStream
 
 _logger = getLogger(__name__)
+
 
 def parseDistroKey(key):
     '''
@@ -223,6 +226,8 @@ class Empirical():
     """
     Create an empirical distribution and ppf from an array of observations.
     """
+    file_cache = {}     # maps pathname of CSV file to dataframe
+
     def __init__(self, values):
         self.values = sorted(values)
         self.count = len(values)
@@ -232,6 +237,31 @@ class Empirical():
         n = len(values)
         result = [values[int(n * percentile)] for percentile in q]
         return result
+
+    @classmethod
+    def from_csv(cls, pathname=None, colname=None): # both are required args, but must be keywords to use with DistroGen.makeRV()
+        import pandas as pd
+
+        df = cls.file_cache.get(pathname)
+
+        if df is None:
+            try:
+                csvdata = pathname if os.path.isabs(pathname) else resourceStream(pathname, stream_type='bytes', decode=None)
+                df = pd.read_csv(csvdata, index_col=False)
+            except Exception as e:
+                raise McsUserError(f"from_csv: Unable to read empirical data file '{pathname}': {e}")
+
+            cls.file_cache[pathname] = df
+
+        if colname not in df.columns:
+            raise McsUserError(f"from_csv: Column '{colname}' not found in '{pathname}'")
+
+        values = df[colname]
+        return cls(values)
+
+    @classmethod
+    def clear_file_cache(cls):
+        cls.file_cache.clear()
 
 class GridRV(object):
     '''
@@ -290,12 +320,12 @@ class DistroGen(object):
     def __init__(self, distName, func):
         self.name = distName
         self.func = func
-        self.sig  = DistroGen.signature(distName, getargspec(func).args)
+        self.sig  = DistroGen.signature(distName, inspect.signature(func).parameters)
         DistroGen.instances[self.sig] = self
 
     def __str__(self):
         classname = type(self).__name__
-        _logger.debug("<%s dist=%s func=%s sig=%s>", classname, self.distName, self.func, self.sig)
+        _logger.debug("<%s dist=%s func=%s sig=%s>", classname, self.name, self.func, self.sig)
 
     @classmethod
     def signature(cls, distName, keywords):
@@ -335,13 +365,16 @@ class DistroGen(object):
         # logfactor=3 means Uniform(1/3, 3); used with apply="multiply"
         cls('uniform', uniformLogfactor)
 
+        cls('weighted_binary', weighted_binary)
+
         # LogUniform distribution from 1/n to n, e.g., factor=3 => uniform(1/3, 3)
         cls('loguniform', lambda factor: uniformMinMax(min=1 / factor, max=factor))
 
         cls('normal', lambda mean, std: norm(loc=mean, scale=std))
         cls('normal', lambda mean, stdev: norm(loc=mean, scale=stdev))          # alternate spelling
 
-        cls('lognormal', lambda mean, std: lognormalRv(mean, std))
+        cls('lognormal', lambda logmean, logstdev: lognormalRv(logmean, logstdev))
+        cls('lognormal', lambda mean, stdev: lognormalRvForNormal(mean, stdev))
         cls('lognormal', lambda low95, high95: lognormalRvFor95th(low95, high95))
         cls('lognormal', logfactor)
 
@@ -356,6 +389,8 @@ class DistroGen(object):
 
         cls('triangle', triangle)         # args: min, mode, max
 
+        cls('truncated_normal', truncated_normal)
+
         cls('binary', binary)
         cls('integers', integers)     # args: min, max (inclusive)
 
@@ -369,4 +404,19 @@ class DistroGen(object):
 
         cls('sequence', lambda values: sequence(values))
 
-        cls('linked', lambda parameter: linkedDistro(parameter))       # TBD: could be generalized
+        cls('linked', lambda parameter: linkedDistro(parameter)),       # TBD: could be generalized
+
+        cls('empirical', Empirical.from_csv)
+
+
+
+
+def get_frozen_rv(distro_name, **kwargs):
+    sig = DistroGen.signature(distro_name, kwargs.keys())
+    gen = DistroGen.generator(sig)
+
+    if gen is None:
+        raise DistributionSpecError(f"Unknown distribution signature {sig}")
+
+    rv = gen.makeRV(kwargs)  # generate a frozen RV with the specified arguments
+    return rv

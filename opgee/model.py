@@ -46,6 +46,12 @@ class Model(Container):
         self.constants = {name: ureg.Quantity(float(row.value), row.unit) for name, row in df.iterrows()}
         self.table_updates = None
 
+        #
+        # TODO: to support PRELIM, we might want a way to handle these that is less model-specific
+        #  Perhaps separate namespaces for each model, like
+        #  self.table_dict = {'OPGEE' : OpgeeTables(tbl_mgr), 'PRELIM' : PrelimTables(tbl_mgr)}
+        #  Then all the OPGEE-specific instance vars or pushed down into an OpgeeTables instance
+        #
         self.vertical_drill_df = tbl_mgr.get_table("vertical-drilling-energy-intensity")
         self.horizontal_drill_df = tbl_mgr.get_table("horizontal-drilling-energy-intensity")
         self.fracture_energy = tbl_mgr.get_table("fracture-consumption-table")
@@ -80,6 +86,7 @@ class Model(Container):
         self.product_boundaries = tbl_mgr.get_table("product-boundaries")
 
         self.component_LHV = tbl_mgr.get_table("component-LHV")
+        self.pubchem_cid = tbl_mgr.get_table("pubchem-cid")
 
         # TBD: should these be settable per Analysis?
         # parameters controlling process cyclic calculations
@@ -181,9 +188,9 @@ class Model(Container):
             ci_tuples = self.partial_ci_values(analysis, field, nodes)
             for name, ci in ci_tuples:
                 rows.append({'analysis' : analysis.name,
-                           'field' : field.name,
-                           'node' : name,
-                            'CI' : ci})
+                             'field' : field.name,
+                             'node' : name,
+                             'CI' : ci})
 
         df = pd.DataFrame(data=rows)
         _logger.info(f"Writing '{csvpath}'")

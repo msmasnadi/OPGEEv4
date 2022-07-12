@@ -23,7 +23,7 @@ def str_to_xml(s):
     return tree.getroot()
 
 
-def save_xml(path, root, backup=False):
+def save_xml(path, root, backup=False, overwrite=False):
     from pathlib import Path
     import os
 
@@ -33,8 +33,8 @@ def save_xml(path, root, backup=False):
             if backup:
                 backup = path + '~'
                 os.rename(path, backup)
-            else:
-                raise OpgeeException(f"save_xml: file exists: '{path}'; to overwrite specify backup=True")
+            elif not overwrite:
+                raise OpgeeException(f"save_xml: file exists: '{path}'; to overwrite specify backup=True or overwrite=True")
 
         _logger.info(f"Writing '{path}'")
         tree = ET.ElementTree(root)
@@ -42,6 +42,43 @@ def save_xml(path, root, backup=False):
     else:
         # for debugging only
         ET.dump(root, pretty_print=True) # pragma: no cover
+
+
+def attr_to_xml(fields, dtypes, xml_path, analysis_name, modifies='default'):
+    from lxml import etree as ET
+    import numpy as np
+
+    known_types = {'int' : int, 'float' : float, 'str' : str}
+
+    root = ET.Element('Model')
+    analysis = ET.SubElement(root, 'Analysis', attrib={'name' : analysis_name})
+
+    # Convert fields to xml
+    for field_name, col in fields.iteritems():
+        field = ET.SubElement(analysis, 'Field',
+                              attrib={'name' : field_name, 'modifies' : modifies})
+
+        for attr, value in col.items():
+
+            # don't include unspecified attributes
+            try:
+                if np.isnan(value):
+                    continue
+            except:
+                pass  # np.isnan() fails for non-numeric types; ignore it
+
+            if value == '' or value is None:
+                continue
+
+            a = ET.SubElement(field, 'A', attrib={'name': attr})
+            dtype = dtypes[attr]
+            type_fn = known_types[dtype]
+            try:
+                a.text = str(type_fn(value))
+            except Exception:
+                _logger.error(f"Failed to coerce '{value}' to {dtype} for attribute '{attr}'")
+
+    save_xml(xml_path, root, overwrite=True)
 
 # Deprecated (currently unused)
 # Oddly, we must re-parse the XML to get the formatting right.

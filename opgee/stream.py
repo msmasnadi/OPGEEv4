@@ -17,6 +17,9 @@ from .core import XmlInstantiable, elt_name, magnitude, TemperaturePressure
 from .error import OpgeeException
 from .log import getLogger
 from .utils import getBooleanXML, coercible
+from .table_manager import TableManager
+from .config import pathjoin
+
 
 _logger = getLogger(__name__)
 
@@ -83,7 +86,12 @@ class Stream(XmlInstantiable, AttributeMixin):
     _phases = [PHASE_SOLID, PHASE_LIQUID, PHASE_GAS]
 
     # HCs with 1-60 carbon atoms, i.e., C1, C2, ..., C50
-    max_carbon_number = 10
+    table_name = "pubchem-cid"
+    mgr = TableManager()
+    csv_path = pathjoin(__file__, '..', f'tables/{table_name+".csv"}', abspath=True)
+    mgr.add_table(csv_path, index_col=0, skiprows=0)
+    hydrocarbon_pubchem_cid_df = mgr.get_table("pubchem-cid")
+    max_carbon_number = hydrocarbon_pubchem_cid_df.size
     _hydrocarbons = [f'C{n}' for n in range(1, max_carbon_number + 1)]
 
     # All hydrocarbon gases other than methane (C1) are considered VOCs.
@@ -102,7 +110,6 @@ class Stream(XmlInstantiable, AttributeMixin):
     for gas in _gases:
         _carbon_number_dict[gas] = 1 if gas[0] == "C" else 0
     carbon_number = pd.Series(_carbon_number_dict, dtype="pint[dimensionless]")
-
 
     #: The stream components tracked by OPGEE. This list can be extended by calling ``Stream.extend_components(names)``,
     #: or more simply by defining configuration file variable ``OPGEE.StreamComponents``.
@@ -549,7 +556,9 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param stream: (Stream) a Stream with combustible components
         :return: (pint.Quantity(unit="tonne/day")) the mass rate of CO2 from combustion.
         """
-        from .thermodynamics import component_MW
+        from .thermodynamics import ChemicalInfo
+
+        component_MW = ChemicalInfo.mol_weights()
 
         combustibles = stream.combustible_components
 

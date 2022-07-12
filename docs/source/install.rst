@@ -36,9 +36,18 @@ platform.
 
      conda activate opgee
 
-5. Finally, install the opgee package into the newly created environment::
+5. [THIS STEP DOESN'T WORK YET SINCE WE HAVE NO OFFICIAL RELEASE TO DATE.]
+   Finally, install the opgee package into the newly created environment::
 
-     pip install opgee
+     # pip install opgee
+
+Until a release is available on the PyPI.org server, use these steps instead:
+
+    git clone https://github.com/Stanford-EAO/OPGEEv4.git
+    cd OPGEEv4
+    python setup.py develop
+
+which links the installed package back to the source code repo.
 
 .. seealso::
 

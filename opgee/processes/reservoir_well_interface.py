@@ -10,6 +10,7 @@ import numpy as np
 
 from .. import ureg
 from ..core import TemperaturePressure, STP
+from ..error import ModelValidationError
 from ..log import getLogger
 from ..process import Process
 from ..stream import Stream, PHASE_GAS
@@ -121,4 +122,8 @@ class ReservoirWellInterface(Process):
             prod_gas_flowing_BHP = res_press - delta_P_high
 
         prod_flowing_BHP = min(prod_liquid_flowing_BHP, prod_gas_flowing_BHP)
+
+        if prod_flowing_BHP.m < 0.0:
+            raise ModelValidationError(f"ReservoirWellInterface: prod_flowing_BHP.m < 0.0")
+
         return prod_flowing_BHP

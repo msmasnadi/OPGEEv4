@@ -55,9 +55,12 @@ class XmlFormatError(FileFormatError):
     pass
 
 
-class ModelValidationError(FileFormatError):
-    pass
+class ModelValidationError(OpgeeException):
+    def __init__(self, msg):
+        self.msg = msg
 
+    def __str__(self):
+        return f'<{self.__class__.__name__} "{self.msg}">'
 
 class ConfigFileError(FileFormatError):
     """
@@ -98,3 +101,13 @@ class ZeroEnergyFlowError(OpgeeException):
     def __str__(self):
         return (f"Zero energy flow rate for {self.stream.boundary} boundary stream {self.stream}" +
                 (f": {self.message}" if self.message else ""))
+
+
+class McsUserError(OpgeeException):
+    pass
+
+class McsSystemError(OpgeeException):
+    pass
+
+class DistributionSpecError(OpgeeException):
+    pass

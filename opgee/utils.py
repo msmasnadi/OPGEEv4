@@ -42,7 +42,62 @@ def splitAndStrip(s, delim):
     items = [item.strip() for item in s.split(delim)]
     return items
 
+def mkdirs(newdir, mode=0o770):
+    """
+    Try to create the full path `newdir` and ignore the error if it already exists.
 
+    :param newdir: the directory to create (along with any needed parent directories)
+    :return: nothing
+    """
+    from errno import EEXIST
+
+    try:
+        os.makedirs(newdir, mode)
+    except OSError as e:
+        if e.errno != EEXIST:
+            raise
+
+def rmlink(path):
+    if os.path.lexists(path) and os.path.islink(path):
+        os.remove(path)
+
+def symlink(src, dst):
+    rmlink(dst)
+    _logger.debug(f"ln -s '{src}', '{dst}'")
+    try:
+        os.symlink(src, dst)
+    except Exception:
+        print(f"Can't symlink '{src} to '{dst}'")
+        raise
+
+def removeTree(path, ignore_errors=True):
+    import shutil
+
+    if not os.path.lexists(path):
+        return
+    _logger.debug(f"shutil.rmtree('{path}')")
+    shutil.rmtree(path, ignore_errors=ignore_errors)
+
+def filecopy(src, dst, removeDst=True):
+    'Copy src file to dst, optionally removing dst first to avoid writing through symlinks'
+    from shutil import copy2        # equivalent to "cp -p"
+
+    _logger.debug(f"copyfile({src}, dst, removeDst)")
+    if removeDst and os.path.islink(dst):
+        os.remove(dst)
+
+    copy2(src, dst)
+
+# def copyfiles(files, dstdir, removeDst=True):
+#     '''
+#     :param files: a list of files to copy
+#     :param dstdir: the directory to copy to
+#     :param removeDst: if True-like, remove destination file before copying
+#     :return: nothing
+#     '''
+#     mkdirs(dstdir)
+#     for f in files:
+#         filecopy(f, dstdir, removeDst=removeDst)
 
 # used only in opgee modules
 def getBooleanXML(value):
@@ -55,8 +110,8 @@ def getBooleanXML(value):
              value is passed.
     :raises: OpgeeException
     """
-    false = ["false", "no", "0", "none"]
-    true  = ["true", "yes", "1"]
+    false = ["false", "no", "0", "0.0", "none"]
+    true  = ["true", "yes", "1", "1.0"]
     valid = true + false
 
     val = str(value).strip().lower()
@@ -119,6 +174,28 @@ def coercible(value, pytype, raiseError=True, allow_truncation=False):
 
     return value
 
+TRIAL_STRING_DELIMITER = ','
+
+def parseTrialString(string):
+    """
+    Converts a comma-separated list of ranges into a list of numbers.
+    Ex. 1,3,4-6,2 becomes [1,3,4,5,6,2]. Duplicates are deleted. This
+    function is the inverse of :func:`createTrialString`.
+
+    :param string: (str) comma-separate list of ints or int ranges indicated
+      by two ints separated by a hyphen.
+    :return: (list) a list of ints
+    """
+    rangeStrs = string.split(TRIAL_STRING_DELIMITER)
+    res = set()
+    for rangeStr in rangeStrs:
+        r = [int(x) for x in rangeStr.strip().split('-')]
+        if len(r) == 2:
+            r = range(r[0], r[1] + 1)
+        elif len(r) != 1:
+            raise ValueError('Malformed trial string.')
+        res = res.union(set(r))
+    return list(res)
 
 def flatten(listOfLists):
     """
@@ -142,12 +219,12 @@ def mkdirs(newdir, mode=0o770):
     :param newdir: the directory to create (along with any needed parent directories)
     :return: nothing
     """
-    from errno import EEXIST        # pycharm thinks this is unknown but it's wrong
+    import errno    # PyCharm thinks this doesn't exist but it does.
 
     try:
         os.makedirs(newdir, mode)
     except OSError as e:
-        if e.errno != EEXIST:
+        if e.errno != errno.EEXIST:
             raise
 
 def loadModuleFromPath(module_path, raiseError=True):
@@ -184,6 +261,19 @@ def loadModuleFromPath(module_path, raiseError=True):
             raise OpgeeException(errorString)
 
     return module
+
+def getResource(relpath):
+    """
+    Extract a resource (e.g., file) from the given relative path in
+    the pygcam package.
+
+    :param relpath: (str) a path relative to the pygcam package
+    :return: the file contents
+    """
+    import pkgutil
+
+    contents = pkgutil.get_data('opgee', relpath)
+    return contents.decode('utf-8')
 
 def dequantify_dataframe(df):
     import pandas as pd
