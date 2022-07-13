@@ -112,7 +112,7 @@ class TableManager(OpgeeObject):
                 df.fillna(tbl_def.fillna, inplace=True)
 
             # apply XML table updates from user
-            update = self.updates.get(name)
+            update = self.updates and self.updates.get(name)
             if update and update.enabled:
                 for cell in update.cells:
                     df.loc[cell.row, cell.col] = cell.value

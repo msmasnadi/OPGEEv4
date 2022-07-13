@@ -14,11 +14,10 @@ import re
 from . import ureg
 from .attributes import AttributeMixin
 from .core import XmlInstantiable, elt_name, magnitude, TemperaturePressure
-from .error import OpgeeException
+from .error import OpgeeException, ModelValidationError
 from .log import getLogger
 from .utils import getBooleanXML, coercible
 from .table_manager import TableManager
-from .config import pathjoin
 
 
 _logger = getLogger(__name__)
@@ -88,11 +87,16 @@ class Stream(XmlInstantiable, AttributeMixin):
     # HCs with 1-60 carbon atoms, i.e., C1, C2, ..., C50
     table_name = "pubchem-cid"
     mgr = TableManager()
-    csv_path = pathjoin(__file__, '..', f'tables/{table_name+".csv"}', abspath=True)
-    mgr.add_table(csv_path, index_col=0, skiprows=0)
-    hydrocarbon_pubchem_cid_df = mgr.get_table("pubchem-cid")
-    max_carbon_number = hydrocarbon_pubchem_cid_df.size
-    _hydrocarbons = [f'C{n}' for n in range(1, max_carbon_number + 1)]
+    pubchem_cid_df = mgr.get_table("pubchem-cid")
+
+    idx = pubchem_cid_df.index
+    _hydrocarbons = list(idx)
+    max_carbon_number = len(_hydrocarbons)
+    _carbon_number_dict = {f'C{n}': float(n) for n in range(1, max_carbon_number + 1)}
+
+    # Verify that the pubchem-cid index includes 1..N where N is the max_carbon number
+    if set(_carbon_number_dict.keys()) != set(idx):
+        raise ModelValidationError(f"{table_name} must contain carbon numbers 1..{max_carbon_number}.")
 
     # All hydrocarbon gases other than methane (C1) are considered VOCs.
     VOCs = _hydrocarbons[1:]
@@ -101,14 +105,14 @@ class Stream(XmlInstantiable, AttributeMixin):
     _liquids = ['oil']
 
     # _hc_molecules = ['CH4', 'C2H6', 'C3H8', 'C4H10']
-    _gases = ['N2', 'O2', 'CO2', 'H2O', 'H2', 'H2S', 'SO2', "CO"]
+    non_hydrocarbon_gases = _gases = ['N2', 'O2', 'CO2', 'H2O', 'H2', 'H2S', 'SO2', "CO"]
     _other = ['Na+', 'Cl-', 'Si-']
 
     combustible_components = _hydrocarbons + _gases
-    _carbon_number_dict = {f'C{n}': float(n) for n in range(1, max_carbon_number + 1)}
 
     for gas in _gases:
-        _carbon_number_dict[gas] = 1 if gas[0] == "C" else 0
+        _carbon_number_dict[gas] = 1.0 if gas[0] == "C" else 0.0
+
     carbon_number = pd.Series(_carbon_number_dict, dtype="pint[dimensionless]")
 
     #: The stream components tracked by OPGEE. This list can be extended by calling ``Stream.extend_components(names)``,

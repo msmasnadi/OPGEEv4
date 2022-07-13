@@ -19,14 +19,10 @@ class ChemicalInfo(OpgeeObject):
     instance = None
 
     def __init__(self):
-        non_hydrocarbon_gases = ["N2", "O2", "CO2", "H2O", "CO", "H2", "H2S", "SO2"]
-        dict_non_hydrocarbon = {name: Chemical(name) for name in non_hydrocarbon_gases}
-        carbon_number = [f'C{n + 1}' for n in range(Stream.max_carbon_number)]
-        pubchem_cid_df = Stream.hydrocarbon_pubchem_cid_df.PubChem
-        chemical_dict = {name: Chemical("PubChem="+str(pubchem_cid_df[name])) for name in carbon_number}
+        dict_non_hydrocarbon = {name: Chemical(name) for name in Stream.non_hydrocarbon_gases}
+        series = Stream.pubchem_cid_df.PubChem
+        self._chemical_dict = chemical_dict = {name : Chemical(f"PubChem={num}") for name, num in series.items()}
         chemical_dict.update(dict_non_hydrocarbon)
-        self._chemical_dict = chemical_dict
-        self._component_names = list(self._chemical_dict.keys())
         self._mol_weights = pd.Series({name: chemical.MW for name, chemical in chemical_dict.items()},
                                       dtype="pint[g/mole]")
 
@@ -56,7 +52,7 @@ class ChemicalInfo(OpgeeObject):
     @classmethod
     def names(cls):
         obj = cls.get_instance()
-        return obj._component_names
+        return list(obj._mol_weights.keys())
 
 
 def rho(component, temperature, pressure, phase):
@@ -302,8 +298,11 @@ class AbstractSubstance(OpgeeObject):
 
         self.dry_air = DryAir(field)
 
-        components = ChemicalInfo.names()
+        # TODO: refactor this. Currently each subclass of AbstractSubstance calls this __init__
+        #  method and stores redundant copies of all the variables below. Make these class vars
+        #  instead so they are computed and stored only once.
         self.component_MW = ChemicalInfo.mol_weights()
+        components = self.component_MW.index
 
         self.component_LHV_molar = pd.Series(
             {name: heating_value(name, with_units=False) for name in components},
