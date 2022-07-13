@@ -149,22 +149,24 @@ def coercible(value, pytype, raiseError=True, allow_truncation=False):
 
     if type(pytype) == str:
         if pytype == 'float':
-            pytype = float
+            pytype_func = float
         elif pytype == 'int':
-            pytype = lambda s: int(float(s))   # convert to float first so "24.0" can become 24
+            pytype_func = lambda s: int(float(s))   # convert to float first so "24.0" can become 24
         elif pytype == 'str':
-            pytype = str
+            pytype_func = str
         elif pytype == 'binary':
-            pytype = binary
+            pytype_func = binary
         else:
             raise OpgeeException(f"coercible: '{pytype}' is not a recognized type string")
+    else:
+        pytype_func = pytype
 
     # avoid silent truncation of float to int
-    if not allow_truncation and pytype == int and type(value) == float:
+    if not allow_truncation and pytype == 'int' and type(value) == float:
         raise OpgeeException(f"coercible: Refusing to truncate float {value} to int")
 
     try:
-        value = pytype(value)
+        value = pytype_func(value)
 
     except (TypeError, ValueError) as e:
         if raiseError:
