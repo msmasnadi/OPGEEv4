@@ -86,6 +86,7 @@ class Model(Container):
         self.product_boundaries = tbl_mgr.get_table("product-boundaries")
 
         self.component_LHV = tbl_mgr.get_table("component-LHV")
+        self.pubchem_cid = tbl_mgr.get_table("pubchem-cid")
 
         # TBD: should these be settable per Analysis?
         # parameters controlling process cyclic calculations
