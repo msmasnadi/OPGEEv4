@@ -151,7 +151,7 @@ def coercible(value, pytype, raiseError=True, allow_truncation=False):
         if pytype == 'float':
             pytype = float
         elif pytype == 'int':
-            pytype = int
+            pytype = lambda s: int(float(s))   # convert to float first so "24.0" can become 24
         elif pytype == 'str':
             pytype = str
         elif pytype == 'binary':

@@ -102,19 +102,33 @@ class ModelFile(XMLFile):
         # debugging and storing the expanded "final" XML facilitates publication and replication.
         found = base_root.xpath('//Analysis/Field[@modifies]')
         for elt in found:
-            modifies = elt.attrib['modifies']
-            new_name = elt.attrib['name']
+            attrib = elt.attrib
+            modifies = attrib['modifies']
+            new_name = attrib['name']
 
             if base_root.find(f"Field[@name='{new_name}']") is not None:
                 raise XmlFormatError(f"Can't copy field '{modifies}' to '{new_name}': a field named '{new_name}' already exists.")
 
             to_copy = base_root.find(f"Field[@name='{modifies}']")
-            copied = deepcopy(to_copy)          # don't modify the original
-            copied.attrib.update(elt.attrib)    # copy elt's attributes into `copied`
+
+            if to_copy is None:
+                raise XmlFormatError(f"Can't create field '{new_name}': modified field '{modifies}' not found.")
+
+            # Change attribute from "modifies" to "modified" to record action and avoid redoing it
+            del attrib['modifies']
+            attrib['modified'] = modifies
+
+            copied = deepcopy(to_copy)      # don't modify the original
+            copied.attrib.update(attrib)    # copy elt's attributes into `copied`
 
             # N.B. Elements don't match unless *all* attribs are identical. Maybe match only on tag and name attribute??
             merge_elements(copied, elt[:])      # merge elt's children into `copied`
             base_root.append(copied)            # add the copy to the Model
+
+            # The <Field> elements under analysis just need to refer to the field by name
+            # We can remove all the other items after merging them above.
+            for child in elt:
+                elt.remove(child)
 
         # function argument overrides config file variable
         save_to_path = save_to_path or getParam('OPGEE.XmlSavePathname')

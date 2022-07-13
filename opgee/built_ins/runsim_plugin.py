@@ -49,4 +49,3 @@ class RunsimCommand(SubcommandABC):
         trials = (range(sim.trials) if args.trials == 'all'
                   else parseTrialString(args.trials))
         sim.run(trials)
-

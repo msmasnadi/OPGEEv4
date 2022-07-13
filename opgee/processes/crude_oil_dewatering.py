@@ -14,7 +14,6 @@ from ..log import getLogger
 from ..process import Process
 from ..stream import PHASE_LIQUID
 from ..error import OpgeeException
-from ..import_export import ImportExport
 
 _logger = getLogger(__name__)
 
@@ -58,6 +57,7 @@ class CrudeOilDewatering(Process):
         water_rate = input.flow_rate("H2O", PHASE_LIQUID)
         temp = self.temperature_heater_treater if self.heater_treater else input_T
 
+        # TODO: unused
         separator_final_SOR = field.get_process_data("separator_final_SOR")
 
         try:

@@ -8,8 +8,7 @@
 #
 from .. import ureg
 from ..core import OpgeeObject
-from ..error import OpgeeException
-from ..process import Process
+from ..error import ModelValidationError
 from .shared import get_energy_consumption
 
 _power = [1, 1 / 2, 1 / 3, 1 / 4, 1 / 5]
@@ -62,7 +61,7 @@ class Compressor(OpgeeObject):
 
         for compression_ratio in overall_compression_ratio_stages:
             if compression_ratio < 1:
-                raise OpgeeException("compression ratio is less than 1")
+                raise ModelValidationError("compression ratio is less than 1")
             for pow in _power:
                 if compression_ratio ** pow < max_stages:
                     compression_ratio_per_stages.append(compression_ratio ** pow)
@@ -73,7 +72,7 @@ class Compressor(OpgeeObject):
     @staticmethod
     def get_compression_ratio(overall_compression_ratio):
         if overall_compression_ratio < 1:
-            raise OpgeeException("compression ratio is less than 1")
+            raise ModelValidationError("compression ratio is less than 1")
         max_stages = len(_power)
         result = 0
 
@@ -90,7 +89,7 @@ class Compressor(OpgeeObject):
         for overall_compression_ratio, compression_ratio in \
                 zip(overall_compression_ratio_stages, compression_ratio_per_stages):
             if overall_compression_ratio < 1:
-                raise OpgeeException("compression ratio is less than 1")
+                raise ModelValidationError("compression ratio is less than 1")
             for pow in _power:
                 if overall_compression_ratio ** pow == compression_ratio:
                     num_of_compression_stages.append(int(1 / pow))
@@ -101,7 +100,7 @@ class Compressor(OpgeeObject):
     @staticmethod
     def get_num_of_compression(overall_compression_ratio):
         if overall_compression_ratio < 1:
-            raise OpgeeException("compression ratio is less than 1")
+            raise ModelValidationError("compression ratio is less than 1")
         result = 0
         compression_ratio = Compressor.get_compression_ratio(overall_compression_ratio)
 

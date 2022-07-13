@@ -8,6 +8,7 @@
 #
 import json
 import os
+import numpy as np
 import pandas as pd
 
 from ..config import pathjoin
@@ -24,13 +25,18 @@ _logger = getLogger(__name__)
 
 
 TRIAL_DATA_CSV = 'trial_data.csv'
-RESULTS_DIR = 'results'
+RESULTS_DIR = 'results'                 # TBD: better to store results.csv in field_dir along with trial_data.csv?
 MODEL_FILE = 'merged_model.xml'
 META_DATA_FILE = 'metadata.json'
 
 CLASS_DELIMITER = '.'
 
 DISTROS_CSV = 'mcs/etc/parameter_distributions.csv'
+
+DIGITS = 3
+
+def magnitude(quantity):
+    return round(quantity.m, DIGITS)
 
 def model_file_path(sim_dir):
     model_file = pathjoin(sim_dir, MODEL_FILE)
@@ -153,6 +159,7 @@ class Distribution(OpgeeObject):
 # TBD: maybe have a "results" subdir, with file  for results of 1 analysis?
 
 class Simulation(OpgeeObject):
+    # TBD: update this document string
     """
     ``Simulation`` represents the file and directory structure of a Monte Carlo simulation.
     Each simulation has an associated top-level directory which contains:
@@ -278,6 +285,7 @@ class Simulation(OpgeeObject):
         path = pathjoin(d, TRIAL_DATA_CSV)
         return path
 
+    # TBD: needed only if we want to parallelize within fields rather than just across fields
     def trial_dir(self, field, trial_num, mkdir=False):
         """
         Return the full pathname to the data for trial ``trial_num``,
@@ -426,11 +434,15 @@ class Simulation(OpgeeObject):
         field._after_init()
 
     def run_field(self, field, trial_nums):
+        """
 
+        :param field: (opgee.Field) the Field to evaluate in MCS
+        :param trial_nums: (iterator of ints) the trial numbers to run
+        :return: none
+        """
         analysis = self.analysis
 
         results = []
-        digits = 3
 
         for trial_num in trial_nums:
             _logger.debug(f"Running trial {trial_num} for {field}")
@@ -456,14 +468,15 @@ class Simulation(OpgeeObject):
             ghg = emissions.loc['GHG']
             total_ghg = ghg.sum()
             ci = field.compute_carbon_intensity(analysis)
+            vff = ghg['Venting'] + ghg['Flaring'] + ghg['Fugitives']
 
             tup = (trial_num,
-                   round(ci.m, digits),
-                   round(total_ghg.m, digits),
-                   round(ghg['Combustion'].m, digits),
-                   round(ghg['Land-use'].m, digits),
-                   round((ghg['Venting'] + ghg['Flaring'] + ghg['Fugitives']).m, digits),
-                   round(ghg['Other'].m, digits))
+                   magnitude(ci),
+                   magnitude(total_ghg),
+                   magnitude(ghg['Combustion']),
+                   magnitude(ghg['Land-use']),
+                   magnitude(vff),
+                   magnitude(ghg['Other']))
 
             results.append(tup)
 
@@ -480,6 +493,77 @@ class Simulation(OpgeeObject):
         pathname = pathjoin(self.results_dir, field.name + '.csv')
         _logger.info(f"Writing '{pathname}'")
         df.to_csv(pathname, index=False)
+
+    def run_trial(self, field, trial_num):
+        # Run a single trial and return a tuple with results
+
+        analysis = self.analysis
+
+        _logger.debug(f"Running trial {trial_num} for {field}")
+        self.set_trial_data(field, trial_num)
+
+        try:
+            field.run(analysis)
+            #field.report()
+        except ModelValidationError as e:
+            _logger.error(f"Skipping trial {trial_num}: {e}")
+            return None
+
+        # TBD: Save results (which?)
+        # energy: Series dtype = "mmbtu/d"
+        # emissions: DataFrame: cols are categories (Combustion, Land-use, Venting, Flaring, Fugitives, Other)
+        #                       rows are (VOC, CO, CH4, N2O, CO2, GHG)
+        # ghgs: Quantity "t/d" CO2e
+        # ci: Quantity "g/MJ" CO2e
+        #
+        # energy = field.energy.data
+        emissions = field.emissions.data
+
+        ghg = emissions.loc['GHG']
+        total_ghg = ghg.sum()
+        ci = field.compute_carbon_intensity(analysis)
+        vff = ghg['Venting'] + ghg['Flaring'] + ghg['Fugitives']
+
+        tup = (trial_num,
+               magnitude(ci),
+               magnitude(total_ghg),
+               magnitude(ghg['Combustion']),
+               magnitude(ghg['Land-use']),
+               magnitude(vff),
+               magnitude(ghg['Other']))
+
+        return tup
+
+    def run_field_distributed(self, field, trial_nums):
+        import ray
+        from ..config import getParamAsInt
+
+        cores = getParamAsInt('OPGEE.CPUsToUse') or os.cpu_count()
+        actors = [Simulation(self.pathname, self.field_names) for _ in range(cores)]
+
+        results = []
+
+        # Split trials into approx equal size chunks to distribute
+        # across `nprocs` CPUs.
+        splits = np.array_split(np.array(trial_nums), cores)
+
+        # Aggregate all of the results.
+        results = ray.get([actor.run_trial.remote(field, split) for actor, split in zip(actors, splits)])
+
+        cols = ['trial_num',
+                'CI',
+                'total_GHG',
+                'combustion',
+                'land_use',
+                'VFF',
+                'other']
+
+        df = pd.DataFrame.from_records(results, columns=cols)
+        mkdirs(self.results_dir)
+        pathname = pathjoin(self.results_dir, field.name + '.csv')
+        _logger.info(f"Writing '{pathname}'")
+        df.to_csv(pathname, index=False)
+
 
 
     def run(self, trial_nums):
@@ -500,5 +584,3 @@ class Simulation(OpgeeObject):
             # variables for one trial of a single field. The field name is thus
             # included in each row, allowing results for all fields in a single
             # analysis to be stored in one file.
-
-

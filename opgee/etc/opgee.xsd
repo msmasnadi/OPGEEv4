@@ -120,11 +120,12 @@
   			<xs:element minOccurs='0' ref='ProcessChoice'/>
 				<xs:element ref='Stream'/>
       </xs:choice>
-			<xs:attribute name='name' use='required' type='xs:NCName'/>
+			<xs:attribute name='name' use='required' type='xs:string'/>
 			<xs:attribute name='enabled' default='1' type='xs:boolean'/>
 			<xs:attribute name='extend' default='0' type='xs:boolean'/>
       <xs:attribute name='delete' type='xs:boolean'/>
-      <xs:attribute name="modifies" type="xs:NCName"/>
+      <xs:attribute name="modifies" type="xs:string"/>
+      <xs:attribute name="modified" type="xs:string"/>    <!-- set after a modified field has been copied to avoid doing so again -->
     </xs:complexType>
   </xs:element>
 

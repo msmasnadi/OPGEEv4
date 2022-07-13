@@ -108,7 +108,7 @@ def get_energy_carrier(prime_mover_type):
     if prime_mover_type.startswith("Resid"):
         return EN_RESID
 
-    raise OpgeeException(f"Unrecognized prime_move_type: '{prime_mover_type}'")
+    raise OpgeeException(f"Unrecognized prime_mover_type: '{prime_mover_type}'")
 
 
 def get_energy_consumption_stages(prime_mover_type, brake_horsepower_of_stages):

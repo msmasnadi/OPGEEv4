@@ -12,7 +12,7 @@ from pyXSteam.XSteam import XSteam
 from thermosteam import Chemical, Mixture
 from . import ureg
 from .core import OpgeeObject, STP, TemperaturePressure
-from .error import OpgeeException
+from .error import ModelValidationError
 from .stream import PHASE_LIQUID, Stream, PHASE_GAS, PHASE_SOLID
 
 class ChemicalInfo(OpgeeObject):
@@ -698,7 +698,7 @@ class Oil(AbstractSubstance):
         """
 
         if API.m < 4 or API.m > 45:
-            raise OpgeeException(f"{API.m} is less than 4 or greater than 45")
+            raise ModelValidationError(f"{API.m} is less than 4 or greater than 45")
 
         nitrogen_weight_percent = ureg.Quantity(0.2, "percent")
         sulfur_weight_percent = ureg.Quantity(-0.121 * API.m + 5.4293, "percent")
@@ -783,7 +783,7 @@ class Gas(AbstractSubstance):
         gas_flow_rates = stream.gas_flow_rates()
 
         if len(gas_flow_rates) == 0:
-            raise OpgeeException("Can't compute molar fractions on an empty stream")
+            raise ModelValidationError("Can't compute molar fractions on an empty stream")
 
         molar_flow_rate = gas_flow_rates / self.component_MW[gas_flow_rates.index]
 
