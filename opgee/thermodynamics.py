@@ -684,11 +684,16 @@ class Oil(AbstractSubstance):
 
         :return:(float) specific heat capacity of crude oil (unit = btu/lb/degF)
         """
+        a1 = -1.39e-6
+        a2 = 1.847e-3
+        a3 = 6.32e-4
+        a4 = 3.52e-1
+
         API = API.m
         temperature = temperature.to("degF")
         temperature = temperature.m
 
-        heat_capacity = (-1.39e-6 * temperature + 1.847e-3) * API + 6.32e-4 * temperature + 0.352
+        heat_capacity = (a1 * temperature + a2) * API + a3 * temperature + a4
         return ureg.Quantity(heat_capacity, "btu/lb/degF")
 
     # Combustion properties as a fuel

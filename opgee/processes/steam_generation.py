@@ -90,6 +90,8 @@ class SteamGeneration(Process):
         #                                                         tp=self.waste_water_reinjection_tp)
 
         input_prod_water = self.find_input_stream("produced water for steam generation")
+        if input_prod_water.is_uninitialized():
+            return
         prod_water_mass_rate = input_prod_water.liquid_flow_rate("H2O")
 
         input_makeup_water = self.find_input_stream("makeup water for steam generation")
