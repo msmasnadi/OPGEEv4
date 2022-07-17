@@ -4,22 +4,11 @@ from opgee.field import Field
 from opgee.mcs.simulation import Simulation
 from opgee.smart_defaults import SmartDefault
 from opgee.mcs.simulation import Distribution
-from opgee.mcs.distro import get_frozen_rv
 
 @SmartDefault.register('TEST_abcdef', ['TEST_foo', 'TEST_bar'])
 def smart_dflt_1(foo, bar):
     print(f"Called test_smart_dflt(foo:{foo} bar:{bar})")
     return 10000
-
-# @Distribution.register('TEST_WOR-SD', ['TEST_age'])
-# def age_distro(age):
-#     print(f"Called test_dep(age:{age})")
-#     return get_frozen_rv('normal', mean=age, stdev=age/4)
-
-# @Distribution.register('TEST_WOR', ['TEST_age', 'TEST_WOR-SD'])
-# def wor_distro(age, wor_sd):
-#     print(f"Called test_wor(age:{age}, wor_sd:{wor_sd})")
-#     return get_frozen_rv('normal', mean=age, stdev=wor_sd)
 
 class MyAnalysis(Analysis):
     def __init__(self, name):
