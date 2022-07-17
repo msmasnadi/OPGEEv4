@@ -156,9 +156,6 @@ class ClassAttrs(XmlInstantiable):
             if attr.exclusive:
                 excludes[attr.exclusive].append(attr)
 
-
-
-
     @staticmethod
     def _lookup(obj, dict_name, key, raiseError=True):
         """

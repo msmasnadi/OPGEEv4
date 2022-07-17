@@ -12,8 +12,8 @@ import numpy as np
 import pandas as pd
 
 from ..config import pathjoin
-from ..core import OpgeeObject
-from ..error import McsSystemError, McsUserError, CommandlineError, ModelValidationError
+from ..core import OpgeeObject, split_attr_name
+from ..error import OpgeeException, McsSystemError, McsUserError, CommandlineError, ModelValidationError
 from ..log import getLogger
 from ..model_file import ModelFile
 from ..pkg_utils import resourceStream
@@ -28,8 +28,6 @@ TRIAL_DATA_CSV = 'trial_data.csv'
 RESULTS_DIR = 'results'                 # TBD: better to store results.csv in field_dir along with trial_data.csv?
 MODEL_FILE = 'merged_model.xml'
 META_DATA_FILE = 'metadata.json'
-
-CLASS_DELIMITER = '.'
 
 DISTROS_CSV = 'mcs/etc/parameter_distributions.csv'
 
@@ -120,26 +118,17 @@ def read_distributions(pathname=None):
         Distribution(name, rv)
 
 
-def split_attr_name(attr_name):
-    splits = attr_name.split(CLASS_DELIMITER)
-    count = len(splits)
-    if count == 1:
-        class_name, attr_name = 'Field', splits[0]
-    elif count == 2:
-        class_name, attr_name = splits
-    else:
-        raise McsUserError(f"read_distributions: attribute name format is 'ATTR' (same as 'Field.ATTR) or 'CLASS.ATTR'; got '{attr_name}'")
-
-    return class_name, attr_name
-
-
 class Distribution(OpgeeObject):
 
     instances = {}
 
     def __init__(self, full_name, rv):
         self.full_name = full_name
-        self.class_name, self.attr_name = split_attr_name(full_name)
+        try:
+            self.class_name, self.attr_name = split_attr_name(full_name)
+        except OpgeeException as e:
+            raise McsUserError(f"attribute name format is 'ATTR' (same as 'Field.ATTR) or 'CLASS.ATTR'; got '{attr_name}'")
+
         self.rv = rv
         self.instances[full_name] = self
 

@@ -6,208 +6,193 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-# TODO:
-#   - Should defaults and distros be assigned at a class level?
-#     - Attributes are defined at this level, so it makes sense.
-#     - This means one default/distro per attribute of Model, Analysis, and Field
-#       (and less usefully, Aggregator and Stream) and each Process subclass can
-#       have its own set of attributes.
-#   - Define a procedure for assigning smart defaults
-#     - Walk the model structure and check attributes at each level to find any
-#       smart defaults / distros.
-#       - 3-level dict: registry[dep_type][class_name][attr_name]
-#     - Find attributes that have only simple-default="True", or tag values with
-#       smart defaults in the attribute definition? This splits the handling of
-#       smart defaults between the XML and code, which is undesirable. Better to
-#       be able to add a smart default in the code without touching the XML?
-#     - Call obj.attr(name) or obj.set_attr(name, value) as needed
-#  - For MCS, walk the model or just walk the registry[Distribution] sub-dict?
-#  - It's easy to find a distribution given a class and attr, but can we go the
-#    other way as readily?
-#    - Descend hierarchy, Model -> Analysis -> Field -> Process / Stream and
-#      check for class name in registry[Distribution][class_name]. If found,
-#      walk the next level of dict (by attr_name) and operate of the model object.
-#   Questions
-#   - Does it make sense for an attribute to have both a SmartDefault and Distribution?
-#
 import networkx as nx
-import pandas as pd
-from .core import OpgeeObject
+from .core import OpgeeObject, split_attr_name
 from .error import OpgeeException
 from .log import getLogger
 
 _logger = getLogger(__name__)
 
+NO_DEP = '_'    # dummy dependency so these also show up in graph
+
+class ProcessNotFound(OpgeeException):
+    pass
+
 class SmartDefault(OpgeeObject):
     """
     Creates a registry for SmartDefaults and their dependencies so we can process
     these in the required order.
-
-    The ``registry`` is a DataFrame with columns 'dep_type', 'class_name', 'attr_name'
-    and 'dep_obj', where ``dep_type`` is the name of a subclass of ``Dependency``
-    with which the ``register`` decorator was used; ``class_name`` is the name of
-    the OPGEE class containing attributes (i.e., a subclass of ``AttributeMixin``);
-    and ``attr_name`` is the name of an attribute in that class's ``attr_dict``.
     """
-    registry = pd.DataFrame(columns=['dep_type', 'attr_name', 'dep_obj'])
+    registry = {}       # SmartDefault instances keyed by attribute name
 
-    def __init__(self, attr_name, func, func_class=None, dependencies=None):
-        self.func = func
+    _run_order = None   # cached result of run_order() method.
+
+    def __init__(self, attr_name, wrapper, user_func, dependencies, optional=False):
         self.attr_name = attr_name
-        self.dependencies = dependencies or ['_'] # dummy dependency so these show up in graph
+        self.wrapper = wrapper
+        self.user_func = user_func
+        self.dependencies = dependencies
+        self.optional = optional
 
-        self.dep_type = dep_type = type(self).__name__      # 'Distribution' or 'SmartDefault'
+        # func.__qualname__ is a string of format "func_class.func_name"
+        # for methods and simply the func_name for normal functions
+        qualname = user_func.__qualname__
+        items = qualname.split('.')
+        self.func_class = items[0] if len(items) == 2 else None
+        self.func_name = qualname
+        self.func_module = user_func.__module__
 
         self.run_index = None # set by run_order() to help with sorting model objects
 
-        _logger.debug(f'Saving {dep_type} for attribute {attr_name} of class {func_class}')
+        self.registry[attr_name] = self
+        _logger.debug(f'Saving dependency for attribute {attr_name} of class {self.func_class}')
 
-        # Append to the registry (N.B. DataFrame.append() is deprecated)
-        d = dict(dep_type=dep_type, attr_name=attr_name, dep_obj=self)
-        df = pd.DataFrame(data=[d])
-        SmartDefault.registry = pd.concat([SmartDefault.registry, df], ignore_index=True)
+    # TBD: consider using @functools.wraps:
+    #  def my_decorator(f):
+    #     @wraps(f)
+    #     def wrapper(*args, **kwds):
+    #         print('Calling decorated function')
+    #         return f(*args, **kwds)
+    #     return wrapper
 
     @classmethod
-    def register(cls, attr_name, dependencies):
+    def register(cls, attr_name, dependencies, optional=False):
         """
-        The abstract decorator function. Callers should call it via subclasses
-        ``SmartDefault`` or ``Distribution``, e.g.,
+        The @register decorator function. Users can wrap methods or regular functions. Both
+        ``attr_name`` and the strings in the ``dependencies`` list can be simple attribute
+        names or they can be specified using dot notation, e.g., "Field.my_attribute".  If the
+        class or Process specifier is absent, the default value differs depending on whether the
+        wrapped function is a method or a regular function. If it is a method, the specifier
+        defaults to name of the class. If the wrapped function is a regular (non-method) function,
+        the specifier defaults to "Field", as this class contains most attributes on which
+        smart defaults are defined.
 
-        @SmartDefault.register("attr_name", ["dep1", "dep2", ...])
-        def my_func() ...
+        @SmartDefault.register("Analysis.attr_name", ["dep1", "dep2"])
+        def my_func(arg1, arg2)
+           ...
 
-        :param attr_name: (str) The name of an attribute. The class to which the attribute
-          pertains will be extracted from the function's metadata via ``func.__qualname__``.
-        :param dependencies: (list of str) The names of attributes on which ``attr_name`` depends.
+        :param attr_name: (str) The name of an attribute, with or without a class or Process name
+          specifier.
+        :param dependencies: (list of str) The names of attributes on which ``attr_name`` depends. These
+          follow the same rules for class or Process specifier defined above.
         :return: (function) The decorator function.
         """
         def decorator(user_func):
-            # func.__qualname__ is a string of format "func_class.func_name"
-            qualname = user_func.__qualname__
-            items = qualname.split('.')
-            if len(items) == 1:
-                func_class = None,
-                func_name = items[0]
-            else:
-                func_class, func_name = items
-
-            def wrapped_func(*args):
-                print(f'Calling {qualname} for attribute {attr_name} with dependencies {dependencies}')
+            def wrapper(*args):
+                print(f'Calling {user_func.__qualname__} for attribute {attr_name} with dependencies {dependencies}')
                 return user_func(*args)
 
-            cls(attr_name, wrapped_func, func_class=func_class, dependencies=dependencies)
-            return wrapped_func
+            cls(attr_name, wrapper, user_func, dependencies, optional=optional)
+            return wrapper
 
         return decorator
 
     @classmethod
     def run_order(cls):
-        g = SmartDefault.graph()
-        ordered = nx.topological_sort(g)
-
-        return ordered
-
-    @classmethod
-    def graph(cls):
         """
-        Create a directed graph of the dependencies among attributes
+        Create a directed graph of the dependencies among attributes and return the
+        list of dependencies in topologically-sorted order. The result is cached
+        since for any set of code, the smart default dependency network is fixed.
 
-        :return: (networkx.DiGraph) the graph
+        :return: (list of SmartDefault instances) in dependency order
         """
-        g = nx.DiGraph()
-        for obj in cls.registry.dep_obj:
-            g.add_edges_from([(dep, obj.attr_name) for dep in obj.dependencies])
+        if cls._run_order is None:
+            g = nx.DiGraph()
 
-        return g
+            for attr_name, obj in cls.registry.items():
+                g.add_edges_from([(dep, attr_name) for dep in obj.dependencies])
 
-    @classmethod
-    def find_class(cls, dep_type, cls_name):
-        pass
+            cycles = list(nx.simple_cycles(g))
+            if cycles:
+                raise OpgeeException(f"Smart default dependencies contain cycles: {cycles}")
 
-    @classmethod
-    def find(cls, dep_type, attr_name):
-        rows = cls.registry.query("dep_type == @dep_type and attr_name == @attr_name")
-        if len(rows) == 0:
-            raise OpgeeException(f"Attribute {attr_name} has no {dep_type} registered.")
+            cls._run_order = nx.topological_sort(g)
 
-        dep_obj = rows.dep_obj.values[0]
-        return dep_obj
+        return cls._run_order
 
     @classmethod
-    def apply_defaults(cls, analysis):
+    def apply_defaults(cls, analysis, field):
         """
-        Apply all SmartDefaults for the given ``analysis`` object.
+        Apply all SmartDefaults for the given ``analysis`` and ``field`` objects,
+        in dependency order.
 
-        Descends from Analysis, to Fields, to Processes, applying smart where
-        default value was not provided by user. Defaults are processed in
-        dependency order.
-
-        :param analysis: (opgee.Analysis)
+        :param analysis: (opgee.Analysis) The analysis being run.
+        :param field: (opgee.Field) The field being run.
         :return: none
         """
-        # TBD: Validation: ensure that no smart default depends on a contained element
-        #      Raise error if there are cycles in dependency network
-        # Processing:
-        # - Sort dependencies
-        # - Walk dependency structure
-        #   - dep.class_name == 'Analysis', use analysis object
-        #   - dep.class_name == 'Field', iterate over analysis' fields
-        #   - dep.class_name in process_dict (below), iterate over all fields and see if
-        #     the named process class appears in that Field, then apply default in each.
-        from .process import Process
-        process_dict = {cls.__name__: cls for cls in Process.__subclasses__()}
+        for attr_name in cls.run_order():
+            dep: SmartDefault = cls.registry.get(attr_name)
+            if dep is None:
+                # not a dependency; it's just an attribute that is depended upon
+                continue
 
-    # TBD: resolve the issue of finding Analysis from Field
-    def find_attr_obj(self, obj, attr_name):
+            try:
+                obj, attr_obj = dep.find_attr(attr_name, analysis, field)
+            except ProcessNotFound as e:
+                _logger.warn(e)
+                continue    # skip this smart default
+
+            # Don't set smart defaults on explicitly set values
+            if attr_obj.explicit:
+                continue
+
+            # collect values of all attributes we depend on
+            try:
+                tups = [dep.find_attr(name, analysis, field) for name in dep.dependencies]
+            except ProcessNotFound as e:
+                _logger.warn(e)
+                continue    # skip this smart default
+
+            values = [attr_obj.value for _, attr_obj in tups]
+
+            # invoke the function on the object, passing all the values; type of call
+            # depends on whether it's a method or not (i.e., if func_class is not None)
+            try:
+                result = dep.wrapper(obj, *values) if dep.func_class else dep.wrapper(*values)
+            except Exception as e:
+                raise OpgeeException(f"Attempt to call SmartDefault function for attribute '{attr_name}' failed: {e}")
+
+            try:
+                attr_obj.set_value(result)
+            except Exception as e:
+                raise OpgeeException(f"Attempt to set SmartDefault value for attribute '{attr_name}' failed: {e}")
+
+
+    def find_attr(self, attr_name, analysis, field):
         """
-        Find an attribute in the current element or in the object hierarchy above
-        this node.
+        Find an attribute in the Analysis, Field, or in a named Process.
 
-        :param obj: (opgee.AttributeMixin) an object for which an attribute has a
-          SmartDefault or Distribution defined.
-        :param name: (str) a simple attribute name or a dot-delimited name of the
-          form "class_name.attr_name".
-        :return: (opgee.AttributeMixin) the object containing the attribute found
+        :param attr_name: (str) a simple attribute name or a dot-delimited name
+          of the form "class_name.attr_name".
+        :param analysis: (opgee.Analysis) the Analysis being run.
+        :param field: (opgee.Field) the Field being run.
+        :param raise_error: (bool) whether to raise an error
+        :return: (tuple of (opgee.AttributeMixin, opgee.Attribute)) the object
+          containing the Attribute object, and the Attribute object itself. If
+          a specified process is not found and raise_error is False, the tuple
+          ``(None, None)`` is returned.
+        :raises OpgeeException: if the attribute is not found
+        :raises ProcessNotFound: if the process specified as containing an attribute
+          is not found.
         """
-        items = attr_name.split('.')
-        count = len(items)
+        class_name, attr_name = split_attr_name(attr_name)
 
-        if count == 0 or count > 2:
-            raise OpgeeException(f"Attribute name '{attr_name}' must have one or two parts, delimited with '.'. Got {items}")
+        if class_name is None:
+            class_name = self.func_class or 'Field'
 
-        if count == 2:
-            class_name, attr_name = items
-            parent = obj.find_parent(class_name)
-            if parent is None:
-                raise OpgeeException(f"Parent of class '{class_name}' was not found above {obj}.")
+        if class_name == 'Field':
+            obj = field
 
-            obj = parent
+        elif class_name == 'Analysis':
+            obj = analysis
 
-        if not attr_name in obj.attr_dict:
-            raise OpgeeException(f"{obj} does not have an attribute named '{attr_name}'")
+        else:
+            obj = field.find_process(class_name, raiseError=False)
+            if obj is None:
+                    raise ProcessNotFound(f"Process not found for '{class_name}.{attr_name}' in {field}")
 
-        return obj
+        attr_obj = obj.attr_dict.get(attr_name)
+        if attr_obj is None:
+            raise OpgeeException(f"Attribute '{attr_name}' was not found in '{obj}'")
 
-    def set_value(self, obj):
-        """
-        Set the value of the attribute referenced by this ``SmartDefault`` instance,
-        found in ``obj``, which must be a subclass of ``AttributeMixin``.
-
-        :param obj: (opgee.AttributeMixin) An object with an attribute dictionary.
-        :return: (float) the value stored in the referenced attribute.
-        """
-        # TBD: handles deps on higher-level (e.g., Analysis) attribute
-        #      Problem: no unique Analysis for each Field
-        #      Consider solutions like setting field.parent = analysis
-        #      for all fields when running an analysis. Then we can't
-        #      run 2 analyses in separate threads. Not really: can't
-        #      anyway because Fields are shared among Analyses.
-
-        # collect values of all attributes we depend on
-        values = [obj.attr(attr_name) for attr_name in self.dependencies]
-
-        # invoke the function on the object, passing all the values
-        result = self.func(obj, *values)
-        obj.set_attr(self.attr_name, result)
-
-        return result
+        return obj, attr_obj

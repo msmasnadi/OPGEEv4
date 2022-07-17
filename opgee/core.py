@@ -18,6 +18,7 @@ _logger = getLogger(__name__)
 
 _cache = {}
 
+# TBD: replace with @functools.cache(user_function) (if used at all; might not be)
 
 def cached(func):
     """
@@ -108,6 +109,27 @@ def dict_from_list(objs):
         d[name] = obj
 
     return d
+
+
+CLASS_DELIMITER = '.'
+
+def split_attr_name(attr_name):
+    splits = attr_name.split(CLASS_DELIMITER)
+    count = len(splits)
+
+    if count == 0:
+        raise OpgeeException(f"Attribute name is empty")
+
+    if count == 1:
+        class_name, attr_name = None, splits[0]
+
+    elif count == 2:
+        class_name, attr_name = splits
+
+    else:
+        raise OpgeeException(f"Attribute name '{attr_name}' has more than 2 dot-delimited parts")
+
+    return class_name, attr_name
 
 
 # Top of hierarchy, because it's useful to know which classes are "ours"
