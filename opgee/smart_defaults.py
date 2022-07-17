@@ -79,7 +79,7 @@ class SmartDefault(OpgeeObject):
         """
         def decorator(user_func):
             def wrapper(*args):
-                print(f'Calling {user_func.__qualname__} for attribute {attr_name} with dependencies {dependencies}')
+                _logger.debug(f'Calling {user_func.__qualname__} for attribute {attr_name} with dependencies {dependencies}')
                 return user_func(*args)
 
             cls(attr_name, wrapper, user_func, dependencies, optional=optional)
@@ -129,18 +129,19 @@ class SmartDefault(OpgeeObject):
             try:
                 obj, attr_obj = dep.find_attr(attr_name, analysis, field)
             except ProcessNotFound as e:
-                _logger.warn(e)
+                _logger.warn(f"{e} (ignoring)")
                 continue    # skip this smart default
 
             # Don't set smart defaults on explicitly set values
             if attr_obj.explicit:
+                _logger.debug(f"Ignoring smart default for '{attr_name}', which has an explicit value")
                 continue
 
             # collect values of all attributes we depend on
             try:
                 tups = [dep.find_attr(name, analysis, field) for name in dep.dependencies]
             except ProcessNotFound as e:
-                _logger.warn(e)
+                _logger.warn(f"{e} (ignoring)")
                 continue    # skip this smart default
 
             values = [attr_obj.value for _, attr_obj in tups]
