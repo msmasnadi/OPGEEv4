@@ -14,7 +14,7 @@ requirements = [
     'pint-pandas',
     'pydot',
     'pytest',
-    'sphinx>=4.3.0',
+    'sphinx>=4.4.0',
     'sphinx-argparse>=0.2.5',
     'sphinx-rtd-theme>=0.5.1',
     'thermosteam==0.28.12',
