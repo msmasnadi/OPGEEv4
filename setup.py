@@ -8,7 +8,7 @@ requirements = [
     'lxml',
     'networkx',
     'numba',
-    'numpy',
+    'numpy>=1.22',
     'pandas',
     'pint',
     'pint-pandas',
