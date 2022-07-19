@@ -40,7 +40,7 @@ wheel:
 clean: clean-html clean-setup clean-requirements
 
 dev:
-	pip install -e
+	pip install -e .
 
 EMPTY :=
 SPACE := $(EMPTY) $(EMPTY)

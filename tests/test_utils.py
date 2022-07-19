@@ -20,15 +20,15 @@ def test_boolean_xml_failure():
 
 @pytest.mark.parametrize(
     "value, pytype, result", [(10, "float", 10.0),
-                              (11.0, "int", 11),
+                              ("11.0", "int", 11),
                               (ureg.Quantity(20.9, "tonnes"), "ignored", ureg.Quantity(20.9, "tonnes"))]
 )
 def test_coercible(value, pytype, result):
-    assert coercible(value, pytype, allow_truncation=True) == result
+    assert coercible(value, pytype) == result
 
 
 def test_coercible_failure():
-    with pytest.raises(OpgeeException, match=f".*Refusing to truncate float.*"):
+    with pytest.raises(OpgeeException, match=f".*is not coercible.*"):
         coercible(10.7, "int")
 
     with pytest.raises(OpgeeException, match=f".*not a recognized type string.*"):

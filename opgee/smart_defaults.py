@@ -16,23 +16,47 @@ _logger = getLogger(__name__)
 NO_DEP = '_'    # dummy dependency so these also show up in graph
 
 class ProcessNotFound(OpgeeException):
+    """
+    Raised when an attribute of a named `Process` is unavailable for
+    Smart Default processing because the `Process` doesn't exist in
+    the `Field` under evaluation.
+    """
     pass
 
 class SmartDefault(OpgeeObject):
     """
-    Creates a registry for SmartDefaults and their dependencies so we can process
-    these in the required order.
+    Create a ``SmartDefault`` instance. Do not use this method directly: use
+    the :obj:`opgee.smart_defaults.SmartDefault.register` decorator instead. The
+    decorator can be used both on methods of OPGEE classes and on ordinary functions.
+
+    Attribute names can be of the form ``class_name.attr_name`` or ``attr_name``.
+    If the ``class_name`` is "Field" or "Analysis", the current ``Field`` or ``Analysis``
+    instance, respectively, is assumed to hold ``attr_name``. Class names other than
+    "Field" or "Analysis"  are interpreted as OPGEE ``Process`` names in the current
+    ``Field``.
+
+    If a ``class_name`` is not specified, the default class name is "Field" for
+    ordinary functions. For methods, the default class name is that of class defining
+    the method.
+
+    If a ``SmartDefault`` is defined for a ``Process`` that is not included in the
+    current ``Field``, a warning is issued and the smart default is ignored.
+
+    :param attr_name: (str) the attribute name
+    :param wrapper: (callable) the wrapper produced by the decorator
+    :param user_func: (callable) the wrapped function
+    :param dependencies: (list of str) names of attributes on which ``attr_name``
+      depends.
     """
-    registry = {}       # SmartDefault instances keyed by attribute name
+    registry = {}   # Dictionary of ``SmartDefault`` instances keyed by attribute name.
 
     _run_order = None   # cached result of run_order() method.
 
-    def __init__(self, attr_name, wrapper, user_func, dependencies, optional=False):
+    def __init__(self, attr_name, wrapper, user_func, dependencies):
         self.attr_name = attr_name
         self.wrapper = wrapper
         self.user_func = user_func
         self.dependencies = dependencies
-        self.optional = optional
 
         # func.__qualname__ is a string of format "func_class.func_name"
         # for methods and simply the func_name for normal functions
@@ -41,8 +65,6 @@ class SmartDefault(OpgeeObject):
         self.func_class = items[0] if len(items) == 2 else None
         self.func_name = qualname
         self.func_module = user_func.__module__
-
-        self.run_index = None # set by run_order() to help with sorting model objects
 
         self.registry[attr_name] = self
         _logger.debug(f'Saving dependency for attribute {attr_name} of class {self.func_class}')
@@ -56,25 +78,14 @@ class SmartDefault(OpgeeObject):
     #     return wrapper
 
     @classmethod
-    def register(cls, attr_name, dependencies, optional=False):
+    def register(cls, attr_name, dependencies):
         """
-        The @register decorator function. Users can wrap methods or regular functions. Both
-        ``attr_name`` and the strings in the ``dependencies`` list can be simple attribute
-        names or they can be specified using dot notation, e.g., "Field.my_attribute".  If the
-        class or Process specifier is absent, the default value differs depending on whether the
-        wrapped function is a method or a regular function. If it is a method, the specifier
-        defaults to name of the class. If the wrapped function is a regular (non-method) function,
-        the specifier defaults to "Field", as this class contains most attributes on which
-        smart defaults are defined.
-
-        @SmartDefault.register("Analysis.attr_name", ["dep1", "dep2"])
-        def my_func(arg1, arg2)
-           ...
+        The ``@register`` decorator function. Users can wrap methods or regular functions.
 
         :param attr_name: (str) The name of an attribute, with or without a class or Process name
           specifier.
-        :param dependencies: (list of str) The names of attributes on which ``attr_name`` depends. These
-          follow the same rules for class or Process specifier defined above.
+        :param dependencies: (list of str) The names of attributes on which ``attr_name`` depends.
+           These follow the same rules for class or Process specifier defined above.
         :return: (function) The decorator function.
         """
         def decorator(user_func):
@@ -82,7 +93,7 @@ class SmartDefault(OpgeeObject):
                 _logger.debug(f'Calling {user_func.__qualname__} for attribute {attr_name} with dependencies {dependencies}')
                 return user_func(*args)
 
-            cls(attr_name, wrapper, user_func, dependencies, optional=optional)
+            cls(attr_name, wrapper, user_func, dependencies)
             return wrapper
 
         return decorator

@@ -166,7 +166,7 @@ def ensure_default_config():
         except Exception as e:
             raise OpgeeException(f'\n***\n*** Failed to write default opgee configuration file {configPath}: {e}.\n***\n')
 
-def getConfig(reload=False, allowMissing=False, createDefault=False):
+def getConfig(reload=False, allowMissing=False, createDefault=False, systemConfigOnly=False):
     """
     Return the configuration object. If one has been created already via
     `readConfigFiles`, it is returned; otherwise a new one is created
@@ -181,16 +181,19 @@ def getConfig(reload=False, allowMissing=False, createDefault=False):
     :param createDefault: (bool) Check that the config file exists, and if not,
        write the default config file. Optional so we don't have to check the file
        on every call.
+    :param systemConfigOnly: (bool) This is set to True when generating sphinx
+       documentation to avoid presenting user's settings in the generated pages.
     :return: a `ConfigParser` instance.
     """
     if createDefault:
         ensure_default_config()
 
-    if reload:
+    if reload or systemConfigOnly:
         global _ConfigParser
         _ConfigParser = None
 
-    return _ConfigParser or readConfigFiles(allowMissing=allowMissing)
+    return _ConfigParser or readConfigFiles(allowMissing=allowMissing,
+                                            systemConfigOnly=systemConfigOnly)
 
 
 def _readConfigResourceFile(filename, package='opgee', raiseError=True):
@@ -226,7 +229,7 @@ def userConfigPath():
     path = pathjoin(getHomeDir(), USR_CONFIG_FILE)
     return path
 
-def readConfigFiles(allowMissing=False):
+def readConfigFiles(allowMissing=False, systemConfigOnly=False):
     """
     Read the OPGEE configuration files, starting with ``opgee/etc/system.cfg``,
     followed by ``opgee/etc/{platform}.cfg`` if present. If the environment variable
@@ -248,53 +251,56 @@ def readConfigFiles(allowMissing=False):
 
     home = getHomeDir()
     _ConfigParser.set(DEFAULT_SECTION, 'Home', home)
-    _ConfigParser.set(DEFAULT_SECTION, 'User', os.getenv('USER', 'unknown'))
 
-    # Create vars from environment variables as '$' + variable name, as in the shell
-    for name, value in os.environ.items():
-        value = value.replace(r'%', r'%%')
-        _ConfigParser.set(DEFAULT_SECTION, '$' + name, value)
+    if not systemConfigOnly:
+        _ConfigParser.set(DEFAULT_SECTION, 'User', os.getenv('USER', 'unknown'))
+
+        # Create vars from environment variables as '$' + variable name, as in the shell
+        for name, value in os.environ.items():
+            value = value.replace(r'%', r'%%')
+            _ConfigParser.set(DEFAULT_SECTION, '$' + name, value)
 
     # Initialize config parser with default values
-    systemDefaults = _readConfigResourceFile('etc/system.cfg')
+    _readConfigResourceFile('etc/system.cfg')
 
-    # Read platform-specific defaults, if defined. No error if file is missing.
-    _readConfigResourceFile('etc/%s.cfg' % PlatformName, raiseError=False)
+    if not systemConfigOnly:
+        # Read platform-specific defaults, if defined. No error if file is missing.
+        _readConfigResourceFile('etc/%s.cfg' % PlatformName, raiseError=False)
 
-    siteConfig = os.getenv('OPGEE_SITE_CONFIG')
-    if siteConfig:
+        siteConfig = os.getenv('OPGEE_SITE_CONFIG')
+        if siteConfig:
+            try:
+                with open(siteConfig) as f:
+                   _ConfigParser.read_file(f)
+            except Exception as e:
+                print("WARNING: Failed to read site config file: %s" % e)
+
+        # Customizations are stored in ~/opgee.cfg
+        usrConfigPath = userConfigPath()
+
+        # os.path.exists doesn't always work on Windows, so just try opening it.
         try:
-            with open(siteConfig) as f:
+            with open(usrConfigPath) as f:
                _ConfigParser.read_file(f)
-        except Exception as e:
-            print("WARNING: Failed to read site config file: %s" % e)
 
-    # Customizations are stored in ~/opgee.cfg
-    usrConfigPath = userConfigPath()
+        except IOError:
+            if not allowMissing:
+                if not os.path.lexists(usrConfigPath):
+                    raise ConfigFileError("Missing configuration file %s" % usrConfigPath)
+                else:
+                    raise ConfigFileError("Can't read configuration file %s" % usrConfigPath)
 
-    # os.path.exists doesn't always work on Windows, so just try opening it.
-    try:
-        with open(usrConfigPath) as f:
-           _ConfigParser.read_file(f)
+        # Dynamically set (if not defined) OPGEE.ProjectName in each section, holding the
+        # section (i.e., project) name. If user has set this, the value is unchanged.
+        projectNameVar = 'OPGEE.ProjectName'
+        for section in getSections():
+            if not (_ConfigParser.has_option(section, projectNameVar) and   # var must exist
+                    _ConfigParser.get(section, projectNameVar)):            # and not be blank
+                _ConfigParser.set(section, projectNameVar, section)
 
-    except IOError:
-        if not allowMissing:
-            if not os.path.lexists(usrConfigPath):
-                raise ConfigFileError("Missing configuration file %s" % usrConfigPath)
-            else:
-                raise ConfigFileError("Can't read configuration file %s" % usrConfigPath)
-
-    # Dynamically set (if not defined) OPGEE.ProjectName in each section, holding the
-    # section (i.e., project) name. If user has set this, the value is unchanged.
-    projectNameVar = 'OPGEE.ProjectName'
-    for section in getSections():
-        if not (_ConfigParser.has_option(section, projectNameVar) and   # var must exist
-                _ConfigParser.get(section, projectNameVar)):            # and not be blank
-            _ConfigParser.set(section, projectNameVar, section)
-
-    projectName = getParam('OPGEE.DefaultProject', section=DEFAULT_SECTION)
-    if projectName:
-        setSection(projectName)
+        projectName = getParam('OPGEE.DefaultProject', section=DEFAULT_SECTION)
+        if projectName:
+            setSection(projectName)
 
     return _ConfigParser
 

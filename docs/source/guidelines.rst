@@ -29,9 +29,12 @@ Other subdirectories include:
 
 * `gui` -- Python files implementing the browser-based GUI using the `plotly "dash" package <https://dash.plotly.com>`_
 
+* `mcs` -- Support for Monte Carlo Simulation
+
 * `processes` -- implementations of ``Process`` subclasses and other support code
 
-* `tables` -- CSV files that are loaded on demand by the ``TableManager`` and presented as pandas DataFrames
+* `tables` -- CSV files that are loaded on demand by the ``TableManager`` and
+  loaded into pandas DataFrames
 
 
 XML organization

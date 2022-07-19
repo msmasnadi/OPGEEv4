@@ -14,6 +14,8 @@ Introduction
    intro
    install
    config
+   attributes
+   monte-carlo
    tutorial
 
 The ``opg`` Script
@@ -31,7 +33,6 @@ XML File Format
    :maxdepth: 1
 
    opgee-xml
-   attributes
 
 Application Programming Interface (API)
 ----------------------------------------

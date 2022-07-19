@@ -895,7 +895,7 @@ class Field(Container):
         if steam_flooding:
             return SOR
 
-        tmp = 4.021 * exp(0.024 * age) - 4.021
+        tmp = 4.021 * exp(0.024 * age.m) - 4.021
         return tmp if tmp <= 100 else 100
 
     @SmartDefault.register('SOR', ['steam_flooding'])

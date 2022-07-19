@@ -111,67 +111,38 @@ class Opgee(object):
             self._cachePlugins()
 
     def addParsers(self):
-        self.parser = parser = argparse.ArgumentParser(prog=PROGRAM, prefix_chars='-+')
+        self.parser = parser = argparse.ArgumentParser(prog=PROGRAM)
 
-        parser.add_argument('+b', '--batch', action='store_true',
-                            help=clean_help('''Run the commands by submitting a batch job using the command
-                            given by config variable OPGEE.BatchCommand. (Linux only)'''))
-
-        parser.add_argument('+B', '--showBatch', action="store_true",
-                            help=clean_help("Show the batch command to be run, but don't run it. (Linux only)"))
-
-        parser.add_argument('+D', '--dirmap',
-                            help=clean_help("""A comma-delimited sequence of colon-delimited directory names 
-                            of the form "/some/host/path:/a/container/path, /host:cont, ...", 
-                            mapping host dirs to their mount point in a docker container."""))
-
-        parser.add_argument('+e', '--enviroVars',
-                            help=clean_help('''Comma-delimited list of environment variable assignments to pass
-                            to queued batch job, e.g., -E "FOO=1,BAR=2". (Linux only)'''))
-
-        parser.add_argument('+j', '--jobName', default='gt',
-                            help=clean_help('''Specify a name for the queued batch job. Default is "gt".
-                            (Linux only)'''))
+        # parser.add_argument('+D', '--dirmap',
+        #                     help=clean_help("""A comma-delimited sequence of colon-delimited directory names
+        #                     of the form "/some/host/path:/a/container/path, /host:cont, ...",
+        #                     mapping host dirs to their mount point in a docker container."""))
+        #
+        # parser.add_argument('+e', '--enviroVars',
+        #                     help=clean_help('''Comma-delimited list of environment variable assignments to pass
+        #                     to queued batch job, e.g., -E "FOO=1,BAR=2". (Linux only)'''))
+        #
+        # parser.add_argument('+j', '--jobName', default='gt',
+        #                     help=clean_help('''Specify a name for the queued batch job. Default is "gt".
+        #                     (Linux only)'''))
 
         logLevel = str(getParam('OPGEE.LogLevel'))   # so not unicode
-        parser.add_argument('+l', '--logLevel',
-                            default=logLevel or 'notset',
+        parser.add_argument('--logLevel',
+                            default=logLevel,
                             help=clean_help('''Sets the log level for modules of the program. A default
                                 log level can be set for the entire program, or individual 
                                 modules can have levels set using the syntax 
                                 "module:level, module:level,...", where the level names must be
                                 one of {debug,info,warning,error,fatal} (case insensitive).'''))
 
-        parser.add_argument('+L', '--logFile',
-                            help=clean_help('''Sets the name of a log file for batch runs. Default is "gt-%%j.out"
-                            where "%%j" (in SLURM) is the jobid. If the argument is not an absolute
-                            pathname, it is treated as relative to the value of OPGEE.LogDir.'''))
-
-        parser.add_argument('+m', '--minutes', type=float, default=getParamAsFloat('OPGEE.Minutes'),
-                            help=clean_help('''Set the number of minutes to allocate for the queued batch job.
-                            Overrides config parameter OPGEE.Minutes. (Linux only)'''))
-
-        parser.add_argument('+P', '--projectName', metavar='name', default=getParam('OPGEE.DefaultProject'),
-                            choices=sorted(getSections()),
-                            help=clean_help('''The project name (the config file section to read from),
-                            which defaults to the value of config variable OPGEE.DefaultProject'''))
-
-        parser.add_argument('+q', '--queueName', default=getParam('OPGEE.DefaultQueue'),
-                            help=clean_help('''Specify the name of the queue to which to submit the batch job.
-                            Default is given by config variable OPGEE.DefaultQueue. (Linux only)'''))
-
-        parser.add_argument('+r', '--resources', default='',
-                            help=clean_help('''Specify resources for the queued batch command. Can be a comma-delimited
-                            list of assignments of the form NAME=value, e.g., -r 'pvmem=6GB'. (Linux only)'''))
-
-        parser.add_argument('+s', '--set', dest='configVars', metavar='name=value', action='append', default=[],
+        parser.add_argument('--set', dest='configVars', metavar='name=value', action='append', default=[],
                             help=clean_help('''Assign a value to override a configuration file parameter. For example,
-                            to set batch commands to start after a prior job of the same name completes,
-                            use --set "OPGEE.OtherBatchArgs=-d singleton". Enclose the argument in quotes if
+                            to temporarily use a different attributes file, use
+                            --set "OPGEE.UserAttributesFile=/some/path/attr.xml". Enclose the argument in quotes if
                             it contains spaces or other characters that would confuse the shell.
                             Use multiple --set flags and arguments to set multiple variables.'''))
 
-        parser.add_argument('+v', '--verbose', action='store_true',
+        parser.add_argument('--verbose', action='store_true',
                             help=clean_help('''Show diagnostic output'''))
 
         parser.add_argument('--version', action='version', version=VERSION)   # goes to stderr, handled by argparse
@@ -222,7 +193,7 @@ class Opgee(object):
         # sub-command so we can load the module if necessary.
         parser = argparse.ArgumentParser(prog=PROGRAM, add_help=False, prefix_chars='-+')
         parser.add_argument('-h', '--help', action='store_true')
-        parser.add_argument('+P', '--projectName', metavar='name')
+        #parser.add_argument('+P', '--projectName', metavar='name')
 
         ns, otherArgs = parser.parse_known_args(args=argv)
 
@@ -256,10 +227,7 @@ class Opgee(object):
             args = self.parser.parse_args(args=argList)
 
         else:  # top-level call
-            if args.batch:
-                args.batch = False
-
-            args.projectName = section = args.projectName or getParam('OPGEE.DefaultProject')
+            args.projectName = section = getParam('OPGEE.DefaultProject')
             if section:
                  setSection(section)
 
@@ -279,7 +247,7 @@ def _getMainParser():
     Used only to generate documentation by sphinx' argparse, in which case
     we don't generate documentation for project-specific plugins.
     '''
-    getConfig(allowMissing=True)
+    getConfig(allowMissing=True, systemConfigOnly=True)
     tool = Opgee.getInstance(loadPlugins=False)
     return tool.parser
 
@@ -322,14 +290,9 @@ def _main(argv=None):
     tool = Opgee.getInstance()
     tool._loadRequiredPlugins(argv)
 
-    # This parser handles only --batch, --showBatch, --projectName, and --set
-    # args. If --batch is given, we need to create a script and call the
-    # OPGEE.BatchCommand on it. We grab --projectName so we can set PluginPath by project.
+    # This parser handles only the --set arg to validate it before running subcommands
     parser = argparse.ArgumentParser(prog=PROGRAM, add_help=False, prefix_chars='-+')
 
-    parser.add_argument('+b', '--batch', action='store_true')
-    parser.add_argument('+B', '--showBatch', action="store_true")
-    parser.add_argument('+P', '--projectName', dest='projectName', metavar='name')
     parser.add_argument('+s', '--set', dest='configVars', action='append', default=[])
 
     ns, otherArgs = parser.parse_known_args(args=argv)
@@ -337,25 +300,14 @@ def _main(argv=None):
     # Set specified config vars
     for arg in ns.configVars:
         if not '=' in arg:
-            raise CommandlineError(f'+s requires an argument of the form variable=value, got "{arg}"')
+            raise CommandlineError(f'--set requires an argument of the form variable=value, got "{arg}"')
 
         name, value = arg.split('=')
         setParam(name, value)
 
-    # showBatch => don't run batch command, but implies --batch
-    if ns.showBatch:
-        ns.batch = True
-
-    if ns.batch:
-        run = not ns.showBatch
-        if ns.projectName:        # add these back in for the batch script
-            otherArgs = ['+P', ns.projectName] + otherArgs
-
-        tool.runBatch(otherArgs, run=run)   # type: ignore
-    else:
-        tool.shellArgs = otherArgs  # save for project run method to use in "distribute" mode
-        args = tool.parser.parse_args(args=otherArgs)
-        tool.run(args=args)
+    tool.shellArgs = otherArgs  # save for project run method to use in "distribute" mode
+    args = tool.parser.parse_args(args=otherArgs)
+    tool.run(args=args)
 
 def opg(cmdline):
     """
