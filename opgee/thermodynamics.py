@@ -370,7 +370,7 @@ class Oil(AbstractSubstance):
         """
 
         gas_SG = self.total_molar_weight / self.dry_air.mol_weight
-        return gas_SG
+        return gas_SG.to("frac")
 
     @staticmethod
     def bubble_point_solution_GOR(gas_oil_ratio):
@@ -410,7 +410,7 @@ class Oil(AbstractSubstance):
         res_T = self.res_tp.T.to("rankine").m
         res_P = self.res_tp.P.to("psia").m
 
-        gas_SG = self.gas_specific_gravity.to("frac").m
+        gas_SG = self.gas_specific_gravity.m
         gor_bubble = self.bubble_point_solution_GOR(self.gas_oil_ratio).m
 
         empirical_res = (res_P ** (1 / self.pbub_a2) *
@@ -683,11 +683,16 @@ class Oil(AbstractSubstance):
 
         :return:(float) specific heat capacity of crude oil (unit = btu/lb/degF)
         """
+        a1 = -1.39e-6
+        a2 = 1.847e-3
+        a3 = 6.32e-4
+        a4 = 3.52e-1
+
         API = API.m
         temperature = temperature.to("degF")
         temperature = temperature.m
 
-        heat_capacity = (-1.39e-6 * temperature + 1.847e-3) * API + 6.32e-4 * temperature + 0.352
+        heat_capacity = (a1 * temperature + a2) * API + a3 * temperature + a4
         return ureg.Quantity(heat_capacity, "btu/lb/degF")
 
     # Combustion properties as a fuel
