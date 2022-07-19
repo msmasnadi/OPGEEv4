@@ -5,12 +5,12 @@ channels:
   - defaults
 dependencies:
   - colour
-  - dash>=2.3.1
+  - dash>=2.5.1
   - ipython
   - ipyparallel
   - jinja2
   - llvm-openmp
-  - lxml>=4.8.0
+  - lxml>=4.9.0
   - networkx
   - nuitka
   - numba
@@ -32,7 +32,7 @@ dependencies:
   - pip:
     # These next three fail if upgraded beyond these versions
     - thermo==0.2.10    # several tests fail when using v0.2.21
-    - thermosteam       # ==0.27.15 and 0.28.12 worked. The latter was installed w/ no constraint
-    - dash-cytoscape>=0.3.0
+    - thermosteam==0.28.12
     - pyXSteam==0.4.8
+    - dash-cytoscape>=0.3.0
     - ray

@@ -2,11 +2,9 @@ from opgee.version import VERSION
 from setuptools import setup
 
 requirements = [
-    #'colour>=0.1.5',    # used with dash app
-    'dash>=2.3.1',
-    'dash-cytoscape>=0.3.0',
+    'dash>=2.5.1',
+    'dash-cytoscape',
     'ipython',
-    # 'Jinja2',      # required by flask, via dash
     'lxml',
     'networkx',
     'numba',
@@ -19,7 +17,10 @@ requirements = [
     'sphinx>=4.3.0',
     'sphinx-argparse>=0.2.5',
     'sphinx-rtd-theme>=0.5.1',
-    'thermosteam',
+    'thermosteam==0.28.12',
+    'thermo==0.2.10',
+    'pyxsteam==0.4.8',
+    'ray',
 ]
 
 long_description = '''
