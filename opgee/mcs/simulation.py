@@ -306,7 +306,7 @@ class Simulation(OpgeeObject):
     def lookup(self, full_name, field):
         class_name, attr_name = split_attr_name(full_name)
 
-        if class_name == 'Field':
+        if class_name is None or class_name == 'Field':
             obj = field
 
         elif class_name == 'Analysis':
@@ -360,14 +360,14 @@ class Simulation(OpgeeObject):
         filename = self.trial_data_path(field, mkdir=True)
         self.trial_data_df.to_csv(filename)
 
-    def consolidate_results(self):
-        """
-        Walk the trial directories, accumulating results into a single top-level
-        results file.
-
-        :return: the pathname of the results file.
-        """
-        pass
+    # def consolidate_results(self):
+    #     """
+    #     Walk the trial directories, accumulating results into a single top-level
+    #     results file.
+    #
+    #     :return: the pathname of the results file.
+    #     """
+    #     pass
 
     def field_trial_data(self, field):
         """
