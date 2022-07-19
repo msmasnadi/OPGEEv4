@@ -127,7 +127,7 @@ class Distribution(OpgeeObject):
         try:
             self.class_name, self.attr_name = split_attr_name(full_name)
         except OpgeeException as e:
-            raise McsUserError(f"attribute name format is 'ATTR' (same as 'Field.ATTR) or 'CLASS.ATTR'; got '{attr_name}'")
+            raise McsUserError(f"attribute name format is 'ATTR' (same as 'Field.ATTR) or 'CLASS.ATTR'; got '{full_name}'")
 
         self.rv = rv
         self.instances[full_name] = self
@@ -187,13 +187,13 @@ class Simulation(OpgeeObject):
         self.field_names = field_names
         self.metadata = None
 
+        if not os.path.isdir(self.pathname):
+            raise McsUserError(f"Simulation directory '{self.pathname}' does not exist.")
+
         if analysis_name:
             self._save_meta_data()
         else:
             self._load_meta_data()
-
-        if not os.path.isdir(self.pathname):
-            raise McsUserError(f"Simulation directory '{self.pathname}' does not exist.")
 
         mf = ModelFile(self.model_file, use_default_model=False)
         self.model = mf.model
@@ -216,8 +216,12 @@ class Simulation(OpgeeObject):
             json.dump(self.metadata, fp, indent=2)
 
     def _load_meta_data(self):
-        with open(self.metadata_path(), 'r') as fp:
-            self.metadata = metadata = json.load(fp)
+        metadata_path = self.metadata_path()
+        try:
+            with open(metadata_path, 'r') as fp:
+                self.metadata = metadata = json.load(fp)
+        except Exception as e:
+            raise McsUserError(f"Failed to load simulation '{metadata_path}' : {e}")
 
         self.analysis_name = metadata['analysis_name']
         self.trials        = metadata['trials']
@@ -275,24 +279,24 @@ class Simulation(OpgeeObject):
         return path
 
     # TBD: needed only if we want to parallelize within fields rather than just across fields
-    def trial_dir(self, field, trial_num, mkdir=False):
-        """
-        Return the full pathname to the data for trial ``trial_num``,
-        optionally creating the directory.
-
-        :param trial_num: (int) the trial number
-        :param mkdir: (bool) whether to make the directory, if needed
-        :return: the trial's data directory
-        """
-        upper = trial_num // 1000
-        lower = trial_num % 1000
-
-        trial_dir = pathjoin(self.field_dir(field), 'trials', f"{upper:03d}", f"{lower:03d}")
-
-        if mkdir:
-            mkdirs(trial_dir)
-
-        return trial_dir
+    # def trial_dir(self, field, trial_num, mkdir=False):
+    #     """
+    #     Return the full pathname to the data for trial ``trial_num``,
+    #     optionally creating the directory.
+    #
+    #     :param trial_num: (int) the trial number
+    #     :param mkdir: (bool) whether to make the directory, if needed
+    #     :return: the trial's data directory
+    #     """
+    #     upper = trial_num // 1000
+    #     lower = trial_num % 1000
+    #
+    #     trial_dir = pathjoin(self.field_dir(field), 'trials', f"{upper:03d}", f"{lower:03d}")
+    #
+    #     if mkdir:
+    #         mkdirs(trial_dir)
+    #
+    #     return trial_dir
 
     def metadata_path(self):
         return pathjoin(self.pathname, META_DATA_FILE)
