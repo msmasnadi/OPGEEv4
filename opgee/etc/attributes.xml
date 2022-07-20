@@ -7,7 +7,7 @@
      binary ones.
      -->
 <Model schema_version="4.0.a">
-  <AttrDefs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="attributes.xsd">
+  <AttrDefs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="opgee.xsd">
     <ClassAttrs name="Model">
       <!-- Maximum number of iterations for process loops -->
       <AttrDef name="maximum_iterations" type="int">100</AttrDef>

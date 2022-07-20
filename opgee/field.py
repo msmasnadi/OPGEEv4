@@ -708,7 +708,6 @@ class Field(Container):
         name = elt_name(elt)
         attrib = elt.attrib
 
-        # TBD: fill in Smart Defaults here, or assume they've been filled already?
         attr_dict = cls.instantiate_attrs(elt)
 
         aggs = instantiate_subelts(elt, Aggregator)

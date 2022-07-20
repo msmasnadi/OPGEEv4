@@ -510,10 +510,4 @@ in the form of attributes:
   value exists in the built-in XML structure, the built-in element and all elements
   below it in the hierarchy are deleted before the new element is added.
 
-..
-    <Requires>
-    ^^^^^^^^^^^^^
-    This element takes no attributes and contains only a string, which must be the name
-    of another defined attribute. This is used to create the dependency structure for
-    setting "smart defaults", ensuring that values that depend on other values are set
-    after the precedents are set.
+

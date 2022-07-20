@@ -38,20 +38,15 @@
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="Requires"/>
-
   <xs:element name='AttrDef'>
     <xs:complexType mixed='true'>
-      <xs:sequence minOccurs="0" maxOccurs="unbounded">
-        <xs:element ref="Requires"/>
-      </xs:sequence>
       <xs:attribute name='desc'/>
       <xs:attribute name='name' use='required' type='xs:string'/>
       <xs:attribute name='options' type='xs:string'/>
       <xs:attribute name='type' type='xs:NCName'/>
       <xs:attribute name='unit'/>
-      <xs:attribute name='exclusive'/>      <!-- exclusive attributes -->
-      <xs:attribute name='synchronized'/>   <!-- synchronized attributes -->
+            <xs:attribute name='exclusive'/>      <!-- exclusive binary attributes; only one can be 1 -->
+            <xs:attribute name='synchronized'/>   <!-- synchronized attributes; must have the same value -->
 
       <!-- Numeric constraints -->
       <xs:attribute name="GT" type="xs:decimal"/>

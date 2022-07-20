@@ -49,11 +49,9 @@ The built-in model XML is organized into the following files:
 
 * `opgee.xml` holds the definition of the default fields and analyses.
 
-* `opgee.xsd` holds the XML schema definition for all model classes other those
-  used to define attribute metadata, which are in `attributes.xsd`.
-
-* `attributes.xsd` holds the XML schema definition for the XML elements
-  ``AttrDef``, ``ClassAttrs``, ``Options``, ``Option``, and ``Requires``.
+* `opgee.xsd` holds the XML schema definition for all model classes and those
+  used to define attribute metadata: ``AttrDef``, ``ClassAttrs``, ``Options``,
+  ``Option``, and ``Requires``.
 
 
 .. |br| raw:: html
