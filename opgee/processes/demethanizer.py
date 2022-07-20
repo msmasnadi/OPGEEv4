@@ -94,8 +94,8 @@ class Demethanizer(Process):
                         (fuel_gas_frac["C1"] - NGL_frac["C1"] * fuel_gas_frac["C2"] / NGL_frac["C2"])
 
         # TODO: these are unused
-        reboiler_fuel_use = reboiler_heavy_duty * self.eta_reboiler_demethanizer
-        cooler_energy_consumption = predict_blower_energy_use(self, cooler_thermal_load)
+        # reboiler_fuel_use = reboiler_heavy_duty * self.eta_reboiler_demethanizer
+        # cooler_energy_consumption = predict_blower_energy_use(self, cooler_thermal_load)
 
         fuel_gas_mass = fuel_gas_prod * fuel_gas_frac * ChemicalInfo.mol_weight(fuel_gas_frac.index)
 
@@ -108,7 +108,7 @@ class Demethanizer(Process):
         gas_to_LNG.copy_flow_rates_from(input)
         gas_to_LNG.tp.set(T=STP.T)
         gas_to_LNG.subtract_rates_from(gas_to_gather)
-        C2_mass_rate = gas_to_LNG.gas_flow_rate("C2") # TODO: unused
+        # C2_mass_rate = gas_to_LNG.gas_flow_rate("C2") # TODO: unused
         gas_to_LNG.set_gas_flow_rate("C2", ureg.Quantity(0., "tonne/day"))
 
         self.set_iteration_value(gas_to_gather.total_flow_rate() + gas_to_LNG.total_flow_rate())

@@ -423,10 +423,8 @@ class Stream(XmlInstantiable, AttributeMixin):
         """
         from copy import copy
 
-        # TODO: why does this happen? Ignoring this silently seems inappropriate
-        if not tp:
-            _logger.warning("Called Stream.set_tp() with None")
-            return
+        if tp is None:
+            raise OpgeeException("Called Stream.set_tp() with None")
 
         if tp.P.m == 0:
             _logger.warning("Called Stream.set_tp() with zero pressure")

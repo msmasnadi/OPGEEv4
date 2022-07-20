@@ -35,7 +35,7 @@
         </xs:complexType>
     </xs:element>
 
-    <xs:element name="Requires"/>
+    <xs:element name="Requires"/>   <!-- TODO: is this still required? -->
 
     <xs:element name='AttrDef'>
         <xs:complexType mixed='true'>
@@ -47,8 +47,8 @@
             <xs:attribute name='options' type='xs:string'/>
             <xs:attribute name='type' type='xs:NCName'/>
             <xs:attribute name='unit'/>
-            <xs:attribute name='exclusive'/>      <!-- exclusive attributes -->
-            <xs:attribute name='synchronized'/>   <!-- synchronized attributes -->
+            <xs:attribute name='exclusive'/>      <!-- exclusive binary attributes; only one can be 1 -->
+            <xs:attribute name='synchronized'/>   <!-- synchronized attributes; must have the same value -->
 
             <!-- Numeric constraints -->
             <xs:attribute name="GT" type="xs:decimal"/>

@@ -38,8 +38,8 @@ class AttrDef(XmlInstantiable):
         self.unit = unit
         self.pytype = pytype
         self.constraints = constraints      # range constraints
-        self.synchronized = synchronized
-        self.exclusive = exclusive
+        self.synchronized = synchronized    # the name of a "synchronization group" to link attributes
+        self.exclusive = exclusive          # the name of an "exclusive group" to link attributes
 
         if value is not None:               # if value is None, we set default later
             self.set_default(value)
@@ -126,35 +126,11 @@ class ClassAttrs(XmlInstantiable):
         # add attributes to attr_dict from <AttrDef> elements
         attr_dict = instantiate_subelts(elt, AttrDef, as_dict=True)
 
-        # ensure that the constraints specified in the XML are met
-        cls.check_constraints(attr_dict)
-
         # Add all <Option> elements beneath elt to option_dict.
         option_dict = instantiate_subelts(elt, Options, as_dict=True)
 
         obj = cls(elt_name(elt), attr_dict, option_dict)
         return obj
-
-    @classmethod
-    def check_constraints(cls, attr_dict):
-        """
-        Check that all (exclusive, synchronized) constraints specified in the XML
-        are, in fact, met. Otherwise raise an error.
-
-        :param attr_dict: (dict) All the attributes for the specified class.
-        :return: none
-        :raises: OpgeeException if any constraints aren't met
-        """
-        # build constraint sets
-        syncs = defaultdict(list)
-        excludes = defaultdict(list)
-
-        for attr in attr_dict.values():
-            if attr.synchronized:
-                syncs[attr.synchronized].append(attr)
-
-            if attr.exclusive:
-                excludes[attr.exclusive].append(attr)
 
     @staticmethod
     def _lookup(obj, dict_name, key, raiseError=True):
@@ -271,7 +247,6 @@ class AttributeMixin():
         s = pd.Series(d, dtype=dtype)
         return s
 
-    # TBD: fill in Smart Defaults here, or assume they've been filled already?
     @classmethod
     def instantiate_attrs(cls, elt, is_process=False):
         """

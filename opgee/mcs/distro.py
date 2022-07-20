@@ -404,7 +404,7 @@ class DistroGen(object):
 
         cls('sequence', lambda values: sequence(values))
 
-        cls('linked', lambda parameter: linkedDistro(parameter)),       # TBD: could be generalized
+        cls('linked', lambda parameter: linkedDistro(parameter)),
 
         cls('empirical', Empirical.from_csv)
 

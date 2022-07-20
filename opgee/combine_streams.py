@@ -16,7 +16,7 @@ from .thermodynamics import Oil, Gas, Water
 _logger = getLogger(__name__)
 
 # TODO: improve this to use temp and press
-def combine_streams(streams, API):      # TODO: should API have a default value?
+def combine_streams(streams, API):
     """
     Thermodynamically combine multiple streams' components into a new
     anonymous Stream. This is used on input streams since it makes no

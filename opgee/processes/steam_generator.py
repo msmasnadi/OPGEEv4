@@ -32,7 +32,7 @@ class SteamGenerator(OpgeeObject):
         self.res_press = field.attr("res_press")
         self.steam_injection_delta_press = field.attr("steam_injection_delta_press")
 
-        # TODO: check fraction of OTSG is positive or zero
+        # fraction are constrained in attributes.xml to be in range [0, 1]
         self.fraction_steam_cogen = field.attr("fraction_steam_cogen")
         self.fraction_steam_solar = field.attr("fraction_steam_solar")
         self.fraction_OTSG = 1 - self.fraction_steam_cogen - self.fraction_steam_solar
@@ -175,6 +175,7 @@ class SteamGenerator(OpgeeObject):
         eta_heater = self.eta_preheater_heat_rec_OTSG
 
         # TODO: Write a local function and call it twice since the form of these expression is the same.
+        #       def xxx(value): return value / (1 + value). Not sure what a good name would be.
         d_eco = eta_eco * (constant_before_economizer - constant_before_preheater) / \
                 (1 + eta_eco * (constant_before_economizer - constant_before_preheater))
         d_heater = eta_heater * (constant_outlet - constant_before_preheater) / \

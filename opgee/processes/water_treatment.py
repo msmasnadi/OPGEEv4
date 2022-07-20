@@ -115,6 +115,7 @@ class WaterTreatment(Process):
             prod_water_to_downstream += prod_water_to_steam.liquid_flow_rate("H2O")
 
         water_for_disp = totol_makeup_water_mass + prod_water_mass_rate - prod_water_to_downstream
+
         #TODO: How to deal with surface and subsurface water disposal?
         surface_disp_rate = water_for_disp * self.frac_disp_surface
         subsurface_disp_rate = water_for_disp * self.frac_disp_subsurface

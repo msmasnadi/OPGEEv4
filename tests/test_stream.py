@@ -120,8 +120,6 @@ def test_stream_utils(stream_model):
     tp = TemperaturePressure(100, 200)
     s.set_tp(tp)
 
-    s.set_tp(None)  # TBD: silently does nothing. Probably should raise error instead
-
     # check that T & P are unchanged
     s.tp.T.m == 100.0
     s.tp.P.m == 200.0

@@ -369,7 +369,7 @@ def emissions_table(analysis, procs):
         if col.dtype == float:
             df[col_name] = col.apply(lambda x: '{:.2E}'.format(x))
 
-    data = df.to_dict('records')  # TBD: use scientific notation?
+    data = df.to_dict('records')
 
     text_cols = ['Name']
 

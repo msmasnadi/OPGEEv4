@@ -16,28 +16,6 @@ from .utils import coercible, getBooleanXML
 
 _logger = getLogger(__name__)
 
-_cache = {}
-
-# TBD: replace with @functools.cache(user_function) (if used at all; might not be)
-
-def cached(func):
-    """
-    Simple decorator to cache results keyed on method args.
-    """
-
-    def wrapper(*args, **kwargs):
-        # convert kwargs dict, which is unhashable, to tuple of pairs
-        key = (func.__name__, args, tuple(kwargs.items()))
-
-        try:
-            return _cache[key]
-        except KeyError:
-            _cache[key] = result = func(*args, **kwargs)
-            return result
-
-    return wrapper
-
-
 def magnitude(value, units=None):
     """
     Return the magnitude of ``value``. If ``value`` is a ``pint.Quantity`` and

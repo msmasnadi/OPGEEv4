@@ -58,7 +58,7 @@ class CrudeOilDewatering(Process):
         temp = self.temperature_heater_treater if self.heater_treater else input_T
 
         # TODO: unused
-        separator_final_SOR = field.get_process_data("separator_final_SOR")
+        # separator_final_SOR = field.get_process_data("separator_final_SOR")
 
         try:
             output = self.oil_path_dict[self.oil_path]

@@ -89,7 +89,6 @@
 			<Contains>crude oil</Contains>
 		</Stream>
 
-		<!-- TODO: Output should not be a source -->
 		<Stream src="Output" dst="DownholePump" name="lifting gas" impute="False">
 			<Contains>lifting gas</Contains>
 		</Stream>

@@ -16,9 +16,9 @@ from .config import getParamAsBoolean
 from .core import OpgeeObject, XmlInstantiable, elt_name, instantiate_subelts, magnitude
 from .container import Container
 from .error import (OpgeeException, AbstractMethodError, OpgeeIterationConverged,
-                    OpgeeMaxIterationsReached, ModelValidationError)
+                    ModelValidationError)
 from .emissions import Emissions
-from .energy import Energy #, EN_NATURAL_GAS, EN_CRUDE_OIL, EN_PETCOKE, EN_NGL
+from .energy import Energy
 from .log import getLogger
 from .stream import Stream
 from .utils import getBooleanXML
@@ -953,13 +953,6 @@ class Reservoir(Process):
 
     def run(self, analysis):
         self.print_running_msg()
-
-class Before(Process):
-    def run(self, analysis):
-        pass
-
-    def impute(self):
-        pass
 
 
 # TBD: move this to tests/utils_for_tests.py after removing references from opgee.xml

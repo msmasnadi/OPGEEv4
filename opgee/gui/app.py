@@ -27,7 +27,7 @@ def app_layout(app, model, analysis):
         dcc.Store(id='analysis-and-field', storage_type='session'),
 
         # TBD: Experiment to see if client-side function fixes graph resizing problem, per
-        # https://stackoverflow.com/questions/55462861/dash-dynamic-layout-does-not-propagate-resized-graph-dimensions-until-window-i
+        #      https://stackoverflow.com/questions/55462861/dash-dynamic-layout-does-not-propagate-resized-graph-dimensions-until-window-i
         html.Div(id="output-clientside"),
 
         html.Div([
