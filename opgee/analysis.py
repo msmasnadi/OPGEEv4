@@ -121,6 +121,9 @@ class Analysis(Container):
         """
         return self.field_dict.values()  # N.B. returns an iterator
 
+    def field_names(self):
+        return self._field_names
+
     def first_field(self):
         return self.get_field(self._field_names[0])
 

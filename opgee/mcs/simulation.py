@@ -264,6 +264,7 @@ class Simulation(OpgeeObject):
         if not analysis:
             raise McsUserError(f"Analysis '{analysis_name}' was not found in model")
 
+        field_names = field_names or analysis.field_names()
         sim = cls(sim_dir, analysis_name=analysis_name, trials=trials, field_names=field_names)
         return sim
 
@@ -426,16 +427,19 @@ class Simulation(OpgeeObject):
         self.analysis._after_init()
         field._after_init()
 
-    def run_field(self, field, trial_nums):
+    def run_field(self, field, trial_nums=None):
         """
 
         :param field: (opgee.Field) the Field to evaluate in MCS
-        :param trial_nums: (iterator of ints) the trial numbers to run
+        :param trial_nums: (iterator of ints) the trial numbers to run, or
+           ``None`` to run all trials.
         :return: none
         """
         analysis = self.analysis
 
         results = []
+
+        trial_nums = range(self.trials) if trial_nums is None else trial_nums
 
         for trial_num in trial_nums:
             _logger.debug(f"Running trial {trial_num} for {field}")
@@ -526,38 +530,6 @@ class Simulation(OpgeeObject):
                magnitude(ghg['Other']))
 
         return tup
-
-    def run_field_distributed(self, field, trial_nums):
-        import ray
-        from ..config import getParamAsInt
-
-        cores = getParamAsInt('OPGEE.CPUsToUse') or os.cpu_count()
-        actors = [Simulation(self.pathname, self.field_names) for _ in range(cores)]
-
-        results = []
-
-        # Split trials into approx equal size chunks to distribute
-        # across `nprocs` CPUs.
-        splits = np.array_split(np.array(trial_nums), cores)
-
-        # Aggregate all of the results.
-        results = ray.get([actor.run_trial.remote(field, split) for actor, split in zip(actors, splits)])
-
-        cols = ['trial_num',
-                'CI',
-                'total_GHG',
-                'combustion',
-                'land_use',
-                'VFF',
-                'other']
-
-        df = pd.DataFrame.from_records(results, columns=cols)
-        mkdirs(self.results_dir)
-        pathname = pathjoin(self.results_dir, field.name + '.csv')
-        _logger.info(f"Writing '{pathname}'")
-        df.to_csv(pathname, index=False)
-
-
 
     def run(self, trial_nums):
         """
