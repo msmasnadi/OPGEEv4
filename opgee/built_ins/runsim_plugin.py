@@ -38,6 +38,10 @@ class RunsimCommand(SubcommandABC):
                             comma-delimited list of Field names. Otherwise all fields defined in the
                             analysis are run.''')
 
+        parser.add_argument('--debug', action='store_true',
+                            help='''Use the Manager/Worker architecture, but don't use "ray" 
+                            (primarily for debugging)''')
+
         parser.add_argument('-s', '--simulation_dir',
                             help='''The top-level directory to use for this simulation "package"''')
 
@@ -59,9 +63,9 @@ class RunsimCommand(SubcommandABC):
 
         if args.distributed or args.cpu_count:
             mgr = Manager()
-            mgr.run_mcs(sim_dir, field_names=field_names, cpu_count=args.cpu_count)
+            mgr.run_mcs(sim_dir, field_names=field_names, cpu_count=args.cpu_count,
+                        trial_nums=args.trials, debug=args.debug)
         else:
             sim = Simulation(sim_dir, field_names=field_names)
-            trial_nums = (range(sim.trials) if args.trials == 'all'
-                          else parseTrialString(args.trials))
+            trial_nums = (None if args.trials == 'all' else parseTrialString(args.trials))
             sim.run(trial_nums)

@@ -10,6 +10,7 @@ from .attributes import AttrDefs, AttributeMixin
 from .core import XmlInstantiable
 from .emissions import Emissions
 from .energy import Energy
+from .error import OpgeeException
 from .import_export import ImportExport
 from .log import getLogger
 
@@ -78,12 +79,18 @@ class Container(XmlInstantiable, AttributeMixin):
 
         :return: (list of opgee.Container)
         """
-        aggs = self.aggs.copy() if self.aggs else []
+        aggs = self.aggs if self.aggs else []
 
         for agg in self.aggs:  # loop over original since we're extending the copy
             aggs.extend(agg.descendant_aggs())
 
         return aggs
+
+    def find_agg(self, name):
+        try:
+            return self.aggs[name]
+        except KeyError:
+            raise OpgeeException(f"{self} doesn't have Aggregator[{name}]")
 
     def print_running_msg(self):
         _logger.debug(f"Running {type(self)} name='{self.name}'")

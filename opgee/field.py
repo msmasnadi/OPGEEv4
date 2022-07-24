@@ -16,7 +16,7 @@ from .core import elt_name, instantiate_subelts, dict_from_list, TemperaturePres
 from .energy import Energy
 from .error import (OpgeeException, OpgeeStopIteration, OpgeeMaxIterationsReached,
                     OpgeeIterationConverged, ModelValidationError, ZeroEnergyFlowError)
-from .import_export import ImportExport, WATER
+from .import_export import ImportExport
 from .log import getLogger
 from .process import Process, Aggregator, Reservoir
 from .process_groups import ProcessChoice
@@ -88,6 +88,8 @@ class Field(Container):
         all_procs = self.collect_processes()  # includes Reservoir
         self.process_dict = self.adopt(all_procs, asDict=True)
 
+        self.agg_dict = {agg.name : agg for agg in self.descendant_aggs()}
+
         self.extend = False
 
         # Stores the name of a Field that the current field copies then modifies
@@ -125,6 +127,7 @@ class Field(Container):
 
         bad = [proc for proc in self.processes() if proc.run_after and not _run_after_ok(proc)]
         if bad:
+            # TBD: document this feature
             raise OpgeeException(f"Processes {bad} are tagged 'after=True' but have output streams to non-'after' processes")
 
         return True
@@ -162,7 +165,11 @@ class Field(Container):
         self.gas = Gas(self)
         self.water = Water(self)
         self.steam_generator = SteamGenerator(self)
-        self.product_names = self.import_export.imports_exports().index.drop(WATER)
+
+        imp_exp = self.import_export.imports_exports()
+
+        # TODO: never used
+        # self.product_names = imp_exp.index.drop(WATER)
 
         # TODO: the only use of this is in a function that isn't called. Maybe deprecated.
         self.product_boundaries = model.product_boundaries
@@ -172,7 +179,7 @@ class Field(Container):
         self.product_LHV.loc['PC'] = petrocoke_LHV
 
         self.resolve_process_choices()
-        self._check_run_after_procs()       # TBD: write test
+        self._check_run_after_procs()       # TBD: write test (also, move call to validate()?
 
         # we use networkx to reason about the directed graph of Processes (nodes)
         # and Streams (edges).
@@ -357,13 +364,12 @@ class Field(Container):
         # total_emissions = onsite_emissions + imported_emissions - byproduct_carbon_credit
         # energy = self.boundary_energy_flow_rate(analysis)
 
-        export_df = self.import_export.export_df
+        # export_df = self.import_export.export_df
+        #export_LHV = export_df.drop(columns=["Water"]).sum(axis='columns').sum()
+        # self.carbon_intensity = ci = (total_emissions / export_LHV).to('grams/MJ')
 
         boundary_energy_flow_rate = self.boundary_energy_flow_rate(analysis)
         self.carbon_intensity = ci = (total_emissions / boundary_energy_flow_rate).to('grams/MJ')
-
-        export_LHV = export_df.drop(columns=["Water"]).sum(axis='columns').sum()
-        # self.carbon_intensity = ci = (total_emissions / export_LHV).to('grams/MJ')
 
         return ci
 
@@ -374,9 +380,14 @@ class Field(Container):
         :param net_import: (Pandas.Series) net import energy rates (water is mass rate)
         :return: total emissions (units of g CO2)
         """
+        from .import_export import WATER
+
         imported_emissions = ureg.Quantity(0.0, "tonne/day")
 
         for product, energy_rate in net_import.items():
+            if product == WATER:
+                continue    # TODO: Water is not in self.upstream_CI and not in upstream-CI.csv, which has units of g/mmbtu
+
             energy_rate = (energy_rate if isinstance(energy_rate, pint.Quantity)
                            else ureg.Quantity(energy_rate, "mmbtu/day"))
 

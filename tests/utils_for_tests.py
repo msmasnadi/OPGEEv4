@@ -17,9 +17,10 @@ class Before(Process):
     def impute(self):
         pass
 
-class Output(Process):
-    def run(self, analysis):
-        pass
+# This has been reinstated in process.py since Output is still used in opgee.xml
+# class Output(Process):
+#     def run(self, analysis):
+#         pass
 
 def path_to_test_file(filename):
     path = pathjoin(__file__, '..', f'files/{filename}', abspath=True)

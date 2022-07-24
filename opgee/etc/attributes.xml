@@ -69,10 +69,10 @@
       <AttrDef name="downhole_pump" type="binary" desc="Downhole pump">1</AttrDef>
       <AttrDef name="water_reinjection" type="binary" desc="Water reinjection">1</AttrDef>
       <AttrDef name="natural_gas_reinjection" type="binary" desc="Natural gas reinjection">1</AttrDef>
-      <AttrDef name="water_flooding" type="binary" desc="Water flooding">0</AttrDef>
       <AttrDef name="gas_lifting" type="binary" desc="Gas lifting">0</AttrDef>
 
       <!-- mutually exclusive -->
+      <AttrDef name="water_flooding" type="binary" desc="Water flooding">0</AttrDef>
       <AttrDef name="gas_flooding" type="binary" desc="Gas flooding" exclusive="flooding">0</AttrDef>
       <AttrDef name="steam_flooding" type="binary" desc="Steam flooding" exclusive="flooding">0</AttrDef>
 
