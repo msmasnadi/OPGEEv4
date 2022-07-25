@@ -41,7 +41,7 @@ def _subclass_dict(superclass):
 
     :return: (dict) subclasses keyed by name
     """
-    allow_redef = getParamAsBoolean('OPGEE.AllowProcessRedefinition')
+    allow_redef = getParamAsBoolean('OPGEE.AllowProcessRedefinition')       # TBD: document this feature
 
     d = {}
 
@@ -955,7 +955,11 @@ class Reservoir(Process):
         self.print_running_msg()
 
 
-# TBD: move this to tests/utils_for_tests.py after removing references from opgee.xml
+# TBD: move both Output and After to tests/utils_for_tests.py after removing usages from opgee.xml
+class Output(Process):
+    def run(self, analysis):
+        pass
+
 # Required to load opgee.xml and some test XML files
 class After(Process):
     def run(self, analysis):

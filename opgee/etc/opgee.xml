@@ -618,7 +618,11 @@
 
 	<Field name="steam_flooding_field">
 		<A name="country">USA</A>
+		
 		<A name="steam_flooding">1</A>
+		<A name="gas_flooding">0</A>
+		<A name="water_flooding">0</A>		
+		
 		<A name="age">55.0</A>
 		<A name="depth">600.0</A>
 		<A name="oil_prod">165057.0</A>

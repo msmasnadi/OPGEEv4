@@ -131,7 +131,7 @@ class ModelFile(XMLFile):
                 elt.remove(child)
 
         # function argument overrides config file variable
-        save_to_path = save_to_path or getParam('OPGEE.XmlSavePathname')
+        save_to_path = getParam('OPGEE.XmlSavePathname') if save_to_path is None else save_to_path
 
         # Save the merged file if indicated
         if save_to_path:

@@ -171,7 +171,7 @@ class Simulation(OpgeeObject):
       up to 1 million trials while ensuring that no directory contains more than 1000 items.
       Limiting directory size improves performance.
     """
-    def __init__(self, sim_dir, analysis_name=None, trials=0, field_names=None):
+    def __init__(self, sim_dir, analysis_name=None, trials=0, field_names=None, save_to_path=None):
         self.pathname = sim_dir
         self.results_dir = pathjoin(sim_dir, RESULTS_DIR)
         self.model_file = model_file_path(sim_dir)
@@ -195,7 +195,7 @@ class Simulation(OpgeeObject):
         else:
             self._load_meta_data()
 
-        mf = ModelFile(self.model_file, use_default_model=False)
+        mf = ModelFile(self.model_file, use_default_model=False, save_to_path=save_to_path)
         self.model = mf.model
 
         self.analysis = analysis = self.model.get_analysis(self.analysis_name, raiseError=False)
@@ -264,6 +264,7 @@ class Simulation(OpgeeObject):
         if not analysis:
             raise McsUserError(f"Analysis '{analysis_name}' was not found in model")
 
+        field_names = field_names or analysis.field_names(enabled_only=True)
         sim = cls(sim_dir, analysis_name=analysis_name, trials=trials, field_names=field_names)
         return sim
 
@@ -426,16 +427,19 @@ class Simulation(OpgeeObject):
         self.analysis._after_init()
         field._after_init()
 
-    def run_field(self, field, trial_nums):
+    def run_field(self, field, trial_nums=None):
         """
 
         :param field: (opgee.Field) the Field to evaluate in MCS
-        :param trial_nums: (iterator of ints) the trial numbers to run
+        :param trial_nums: (iterator of ints) the trial numbers to run, or
+           ``None`` to run all trials.
         :return: none
         """
         analysis = self.analysis
 
         results = []
+
+        trial_nums = range(self.trials) if trial_nums is None else trial_nums
 
         for trial_num in trial_nums:
             _logger.debug(f"Running trial {trial_num} for {field}")
@@ -445,7 +449,7 @@ class Simulation(OpgeeObject):
                 field.run(analysis)
                 field.report()
             except ModelValidationError as e:
-                _logger.error(f"Skipping trial {trial_num}: {e}")
+                _logger.warning(f"Skipping trial {trial_num} in {field}: {e}")
                 continue
 
             # TBD: Save results (which?)
@@ -487,77 +491,46 @@ class Simulation(OpgeeObject):
         _logger.info(f"Writing '{pathname}'")
         df.to_csv(pathname, index=False)
 
-    def run_trial(self, field, trial_num):
-        # Run a single trial and return a tuple with results
-
-        analysis = self.analysis
-
-        _logger.debug(f"Running trial {trial_num} for {field}")
-        self.set_trial_data(field, trial_num)
-
-        try:
-            field.run(analysis)
-            #field.report()
-        except ModelValidationError as e:
-            _logger.error(f"Skipping trial {trial_num}: {e}")
-            return None
-
-        # TBD: Save results (which?)
-        # energy: Series dtype = "mmbtu/d"
-        # emissions: DataFrame: cols are categories (Combustion, Land-use, Venting, Flaring, Fugitives, Other)
-        #                       rows are (VOC, CO, CH4, N2O, CO2, GHG)
-        # ghgs: Quantity "t/d" CO2e
-        # ci: Quantity "g/MJ" CO2e
-        #
-        # energy = field.energy.data
-        emissions = field.emissions.data
-
-        ghg = emissions.loc['GHG']
-        total_ghg = ghg.sum()
-        ci = field.compute_carbon_intensity(analysis)
-        vff = ghg['Venting'] + ghg['Flaring'] + ghg['Fugitives']
-
-        tup = (trial_num,
-               magnitude(ci),
-               magnitude(total_ghg),
-               magnitude(ghg['Combustion']),
-               magnitude(ghg['Land-use']),
-               magnitude(vff),
-               magnitude(ghg['Other']))
-
-        return tup
-
-    def run_field_distributed(self, field, trial_nums):
-        import ray
-        from ..config import getParamAsInt
-
-        cores = getParamAsInt('OPGEE.CPUsToUse') or os.cpu_count()
-        actors = [Simulation(self.pathname, self.field_names) for _ in range(cores)]
-
-        results = []
-
-        # Split trials into approx equal size chunks to distribute
-        # across `nprocs` CPUs.
-        splits = np.array_split(np.array(trial_nums), cores)
-
-        # Aggregate all of the results.
-        results = ray.get([actor.run_trial.remote(field, split) for actor, split in zip(actors, splits)])
-
-        cols = ['trial_num',
-                'CI',
-                'total_GHG',
-                'combustion',
-                'land_use',
-                'VFF',
-                'other']
-
-        df = pd.DataFrame.from_records(results, columns=cols)
-        mkdirs(self.results_dir)
-        pathname = pathjoin(self.results_dir, field.name + '.csv')
-        _logger.info(f"Writing '{pathname}'")
-        df.to_csv(pathname, index=False)
-
-
+    # Deprecated
+    # def run_trial(self, field, trial_num):
+    #     # Run a single trial and return a tuple with results
+    #
+    #     analysis = self.analysis
+    #
+    #     _logger.debug(f"Running trial {trial_num} for {field}")
+    #     self.set_trial_data(field, trial_num)
+    #
+    #     try:
+    #         field.run(analysis)
+    #         #field.report()
+    #     except ModelValidationError as e:
+    #         _logger.error(f"Skipping trial {trial_num}: {e}")
+    #         return None
+    #
+    #     # TBD: Save results (which?)
+    #     # energy: Series dtype = "mmbtu/d"
+    #     # emissions: DataFrame: cols are categories (Combustion, Land-use, Venting, Flaring, Fugitives, Other)
+    #     #                       rows are (VOC, CO, CH4, N2O, CO2, GHG)
+    #     # ghgs: Quantity "t/d" CO2e
+    #     # ci: Quantity "g/MJ" CO2e
+    #     #
+    #     # energy = field.energy.data
+    #     emissions = field.emissions.data
+    #
+    #     ghg = emissions.loc['GHG']
+    #     total_ghg = ghg.sum()
+    #     ci = field.compute_carbon_intensity(analysis)
+    #     vff = ghg['Venting'] + ghg['Flaring'] + ghg['Fugitives']
+    #
+    #     tup = (trial_num,
+    #            magnitude(ci),
+    #            magnitude(total_ghg),
+    #            magnitude(ghg['Combustion']),
+    #            magnitude(ghg['Land-use']),
+    #            magnitude(vff),
+    #            magnitude(ghg['Other']))
+    #
+    #     return tup
 
     def run(self, trial_nums):
         """
@@ -565,12 +538,15 @@ class Simulation(OpgeeObject):
         ``None``, all fields are run, otherwise, only the indicated fields are
         run.
 
-        :param trial_nums: (list of int) trials to run
+        :param trial_nums: (list of int) trials to run. ``None`` implies all trials.
         :param fields: (list of str) names of fields to run
         :return: none
         """
         for field in self.chosen_fields():
+            if field.is_enabled():
                 self.run_field(field, trial_nums)
+            else:
+                _logger.info(f"Ignoring disabled {field}")
 
             # results for a field in `analysis`. Each column represents the results
             # of a single output variable. Each row represents the value of all output

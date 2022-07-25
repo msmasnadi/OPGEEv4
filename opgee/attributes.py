@@ -338,7 +338,8 @@ class AttributeMixin():
             values = [attr_dict[attr_name].value for attr_name in attr_names]
 
             if sum(values) not in (0, 1):
-                raise OpgeeException(f"Exclusive attribute group '{group}' has multiple items selected")
+                items = list(zip(attr_names, values))
+                raise OpgeeException(f"Exclusive attribute group '{group}' has multiple items selected: {items}")
 
         # Check synchronized groups
         for group, attr_names, in class_attrs.syncs.items():
