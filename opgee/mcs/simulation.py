@@ -133,6 +133,10 @@ class Distribution(OpgeeObject):
         self.instances[full_name] = self
 
     @classmethod
+    def distro_by_name(cls, name):
+        return cls.instances.get(name)
+
+    @classmethod
     def distributions(cls):
         """
         Return a list of the defined Distribution instances.
