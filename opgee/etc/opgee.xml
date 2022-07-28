@@ -15,7 +15,7 @@
 		<Field name="gas_lifting_field"/>
 	</Analysis>
 
-	<Field name="gas_lifting_field" enabled="false">
+	<Field name="gas_lifting_field">
 		<A name="country">USA</A>
 		<A name="water_reinjection">1</A>
 		<A name="downhole_pump">0</A>
@@ -305,10 +305,6 @@
 			<Contains>oil</Contains>
 		</Stream>
 
-		<Stream src="TransportationBoundary" dst="After">
-			<Contains>oil</Contains>
-		</Stream>
-
 
 
 <!--		water processing path-->
@@ -472,7 +468,7 @@
 			<Contains>gas for transmission</Contains>
 		</Stream>
 
-		<Stream src="TransmissionCompressor" dst="After" name="transmission compression to after">
+		<Stream src="TransmissionCompressor" dst="TransportationBoundary" name="transmission compression to boundary">
 			<Contains>gas for storage</Contains>
 			<Contains>LNG</Contains>
 			<Contains>gas for distribution</Contains>

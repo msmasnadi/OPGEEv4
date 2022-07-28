@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <Model>
   <Analysis name="test-fields">
-    <Field name="Field 2" modifies="oil_stab_field">
+    <Field name="Field 2" modifies="gas_lifting_field">
       <A name="downhole_pump">0</A>
       <A name="water_reinjection">1</A>
       <A name="natural_gas_reinjection">1</A>
@@ -37,7 +37,7 @@
       <A name="transport_dist_pipeline">0.0</A>
       <A name="transport_dist_rail">0.0</A>
     </Field>
-    <Field name="Field 3" modifies="oil_stab_field">
+    <Field name="Field 3" modifies="gas_lifting_field">
       <A name="downhole_pump">0</A>
       <A name="water_reinjection">1</A>
       <A name="water_flooding">0</A>
@@ -71,7 +71,7 @@
       <A name="transport_dist_rail">0.0</A>
       <A name="transport_dist_truck">0.0</A>
     </Field>
-    <Field name="Field 4" modifies="oil_stab_field">
+    <Field name="Field 4" modifies="gas_lifting_field">
       <A name="downhole_pump">1</A>
       <A name="water_reinjection">1</A>
       <A name="natural_gas_reinjection">0</A>
@@ -101,7 +101,7 @@
       <A name="transport_dist_pipeline">24.0</A>
       <A name="transport_dist_rail">0.0</A>
     </Field>
-    <Field name="Field 5" modifies="oil_stab_field">
+    <Field name="Field 5" modifies="gas_lifting_field">
       <A name="downhole_pump">0</A>
       <A name="water_reinjection">0</A>
       <A name="natural_gas_reinjection">0</A>
