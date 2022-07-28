@@ -1,3 +1,4 @@
+import datetime
 import os
 import ray
 from ray.util.actor_pool import ActorPool
@@ -13,6 +14,8 @@ from .simulation import Simulation
 
 _logger = getLogger(__name__)
 
+# This isn't used yet
+# pragma: no cover
 def find_object(analysis, field, obj_name):
     name = obj_name.lower()     # TBD: document this
 
@@ -45,6 +48,8 @@ def find_object(analysis, field, obj_name):
 
     return obj
 
+# This isn't used yet
+# pragma: no cover
 def parse_result_name(analysis, field, result_name):
     parts = result_name.split('.')
     if not parts:
@@ -78,7 +83,8 @@ class FieldResult(OpgeeObject):
         self.error = error
 
     def __str__(self):
-        return f"<Field:{self.field_name}, duration:{self.duration} s, error:{self.error}>"
+        duration = datetime.timedelta(seconds=int(self.duration))
+        return f"<FieldResult {self.field_name} in {duration}; error:{self.error}>"
 
 
 class LocalWorker(OpgeeObject):
@@ -103,7 +109,6 @@ class LocalWorker(OpgeeObject):
                 self.sim.run_field(field, trial_nums=trial_nums)
 
             except Exception as e:
-                raise e
                 # Convert any exceptions to a RemoteError instance and return it to Manager
                 e_name = e.__class__.__name__
                 trace = ''.join(traceback.format_stack())
@@ -178,21 +183,21 @@ class Manager(OpgeeObject):
             cpus = cpu_count or getParamAsInt('OPGEE.CPUsToUse') or os.cpu_count()
             self.start_cluster(num_cpus=cpus)
 
-            def submit_func(worker, field_name):
-                return worker.run_field.remote(field_name, trial_nums=trial_nums)
-
             # Start the worker processes
             workers = [Worker.remote(sim_dir) for _ in range(cpus)]
 
             pool = ActorPool(workers)
 
+            def submit(worker, field_name):
+                return worker.run_field.remote(field_name, trial_nums=trial_nums)
+
             for field_name in field_names:
-                pool.submit(submit_func, field_name)
+                pool.submit(submit, field_name)
 
             while True:
                 try:
                     result = pool.get_next_unordered()
-                    _logger.info(f"Worker completed MCS on field '{result}'")
+                    _logger.info(f"Worker completed MCS: {result}")
 
                 except StopIteration:
                     _logger.debug("No more results to get")
