@@ -29,9 +29,12 @@ Other subdirectories include:
 
 * `gui` -- Python files implementing the browser-based GUI using the `plotly "dash" package <https://dash.plotly.com>`_
 
+* `mcs` -- Support for Monte Carlo Simulation
+
 * `processes` -- implementations of ``Process`` subclasses and other support code
 
-* `tables` -- CSV files that are loaded on demand by the ``TableManager`` and presented as pandas DataFrames
+* `tables` -- CSV files that are loaded on demand by the ``TableManager`` and
+  loaded into pandas DataFrames
 
 
 XML organization
@@ -46,11 +49,9 @@ The built-in model XML is organized into the following files:
 
 * `opgee.xml` holds the definition of the default fields and analyses.
 
-* `opgee.xsd` holds the XML schema definition for all model classes other those
-  used to define attribute metadata, which are in `attributes.xsd`.
-
-* `attributes.xsd` holds the XML schema definition for the XML elements
-  ``AttrDef``, ``ClassAttrs``, ``Options``, ``Option``, and ``Requires``.
+* `opgee.xsd` holds the XML schema definition for all model classes and those
+  used to define attribute metadata: ``AttrDef``, ``ClassAttrs``, ``Options``,
+  ``Option``, and ``Requires``.
 
 
 .. |br| raw:: html

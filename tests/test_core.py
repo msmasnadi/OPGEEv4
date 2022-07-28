@@ -1,6 +1,6 @@
 import pytest
 from opgee import ureg
-from opgee.core import magnitude, dict_from_list, validate_unit, XmlInstantiable, A, _undefined_units, cached
+from opgee.core import magnitude, dict_from_list, validate_unit, XmlInstantiable, A, _undefined_units
 from opgee.error import OpgeeException, AbstractMethodError
 
 def test_magnitude_error():
@@ -52,18 +52,3 @@ def fn1(a, b):
     global count
     count += 1
     return a + b + count
-
-@cached
-def fn2(a, b):
-    global count
-    count += 1
-    return a + b + count
-
-def test_cached():
-    global count
-
-    count = 0
-    assert fn1(1, 2) + fn1(1, 2) == 9
-
-    count = 0
-    assert fn2(1, 2) + fn2(1, 2) == 8

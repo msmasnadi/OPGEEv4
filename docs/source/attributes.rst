@@ -20,5 +20,7 @@ is not provided in a model description XML file.
 Smart Defaults
 ---------------
 
-To be implemented.
+Smart defaults are functions whose return values depend on the values
+of other model attributes. The :obj:`opgee.smart_defaults` class stores information
+required to run a "smart default" function.
 

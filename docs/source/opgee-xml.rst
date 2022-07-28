@@ -414,8 +414,35 @@ Python type, and unit. This element should provide a default value or
 refer to an ``<Options>`` element describing valid values (and a default)
 for this attribute.
 
-``<AttrDef>`` also can include ``<Requires>`` elements indicating other
-attributes upon whose value the "smart default" for this attribute depends.
+..
+  ``<AttrDef>`` also can include ``<Requires>`` elements indicating other
+  attributes upon whose value the "smart default" for this attribute depends.
+
+The ``<AttrDef>`` element supports several types of optional, declarative constraints
+in the form of attributes:
+
+* **synchronized** : the value of the attribute is the name of a "synchronization group"',
+  which can be any string. All the attributes declared to be in this group name must have
+  the same value.
+
+* **exclusive** : the value of the attribute is the name of a "exclusive group"',
+  which can be any string. All the attributes declared to be in this group must be
+  binary attributes and only one of them may have a value of 1 (true).
+
+* **GT, GE, LT, LE** : these are numerical constraints requiring that the value of the
+  attribute be greater than (GT), greater than or equal (GE), less than (LT), or
+  less than or equal (LE) to the value of the attribute. The following are examples
+  of numerical constraints in the built-in file "etc/attributes.xml":
+
+  .. code-block:: XML
+
+      <AttrDef name="age" unit="yr" desc="Field age" type="float" GT="0" LT="150">38</AttrDef>
+      <AttrDef name="depth" unit="ft" desc="Field depth" type="float" GT="0" LT="25000">7240.0</AttrDef>
+      <AttrDef name="oil_prod" unit="bbl_oil/d" desc="Oil production volume" type="float" GT="0">2098.0</AttrDef>
+      <AttrDef name="num_prod_wells" desc="Number of producing wells" type="int" GT="0">24</AttrDef>
+      <AttrDef name="num_water_inj_wells" desc="Number of water injecting wells" type="int" GE="0">20</AttrDef>
+      <AttrDef name="well_diam" unit="in" desc="Well diameter" type="float" GT="0">2.78</AttrDef>
+
 
 .. list-table:: <AttrDef> Attributes
    :widths: 10 10 10 10
@@ -433,6 +460,14 @@ attributes upon whose value the "smart default" for this attribute depends.
      - no
      - (none)
      - text
+   * - exclusive
+     - no
+     - (none)
+     - text
+   * - synchronized
+     - no
+     - (none)
+     - text
    * - type
      - no
      - str
@@ -445,6 +480,23 @@ attributes upon whose value the "smart default" for this attribute depends.
      - no
      - (none)
      - text
+   * - GE
+     - no
+     - (none)
+     - number
+   * - GT
+     - no
+     - (none)
+     - number
+   * - LE
+     - no
+     - (none)
+     - number
+   * - LT
+     - no
+     - (none)
+     - number
+
 
 ..
    * - delete
@@ -458,9 +510,4 @@ attributes upon whose value the "smart default" for this attribute depends.
   value exists in the built-in XML structure, the built-in element and all elements
   below it in the hierarchy are deleted before the new element is added.
 
-<Requires>
-^^^^^^^^^^^^^
-This element takes no attributes and contains only a string, which must be the name
-of another defined attribute. This is used to create the dependency structure for
-setting "smart defaults", ensuring that values that depend on other values are set
-after the precedents are set.
+

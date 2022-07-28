@@ -7,7 +7,7 @@
      binary ones.
      -->
 <Model schema_version="4.0.a">
-  <AttrDefs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="attributes.xsd">
+  <AttrDefs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="opgee.xsd">
     <ClassAttrs name="Model">
       <!-- Maximum number of iterations for process loops -->
       <AttrDef name="maximum_iterations" type="int">100</AttrDef>
@@ -69,10 +69,10 @@
       <AttrDef name="downhole_pump" type="binary" desc="Downhole pump">1</AttrDef>
       <AttrDef name="water_reinjection" type="binary" desc="Water reinjection">1</AttrDef>
       <AttrDef name="natural_gas_reinjection" type="binary" desc="Natural gas reinjection">1</AttrDef>
-      <AttrDef name="water_flooding" type="binary" desc="Water flooding">0</AttrDef>
       <AttrDef name="gas_lifting" type="binary" desc="Gas lifting">0</AttrDef>
 
       <!-- mutually exclusive -->
+      <AttrDef name="water_flooding" type="binary" desc="Water flooding">0</AttrDef>
       <AttrDef name="gas_flooding" type="binary" desc="Gas flooding" exclusive="flooding">0</AttrDef>
       <AttrDef name="steam_flooding" type="binary" desc="Steam flooding" exclusive="flooding">0</AttrDef>
 
@@ -144,11 +144,11 @@
 <!--      <AttrDef name="source_CO2" desc="" options="source_CO2" type="str"/>-->
       <AttrDef name="perc_sequestration_credit" desc="Percentage of sequestration credit assigned to the oilfield" unit="percent" type="float">0</AttrDef>
       <AttrDef name="SOR" desc="Steam-to-oil ratio" unit="bbl_steam/bbl_oil" type="float">0</AttrDef>
-      <AttrDef name="fraction_elec_onsite" desc="Fraction of required electricity generated onsite" type="float">0.0</AttrDef>
-      <AttrDef name="fraction_remaining_gas_inj" desc="Fraction of remaining gas reinjected" type="float">0.5</AttrDef>
-      <AttrDef name="fraction_water_reinjected" desc="Fraction of water produced that is reinjected" type="float">1.0</AttrDef>
-      <AttrDef name="fraction_steam_cogen" desc="Fraction of steam generation via co-generation" type="float">0.0</AttrDef>
-      <AttrDef name="fraction_steam_solar" desc="Fraction of steam generation via solar thermal" type="float">0.0</AttrDef>
+      <AttrDef name="fraction_elec_onsite" desc="Fraction of required electricity generated onsite" type="float" GE="0" LE="1">0.0</AttrDef>
+      <AttrDef name="fraction_remaining_gas_inj" desc="Fraction of remaining gas reinjected" type="float" GE="0" LE="1">0.5</AttrDef>
+      <AttrDef name="fraction_water_reinjected" desc="Fraction of water produced that is reinjected" type="float" GE="0" LE="1">1.0</AttrDef>
+      <AttrDef name="fraction_steam_cogen" desc="Fraction of steam generation via co-generation" type="float" GE="0" LE="1">0.0</AttrDef>
+      <AttrDef name="fraction_steam_solar" desc="Fraction of steam generation via solar thermal" type="float" GE="0" LE="1">0.0</AttrDef>
       <AttrDef name="gas_pressure_after_boosting" type="float" unit="psia" desc="Separator gas outlet pressure after boosting compressors">500</AttrDef>
       <AttrDef name="friction_factor" type="float" unit="frac" desc="wellbore friction factor">0.02</AttrDef>
 
@@ -188,11 +188,11 @@
 
       <!-- TODO: decide on consistent naming, either "fraction_xxx" or "frac_xxx", but not both! -->
       <!-- Transportation Parameter -->
-      <AttrDef name="frac_transport_tanker" type="float" unit="frac" desc="fraction of product transported by ocean tanker">1.0</AttrDef>
-      <AttrDef name="frac_transport_barge" type="float" unit="frac" desc="fraction of product transported by barge">0.0</AttrDef>
-      <AttrDef name="frac_transport_pipeline" type="float" unit="frac" desc="fraction of product transported by pipeline">1.0</AttrDef>
-      <AttrDef name="frac_transport_rail" type="float" unit="frac" desc="fraction of product transported by rail">0.0</AttrDef>
-      <AttrDef name="frac_transport_truck" type="float" unit="frac" desc="fraction of product transported by truck">0.0</AttrDef>
+      <AttrDef name="frac_transport_tanker" type="float" unit="frac" desc="fraction of product transported by ocean tanker" GE="0" LE="1">1.0</AttrDef>
+      <AttrDef name="frac_transport_barge" type="float" unit="frac" desc="fraction of product transported by barge" GE="0" LE="1">0.0</AttrDef>
+      <AttrDef name="frac_transport_pipeline" type="float" unit="frac" desc="fraction of product transported by pipeline" GE="0" LE="1">1.0</AttrDef>
+      <AttrDef name="frac_transport_rail" type="float" unit="frac" desc="fraction of product transported by rail" GE="0" LE="1">0.0</AttrDef>
+      <AttrDef name="frac_transport_truck" type="float" unit="frac" desc="fraction of product transported by truck" GE="0" LE="1">0.0</AttrDef>
 
       <AttrDef name="transport_dist_tanker" type="float" unit="mile" desc="transportation distance by ocean tanker">5082.0</AttrDef>
       <AttrDef name="transport_dist_barge" type="float" unit="mile" desc="transportation distance by barge">500.0</AttrDef>
@@ -250,11 +250,11 @@
       <AttrDef name="eta_rig" type="str" options="rig_efficiency" desc="Rig efficiency"/>
       <AttrDef name="well_complexity" options="well_complexity" desc="Well complexity" type="str"/>
       <AttrDef name="well_size" desc="Hole size" type="str" options="well_size"/>
-      <AttrDef name="fraction_wells_horizontal" type="float" unit="frac" desc="Horizontal well?">0</AttrDef>
+      <AttrDef name="fraction_wells_horizontal" type="float" unit="frac" desc="Horizontal well?" GE="0" LE="1">0</AttrDef>
       <AttrDef name="length_lateral" unit="ft" type="float" desc="Length of lateral">5000</AttrDef>
       <AttrDef name="well_productivity_crude_oil" options="field_productivity_category" type="str"/>
       <AttrDef name="well_productivity_natural_gas" options="field_productivity_category" type="str"/>
-      <AttrDef name="fraction_wells_fractured" desc="Fraction of wells fractured" type="float">0</AttrDef>
+      <AttrDef name="fraction_wells_fractured" desc="Fraction of wells fractured" type="float" GE="0" LE="1">0</AttrDef>
       <AttrDef name="volume_per_well_fractured" desc="Fracturing fluid injection volume" type="float" unit="Mgal’’">3</AttrDef>
       <AttrDef name="pressure_gradient_fracturing" desc="Fracturing pressure gradient (rock strength)" unit="psi/ft">0.7</AttrDef>
       <AttrDef name="timeframe_land_use" desc="Timeframe of land use analysis" unit="years" options="timeframe_land_use">1</AttrDef>
@@ -265,7 +265,7 @@
 
       <AttrDef name="steam_quality_outlet" type="float" unit="frac" desc="Steam quality at generator outlet">0.7</AttrDef>
       <AttrDef name="steam_quality_after_blowdown" type="float" desc="Desired steam quality after blowdown and recycle (if any)">0.7</AttrDef>
-      <AttrDef name="fraction_blowdown_recycled" type="float" desc="Percentage of blowdown water recycled ">0.7</AttrDef>
+      <AttrDef name="fraction_blowdown_recycled" type="float" desc="Percentage of blowdown water recycled" GE="0" LE="1">0.7</AttrDef>
       <AttrDef name="waste_water_reinjection_temp" type="float" unit="degF" desc="Waste water rejection temperature">150.0</AttrDef>
       <AttrDef name="waste_water_reinjection_press" type="float" unit="psia" desc="Waste water rejection pressure">14.67</AttrDef>
       <AttrDef name="friction_loss_stream_distr" type="float" unit="frac" desc="Frictional losses in steam distribution and injection lines">1.1</AttrDef>
@@ -327,7 +327,7 @@
       </Options>
       <AttrDef name="gas_turbine_type" options="gas_turbine_type"/>
 
-      <AttrDef name="combusted_gas_frac" type="float" unit="percent" desc="Combusted gas total fraction">93.0</AttrDef>
+      <AttrDef name="combusted_gas_frac" type="float" unit="percent" desc="Combusted gas total fraction" GE="0" LE="100">93.0</AttrDef>
       <AttrDef name="surface_piping_leakage" type="float" unit="kg/day" desc="Surface piping leakage for venting kg CH4/d">0.0</AttrDef>
       <AttrDef name="eta_compressor_lifting" type="float" unit="percent" desc="Gas lifting compressor parameters (1-5 stages) - compressor efficiency">75.0</AttrDef>
       <Options name="prime_mover_type_gas_lifting" default="NG_engine">
@@ -396,11 +396,11 @@
       <AttrDef name="eta_rig" type="str" options="rig_efficiency" desc="Rig efficiency"/>
       <AttrDef name="well_complexity" options="well_complexity" desc="Well complexity" type="str"/>
       <AttrDef name="well_size" desc="Hole size" type="str" options="well_size"/>
-      <AttrDef name="fraction_wells_horizontal" type="float" desc="Horizontal well?">0</AttrDef>
+      <AttrDef name="fraction_wells_horizontal" type="float" desc="Horizontal well?" GE="0" LE="1">0</AttrDef>
       <AttrDef name="length_lateral" unit="ft" type="float" desc="Length of lateral">5000</AttrDef>
       <AttrDef name="well_productivity_crude_oil" options="field_productivity_category" type="str"/>
       <AttrDef name="well_productivity_natural_gas" options="field_productivity_category" type="str"/>
-      <AttrDef name="fraction_wells_fractured" desc="Fraction of wells fractured" type="float">0</AttrDef>
+      <AttrDef name="fraction_wells_fractured" desc="Fraction of wells fractured" type="float" GE="0" LE="1">0</AttrDef>
       <AttrDef name="volume_per_well_fractured" desc="Fracturing fluid injection volume" type="float" unit="Mgal’’">3</AttrDef>
       <AttrDef name="pressure_gradient_fracturing" desc="Fracturing pressure gradient (rock strength)" unit="psi/ft">0.7</AttrDef>
       <AttrDef name="timeframe_land_use" desc="Timeframe of land use analysis" unit="years" options="timeframe_land_use">1</AttrDef>
@@ -461,7 +461,7 @@
       <AttrDef name="pressure_first_stage" type="float" unit="psia" desc="First stage separator pressure">500.0</AttrDef>
       <AttrDef name="pressure_second_stage" type="float" unit="psia" desc="Second stage separator pressure">250.0</AttrDef>
       <AttrDef name="pressure_third_stage" type="float" unit="psia" desc="Third stage separator pressure">100.0</AttrDef>
-      <AttrDef name="water_content_oil_emulsion" type="float" unit="percent" desc="Entrained water as a fraction of oil emulsion (weight percentage)">14.0</AttrDef>
+      <AttrDef name="water_content_oil_emulsion" type="float" unit="percent" desc="Entrained water as a fraction of oil emulsion (weight percentage)" GE="0" LT="100">14.0</AttrDef>
       <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
       <AttrDef name="pressure_outlet" type="float" unit="psia" desc="Separator pressure (final if multi-stage)">100.0</AttrDef>
       <AttrDef name="temperature_outlet" type="float" unit="degF" desc="Separator temperature (final if multi-stage)">90.0</AttrDef>
@@ -481,8 +481,8 @@
       <AttrDef name="heater_treater" type="binary" desc="Heater/treater">0</AttrDef>
     </ClassAttrs>
     <ClassAttrs name="WaterTreatment">
-      <AttrDef name="fraction_disp_water_subsurface" unit="frac" type="float" desc="Fraction of excess water disposed in sub-surface">1.0</AttrDef>
-      <AttrDef name="fraction_disp_water_surface" unit="frac" type="float" desc="Fraction of excess water disposed in surface waters">0.0</AttrDef>
+      <AttrDef name="fraction_disp_water_subsurface" unit="frac" type="float" desc="Fraction of excess water disposed in sub-surface" GE="0" LE="1">1.0</AttrDef>
+      <AttrDef name="fraction_disp_water_surface" unit="frac" type="float" desc="Fraction of excess water disposed in surface waters" GE="0" LE="1">0.0</AttrDef>
       <AttrDef name="number_of_stages" type="int" desc="water treatment stages">4</AttrDef>
       <AttrDef name="makeup_water_treatment_table" type="binary" desc="is makeup water treatment same as produced water treatment">1</AttrDef>
       <AttrDef name="makeup_water_temp" type="float" unit="degF" desc="Temperature_makeup_H2O">60.0</AttrDef>
@@ -510,7 +510,7 @@
     <ClassAttrs name="SteamGeneration">
       <AttrDef name="steam_quality_outlet" type="float" unit="frac" desc="Steam quality at generator outlet">0.7</AttrDef>
       <AttrDef name="steam_quality_after_blowdown" type="float" desc="Desired steam quality after blowdown and recycle (if any)">0.7</AttrDef>
-      <AttrDef name="fraction_blowdown_recycled" type="float" desc="Percentage of blowdown water recycled ">0.7</AttrDef>
+      <AttrDef name="fraction_blowdown_recycled" type="float" desc="Percentage of blowdown water recycled" GE="0" LE="1">0.7</AttrDef>
       <AttrDef name="waste_water_reinjection_temp" type="float" unit="degF" desc="Waste water rejection temperature">150.0</AttrDef>
       <AttrDef name="waste_water_reinjection_press" type="float" unit="psia" desc="Waste water rejection pressure">14.67</AttrDef>
       <AttrDef name="friction_loss_stream_distr" type="float" unit="frac" desc="Frictional losses in steam distribution and injection lines">1.1</AttrDef>
@@ -598,11 +598,11 @@
       <AttrDef name="final_mix_press" unit="psia" type="float" desc="Final diluted crude mixture pressure">14.7</AttrDef>
       <AttrDef name="before_diluent_temp" unit="degF" type="float" desc="Standard temperature before dilution (for calculating volume at standard temperature)">60.0</AttrDef>
       <AttrDef name="before_diluent_press" unit="psia" type="float" desc="Standard pressure before dilution (for calculating volume at standard temperature)">14.7</AttrDef>
-      <AttrDef name="fraction_diluent" unit="frac" desc="Volume fraction of diluent in diluted crude" type="float">0.0</AttrDef>
+      <AttrDef name="fraction_diluent" unit="frac" desc="Volume fraction of diluent in diluted crude" type="float" GE="0" LE="1">0.0</AttrDef>
     </ClassAttrs>
     <ClassAttrs name="CrudeOilStorage">
-      <AttrDef name="f_FG_CS_VRU" unit="percent" type="float" desc="storage gas recovery fraction">6.0</AttrDef>
-      <AttrDef name="f_FG_CS_FL" unit="percent" type="float" desc="storage gas flare fraction">43.0</AttrDef>
+      <AttrDef name="f_FG_CS_VRU" unit="percent" type="float" desc="storage gas recovery fraction" GE="0" LE="100">6.0</AttrDef>
+      <AttrDef name="f_FG_CS_FL" unit="percent" type="float" desc="storage gas flare fraction" GE="0" LE="100">43.0</AttrDef>
     </ClassAttrs>
 
     <ClassAttrs name="GasDehydration">
@@ -747,7 +747,7 @@
 
       <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
       <AttrDef name="eta_compressor" type="float" unit="percent" desc="sour gas injection compressor efficiency">75.0</AttrDef>
-      <AttrDef name="gas_to_storage_frac" type="float" unit="frac" desc="fraction of gas going into long-term storage">0.0</AttrDef>
+      <AttrDef name="gas_to_storage_frac" type="float" unit="frac" desc="fraction of gas going into long-term storage" GE="0" LE="1">0.0</AttrDef>
       <AttrDef name="transmission_sys_discharge" type="float" unit="psia" desc="transmission system discharge pressure at distribution system hookup">600.0</AttrDef>
     </ClassAttrs>
 
@@ -767,7 +767,7 @@
     <ClassAttrs name="StorageSeparator">
       <AttrDef name="outlet_temp" type="float" unit="degF" desc="outlet temperature of storage separator">60.0</AttrDef>
       <AttrDef name="outlet_press" type="float" unit="psia" desc="outlet pressure of storage separator">400.0</AttrDef>
-      <AttrDef name="water_production_frac" type="float" unit="frac" desc="fraction of water production rate from total gas rate">0.1</AttrDef>
+      <AttrDef name="water_production_frac" type="float" unit="frac" desc="fraction of water production rate from total gas rate" GE="0" LE="1">0.1</AttrDef>
     </ClassAttrs>
 
     <ClassAttrs name="PostStorageCompressor">
@@ -803,9 +803,9 @@
     </ClassAttrs>
 
     <ClassAttrs name="GasDistribution">
-      <AttrDef name="frac_loss_distribution" type="float" unit="frac" desc="Loss fraction during local distribution">0.0016</AttrDef>
-      <AttrDef name="frac_loss_meter" type="float" unit="frac" desc="Loss fraction at customer meter">0.0</AttrDef>
-      <AttrDef name="frac_loss_enduse" type="float" unit="frac" desc="Loss fraction at end use appliance or equipment">0.00475</AttrDef>
+      <AttrDef name="frac_loss_distribution" type="float" unit="frac" desc="Loss fraction during local distribution" GE="0" LE="1">0.0016</AttrDef>
+      <AttrDef name="frac_loss_meter" type="float" unit="frac" desc="Loss fraction at customer meter" GE="0" LE="1">0.0</AttrDef>
+      <AttrDef name="frac_loss_enduse" type="float" unit="frac" desc="Loss fraction at end use appliance or equipment" GE="0" LE="1">0.00475</AttrDef>
     </ClassAttrs>
 
 

@@ -6,8 +6,6 @@
    See the https://opensource.org/licenses/MIT for license details.
 '''
 from lxml import etree as ET
-import os
-import pkg_resources as pkg
 
 from .config import getConfigDict, getParam
 from .log import getLogger
@@ -91,6 +89,8 @@ class XMLFile(object):
         error on failure, else return boolean validity status. If no schema file
         is defined, return ``True``.
         """
+        import importlib_resources as imp
+
         if not self.schemaPath:
             return True
 
@@ -99,12 +99,12 @@ class XMLFile(object):
         # use the cached version if available
         schema = self.parsed_schemas.get(self.schemaPath)
         if not schema:
-            # ensure that the entire directory has been extracted so that 'xs:include' works
-            pkg.resource_filename('opgee', os.path.dirname(self.schemaPath))
-            abspath = pkg.resource_filename('opgee', self.schemaPath)
-            xsd = ET.parse(abspath)
-            schema = ET.XMLSchema(xsd)
-            self.parsed_schemas[self.schemaPath] = schema
+            ref = imp.files('opgee') / self.schemaPath
+
+            with imp.as_file(ref) as path:
+                xsd = ET.parse(path)
+                schema = ET.XMLSchema(xsd)
+                self.parsed_schemas[self.schemaPath] = schema
 
         if raiseOnError:
             try:

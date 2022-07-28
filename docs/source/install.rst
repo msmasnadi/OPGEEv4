@@ -5,7 +5,7 @@ Install opgee in an Anaconda virtual environment
 ---------------------------------------------------
 
 1. Download and install `Anaconda <https://www.anaconda.com/download>`_ for your
-   platform. Note that ``opgee`` requires Python 3.7 or later.
+   platform. Note that ``opgee`` requires Python 3.8 or later.
 
 The most convenient way to install and manage a scientific Python environment
 is to use the free `Anaconda <https://www.anaconda.com/download>`_ distribution.
@@ -22,30 +22,32 @@ platform.
 
 .. * `py3-opgee-linux.yml <https://raw.githubusercontent.com/Stanford-EAO/OPGEEv4/master/py3-opgee-linux.yml>`_
 
-3. Run the following command, replacing the ``/path/to/file.yml`` with the
-   path to the file you downloaded in step 2:
+2. Run the following command, replacing the ``/path/to/file.yml`` with the
+   path to the file you downloaded in step 1:
 
   .. code-block:: bash
 
      # Replace "/path/to/file.yml" with path to the file you downloaded
      conda env create -f /path/to/file.yml
 
-4. Activate the new environment:
+3. Activate the new environment:
 
   .. code-block:: bash
 
      conda activate opgee
 
-5. [THIS STEP DOESN'T WORK YET SINCE WE HAVE NO OFFICIAL RELEASE TO DATE.]
+4. [**THIS STEP DOESN'T WORK YET.**]
    Finally, install the opgee package into the newly created environment::
 
      # pip install opgee
 
 Until a release is available on the PyPI.org server, use these steps instead:
 
+  .. code-block:: bash
+
     git clone https://github.com/Stanford-EAO/OPGEEv4.git
     cd OPGEEv4
-    python setup.py develop
+    pip install -e .
 
 which links the installed package back to the source code repo.
 

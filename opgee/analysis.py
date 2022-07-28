@@ -116,10 +116,18 @@ class Analysis(Container):
 
     def fields(self):
         """
-        Get the `Field`s included in this `Analysis`.
+        Get the (enabled) `Field`s included in this `Analysis`.
         :return: (iterator) of Field instances
         """
-        return self.field_dict.values()  # N.B. returns an iterator
+        flds = [f for f in self.field_dict.values() if f.is_enabled()]  # N.B. returns an iterator
+        return flds
+
+    def field_names(self, enabled_only=True):
+        if enabled_only:
+            names = [f.name for f in self.fields()]
+            return names
+        else:
+            return self._field_names
 
     def first_field(self):
         return self.get_field(self._field_names[0])

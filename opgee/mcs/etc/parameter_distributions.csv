@@ -52,7 +52,7 @@ gas_processing_path,Uniform,5,0,5,5,,,,
 VOR,Lognormal,0.002,0.001,,,,,,
 fraction_diluent,Uniform,,,0,0,,,,
 ,,,,,,,,,
-# TBD: These need to be treated differently since categorical,,,,,,,,,
+# TODO: These need to be treated differently since categorical,,,,,,,,,
 #Low_ecosystem_richness,Binary,,,,,0.33,,,"We have only one variable, so we need to choose categorical value (low, med, high)"
 #Med_ecosystem_richness,Binary,,,,,0.66,,,
 #High_ecosystem_richness,Binary,,,,,1,,,This looks wrong

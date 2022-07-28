@@ -16,7 +16,7 @@ from .core import elt_name, instantiate_subelts, dict_from_list, TemperaturePres
 from .energy import Energy
 from .error import (OpgeeException, OpgeeStopIteration, OpgeeMaxIterationsReached,
                     OpgeeIterationConverged, ModelValidationError, ZeroEnergyFlowError)
-from .import_export import ImportExport, WATER
+from .import_export import ImportExport
 from .log import getLogger
 from .process import Process, Aggregator, Reservoir
 from .process_groups import ProcessChoice
@@ -88,6 +88,8 @@ class Field(Container):
         all_procs = self.collect_processes()  # includes Reservoir
         self.process_dict = self.adopt(all_procs, asDict=True)
 
+        self.agg_dict = {agg.name : agg for agg in self.descendant_aggs()}
+
         self.extend = False
 
         # Stores the name of a Field that the current field copies then modifies
@@ -125,6 +127,7 @@ class Field(Container):
 
         bad = [proc for proc in self.processes() if proc.run_after and not _run_after_ok(proc)]
         if bad:
+            # TBD: document this feature
             raise OpgeeException(f"Processes {bad} are tagged 'after=True' but have output streams to non-'after' processes")
 
         return True
@@ -162,7 +165,11 @@ class Field(Container):
         self.gas = Gas(self)
         self.water = Water(self)
         self.steam_generator = SteamGenerator(self)
-        self.product_names = self.import_export.imports_exports().index.drop(WATER)
+
+        imp_exp = self.import_export.imports_exports()
+
+        # TODO: never used
+        # self.product_names = imp_exp.index.drop(WATER)
 
         # TODO: the only use of this is in a function that isn't called. Maybe deprecated.
         self.product_boundaries = model.product_boundaries
@@ -172,7 +179,7 @@ class Field(Container):
         self.product_LHV.loc['PC'] = petrocoke_LHV
 
         self.resolve_process_choices()
-        self._check_run_after_procs()       # TBD: write test
+        self._check_run_after_procs()       # TBD: write test (also, move call to validate()?
 
         # we use networkx to reason about the directed graph of Processes (nodes)
         # and Streams (edges).
@@ -247,8 +254,9 @@ class Field(Container):
             self.procs_beyond_boundary = boundary_proc.beyond_boundary()
 
             self.reset()
-            self._impute()
+            SmartDefault.apply_defaults(analysis, self)
 
+            self._impute()
             self.reset_iteration()
             self.run_processes(analysis)
 
@@ -356,13 +364,12 @@ class Field(Container):
         # total_emissions = onsite_emissions + imported_emissions - byproduct_carbon_credit
         # energy = self.boundary_energy_flow_rate(analysis)
 
-        export_df = self.import_export.export_df
+        # export_df = self.import_export.export_df
+        #export_LHV = export_df.drop(columns=["Water"]).sum(axis='columns').sum()
+        # self.carbon_intensity = ci = (total_emissions / export_LHV).to('grams/MJ')
 
         boundary_energy_flow_rate = self.boundary_energy_flow_rate(analysis)
         self.carbon_intensity = ci = (total_emissions / boundary_energy_flow_rate).to('grams/MJ')
-
-        export_LHV = export_df.drop(columns=["Water"]).sum(axis='columns').sum()
-        # self.carbon_intensity = ci = (total_emissions / export_LHV).to('grams/MJ')
 
         return ci
 
@@ -373,9 +380,14 @@ class Field(Container):
         :param net_import: (Pandas.Series) net import energy rates (water is mass rate)
         :return: total emissions (units of g CO2)
         """
+        from .import_export import WATER
+
         imported_emissions = ureg.Quantity(0.0, "tonne/day")
 
         for product, energy_rate in net_import.items():
+            if product == WATER:
+                continue    # TODO: Water is not in self.upstream_CI and not in upstream-CI.csv, which has units of g/mmbtu
+
             energy_rate = (energy_rate if isinstance(energy_rate, pint.Quantity)
                            else ureg.Quantity(energy_rate, "mmbtu/day"))
 
@@ -707,7 +719,6 @@ class Field(Container):
         name = elt_name(elt)
         attrib = elt.attrib
 
-        # TBD: fill in Smart Defaults here, or assume they've been filled already?
         attr_dict = cls.instantiate_attrs(elt)
 
         aggs = instantiate_subelts(elt, Aggregator)
@@ -894,7 +905,7 @@ class Field(Container):
         if steam_flooding:
             return SOR
 
-        tmp = 4.021 * exp(0.024 * age) - 4.021
+        tmp = 4.021 * exp(0.024 * age.m) - 4.021
         return tmp if tmp <= 100 else 100
 
     @SmartDefault.register('SOR', ['steam_flooding'])
@@ -906,9 +917,9 @@ class Field(Container):
     @SmartDefault.register('GOR', ['API'])
     def GOR_default(self, API):
         # =IF(API_grav<20,1122.4,IF(AND(API_grav>=20,API_grav<=30),1205.4,2429.3))
-        if API < 20:
+        if API.m < 20:
             return 1122.4           # TODO: explain these constants
-        elif 20 <= API <= 30:
+        elif 20 <= API.m <= 30:
             return 1205.4
         else:
             return 2429.3
@@ -925,7 +936,7 @@ class Field(Container):
         # =J86+1  [J86 is WOR default, 6]
         return wor + 1
 
-    @SmartDefault.register('stabilizer', ['GOR', 'gas_lifting', 'oil_sands_mine'])
+    @SmartDefault.register('stabilizer_column', ['GOR', 'gas_lifting', 'oil_sands_mine'])
     def stabilizer_default(self, GOR, gas_lifting, oil_sands_mine):
         # =IF(OR(J55+J56=1,AND(J85<=500,J52=0)),0,1)
         # J52 = gas_lifting (binary)
@@ -938,7 +949,7 @@ class Field(Container):
         return 0 if (oil_sands_mine != 'None') or (not gas_lifting and GOR <= 500) else 1
 
     # gas flooding injection ratio
-    @SmartDefault.register('GFIR', ['flood_gas_type', 'GOR'])
+    @SmartDefault.register('GFIR', ['GasReinjectionCompressor.flood_gas_type', 'GOR'])
     def GFIR_default(self, flood_gas_type, GOR):
         # =IF(Flood_gas_type=1, 1.5*J85, IF(Flood_gas_type=2, 1200,  IF(Flood_gas_type=3, 10000,  1.5*J85)))
         # J85 is GOR
@@ -958,29 +969,29 @@ class Field(Container):
     def depth_default(self, GOR):
         # =IF(GOR > 10000, Z62, 7122), where Z62 has constant 8285 [gas field default depth]
         gas_field_default_depth = 8285.
-        return gas_field_default_depth if GOR > 1000 else 7122.
+        return gas_field_default_depth if GOR.m > 1000 else 7122.
 
-    @SmartDefault.register('res_pres', ['country', 'depth', 'steam_flooding'])
+    @SmartDefault.register('res_press', ['country', 'depth', 'steam_flooding'])
     def res_press_default(self, country, depth, steam_flooding):
         # =IF(AND('Active Field'!J59="California",'Active Field'!J54=1),100,0.5*(J62*0.43))
         # J59 = country, J62 = depth, J54 = steam_flooding
-        return 100.0 if (country == 'California' and steam_flooding) else 0.5 * depth * 0.43
+        return 100.0 if (country == 'California' and steam_flooding) else 0.5 * depth.m * 0.43
 
     @SmartDefault.register('res_temp', ['depth'])
     def res_temp_default(self, depth):
         # = 70+1.8*J62/100 [J62 = depth]
-        return 70 + 1.8 * depth/100.0
+        return 70 + 1.8 * depth.m/100.0
 
-    @SmartDefault.register('heater_treater', ['API'])
+    @SmartDefault.register('CrudeOilDewatering.heater_treater', ['API'])
     def heater_treater_default(self, API):
         # =IF(J73<18,1,0)  [J73 is API gravity]
-        return API < 18
+        return API.m < 18
 
     @SmartDefault.register('num_prod_wells', ['oil_sands_mine', 'oil_prod'])
     def num_producing_wells_default(self, oil_sands_mine, oil_prod):
         # =IF(OR(Oil_sands_mine_int_01=1,Oil_sands_mine_nonint_01=1),0,IF(ROUND(J63/87.5,0)<1,1,ROUNDUP(J63/87.5,0)))
         # J63 = oil_prod
-        return 0 if oil_sands_mine != 'None' else max(1.0, round(oil_prod/87.5, 0))
+        return 0 if oil_sands_mine != 'None' else max(1.0, round(oil_prod.m/87.5, 0))
 
     @SmartDefault.register('num_water_inj_wells', ['oil_sands_mine', 'oil_prod', 'num_prod_wells'])
     def oil_prod_default(self, oil_sands_mine, oil_prod, num_prod_wells):
@@ -996,18 +1007,20 @@ class Field(Container):
         if oil_sands_mine != 'None':
             return 0
 
-        if oil_prod <= 10:
+        oil_prod_m = oil_prod.m
+
+        if oil_prod_m <= 10:
             fraction = 0.143
-        elif 10 < oil_prod <= 100:
+        elif 10 < oil_prod_m <= 100:
             fraction = 0.267
-        elif 100 < oil_prod <= 1000:
+        elif 100 < oil_prod_m <= 1000:
             fraction = 0.512
         else:
             fraction = 0.829
 
         return roundup(num_prod_wells * fraction, 0)
 
-    @SmartDefault.register('fraction_diluent', ['oil_sands_mine', 'upgrader_type'])
+    @SmartDefault.register('HeavyOilDilution.fraction_diluent', ['oil_sands_mine', 'upgrader_type'])
     def fraction_diluent_default(self, oil_sands_mine, upgrader_type):
         # =IF(AND(J56=1,J111=0),0.3,0) [J56 = 'oil sands mine nonint'; ; J111 = upgrader_type
         return 0.3 if (oil_sands_mine == 'Non-integrated with upgrader' and upgrader_type == 'None') else 0.0

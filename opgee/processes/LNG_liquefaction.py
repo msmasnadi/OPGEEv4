@@ -26,7 +26,8 @@ class LNGLiquefaction(Process):
         if input.is_uninitialized():
             return
 
-        total_load = (self.compression_refrigeration_load + self.ancillary_loads) * self.NG_to_liq_rate
+        # TODO: delete unused code here and below
+        # total_load = (self.compression_refrigeration_load + self.ancillary_loads) * self.NG_to_liq_rate
 
         gas_to_transport = self.find_output_stream("gas for transport")
         gas_to_transport.copy_flow_rates_from(input)

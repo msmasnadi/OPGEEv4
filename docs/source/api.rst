@@ -20,7 +20,9 @@ allow reporting of results at each nesting level.
 
    opgee.core
    opgee.processes
+   opgee.smart_defaults
    opgee.thermodynamics
+   opgee.mcs
 
 Supporting Modules
 ---------------------

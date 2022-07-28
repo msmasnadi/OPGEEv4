@@ -5,36 +5,34 @@ channels:
   - defaults
 dependencies:
   - colour
-  - dash>=2.3.1
-  - decorator
+  - dash>=2.5.1
   - ipython
   - ipyparallel
-  - jinja2>=3.0.1
-  - libpng
-  - libtiff
+  - jinja2
   - llvm-openmp
-  - lxml>=4.8.0
+  - lxml>=4.9.0
   - networkx
   - nuitka
-  - numpy>=1.21.0
+  - numba
+  - numpy
   - ordered-set
-  - pandas>=1.4.2
-  - pint>=0.19.2
-  - pint-pandas>=0.2
+  - pandas
+  - pint
+  - pint-pandas
   - pip
   - pydot
-  - pyparsing
   - pytest
   - python=3.8
-  - semver>=2.13.0
+  - semver
   - setuptools
   - sphinx>=4.3.0
   - sphinx-argparse>=0.2.5
   - sphinx_rtd_theme>=0.5.1
   - sphinxcontrib-serializinghtml
-  - traitlets
-  - urllib3
   - pip:
-    - dash-cytoscape>=0.3.0
+    # These next three fail if upgraded beyond these versions
+    - thermo==0.2.10    # several tests fail when using v0.2.21
+    - thermosteam==0.28.12
     - pyXSteam==0.4.8
-    - thermosteam==0.28.5
+    - dash-cytoscape>=0.3.0
+    - ray

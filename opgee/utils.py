@@ -124,7 +124,19 @@ def getBooleanXML(value):
 # the stack, based on value of n.
 getFuncName = lambda n=0: sys._getframe(n + 1).f_code.co_name
 
-def coercible(value, pytype, raiseError=True, allow_truncation=False):
+def to_int(s):
+    f = float(s)
+    i = int(f)
+    if f == i:
+        return i
+
+    raise TypeError(f"coercible: Refusing to truncate float {s} to int")
+
+# pseudo-type
+def binary(value):
+    return 1 if getBooleanXML(value) else 0
+
+def coercible(value, pytype, raiseError=True):
     """
     Attempt to coerce a value to `pytype` and raise an error on failure. If the
     value is a pint.Quantity, the value is simply returned.
@@ -132,7 +144,6 @@ def coercible(value, pytype, raiseError=True, allow_truncation=False):
     :param value: any value coercible to `pytype`
     :param pytype: any Python type or its string equivalent
     :param raiseError: (bool) whether to raise errors when appropriate
-    :param allow_truncation: (bool) whether to allow truncation of float to int
     :return: (`pytype`) the coerced value, if it's coercible, otherwise
        None if raiseError is False
     :raises OpgeeException: if the value is a pint.Quantity, it is returned
@@ -143,28 +154,22 @@ def coercible(value, pytype, raiseError=True, allow_truncation=False):
     if isinstance(value, Quantity):
         return value
 
-    # pseudo-type
-    def binary(value):
-        return 1 if getBooleanXML(value) else 0
-
     if type(pytype) == str:
         if pytype == 'float':
-            pytype = float
+            pytype_func = float
         elif pytype == 'int':
-            pytype = int
+            pytype_func = lambda s: to_int(s)   # allow "24.0" to be truncated to 24
         elif pytype == 'str':
-            pytype = str
+            pytype_func = str
         elif pytype == 'binary':
-            pytype = binary
+            pytype_func = binary
         else:
             raise OpgeeException(f"coercible: '{pytype}' is not a recognized type string")
-
-    # avoid silent truncation of float to int
-    if not allow_truncation and pytype == int and type(value) == float:
-        raise OpgeeException(f"coercible: Refusing to truncate float {value} to int")
+    else:
+        pytype_func = pytype
 
     try:
-        value = pytype(value)
+        value = pytype_func(value)
 
     except (TypeError, ValueError) as e:
         if raiseError:
