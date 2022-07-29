@@ -12,6 +12,7 @@ from .core import TemperaturePressure
 from .log import getLogger
 from .stream import PHASE_LIQUID, Stream
 from .thermodynamics import Oil, Gas, Water
+from .core import STP
 
 _logger = getLogger(__name__)
 
@@ -32,6 +33,7 @@ def combine_streams(streams, API):
         return streams[0]
 
     non_empty_streams = [stream for stream in streams if not stream.is_uninitialized()]
+    non_empty_streams_pressure = [stream.tp.P for stream in non_empty_streams]
 
     if not non_empty_streams:
         return Stream("empty_stream", TemperaturePressure(None, None))
@@ -49,9 +51,9 @@ def combine_streams(streams, API):
     if stream_sp_heat_sum.m != 0.0:
         temperature = (stream_temperature * stream_specific_heat).sum() / stream_sp_heat_sum
         temperature = temperature.to("degF")
-        first_non_empty_stream = non_empty_streams[0]
+        min_pressure = min(non_empty_streams_pressure)
         stream = Stream('combined',
-                        TemperaturePressure(temperature, first_non_empty_stream.tp.P),
+                        TemperaturePressure(temperature, max(STP.P, min_pressure)),
                         comp_matrix=comp_matrix)
     return stream
 

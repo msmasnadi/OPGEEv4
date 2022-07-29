@@ -34,7 +34,7 @@ dependencies:
   - urllib3
   - pip:
     - thermo==0.2.10
-    - thermosteam==0.28.12
+    - thermosteam==0.27.15
     - pyXSteam==0.4.8
-    - dash-cytoscape=0.3.0
+    - dash-cytoscape==0.3.0
     - ray
