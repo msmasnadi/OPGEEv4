@@ -82,7 +82,7 @@
 				<StreamRef name="Ryan-Holmes to NGL"/>
 				<StreamRef name="CO2 reinjection compressor to CO2 injection well"/>
 				<StreamRef name="flooding CO2"/>
-				<StreamRef name="CO2 injection well to reservoir"/>
+<!--				<StreamRef name="CO2 injection well to reservoir"/>-->
 
 			</ProcessGroup>
 			<ProcessGroup name="Sour Gas Reinjection">
@@ -90,7 +90,7 @@
 				<ProcessRef name="SourGasInjection"/>
 				<StreamRef name="gas dehydration to sour gas compressor"/>
 				<StreamRef name="sour gas compressor to sour gas injection"/>
-				<StreamRef name="sour gas injection to reservoir"/>
+<!--				<StreamRef name="sour gas injection to reservoir"/>-->
 			</ProcessGroup>
 
 			<ProcessGroup name="CO2-EOR Membrane">
@@ -109,7 +109,7 @@
 				<StreamRef name="acid gas removal to CO2 reinjection compressor"/>
 				<StreamRef name="CO2 reinjection compressor to CO2 injection well"/>
 				<StreamRef name="flooding CO2"/>
-				<StreamRef name="CO2 injection well to reservoir"/>
+<!--				<StreamRef name="CO2 injection well to reservoir"/>-->
 				<StreamRef name="acid gas removal to demethanizer"/>
 				<StreamRef name="demethanizer to gas partition"/>
 			</ProcessGroup>
@@ -466,6 +466,10 @@
 
 		<Stream src="GasPartition" dst="TransmissionCompressor" name="gas partition to transmission compressor">
 			<Contains>gas for transmission</Contains>
+		</Stream>
+
+		<Stream src="GasPartition" dst="ProductionBoundary" name="gas partition to production boundary">
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="TransmissionCompressor" dst="TransportationBoundary" name="transmission compression to boundary">

@@ -60,8 +60,6 @@ class Compressor(OpgeeObject):
         compression_ratio_per_stages = []
 
         for compression_ratio in overall_compression_ratio_stages:
-            if compression_ratio < 1:
-                raise ModelValidationError("compression ratio is less than 1")
             for pow in _power:
                 if compression_ratio ** pow < max_stages:
                     compression_ratio_per_stages.append(compression_ratio ** pow)
@@ -71,8 +69,6 @@ class Compressor(OpgeeObject):
 
     @staticmethod
     def get_compression_ratio(overall_compression_ratio):
-        if overall_compression_ratio < 1:
-            raise ModelValidationError("compression ratio is less than 1")
         max_stages = len(_power)
         result = 0
 
@@ -88,8 +84,6 @@ class Compressor(OpgeeObject):
 
         for overall_compression_ratio, compression_ratio in \
                 zip(overall_compression_ratio_stages, compression_ratio_per_stages):
-            if overall_compression_ratio < 1:
-                raise ModelValidationError("compression ratio is less than 1")
             for pow in _power:
                 if overall_compression_ratio ** pow == compression_ratio:
                     num_of_compression_stages.append(int(1 / pow))
@@ -99,8 +93,6 @@ class Compressor(OpgeeObject):
 
     @staticmethod
     def get_num_of_compression(overall_compression_ratio):
-        if overall_compression_ratio < 1:
-            raise ModelValidationError("compression ratio is less than 1")
         result = 0
         compression_ratio = Compressor.get_compression_ratio(overall_compression_ratio)
 
@@ -128,13 +120,15 @@ class Compressor(OpgeeObject):
            that in the inlet_stream
         :return:
         """
-
-        compression_ratio = Compressor.get_compression_ratio(overall_compression_ratio)
-        num_stages = Compressor.get_num_of_compression(overall_compression_ratio)
-
+        energy_consumption = ureg.Quantity(0, "mmbtu/day")
         tp = inlet_tp or inlet_stream.tp
         inlet_temp, inlet_press = tp.get()
 
+        if overall_compression_ratio < 1:
+            return energy_consumption, inlet_temp, inlet_press
+
+        compression_ratio = Compressor.get_compression_ratio(overall_compression_ratio)
+        num_stages = Compressor.get_num_of_compression(overall_compression_ratio)
         total_work, outlet_temp, outlet_press = Compressor.get_compressor_work_temp(field,
                                                                                     inlet_temp,
                                                                                     inlet_press,
