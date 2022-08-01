@@ -14,7 +14,7 @@ _logger = getLogger(__name__)
 
 DEFAULT_MODIFIES = 'template'
 
-def read_fields(csv_path, from_package=False):
+def read_fields(csv_path, from_package=False, skip_fields=None):
     """
     Read a CSV file with attributes data for fields where columns are fields
     and rows are attributes, with the exception of one column, 'Type', which
@@ -23,6 +23,7 @@ def read_fields(csv_path, from_package=False):
     :param csv_path: (str) the path to the CSV file
     :param from_package: (bool) if True, ``csv_path`` should be relative and
        is interpreted as within the opgee package.
+    :param skip_fields: (list of str) the names of fields to exclude
     :return: (tuple of pd.DataFrame, pd.Series) DataFrame has attributes in columns
        and is indexed by field name. Series is indexed by attribute name holding
        the type ("str", "int", or "float") of the attribute.
@@ -41,6 +42,9 @@ def read_fields(csv_path, from_package=False):
 
     df.rename(index=v3_to_v4, inplace=True)
 
+    if skip_fields:
+        df.drop(skip_fields, axis='columns', inplace=True)
+
     # Pull dtypes out as a separate series
     dtypes = df['Type']
     df.drop('Type', axis='columns', inplace=True)
@@ -48,7 +52,8 @@ def read_fields(csv_path, from_package=False):
     return (df, dtypes)
 
 
-def import_fields(csv_path, xml_path, analysis_name, count=0, modifies=DEFAULT_MODIFIES, from_package=False):
+def import_fields(csv_path, xml_path, analysis_name, count=0, skip_fields=None,
+                  modifies=DEFAULT_MODIFIES, from_package=False):
     """
     Import Field information from a CSV file.
 
@@ -56,13 +61,15 @@ def import_fields(csv_path, xml_path, analysis_name, count=0, modifies=DEFAULT_M
     :param xml_path: (str or Path) the XML file to create
     :param count: (int) if count > 0, import only the first `count` fields
     :param modifies: (str) the name of a Field the generated fields "modify"
+    :param skip_fields: (list of str) the names of fields to exclude
     :param from_package: (bool) if True, treat `streams_csv_path` as relative to the
        opgee package and load the file from the internal package resource.
     :return:
     """
     from ..xml_utils import attr_to_xml
 
-    fields, dtypes = read_fields(csv_path, from_package=from_package)
+    fields, dtypes = read_fields(csv_path,
+                                 from_package=from_package, skip_fields=skip_fields)
 
     if count:
         fields = fields[fields.columns[:count]]
@@ -81,6 +88,8 @@ class XmlCommand(SubcommandABC):
         super().__init__('csv2xml', subparsers, kwargs, group='project')
 
     def addArgs(self, parser):
+        from ..utils import ParseCommaList
+
         parser.add_argument('-a', '--analysis',
                             help='''The name to give the <Analysis> element. Default is the file basename 
                             with the extension removed.''')
@@ -89,7 +98,6 @@ class XmlCommand(SubcommandABC):
         format_choices = [default_format, 'attributes'] # extend as needed
         parser.add_argument('-f', '--format', choices=format_choices, default=default_format,
                             help=f'''Which type of conversion to perform. Default is "{default_format}".''')
-
 
         parser.add_argument('-m', '--modifies', default=DEFAULT_MODIFIES,
                             help=f'''The name to use in the <Field modifies="NAME"> element. 
@@ -114,6 +122,9 @@ class XmlCommand(SubcommandABC):
                             help='''If specified, the inputCSV argument is treated as relative to 
                             the opgee package and loaded as an internal resource.''')
 
+        parser.add_argument('-s', '--skipFields', action=ParseCommaList,
+                            help='''Comma-delimited list of field names to exclude from analysis''')
+
         return parser
 
     def run(self, args, tool):
@@ -136,4 +147,4 @@ class XmlCommand(SubcommandABC):
             raise CommandlineError(f"Refusing to overwrite '{output_path}'; use --overwrite to override this.")
 
         import_fields(input_csv, output_xml, args.analysis, count=args.count,
-                      modifies=args.modifies, from_package=from_package)
+                      modifies=args.modifies, from_package=from_package, skip_fields=args.skipFields)
