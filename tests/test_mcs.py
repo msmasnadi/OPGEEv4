@@ -4,8 +4,8 @@ from io import StringIO
 from opgee.error import McsUserError
 from opgee.mcs.simulation import read_distributions, Simulation, Distribution
 
+analysis_name = 'example'
 field_name = 'gas_lifting_field'
-analysis_name = 'test_analysis'
 sim_dir = '/tmp/test-mcs'
 N = 100
 

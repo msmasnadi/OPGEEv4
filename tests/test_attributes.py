@@ -94,7 +94,7 @@ def test_exceptions(attr_classes, attr_dict_1):
     obj = AttributeHolder(attr_dict_1)
     name = 'unknown'
     with pytest.raises(OpgeeException, match=f".*Attribute '{name}' not found in*"):
-        obj.attr(name, raiseError=True)
+        obj.attr(name)
 
 
 def test_string_rep(attr_classes):

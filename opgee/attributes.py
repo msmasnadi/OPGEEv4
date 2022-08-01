@@ -209,12 +209,13 @@ class AttributeMixin():
     def __init__(self):
         self.attr_dict = None
 
-    def attr(self, attr_name, raiseError=False):
-        obj = self.attr_dict.get(attr_name)
-        if obj is None and raiseError:
+    def attr(self, attr_name):
+        try:
+            obj = self.attr_dict[attr_name]
+        except KeyError:
             raise OpgeeException(f"Attribute '{attr_name}' not found in {self}")
 
-        return obj.value if obj else None
+        return obj.value
 
     def set_attr(self, attr_name, value):
         """

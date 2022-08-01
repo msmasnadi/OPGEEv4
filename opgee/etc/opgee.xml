@@ -6,47 +6,52 @@
      and modify this file. We also (will) support site- and user-specific XML template files that
      define custom starting points.
      -->
-<Model schema_version="4.0.0.a" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="opgee.xsd">
-	<Analysis name="test_analysis">
+<Model schema_version="4.0.0.a" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="opgee.xsd">	
+	<Analysis name="template">
+		<Field name="template"/>
+	</Analysis>
+	
+	<Analysis name="example">
 		<A name="functional_unit">oil</A>
 		<A name="energy_basis">LHV</A>
-	  <A name="GWP_horizon">100</A>
-	  <A name="GWP_version">AR5</A>
-		<Field name="gas_lifting_field"/>
+		<A name="GWP_horizon">100</A>
+		<A name="GWP_version">AR5</A>
+		
+		<Field name="gas_lifting_field" modifies="template">
+			<A name="country">USA</A>
+			<A name="water_reinjection">1</A>
+			<A name="downhole_pump">0</A>
+			<A name="natural_gas_reinjection">1</A>
+			<A name="gas_lifting">1</A>
+			<A name="depth">3937.0</A>
+			<A name="oil_prod">175000.0</A>
+			<A name="num_prod_wells">24</A>
+			<A name="num_water_inj_wells">20</A>
+			<A name="well_diam">8.0</A>
+			<A name="prod_index">90.90</A>
+			<A name="res_press">3655.0</A>
+			<A name="res_temp">141.0</A>
+			<A name="API">32.0</A>
+			<A name="GOR">584.29</A>
+			<A name="WOR">0.5</A>
+			<A name="WIR">1.5</A>
+			<A name="GLIR">30.26</A>
+			<A name="FOR">218.27</A>
+			<A name="VOR">5.0</A>
+			<A name="gas_processing_path">Acid Wet Gas</A>
+			<A name="upgrader_type">Delayed coking</A>
+			<A name="frac_transport_pipeline">0.0</A>
+			<A name="transport_dist_tanker">7984.0</A>
+			<A name="transport_dist_barge">0</A>
+			<A name="transport_dist_pipeline">0</A>
+			<A name="transport_dist_rail">0</A>
+			<A name="transport_dist_truck">0</A>
+			<A name="ecosystem_richness">Low carbon</A>
+			<A name="field_development_intensity">Low</A>
+		</Field>
 	</Analysis>
 
-	<Field name="gas_lifting_field">
-		<A name="country">USA</A>
-		<A name="water_reinjection">1</A>
-		<A name="downhole_pump">0</A>
-		<A name="natural_gas_reinjection">1</A>
-		<A name="gas_lifting">1</A>
-		<A name="depth">3937.0</A>
-		<A name="oil_prod">175000.0</A>
-		<A name="num_prod_wells">24</A>
-		<A name="num_water_inj_wells">20</A>
-		<A name="well_diam">8.0</A>
-		<A name="prod_index">90.90</A>
-		<A name="res_press">3655.0</A>
-		<A name="res_temp">141.0</A>
-		<A name="API">32.0</A>
-		<A name="GOR">584.29</A>
-		<A name="WOR">0.5</A>
-		<A name="WIR">1.5</A>
-		<A name="GLIR">30.26</A>
-		<A name="FOR">218.27</A>
-		<A name="VOR">5.0</A>
-		<A name="gas_processing_path">Acid Wet Gas</A>
-		<A name="upgrader_type">Delayed coking</A>
-		<A name="frac_transport_pipeline">0.0</A>
-		<A name="transport_dist_tanker">7984.0</A>
-		<A name="transport_dist_barge">0</A>
-		<A name="transport_dist_pipeline">0</A>
-		<A name="transport_dist_rail">0</A>
-		<A name="transport_dist_truck">0</A>
-		<A name="ecosystem_richness">Low carbon</A>
-		<A name="field_development_intensity">Low</A>
-
+	<Field name="template">
 		<Process class="After"/>
 
 		<Process class="Boundary" boundary="Production"/>
@@ -477,7 +482,6 @@
 			<Contains>LNG</Contains>
 			<Contains>gas for distribution</Contains>
 		</Stream>
-
 	</Field>
-
+	
 </Model>

@@ -13,7 +13,6 @@ from ..emissions import EM_COMBUSTION
 from ..log import getLogger
 from ..process import Process
 from .shared import get_energy_carrier, get_energy_consumption
-from ..import_export import ImportExport
 
 _logger = getLogger(__name__)
 
@@ -22,10 +21,10 @@ class WaterInjection(Process):
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
-        self.water_reinjeciton = field.attr("water_reinjeciton")
+        self.water_reinjection = field.attr("water_reinjection")
         self.water_flooding = field.attr("water_flooding")
 
-        if self.water_reinjeciton == 0 and self.water_flooding == 0:
+        if self.water_reinjection == 0 and self.water_flooding == 0:
             self.enabled = False
             return
 

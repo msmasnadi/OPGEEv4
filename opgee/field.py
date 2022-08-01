@@ -949,7 +949,7 @@ class Field(Container):
         return 0 if (oil_sands_mine != 'None') or (not gas_lifting and GOR <= 500) else 1
 
     # gas flooding injection ratio
-    @SmartDefault.register('GFIR', ['GasReinjectionCompressor.flood_gas_type', 'GOR'])
+    @SmartDefault.register('GFIR', ['flood_gas_type', 'GOR'])
     def GFIR_default(self, flood_gas_type, GOR):
         # =IF(Flood_gas_type=1, 1.5*J85, IF(Flood_gas_type=2, 1200,  IF(Flood_gas_type=3, 10000,  1.5*J85)))
         # J85 is GOR

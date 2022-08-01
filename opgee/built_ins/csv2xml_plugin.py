@@ -12,7 +12,7 @@ from ..log import getLogger
 
 _logger = getLogger(__name__)
 
-DEFAULT_MODIFIES = 'US_FW'
+DEFAULT_MODIFIES = 'template'
 
 def read_fields(csv_path, from_package=False):
     """

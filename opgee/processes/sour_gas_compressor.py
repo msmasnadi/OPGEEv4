@@ -26,7 +26,7 @@ class SourGasCompressor(Process):
         self.eta_compressor = self.attr("eta_compressor")
         self.prime_mover_type = self.attr("prime_mover_type")
         self.gas_flooding = field.attr("gas_flooding")
-        self.flood_gas_type = self.attr("flood_gas_type")
+        self.flood_gas_type = field.attr("flood_gas_type")
         self.GFIR = field.attr("GFIR")
         self.oil_prod = field.attr("oil_prod")
         self.gas_flooding_vol_rate = self.oil_prod * self.GFIR

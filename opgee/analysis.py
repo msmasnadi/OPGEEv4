@@ -86,7 +86,7 @@ class Analysis(Container):
         self.functional_units = set(getParamAsList('OPGEE.FunctionalUnits'))
 
         self.fn_unit = self.attr("functional_unit")
-        self.boundary = self.attr("boundary", raiseError=True)
+        self.boundary = self.attr("boundary")
 
         self.validate()
 
