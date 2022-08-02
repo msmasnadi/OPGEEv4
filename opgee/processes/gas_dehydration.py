@@ -25,11 +25,13 @@ class GasDehydration(Process):
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
+        model = field.model
+
         self.gas = field.gas
-        self.gas_dehydration_tbl = field.model.gas_dehydration_tbl
-        self.mol_to_scf = field.model.const("mol-per-scf")
-        self.air_elevation_const = field.model.const("air-elevation-corr")
-        self.air_density_ratio = field.model.const("air-density-ratio")
+        self.gas_dehydration_tbl = model.gas_dehydration_tbl
+        self.mol_to_scf = model.const("mol-per-scf")
+        self.air_elevation_const = model.const("air-elevation-corr")
+        self.air_density_ratio = model.const("air-density-ratio")
         self.reflux_ratio = field.attr("reflux_ratio")
         self.regeneration_feed_temp = field.attr("regeneration_feed_temp")
         self.eta_reboiler_dehydrator = self.attr("eta_reboiler_dehydrator")
@@ -37,11 +39,14 @@ class GasDehydration(Process):
         self.air_cooler_press_drop = self.attr("air_cooler_press_drop")
         self.air_cooler_fan_eff = self.attr("air_cooler_fan_eff")
         self.air_cooler_speed_reducer_eff = self.attr("air_cooler_speed_reducer_eff")
+
         self.water_press = field.water.density() * \
                            self.air_cooler_press_drop * \
                            field.model.const("gravitational-acceleration")
 
         self.gas_path = field.attr("gas_processing_path")
+
+        # TODO: update this after setting streams to use default names
         self.gas_path_dict = {"Acid Gas": "gas for AGR",
                               "Acid Wet Gas": "gas for AGR",
                               "CO2-EOR Membrane": "gas for chiller",

@@ -74,6 +74,7 @@
 		<A name="FOR">218.27</A>
 		<A name="VOR">5.0</A>
 		<A name="gas_processing_path">Acid Wet Gas</A>
+		<A name="common_gas_process_choice">All</A> <!-- controlled by a smart default "" -->
 		<A name="upgrader_type">Delayed coking</A>
 		<A name="frac_transport_pipeline">0.0</A>
 		<A name="transport_dist_tanker">7984.0</A>
@@ -151,6 +152,42 @@
 				<StreamRef name="demethanizer to gas partition"/>
 			</ProcessGroup>
 
+		</ProcessChoice>
+
+		<ProcessChoice name="common_gas_process_choice">
+			<ProcessGroup name="All">
+				<ProcessRef name="GasPartition"/>
+				<ProcessRef name="GasLiftingCompressor"/>
+				<ProcessRef name="GasReinjectionCompressor"/>
+				<ProcessRef name="TransmissionCompressor"/>
+				<ProcessRef name="GasReinjectionWell"/>
+
+				<!-- These were not found in my branch's opgee.xml -->
+				<!--
+				<ProcessRef name="StorageCompressor"/>
+				<ProcessRef name="LNGLiquefaction"/>
+				<ProcessRef name="GasDistribution"/>
+				<ProcessRef name="LNGRegasification"/>
+				<ProcessRef name="LNGTransport"/>
+				<ProcessRef name="StorageWell"/>
+				<ProcessRef name="StorageSeparator"/>
+				<ProcessRef name="PostStorageCompressor"/>
+				-->
+
+				<!-- unclear which streams should be included here. Field.reset() calls
+				     reset_streams, which disables streams that have disabled src or dst.
+				     So listing Streams may be unnecessary.
+				 -->
+				<StreamRef name="gas partition to gas lifting compressor"/>
+				<StreamRef name="gas partition to gas reinjection compressor"/>
+				<StreamRef name="gas partition to transmission compressor"/>
+				<StreamRef name="gas partition to production boundary"/>
+				<StreamRef name="gas lifting compressor to downhole pump"/>
+				<StreamRef name="gas reinjection compressor to gas reinjection well"/>
+				<StreamRef name="transmission compression to boundary"/>
+				<StreamRef name="gas reinjection well to reservoir"/>
+
+			</ProcessGroup>
 		</ProcessChoice>
 
 		<ProcessChoice name="oil_processing_path">

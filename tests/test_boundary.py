@@ -19,4 +19,4 @@ def test_boundary(configure_logging_for_tests):
 def test_gas_trans_boundary(test_boundary):
     analysis = test_boundary.get_analysis('test_boundary')
     field = analysis.get_field('test_gas_transmission_boundary')
-    field.run(analysis)
+    field.run(analysis, smart_defaults=False)

@@ -236,13 +236,14 @@ class Field(Container):
             # TODO: shouldn't be possible
             raise OpgeeException("Impute failed due to a process loop. Use Stream attribute impute='0' to break cycle.")
 
-    def run(self, analysis, compute_ci=True):
+    def run(self, analysis, compute_ci=True, smart_defaults=True):
         """
         Run all Processes defined for this Field, in the order computed from the graph
         characteristics, using the settings in `analysis` (e.g., GWP).
 
         :param analysis: (Analysis) the `Analysis` to use for analysis-specific settings.
         :param compute_ci: (bool) if False, CI calculation is not performed (used by some tests)
+        :param smart_defaults: (bool) if False, don't run smart defaults. (For testing only.)
         :return: None
         """
         if self.is_enabled():
@@ -254,7 +255,8 @@ class Field(Container):
             self.procs_beyond_boundary = boundary_proc.beyond_boundary()
 
             self.reset()
-            SmartDefault.apply_defaults(analysis, self)
+            if smart_defaults:
+                SmartDefault.apply_defaults(analysis, self)
 
             self._impute()
             self.reset_iteration()
@@ -1051,6 +1053,12 @@ class Field(Container):
         # Med : =IF(J70=1,0,1)
         # High: =IF(J70=1,0,0) # TODO: high intensity isn't used?
         return 'Low' if offshore else 'Med'
+
+    @SmartDefault.register('common_gas_process_choice', ['gas_processing_path'])
+    def set_common_gas_process_choice(self, gas_processing_path):
+        # Disable the ancillary group of gas-related processes when there is no
+        # gas processing path selected. Otherwise enable all of those processes.
+        return 'None' if gas_processing_path == 'None' else 'common_gas_processes'
 
 
     # TODO: decide how to handle "associated gas defaults", which is just global vs CA-LCFS values currently

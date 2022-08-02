@@ -169,6 +169,10 @@
         <Option desc="Dehydrator + Compressor + Membrane + Amine Process + Demethanizer">CO2-EOR Membrane</Option>
         <Option desc="Dehydrator + Ryan Holmes Process (Demethanizer Included)">CO2-EOR Ryan Holmes</Option>
       </Options>
+      <Options name="common_gas_processes" default="All">
+        <Option>None</Option>
+        <Option>All</Option>
+      </Options>
       <Options name="oil_processing_path" default="Stabilization">
         <Option>None</Option>
         <Option desc="Stabilization">Stabilization</Option>
@@ -179,6 +183,7 @@
 
       <AttrDef name="upgrader_type" desc="Upgrader type" options="upgrader_type" type="str"/>
       <AttrDef name="gas_processing_path" desc="Associated gas processing path" options="gas_processing_path" type="str"/>
+      <AttrDef name="common_gas_process_choice" desc="Processes common to all gas pathways" options="common_gas_processes" type="str"/>
       <AttrDef name="FOR" unit="scf/bbl_oil" desc="Ratio of flaring to oil production" type="float">141.3</AttrDef>  <!-- TODO: in Excel, this references Flaring!M49, which is computed -->
       <AttrDef name="VOR" unit="scf/bbl_oil" desc="Ratio of venting to oil production" type="float">5.0</AttrDef>
       <AttrDef name="oil_processing_path" desc="Associated oil processing path" options="oil_processing_path" type="str"/>
