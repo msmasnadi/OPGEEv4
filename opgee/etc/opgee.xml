@@ -74,7 +74,6 @@
 		<A name="FOR">218.27</A>
 		<A name="VOR">5.0</A>
 		<A name="gas_processing_path">Acid Wet Gas</A>
-		<A name="common_gas_process_choice">All</A> <!-- controlled by a smart default "" -->
 		<A name="upgrader_type">Delayed coking</A>
 		<A name="frac_transport_pipeline">0.0</A>
 		<A name="transport_dist_tanker">7984.0</A>

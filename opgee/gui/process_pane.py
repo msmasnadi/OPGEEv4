@@ -165,7 +165,7 @@ class ProcessPane(OpgeePane):
                 name = data['id']
                 stream = field.find_stream(name)
                 with pd.option_context('display.max_rows', None,
-                                       'precision', 3):
+                                       'display.precision', 3):
                     nonzero = stream.non_zero_flow_rates()
                     components = (str(nonzero.astype(float))
                                   if nonzero is not None and len(nonzero)
