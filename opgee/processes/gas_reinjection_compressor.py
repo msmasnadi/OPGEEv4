@@ -31,7 +31,7 @@ class GasReinjectionCompressor(Process):
         self.gas_flooding = field.attr("gas_flooding")
         self.prime_mover_type = self.attr("prime_mover_type")
         self.eta_compressor = self.attr("eta_compressor")
-        self.flood_gas_type = self.attr("flood_gas_type")
+        self.flood_gas_type = field.attr("flood_gas_type")
         self.N2_flooding_tp = TemperaturePressure(self.attr("N2_flooding_temp"),
                                                   self.attr("N2_flooding_press"))
         self.C1_flooding_tp = TemperaturePressure(self.attr("C1_flooding_temp"),

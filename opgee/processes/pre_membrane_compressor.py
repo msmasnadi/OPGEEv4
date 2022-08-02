@@ -21,7 +21,7 @@ class PreMembraneCompressor(Process):
         super()._after_init()
         self.field = field = self.get_field()
         self.gas = field.gas
-        self.discharge_press = field.attr("discharge_press")
+        self.discharge_press = self.attr("discharge_press")
         self.eta_compressor = self.attr("eta_compressor")
         self.prime_mover_type = self.attr("prime_mover_type")
 

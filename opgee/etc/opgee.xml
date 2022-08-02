@@ -7,15 +7,52 @@
      define custom starting points.
      -->
 <Model schema_version="4.0.0.a" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="opgee.xsd">
-	<Analysis name="test_analysis">
+	<Analysis name="template">
+		<Field name="template"/>
+	</Analysis>
+
+	<Analysis name="example">
 		<A name="functional_unit">oil</A>
 		<A name="energy_basis">LHV</A>
 		<A name="GWP_horizon">100</A>
-	  	<A name="GWP_version">AR5</A>
-		<Field name="gas_lifting_field"/>
+		<A name="GWP_version">AR5</A>
+
+		<Field name="gas_lifting_field" modifies="template">
+			<A name="country">USA</A>
+			<A name="water_reinjection">1</A>
+			<A name="downhole_pump">0</A>
+			<A name="natural_gas_reinjection">1</A>
+			<A name="gas_lifting">1</A>
+			<A name="depth">3937.0</A>
+			<A name="oil_prod">175000.0</A>
+			<A name="num_prod_wells">24</A>
+			<A name="num_water_inj_wells">20</A>
+			<A name="well_diam">8.0</A>
+			<A name="prod_index">90.90</A>
+			<A name="res_press">3655.0</A>
+			<A name="res_temp">141.0</A>
+			<A name="API">32.0</A>
+			<A name="GOR">584.29</A>
+			<A name="WOR">0.5</A>
+			<A name="WIR">1.5</A>
+			<A name="GLIR">30.26</A>
+			<A name="FOR">218.27</A>
+			<A name="VOR">5.0</A>
+			<A name="gas_processing_path">Acid Wet Gas</A>
+			<A name="upgrader_type">Delayed coking</A>
+			<A name="frac_transport_pipeline">0.0</A>
+			<A name="transport_dist_tanker">7984.0</A>
+			<A name="transport_dist_barge">0</A>
+			<A name="transport_dist_pipeline">0</A>
+			<A name="transport_dist_rail">0</A>
+			<A name="transport_dist_truck">0</A>
+			<A name="ecosystem_richness">Low carbon</A>
+			<A name="field_development_intensity">Low</A>
+		</Field>
+
 	</Analysis>
 
-	<Field name="gas_lifting_field">
+	<Field name="template">
 		<A name="country">USA</A>
 		<A name="water_reinjection">1</A>
 		<A name="downhole_pump">0</A>
@@ -51,7 +88,6 @@
 
 		<Process class="Boundary" boundary="Production"/>
 		<Process class="Boundary" boundary="Transportation"/>
-		<Process class="Boundary" boundary="Distribution"/>
 
 		<ProcessChoice name="gas_processing_path">
 			<ProcessGroup name="Acid Wet Gas">
@@ -62,20 +98,17 @@
 				<StreamRef name="demethanizer to gas partition"/>
 				<StreamRef name="demethanizer to NGL"/>
 			</ProcessGroup>
-
 			<ProcessGroup name="Acid Gas">
 				<ProcessRef name="AcidGasRemoval"/>
 				<StreamRef name="gas dehydration to acid gas removal"/>
 				<StreamRef name="acid gas removal to gas partition"/>
 			</ProcessGroup>
-
 			<ProcessGroup name="Wet Gas">
 				<ProcessRef name="Demethanizer"/>
 				<StreamRef name="gas dehydration to demethanizer"/>
 				<StreamRef name="demethanizer to gas partition"/>
 				<StreamRef name="demethanizer to NGL"/>
 			</ProcessGroup>
-
 			<ProcessGroup name="CO2-EOR Ryan Holmes">
 				<ProcessRef name="RyanHolmes"/>
 				<ProcessRef name="CO2ReinjectionCompressor"/>
@@ -86,6 +119,7 @@
 				<StreamRef name="Ryan-Holmes to NGL"/>
 				<StreamRef name="CO2 reinjection compressor to CO2 injection well"/>
 				<StreamRef name="flooding CO2"/>
+<!--				<StreamRef name="CO2 injection well to reservoir"/>-->
 
 			</ProcessGroup>
 			<ProcessGroup name="Sour Gas Reinjection">
@@ -93,6 +127,7 @@
 				<ProcessRef name="SourGasInjection"/>
 				<StreamRef name="gas dehydration to sour gas compressor"/>
 				<StreamRef name="sour gas compressor to sour gas injection"/>
+<!--				<StreamRef name="sour gas injection to reservoir"/>-->
 			</ProcessGroup>
 
 			<ProcessGroup name="CO2-EOR Membrane">
@@ -111,12 +146,15 @@
 				<StreamRef name="acid gas removal to CO2 reinjection compressor"/>
 				<StreamRef name="CO2 reinjection compressor to CO2 injection well"/>
 				<StreamRef name="flooding CO2"/>
+<!--				<StreamRef name="CO2 injection well to reservoir"/>-->
 				<StreamRef name="acid gas removal to demethanizer"/>
 				<StreamRef name="demethanizer to gas partition"/>
 			</ProcessGroup>
+
 		</ProcessChoice>
 
 		<ProcessChoice name="oil_processing_path">
+
 			<ProcessGroup name="Stabilization">
 				<ProcessRef name="CrudeOilStabilization"/>
 				<ProcessRef name="CrudeOilStorage"/>
@@ -184,21 +222,16 @@
 			<Process class="GasReinjectionWell"/>
 		</Aggregator>
 
-		<Aggregator name="TransportAndStorage">
-			<Process class="CrudeOilTransport"/>
+		<Aggregator name="GasTransport">
 			<Process class="TransmissionCompressor"/>
-			<Process class="StorageCompressor"/>
-			<Process class="StorageWell"/>
-			<Process class="StorageSeparator"/>
-			<Process class="GasDistribution"/>
-			<Process class="PostStorageCompressor"/>
+		</Aggregator>
+
+		<Aggregator name="OilTransport">
+			<Process class="CrudeOilTransport"/>
 		</Aggregator>
 
 		<Aggregator name="LiquifiedNaturalGas">
 			<Process class="NGL"/>
-			<Process class="LNGLiquefaction"/>
-			<Process class="LNGRegasification"/>
-			<Process class="LNGTransport"/>
 		</Aggregator>
 
 <!--		Mixture processing path-->
@@ -476,48 +509,10 @@
 			<Contains>gas</Contains>
 		</Stream>
 
-		<Stream src="TransmissionCompressor" dst="StorageCompressor" name="transmission compressor to storage compressor">
+		<Stream src="TransmissionCompressor" dst="TransportationBoundary" name="transmission compression to boundary">
 			<Contains>gas for storage</Contains>
-		</Stream>
-
-		<Stream src="TransmissionCompressor" dst="LNGLiquefaction" name="transmission compressor to LNG liquefaction">
 			<Contains>LNG</Contains>
-		</Stream>
-
-		<Stream src="TransmissionCompressor" dst="GasDistribution" name="transmission compressor to gas distribution">
 			<Contains>gas for distribution</Contains>
-		</Stream>
-
-		<Stream src="StorageCompressor" dst="StorageWell" name="storage compressor to storage well">
-			<Contains>gas for well</Contains>
-		</Stream>
-
-		<Stream src="StorageWell" dst="StorageSeparator" name="storage well to storage separator">
-			<Contains>gas for separator</Contains>
-		</Stream>
-
-		<Stream src="StorageSeparator" dst="PostStorageCompressor" name="storage separator to post storage compressor">
-			<Contains>gas for storage</Contains>
-		</Stream>
-
-		<Stream src="PostStorageCompressor" dst="GasDistribution" name="post storage compressor to gas distribution">
-			<Contains>gas for distribution</Contains>
-		</Stream>
-
-		<Stream src="LNGLiquefaction" dst="LNGTransport" name="LNG liquefaction to LNG transportation">
-			<Contains>gas for transport</Contains>
-		</Stream>
-
-		<Stream src="LNGTransport" dst="LNGRegasification" name="LNG transportation to LNG regasification">
-			<Contains>gas</Contains>
-		</Stream>
-
-		<Stream src="LNGRegasification" dst="GasDistribution" name="LNG transportation to gas distribution">
-			<Contains>gas for distribution</Contains>
-		</Stream>
-
-		<Stream src="GasDistribution" dst="DistributionBoundary" name="gas distribution to customer">
-			<Contains>gas</Contains>
 		</Stream>
 
 	</Field>

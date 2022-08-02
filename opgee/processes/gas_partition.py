@@ -22,9 +22,7 @@ _logger = getLogger(__name__)
 class GasPartition(Process):
     """
     Gas partition is to check the reasonable amount of gas goes to gas lifting and gas reinjection
-
     """
-
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
@@ -49,7 +47,6 @@ class GasPartition(Process):
 
     def run(self, analysis):
         self.print_running_msg()
-        field = self.field
 
         if not self.all_streams_ready("gas for gas partition"):
             return
