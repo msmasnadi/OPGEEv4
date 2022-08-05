@@ -15,8 +15,7 @@ from .simulation import Simulation
 _logger = getLogger(__name__)
 
 # This isn't used yet
-# pragma: no cover
-def find_object(analysis, field, obj_name):
+def find_object(analysis, field, obj_name):             # pragma: no cover
     name = obj_name.lower()     # TBD: document this
 
     if name == 'analysis':
@@ -49,8 +48,7 @@ def find_object(analysis, field, obj_name):
     return obj
 
 # This isn't used yet
-# pragma: no cover
-def parse_result_name(analysis, field, result_name):
+def parse_result_name(analysis, field, result_name):        # pragma: no cover
     parts = result_name.split('.')
     if not parts:
         raise OpgeeException(f"Result names must have at least 2 dot-delimited parts. Got '{result_name}'")
@@ -87,7 +85,8 @@ class FieldResult(OpgeeObject):
         return f"<FieldResult {self.field_name} in {duration}; error:{self.error}>"
 
 
-class LocalWorker(OpgeeObject):
+# Used only for debugging, no need for test coverage
+class LocalWorker(OpgeeObject):        # pragma: no cover
     def __init__(self, sim_dir):
         self.sim = Simulation(sim_dir, save_to_path='')
 

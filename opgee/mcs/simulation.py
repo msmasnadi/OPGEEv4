@@ -33,10 +33,10 @@ DISTROS_CSV = 'mcs/etc/parameter_distributions.csv'
 
 DIGITS = 3
 
-def magnitude(quantity):
+def magnitude(quantity):          # pragma: no cover
     return round(quantity.m, DIGITS)
 
-def model_file_path(sim_dir):
+def model_file_path(sim_dir):     # pragma: no cover
     model_file = pathjoin(sim_dir, MODEL_FILE)
     return model_file
 

@@ -38,7 +38,9 @@ def test_bad_distros():
         "boo,lognormal,100,0,,,,,,",    # stdev is zero
         "buz,unknown-distro,,,,,,,,",   # unknown distro
      )
-    read_string_distros(data)
+    for item in data:
+        read_string_distros(item)
+        
     assert len(Distribution.instances) == 0 # all should be ignored
 
 
