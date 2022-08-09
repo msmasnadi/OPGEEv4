@@ -20,6 +20,9 @@ _logger = getLogger(__name__)
 
 
 class GasPartition(Process):
+
+    _required_inputs = ["gas for gas partition"]
+
     """
     Gas partition is to check the reasonable amount of gas goes to gas lifting and gas reinjection
     """

@@ -40,7 +40,7 @@ def test_bad_distros():
      )
     for item in data:
         read_string_distros(item)
-        
+
     assert len(Distribution.instances) == 0 # all should be ignored
 
 

@@ -170,6 +170,11 @@ class Process(XmlInstantiable, AttributeMixin):
     # the processes that have set iteration values
     iterating_processes = []
 
+    # Support for stream validation. Subclasses can set these ivars
+    # or redefine the methods required_inputs() / required_outputs()
+    _required_inputs = []
+    _required_outputs = []
+
     def __init__(self, name, desc=None, attr_dict=None, cycle_start=False, impute_start=False,
                  boundary=None):
         name = name or self.__class__.__name__
@@ -201,11 +206,6 @@ class Process(XmlInstantiable, AttributeMixin):
         self.intermediate_results = None
 
         self.iv = IntermediateValues()
-
-        # Support for stream validation. Subclasses can set these ivars
-        # or redefine the methods required_inputs() / required_outputs()
-        self._required_inputs = []
-        self._required_outputs = []
 
         # Support for cycles
         self.visit_count = 0        # increment when the Process has been run
@@ -258,12 +258,12 @@ class Process(XmlInstantiable, AttributeMixin):
         msgs = []
 
         for contents in self.required_inputs():
-            if not self.find_input_streams(contents, as_list=True):
-                msgs.append(f"{self} is missing an input stream containing '{contents}'")
+            if not self.find_input_streams(contents, as_list=True, raiseError=False):
+                msgs.append(f"{self} is missing a required input stream containing '{contents}'")
 
         for contents in self.required_outputs():
-            if not self.find_output_streams(contents, as_list=True):
-                msgs.append(f"{self} is missing an output stream containing '{contents}'")
+            if not self.find_output_streams(contents, as_list=True, raiseError=False):
+                msgs.append(f"{self} is missing a required output stream containing '{contents}'")
 
         if msgs:
             msg = '\n'.join(msgs)
