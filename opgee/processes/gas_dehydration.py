@@ -47,7 +47,8 @@ class GasDehydration(Process):
         self.gas_path = field.attr("gas_processing_path")
 
         # TODO: update this after setting streams to use default names
-        self.gas_path_dict = {"Acid Gas": "gas for AGR",
+        self.gas_path_dict = {"None": "gas for gas partition",
+                              "Acid Gas": "gas for AGR",
                               "Acid Wet Gas": "gas for AGR",
                               "CO2-EOR Membrane": "gas for chiller",
                               "CO2-EOR Ryan Holmes": "gas for Ryan Holmes",

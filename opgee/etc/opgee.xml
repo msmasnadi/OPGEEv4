@@ -504,6 +504,10 @@
 			<Contains>gas for gas partition</Contains>
 		</Stream>
 
+		<Stream src="GasDehydration" dst="GasPartition">
+			<Contains>gas for gas partition</Contains>
+		</Stream>
+
 		<Stream src="Demethanizer" dst="NGL">
 			<Contains>gas for NGL</Contains>
 		</Stream>
