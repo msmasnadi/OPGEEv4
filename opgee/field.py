@@ -1059,7 +1059,7 @@ class Field(Container):
     def common_gas_process_choice_default(self, gas_processing_path):
         # Disable the ancillary group of gas-related processes when there is no
         # gas processing path selected. Otherwise enable all of those processes.
-        return 'None' if gas_processing_path == 'None' else 'common_gas_processes'
+        return 'None' if gas_processing_path == 'None' else 'All'
 
 
     # TODO: decide how to handle "associated gas defaults", which is just global vs CA-LCFS values currently
