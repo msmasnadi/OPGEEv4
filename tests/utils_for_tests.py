@@ -33,3 +33,8 @@ def load_test_model(xml_file, add_stream_components=False, use_class_path=False,
                    use_class_path=use_class_path,
                    use_default_model=use_default_model)
     return mf.model
+
+def load_model_from_str(xml_str):
+    mf = ModelFile.from_xml_string(xml_str)
+    return mf.model
+
