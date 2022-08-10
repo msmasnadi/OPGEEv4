@@ -9,14 +9,14 @@ Project-specific features can be added via :ref:`plugins <plugins-label>`.
 
    Quick links to sub-commands:
    :ref:`config <config>`,
-   :ref:`graph <graph>`,
+   :ref:`csv2xml <csv2xml>`
    :ref:`gensim <gensim>`,
    :ref:`genwor <genwor>`,
+   :ref:`graph <graph>`,
    :ref:`gui <gui>`,
    :ref:`merge <merge>`,
    :ref:`run <run>`,
    :ref:`runsim <runsim>`,
-   :ref:`csv2xml <csv2xml>`
 
 Usage
 -----
@@ -58,6 +58,38 @@ Usage
          $ opg config -x OPGEE.LogLevel
          INFO, .mcs.simulation:DEBUG, .field:INFO, .smart_defaults:DEBUG
 
+
+
+   graph : @before
+      .. _graph:
+
+
+   gensim : @before
+      .. _gensim:
+
+
+   genwor : @before
+      .. _genwor:
+
+
+   gui : @before
+      .. _gui:
+
+
+   merge : @before
+      .. _merge:
+
+
+   run : @before
+      .. _run:
+
+
+   runsim : @before
+      .. _runsim:
+
+
+   csv2xml : @before
+      .. _csv2xml:
 
 
 Extending "opg" using plug-ins

@@ -508,8 +508,10 @@
         <Option>Electric_motor</Option>
       </Options>
 
+      <!-- TODO: stabilizer is spelled out in other attributes (stabilizer_column). Change these for consistency. -->
       <AttrDef name="stab_temp" unit="degF" type="float" desc="Stabilizer temperature">344.0</AttrDef>
       <AttrDef name="stab_press" unit="psia" type="float" desc="Stabilizer pressure">100.0</AttrDef>
+
       <AttrDef name="eps_stab" unit="percent" type="float" desc="Stabilizer heat loss">2.0</AttrDef>
       <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
       <AttrDef name="eta_gas" type="float" unit="frac" desc="heater fuel use efficiency - gas">0.80</AttrDef>

@@ -59,6 +59,8 @@ class Field(Container):
         # values in the tuples in the _known_boundaries dictionary above.
         self.boundary_dict = boundary_dict = {}
 
+        # DOCUMENT: boundary names must be predefined, but can be set in configuration.
+        #   Each name must appear 0 or 1 times, and at least one boundary must be defined.
         self.known_boundaries = known_boundaries = set(getParamAsList('OPGEE.Boundaries'))
 
         # Save references to boundary processes by name; fail if duplicate definitions are found.
@@ -127,7 +129,7 @@ class Field(Container):
 
         bad = [proc for proc in self.processes() if proc.run_after and not _run_after_ok(proc)]
         if bad:
-            # TBD: document this feature
+            # DOCUMENT after=True attribute
             raise OpgeeException(f"Processes {bad} are tagged 'after=True' but have output streams to non-'after' processes")
 
         return True
@@ -139,9 +141,10 @@ class Field(Container):
 
         self.LNG_temp = model.const("LNG-temp")
 
-        # TODO: neither of these are used anywhere
-        self.stab_column = self.attr("stabilizer_column")
-        self.upgrader_type = self.attr("upgrader_type")
+        # TODO: not used anywhere
+        # self.stab_column = self.attr("stabilizer_column")
+
+        self.upgrader_type = self.attr("upgrader_type")     # used only in smart default
 
         self.prime_mover_type_lifting = self.attr("prime_mover_type_gas_lifting")
         self.eta_compressor_lifting = self.attr("eta_compressor_lifting")
@@ -166,9 +169,10 @@ class Field(Container):
         self.water = Water(self)
         self.steam_generator = SteamGenerator(self)
 
-        imp_exp = self.import_export.imports_exports()
+        # TODO: unused
+        # imp_exp = self.import_export.imports_exports()
 
-        # TODO: never used
+        # TODO: unused
         # self.product_names = imp_exp.index.drop(WATER)
 
         # TODO: the only use of this is in a function that isn't called. Maybe deprecated.
@@ -388,8 +392,10 @@ class Field(Container):
         imported_emissions = ureg.Quantity(0.0, "tonne/day")
 
         for product, energy_rate in net_import.items():
+            # TODO: Water is not in self.upstream_CI and not in upstream-CI.csv,
+            #  which has units of g/mmbtu
             if product == WATER:
-                continue    # TODO: Water is not in self.upstream_CI and not in upstream-CI.csv, which has units of g/mmbtu
+                continue
 
             energy_rate = (energy_rate if isinstance(energy_rate, pint.Quantity)
                            else ureg.Quantity(energy_rate, "mmbtu/day"))
@@ -399,7 +405,7 @@ class Field(Container):
 
         return imported_emissions
 
-    # Deprecated? Or just not used yet?
+    # TODO Is this function deprecated or just not used yet?
     def get_carbon_credit(self, byproduct_names, analysis):
         """
         Calculate carbon credit from byproduct
@@ -882,17 +888,10 @@ class Field(Container):
             return self
 
         if issubclass(cls, Process):
-            results = []
-
-            # TODO: replace loop with dict keyed on process name
-            for proc in self.process_dict.values():
-                if isinstance(proc, cls):
-                    results.append(proc)
-
+            results = [proc for proc in self.processes() if isinstance(proc, cls)]
             return results or None
 
-        else:
-            return None
+        return None
 
     #
     # Smart Defaults and Distributions

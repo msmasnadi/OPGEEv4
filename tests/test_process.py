@@ -18,7 +18,7 @@ def test_subclass_lookup_bad_subclass(test_model):
 
 
 def test_subclass_lookup_bad_parent(test_model):
-    with pytest.raises(OpgeeException, match=r'lookup_subclass: cls .* must be one of .*'):
+    with pytest.raises(OpgeeException, match=r'_get_subclass: cls .* must be one of .*'):
         _get_subclass(NotProcess, 'NonExistentProcess')
 
 

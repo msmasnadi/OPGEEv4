@@ -15,8 +15,7 @@ from .attributes import AttrDefs, AttributeMixin
 from .config import getParamAsBoolean
 from .core import OpgeeObject, XmlInstantiable, elt_name, instantiate_subelts, magnitude
 from .container import Container
-from .error import (OpgeeException, AbstractMethodError, OpgeeIterationConverged,
-                    ModelValidationError)
+from .error import OpgeeException, AbstractMethodError, OpgeeIterationConverged, ModelValidationError
 from .emissions import Emissions
 from .energy import Energy
 from .log import getLogger
@@ -41,7 +40,7 @@ def _subclass_dict(superclass):
 
     :return: (dict) subclasses keyed by name
     """
-    allow_redef = getParamAsBoolean('OPGEE.AllowProcessRedefinition')       # TBD: document this feature
+    allow_redef = getParamAsBoolean('OPGEE.AllowProcessRedefinition')       # DOCUMENT this feature
 
     d = {}
 
@@ -85,7 +84,7 @@ def _get_subclass(cls, subclass_name, reload=False):
 
     subclasses = _Subclass_dict.keys()
     if cls not in subclasses:
-        raise OpgeeException(f"lookup_subclass: cls {cls} must be one of {list(subclasses)}")
+        raise OpgeeException(f"_get_subclass: cls {cls} must be one of {list(subclasses)}")
 
     d = _Subclass_dict[cls]
     try:
@@ -94,6 +93,7 @@ def _get_subclass(cls, subclass_name, reload=False):
         raise OpgeeException(f"Class {subclass_name} is not a known subclass of {cls}")
 
 
+# DOCUMENT this feature
 class IntermediateValues(OpgeeObject):
     """
     Stores "interesting" intermediate values from processes for display in GUI.
@@ -125,14 +125,11 @@ class IntermediateValues(OpgeeObject):
 
 def run_corr_eqns(x1, x2, x3, x4, x5, coef_df):
     """
+    Generalized function to run a quadratic correlation equation of 5 coefficients.
 
-    :param x1:
-    :param x2:
-    :param x3:
-    :param x4:
-    :param x5:
-    :param coef_df: Pandas.Dataframe
-    :return: Pandas Series
+    :param x1-x5: (float) the coefficients
+    :param coef_df: (pandas.DataFrame) data values
+    :return: pandas.Series
     """
 
     x = pd.Series(
@@ -158,7 +155,7 @@ class Process(XmlInstantiable, AttributeMixin):
     In addition to testing for convergence, a "visit" counter in each ``Process`` is incremented each time the process
     is run (or bypassed) and if the count >= the Model's "maximum_iterations" attribute, ``OpgeeMaxIterationsReached``
     is likewise raised. Whichever limit is reached first will cause iterations to stop. Between model runs, the method
-    ``field.reset()`` is called for all processes to clear the visited counters and reset the iteration value to None.
+    ``field.reset()`` is called for all processes to clear the visited counters and reset the iteration value to ``None``.
 
     See also :doc:`OPGEE XML documentation <opgee-xml>`
     """
@@ -170,6 +167,7 @@ class Process(XmlInstantiable, AttributeMixin):
     # the processes that have set iteration values
     iterating_processes = []
 
+    # DOCUMENT this
     # Support for stream validation. Subclasses can set these ivars
     # or redefine the methods required_inputs() / required_outputs()
     _required_inputs = []
@@ -241,11 +239,16 @@ class Process(XmlInstantiable, AttributeMixin):
     def clear(cls):
         cls.clear_iterating_process_list()
 
-    # TODO: stream validation and documentation
     def required_inputs(self):
+        """
+        Return the names of required input stream contents
+        """
         return self._required_inputs
 
     def required_outputs(self):
+        """
+        Return the names of required output stream contents
+        """
         return self._required_outputs
 
     def validate_streams(self):
@@ -438,7 +441,6 @@ class Process(XmlInstantiable, AttributeMixin):
 
         return self.field
 
-    # TODO: visit counting by processes may be deprecated
     def visit(self):
         self.visit_count += 1
         return self.visit_count
@@ -699,16 +701,14 @@ class Process(XmlInstantiable, AttributeMixin):
             proc.reset_iteration()
 
     def reset_iteration(self):
-        self.visit_count = 0
-        self.iteration_count = 0
+        self.visit_count = self.iteration_count = 0
+        self.iteration_converged = self.iteration_registered = False
         self.iteration_value = None
-        self.iteration_converged = False
-        self.iteration_registered = False
         self._reset_before_iteration()
 
     def _reset_before_iteration(self):
         """
-        Optional method to allow iterating processes to reset any state before
+        Optional method to allow iterating Process subclasses to reset state before
         a new iteration cycle begins.
 
         :return: none
@@ -725,11 +725,8 @@ class Process(XmlInstantiable, AttributeMixin):
         """
         raise AbstractMethodError(Process, 'Process.run')
 
+    # TODO: implement mass balance check
     def check_balances(self):
-        """
-
-        :return:
-        """
         pass
 
     def run_if_enabled(self, analysis):
@@ -741,11 +738,6 @@ class Process(XmlInstantiable, AttributeMixin):
         """
         if self.enabled:
             self.run(analysis)
-
-            # Deprecated?
-            # m = self.model
-            # if self.visit() >= m.maximum_iterations:
-            #     raise OpgeeMaxIterationsReached(f"Maximum iterations ({m.maximum_iterations}) reached in {self}")
 
     def impute(self):
         """
@@ -766,6 +758,7 @@ class Process(XmlInstantiable, AttributeMixin):
     def run_children(self, **kwargs):
         pass
 
+
     def print_running_msg(self):
         _logger.debug(f"Running {type(self)} name='{self.name}'")
 
@@ -782,7 +775,7 @@ class Process(XmlInstantiable, AttributeMixin):
 
     def get_intermediate_results(self):
         """
-        This will be overridden in the water treatment subprocess
+        This method will be overridden in the water treatment subprocess
 
         :return: A dictionary of energy and emission instances or None
         """
@@ -806,18 +799,18 @@ class Process(XmlInstantiable, AttributeMixin):
             self.energy.add_rates_from(energy)
             self.emissions.add_rates_from(emission)
 
+    # DOCUMENT handling of user-defined processes not listed in process_EF table
     def get_process_EF(self):
         """
-        Look up emission factor for this process to calculate the combustion emission.
-        For user-defined processes not listed in the process_EF table, the Process subclass must implement this
-        method to override to the lookup.
+        Lookup emission factor for this process to calculate combustion emissions.
+        For user-defined processes not listed in the process_EF table, the Process
+        subclass must implement this method to override the lookup.
 
         :return: (float) a pandas series of emission factor
            for natural gas, upgrader proc.gas, NGL, diesel, residual fuel, pet.coke
            (unit = gGHG/mmBtu)
         """
         process_EF_df = self.model.process_EF_df
-        tbl_name = "process-specific-EF"
 
         # Look up the process by name, but fall back to the classname if not found by name
         name = self.name
@@ -828,27 +821,26 @@ class Process(XmlInstantiable, AttributeMixin):
                     name = classname
                 else:
                     return None
-                    # raise OpgeeException(f"Neither '{name}' nor '{classname}' was found in table '{tbl_name}'")
             else:
                 return None
-                # raise OpgeeException(f"'Class {classname}' was not found in table '{tbl_name}'")
 
-        emission_series = pd.Series({fuel: process_EF_df.loc[name, fuel] for fuel in process_EF_df.columns},
-                                    dtype="pint[g/mmBtu]")
+        data = {fuel: process_EF_df.loc[name, fuel] for fuel in process_EF_df.columns}
+        emission_series = pd.Series(data, dtype="pint[g/mmBtu]")
         return emission_series
 
-    def all_streams_ready(self, input_stream_contain):
+    def all_streams_ready(self, input_stream_contents):
         """
-        Check if all the steams from enabled process are ready
+        Check if all the streams to ``self``, from enabled processes containing
+        ``input_stream_contents``, are ready (i.e., not uninitialized)
 
-
-        :param input_stream_contain: (str) name of input steam contains
-        :return: boolean
+        :param input_stream_contents: (str) name of input steam contents
+        :return: (bool) whether all indicated streams are initialized
         """
-        input_streams = self.find_input_streams(input_stream_contain)
+        input_streams = self.find_input_streams(input_stream_contents)
         for stream in input_streams.values():
             if stream.src_proc.enabled and stream.is_uninitialized():
                 return False
+
         return True
 
     @classmethod
@@ -889,7 +881,7 @@ class Boundary(Process):
     def __init__(self, *args, **kwargs):
         boundary = kwargs.get("boundary")
         if not boundary:
-            raise OpgeeException(f"XML processes of class 'Boundary' must define a boundary attribute")
+            raise OpgeeException(f"XML elements of class 'Boundary' must define a 'boundary' attribute")
 
         name = f"{boundary}Boundary"        # e.g., "ProductionBoundary"
         super().__init__(name, **kwargs)

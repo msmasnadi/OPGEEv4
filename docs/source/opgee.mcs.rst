@@ -12,6 +12,3 @@ API
 
 .. automodule:: opgee.mcs.simulation
    :members:
-
-.. automodule:: opgee.mcs.trial_data
-   :members:

@@ -149,7 +149,7 @@ class ModelFile(XMLFile):
 
         # Process user configuration settings
         if add_stream_components:
-            extra_components = getParam('OPGEE.StreamComponents')
+            extra_components = getParam('OPGEE.StreamComponents')   # DOCUMENT this config parameter
             if extra_components:
                 names = splitAndStrip(extra_components, ',')
                 Stream.extend_components(names)

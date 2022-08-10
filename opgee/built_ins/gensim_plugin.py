@@ -13,7 +13,7 @@ _logger = getLogger(__name__)
 class GensimCommand(SubcommandABC):
 
     def __init__(self, subparsers):
-        kwargs = {'help' : 'Generate simulation directory and trial data for a Monte Carlo simulation.'}
+        kwargs = {'help' : 'Generate the simulation directory and trial data for a Monte Carlo simulation.'}
         super(GensimCommand, self).__init__('gensim', subparsers, kwargs)
 
     def addArgs(self, parser):
