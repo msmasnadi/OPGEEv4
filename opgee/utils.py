@@ -17,7 +17,7 @@ from .log import getLogger
 
 _logger = getLogger(__name__)
 
-def ipython_info():
+def ipython_info(): # pragma: no cover
     ip = False
     if 'ipykernel' in sys.modules:
         ip = 'notebook'
@@ -30,8 +30,8 @@ def ipython_info():
 #
 class ParseCommaList(argparse.Action):
     def __init__(self, option_strings, dest, nargs=None, **kwargs):
-        if nargs is not None:
-            raise ValueError("nargs not allowed with " % option_strings)
+        if nargs is not None: # pragma: no cover
+            raise ValueError(f"nargs not allowed with {option_strings}")
 
         super(ParseCommaList, self).__init__(option_strings, dest, **kwargs)
 
@@ -57,37 +57,35 @@ def mkdirs(newdir, mode=0o770):
         if e.errno != EEXIST:
             raise
 
-def rmlink(path):
-    if os.path.lexists(path) and os.path.islink(path):
-        os.remove(path)
-
-def symlink(src, dst):
-    rmlink(dst)
-    _logger.debug(f"ln -s '{src}', '{dst}'")
-    try:
-        os.symlink(src, dst)
-    except Exception:
-        print(f"Can't symlink '{src} to '{dst}'")
-        raise
-
 def removeTree(path, ignore_errors=True):
     import shutil
-
-    if not os.path.lexists(path):
-        return
     _logger.debug(f"shutil.rmtree('{path}')")
     shutil.rmtree(path, ignore_errors=ignore_errors)
 
-def filecopy(src, dst, removeDst=True):
-    'Copy src file to dst, optionally removing dst first to avoid writing through symlinks'
-    from shutil import copy2        # equivalent to "cp -p"
-
-    _logger.debug(f"copyfile({src}, dst, removeDst)")
-    if removeDst and os.path.islink(dst):
-        os.remove(dst)
-
-    copy2(src, dst)
-
+# Not used currently
+# def rmlink(path):
+#     if os.path.lexists(path) and os.path.islink(path):
+#         os.remove(path)
+#
+# def symlink(src, dst):
+#     rmlink(dst)
+#     _logger.debug(f"ln -s '{src}', '{dst}'")
+#     try:
+#         os.symlink(src, dst)
+#     except Exception:
+#         print(f"Can't symlink '{src} to '{dst}'")
+#         raise
+#
+# def filecopy(src, dst, removeDst=True):
+#     'Copy src file to dst, optionally removing dst first to avoid writing through symlinks'
+#     from shutil import copy2        # equivalent to "cp -p"
+#
+#     _logger.debug(f"copyfile({src}, dst, removeDst)")
+#     if removeDst and os.path.islink(dst):
+#         os.remove(dst)
+#
+#     copy2(src, dst)
+#
 # def copyfiles(files, dstdir, removeDst=True):
 #     '''
 #     :param files: a list of files to copy
@@ -274,10 +272,15 @@ def getResource(relpath):
 
     :param relpath: (str) a path relative to the pygcam package
     :return: the file contents
+    :raises: OpgeeException if the resource isn't found
     """
     import pkgutil
 
-    contents = pkgutil.get_data('opgee', relpath)
+    try:
+        contents = pkgutil.get_data('opgee', relpath)
+    except FileNotFoundError as e:
+        raise OpgeeException(f"Resource '{relpath}' was not found in the opgee package: {e}")
+
     return contents.decode('utf-8')
 
 def dequantify_dataframe(df):

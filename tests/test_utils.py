@@ -1,8 +1,10 @@
+import os
 import pytest
 
 from opgee import ureg
 from opgee.error import OpgeeException
-from opgee.utils import getBooleanXML, coercible, mkdirs, loadModuleFromPath
+from opgee.utils import (getBooleanXML, coercible, mkdirs, loadModuleFromPath,
+                         removeTree, parseTrialString, getResource)
 
 @pytest.mark.parametrize(
     "value, expected", [("true", True), ("yes", True), ("1", True),
@@ -41,8 +43,38 @@ def test_mkdirs():
     with pytest.raises(TypeError):
         mkdirs(12345)
 
+    d = '/tmp/foo/bar/baz'
+    mkdirs(d)
+    assert os.path.isdir(d)
+
+    removeTree(d)
+    assert not os.path.isdir(d)
+
+    removeTree(d, ignore_errors=True)
+
+    with pytest.raises(FileNotFoundError):
+        removeTree(d, ignore_errors=False)
+
+    with pytest.raises(OSError):
+        mkdirs('/not/a/real/path')
+
+
 def test_load_module_failure():
     with pytest.raises(OpgeeException, match=f".*Can't load module.*"):
         loadModuleFromPath("/not/a/rea/path.py", raiseError=True)
 
     loadModuleFromPath("/not/a/rea/path.py", raiseError=False)
+
+def test_trial_string():
+    s = '1, 41, 3, 7-11'
+    nums = parseTrialString(s)
+    assert set(nums) == {1, 3, 7, 8, 9, 10, 11, 41}
+
+    with pytest.raises(ValueError):
+        parseTrialString(s + 'junk')
+
+def test_getResource():
+    x = getResource('etc/units.txt')
+
+    with pytest.raises(OpgeeException):
+        getResource('not/a/real/resource')
