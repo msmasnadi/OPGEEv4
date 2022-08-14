@@ -50,7 +50,7 @@ class GasReinjectionCompressor(Process):
 
         input = self.find_input_stream("gas for gas reinjection compressor")
 
-        if input.is_uninitialized() and not self.gas_flooding:
+        if input.is_uninitialized() or not self.gas_flooding:
             return
 
         input_gas_vol_rate = \

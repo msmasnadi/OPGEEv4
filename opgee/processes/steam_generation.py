@@ -161,5 +161,5 @@ class SteamGeneration(Process):
         """
 
         unit = input.units
-        if abs(input.m - output.to(unit).m) / input.m > tolerance:
+        if abs(input.m - output.to(unit).m) > tolerance * input.m:
             raise BalanceError(self.name, label)
