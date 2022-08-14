@@ -73,6 +73,8 @@ class Venting(Process):
             factor = 1 - loss_rate - frac_imported_gas_consumed
             gas_stream.multiply_flow_rates(factor.m)
             methane_lifting = gas_stream.gas_flow_rate("C1")
+        else:
+            methane_lifting = ureg.Quantity(0, "tonne/day")
 
         methane_to_venting = (input.gas_flow_rate("C1") - methane_lifting) * self.VOR_over_GOR
         venting_frac = methane_to_venting / input.gas_flow_rate("C1")

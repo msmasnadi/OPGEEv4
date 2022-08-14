@@ -14,7 +14,7 @@ dependencies:
   - lxml>=4.8.0
   - llvmlite
   - networkx
-  - numba
+  - numba>=0.55.2
   - numpy
   - pandas
   - pint
