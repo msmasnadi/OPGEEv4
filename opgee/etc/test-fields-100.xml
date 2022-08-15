@@ -1687,7 +1687,9 @@
       <A name="GFIR">30972.0</A>
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_remaining_gas_inj">1.0</A>
-      <A name="heater_treater">1</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">1</A>
+      </Process>
       <A name="stabilizer_column">0</A>
       <A name="gas_processing_path">Acid Wet Gas</A>
       <A name="frac_transport_tanker">1.0</A>
@@ -1732,7 +1734,9 @@
       <A name="GFIR">0.0</A>
       <A name="SOR">0.0</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="heater_treater">1</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">1</A>
+      </Process>
       <A name="stabilizer_column">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">514.0</A>
@@ -1779,7 +1783,9 @@
       <A name="GFIR">0.0</A>
       <A name="SOR">0.0</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="heater_treater">1</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">1</A>
+      </Process>
       <A name="stabilizer_column">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">10.0</A>
@@ -1825,7 +1831,9 @@
       <A name="GFIR">0.0</A>
       <A name="SOR">0.0</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="heater_treater">1</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">1</A>
+      </Process>
       <A name="stabilizer_column">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">363.0</A>
@@ -1872,7 +1880,9 @@
       <A name="fraction_remaining_gas_inj">0.0</A>
       <A name="fraction_water_reinjected">0.0</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="heater_treater">1</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">1</A>
+      </Process>
       <A name="stabilizer_column">1</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">140.1</A>
@@ -1920,7 +1930,9 @@
       <A name="fraction_remaining_gas_inj">0.0</A>
       <A name="fraction_water_reinjected">0.0</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="heater_treater">1</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">1</A>
+      </Process>
       <A name="stabilizer_column">1</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">140.1</A>
@@ -1968,7 +1980,9 @@
       <A name="fraction_remaining_gas_inj">0.0</A>
       <A name="fraction_water_reinjected">0.0</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="heater_treater">1</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">1</A>
+      </Process>
       <A name="stabilizer_column">1</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">140.1</A>
@@ -2016,7 +2030,9 @@
       <A name="fraction_remaining_gas_inj">0.0</A>
       <A name="fraction_water_reinjected">0.0</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="heater_treater">1</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">1</A>
+      </Process>
       <A name="stabilizer_column">1</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">140.1</A>
@@ -2297,7 +2313,9 @@
       <A name="fraction_remaining_gas_inj">0.01</A>
       <A name="fraction_water_reinjected">0.37</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">16.25</A>
@@ -2348,7 +2366,9 @@
       <A name="fraction_remaining_gas_inj">0.0</A>
       <A name="fraction_water_reinjected">0.76</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">1</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">300.0</A>
@@ -2684,7 +2704,9 @@
       <A name="name">Cold lake</A>
       <A name="API">10.2</A>
       <A name="SOR">3.42</A>
-      <A name="heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">None</A>
@@ -2715,7 +2737,9 @@
       <A name="name">Foster creek</A>
       <A name="API">10.2</A>
       <A name="SOR">2.37</A>
-      <A name="heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">None</A>
@@ -2745,7 +2769,9 @@
       <A name="country">Canada</A>
       <A name="name">Suncor</A>
       <A name="API">32.8</A>
-      <A name="heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">1</A>
       <A name="gas_processing_path">Minimal</A>
@@ -2774,7 +2800,9 @@
       <A name="country">Canada</A>
       <A name="name">Syncrude</A>
       <A name="API">32.2</A>
-      <A name="heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">3</A>
       <A name="gas_processing_path">Minimal</A>
@@ -2804,7 +2832,9 @@
       <A name="name">Jackpine/Scotford</A>
       <A name="API">32.0</A>
       <A name="SOR">2.0</A>
-      <A name="heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">2</A>
       <A name="gas_processing_path">Minimal</A>
@@ -2833,7 +2863,9 @@
       <A name="country">Canada</A>
       <A name="name">CNRL Horizon</A>
       <A name="API">8.0</A>
-      <A name="heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">Minimal</A>
@@ -2864,7 +2896,9 @@
       <A name="SOR">3.42</A>
       <A name="fraction_elec_onsite">0.5</A>
       <A name="fraction_steam_cogen">0.5</A>
-      <A name="heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">None</A>
@@ -2897,7 +2931,9 @@
       <A name="SOR">2.37</A>
       <A name="fraction_elec_onsite">0.5</A>
       <A name="fraction_steam_cogen">0.5</A>
-      <A name="heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">None</A>
@@ -2929,7 +2965,9 @@
       <A name="API">32.8</A>
       <A name="fraction_elec_onsite">0.5</A>
       <A name="fraction_steam_cogen">0.5</A>
-      <A name="heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">1</A>
       <A name="gas_processing_path">Minimal</A>
@@ -2960,7 +2998,9 @@
       <A name="API">32.2</A>
       <A name="fraction_elec_onsite">0.5</A>
       <A name="fraction_steam_cogen">0.5</A>
-      <A name="heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">3</A>
       <A name="gas_processing_path">Minimal</A>
@@ -2992,7 +3032,9 @@
       <A name="SOR">2.0</A>
       <A name="fraction_elec_onsite">0.5</A>
       <A name="fraction_steam_cogen">0.5</A>
-      <A name="heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">2</A>
       <A name="gas_processing_path">Minimal</A>
@@ -3025,7 +3067,9 @@
       <A name="SOR">3.42</A>
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_steam_cogen">1.0</A>
-      <A name="heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">None</A>
@@ -3058,7 +3102,9 @@
       <A name="SOR">2.37</A>
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_steam_cogen">1.0</A>
-      <A name="heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">None</A>
@@ -3090,7 +3136,9 @@
       <A name="API">32.8</A>
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_steam_cogen">1.0</A>
-      <A name="heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">1</A>
       <A name="gas_processing_path">Minimal</A>
@@ -3121,7 +3169,9 @@
       <A name="API">32.2</A>
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_steam_cogen">1.0</A>
-      <A name="heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">3</A>
       <A name="gas_processing_path">Minimal</A>
@@ -3153,7 +3203,9 @@
       <A name="SOR">2.0</A>
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_steam_cogen">1.0</A>
-      <A name="heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">2</A>
       <A name="gas_processing_path">Minimal</A>

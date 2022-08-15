@@ -58,8 +58,9 @@ def attr_to_xml(fields, dtypes, xml_path, analysis_name, modifies='default'):
         field = ET.SubElement(analysis, 'Field',
                               attrib={'name' : field_name, 'modifies' : modifies})
 
-        for attr, value in col.items():
+        proc_dict = {}  # remember process elements created for attributes within each field
 
+        for attr, value in col.items():
             # don't include unspecified attributes
             try:
                 if np.isnan(value):
@@ -70,8 +71,23 @@ def attr_to_xml(fields, dtypes, xml_path, analysis_name, modifies='default'):
             if value == '' or value is None:
                 continue
 
-            a = ET.SubElement(field, 'A', attrib={'name': attr})
-            dtype = dtypes[attr]
+            parts = attr.split('.')     # see if it's Process.attr_name
+            count = len(parts)
+            if count > 2:
+                raise OpgeeException(f"Badly formed attribute name: '{attr}': must be 'attr' or 'Process.attr'")
+
+            if count == 2:
+                process_name, attr_name = parts
+                if not (attr_parent := proc_dict.get(process_name)):
+                    # Create the element on demand, unless we've found it in the proc_dict
+                    proc_dict[process_name] = attr_parent = ET.SubElement(field, 'Process', attrib={'class': process_name})
+            else:
+                attr_parent = field
+                attr_name = attr
+
+            a = ET.SubElement(attr_parent, 'A', attrib={'name': attr_name})
+
+            dtype = dtypes[attr]        # use original name with "Process." if present
             type_fn = known_types[dtype]
             try:
                 a.text = str(type_fn(value))
