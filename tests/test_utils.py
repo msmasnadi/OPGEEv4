@@ -55,8 +55,10 @@ def test_mkdirs():
     with pytest.raises(FileNotFoundError):
         removeTree(d, ignore_errors=False)
 
-    with pytest.raises(OSError):
-        mkdirs('/not/a/real/path')
+    from opgee.config import IsWindows
+    if not IsWindows:
+        with pytest.raises(OSError):
+            mkdirs('/not/a/real/path')
 
 
 def test_load_module_failure():
