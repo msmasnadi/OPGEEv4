@@ -22,7 +22,7 @@ class CrudeOilStabilization(Process):
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
-        self.stab_tp = TemperaturePressure(self.attr("stab_temp"), self.attr("stab_press"))
+        self.stab_tp = TemperaturePressure(self.attr("stabilizer_column_temp"), self.attr("stabilizer_column_press"))
         self.mol_per_scf = field.model.const("mol-per-scf")
         self.stab_gas_press = field.attr("gas_pressure_after_boosting")
         self.eps_stab = self.attr("eps_stab")

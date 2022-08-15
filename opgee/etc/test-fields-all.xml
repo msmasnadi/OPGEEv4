@@ -1687,7 +1687,7 @@
       <A name="GFIR">30972.0</A>
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_remaining_gas_inj">1.0</A>
-      <A name="heater_treater">1</A>
+      <A name="CrudeOilDewatering.heater_treater">1</A>
       <A name="stabilizer_column">0</A>
       <A name="gas_processing_path">Acid Wet Gas</A>
       <A name="frac_transport_tanker">1.0</A>
@@ -1732,11 +1732,11 @@
       <A name="GFIR">0.0</A>
       <A name="SOR">0.0</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="heater_treater">1</A>
+      <A name="CrudeOilDewatering.heater_treater">1</A>
       <A name="stabilizer_column">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">514.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">0.33</A>
@@ -1779,7 +1779,7 @@
       <A name="GFIR">0.0</A>
       <A name="SOR">0.0</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="heater_treater">1</A>
+      <A name="CrudeOilDewatering.heater_treater">1</A>
       <A name="stabilizer_column">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">10.0</A>
@@ -1825,7 +1825,7 @@
       <A name="GFIR">0.0</A>
       <A name="SOR">0.0</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="heater_treater">1</A>
+      <A name="CrudeOilDewatering.heater_treater">1</A>
       <A name="stabilizer_column">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">363.0</A>
@@ -1872,7 +1872,7 @@
       <A name="fraction_remaining_gas_inj">0.0</A>
       <A name="fraction_water_reinjected">0.0</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="heater_treater">1</A>
+      <A name="CrudeOilDewatering.heater_treater">1</A>
       <A name="stabilizer_column">1</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">140.1</A>
@@ -1920,7 +1920,7 @@
       <A name="fraction_remaining_gas_inj">0.0</A>
       <A name="fraction_water_reinjected">0.0</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="heater_treater">1</A>
+      <A name="CrudeOilDewatering.heater_treater">1</A>
       <A name="stabilizer_column">1</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">140.1</A>
@@ -1968,7 +1968,7 @@
       <A name="fraction_remaining_gas_inj">0.0</A>
       <A name="fraction_water_reinjected">0.0</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="heater_treater">1</A>
+      <A name="CrudeOilDewatering.heater_treater">1</A>
       <A name="stabilizer_column">1</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">140.1</A>
@@ -2016,7 +2016,7 @@
       <A name="fraction_remaining_gas_inj">0.0</A>
       <A name="fraction_water_reinjected">0.0</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="heater_treater">1</A>
+      <A name="CrudeOilDewatering.heater_treater">1</A>
       <A name="stabilizer_column">1</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">140.1</A>
@@ -2297,7 +2297,7 @@
       <A name="fraction_remaining_gas_inj">0.01</A>
       <A name="fraction_water_reinjected">0.37</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">16.25</A>
@@ -2348,7 +2348,7 @@
       <A name="fraction_remaining_gas_inj">0.0</A>
       <A name="fraction_water_reinjected">0.76</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">1</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">300.0</A>
@@ -2684,13 +2684,13 @@
       <A name="name">Cold lake</A>
       <A name="API">10.2</A>
       <A name="SOR">3.42</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">None</A>
       <A name="FOR">2.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.3</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.3</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2715,13 +2715,13 @@
       <A name="name">Foster creek</A>
       <A name="API">10.2</A>
       <A name="SOR">2.37</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">None</A>
       <A name="FOR">2.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.3</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.3</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2745,7 +2745,7 @@
       <A name="country">Canada</A>
       <A name="name">Suncor</A>
       <A name="API">32.8</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">1</A>
       <A name="gas_processing_path">Minimal</A>
@@ -2774,7 +2774,7 @@
       <A name="country">Canada</A>
       <A name="name">Syncrude</A>
       <A name="API">32.2</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">3</A>
       <A name="gas_processing_path">Minimal</A>
@@ -2804,12 +2804,12 @@
       <A name="name">Jackpine/Scotford</A>
       <A name="API">32.0</A>
       <A name="SOR">2.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">2</A>
       <A name="gas_processing_path">Minimal</A>
       <A name="FOR">2.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2833,11 +2833,11 @@
       <A name="country">Canada</A>
       <A name="name">CNRL Horizon</A>
       <A name="API">8.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">Minimal</A>
-      <A name="fraction_diluent">0.3</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.3</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2864,13 +2864,13 @@
       <A name="SOR">3.42</A>
       <A name="fraction_elec_onsite">0.5</A>
       <A name="fraction_steam_cogen">0.5</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">None</A>
       <A name="FOR">2.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.3</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.3</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2897,13 +2897,13 @@
       <A name="SOR">2.37</A>
       <A name="fraction_elec_onsite">0.5</A>
       <A name="fraction_steam_cogen">0.5</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">None</A>
       <A name="FOR">2.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.3</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.3</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2929,7 +2929,7 @@
       <A name="API">32.8</A>
       <A name="fraction_elec_onsite">0.5</A>
       <A name="fraction_steam_cogen">0.5</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">1</A>
       <A name="gas_processing_path">Minimal</A>
@@ -2960,7 +2960,7 @@
       <A name="API">32.2</A>
       <A name="fraction_elec_onsite">0.5</A>
       <A name="fraction_steam_cogen">0.5</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">3</A>
       <A name="gas_processing_path">Minimal</A>
@@ -2992,13 +2992,13 @@
       <A name="SOR">2.0</A>
       <A name="fraction_elec_onsite">0.5</A>
       <A name="fraction_steam_cogen">0.5</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">2</A>
       <A name="gas_processing_path">Minimal</A>
       <A name="FOR">2.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -3025,13 +3025,13 @@
       <A name="SOR">3.42</A>
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_steam_cogen">1.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">None</A>
       <A name="FOR">2.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.3</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.3</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -3058,13 +3058,13 @@
       <A name="SOR">2.37</A>
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_steam_cogen">1.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">None</A>
       <A name="FOR">2.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.3</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.3</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -3090,7 +3090,7 @@
       <A name="API">32.8</A>
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_steam_cogen">1.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">1</A>
       <A name="gas_processing_path">Minimal</A>
@@ -3121,7 +3121,7 @@
       <A name="API">32.2</A>
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_steam_cogen">1.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">3</A>
       <A name="gas_processing_path">Minimal</A>
@@ -3153,12 +3153,12 @@
       <A name="SOR">2.0</A>
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_steam_cogen">1.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">2</A>
       <A name="gas_processing_path">Minimal</A>
       <A name="FOR">2.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -3433,7 +3433,7 @@
       <A name="WOR">1.0</A>
       <A name="gas_processing_path">Minimal</A>
       <A name="FOR">0.0</A>
-      <A name="fraction_diluent">0.01</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.01</A>
     </Field>
     <Field name="Field 118" modifies="template">
       <A name="water_reinjection">0</A>
@@ -3446,7 +3446,7 @@
       <A name="WOR">1.0</A>
       <A name="gas_processing_path">Minimal</A>
       <A name="FOR">0.0</A>
-      <A name="fraction_diluent">0.25</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.25</A>
     </Field>
     <Field name="Field 119" modifies="template">
       <A name="water_reinjection">0</A>
@@ -3459,7 +3459,7 @@
       <A name="WOR">1.0</A>
       <A name="gas_processing_path">Minimal</A>
       <A name="FOR">0.0</A>
-      <A name="fraction_diluent">0.5</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.5</A>
     </Field>
     <Field name="Field 120" modifies="template">
       <A name="water_reinjection">0</A>
@@ -3472,7 +3472,7 @@
       <A name="WOR">1.0</A>
       <A name="gas_processing_path">Minimal</A>
       <A name="FOR">0.0</A>
-      <A name="fraction_diluent">0.75</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.75</A>
     </Field>
     <Field name="Field 121" modifies="template">
       <A name="water_reinjection">0</A>
@@ -3485,7 +3485,7 @@
       <A name="WOR">1.0</A>
       <A name="gas_processing_path">Minimal</A>
       <A name="FOR">0.0</A>
-      <A name="fraction_diluent">1.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">1.0</A>
     </Field>
     <Field name="Field 122" modifies="template">
       <A name="downhole_pump">0</A>
@@ -4412,7 +4412,7 @@
       <A name="SOR">0.0</A>
       <A name="fraction_remaining_gas_inj">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="heater_treater">1</A>
+      <A name="CrudeOilDewatering.heater_treater">1</A>
       <A name="stabilizer_column">1</A>
       <A name="gas_processing_path">None</A>
       <A name="FOR">140.0</A>
@@ -4547,7 +4547,7 @@
       <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.398</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.398</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -4714,13 +4714,13 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="heater_treater">1</A>
+      <A name="CrudeOilDewatering.heater_treater">1</A>
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">CO2-EOR Membrane</A>
       <A name="FOR">0.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -5955,13 +5955,13 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">143.0</A>
       <A name="VOR">5.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -6014,13 +6014,13 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">143.0</A>
       <A name="VOR">5.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -6461,13 +6461,13 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -6520,13 +6520,13 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -6579,13 +6579,13 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -6638,13 +6638,13 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -6697,13 +6697,13 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -6756,13 +6756,13 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -6815,13 +6815,13 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -6874,13 +6874,13 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -6933,13 +6933,13 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -6992,13 +6992,13 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -7051,13 +7051,13 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -7110,13 +7110,13 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -7169,13 +7169,13 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -7228,13 +7228,13 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -7287,13 +7287,13 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -7346,13 +7346,13 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -7405,13 +7405,13 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -7464,13 +7464,13 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -7523,13 +7523,13 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -7582,13 +7582,13 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -7641,13 +7641,13 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -7915,7 +7915,7 @@
       <A name="WOR">1.0</A>
       <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
     </Field>
     <Field name="Field 440" modifies="template">
       <A name="water_reinjection">0</A>
@@ -7929,7 +7929,7 @@
       <A name="WOR">1.0</A>
       <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
-      <A name="fraction_diluent">0.25</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.25</A>
     </Field>
     <Field name="Field 441" modifies="template">
       <A name="water_reinjection">0</A>
@@ -7943,7 +7943,7 @@
       <A name="WOR">1.0</A>
       <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
-      <A name="fraction_diluent">0.5</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.5</A>
     </Field>
     <Field name="Field 442" modifies="template">
       <A name="water_reinjection">0</A>
@@ -7957,7 +7957,7 @@
       <A name="WOR">1.0</A>
       <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
-      <A name="fraction_diluent">0.75</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.75</A>
     </Field>
     <Field name="Field 443" modifies="template">
       <A name="water_reinjection">0</A>
@@ -7971,7 +7971,7 @@
       <A name="WOR">1.0</A>
       <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
-      <A name="fraction_diluent">1.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">1.0</A>
     </Field>
     <Field name="Field 444" modifies="template">
       <A name="downhole_pump">0</A>
@@ -8094,7 +8094,7 @@
       <A name="fraction_steam_cogen">0.0</A>
       <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
     </Field>
     <Field name="Field 451" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8115,7 +8115,7 @@
       <A name="fraction_steam_cogen">0.0</A>
       <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
-      <A name="fraction_diluent">0.25</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.25</A>
     </Field>
     <Field name="Field 452" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8136,7 +8136,7 @@
       <A name="fraction_steam_cogen">0.0</A>
       <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
-      <A name="fraction_diluent">0.5</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.5</A>
     </Field>
     <Field name="Field 453" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8157,7 +8157,7 @@
       <A name="fraction_steam_cogen">0.5</A>
       <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
-      <A name="fraction_diluent">0.75</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.75</A>
     </Field>
     <Field name="Field 454" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8178,7 +8178,7 @@
       <A name="fraction_steam_cogen">0.5</A>
       <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
-      <A name="fraction_diluent">0.99</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.99</A>
     </Field>
     <Field name="Field 455" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8199,7 +8199,7 @@
       <A name="fraction_steam_cogen">0.5</A>
       <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
-      <A name="fraction_diluent">0.99</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.99</A>
     </Field>
     <Field name="Field 456" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8220,7 +8220,7 @@
       <A name="fraction_steam_cogen">0.75</A>
       <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
-      <A name="fraction_diluent">0.75</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.75</A>
     </Field>
     <Field name="Field 457" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8241,7 +8241,7 @@
       <A name="fraction_steam_cogen">0.75</A>
       <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
-      <A name="fraction_diluent">0.99</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.99</A>
     </Field>
     <Field name="Field 458" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8262,7 +8262,7 @@
       <A name="fraction_steam_cogen">0.75</A>
       <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
-      <A name="fraction_diluent">0.99</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.99</A>
     </Field>
     <Field name="Field 459" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8587,14 +8587,14 @@
     <Field name="Field 486" modifies="template">
       <A name="oil_sands_mine">None</A>
       <A name="name">Test 87 - Stabilizer and heater/treater on</A>
-      <A name="heater_treater">1</A>
+      <A name="CrudeOilDewatering.heater_treater">1</A>
       <A name="stabilizer_column">1</A>
       <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 487" modifies="template">
       <A name="oil_sands_mine">None</A>
       <A name="name">Test 88 - No H/T or stabilizer</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">0</A>
       <A name="gas_processing_path">None</A>
     </Field>
@@ -8710,13 +8710,13 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="heater_treater">0</A>
+      <A name="CrudeOilDewatering.heater_treater">0</A>
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="fraction_diluent">0.0</A>
+      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
