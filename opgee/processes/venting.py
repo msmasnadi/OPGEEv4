@@ -73,19 +73,25 @@ class Venting(Process):
             factor = 1 - loss_rate - frac_imported_gas_consumed
             gas_stream.multiply_flow_rates(factor.m)
             methane_lifting = gas_stream.gas_flow_rate("C1")
+        else:
+            methane_lifting = ureg.Quantity(0, "tonne/day")
 
         methane_to_venting = (input.gas_flow_rate("C1") - methane_lifting) * self.VOR_over_GOR
-        venting_frac = methane_to_venting / input.gas_flow_rate("C1")
-        fugitive_frac = self.pipe_leakage / input.gas_flow_rate("C1")
+        venting_frac = \
+            methane_to_venting / input.gas_flow_rate("C1") \
+                if input.gas_flow_rate("C1").m != 0 else ureg.Quantity(0, "frac")
+        fugitive_frac = \
+            self.pipe_leakage / input.gas_flow_rate("C1") \
+                if input.gas_flow_rate("C1").m != 0 else ureg.Quantity(0, "frac")
 
         if self.field.get_process_data("gas_lifting_stream") is None:
             self.field.save_process_data(gas_lifting_stream=gas_stream)
 
         gas_to_vent = Stream("venting_gas", tp=field.stp)
         gas_to_vent.copy_flow_rates_from(input, tp=field.stp)
-        gas_to_vent.multiply_flow_rates(venting_frac.m)
+        gas_to_vent.multiply_flow_rates(venting_frac.to("frac").m)
 
-        gas_fugitives = self.set_gas_fugitives(input, fugitive_frac.m)
+        gas_fugitives = self.set_gas_fugitives(input, fugitive_frac.to("frac").m)
 
         gas_to_gathering = self.find_output_stream("gas for gas gathering")
         gas_to_gathering.copy_flow_rates_from(input, tp=input.tp)

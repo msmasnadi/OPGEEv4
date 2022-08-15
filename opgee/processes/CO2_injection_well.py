@@ -25,6 +25,9 @@ class CO2InjectionWell(Process):
         # mass rate
         input = self.find_input_stream("gas for CO2 injection well")
 
+        if input.is_uninitialized():
+            return
+
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 

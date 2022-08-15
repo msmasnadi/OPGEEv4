@@ -35,8 +35,13 @@ class CO2ReinjectionCompressor(Process):
         self.print_running_msg()
         field = self.field
 
+        if not self.all_streams_ready("gas for CO2 compressor"):
+            return
+
         # mass rate
         input = self.find_input_streams("gas for CO2 compressor", combine=True)
+        if input.is_uninitialized():
+            return
 
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
@@ -53,7 +58,7 @@ class CO2ReinjectionCompressor(Process):
         input.set_gas_flow_rate("CO2", total_CO2_mass_rate)
 
         discharge_press = self.res_press + ureg.Quantity(500.0, "psia")
-        overall_compression_ratio = discharge_press / input.pressure
+        overall_compression_ratio = discharge_press / input.tp.P
         energy_consumption, temp, _ = Compressor.get_compressor_energy_consumption(self.field,
                                                                                    self.prime_mover_type,
                                                                                    self.eta_compressor,
@@ -61,7 +66,7 @@ class CO2ReinjectionCompressor(Process):
                                                                                    input)
 
         # gas_to_well.set_temperature_and_pressure(temp, input.pressure)
-        gas_to_well.tp.set(T=temp, P=input.pressure)
+        gas_to_well.tp.set(T=temp, P=input.tp.P)
 
         # energy-use
         energy_use = self.energy
