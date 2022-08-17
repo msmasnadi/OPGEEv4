@@ -6,6 +6,7 @@
 """
 from ..subcommand import SubcommandABC
 from ..log import getLogger
+from ..error import OpgeeException
 
 _logger = getLogger(__name__)
 
@@ -26,6 +27,9 @@ class RunCommand(SubcommandABC):
                             comma-delimited list of Field names. To specify a field within a specific Analysis,
                             use the syntax "analysis_name.field_name". Otherwise the field will be run for each
                             Analysis the field name occurs within (respecting the --analyses flag).''')
+
+        parser.add_argument('-i', '--ignore-errors', action='store_true',
+                            help='''Keep running even if some fields raise errors when run''')
 
         parser.add_argument('-m', '--model-file', action='append',
                             help='''XML model definition files to load. If --no_default_model is *not* specified,
@@ -96,9 +100,24 @@ class RunCommand(SubcommandABC):
             # run all fields for selected analyses
             selected_fields = [(field, analysis) for analysis in selected_analyses for field in analysis.fields()]
 
+        errors = []  # accumulate these to print again at the end
+
         for field, analysis in selected_fields:
-            field.run(analysis)
-            field.report()
+            try:
+                field.run(analysis)
+                field.report()
+            except OpgeeException as e:
+                if args.ignore_errors:
+                    _logger.error(f"Error in {field}: {e}")
+                    errors.append((field, e))
+                else:
+                    raise
+
+        if errors:
+            print("\nErrors:")
+
+            for field, e in errors:
+                print(f"{field}: {e}")
 
         if args.output:
             model.save_results(selected_fields, args.output)

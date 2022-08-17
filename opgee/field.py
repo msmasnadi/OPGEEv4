@@ -77,7 +77,7 @@ class Field(Container):
                         f"{self}: Duplicate declaration of boundary '{boundary}' in {proc} and {other}")
 
                 boundary_dict[boundary] = proc
-                _logger.debug(f"{self}: {proc} defines boundary '{boundary}'")
+                #_logger.debug(f"{self}: {proc} defines boundary '{boundary}'")
 
         self.process_choice_dict = process_choice_dict
 
@@ -191,8 +191,8 @@ class Field(Container):
 
         self.cycles = cycles = list(nx.simple_cycles(g))
 
-        if cycles:
-            _logger.debug(f"Field '{self.name}' has cycles: {cycles}")
+        # if cycles:
+        #     _logger.debug(f"Field '{self.name}' has cycles: {cycles}")
 
         # TBD: document the "_after_init" processing order
         for iterator in [self.processes(), self.streams()]:
@@ -273,11 +273,8 @@ class Field(Container):
             self.get_energy_rates()
 
             self.get_emission_rates(analysis, procs_to_exclude=self.procs_beyond_boundary)
+            self.carbon_intensity = self.compute_carbon_intensity(analysis) if compute_ci else None
 
-            if compute_ci:
-                self.compute_carbon_intensity(analysis)
-            else:
-                self.carbon_intensity = None  # avoid reporting a stale result
 
     def reset(self):
         self.reset_streams()
@@ -490,6 +487,7 @@ class Field(Container):
         _logger.debug(f"{self}\nEnergy consumption:\n{self.energy.data}")
         _logger.debug(f"\nCumulative emissions to environment (tonne/day):\n{dequantify_dataframe(self.emissions.data)}")
         _logger.debug(f"Total: {self.ghgs} CO2eq")
+        _logger.debug(f"CI: {self.carbon_intensity:.2f}")
 
     def _is_cycle_member(self, process):
         """
