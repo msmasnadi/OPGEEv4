@@ -30,7 +30,6 @@ class Container(XmlInstantiable, AttributeMixin):
         self.emissions = Emissions()
         self.energy = Energy()
         self.import_export = ImportExport()
-        self.ghgs = 0.0
 
         self.aggs  = self.adopt(aggs)
         self.procs = self.adopt(procs)
@@ -112,11 +111,10 @@ class Container(XmlInstantiable, AttributeMixin):
 
     def get_emission_rates(self, analysis, procs_to_exclude=None):
         """
-        Return a tuple of the emission rates (Series) and the calculated GHG value (float).
-        Uses the current choice of GWP values in the enclosing Model.
+        Return the emission rates (Series) including the the calculated GHG values
+        based on the current choice of GWP values in the enclosing Model.
 
-        :return: ((pandas.Series, float)) a tuple containing the emissions Series
-            and the GHG value computed using the model's current GWP settings.
+        :return: (pandas.Series) the emissions Series.
         """
         data = self.emissions.data
         data[:] = 0.0
@@ -126,6 +124,8 @@ class Container(XmlInstantiable, AttributeMixin):
                 child_data = child.get_emission_rates(analysis, procs_to_exclude=procs_to_exclude)
                 data += child_data
 
+        # compute CO2eq using chosen GWP values
+        data = self.emissions.rates(analysis.gwp)
         return data
 
     def get_net_imported_product(self):

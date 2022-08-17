@@ -486,7 +486,6 @@ class Field(Container):
 
         _logger.debug(f"{self}\nEnergy consumption:\n{self.energy.data}")
         _logger.debug(f"\nCumulative emissions to environment (tonne/day):\n{dequantify_dataframe(self.emissions.data)}")
-        _logger.debug(f"Total: {self.ghgs} CO2eq")
         _logger.debug(f"CI: {self.carbon_intensity:.2f}")
 
     def _is_cycle_member(self, process):
