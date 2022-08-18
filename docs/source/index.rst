@@ -13,6 +13,7 @@ Introduction
 
    intro
    install
+   calculation
    config
    attributes
    monte-carlo
