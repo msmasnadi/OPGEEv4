@@ -19,12 +19,3 @@ def test_csv2xml():
     analysis = m.get_analysis('test-fields')
     fields = analysis.fields()
     assert len(fields) == count
-
-
-# import_fields(csv_path, xml_path, analysis_name, count=0, skip_fields=None,
-#               modifies=DEFAULT_MODIFIES, from_package=False)
-def test_import_fields():
-
-
-    pass
-
