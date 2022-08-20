@@ -20,9 +20,6 @@ from .version import VERSION
 
 PROGRAM = 'opg'
 
-# For now, these are not offered as command-line options. Needs more testing.
-# BioConstraintsCommand, DeltaConstraintsCommand,
-
 class Opgee(object):
 
     # plugin instances by command name

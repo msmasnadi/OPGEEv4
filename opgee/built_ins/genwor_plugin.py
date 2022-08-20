@@ -30,7 +30,7 @@ class GenworCommand(SubcommandABC):
         return parser   # for auto-doc generation
 
 
-    def run(self, args, tool):
+    def run(self, args, tool): # pragma: no cover
         import pandas as pd
         from opgee.pkg_utils import resourceStream
 

@@ -81,7 +81,7 @@ def import_fields(csv_path, xml_path, analysis_name, count=0, skip_fields=None,
     attr_to_xml(fields, dtypes, xml_path, analysis_name, modifies=modifies)
 
 
-class XmlCommand(SubcommandABC):
+class Csv2XmlCommand(SubcommandABC):
 
     def __init__(self, subparsers):
         kwargs = {'help' : '''Convert various CSV files to their corresponding XML representation.'''}
