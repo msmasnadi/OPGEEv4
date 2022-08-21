@@ -58,7 +58,6 @@ class GensimCommand(SubcommandABC):
 
         use_default_model = not args.no_default_model
         model_files = args.model_file
-        field_names = args.fields
 
         if args.trials <= 0:
             raise McsUserError("Trials argument must be an integer > 0")

@@ -8,7 +8,6 @@
 #
 import json
 import os
-import numpy as np
 import pandas as pd
 
 from ..config import pathjoin
@@ -383,10 +382,13 @@ class Simulation(OpgeeObject):
         Read the trial data CSV from the top-level directory and return the DataFrame.
         The data is cached in the ``Simulation`` instance for re-use.
 
-        :param field: (opgee.Field) the field to read data for
+        :param field: (opgee.Field  or str) a field instance or name to read data for
         :return: (pd.DataFrame) the values drawn for each field, parameter, and trial.
         """
         # TBD: allow option of using same draws across fields.
+
+        if isinstance(field, str):
+            field = self.analysis.get_field(field)
 
         if self.trial_data_df is not None:
             return self.trial_data_df
