@@ -163,6 +163,8 @@ class Manager(OpgeeObject):
         from ..config import getParamAsInt
         from ..utils import parseTrialString
 
+        start = time.time()
+
         sim = Simulation(sim_dir, save_to_path='')
 
         trial_nums = (range(sim.trials) if trial_nums == 'all'
@@ -209,6 +211,10 @@ class Manager(OpgeeObject):
             _logger.debug("Workers finished")
             self.stop_cluster()
 
+        finish = time.time()
+        seconds = finish - start
+        duration = datetime.timedelta(seconds=int(seconds))
+        _logger.info(f"Manager.run_mcs completed in {duration}")
 #
 # This approach also worked
 #

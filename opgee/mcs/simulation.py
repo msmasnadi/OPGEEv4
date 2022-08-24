@@ -6,9 +6,11 @@
 # Copyright (c) 2022 the author and The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
+import datetime
 import json
 import os
 import pandas as pd
+import time
 
 from ..config import pathjoin
 from ..core import OpgeeObject, split_attr_name
@@ -538,24 +540,34 @@ class Simulation(OpgeeObject):
     #
     #     return tup
 
-    def run(self, trial_nums):
+    def run(self, trial_nums, field_names=None):
         """
         Run the given Monte Carlo trials for ``analysis``. If ``fields`` is
         ``None``, all fields are run, otherwise, only the indicated fields are
         run.
 
         :param trial_nums: (list of int) trials to run. ``None`` implies all trials.
-        :param fields: (list of str) names of fields to run
+        :param field_names: (list of str) names of fields to run
         :return: none
         """
-        for field in self.chosen_fields():
+        start = time.time()
+
+        ana = self.analysis
+        fields = [ana.get_field(name) for name in field_names] if field_names else self.chosen_fields()
+
+        for field in fields:
             if field.is_enabled():
                 self.run_field(field, trial_nums)
             else:
                 _logger.info(f"Ignoring disabled {field}")
 
-            # results for a field in `analysis`. Each column represents the results
-            # of a single output variable. Each row represents the value of all output
-            # variables for one trial of a single field. The field name is thus
-            # included in each row, allowing results for all fields in a single
-            # analysis to be stored in one file.
+        finish = time.time()
+        seconds = finish - start
+        duration = datetime.timedelta(seconds=int(seconds))
+        _logger.info(f"Simulation.run completed in {duration}")
+
+        # results for a field in `analysis`. Each column represents the results
+        # of a single output variable. Each row represents the value of all output
+        # variables for one trial of a single field. The field name is thus
+        # included in each row, allowing results for all fields in a single
+        # analysis to be stored in one file.
