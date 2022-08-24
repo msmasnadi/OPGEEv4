@@ -23,10 +23,15 @@ class GasLiftingCompressor(Process):
         self.field = field = self.get_field()
         self.gas = field.gas
         self.res_press = field.attr("res_press")
+        self.gas_lifting_option = field.attr("gas_lifting")
 
     def run(self, analysis):
         self.print_running_msg()
         field = self.field
+
+        if not self.gas_lifting_option:
+            self.enabled = False
+            return
 
         # mass rate
         input = self.find_input_stream("lifting gas")

@@ -31,11 +31,11 @@ class Flaring(Process):
         self.print_running_msg()
         field = self.field
 
-        if not self.all_streams_ready("gas"):
+        if not self.all_streams_ready("gas for flaring"):
             return
 
         # mass rate
-        input = self.find_input_streams("gas", combine=True)  # type: Stream
+        input = self.find_input_streams("gas for flaring", combine=True)  # type: Stream
 
         gas_mol_fraction = self.gas.total_molar_flow_rate(input)
         gas_volume_rate = gas_mol_fraction / self.mol_per_scf

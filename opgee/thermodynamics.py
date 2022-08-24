@@ -8,6 +8,7 @@
 #
 import math
 import pandas as pd
+import pint
 from pyXSteam.XSteam import XSteam
 from thermosteam import Chemical, Mixture
 from . import ureg
@@ -394,7 +395,8 @@ class Oil(AbstractSubstance):
 
         :return:
         """
-        result = 141.5 / (API_grav.m + 131.5)
+        API_grav_value = API_grav.m if isinstance(API_grav, pint.Quantity) else API_grav
+        result = 141.5 / (API_grav_value + 131.5)
         return ureg.Quantity(result, "frac")
 
     # TODO used only in tests

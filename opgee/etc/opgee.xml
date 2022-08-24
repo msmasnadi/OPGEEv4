@@ -53,37 +53,37 @@
 	</Analysis>
 
 	<Field name="template">
-		<A name="country">USA</A>
-		<A name="water_reinjection">1</A>
-		<A name="downhole_pump">0</A>
-		<A name="natural_gas_reinjection">1</A>
-		<A name="gas_lifting">1</A>
-		<A name="depth">3937.0</A>
-		<A name="oil_prod">175000.0</A>
-		<A name="num_prod_wells">24</A>
-		<A name="num_water_inj_wells">20</A>
-		<A name="well_diam">8.0</A>
-		<A name="prod_index">90.90</A>
-		<A name="res_press">3655.0</A>
-		<A name="res_temp">141.0</A>
-		<A name="API">32.0</A>
-		<A name="GOR">584.29</A>
-		<A name="WOR">0.5</A>
-		<A name="WIR">1.5</A>
-		<A name="GLIR">30.26</A>
-		<A name="FOR">218.27</A>
-		<A name="VOR">5.0</A>
-		<A name="gas_processing_path">Acid Wet Gas</A>
-		<A name="common_gas_process_choice">All</A> <!-- controlled by a smart default "" -->
-		<A name="upgrader_type">Delayed coking</A>
-		<A name="frac_transport_pipeline">0.0</A>
-		<A name="transport_dist_tanker">7984.0</A>
-		<A name="transport_dist_barge">0</A>
-		<A name="transport_dist_pipeline">0</A>
-		<A name="transport_dist_rail">0</A>
-		<A name="transport_dist_truck">0</A>
-		<A name="ecosystem_richness">Low carbon</A>
-		<A name="field_development_intensity">Low</A>
+<!--		<A name="country">USA</A>-->
+<!--		<A name="water_reinjection">1</A>-->
+<!--		<A name="downhole_pump">0</A>-->
+<!--		<A name="natural_gas_reinjection">1</A>-->
+<!--		<A name="gas_lifting">1</A>-->
+<!--		<A name="depth">3937.0</A>-->
+<!--		<A name="oil_prod">175000.0</A>-->
+<!--		<A name="num_prod_wells">24</A>-->
+<!--		<A name="num_water_inj_wells">20</A>-->
+<!--		<A name="well_diam">8.0</A>-->
+<!--		<A name="prod_index">90.90</A>-->
+<!--		<A name="res_press">3655.0</A>-->
+<!--		<A name="res_temp">141.0</A>-->
+<!--		<A name="API">32.0</A>-->
+<!--		<A name="GOR">584.29</A>-->
+<!--		<A name="WOR">0.5</A>-->
+<!--		<A name="WIR">1.5</A>-->
+<!--		<A name="GLIR">30.26</A>-->
+<!--		<A name="FOR">218.27</A>-->
+<!--		<A name="VOR">5.0</A>-->
+<!--		<A name="gas_processing_path">Acid Wet Gas</A>-->
+<!--		<A name="common_gas_process_choice">All</A> &lt;!&ndash; controlled by a smart default "" &ndash;&gt;-->
+<!--		<A name="upgrader_type">Delayed coking</A>-->
+<!--		<A name="frac_transport_pipeline">0.0</A>-->
+<!--		<A name="transport_dist_tanker">7984.0</A>-->
+<!--		<A name="transport_dist_barge">0</A>-->
+<!--		<A name="transport_dist_pipeline">0</A>-->
+<!--		<A name="transport_dist_rail">0</A>-->
+<!--		<A name="transport_dist_truck">0</A>-->
+<!--		<A name="ecosystem_richness">Low carbon</A>-->
+<!--		<A name="field_development_intensity">Low</A>-->
 
 		<Process class="After"/>
 
@@ -195,12 +195,14 @@
 
 			<ProcessGroup name="Upgrading">
 				<ProcessRef name="HeavyOilUpgrading"/>
+				<ProcessRef name="CrudeOilStorage"/>
 				<StreamRef name="CrudeOilDewatering => HeavyOilUpgrading"/>
 				<StreamRef name="CrudeOilDewatering => HeavyOilUpgrading"/>
 			</ProcessGroup>
 
 			<ProcessGroup name="Dilution">
 				<ProcessRef name="HeavyOilDilution"/>
+				<ProcessRef name="CrudeOilStorage"/>
 				<StreamRef name="CrudeOilDewatering => HeavyOilUpgrading"/>
 			</ProcessGroup>
 		</ProcessChoice>
@@ -250,6 +252,7 @@
 
 		<Aggregator name="TransportAndStorage">
             <Process class="CrudeOilTransport"/>
+			<Process class="PetrocokeTransport"/>
             <Process class="TransmissionCompressor"/>
             <Process class="StorageCompressor"/>
             <Process class="StorageWell"/>
@@ -274,10 +277,6 @@
 			<Contains>crude oil</Contains>
 		</Stream>
 
-		<Stream src="Reservoir" dst="BitumenMining">
-			<Contains>oil</Contains>
-		</Stream>
-
 		<Stream src="ReservoirWellInterface" dst="DownholePump">
 			<Contains>crude oil</Contains>
 		</Stream>
@@ -297,7 +296,7 @@
 		</Stream>
 
 		<Stream src="Separation" dst="Flaring">
-			<Contains>gas</Contains>
+			<Contains>gas for flaring</Contains>
 		</Stream>
 
 <!--		oil processing path-->
@@ -346,7 +345,7 @@
 		</Stream>
 
 		<Stream src="HeavyOilUpgrading" dst="Flaring">
-			<Contains>gas</Contains>
+			<Contains>gas for flaring</Contains>
 		</Stream>
 
 		<Stream src="CrudeOilStorage" dst="Flaring">
@@ -354,11 +353,23 @@
 		</Stream>
 
 		<Stream src="BitumenMining" dst="Flaring">
-			<Contains>gas</Contains>
+			<Contains>gas for flaring</Contains>
+		</Stream>
+
+		<Stream src="BitumenMining" dst="VRUCompressor">
+			<Contains>gas for VRU</Contains>
 		</Stream>
 
 		<Stream src="HeavyOilUpgrading" dst="CrudeOilStorage">
 			<Contains>oil for storage</Contains>
+		</Stream>
+
+		<Stream src="HeavyOilUpgrading" dst="ProductionBoundary">
+			<Contains>petrocoke</Contains>
+		</Stream>
+
+		<Stream src="ProductionBoundary" dst="PetrocokeTransport">
+			<Contains>petrocoke</Contains>
 		</Stream>
 
 		<Stream src="CrudeOilStorage" dst="ProductionBoundary">
@@ -462,6 +473,10 @@
 
 		<Stream src="AcidGasRemoval" dst="GasPartition">
 			<Contains>gas for gas partition</Contains>
+		</Stream>
+
+		<Stream src="AcidGasRemoval" dst="GasGathering">
+			<Contains>gas for gas gathering</Contains>
 		</Stream>
 
 		<Stream src="GasDehydration" dst="RyanHolmes">

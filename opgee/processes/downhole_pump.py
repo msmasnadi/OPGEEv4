@@ -52,7 +52,7 @@ class DownholePump(Process):
         if input.is_uninitialized():
             return
 
-        lift_gas = self.find_input_stream('lifting gas')
+        lift_gas = self.find_input_stream('lifting gas', raiseError=None)
         field.save_process_data(dp_input_before=input)
 
         loss_rate = self.venting_fugitive_rate()
@@ -62,7 +62,7 @@ class DownholePump(Process):
 
         # Check
         output.copy_flow_rates_from(input, tp=field.wellhead_tp)
-        if lift_gas.initialized:
+        if lift_gas is not None and lift_gas.is_initialized():
             output.add_flow_rates_from(lift_gas)
         output.subtract_rates_from(gas_fugitives)
         self.set_iteration_value(output.total_flow_rate())

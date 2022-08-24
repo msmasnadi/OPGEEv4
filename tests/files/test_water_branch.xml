@@ -108,7 +108,7 @@
 		</Stream>
 
 		<Stream src="Separation" dst="Output" name="gas after separator">
-			<Contains>gas</Contains>
+			<Contains>gas for flaring</Contains>
 		</Stream>
 
 		<Stream src="ReservoirWellInterface" dst="DownholePump" name="reservoir well interface to downhole pump">
@@ -246,7 +246,7 @@
 		</Stream>
 
 		<Stream src="Separation" dst="Output" name="gas after separator">
-			<Contains>gas</Contains>
+			<Contains>gas for flaring</Contains>
 		</Stream>
 
 		<Stream src="ReservoirWellInterface" dst="DownholePump" name="reservoir well interface to downhole pump">

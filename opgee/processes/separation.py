@@ -71,7 +71,7 @@ class Separation(Process):
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
-        gas_after = self.find_output_stream("gas")
+        gas_after = self.find_output_stream("gas for flaring")
         # Check
         gas_after.copy_gas_rates_from(input)
         gas_after.subtract_rates_from(gas_fugitives)
@@ -138,7 +138,7 @@ class Separation(Process):
         gas = field.gas
         std_tp = field.stp
 
-        gas_after = self.find_output_stream("gas")
+        gas_after = self.find_output_stream("gas for flaring")
         last = self.num_of_stages - 1
         stream = Stream("stage_stream", TemperaturePressure(temperature_of_stages[last],
                                                             pressure_of_stages[last]))

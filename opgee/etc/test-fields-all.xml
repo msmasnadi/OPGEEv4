@@ -27,7 +27,6 @@
       <A name="GLIR">30.26</A>
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_water_reinjected">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">0.0</A>
@@ -58,7 +57,6 @@
       <A name="WIR">2.72</A>
       <A name="GLIR">1800.0</A>
       <A name="fraction_remaining_gas_inj">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">176.1</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
@@ -91,7 +89,6 @@
       <A name="API">32.0</A>
       <A name="WOR">4.0</A>
       <A name="WIR">4.67</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -125,7 +122,6 @@
       <A name="WOR">0.18</A>
       <A name="WIR">0.0</A>
       <A name="GLIR">666.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -153,7 +149,6 @@
       <A name="num_water_inj_wells">30.0</A>
       <A name="API">35.0</A>
       <A name="GOR">1299.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -187,7 +182,6 @@
       <A name="GLIR">580.0</A>
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_water_reinjected">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">0.0</A>
@@ -253,7 +247,6 @@
       <A name="WIR">12.5</A>
       <A name="fraction_remaining_gas_inj">0.15</A>
       <A name="fraction_water_reinjected">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -281,7 +274,6 @@
       <A name="GOR">333.0</A>
       <A name="fraction_remaining_gas_inj">1.0</A>
       <A name="fraction_water_reinjected">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -320,7 +312,6 @@
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_remaining_gas_inj">0.34</A>
       <A name="fraction_water_reinjected">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">2694.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
@@ -351,7 +342,6 @@
       <A name="WOR">3.63</A>
       <A name="WIR">1.67</A>
       <A name="GLIR">666.67</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">0.0</A>
@@ -379,7 +369,6 @@
       <A name="API">16.9</A>
       <A name="GOR">48.4</A>
       <A name="WOR">7.77</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">0.0</A>
@@ -409,7 +398,6 @@
       <A name="API">29.0</A>
       <A name="GOR">8.0</A>
       <A name="WOR">1.52</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -437,7 +425,6 @@
       <A name="res_press">6000.0</A>
       <A name="API">44.0</A>
       <A name="GOR">1700.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -466,7 +453,6 @@
       <A name="GOR">1310.72</A>
       <A name="WOR">1.31</A>
       <A name="WIR">2.51</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="transport_dist_tanker">6135.0</A>
     </Field>
@@ -488,7 +474,6 @@
       <A name="GOR">18574.91</A>
       <A name="WOR">1.77</A>
       <A name="WIR">0.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="transport_dist_tanker">6135.0</A>
     </Field>
@@ -509,7 +494,6 @@
       <A name="num_prod_wells">300.0</A>
       <A name="API">24.1</A>
       <A name="WOR">0.58</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -545,7 +529,6 @@
       <A name="gas_comp_C3">4.99</A>
       <A name="gas_comp_C4">3.83</A>
       <A name="gas_comp_H2S">0.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 20" modifies="template">
       <A name="downhole_pump">1</A>
@@ -570,7 +553,6 @@
       <A name="WOR">3.0</A>
       <A name="SOR">4.21</A>
       <A name="fraction_steam_cogen">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">5.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
@@ -599,7 +581,6 @@
       <A name="well_diam">9.63</A>
       <A name="res_press">350.0</A>
       <A name="API">34.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -627,7 +608,6 @@
       <A name="prod_index">20.0</A>
       <A name="API">26.0</A>
       <A name="WOR">0.11</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -657,7 +637,6 @@
       <A name="GOR">562.0</A>
       <A name="GFIR">3500.0</A>
       <A name="fraction_remaining_gas_inj">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -687,7 +666,6 @@
       <A name="res_press">1100.0</A>
       <A name="API">36.0</A>
       <A name="WOR">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -715,7 +693,6 @@
       <A name="API">30.0</A>
       <A name="GOR">625.0</A>
       <A name="WOR">1.5</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -746,7 +723,6 @@
       <A name="GOR">750.0</A>
       <A name="WOR">0.05</A>
       <A name="WIR">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -778,7 +754,6 @@
       <A name="WOR">1.5</A>
       <A name="WIR">2.5</A>
       <A name="fraction_water_reinjected">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">543.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
@@ -819,7 +794,6 @@
       <A name="WOR">0.06</A>
       <A name="WIR">0.0</A>
       <A name="fraction_remaining_gas_inj">0.33</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">18.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
@@ -853,7 +827,6 @@
       <A name="GOR">500.0</A>
       <A name="WOR">0.3</A>
       <A name="fraction_water_reinjected">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">0.0</A>
@@ -886,7 +859,6 @@
       <A name="WOR">3.2</A>
       <A name="WIR">4.2</A>
       <A name="fraction_water_reinjected">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">52.94</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
@@ -913,7 +885,6 @@
       <A name="oil_prod">345000.0</A>
       <A name="API">36.71</A>
       <A name="GOR">3752.78</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -948,7 +919,6 @@
       <A name="GFIR">1000.0</A>
       <A name="flood_gas_type">N2</A>
       <A name="fraction_water_reinjected">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">0.0</A>
@@ -979,7 +949,6 @@
       <A name="fraction_remaining_gas_inj">0.0</A>
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -1014,7 +983,6 @@
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_remaining_gas_inj">0.9</A>
       <A name="fraction_water_reinjected">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">90.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
@@ -1045,7 +1013,6 @@
       <A name="WOR">0.21</A>
       <A name="WIR">1.72</A>
       <A name="GLIR">28.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">129.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
@@ -1073,7 +1040,6 @@
       <A name="API">35.3</A>
       <A name="GOR">20848.68</A>
       <A name="WOR">0.7</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">1652.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
@@ -1101,7 +1067,6 @@
       <A name="API">35.8</A>
       <A name="GOR">1311.0</A>
       <A name="WOR">1.08</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">1273.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
@@ -1132,7 +1097,6 @@
       <A name="WIR">3.9</A>
       <A name="GLIR">256.4</A>
       <A name="fraction_water_reinjected">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">2428.4</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
@@ -1159,7 +1123,6 @@
       <A name="num_prod_wells">1.0</A>
       <A name="API">33.7</A>
       <A name="GOR">1241.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">1081.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
@@ -1198,7 +1161,6 @@
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_remaining_gas_inj">0.25</A>
       <A name="fraction_water_reinjected">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">18.03</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
@@ -1231,7 +1193,6 @@
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_remaining_gas_inj">1.0</A>
       <A name="fraction_water_reinjected">1.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 42" modifies="template">
       <A name="downhole_pump">0</A>
@@ -1251,7 +1212,6 @@
       <A name="num_water_inj_wells">4.0</A>
       <A name="API">38.5</A>
       <A name="GOR">5463.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">0.0</A>
@@ -1274,7 +1234,6 @@
       <A name="depth">7650.0</A>
       <A name="oil_prod">45000.0</A>
       <A name="API">35.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -1302,7 +1261,6 @@
       <A name="num_water_inj_wells">182.0</A>
       <A name="API">40.0</A>
       <A name="GOR">2363.24</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -1336,7 +1294,6 @@
       <A name="WIR">0.0</A>
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_remaining_gas_inj">0.3</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -1364,7 +1321,6 @@
       <A name="API">31.78</A>
       <A name="GOR">29.65</A>
       <A name="WOR">3.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -1393,7 +1349,6 @@
       <A name="API">35.0</A>
       <A name="GOR">481.78</A>
       <A name="WOR">9.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -1430,7 +1385,6 @@
       <A name="fraction_remaining_gas_inj">0.0</A>
       <A name="fraction_water_reinjected">0.0</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -1460,7 +1414,6 @@
       <A name="GOR">570.0</A>
       <A name="WOR">0.43</A>
       <A name="WIR">1.4</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -1487,7 +1440,6 @@
       <A name="res_press">2618.0</A>
       <A name="API">32.0</A>
       <A name="fraction_water_reinjected">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">0.0</A>
@@ -1520,7 +1472,6 @@
       <A name="WOR">1.0</A>
       <A name="WIR">1.0</A>
       <A name="fraction_water_reinjected">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -1546,7 +1497,6 @@
       <A name="oil_prod">360000.0</A>
       <A name="API">40.0</A>
       <A name="WOR">0.1</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -1579,7 +1529,6 @@
       <A name="GLIR">104.3</A>
       <A name="GFIR">43134.22</A>
       <A name="fraction_water_reinjected">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">728.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
@@ -1615,7 +1564,6 @@
       <A name="GLIR">8.0</A>
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_water_reinjected">0.69</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">34.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
@@ -1651,7 +1599,6 @@
       <A name="GLIR">0.0</A>
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_water_reinjected">0.69</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">34.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
@@ -1687,7 +1634,9 @@
       <A name="GFIR">30972.0</A>
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_remaining_gas_inj">1.0</A>
-      <A name="CrudeOilDewatering.heater_treater">1</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">1</A>
+      </Process>
       <A name="stabilizer_column">0</A>
       <A name="gas_processing_path">Acid Wet Gas</A>
       <A name="frac_transport_tanker">1.0</A>
@@ -1732,11 +1681,12 @@
       <A name="GFIR">0.0</A>
       <A name="SOR">0.0</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">1</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">1</A>
+      </Process>
       <A name="stabilizer_column">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">514.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">0.33</A>
@@ -1779,7 +1729,9 @@
       <A name="GFIR">0.0</A>
       <A name="SOR">0.0</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">1</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">1</A>
+      </Process>
       <A name="stabilizer_column">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">10.0</A>
@@ -1825,7 +1777,9 @@
       <A name="GFIR">0.0</A>
       <A name="SOR">0.0</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">1</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">1</A>
+      </Process>
       <A name="stabilizer_column">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">363.0</A>
@@ -1872,7 +1826,9 @@
       <A name="fraction_remaining_gas_inj">0.0</A>
       <A name="fraction_water_reinjected">0.0</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">1</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">1</A>
+      </Process>
       <A name="stabilizer_column">1</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">140.1</A>
@@ -1920,7 +1876,9 @@
       <A name="fraction_remaining_gas_inj">0.0</A>
       <A name="fraction_water_reinjected">0.0</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">1</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">1</A>
+      </Process>
       <A name="stabilizer_column">1</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">140.1</A>
@@ -1968,7 +1926,9 @@
       <A name="fraction_remaining_gas_inj">0.0</A>
       <A name="fraction_water_reinjected">0.0</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">1</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">1</A>
+      </Process>
       <A name="stabilizer_column">1</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">140.1</A>
@@ -2016,7 +1976,9 @@
       <A name="fraction_remaining_gas_inj">0.0</A>
       <A name="fraction_water_reinjected">0.0</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">1</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">1</A>
+      </Process>
       <A name="stabilizer_column">1</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">140.1</A>
@@ -2048,7 +2010,6 @@
       <A name="res_press">1375.0</A>
       <A name="API">38.9</A>
       <A name="GOR">325.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2073,7 +2034,6 @@
       <A name="depth">11000.0</A>
       <A name="oil_prod">259683.0</A>
       <A name="API">35.6</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2107,7 +2067,6 @@
       <A name="WIR">1.5</A>
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_water_reinjected">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2142,7 +2101,6 @@
       <A name="SOR">5.8</A>
       <A name="fraction_water_reinjected">0.3</A>
       <A name="fraction_steam_cogen">0.26</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2178,7 +2136,6 @@
       <A name="fraction_water_reinjected">0.3</A>
       <A name="fraction_steam_cogen">0.26</A>
       <A name="fraction_steam_solar">0.25</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2214,7 +2171,6 @@
       <A name="fraction_water_reinjected">0.2</A>
       <A name="fraction_steam_cogen">0.26</A>
       <A name="fraction_steam_solar">0.5</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2250,7 +2206,6 @@
       <A name="fraction_water_reinjected">0.0</A>
       <A name="fraction_steam_cogen">0.25</A>
       <A name="fraction_steam_solar">0.75</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2297,7 +2252,9 @@
       <A name="fraction_remaining_gas_inj">0.01</A>
       <A name="fraction_water_reinjected">0.37</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">16.25</A>
@@ -2348,7 +2305,9 @@
       <A name="fraction_remaining_gas_inj">0.0</A>
       <A name="fraction_water_reinjected">0.76</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">1</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">300.0</A>
@@ -2385,7 +2344,6 @@
       <A name="SOR">2.81</A>
       <A name="fraction_water_reinjected">0.83</A>
       <A name="fraction_steam_cogen">0.14</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2410,7 +2368,6 @@
       <A name="depth">7950.0</A>
       <A name="oil_prod">387000.0</A>
       <A name="API">37.5</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2444,7 +2401,6 @@
       <A name="WIR">1.4</A>
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_water_reinjected">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2476,7 +2432,6 @@
       <A name="WOR">37.11</A>
       <A name="WIR">39.98</A>
       <A name="fraction_water_reinjected">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2504,7 +2459,6 @@
       <A name="API">30.0</A>
       <A name="GOR">500.0</A>
       <A name="WOR">1.28</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2543,8 +2497,7 @@
       <A name="gas_comp_H2S">0.0</A>
       <A name="GOR">111.0</A>
       <A name="WOR">0.1</A>
-      <A name="upgrader_type">1</A>
-      <A name="gas_processing_path">None</A>
+      <A name="upgrader_type">Delayed coking</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2568,7 +2521,6 @@
       <A name="num_prod_wells">29.0</A>
       <A name="API">24.0</A>
       <A name="GOR">526.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">0.0</A>
@@ -2597,8 +2549,7 @@
       <A name="API">8.5</A>
       <A name="GOR">110.0</A>
       <A name="SOR">0.79</A>
-      <A name="upgrader_type">1</A>
-      <A name="gas_processing_path">None</A>
+      <A name="upgrader_type">Delayed coking</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2629,7 +2580,6 @@
       <A name="GOR">10169.0</A>
       <A name="WOR">0.06</A>
       <A name="WIR">0.06</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2659,7 +2609,6 @@
       <A name="API">12.1</A>
       <A name="GOR">145.0</A>
       <A name="SOR">0.19</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">0.0</A>
@@ -2684,13 +2633,13 @@
       <A name="name">Cold lake</A>
       <A name="API">10.2</A>
       <A name="SOR">3.42</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
-      <A name="upgrader_type">0</A>
-      <A name="gas_processing_path">None</A>
+      <A name="upgrader_type">None</A>
       <A name="FOR">2.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.3</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2715,13 +2664,13 @@
       <A name="name">Foster creek</A>
       <A name="API">10.2</A>
       <A name="SOR">2.37</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
-      <A name="upgrader_type">0</A>
-      <A name="gas_processing_path">None</A>
+      <A name="upgrader_type">None</A>
       <A name="FOR">2.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.3</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2745,10 +2694,14 @@
       <A name="country">Canada</A>
       <A name="name">Suncor</A>
       <A name="API">32.8</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <A name="API_bitumen">32.8</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
-      <A name="upgrader_type">1</A>
+      <A name="upgrader_type">Delayed coking</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="oil_processing_path">Upgrading</A>
       <A name="FOR">2.0</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
@@ -2774,10 +2727,14 @@
       <A name="country">Canada</A>
       <A name="name">Syncrude</A>
       <A name="API">32.2</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <A name="API_bitumen">32.2</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
-      <A name="upgrader_type">3</A>
+      <A name="upgrader_type">Combined</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="oil_processing_path">Upgrading</A>
       <A name="FOR">2.0</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
@@ -2803,13 +2760,19 @@
       <A name="country">Canada</A>
       <A name="name">Jackpine/Scotford</A>
       <A name="API">32.0</A>
+      <A name="API_bitumen">32.0</A>
       <A name="SOR">2.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
-      <A name="upgrader_type">2</A>
+      <A name="upgrader_type">Hydroconversion</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="oil_processing_path">Dilution</A>
       <A name="FOR">2.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
+      <Process class="HeavyOilDilution">
+        <A name="fraction_diluent">0.3</A>
+      </Process>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2833,11 +2796,17 @@
       <A name="country">Canada</A>
       <A name="name">CNRL Horizon</A>
       <A name="API">8.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <A name="API_bitumen">8.0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
-      <A name="upgrader_type">0</A>
+      <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Minimal</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.3</A>
+      <A name="oil_processing_path">Dilution</A>
+      <Process class="HeavyOilDilution">
+        <A name="fraction_diluent">0.3</A>
+      </Process>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2864,13 +2833,13 @@
       <A name="SOR">3.42</A>
       <A name="fraction_elec_onsite">0.5</A>
       <A name="fraction_steam_cogen">0.5</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
-      <A name="upgrader_type">0</A>
-      <A name="gas_processing_path">None</A>
+      <A name="upgrader_type">None</A>
       <A name="FOR">2.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.3</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2897,13 +2866,13 @@
       <A name="SOR">2.37</A>
       <A name="fraction_elec_onsite">0.5</A>
       <A name="fraction_steam_cogen">0.5</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
-      <A name="upgrader_type">0</A>
-      <A name="gas_processing_path">None</A>
+      <A name="upgrader_type">None</A>
       <A name="FOR">2.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.3</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2927,12 +2896,16 @@
       <A name="country">Canada</A>
       <A name="name">Suncor</A>
       <A name="API">32.8</A>
+      <A name="API_bitumen">32.8</A>
       <A name="fraction_elec_onsite">0.5</A>
       <A name="fraction_steam_cogen">0.5</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
-      <A name="upgrader_type">1</A>
+      <A name="upgrader_type">Delayed coking</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="oil_processing_path">Upgrading</A>
       <A name="FOR">2.0</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
@@ -2958,12 +2931,16 @@
       <A name="country">Canada</A>
       <A name="name">Syncrude</A>
       <A name="API">32.2</A>
+      <A name="API_bitumen">32.2</A>
       <A name="fraction_elec_onsite">0.5</A>
       <A name="fraction_steam_cogen">0.5</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
-      <A name="upgrader_type">3</A>
+      <A name="upgrader_type">Combined</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="oil_processing_path">Upgrading</A>
       <A name="FOR">2.0</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
@@ -2989,16 +2966,22 @@
       <A name="country">Canada</A>
       <A name="name">Jackpine/Scotford</A>
       <A name="API">32.0</A>
+      <A name="API_bitumen">32.0</A>
       <A name="SOR">2.0</A>
       <A name="fraction_elec_onsite">0.5</A>
       <A name="fraction_steam_cogen">0.5</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
-      <A name="upgrader_type">2</A>
+      <A name="upgrader_type">Hydroconversion</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="oil_processing_path">Dilution</A>
       <A name="FOR">2.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
+      <Process class="HeavyOilDilution">
+        <A name="fraction_diluent">0.3</A>
+      </Process>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -3025,13 +3008,13 @@
       <A name="SOR">3.42</A>
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_steam_cogen">1.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
-      <A name="upgrader_type">0</A>
-      <A name="gas_processing_path">None</A>
+      <A name="upgrader_type">None</A>
       <A name="FOR">2.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.3</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -3058,13 +3041,13 @@
       <A name="SOR">2.37</A>
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_steam_cogen">1.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
-      <A name="upgrader_type">0</A>
-      <A name="gas_processing_path">None</A>
+      <A name="upgrader_type">None</A>
       <A name="FOR">2.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.3</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -3088,12 +3071,16 @@
       <A name="country">Canada</A>
       <A name="name">Suncor</A>
       <A name="API">32.8</A>
+      <A name="API_bitumen">32.8</A>
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_steam_cogen">1.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
-      <A name="upgrader_type">1</A>
+      <A name="upgrader_type">Delayed coking</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="oil_processing_path">Upgrading</A>
       <A name="FOR">2.0</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
@@ -3119,12 +3106,16 @@
       <A name="country">Canada</A>
       <A name="name">Syncrude</A>
       <A name="API">32.2</A>
+      <A name="API_bitumen">32.2</A>
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_steam_cogen">1.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
-      <A name="upgrader_type">3</A>
+      <A name="upgrader_type">Combined</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="oil_processing_path">Upgrading</A>
       <A name="FOR">2.0</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
@@ -3150,15 +3141,21 @@
       <A name="country">Canada</A>
       <A name="name">Jackpine/Scotford</A>
       <A name="API">32.0</A>
+      <A name="API_bitumen">32.0</A>
       <A name="SOR">2.0</A>
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_steam_cogen">1.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
-      <A name="upgrader_type">2</A>
+      <A name="upgrader_type">Hydroconversion</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="oil_processing_path">Dilution</A>
       <A name="FOR">2.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
+      <Process class="HeavyOilDilution">
+        <A name="fraction_diluent">0.3</A>
+      </Process>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -3429,11 +3426,15 @@
       <A name="name">Diluent Test 0% - Non-integrated mine</A>
       <A name="depth">100.0</A>
       <A name="API">15.0</A>
+      <A name="API_bitumen">15.0</A>
       <A name="GOR">100.0</A>
       <A name="WOR">1.0</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="oil_processing_path">Dilution</A>
       <A name="FOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.01</A>
+      <Process class="HeavyOilDilution">
+        <A name="fraction_diluent">0.3</A>
+      </Process>
     </Field>
     <Field name="Field 118" modifies="template">
       <A name="water_reinjection">0</A>
@@ -3442,11 +3443,15 @@
       <A name="name">Diluent Test 25% - Non integrated mine</A>
       <A name="depth">100.0</A>
       <A name="API">15.0</A>
+      <A name="API_bitumen">15.0</A>
       <A name="GOR">100.0</A>
       <A name="WOR">1.0</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="oil_processing_path">Dilution</A>
       <A name="FOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.25</A>
+      <Process class="HeavyOilDilution">
+        <A name="fraction_diluent">0.3</A>
+      </Process>
     </Field>
     <Field name="Field 119" modifies="template">
       <A name="water_reinjection">0</A>
@@ -3455,11 +3460,15 @@
       <A name="name">Diluent Test 50% - Non integrated mine</A>
       <A name="depth">100.0</A>
       <A name="API">15.0</A>
+      <A name="API_bitumen">15.0</A>
       <A name="GOR">100.0</A>
       <A name="WOR">1.0</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="oil_processing_path">Dilution</A>
       <A name="FOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.5</A>
+      <Process class="HeavyOilDilution">
+        <A name="fraction_diluent">0.3</A>
+      </Process>
     </Field>
     <Field name="Field 120" modifies="template">
       <A name="water_reinjection">0</A>
@@ -3468,11 +3477,15 @@
       <A name="name">Diluent Test 75% - Non-integrated mine</A>
       <A name="depth">100.0</A>
       <A name="API">15.0</A>
+      <A name="API_bitumen">15.0</A>
       <A name="GOR">100.0</A>
       <A name="WOR">1.0</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="oil_processing_path">Dilution</A>
       <A name="FOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.75</A>
+      <Process class="HeavyOilDilution">
+        <A name="fraction_diluent">0.3</A>
+      </Process>
     </Field>
     <Field name="Field 121" modifies="template">
       <A name="water_reinjection">0</A>
@@ -3481,11 +3494,15 @@
       <A name="name">Diluent Test 100% -Non-integrated mine</A>
       <A name="depth">100.0</A>
       <A name="API">15.0</A>
+      <A name="API_bitumen">15.0</A>
       <A name="GOR">100.0</A>
       <A name="WOR">1.0</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="oil_processing_path">Dilution</A>
       <A name="FOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">1.0</A>
+      <Process class="HeavyOilDilution">
+        <A name="fraction_diluent">0.3</A>
+      </Process>
     </Field>
     <Field name="Field 122" modifies="template">
       <A name="downhole_pump">0</A>
@@ -3499,8 +3516,10 @@
       <A name="country">Canada</A>
       <A name="name">Oil sands test: Mine, DC, integrated</A>
       <A name="API">32.0</A>
-      <A name="upgrader_type">1</A>
+      <A name="API_bitumen">32.0</A>
+      <A name="upgrader_type">Delayed coking</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="oil_processing_path">Upgrading</A>
       <A name="FOR">0.0</A>
       <A name="VOR">0.0</A>
     </Field>
@@ -3516,10 +3535,15 @@
       <A name="country">Canada</A>
       <A name="name">Oil sands test: Mine, DC, non-integrated</A>
       <A name="API">32.0</A>
-      <A name="upgrader_type">1</A>
+      <A name="API_bitumen">32.0</A>
+      <A name="upgrader_type">Delayed coking</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="oil_processing_path">Dilution</A>
       <A name="FOR">0.0</A>
       <A name="VOR">0.0</A>
+      <Process class="HeavyOilDilution">
+        <A name="fraction_diluent">0.3</A>
+      </Process>
     </Field>
     <Field name="Field 124" modifies="template">
       <A name="downhole_pump">0</A>
@@ -3533,8 +3557,10 @@
       <A name="country">Canada</A>
       <A name="name">Oil sands test: Mine, HC, integrated</A>
       <A name="API">32.0</A>
-      <A name="upgrader_type">2</A>
+      <A name="API_bitumen">32.0</A>
+      <A name="upgrader_type">Hydroconversion</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="oil_processing_path">Upgrading</A>
       <A name="FOR">0.0</A>
       <A name="VOR">0.0</A>
     </Field>
@@ -3550,10 +3576,15 @@
       <A name="country">Canada</A>
       <A name="name">Oil sands test: Mine, HC, non-integrated</A>
       <A name="API">32.0</A>
-      <A name="upgrader_type">2</A>
+      <A name="API_bitumen">32.0</A>
+      <A name="upgrader_type">Hydroconversion</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="oil_processing_path">Dilution</A>
       <A name="FOR">0.0</A>
       <A name="VOR">0.0</A>
+      <Process class="HeavyOilDilution">
+        <A name="fraction_diluent">0.3</A>
+      </Process>
     </Field>
     <Field name="Field 126" modifies="template">
       <A name="downhole_pump">0</A>
@@ -3567,8 +3598,10 @@
       <A name="country">Canada</A>
       <A name="name">Oil sands test: Mine, HCFC, integrated</A>
       <A name="API">32.0</A>
-      <A name="upgrader_type">3</A>
+      <A name="API_bitumen">32.0</A>
+      <A name="upgrader_type">Combined</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="oil_processing_path">Upgrading</A>
       <A name="FOR">0.0</A>
       <A name="VOR">0.0</A>
     </Field>
@@ -3584,10 +3617,15 @@
       <A name="country">Canada</A>
       <A name="name">Oil sands test: Mine, HCFC, non-integrated</A>
       <A name="API">32.0</A>
-      <A name="upgrader_type">3</A>
+      <A name="API_bitumen">32.0</A>
+      <A name="upgrader_type">Combined</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="oil_processing_path">Dilution</A>
       <A name="FOR">0.0</A>
       <A name="VOR">0.0</A>
+      <Process class="HeavyOilDilution">
+        <A name="fraction_diluent">0.3</A>
+      </Process>
     </Field>
     <Field name="Field 128" modifies="template">
       <A name="downhole_pump">1</A>
@@ -3606,7 +3644,6 @@
       <A name="num_prod_wells">486258.0</A>
       <A name="API">60.0</A>
       <A name="GOR">98995.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 129" modifies="template">
       <A name="downhole_pump">1</A>
@@ -3625,7 +3662,6 @@
       <A name="num_prod_wells">199413.0</A>
       <A name="API">30.0</A>
       <A name="GOR">2108.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 130" modifies="template">
       <A name="downhole_pump">1</A>
@@ -3652,7 +3688,6 @@
       <A name="GFIR">1000.0</A>
       <A name="flood_gas_type">NG</A>
       <A name="fraction_water_reinjected">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">0.0</A>
@@ -3683,7 +3718,6 @@
       <A name="WOR">0.26</A>
       <A name="fraction_elec_onsite">0.0</A>
       <A name="fraction_remaining_gas_inj">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">422.07</A>
       <A name="transport_dist_pipeline">416.32</A>
     </Field>
@@ -3708,7 +3742,6 @@
       <A name="GOR">34785.0</A>
       <A name="WOR">93.81</A>
       <A name="fraction_elec_onsite">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">9343.3</A>
       <A name="transport_dist_pipeline">490.88</A>
     </Field>
@@ -3728,7 +3761,6 @@
       <A name="GOR">22000.0</A>
       <A name="WOR">0.11</A>
       <A name="fraction_elec_onsite">0.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
       <A name="transport_dist_pipeline">683.51</A>
     </Field>
@@ -3756,7 +3788,6 @@
       <A name="GOR">3404.8</A>
       <A name="WOR">0.57</A>
       <A name="fraction_elec_onsite">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">55.41</A>
       <A name="transport_dist_pipeline">416.32</A>
     </Field>
@@ -3781,7 +3812,6 @@
       <A name="gas_comp_H2S">14.72</A>
       <A name="GOR">25900000.0</A>
       <A name="fraction_elec_onsite">0.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="transport_dist_pipeline">1342.16</A>
     </Field>
     <Field name="Field 136" modifies="template">
@@ -3799,7 +3829,6 @@
       <A name="offshore">0.0</A>
       <A name="GOR">73000000.0</A>
       <A name="fraction_elec_onsite">0.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">69991.9</A>
       <A name="transport_dist_pipeline">1342.16</A>
     </Field>
@@ -3828,7 +3857,6 @@
       <A name="GOR">8650000.0</A>
       <A name="WOR">16.36</A>
       <A name="fraction_elec_onsite">0.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="transport_dist_pipeline">490.88</A>
     </Field>
     <Field name="Field 138" modifies="template">
@@ -3853,7 +3881,6 @@
       <A name="GOR">50300.0</A>
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_remaining_gas_inj">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">79.46</A>
       <A name="transport_dist_pipeline">683.51</A>
     </Field>
@@ -3873,7 +3900,6 @@
       <A name="GOR">75674.0</A>
       <A name="fraction_elec_onsite">0.0</A>
       <A name="fraction_remaining_gas_inj">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
       <A name="transport_dist_pipeline">683.51</A>
     </Field>
@@ -3893,7 +3919,6 @@
       <A name="GOR">522159.0</A>
       <A name="WOR">0.17</A>
       <A name="fraction_elec_onsite">1.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 141" modifies="template">
       <A name="downhole_pump">1</A>
@@ -3915,7 +3940,6 @@
       <A name="gas_comp_C4">1.1</A>
       <A name="GOR">43104.0</A>
       <A name="fraction_elec_onsite">0.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
       <A name="transport_dist_pipeline">226.8</A>
     </Field>
@@ -3936,7 +3960,6 @@
       <A name="GOR">282000.0</A>
       <A name="fraction_elec_onsite">0.0</A>
       <A name="fraction_remaining_gas_inj">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">10.53</A>
       <A name="transport_dist_pipeline">1795.8</A>
     </Field>
@@ -3962,7 +3985,6 @@
       <A name="WOR">0.25</A>
       <A name="fraction_elec_onsite">0.0</A>
       <A name="fraction_remaining_gas_inj">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">3382.9</A>
       <A name="transport_dist_pipeline">1795.8</A>
     </Field>
@@ -3986,7 +4008,6 @@
       <A name="GOR">736000.0</A>
       <A name="fraction_elec_onsite">0.0</A>
       <A name="fraction_remaining_gas_inj">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">583.3</A>
       <A name="transport_dist_pipeline">1795.8</A>
     </Field>
@@ -4009,7 +4030,6 @@
       <A name="GOR">5530000.0</A>
       <A name="fraction_elec_onsite">0.0</A>
       <A name="fraction_remaining_gas_inj">1.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 146" modifies="template">
       <A name="downhole_pump">1</A>
@@ -4032,7 +4052,6 @@
       <A name="WOR">0.13</A>
       <A name="fraction_elec_onsite">0.0</A>
       <A name="fraction_remaining_gas_inj">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">209.59</A>
       <A name="transport_dist_pipeline">1795.8</A>
     </Field>
@@ -4059,7 +4078,6 @@
       <A name="gas_comp_H2S">3.64</A>
       <A name="GOR">3605.4</A>
       <A name="fraction_elec_onsite">0.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">6.26</A>
       <A name="transport_dist_pipeline">4032.7</A>
     </Field>
@@ -4079,7 +4097,6 @@
       <A name="offshore">1.0</A>
       <A name="GOR">536.84</A>
       <A name="fraction_elec_onsite">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="transport_dist_pipeline">1056.3</A>
     </Field>
     <Field name="Field 149" modifies="template">
@@ -4097,7 +4114,6 @@
       <A name="gas_comp_H2S">6.0</A>
       <A name="GOR">420757.0</A>
       <A name="fraction_elec_onsite">0.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">102.87</A>
       <A name="transport_dist_pipeline">4032.7</A>
     </Field>
@@ -4125,7 +4141,6 @@
       <A name="WOR">0.14</A>
       <A name="fraction_remaining_gas_inj">1.0</A>
       <A name="fraction_water_reinjected">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">69.39</A>
       <A name="transport_dist_pipeline">416.32</A>
     </Field>
@@ -4144,7 +4159,6 @@
       <A name="res_temp">182.04</A>
       <A name="GOR">29495.0</A>
       <A name="WOR">2.61</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">7.32</A>
       <A name="transport_dist_pipeline">490.88</A>
     </Field>
@@ -4166,7 +4180,6 @@
       <A name="gas_comp_C3">3.08</A>
       <A name="gas_comp_C4">0.93</A>
       <A name="GOR">3840000.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">765.9</A>
       <A name="transport_dist_pipeline">1261.38</A>
     </Field>
@@ -4190,13 +4203,11 @@
       <A name="gas_comp_C4">1.7</A>
       <A name="GOR">10791.0</A>
       <A name="fraction_elec_onsite">0.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">8.88</A>
       <A name="transport_dist_pipeline">2417.1</A>
     </Field>
     <Field name="Field 154" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 155" modifies="template">
       <A name="downhole_pump">1</A>
@@ -4223,7 +4234,6 @@
     </Field>
     <Field name="Field 156" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 157" modifies="template">
       <A name="downhole_pump">0</A>
@@ -4249,7 +4259,6 @@
       <A name="gas_comp_H2S">0.0</A>
       <A name="GOR">17125.0</A>
       <A name="fraction_elec_onsite">0.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">212.19</A>
       <A name="transport_dist_tanker">6362.8</A>
       <A name="transport_dist_pipeline">167.77</A>
@@ -4275,7 +4284,6 @@
       <A name="gas_comp_C4">0.8</A>
       <A name="GOR">56325.0</A>
       <A name="fraction_elec_onsite">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">94.5</A>
       <A name="transport_dist_tanker">6362.8</A>
       <A name="transport_dist_pipeline">167.77</A>
@@ -4298,14 +4306,12 @@
       <A name="gas_comp_C2">0.0</A>
       <A name="GOR">56300000.0</A>
       <A name="fraction_elec_onsite">0.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">308711.0</A>
       <A name="transport_dist_tanker">6362.84</A>
       <A name="transport_dist_pipeline">167.77</A>
     </Field>
     <Field name="Field 160" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 161" modifies="template">
       <A name="downhole_pump">1</A>
@@ -4354,7 +4360,6 @@
     </Field>
     <Field name="Field 163" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 164" modifies="template">
       <A name="downhole_pump">1</A>
@@ -4376,7 +4381,6 @@
       <A name="GOR">2386.41</A>
       <A name="WOR">1.36</A>
       <A name="fraction_elec_onsite">0.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">6.3</A>
     </Field>
     <Field name="Field 165" modifies="template">
@@ -4412,9 +4416,10 @@
       <A name="SOR">0.0</A>
       <A name="fraction_remaining_gas_inj">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">1</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">1</A>
+      </Process>
       <A name="stabilizer_column">1</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">140.0</A>
       <A name="VOR">1.0</A>
       <A name="frac_transport_tanker">0.0</A>
@@ -4443,7 +4448,6 @@
       <A name="gas_comp_C3">0.0</A>
       <A name="GOR">154017.0</A>
       <A name="WOR">83.79</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">12.82</A>
       <A name="transport_dist_pipeline">1261.4</A>
     </Field>
@@ -4467,7 +4471,6 @@
       <A name="gas_comp_C4">0.0</A>
       <A name="gas_comp_H2S">0.0</A>
       <A name="GOR">436000.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">177.08</A>
       <A name="VOR">0.3</A>
       <A name="transport_dist_pipeline">1261.4</A>
@@ -4486,7 +4489,6 @@
       <A name="offshore">0.0</A>
       <A name="GOR">139216.0</A>
       <A name="fraction_elec_onsite">0.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">1310.8</A>
       <A name="transport_dist_pipeline">1261.4</A>
     </Field>
@@ -4517,7 +4519,6 @@
     </Field>
     <Field name="Field 170" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 171" modifies="template">
       <A name="downhole_pump">1</A>
@@ -4544,10 +4545,8 @@
       <A name="fraction_elec_onsite">1.0</A>
       <A name="fraction_steam_cogen">0.5</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.398</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -4561,7 +4560,6 @@
     </Field>
     <Field name="Field 172" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 173" modifies="template">
       <A name="downhole_pump">1</A>
@@ -4588,7 +4586,6 @@
       <A name="SOR">5.79</A>
       <A name="fraction_water_reinjected">0.3</A>
       <A name="fraction_steam_cogen">0.26</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">1.62</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
@@ -4603,7 +4600,6 @@
     </Field>
     <Field name="Field 174" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 175" modifies="template">
       <A name="water_reinjection">1</A>
@@ -4624,7 +4620,6 @@
       <A name="fraction_remaining_gas_inj">0.87</A>
       <A name="fraction_water_reinjected">0.19</A>
       <A name="fraction_steam_cogen">0.23</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">13.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
@@ -4671,7 +4666,6 @@
     </Field>
     <Field name="Field 177" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 178" modifies="template">
       <A name="downhole_pump">1</A>
@@ -4714,13 +4708,14 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">1</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">1</A>
+      </Process>
       <A name="stabilizer_column">0</A>
-      <A name="upgrader_type">0</A>
+      <A name="upgrader_type">None</A>
       <A name="gas_processing_path">CO2-EOR Membrane</A>
       <A name="FOR">0.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -4734,7 +4729,6 @@
     </Field>
     <Field name="Field 179" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 180" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -4742,7 +4736,6 @@
       <A name="name">Pressure - VLOW</A>
       <A name="prod_index">500.0</A>
       <A name="res_press">60.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 181" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -4750,7 +4743,6 @@
       <A name="name">Pressure - LOW</A>
       <A name="prod_index">100.0</A>
       <A name="res_press">200.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 182" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -4758,7 +4750,6 @@
       <A name="name">Pressure - MED</A>
       <A name="prod_index">100.0</A>
       <A name="res_press">600.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 183" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -4766,7 +4757,6 @@
       <A name="name">Pressure - HIGH</A>
       <A name="prod_index">100.0</A>
       <A name="res_press">1200.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 184" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -4774,47 +4764,36 @@
       <A name="name">Pressure VHIGH</A>
       <A name="prod_index">100.0</A>
       <A name="res_press">5000.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 185" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 186" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 187" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 188" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 189" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 190" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 191" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 192" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 193" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 194" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 195" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -4824,7 +4803,6 @@
       <A name="num_prod_wells">433430.0</A>
       <A name="gas_comp_C1">83.2</A>
       <A name="GOR">847347.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 196" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -4834,19 +4812,15 @@
       <A name="num_prod_wells">571758.0</A>
       <A name="gas_comp_C1">68.3</A>
       <A name="GOR">4629.81</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 197" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 198" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 199" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 200" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -4856,7 +4830,6 @@
       <A name="num_prod_wells">3976.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">3916900.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 201" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -4866,7 +4839,6 @@
       <A name="num_prod_wells">2714.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">2674037.5</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 202" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -4876,7 +4848,6 @@
       <A name="num_prod_wells">31536.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">31071562.5</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 203" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -4886,7 +4857,6 @@
       <A name="num_prod_wells">6775.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">46885800.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 204" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -4896,7 +4866,6 @@
       <A name="num_prod_wells">4625.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">32008575.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 205" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -4906,7 +4875,6 @@
       <A name="num_prod_wells">53739.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">371930625.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 206" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -4916,7 +4884,6 @@
       <A name="num_prod_wells">4489.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">81442400.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 207" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -4926,7 +4893,6 @@
       <A name="num_prod_wells">3064.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">55600100.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 208" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -4936,7 +4902,6 @@
       <A name="num_prod_wells">35603.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">646057500.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 209" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -4946,7 +4911,6 @@
       <A name="num_prod_wells">4631.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">166969400.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 210" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -4956,7 +4920,6 @@
       <A name="num_prod_wells">3162.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">113988725.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 211" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -4966,7 +4929,6 @@
       <A name="num_prod_wells">36732.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">1324516875.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 212" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -4976,7 +4938,6 @@
       <A name="num_prod_wells">5944.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">481260000.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 213" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -4986,7 +4947,6 @@
       <A name="num_prod_wells">4058.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">328552500.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 214" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -4996,7 +4956,6 @@
       <A name="num_prod_wells">47148.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">3817687500.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 215" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5006,7 +4965,6 @@
       <A name="num_prod_wells">2899.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">503932000.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 216" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5016,7 +4974,6 @@
       <A name="num_prod_wells">1979.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">344030500.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 217" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5026,7 +4983,6 @@
       <A name="num_prod_wells">22992.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">3997537500.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 218" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5036,7 +4992,6 @@
       <A name="num_prod_wells">3269.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">1870232000.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 219" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5046,7 +5001,6 @@
       <A name="num_prod_wells">2232.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">1276793000.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 220" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5056,7 +5010,6 @@
       <A name="num_prod_wells">25929.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">14835975000.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 221" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5066,7 +5019,6 @@
       <A name="num_prod_wells">700.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">1207414000.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 222" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5076,7 +5028,6 @@
       <A name="num_prod_wells">478.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">824292250.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 223" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5086,7 +5037,6 @@
       <A name="num_prod_wells">5550.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">9578043750.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 224" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5096,7 +5046,6 @@
       <A name="num_prod_wells">611.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">3928340000.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 225" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5106,7 +5055,6 @@
       <A name="num_prod_wells">418.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">2681847500.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 226" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5116,7 +5064,6 @@
       <A name="num_prod_wells">4847.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">31162312500.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 227" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5127,7 +5074,6 @@
       <A name="offshore">0.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">454714000.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 228" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5138,7 +5084,6 @@
       <A name="offshore">0.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">310429750.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 229" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5148,7 +5093,6 @@
       <A name="num_prod_wells">72.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">3607106250.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 230" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5158,7 +5102,6 @@
       <A name="num_prod_wells">42.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">63879.4</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 231" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5168,7 +5111,6 @@
       <A name="num_prod_wells">29.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">43609.98</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 232" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5178,7 +5120,6 @@
       <A name="num_prod_wells">330.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">203942.89</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 233" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5188,7 +5129,6 @@
       <A name="num_prod_wells">300.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">221131.77</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 234" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5198,7 +5138,6 @@
       <A name="num_prod_wells">205.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">221131.77</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 235" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5208,7 +5147,6 @@
       <A name="num_prod_wells">2376.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">221131.77</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 236" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5218,7 +5156,6 @@
       <A name="num_prod_wells">407.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">264649.91</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 237" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5228,7 +5165,6 @@
       <A name="num_prod_wells">278.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">264649.91</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 238" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5238,7 +5174,6 @@
       <A name="num_prod_wells">3224.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">264649.91</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 239" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5248,7 +5183,6 @@
       <A name="num_prod_wells">976.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">288186.18</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 240" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5258,7 +5192,6 @@
       <A name="num_prod_wells">667.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">288186.18</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 241" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5268,7 +5201,6 @@
       <A name="num_prod_wells">7742.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">288186.18</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 242" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5278,7 +5210,6 @@
       <A name="num_prod_wells">3218.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">291012.06</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 243" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5288,7 +5219,6 @@
       <A name="num_prod_wells">2197.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">291012.06</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 244" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5298,7 +5228,6 @@
       <A name="num_prod_wells">25524.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">291012.06</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 245" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5308,7 +5237,6 @@
       <A name="num_prod_wells">3112.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">306885.26</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 246" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5318,7 +5246,6 @@
       <A name="num_prod_wells">2125.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">306885.26</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 247" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5328,7 +5255,6 @@
       <A name="num_prod_wells">24681.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">306885.26</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 248" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5338,7 +5264,6 @@
       <A name="num_prod_wells">3124.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">285284.38</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 249" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5348,7 +5273,6 @@
       <A name="num_prod_wells">2133.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">285284.38</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 250" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5358,7 +5282,6 @@
       <A name="num_prod_wells">24776.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">285284.38</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 251" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5368,7 +5291,6 @@
       <A name="num_prod_wells">322.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">258519.15</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 252" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5378,7 +5300,6 @@
       <A name="num_prod_wells">220.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">258519.15</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 253" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5388,7 +5309,6 @@
       <A name="num_prod_wells">2553.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">258519.15</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 254" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5398,7 +5318,6 @@
       <A name="num_prod_wells">280.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">325049.68</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 255" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5408,7 +5327,6 @@
       <A name="num_prod_wells">191.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">325049.68</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 256" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5418,7 +5336,6 @@
       <A name="num_prod_wells">2215.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">325049.68</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 257" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5428,7 +5345,6 @@
       <A name="num_prod_wells">3.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">309714.99</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 258" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5438,7 +5354,6 @@
       <A name="num_prod_wells">2.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">309714.99</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 259" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5448,7 +5363,6 @@
       <A name="num_prod_wells">19.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">309714.99</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 260" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5458,7 +5372,6 @@
       <A name="num_prod_wells">65606.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">119.86</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 261" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5468,7 +5381,6 @@
       <A name="num_prod_wells">89163.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">545.26</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 262" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5478,7 +5390,6 @@
       <A name="num_prod_wells">38948.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">1343.2</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 263" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5488,7 +5399,6 @@
       <A name="num_prod_wells">44410.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">2169.46</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 264" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5498,7 +5408,6 @@
       <A name="num_prod_wells">54343.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">2982.03</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 265" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5508,7 +5417,6 @@
       <A name="num_prod_wells">32775.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">2722.25</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 266" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5518,7 +5426,6 @@
       <A name="num_prod_wells">42848.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">3412.35</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 267" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5528,7 +5435,6 @@
       <A name="num_prod_wells">7280.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">5246.48</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 268" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5538,7 +5444,6 @@
       <A name="num_prod_wells">4464.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">14599.08</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 269" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5548,7 +5453,6 @@
       <A name="num_prod_wells">348.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">53542.61</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 270" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5558,7 +5462,6 @@
       <A name="num_prod_wells">114480.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">476.2</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 271" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5568,7 +5471,6 @@
       <A name="num_prod_wells">27038.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">484.18</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 272" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5578,7 +5480,6 @@
       <A name="num_prod_wells">45264.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">495.13</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 273" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5588,11 +5489,9 @@
       <A name="num_prod_wells">4792.0</A>
       <A name="gas_comp_C1">79.4</A>
       <A name="GOR">522.98</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 274" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 275" modifies="template">
       <A name="downhole_pump">1</A>
@@ -5628,15 +5527,12 @@
     </Field>
     <Field name="Field 276" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 277" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 278" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 279" modifies="template">
       <A name="downhole_pump">1</A>
@@ -5658,7 +5554,6 @@
       <A name="API">32.0</A>
       <A name="WOR">4.0</A>
       <A name="WIR">4.67</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">100.0</A>
     </Field>
     <Field name="Field 280" modifies="template">
@@ -5670,7 +5565,6 @@
       <A name="num_prod_wells">62345.0</A>
       <A name="GOR">43357.0</A>
       <A name="WOR">0.6</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 281" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5681,7 +5575,6 @@
       <A name="num_prod_wells">18040.0</A>
       <A name="GOR">10177.0</A>
       <A name="WOR">0.7</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 282" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5692,7 +5585,6 @@
       <A name="num_prod_wells">41539.0</A>
       <A name="GOR">15054.0</A>
       <A name="WOR">16.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 283" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5703,7 +5595,6 @@
       <A name="num_prod_wells">13652.0</A>
       <A name="GOR">162749.0</A>
       <A name="WOR">3.3</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 284" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5714,7 +5605,6 @@
       <A name="num_prod_wells">40573.0</A>
       <A name="GOR">56691.0</A>
       <A name="WOR">4.8</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 285" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5725,7 +5615,6 @@
       <A name="num_prod_wells">20447.0</A>
       <A name="GOR">24436.0</A>
       <A name="WOR">14.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 286" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5736,7 +5625,6 @@
       <A name="num_prod_wells">5849.0</A>
       <A name="GOR">20567.0</A>
       <A name="WOR">4.11</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 287" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5747,7 +5635,6 @@
       <A name="num_prod_wells">33002.0</A>
       <A name="GOR">2206.0</A>
       <A name="WOR">5.3</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 288" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5758,7 +5645,6 @@
       <A name="num_prod_wells">32762.0</A>
       <A name="GOR">7144.0</A>
       <A name="WOR">6.1</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 289" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5769,7 +5655,6 @@
       <A name="num_prod_wells">61114.0</A>
       <A name="GOR">6154.0</A>
       <A name="WOR">4.7</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 290" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5780,7 +5665,6 @@
       <A name="num_prod_wells">14447.0</A>
       <A name="GOR">710577.0</A>
       <A name="WOR">26.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 291" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5791,7 +5675,6 @@
       <A name="num_prod_wells">250.0</A>
       <A name="GOR">31358.0</A>
       <A name="WOR">0.15</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 292" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5802,7 +5685,6 @@
       <A name="num_prod_wells">782.0</A>
       <A name="GOR">5871022.0</A>
       <A name="WOR">56.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 293" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5813,7 +5695,6 @@
       <A name="num_prod_wells">14660.0</A>
       <A name="GOR">810.0</A>
       <A name="WOR">10.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 294" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5824,7 +5705,6 @@
       <A name="num_prod_wells">5061.0</A>
       <A name="GOR">358352.0</A>
       <A name="WOR">14.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 295" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5835,7 +5715,6 @@
       <A name="num_prod_wells">21848.0</A>
       <A name="GOR">1446.0</A>
       <A name="WOR">1.15</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 296" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5846,7 +5725,6 @@
       <A name="num_prod_wells">428.0</A>
       <A name="GOR">1784867.0</A>
       <A name="WOR">0.04</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 297" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5857,7 +5735,6 @@
       <A name="num_prod_wells">11289.0</A>
       <A name="GOR">2082081.0</A>
       <A name="WOR">1.69</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 298" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5868,7 +5745,6 @@
       <A name="num_prod_wells">13871.0</A>
       <A name="GOR">212463.0</A>
       <A name="WOR">19.7</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 299" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5879,7 +5755,6 @@
       <A name="num_prod_wells">8809.0</A>
       <A name="GOR">0.0</A>
       <A name="WOR">0.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 300" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5890,7 +5765,6 @@
       <A name="num_prod_wells">9424.0</A>
       <A name="GOR">650857.0</A>
       <A name="WOR">0.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 301" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5901,7 +5775,6 @@
       <A name="num_prod_wells">2707.0</A>
       <A name="GOR">0.0</A>
       <A name="WOR">0.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 302" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -5912,7 +5785,6 @@
       <A name="num_prod_wells">6891.0</A>
       <A name="GOR">15622571.0</A>
       <A name="WOR">9.07</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 303" modifies="template">
       <A name="downhole_pump">1</A>
@@ -5955,13 +5827,14 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">1</A>
-      <A name="upgrader_type">0</A>
+      <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">143.0</A>
       <A name="VOR">5.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -6014,13 +5887,14 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">1</A>
-      <A name="upgrader_type">0</A>
+      <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">143.0</A>
       <A name="VOR">5.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -6034,391 +5908,296 @@
     </Field>
     <Field name="Field 305" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 306" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 307" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 308" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 309" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 310" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 311" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 312" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 313" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 314" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 315" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 316" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 317" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 318" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 319" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 320" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 321" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 322" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 323" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 324" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 325" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 326" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 327" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 328" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 329" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 330" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 331" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 332" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 333" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 334" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 335" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 336" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 337" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 338" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 339" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 340" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 341" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 342" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 343" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 344" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 345" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 346" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 347" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 348" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 349" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 350" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 351" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 352" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 353" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 354" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 355" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 356" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 357" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 358" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 359" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 360" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 361" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 362" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 363" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 364" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 365" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 366" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 367" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 368" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 369" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 370" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 371" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 372" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 373" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 374" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 375" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 376" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 377" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 378" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 379" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 380" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 381" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 382" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 383" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 384" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 385" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 386" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 387" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 388" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 389" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 390" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 391" modifies="template">
       <A name="oil_sands_mine">None</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 392" modifies="template">
       <A name="oil_sands_mine">None</A>
       <A name="flood_gas_type">NG</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 393" modifies="template">
       <A name="oil_sands_mine">None</A>
       <A name="flood_gas_type">NG</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 394" modifies="template">
       <A name="oil_sands_mine">None</A>
       <A name="flood_gas_type">NG</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 395" modifies="template">
       <A name="oil_sands_mine">None</A>
       <A name="flood_gas_type">NG</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 396" modifies="template">
       <A name="oil_sands_mine">None</A>
       <A name="flood_gas_type">NG</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 397" modifies="template">
       <A name="oil_sands_mine">None</A>
       <A name="flood_gas_type">NG</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 398" modifies="template">
       <A name="oil_sands_mine">None</A>
       <A name="flood_gas_type">NG</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 399" modifies="template">
       <A name="oil_sands_mine">None</A>
       <A name="flood_gas_type">NG</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 400" modifies="template">
       <A name="downhole_pump">1</A>
@@ -6461,13 +6240,14 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">1</A>
-      <A name="upgrader_type">0</A>
+      <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -6520,13 +6300,14 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">1</A>
-      <A name="upgrader_type">0</A>
+      <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -6579,13 +6360,14 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">1</A>
-      <A name="upgrader_type">0</A>
+      <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -6638,13 +6420,14 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">1</A>
-      <A name="upgrader_type">0</A>
+      <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -6697,13 +6480,14 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">1</A>
-      <A name="upgrader_type">0</A>
+      <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -6756,13 +6540,14 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">1</A>
-      <A name="upgrader_type">0</A>
+      <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -6815,13 +6600,14 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">1</A>
-      <A name="upgrader_type">0</A>
+      <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -6874,13 +6660,14 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">1</A>
-      <A name="upgrader_type">0</A>
+      <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -6933,13 +6720,14 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">1</A>
-      <A name="upgrader_type">0</A>
+      <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -6992,13 +6780,14 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">1</A>
-      <A name="upgrader_type">0</A>
+      <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -7051,13 +6840,14 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">1</A>
-      <A name="upgrader_type">0</A>
+      <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -7110,13 +6900,14 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">1</A>
-      <A name="upgrader_type">0</A>
+      <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -7169,13 +6960,14 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">1</A>
-      <A name="upgrader_type">0</A>
+      <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -7228,13 +7020,14 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">1</A>
-      <A name="upgrader_type">0</A>
+      <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -7287,13 +7080,14 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">1</A>
-      <A name="upgrader_type">0</A>
+      <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -7346,13 +7140,14 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">1</A>
-      <A name="upgrader_type">0</A>
+      <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -7405,13 +7200,14 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">1</A>
-      <A name="upgrader_type">0</A>
+      <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -7464,13 +7260,14 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">1</A>
-      <A name="upgrader_type">0</A>
+      <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -7523,13 +7320,14 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">1</A>
-      <A name="upgrader_type">0</A>
+      <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -7582,13 +7380,14 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">1</A>
-      <A name="upgrader_type">0</A>
+      <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -7641,13 +7440,14 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">1</A>
-      <A name="upgrader_type">0</A>
+      <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -7913,9 +7713,7 @@
       <A name="API">15.0</A>
       <A name="GOR">100.0</A>
       <A name="WOR">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
     </Field>
     <Field name="Field 440" modifies="template">
       <A name="water_reinjection">0</A>
@@ -7927,9 +7725,7 @@
       <A name="API">15.0</A>
       <A name="GOR">100.0</A>
       <A name="WOR">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.25</A>
     </Field>
     <Field name="Field 441" modifies="template">
       <A name="water_reinjection">0</A>
@@ -7941,9 +7737,7 @@
       <A name="API">15.0</A>
       <A name="GOR">100.0</A>
       <A name="WOR">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.5</A>
     </Field>
     <Field name="Field 442" modifies="template">
       <A name="water_reinjection">0</A>
@@ -7955,9 +7749,7 @@
       <A name="API">15.0</A>
       <A name="GOR">100.0</A>
       <A name="WOR">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.75</A>
     </Field>
     <Field name="Field 443" modifies="template">
       <A name="water_reinjection">0</A>
@@ -7969,9 +7761,7 @@
       <A name="API">15.0</A>
       <A name="GOR">100.0</A>
       <A name="WOR">1.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">1.0</A>
     </Field>
     <Field name="Field 444" modifies="template">
       <A name="downhole_pump">0</A>
@@ -7985,8 +7775,10 @@
       <A name="country">Canada</A>
       <A name="name">Test 45 - Oil sands test: Mine, DC, integrated</A>
       <A name="API">32.0</A>
-      <A name="upgrader_type">1</A>
+      <A name="API_bitumen">32.0</A>
+      <A name="upgrader_type">Delayed coking</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="oil_processing_path">Upgrading</A>
       <A name="FOR">0.0</A>
       <A name="VOR">0.0</A>
     </Field>
@@ -8002,10 +7794,15 @@
       <A name="country">Canada</A>
       <A name="name">Test 46 - Oil sands test: Mine, DC, non-integrated</A>
       <A name="API">32.0</A>
-      <A name="upgrader_type">1</A>
+      <A name="API_bitumen">32.0</A>
+      <A name="upgrader_type">Delayed coking</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="oil_processing_path">Dilution</A>
       <A name="FOR">0.0</A>
       <A name="VOR">0.0</A>
+      <Process class="HeavyOilDilution">
+        <A name="fraction_diluent">0.3</A>
+      </Process>
     </Field>
     <Field name="Field 446" modifies="template">
       <A name="downhole_pump">0</A>
@@ -8019,8 +7816,10 @@
       <A name="country">Canada</A>
       <A name="name">Test 47 - Oil sands test: Mine, HC, integrated</A>
       <A name="API">32.0</A>
-      <A name="upgrader_type">2</A>
+      <A name="API_bitumen">32.0</A>
+      <A name="upgrader_type">Hydroconversion</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="oil_processing_path">Upgrading</A>
       <A name="FOR">0.0</A>
       <A name="VOR">0.0</A>
     </Field>
@@ -8036,10 +7835,15 @@
       <A name="country">Canada</A>
       <A name="name">Test 48 - Oil sands test: Mine, HC, non-integrated</A>
       <A name="API">32.0</A>
-      <A name="upgrader_type">2</A>
+      <A name="API_bitumen">32.0</A>
+      <A name="upgrader_type">Hydroconversion</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="oil_processing_path">Dilution</A>
       <A name="FOR">0.0</A>
       <A name="VOR">0.0</A>
+      <Process class="HeavyOilDilution">
+        <A name="fraction_diluent">0.3</A>
+      </Process>
     </Field>
     <Field name="Field 448" modifies="template">
       <A name="downhole_pump">0</A>
@@ -8053,8 +7857,10 @@
       <A name="country">Canada</A>
       <A name="name">Test 49 - Oil sands test: Mine, HCFC, integrated</A>
       <A name="API">32.0</A>
-      <A name="upgrader_type">3</A>
+      <A name="API_bitumen">32.0</A>
+      <A name="upgrader_type">Combined</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="oil_processing_path">Upgrading</A>
       <A name="FOR">0.0</A>
       <A name="VOR">0.0</A>
     </Field>
@@ -8070,10 +7876,15 @@
       <A name="country">Canada</A>
       <A name="name">Test 50 - Oil sands test: Mine, HCFC, non-integrated</A>
       <A name="API">32.0</A>
-      <A name="upgrader_type">3</A>
+      <A name="API_bitumen">32.0</A>
+      <A name="upgrader_type">Combined</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="oil_processing_path">Dilution</A>
       <A name="FOR">0.0</A>
       <A name="VOR">0.0</A>
+      <Process class="HeavyOilDilution">
+        <A name="fraction_diluent">0.3</A>
+      </Process>
     </Field>
     <Field name="Field 450" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8092,9 +7903,7 @@
       <A name="WOR">1.0</A>
       <A name="SOR">2.0</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
     </Field>
     <Field name="Field 451" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8113,9 +7922,7 @@
       <A name="WOR">1.0</A>
       <A name="SOR">4.0</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.25</A>
     </Field>
     <Field name="Field 452" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8134,9 +7941,7 @@
       <A name="WOR">1.0</A>
       <A name="SOR">6.0</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.5</A>
     </Field>
     <Field name="Field 453" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8155,9 +7960,7 @@
       <A name="WOR">1.0</A>
       <A name="SOR">2.0</A>
       <A name="fraction_steam_cogen">0.5</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.75</A>
     </Field>
     <Field name="Field 454" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8176,9 +7979,7 @@
       <A name="WOR">1.0</A>
       <A name="SOR">4.0</A>
       <A name="fraction_steam_cogen">0.5</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.99</A>
     </Field>
     <Field name="Field 455" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8197,9 +7998,7 @@
       <A name="WOR">1.0</A>
       <A name="SOR">6.0</A>
       <A name="fraction_steam_cogen">0.5</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.99</A>
     </Field>
     <Field name="Field 456" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8218,9 +8017,7 @@
       <A name="WOR">1.0</A>
       <A name="SOR">2.0</A>
       <A name="fraction_steam_cogen">0.75</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.75</A>
     </Field>
     <Field name="Field 457" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8239,9 +8036,7 @@
       <A name="WOR">1.0</A>
       <A name="SOR">4.0</A>
       <A name="fraction_steam_cogen">0.75</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.99</A>
     </Field>
     <Field name="Field 458" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8260,9 +8055,7 @@
       <A name="WOR">1.0</A>
       <A name="SOR">6.0</A>
       <A name="fraction_steam_cogen">0.75</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.99</A>
     </Field>
     <Field name="Field 459" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8281,7 +8074,6 @@
       <A name="WOR">1.0</A>
       <A name="SOR">2.0</A>
       <A name="fraction_steam_cogen">1.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 460" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8300,7 +8092,6 @@
       <A name="WOR">1.0</A>
       <A name="SOR">4.0</A>
       <A name="fraction_steam_cogen">1.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 461" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8319,7 +8110,6 @@
       <A name="WOR">1.0</A>
       <A name="SOR">6.0</A>
       <A name="fraction_steam_cogen">1.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 462" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8338,7 +8128,6 @@
       <A name="WOR">1.0</A>
       <A name="SOR">2.0</A>
       <A name="fraction_steam_solar">0.25</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 463" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8357,7 +8146,6 @@
       <A name="WOR">1.0</A>
       <A name="SOR">4.0</A>
       <A name="fraction_steam_solar">0.25</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 464" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8377,7 +8165,6 @@
       <A name="flood_gas_type">CO2</A>
       <A name="SOR">6.0</A>
       <A name="fraction_steam_solar">0.25</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 465" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8397,7 +8184,6 @@
       <A name="flood_gas_type">CO2</A>
       <A name="SOR">2.0</A>
       <A name="fraction_steam_solar">0.5</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 466" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8417,7 +8203,6 @@
       <A name="flood_gas_type">CO2</A>
       <A name="SOR">4.0</A>
       <A name="fraction_steam_solar">0.5</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 467" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8436,7 +8221,6 @@
       <A name="WOR">1.0</A>
       <A name="SOR">6.0</A>
       <A name="fraction_steam_solar">0.5</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 468" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -8498,43 +8282,36 @@
       <A name="oil_sands_mine">None</A>
       <A name="name">Test 76 - Depleted</A>
       <A name="num_prod_wells">100.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 476" modifies="template">
       <A name="oil_sands_mine">None</A>
       <A name="name">Test 77 - Very depleted</A>
       <A name="num_prod_wells">1000.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 477" modifies="template">
       <A name="oil_sands_mine">None</A>
       <A name="name">Test 78 - Low pressure</A>
       <A name="res_press">100.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 478" modifies="template">
       <A name="oil_sands_mine">None</A>
       <A name="name">Test 79 - High temperature</A>
       <A name="res_temp">250.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 479" modifies="template">
       <A name="oil_sands_mine">None</A>
       <A name="name">Test 80 - Offshore</A>
       <A name="offshore">1.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 480" modifies="template">
       <A name="oil_sands_mine">None</A>
       <A name="name">Test 81 - Very light oil</A>
       <A name="API">45.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 481" modifies="template">
       <A name="oil_sands_mine">None</A>
       <A name="name">Test 82 - Heavy oil primary recovery</A>
       <A name="API">15.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 482" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -8546,7 +8323,6 @@
       <A name="gas_comp_C3">3.0</A>
       <A name="gas_comp_C4">2.0</A>
       <A name="gas_comp_H2S">5.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 483" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -8558,7 +8334,6 @@
       <A name="gas_comp_C3">2.0</A>
       <A name="gas_comp_C4">1.0</A>
       <A name="gas_comp_H2S">10.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 484" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -8570,7 +8345,6 @@
       <A name="gas_comp_C3">10.0</A>
       <A name="gas_comp_C4">5.0</A>
       <A name="gas_comp_H2S">0.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 485" modifies="template">
       <A name="oil_sands_mine">None</A>
@@ -8582,92 +8356,81 @@
       <A name="gas_comp_C3">15.0</A>
       <A name="gas_comp_C4">8.0</A>
       <A name="gas_comp_H2S">0.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 486" modifies="template">
       <A name="oil_sands_mine">None</A>
       <A name="name">Test 87 - Stabilizer and heater/treater on</A>
-      <A name="CrudeOilDewatering.heater_treater">1</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">1</A>
+      </Process>
       <A name="stabilizer_column">1</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 487" modifies="template">
       <A name="oil_sands_mine">None</A>
       <A name="name">Test 88 - No H/T or stabilizer</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 488" modifies="template">
       <A name="oil_sands_mine">None</A>
       <A name="name">Test 89 - High flaring rate 1</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">500.0</A>
     </Field>
     <Field name="Field 489" modifies="template">
       <A name="oil_sands_mine">None</A>
       <A name="name">Test 90 - High flaring rate 2</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">1000.0</A>
     </Field>
     <Field name="Field 490" modifies="template">
       <A name="oil_sands_mine">None</A>
       <A name="name">Test 91 - High flaring rate 3</A>
-      <A name="gas_processing_path">None</A>
       <A name="FOR">1500.0</A>
     </Field>
     <Field name="Field 491" modifies="template">
       <A name="oil_sands_mine">None</A>
       <A name="name">Test 92 - High venting rate 1</A>
-      <A name="gas_processing_path">None</A>
       <A name="VOR">25.0</A>
     </Field>
     <Field name="Field 492" modifies="template">
       <A name="oil_sands_mine">None</A>
       <A name="name">Test 93 - High venting rate 2</A>
       <A name="flood_gas_type">NG</A>
-      <A name="gas_processing_path">None</A>
       <A name="VOR">100.0</A>
     </Field>
     <Field name="Field 493" modifies="template">
       <A name="oil_sands_mine">None</A>
       <A name="name">Test 94 - High venting rate 3</A>
-      <A name="gas_processing_path">None</A>
       <A name="VOR">200.0</A>
     </Field>
     <Field name="Field 494" modifies="template">
       <A name="oil_sands_mine">None</A>
       <A name="name">Test 95 - Low land use</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 495" modifies="template">
       <A name="oil_sands_mine">None</A>
       <A name="name">Test 96 - High land use</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 496" modifies="template">
       <A name="oil_sands_mine">None</A>
       <A name="name">Test 97 - Long distance tanker</A>
-      <A name="gas_processing_path">None</A>
       <A name="transport_dist_tanker">10000.0</A>
     </Field>
     <Field name="Field 497" modifies="template">
       <A name="oil_sands_mine">None</A>
       <A name="name">Test 98 - Long distance pipeline</A>
-      <A name="gas_processing_path">None</A>
       <A name="transport_dist_pipeline">10000.0</A>
     </Field>
     <Field name="Field 498" modifies="template">
       <A name="oil_sands_mine">None</A>
       <A name="name">Test 99 - Low PI</A>
       <A name="prod_index">1.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 499" modifies="template">
       <A name="oil_sands_mine">None</A>
       <A name="name">Test 100 - High PI</A>
       <A name="prod_index">100.0</A>
-      <A name="gas_processing_path">None</A>
     </Field>
     <Field name="Field 500" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8710,13 +8473,14 @@
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
-      <A name="CrudeOilDewatering.heater_treater">0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
       <A name="stabilizer_column">1</A>
-      <A name="upgrader_type">0</A>
+      <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
-      <A name="HeavyOilDilution.fraction_diluent">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -8728,5 +8492,6 @@
       <A name="transport_dist_rail">800.0</A>
       <A name="transport_dist_truck">100.0</A>
     </Field>
+    <Field name="Unnamed: 501" modifies="template"/>
   </Analysis>
 </Model>

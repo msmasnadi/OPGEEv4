@@ -21,8 +21,11 @@ class VRUCompressor(Process):
         self.print_running_msg()
         field = self.field
 
+        if not self.all_streams_ready("gas for VRU"):
+            return
+
         # mass rate
-        input = self.find_input_stream("gas for VRU")
+        input = self.find_input_streams("gas for VRU",combine=True)
 
         if input.is_uninitialized():
             return

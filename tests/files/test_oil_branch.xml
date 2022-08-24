@@ -157,14 +157,6 @@
 			<Contains>exported petrocoke</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to flaring">
-			<Contains>gas for flaring</Contains>
-		</Stream>
-
-		<Stream src="CrudeOilStorage" dst="After" name="crude oil storage to VRU compressor">
-			<Contains>gas for VRU</Contains>
-		</Stream>
-
 		<Stream src="BitumenMining" dst="After" name="bitumen mining to heavy oil dilution">
 			<Contains>bitumen for dilution</Contains>
 		</Stream>
@@ -218,7 +210,7 @@
 		</Stream>
 	</Field>
 
-	<Field name='bitumen_dilution'>
+	<Field name='bitumen_dilution' modifies="template">
 		<A name="country">USA</A>
 		<A name="API">32.0</A>
 		<A name="oil_prod">2098.0</A>
@@ -310,7 +302,7 @@
 		</Stream>
 
 		<Stream src="Separation" dst="After" name="gas after separator">
-			<Contains>gas</Contains>
+			<Contains>gas for flaring</Contains>
 		</Stream>
 	</Field>
 </Model>

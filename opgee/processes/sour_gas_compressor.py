@@ -56,7 +56,7 @@ class SourGasCompressor(Process):
         input.set_gas_flow_rate("CO2", total_CO2_mass_rate)
 
         discharge_press = self.res_press + ureg.Quantity(500.0, "psia")
-        overall_compression_ratio = discharge_press / input.pressure
+        overall_compression_ratio = discharge_press / input.tp.P
         energy_consumption, output_temp, output_press = \
             Compressor.get_compressor_energy_consumption(
                 self.field,
@@ -65,7 +65,7 @@ class SourGasCompressor(Process):
                 overall_compression_ratio,
                 input)
 
-        gas_to_injection.tp.set(T=output_temp, P=input.pressure)
+        gas_to_injection.tp.set(T=output_temp, P=input.tp.P)
 
         # energy-use
         energy_use = self.energy

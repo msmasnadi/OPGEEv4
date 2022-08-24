@@ -335,7 +335,9 @@ class Field(Container):
         boundary_proc = self.boundary_process(analysis)
         stream = boundary_proc.sum_input_streams()
 
+        # TODO: displacement method
         obj = self.oil if analysis.fn_unit == 'oil' else self.gas
+        # TODO: Add method to calculate petrocoke energy flow rate
         energy = obj.energy_flow_rate(stream)
 
         if energy.m == 0:

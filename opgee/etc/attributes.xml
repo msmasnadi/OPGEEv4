@@ -177,7 +177,6 @@
         <Option>All</Option>
       </Options>
       <Options name="oil_processing_path" default="Stabilization">
-        <Option>None</Option>
         <Option desc="Stabilization">Stabilization</Option>
         <Option desc="Storage">Storage</Option>
         <Option desc="Upgrading">Upgrading</Option>
