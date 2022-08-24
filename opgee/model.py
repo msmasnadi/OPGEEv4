@@ -149,7 +149,17 @@ class Model(Container):
             child.validate()
 
     def partial_ci_values(self, analysis, field, nodes):
+        """
+        Compute partial CI for each node in ``nodes``, skipping boundary nodes, since
+        these have no emissions and serve only to identify the endpoint for CI calculation.
+
+        :param analysis: (opgee.Analysis)
+        :param field: (opgee.Field)
+        :param nodes: (list of Processes and/or Containers)
+        :return: A list of tuples of (item_name, partial_CI)
+        """
         from .error import ZeroEnergyFlowError
+        from .process import Boundary
 
         try:
             energy = field.boundary_energy_flow_rate(analysis)
@@ -164,7 +174,7 @@ class Model(Container):
             # convert to g/MJ, but we don't need units in CSV file
             return ci.to("grams/MJ").m
 
-        results = [(obj.name, partial_ci(obj)) for obj in nodes]
+        results = [(obj.name, partial_ci(obj)) for obj in nodes if not isinstance(obj, Boundary)]
         return results
 
     def save_results(self, tuples, csvpath, by_process=False):
@@ -187,11 +197,19 @@ class Model(Container):
             nodes = field.processes() if by_process else field.children()
             ci_tuples = self.partial_ci_values(analysis, field, nodes)
 
+            fld_name = field.name
+            ana_name = analysis.name
+
+            rows.append({'analysis': ana_name,
+                         'field': fld_name,
+                         'node': 'TOTAL',
+                         'CI': field.carbon_intensity.m})
+
             # ignore failed fields
             if ci_tuples is not None:
                 for name, ci in ci_tuples:
-                    rows.append({'analysis' : analysis.name,
-                                 'field' : field.name,
+                    rows.append({'analysis' : ana_name,
+                                 'field' : fld_name,
                                  'node' : name,
                                  'CI' : ci})
 
