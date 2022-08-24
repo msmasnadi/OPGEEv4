@@ -30,13 +30,13 @@ class CrudeOilStabilization(Process):
         self.eta_electricity = self.attr("eta_electricity")
         self.prime_mover_type = self.attr("prime_mover_type")
         self.eta_compressor = self.attr("eta_compressor")
-        self.oil_sand_mine = field.attr("oil_sands_mine")
+        self.oil_sands_mine = field.attr("oil_sands_mine")
 
     def run(self, analysis):
         self.print_running_msg()
         field = self.field
 
-        if self.oil_sand_mine != "None":
+        if self.oil_sands_mine != "None":
             self.enabled = False
             return
 

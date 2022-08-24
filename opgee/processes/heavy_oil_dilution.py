@@ -55,15 +55,18 @@ class HeavyOilDilution(Process):
         self.print_running_msg()
         field =self.field
 
-        if self.frac_diluent.m == 0.0 or not self.all_streams_ready("oil for dilution"):
-            return
-
         # mass rate
         input_oil = self.find_input_stream("oil for dilution", raiseError=False)
         input_bitumen = self.find_input_stream("bitumen for dilution", raiseError=False)
 
-        if (input_oil is not None and input_oil.is_uninitialized()) or \
-                (input_bitumen is not None and input_bitumen.is_initialized()):
+        if self.frac_diluent.m == 0.0:
+            return
+
+        if input_oil is None and input_bitumen is None:
+            return
+
+        if (input_oil is not None and input_oil.is_uninitialized()) and \
+                (input_bitumen is not None and input_bitumen.is_uninitialized()):
             return
 
         output = self.find_output_stream("oil for storage")

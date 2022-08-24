@@ -233,7 +233,7 @@
 		</Stream>
 
 		<Stream src="Separation" dst="Flaring" name="separation to flaring">
-			<Contains>gas</Contains>
+			<Contains>gas for flaring</Contains>
 		</Stream>
 
 		<Stream src="Flaring" dst="Venting" name="flaring to venting">
@@ -298,11 +298,11 @@
 		</Stream>
 
 		<Stream src="BitumenMining" dst="Flaring" name="bitumen mining to flaring">
-			<Contains>gas</Contains>
+			<Contains>gas for flaring</Contains>
 		</Stream>
 
 		<Stream src="HeavyOilUpgrading" dst="Flaring" name="heavy oil upgrading to flaring">
-			<Contains>gas</Contains>
+			<Contains>gas for flaring</Contains>
 		</Stream>
 
 		<Stream src="HeavyOilUpgrading" dst="ProductionBoundary" name="heavy oil upgrading to production boundary">

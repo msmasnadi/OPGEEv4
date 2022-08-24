@@ -33,6 +33,9 @@ class PreMembraneChiller(Process):
         # mass rate
         input = self.find_input_stream("gas for chiller")
 
+        if input.is_uninitialized():
+            return
+
         gas_fugitives = self.set_gas_fugitives(input, self.fug_emissions_chiller.to("frac"))
 
         gas_to_compressor = self.find_output_stream("gas for compressor")

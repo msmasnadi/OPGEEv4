@@ -28,6 +28,9 @@ class CO2Membrane(Process):
 
         input = self.find_input_stream("gas for CO2 membrane")
 
+        if input.is_uninitialized():
+            return
+
         gas_to_AGR = self.find_output_stream("gas for AGR")
         AGR_mol_fracs = 1 - self.membrane_comp
         gas_to_AGR.copy_flow_rates_from(input, tp=field.stp)
