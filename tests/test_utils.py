@@ -5,6 +5,7 @@ from opgee import ureg
 from opgee.error import OpgeeException
 from opgee.utils import (getBooleanXML, coercible, mkdirs, loadModuleFromPath,
                          removeTree, parseTrialString, getResource)
+from .utils_for_tests import tmpdir
 
 @pytest.mark.parametrize(
     "value, expected", [("true", True), ("yes", True), ("1", True),
@@ -43,7 +44,7 @@ def test_mkdirs():
     with pytest.raises(TypeError):
         mkdirs(12345)
 
-    d = '/tmp/foo/bar/baz'
+    d = tmpdir('foo', 'bar', 'baz')
     mkdirs(d)
     assert os.path.isdir(d)
 

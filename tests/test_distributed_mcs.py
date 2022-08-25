@@ -1,11 +1,11 @@
 import re
 from opgee.mcs.distributed_mcs import Manager, RemoteError, FieldResult
+from .utils_for_tests import tmpdir
 
-def test_dist_mcs():
-    sim_dir = '/tmp/test-sim'
-    mgr = Manager()
-#    mgr.run_mcs(sim_dir)
-    pass
+# def test_dist_mcs():
+#     sim_dir = tmpdir('test-sim')
+#     mgr = Manager()
+#     mgr.run_mcs(sim_dir)
 
 def test_remote_error():
     field_name = 'field_1'

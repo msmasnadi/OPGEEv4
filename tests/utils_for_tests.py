@@ -1,4 +1,4 @@
-from opgee.config import pathjoin
+from opgee.config import pathjoin, getParam
 from opgee.model_file import ModelFile
 from opgee.process import Process
 
@@ -38,3 +38,6 @@ def load_model_from_str(xml_str):
     mf = ModelFile.from_xml_string(xml_str)
     return mf.model
 
+def tmpdir(*args):
+    d = pathjoin(getParam('OPGEE.TempDir'), *args)
+    return d
