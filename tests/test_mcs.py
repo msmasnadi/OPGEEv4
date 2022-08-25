@@ -1,12 +1,14 @@
 from pathlib import Path
 import pytest
 from io import StringIO
+
 from opgee.error import McsUserError
 from opgee.mcs.simulation import read_distributions, Simulation, Distribution
+from .utils_for_tests import tmpdir
 
 analysis_name = 'example'
 field_name = 'gas_lifting_field'
-sim_dir = '/tmp/test-mcs'
+sim_dir = tmpdir('test-mcs')
 N = 100
 
 header = "variable_name,distribution_type,mean,SD,low_bound,high_bound,prob_of_yes,default_value,pathname,notes\n"

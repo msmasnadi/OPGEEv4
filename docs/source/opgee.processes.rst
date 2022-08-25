@@ -28,8 +28,6 @@ The following elements of each process should be defined in the class header com
 Process subclasses [new approach]
 -----------------------------------
 
-Processes
-------------
   .. toctree::
    :glob:
 

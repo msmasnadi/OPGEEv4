@@ -1,8 +1,9 @@
 from opgee.tool import opg
 from opgee.model_file import ModelFile
+from .utils_for_tests import tmpdir
 
 def test_csv2xml():
-    output_xml = '/tmp/test-fields.xml'
+    output_xml = tmpdir('test-fields.xml')
     count = 5
     cmdline = f'csv2xml -n {count} -p -i etc/test-fields.csv -o "{output_xml}" --overwrite'
     opg(cmdline)
