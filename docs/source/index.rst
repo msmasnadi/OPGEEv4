@@ -18,7 +18,6 @@ Introduction
    attributes
    monte-carlo
    tutorial
-   exploration_process
 
 The ``opg`` Script
 ------------------------------
