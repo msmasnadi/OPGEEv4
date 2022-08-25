@@ -24,8 +24,20 @@ The following elements of each process should be defined in the class header com
 
 * Whether the process defines an impute() method for use in initialization from exogenous data.
 
-Process subclasses
--------------------
+
+Process subclasses [new approach]
+-----------------------------------
+
+Processes
+------------
+  .. toctree::
+   :glob:
+
+   processes/*
+
+
+Process subclasses [old approach]
+-----------------------------------
 
 .. automodule:: opgee.processes.CO2_injection_well
    :members:
@@ -76,9 +88,6 @@ Process subclasses
    :members:
 
 .. automodule:: opgee.processes.drilling
-   :members:
-
-.. automodule:: opgee.processes.exploration
    :members:
 
 .. automodule:: opgee.processes.flaring
