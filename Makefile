@@ -108,7 +108,9 @@ $(NUITKA_EXE):
 		--output-dir=$(NUITKA_OUTDIR) \
 		--include-package-data=opgee \
 		--onefile \
-		--enable-plugin=numpy \
+		--plugin-enable=numpy \
+		--plugin-enable=pylint-warnings \
 		--warn-unusual-code \
+		--warn-implicit-exceptions \
 		--verbose --verbose-output=$(NUITKA_LOG)
 #		--standalone

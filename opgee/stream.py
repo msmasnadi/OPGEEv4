@@ -19,7 +19,6 @@ from .log import getLogger
 from .utils import getBooleanXML, coercible
 from .table_manager import TableManager
 
-
 _logger = getLogger(__name__)
 
 # constants to use instead of strings
@@ -39,7 +38,6 @@ def is_carbon_number(name):
 def is_hydrocarbon(name):
     return (name == 'CH4' or _hydrocarbon_prog.match(name) is not None)
 
-
 def molecule_to_carbon(molecule):
     if molecule == "CH4":
         return "C1"
@@ -50,7 +48,6 @@ def molecule_to_carbon(molecule):
 
     c_name = m.group(1)
     return c_name
-
 
 def carbon_to_molecule(c_name):
     if c_name == "C1":
@@ -421,8 +418,6 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param tp: (TemperaturePressure) temperature and pressure
         :return: none
         """
-        from copy import copy
-
         if tp is None:
             raise OpgeeException("Called Stream.set_tp() with None")
 
@@ -455,7 +450,6 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.tp.copy_from(tp or stream.tp)
 
         self.initialized = True
-
 
     def copy_gas_rates_from(self, stream, tp=None):
         """
@@ -558,7 +552,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         :param stream: (Stream) a Stream with combustible components
         :return: (pint.Quantity(unit="tonne/day")) the mass rate of CO2 from combustion.
         """
-        from .thermodynamics import ChemicalInfo
+        from .thermodynamics import ChemicalInfo    # avoids circular imports (stream <-> thermodynamics)
 
         component_MW = ChemicalInfo.mol_weights()
 
