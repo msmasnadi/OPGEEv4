@@ -432,6 +432,7 @@ class Field(Container):
         - Cycles cannot span the current boundary.
         - Aggregators cannot span the current boundary.
         - The chosen system boundary is defined for this field
+        - Logical contradictions in attribute some settings
 
         :return: none
         :raises ModelValidationError: raised if any validation condition is violated.
@@ -469,9 +470,12 @@ class Field(Container):
                     if (is_inside and proc in beyond) or (is_beyond and proc not in beyond):
                         msgs.append(f"{agg} spans the {proc.boundary} boundary.")
 
+        if self.attr("steam_flooding") and not self.attr("SOR"):
+            msgs.append("SOR cannot be 0 when steam_flooding is chosen")
+
         if msgs:
             msg = "\n - ".join(msgs)
-            raise ModelValidationError(f"Field validation failed:{msg}")
+            raise ModelValidationError(f"Field validation failed: {msg}")
 
     def report(self, include_streams=False):
         """

@@ -218,7 +218,7 @@ class Process(XmlInstantiable, AttributeMixin):
     # Optional for Process subclasses
     def _after_init(self):
         self.check_attr_constraints(self.attr_dict)
-        self.validate_streams()
+        self.validate()
         self.process_EF = self.get_process_EF()
         self.field = self.get_field()
 
@@ -250,6 +250,18 @@ class Process(XmlInstantiable, AttributeMixin):
         Return the names of required output stream contents
         """
         return self._required_outputs
+
+    def validate(self):
+        self.validate_streams()
+        self.validate_proc()
+
+    def validate_proc(self):
+        """
+        Optional method to be implemented by subclasses of Process. Processes failing
+        validation should raise ModelValidationError(msg) with an explanatory message.
+        Note that required inputs and outputs are handled separately in validate_streams.
+        """
+        pass
 
     def validate_streams(self):
         """
