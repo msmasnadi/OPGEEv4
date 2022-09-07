@@ -194,7 +194,7 @@ class Field(Container):
         # if cycles:
         #     _logger.debug(f"Field '{self.name}' has cycles: {cycles}")
 
-        # TBD: document the "_after_init" processing order
+        # TBD: Document the "_after_init" processing order
         for iterator in [self.processes(), self.streams()]:
             for obj in iterator:
                 obj._after_init()
@@ -662,6 +662,7 @@ class Field(Container):
         """
         return self.process_dict.values()
 
+    # TBD: not used currently
     def process_choice_node(self, name, raiseError=True):
         """
         Find a `ProcessChoice` instance by name.
@@ -801,21 +802,25 @@ class Field(Container):
             else:
                 return None
 
-    def resolve_process_choices(self):
+    def resolve_process_choices(self, process_choice_dict=None):
         """
         Disable all processes referenced in a `ProcessChoice`, then enable only the processes
         in the selected `ProcessGroup`. The name of each `ProcessChoice` must also identify an
         field-level attribute, whose value indicates the user's choice of `ProcessGroup`.
 
+        :param process_choice_dict: (dict) optional dictionary for nested process choices. Used
+            in recursive calls only.
         :return: None
         """
         attr_dict = self.attr_dict
-        # self.dump()
+
+        if process_choice_dict is None: # might be an empty dict, but that's ok
+            process_choice_dict = self.process_choice_dict
 
         #
         # Turn off all processes identified in groups, then turn on those in the selected groups.
         #
-        for choice_name, choice in self.process_choice_dict.items():
+        for choice_name, choice in process_choice_dict.items():
             attr = attr_dict.get(choice_name)
             if attr is None:
                 raise OpgeeException(
@@ -831,7 +836,10 @@ class Field(Container):
                     to_enable.extend(procs)
                     to_enable.extend(streams)
 
-                # disable all object in all groups
+                    # Handle nested process groups in the enabled group
+                    self.resolve_process_choices(process_choice_dict=group.process_choice_dict)
+
+                # disable all objects in all groups
                 for obj in procs + streams:
                     obj.set_enabled(False)
 

@@ -11,50 +11,63 @@
 
 	<Field name="test">
 		<A name="country">USA</A>
-    <ProcessChoice name="gas_processing_path" extend="false" default="None">
-      <!-- Identify a set of mutually-exclusive ProcessGroup alternatives -->
-      <ProcessGroup name="Nothing"/>
-      <ProcessGroup name="Minimal">
-        <ProcessRef name="GasDehydration"/>
+    <ProcessChoice name="oil_sands_mine" extend="false" default="None">
+
+      <!-- not an oil sands mine -->
+      <ProcessGroup name="None">
+        <ProcessChoice name="gas_processing_path" extend="false" default="None">
+          <!-- Identify a set of mutually-exclusive ProcessGroup alternatives -->
+          <ProcessGroup name="Nothing"/>
+          <ProcessGroup name="Minimal">
+            <ProcessRef name="GasDehydration"/>
+          </ProcessGroup>
+          <ProcessGroup name="Acid Gas">
+            <ProcessRef name="GasDehydration"/>
+            <ProcessRef name="AcidGasRemoval"/>
+            <StreamRef name="s1"/>
+          </ProcessGroup>
+          <ProcessGroup name="Acid Wet Gas">
+            <ProcessRef name="ProductionBoundary"/>
+            <StreamRef name="s2"/>
+          </ProcessGroup>
+          <ProcessGroup name="Wet Gas">
+            <ProcessRef name="ProductionBoundary"/>
+            <StreamRef name="s2"/>
+          </ProcessGroup>
+          <ProcessGroup name="Dry Gas">
+            <ProcessRef name="ProductionBoundary"/>
+            <StreamRef name="s2"/>
+          </ProcessGroup>
+          <ProcessGroup name="Sour Gas Reinjection">
+            <ProcessRef name="ProductionBoundary"/>
+            <StreamRef name="s2"/>
+          </ProcessGroup>
+          <ProcessGroup name="CO2-EOR Membrane">
+            <ProcessRef name="ProductionBoundary"/>
+            <StreamRef name="s2"/>
+          </ProcessGroup>
+          <ProcessGroup name="CO2-EOR Ryan Holmes">
+            <ProcessRef name="ProductionBoundary"/>
+            <StreamRef name="s2"/>
+          </ProcessGroup>
+        </ProcessChoice>
       </ProcessGroup>
-      <ProcessGroup name="Acid Gas">
-        <ProcessRef name="GasDehydration"/>
-        <ProcessRef name="AcidGasRemoval"/>
-        <StreamRef name="s1"/>
+
+      <!-- oil sands mine -->
+      <ProcessGroup name="Integrated with upgrader">
+			  <ProcessRef name="BitumenMining"/>
       </ProcessGroup>
-      <ProcessGroup name="Acid Wet Gas">
-        <ProcessRef name="ProductionBoundary"/>
-        <StreamRef name="s2"/>
-      </ProcessGroup>
-      <ProcessGroup name="Wet Gas">
-        <ProcessRef name="ProductionBoundary"/>
-        <StreamRef name="s2"/>
-      </ProcessGroup>
-      <ProcessGroup name="Dry Gas">
-        <ProcessRef name="ProductionBoundary"/>
-        <StreamRef name="s2"/>
-      </ProcessGroup>
-      <ProcessGroup name="Sour Gas Reinjection">
-        <ProcessRef name="ProductionBoundary"/>
-        <StreamRef name="s2"/>
-      </ProcessGroup>
-      <ProcessGroup name="CO2-EOR Membrane">
-        <ProcessRef name="ProductionBoundary"/>
-        <StreamRef name="s2"/>
-      </ProcessGroup>
-      <ProcessGroup name="CO2-EOR Ryan Holmes">
-        <ProcessRef name="ProductionBoundary"/>
-        <StreamRef name="s2"/>
-      </ProcessGroup>
+
     </ProcessChoice>
 
     <Process class="Reservoir"/>
     <Process class="GasDehydration"/>
     <Process class="AcidGasRemoval"/>
+    <Process class="BitumenMining"/>
     <Process class="Boundary" boundary="Production"/>
 
     <Stream src="Reservoir" dst="ProductionBoundary"/>
     <Stream src="GasDehydration" dst="AcidGasRemoval" name="s1"/>
-      <Stream src="GasDehydration" dst="AcidGasRemoval" name="s2"/>
+    <Stream src="GasDehydration" dst="AcidGasRemoval" name="s2"/>
   </Field>
 </Model>
