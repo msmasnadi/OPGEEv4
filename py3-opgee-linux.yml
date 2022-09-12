@@ -6,7 +6,7 @@ channels:
 dependencies:
   - colour
   - dash>=2.5.1
-  - graphviz=2.46.1
+  - graphviz
   - python-graphviz
   - ipython
   - ipyparallel
