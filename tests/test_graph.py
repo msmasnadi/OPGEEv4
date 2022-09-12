@@ -4,7 +4,7 @@ from opgee.error import CommandlineError
 from opgee.config import IsWindows
 DEVNULL = 'nul' if IsWindows else '/dev/null'
 
-is_linux = platform.system() == 'linux'
+is_linux = platform.system() == 'Linux'
 
 @pytest.mark.skipif(is_linux, reason="requires the graphviz/dot which isn't working on sherlock")
 @pytest.mark.parametrize(
