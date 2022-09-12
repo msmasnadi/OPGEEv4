@@ -260,14 +260,9 @@ class AttributeMixin():
 
         :return: none
         """
-        attr_defs = AttrDefs.get_instance()
         attr_dict = {}
-
-        if is_process:
-            attr_defs = AttrDefs.get_instance()
-            process_attrs = attr_defs.classes.get('Process')
-        else:
-            process_attrs = None
+        attr_defs = AttrDefs.get_instance()
+        process_attrs = attr_defs.classes.get('Process') if is_process else None
 
         classname = cls.__name__
         class_attrs = attr_defs.class_attrs(classname, raiseError=False)
