@@ -7,7 +7,9 @@
 # See LICENSE.txt for license details.
 #
 from collections import defaultdict
+
 import pandas as pd
+
 from . import ureg
 from .core import OpgeeObject, XmlInstantiable, A, instantiate_subelts, elt_name, validate_unit, magnitude
 from .error import OpgeeException, AttributeError
@@ -298,10 +300,10 @@ class AttributeMixin():
             return  # nothing to check
 
         funcs = {
-            'LT': lambda value, limit: value <  limit,
-            'LE': lambda value, limit: value <= limit,
-            'GT': lambda value, limit: value >  limit,
-            'GE': lambda value, limit: value >= limit,
+            'LT': (lambda value, limit: value <  limit, "<"),
+            'LE': (lambda value, limit: value <= limit, "<="),
+            'GT': (lambda value, limit: value >  limit, ">"),
+            'GE': (lambda value, limit: value >= limit, ">="),
         }
 
         def is_a_process(cls):
@@ -326,8 +328,9 @@ class AttributeMixin():
                 for op, limit in constraints:
                     value = magnitude(attr.value)
                     # print(f"Testing ({value} {op} {limit}) for attr {attr_name}")
-                    if not funcs[op](value, limit):
-                        raise OpgeeException(f"Attribute '{attr_name}': constraint failed: value {value} is not {op} {limit}")
+                    func, symbol = funcs[op]
+                    if not func(value, limit):
+                        raise OpgeeException(f"Attribute '{attr_name}': constraint failed: value {value} is not {symbol} {limit}")
 
         # Check exclusive groups
         for group, attr_names in class_attrs.excludes.items():

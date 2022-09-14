@@ -8,11 +8,11 @@
 #
 import numpy as np
 
-from ..process import Process
-from ..log import getLogger
 from opgee import ureg
-from ..energy import EN_DIESEL
 from ..emissions import EM_COMBUSTION, EM_LAND_USE
+from ..energy import EN_DIESEL
+from ..log import getLogger
+from ..process import Process
 
 _logger = getLogger(__name__)
 
@@ -49,7 +49,7 @@ class Drilling(Process):
         # calculate land use emissions
         land_use_intensity_df = self.land_use_EF.loc["Oil sands mining"] if self.oil_sands_mine != "None" else self.land_use_EF.loc[self.ecosystem_richness]
         land_use_intensity = land_use_intensity_df.loc[self.field_development_intensity]
-        land_use_emission = land_use_intensity.sum() * field.get_process_data("export_oil_LHV")
+        land_use_emission = land_use_intensity.sum() * field.get_process_data("exported_oil_LHV")
 
         # energy-use
         energy_use = self.energy

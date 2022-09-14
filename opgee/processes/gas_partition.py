@@ -6,15 +6,12 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
+from .shared import get_gas_lifting_init_stream
 from .. import ureg
-from ..config import getParam
 from ..core import STP
-from ..energy import EN_NATURAL_GAS
 from ..log import getLogger
 from ..process import Process
 from ..stream import PHASE_GAS, Stream
-from .shared import get_gas_lifting_init_stream
-from ..import_export import NATURAL_GAS
 
 _logger = getLogger(__name__)
 
@@ -30,7 +27,7 @@ class GasPartition(Process):
         super()._after_init()
         self.field = field = self.get_field()
         self.gas = field.gas
-        self.gas_lifting = field.attr("gas_lifting")
+        self.gas_lifting_option = field.attr("gas_lifting")
         self.imported_fuel_gas_comp = field.imported_gas_comp["Imported Fuel"]
         self.imported_fuel_gas_mass_fracs = field.gas.component_mass_fractions(self.imported_fuel_gas_comp)
         self.imported_gas_stream = Stream("imported_gas", STP)
@@ -60,9 +57,8 @@ class GasPartition(Process):
 
         input_tp = input.tp
 
-        gas_lifting = self.find_output_stream("lifting gas")
-
-        if self.gas_lifting:
+        gas_lifting = self.find_output_stream("lifting gas", raiseError=False)
+        if self.gas_lifting_option and gas_lifting:
             if self.is_first_loop:
                 init_stream = get_gas_lifting_init_stream(self.field.gas,
                                                           self.imported_fuel_gas_comp,
@@ -72,19 +68,20 @@ class GasPartition(Process):
                 gas_lifting.copy_flow_rates_from(init_stream)
                 self.is_first_loop = False
 
-        # Check
-        iteration_series = (gas_lifting.components.gas - input.components.gas).astype(float)
-        iteration_series[iteration_series < 0] = 0
-        self.set_iteration_value(iteration_series)
+            # Check
+            iteration_series = (gas_lifting.components.gas - input.components.gas).astype(float)
+            iteration_series[iteration_series < 0] = 0
+            self.set_iteration_value(iteration_series)
 
-        if sum(iteration_series) >= self.iteration_tolerance:
-            gas_lifting.copy_flow_rates_from(input)
-            self.field.save_process_data(methane_from_gas_lifting=gas_lifting.gas_flow_rate("C1"))
-            return
+            if sum(iteration_series) >= self.iteration_tolerance:
+                gas_lifting.copy_flow_rates_from(input)
+                self.field.save_process_data(methane_from_gas_lifting=gas_lifting.gas_flow_rate("C1"))
+                return
 
         exported_gas = self.find_output_stream("gas")
         exported_gas.copy_flow_rates_from(input, tp=input_tp)
-        exported_gas.subtract_rates_from(gas_lifting)
+        if gas_lifting:
+            exported_gas.subtract_rates_from(gas_lifting)
 
         gas_to_reinjection = self.find_output_stream("gas for gas reinjection compressor")
         if self.natural_gas_reinjection or (self.gas_flooding and self.flood_gas_type == "NG"):

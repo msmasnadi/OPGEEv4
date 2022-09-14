@@ -7,9 +7,9 @@
 # See LICENSE.txt for license details.
 #
 from .. import ureg
+from ..core import TemperaturePressure
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
-from ..core import TemperaturePressure
 from ..log import getLogger
 from ..process import Process
 from ..stream import PHASE_GAS, Stream
@@ -37,7 +37,7 @@ class BitumenMining(Process):
 
         self.oil_sands_mine = field.attr("oil_sands_mine")
         if self.oil_sands_mine == "None":
-            self.enabled = False
+            self.set_enabled(False)
             return
 
         self.oil = field.oil

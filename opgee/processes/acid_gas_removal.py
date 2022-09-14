@@ -6,14 +6,12 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-from .. import ureg
 from opgee.processes.compressor import Compressor
+from .shared import get_energy_carrier
+from .. import ureg
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
-from ..energy import EN_NATURAL_GAS
 from ..log import getLogger
 from ..process import Process, run_corr_eqns
-from .shared import predict_blower_energy_use, get_energy_carrier
-from ..import_export import ImportExport
 
 _logger = getLogger(__name__)
 

@@ -11,7 +11,6 @@ from ..emissions import EM_FUGITIVES
 from ..energy import EN_ELECTRICITY
 from ..log import getLogger
 from ..process import Process
-from ..import_export import ImportExport
 
 _logger = getLogger(__name__)
 

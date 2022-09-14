@@ -82,10 +82,6 @@ class Model(Container):
         self.demethanizer = tbl_mgr.get_table("demethanizer")
         self.upstream_CI = tbl_mgr.get_table("upstream-CI")
 
-        # TODO: Is this table necessary?
-        self.product_boundaries = tbl_mgr.get_table("product-boundaries")
-
-        self.component_LHV = tbl_mgr.get_table("component-LHV")
         self.pubchem_cid = tbl_mgr.get_table("pubchem-cid")
 
         # TBD: should these be settable per Analysis?

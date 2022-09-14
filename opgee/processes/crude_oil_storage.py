@@ -11,7 +11,6 @@ from ..emissions import EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
 from ..stream import PHASE_GAS
-from ..import_export import CRUDE_OIL
 from ..stream import Stream
 
 _logger = getLogger(__name__)

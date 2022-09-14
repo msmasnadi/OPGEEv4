@@ -9,7 +9,6 @@
 from ..log import getLogger
 from ..process import Process
 from ..stream import PHASE_GAS
-from ..core import TemperaturePressure
 
 _logger = getLogger(__name__)
 
