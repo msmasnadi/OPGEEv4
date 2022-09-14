@@ -131,3 +131,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 opgee/etc/tmp
+launch.json
+opgee/.vscode
