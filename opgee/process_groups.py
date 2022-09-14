@@ -7,6 +7,7 @@
 # See LICENSE.txt for license details.
 #
 from collections import OrderedDict
+
 from .core import XmlInstantiable, elt_name, instantiate_subelts
 from .error import OpgeeException
 from .log import getLogger

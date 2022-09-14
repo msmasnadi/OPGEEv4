@@ -56,14 +56,13 @@ class Separation(Process):
         self.compressor_eff = self.attr("eta_compressor").to("frac")
 
         self.oil_sand_mine = field.attr("oil_sands_mine")
+        if self.oil_sand_mine != "None":
+            self.set_enabled(False)
+            return
 
     def run(self, analysis):
         self.print_running_msg()
         field = self.field
-
-        if self.oil_sand_mine != "None":
-            self.enabled = False
-            return
 
         # mass rate
         input = self.find_input_stream("crude oil")

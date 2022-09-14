@@ -8,10 +8,10 @@
 #
 import networkx as nx
 import pint
+
 from . import ureg
 from .config import getParamAsList
 from .container import Container
-from .constants import petrocoke_LHV
 from .core import elt_name, instantiate_subelts, dict_from_list, TemperaturePressure, STP
 from .energy import Energy
 from .error import (OpgeeException, OpgeeStopIteration, OpgeeMaxIterationsReached,
@@ -20,10 +20,10 @@ from .import_export import ImportExport
 from .log import getLogger
 from .process import Process, Aggregator, Reservoir
 from .process_groups import ProcessChoice
+from .processes.steam_generator import SteamGenerator
 from .smart_defaults import SmartDefault
 from .stream import Stream
 from .thermodynamics import Oil, Gas, Water
-from .processes.steam_generator import SteamGenerator
 from .utils import getBooleanXML, flatten, roundup
 
 _logger = getLogger(__name__)
@@ -169,20 +169,8 @@ class Field(Container):
         self.water = Water(self)
         self.steam_generator = SteamGenerator(self)
 
-        # TODO: unused
-        # imp_exp = self.import_export.imports_exports()
-
-        # TODO: unused
-        # self.product_names = imp_exp.index.drop(WATER)
-
-        # TODO: the only use of this is in a function that isn't called. Maybe deprecated.
-        self.product_boundaries = model.product_boundaries
-
-        self.product_LHV = model.component_LHV
-        self.product_LHV.loc['oil'] = self.oil.mass_energy_density()
-        self.product_LHV.loc['PC'] = petrocoke_LHV
-
-        self.resolve_process_choices()
+        SmartDefault.apply_defaults(None, self)
+        self.resolve_process_choices()  # allows smart defaults to set process choices
         self._check_run_after_procs()       # TBD: write test (also, move call to validate()?
 
         # we use networkx to reason about the directed graph of Processes (nodes)
@@ -197,7 +185,8 @@ class Field(Container):
         # TBD: document the "_after_init" processing order
         for iterator in [self.processes(), self.streams()]:
             for obj in iterator:
-                obj._after_init()
+                if obj.enabled:
+                    obj._after_init()
 
     def __str__(self):
         return f"<Field '{self.name}'>"
@@ -251,7 +240,7 @@ class Field(Container):
         :return: None
         """
         if self.is_enabled():
-            _logger.debug(f"Running '{self}'")
+            _logger.info(f"Running '{self}'")
 
             # Cache the sets of processes within and outside the current boundary. We use
             # this information in compute_carbon_intensity() to ignore irrelevant procs.
@@ -259,9 +248,9 @@ class Field(Container):
             self.procs_beyond_boundary = boundary_proc.beyond_boundary()
 
             self.reset()
-            if smart_defaults:
-                SmartDefault.apply_defaults(analysis, self)
-                self.resolve_process_choices()  # allows smart defaults to set process choices
+            # if smart_defaults:
+            #     SmartDefault.apply_defaults(analysis, self)
+            #     self.resolve_process_choices()  # allows smart defaults to set process choices
 
             self._impute()
             self.reset_iteration()
@@ -522,7 +511,7 @@ class Field(Container):
 
         :return: (4-tuple of sets of Processes)
         """
-        processes = self.processes()
+        processes = [proc for proc in self.processes() if proc.is_enabled()]
         cycles = self.cycles
 
         procs_in_cycles = set(flatten(cycles)) if cycles else set()
@@ -1053,11 +1042,11 @@ class Field(Container):
         # High: =IF(J70=1,0,0) # TODO: high intensity isn't used?
         return 'Low' if offshore else 'Med'
 
-    @SmartDefault.register('common_gas_process_choice', ['gas_processing_path'])
-    def common_gas_process_choice_default(self, gas_processing_path):
-        # Disable the ancillary group of gas-related processes when there is no
-        # gas processing path selected. Otherwise enable all of those processes.
-        return 'None' if gas_processing_path == 'None' else 'All'
+    @SmartDefault.register('common_gas_process_choice', ['oil_sands_mine'])
+    def common_gas_process_choice_default(self, oil_sands_mine):
+        # Disable the ancillary group of gas-related processes when there is oil sand mine.
+        # Otherwise enable all of those processes.
+        return 'None' if oil_sands_mine != 'None' else 'All'
 
 
     # TODO: decide how to handle "associated gas defaults", which is just global vs CA-LCFS values currently

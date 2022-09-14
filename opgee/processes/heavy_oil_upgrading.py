@@ -9,12 +9,12 @@
 import pandas as pd
 
 from .. import ureg
+from ..core import STP
 from ..emissions import EM_COMBUSTION, EM_FLARING
 from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_UPG_PROC_GAS, EN_PETCOKE
 from ..log import getLogger
 from ..process import Process
 from ..stream import PHASE_GAS
-from ..core import STP
 from ..stream import Stream
 
 _logger = getLogger(__name__)
