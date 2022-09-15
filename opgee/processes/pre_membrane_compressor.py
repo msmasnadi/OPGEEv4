@@ -40,7 +40,7 @@ class PreMembraneCompressor(Process):
         gas_to_CO2_membrane.copy_flow_rates_from(input)
         gas_to_CO2_membrane.subtract_rates_from(gas_fugitives)
 
-        overall_compression_ratio = self.discharge_press / input.pressure
+        overall_compression_ratio = self.discharge_press / input.tp.P
         energy_consumption, output_temp, output_press = \
             Compressor.get_compressor_energy_consumption(
                 self.field,
@@ -55,7 +55,6 @@ class PreMembraneCompressor(Process):
         energy_use.set_rate(energy_carrier, energy_consumption)
 
         # import/export
-        # import_product = field.import_export
         self.set_import_from_energy(energy_use)
 
         # emissions

@@ -57,7 +57,7 @@ def combine_streams(streams, API):
                         TemperaturePressure(temperature, max(STP.P, min_pressure)),
                         comp_matrix=comp_matrix)
     else:
-        raise OpgeeException("Cannot combine streams because of zero specific heat")
+        stream = Stream('empty_stream', tp=STP)
     return stream
 
 

@@ -65,7 +65,7 @@ class AcidGasRemoval(Process):
             gas_to_demethanizer.set_gas_flow_rate("CO2", CO2_to_demethanizer)
             gas_to_demethanizer.subtract_rates_from(gas_fugitives)
         else:
-            gas_to_gathering = self.find_output_stream("gas for gas gathering")
+            gas_to_gathering = self.find_output_stream("gas for gas partition")
             gas_to_gathering.copy_flow_rates_from(input)
             gas_to_gathering.set_gas_flow_rate("CO2", CO2_to_demethanizer)
             gas_to_gathering.subtract_rates_from(gas_fugitives)
