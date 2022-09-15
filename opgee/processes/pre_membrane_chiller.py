@@ -40,7 +40,7 @@ class PreMembraneChiller(Process):
         gas_to_compressor = self.find_output_stream("gas for compressor")
         gas_to_compressor.copy_flow_rates_from(input)
         gas_to_compressor.subtract_rates_from(gas_fugitives)
-        gas_to_compressor.tp.set(T=self.outlet_temp, P=input.pressure)
+        gas_to_compressor.tp.set(T=self.outlet_temp, P=input.tp.P)
 
         delta_temp = input.tp.T - self.outlet_temp
         energy_consumption = (self.compressor_load * input.total_gas_rate() /

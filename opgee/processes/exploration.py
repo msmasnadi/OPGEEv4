@@ -75,7 +75,7 @@ class Exploration(Process):
         ocean_tank_energy_intensity = field.get_process_data("ocean_tanker_dest_energy_intensity")
         truck_energy_intensity = field.get_process_data("energy_intensity_truck")
 
-        export_LHV = self.field.get_process_data("exported_prod_LHV")
+        export_LHV = field.get_process_data("exported_prod_LHV")
         cumulative_export_LHV = export_LHV * year_to_day * self.field_production_lifetime
         survey_vehicle_energy_consumption = \
             truck_energy_intensity * self.weight_land_survey * self.distance_survey if not self.offshore else \

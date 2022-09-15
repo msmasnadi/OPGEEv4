@@ -65,9 +65,22 @@
 		<Process class="Boundary" boundary="Distribution"/>
 
 		<ProcessChoice name="gas_processing_path">
+			<ProcessGroup name="None">
+				<ProcessRef name="GasGathering"/>
+				<StreamRef name="GasGathering => GasPartition"/>
+			</ProcessGroup>
+			<ProcessGroup name="Minimal">
+				<ProcessRef name="GasGathering"/>
+				<ProcessRef name="GasDehydration"/>
+				<StreamRef name="GasGathering => GasDehydration"/>
+				<StreamRef name="GasDehydration => GasPartition"/>
+			</ProcessGroup>
 			<ProcessGroup name="Acid Wet Gas">
+				<ProcessRef name="GasGathering"/>
+				<ProcessRef name="GasDehydration"/>
 				<ProcessRef name="AcidGasRemoval"/>
 				<ProcessRef name="Demethanizer"/>
+				<StreamRef name="GasGathering => GasDehydration"/>
 				<StreamRef name="GasDehydration => AcidGasRemoval"/>
 				<StreamRef name="AcidGasRemoval => Demethanizer"/>
 				<StreamRef name="Demethanizer => GasPartition"/>
@@ -75,22 +88,31 @@
 			</ProcessGroup>
 
 			<ProcessGroup name="Acid Gas">
+				<ProcessRef name="GasGathering"/>
+				<ProcessRef name="GasDehydration"/>
 				<ProcessRef name="AcidGasRemoval"/>
+				<StreamRef name="GasGathering => GasDehydration"/>
 				<StreamRef name="GasDehydration => AcidGasRemoval"/>
 				<StreamRef name="AcidGasRemoval => GasPartition"/>
 			</ProcessGroup>
 
 			<ProcessGroup name="Wet Gas">
+				<ProcessRef name="GasGathering"/>
+				<ProcessRef name="GasDehydration"/>
 				<ProcessRef name="Demethanizer"/>
+				<StreamRef name="GasGathering => GasDehydration"/>
 				<StreamRef name="GasDehydration => Demethanizer"/>
 				<StreamRef name="Demethanizer => GasPartition"/>
 				<StreamRef name="Demethanizer => NGL"/>
 			</ProcessGroup>
 
 			<ProcessGroup name="CO2-EOR Ryan Holmes">
+				<ProcessRef name="GasGathering"/>
+				<ProcessRef name="GasDehydration"/>
 				<ProcessRef name="RyanHolmes"/>
 				<ProcessRef name="CO2ReinjectionCompressor"/>
 				<ProcessRef name="CO2InjectionWell"/>
+				<StreamRef name="GasGathering => GasDehydration"/>
 				<StreamRef name="GasDehydration => RyanHolmes"/>
 				<StreamRef name="RyanHolmes => CO2ReinjectionCompressor"/>
 				<StreamRef name="RyanHolmes => GasPartition"/>
@@ -100,13 +122,18 @@
 			</ProcessGroup>
 
 			<ProcessGroup name="Sour Gas Reinjection">
+				<ProcessRef name="GasGathering"/>
+				<ProcessRef name="GasDehydration"/>
 				<ProcessRef name="SourGasCompressor"/>
 				<ProcessRef name="SourGasInjection"/>
+				<StreamRef name="GasGathering => GasDehydration"/>
 				<StreamRef name="GasDehydration => SourGasCompressor"/>
 				<StreamRef name="SourGasCompressor => SourGasInjection"/>
 			</ProcessGroup>
 
 			<ProcessGroup name="CO2-EOR Membrane">
+				<ProcessRef name="GasGathering"/>
+				<ProcessRef name="GasDehydration"/>
 				<ProcessRef name="PreMembraneChiller"/>
 				<ProcessRef name="PreMembraneCompressor"/>
 				<ProcessRef name="CO2Membrane"/>
@@ -114,6 +141,7 @@
 				<ProcessRef name="CO2ReinjectionCompressor"/>
 				<ProcessRef name="CO2InjectionWell"/>
 				<ProcessRef name="Demethanizer"/>
+				<StreamRef name="GasGathering => GasDehydration"/>
 				<StreamRef name="GasDehydration => PreMembraneChiller"/>
 				<StreamRef name="PreMembraneChiller => PreMembraneCompressor"/>
 				<StreamRef name="PreMembraneCompressor => CO2Membrane"/>
@@ -124,6 +152,7 @@
 				<StreamRef name="CO2InjectionWell => ReservoirWellInterface"/>
 				<StreamRef name="AcidGasRemoval => Demethanizer"/>
 				<StreamRef name="Demethanizer => GasPartition"/>
+				<StreamRef name="Demethanizer => NGL"/>
 			</ProcessGroup>
 		</ProcessChoice>
 
@@ -142,6 +171,7 @@
 				<ProcessRef name="StorageWell"/>
 				<ProcessRef name="StorageSeparator"/>
 				<ProcessRef name="PostStorageCompressor"/>
+				<ProcessRef name="NGL"/>
 				<StreamRef name="CO2Membrane => CO2ReinjectionCompressor"/>
 				<StreamRef name="GasPartition => GasReinjectionCompressor"/>
 				<StreamRef name="GasPartition => TransmissionCompressor"/>
@@ -272,6 +302,14 @@
 			<Contains>gas for flaring</Contains>
 		</Stream>
 
+		<Stream src="Separation" dst="Venting">
+			<Contains>gas for venting</Contains>
+		</Stream>
+
+		<Stream src="Separation" dst="GasGathering">
+			<Contains>gas for gas gathering</Contains>
+		</Stream>
+
 <!--		oil processing path-->
 		<Stream src="BitumenMining" dst="HeavyOilDilution">
 			<Contains>bitumen for dilution</Contains>
@@ -393,7 +431,11 @@
 
 <!--		gas processing path-->
 		<Stream src="Flaring" dst="Venting">
-			<Contains>gas</Contains>
+			<Contains>gas for venting</Contains>
+		</Stream>
+
+		<Stream src="Flaring" dst="GasGathering">
+			<Contains>gas for gas gathering</Contains>
 		</Stream>
 
 		<Stream src="Venting" dst="GasGathering">
@@ -405,7 +447,11 @@
 		</Stream>
 
 		<Stream src="GasGathering" dst="GasDehydration">
-			<Contains>gas</Contains>
+			<Contains>gas for gas dehydration</Contains>
+		</Stream>
+
+		<Stream src="GasGathering" dst="GasPartition">
+			<Contains>gas for gas partition</Contains>
 		</Stream>
 
 		<Stream src="GasDehydration" dst="AcidGasRemoval">
@@ -446,10 +492,6 @@
 
 		<Stream src="AcidGasRemoval" dst="GasPartition">
 			<Contains>gas for gas partition</Contains>
-		</Stream>
-
-		<Stream src="AcidGasRemoval" dst="GasGathering">
-			<Contains>gas for gas gathering</Contains>
 		</Stream>
 
 		<Stream src="GasDehydration" dst="RyanHolmes">

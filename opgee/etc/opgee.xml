@@ -49,21 +49,39 @@
 <!--			<A name="ecosystem_richness">Low carbon</A>-->
 <!--			<A name="field_development_intensity">Low</A>-->
 
-			<A name="water_reinjection">0</A>
+			<A name="downhole_pump">0</A>
+      <A name="water_reinjection">0</A>
       <A name="natural_gas_reinjection">0</A>
-      <A name="steam_flooding">1</A>
-      <A name="oil_sands_mine">None</A>
-      <A name="name">Test 40 - Diluent Test 0%</A>
-      <A name="depth">2000.0</A>
-      <A name="res_press">430.0</A>
-      <A name="API">15.0</A>
-      <A name="GOR">100.0</A>
-      <A name="WOR">1.0</A>
-      <A name="SOR">3.0</A>
+      <A name="water_flooding">0</A>
+      <A name="gas_lifting">0</A>
+      <A name="gas_flooding">0</A>
+      <A name="steam_flooding">0</A>
+      <A name="oil_sands_mine">Non-integrated with upgrader</A>
+      <A name="country">Canada</A>
+      <A name="name">CNRL Horizon</A>
+      <A name="API">8.0</A>
+      <A name="API_bitumen">8.0</A>
+      <Process class="CrudeOilDewatering">
+        <A name="heater_treater">0</A>
+      </Process>
+      <A name="stabilizer_column">0</A>
+      <A name="gas_processing_path">None</A>
+<!--      <A name="common_gas_process_choice">None</A>-->
+      <A name="oil_processing_path">Dilution</A>
       <A name="FOR">0.0</A>
       <Process class="HeavyOilDilution">
-        <A name="fraction_diluent">0.0</A>
+        <A name="fraction_diluent">0.3</A>
       </Process>
+      <A name="frac_transport_tanker">0.0</A>
+      <A name="frac_transport_barge">0.0</A>
+      <A name="frac_transport_pipeline">1.0</A>
+      <A name="frac_transport_rail">0.0</A>
+      <A name="frac_transport_truck">0.0</A>
+      <A name="transport_dist_tanker">0.0</A>
+      <A name="transport_dist_barge">0.0</A>
+      <A name="transport_dist_pipeline">2500.0</A>
+      <A name="transport_dist_rail">0.0</A>
+      <A name="transport_dist_truck">0.0</A>
 		</Field>
 
 	</Analysis>
@@ -108,9 +126,22 @@
 		<Process class="Boundary" boundary="Distribution"/>
 
 		<ProcessChoice name="gas_processing_path">
+			<ProcessGroup name="None">
+				<ProcessRef name="GasGathering"/>
+				<StreamRef name="GasGathering => GasPartition"/>
+			</ProcessGroup>
+			<ProcessGroup name="Minimal">
+				<ProcessRef name="GasGathering"/>
+				<ProcessRef name="GasDehydration"/>
+				<StreamRef name="GasGathering => GasDehydration"/>
+				<StreamRef name="GasDehydration => GasPartition"/>
+			</ProcessGroup>
 			<ProcessGroup name="Acid Wet Gas">
+				<ProcessRef name="GasGathering"/>
+				<ProcessRef name="GasDehydration"/>
 				<ProcessRef name="AcidGasRemoval"/>
 				<ProcessRef name="Demethanizer"/>
+				<StreamRef name="GasGathering => GasDehydration"/>
 				<StreamRef name="GasDehydration => AcidGasRemoval"/>
 				<StreamRef name="AcidGasRemoval => Demethanizer"/>
 				<StreamRef name="Demethanizer => GasPartition"/>
@@ -118,22 +149,31 @@
 			</ProcessGroup>
 
 			<ProcessGroup name="Acid Gas">
+				<ProcessRef name="GasGathering"/>
+				<ProcessRef name="GasDehydration"/>
 				<ProcessRef name="AcidGasRemoval"/>
+				<StreamRef name="GasGathering => GasDehydration"/>
 				<StreamRef name="GasDehydration => AcidGasRemoval"/>
 				<StreamRef name="AcidGasRemoval => GasPartition"/>
 			</ProcessGroup>
 
 			<ProcessGroup name="Wet Gas">
+				<ProcessRef name="GasGathering"/>
+				<ProcessRef name="GasDehydration"/>
 				<ProcessRef name="Demethanizer"/>
+				<StreamRef name="GasGathering => GasDehydration"/>
 				<StreamRef name="GasDehydration => Demethanizer"/>
 				<StreamRef name="Demethanizer => GasPartition"/>
 				<StreamRef name="Demethanizer => NGL"/>
 			</ProcessGroup>
 
 			<ProcessGroup name="CO2-EOR Ryan Holmes">
+				<ProcessRef name="GasGathering"/>
+				<ProcessRef name="GasDehydration"/>
 				<ProcessRef name="RyanHolmes"/>
 				<ProcessRef name="CO2ReinjectionCompressor"/>
 				<ProcessRef name="CO2InjectionWell"/>
+				<StreamRef name="GasGathering => GasDehydration"/>
 				<StreamRef name="GasDehydration => RyanHolmes"/>
 				<StreamRef name="RyanHolmes => CO2ReinjectionCompressor"/>
 				<StreamRef name="RyanHolmes => GasPartition"/>
@@ -143,13 +183,18 @@
 			</ProcessGroup>
 
 			<ProcessGroup name="Sour Gas Reinjection">
+				<ProcessRef name="GasGathering"/>
+				<ProcessRef name="GasDehydration"/>
 				<ProcessRef name="SourGasCompressor"/>
 				<ProcessRef name="SourGasInjection"/>
+				<StreamRef name="GasGathering => GasDehydration"/>
 				<StreamRef name="GasDehydration => SourGasCompressor"/>
 				<StreamRef name="SourGasCompressor => SourGasInjection"/>
 			</ProcessGroup>
 
 			<ProcessGroup name="CO2-EOR Membrane">
+				<ProcessRef name="GasGathering"/>
+				<ProcessRef name="GasDehydration"/>
 				<ProcessRef name="PreMembraneChiller"/>
 				<ProcessRef name="PreMembraneCompressor"/>
 				<ProcessRef name="CO2Membrane"/>
@@ -157,6 +202,7 @@
 				<ProcessRef name="CO2ReinjectionCompressor"/>
 				<ProcessRef name="CO2InjectionWell"/>
 				<ProcessRef name="Demethanizer"/>
+				<StreamRef name="GasGathering => GasDehydration"/>
 				<StreamRef name="GasDehydration => PreMembraneChiller"/>
 				<StreamRef name="PreMembraneChiller => PreMembraneCompressor"/>
 				<StreamRef name="PreMembraneCompressor => CO2Membrane"/>
@@ -167,6 +213,7 @@
 				<StreamRef name="CO2InjectionWell => ReservoirWellInterface"/>
 				<StreamRef name="AcidGasRemoval => Demethanizer"/>
 				<StreamRef name="Demethanizer => GasPartition"/>
+				<StreamRef name="Demethanizer => NGL"/>
 			</ProcessGroup>
 		</ProcessChoice>
 
@@ -185,6 +232,7 @@
 				<ProcessRef name="StorageWell"/>
 				<ProcessRef name="StorageSeparator"/>
 				<ProcessRef name="PostStorageCompressor"/>
+				<ProcessRef name="NGL"/>
 				<StreamRef name="CO2Membrane => CO2ReinjectionCompressor"/>
 				<StreamRef name="GasPartition => GasReinjectionCompressor"/>
 				<StreamRef name="GasPartition => TransmissionCompressor"/>
@@ -215,12 +263,14 @@
 				<ProcessRef name="HeavyOilUpgrading"/>
 				<ProcessRef name="CrudeOilStorage"/>
 				<StreamRef name="CrudeOilDewatering => HeavyOilUpgrading"/>
+				<StreamRef name="HeavyOilUpgrading => CrudeOilStorage"/>
 			</ProcessGroup>
 
 			<ProcessGroup name="Dilution">
 				<ProcessRef name="HeavyOilDilution"/>
 				<ProcessRef name="CrudeOilStorage"/>
 				<StreamRef name="CrudeOilDewatering => HeavyOilDilution"/>
+				<StreamRef name="HeavyOilDilution => CrudeOilStorage"/>
 			</ProcessGroup>
 		</ProcessChoice>
 
@@ -313,6 +363,14 @@
 
 		<Stream src="Separation" dst="Flaring">
 			<Contains>gas for flaring</Contains>
+		</Stream>
+
+		<Stream src="Separation" dst="Venting">
+			<Contains>gas for venting</Contains>
+		</Stream>
+
+		<Stream src="Separation" dst="GasGathering">
+			<Contains>gas for gas gathering</Contains>
 		</Stream>
 
 <!--		oil processing path-->
@@ -436,7 +494,11 @@
 
 <!--		gas processing path-->
 		<Stream src="Flaring" dst="Venting">
-			<Contains>gas</Contains>
+			<Contains>gas for venting</Contains>
+		</Stream>
+
+		<Stream src="Flaring" dst="GasGathering">
+			<Contains>gas for gas gathering</Contains>
 		</Stream>
 
 		<Stream src="Venting" dst="GasGathering">
@@ -448,7 +510,11 @@
 		</Stream>
 
 		<Stream src="GasGathering" dst="GasDehydration">
-			<Contains>gas</Contains>
+			<Contains>gas for gas dehydration</Contains>
+		</Stream>
+
+		<Stream src="GasGathering" dst="GasPartition">
+			<Contains>gas for gas partition</Contains>
 		</Stream>
 
 		<Stream src="GasDehydration" dst="AcidGasRemoval">
@@ -489,10 +555,6 @@
 
 		<Stream src="AcidGasRemoval" dst="GasPartition">
 			<Contains>gas for gas partition</Contains>
-		</Stream>
-
-		<Stream src="AcidGasRemoval" dst="GasGathering">
-			<Contains>gas for gas gathering</Contains>
 		</Stream>
 
 		<Stream src="GasDehydration" dst="RyanHolmes">

@@ -164,7 +164,8 @@
         <Option>Hydroconversion</Option>
         <Option desc="Combined hydroconversion and fluid coking">Combined</Option>
       </Options>
-      <Options name="gas_processing_path" default="Minimal">
+      <Options name="gas_processing_path" default="Acid Wet Gas">
+        <Option desc="">None</Option>
         <Option desc="Dehydrator">Minimal</Option>
         <Option desc="Dehydrator + Amine Process">Acid Gas</Option>
         <Option desc="Dehydrator + Demethanizer">Wet Gas</Option>

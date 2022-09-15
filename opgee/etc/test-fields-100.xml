@@ -1717,6 +1717,7 @@
       </Process>
       <A name="stabilizer_column">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">514.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
@@ -1765,6 +1766,7 @@
       </Process>
       <A name="stabilizer_column">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">10.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
@@ -1813,6 +1815,7 @@
       </Process>
       <A name="stabilizer_column">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">363.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
@@ -1862,6 +1865,7 @@
       </Process>
       <A name="stabilizer_column">1</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">140.1</A>
       <A name="VOR">1.0</A>
       <A name="frac_transport_tanker">0.0</A>
@@ -1912,6 +1916,7 @@
       </Process>
       <A name="stabilizer_column">1</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">140.1</A>
       <A name="VOR">1.0</A>
       <A name="frac_transport_tanker">0.0</A>
@@ -1962,6 +1967,7 @@
       </Process>
       <A name="stabilizer_column">1</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">140.1</A>
       <A name="VOR">1.0</A>
       <A name="frac_transport_tanker">0.0</A>
@@ -2012,6 +2018,7 @@
       </Process>
       <A name="stabilizer_column">1</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">140.1</A>
       <A name="VOR">1.0</A>
       <A name="frac_transport_tanker">0.0</A>
@@ -2295,6 +2302,7 @@
       </Process>
       <A name="stabilizer_column">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">16.25</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
@@ -2348,6 +2356,7 @@
       </Process>
       <A name="stabilizer_column">1</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">300.0</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
@@ -2845,7 +2854,9 @@
       </Process>
       <A name="stabilizer_column">0</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="oil_processing_path">Dilution</A>
+      <A name="FOR">0.0</A>
       <Process class="HeavyOilDilution">
         <A name="fraction_diluent">0.3</A>
       </Process>

@@ -1717,6 +1717,7 @@
       </Process>
       <A name="stabilizer_column">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">514.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
@@ -1765,6 +1766,7 @@
       </Process>
       <A name="stabilizer_column">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">10.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
@@ -1813,6 +1815,7 @@
       </Process>
       <A name="stabilizer_column">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">363.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
@@ -1862,6 +1865,7 @@
       </Process>
       <A name="stabilizer_column">1</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">140.1</A>
       <A name="VOR">1.0</A>
       <A name="frac_transport_tanker">0.0</A>
@@ -1912,6 +1916,7 @@
       </Process>
       <A name="stabilizer_column">1</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">140.1</A>
       <A name="VOR">1.0</A>
       <A name="frac_transport_tanker">0.0</A>
@@ -1962,6 +1967,7 @@
       </Process>
       <A name="stabilizer_column">1</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">140.1</A>
       <A name="VOR">1.0</A>
       <A name="frac_transport_tanker">0.0</A>
@@ -2012,6 +2018,7 @@
       </Process>
       <A name="stabilizer_column">1</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">140.1</A>
       <A name="VOR">1.0</A>
       <A name="frac_transport_tanker">0.0</A>
@@ -2295,6 +2302,7 @@
       </Process>
       <A name="stabilizer_column">0</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">16.25</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
@@ -2348,6 +2356,7 @@
       </Process>
       <A name="stabilizer_column">1</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">300.0</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
@@ -2845,7 +2854,9 @@
       </Process>
       <A name="stabilizer_column">0</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="oil_processing_path">Dilution</A>
+      <A name="FOR">0.0</A>
       <Process class="HeavyOilDilution">
         <A name="fraction_diluent">0.3</A>
       </Process>
@@ -3471,6 +3482,7 @@
       <A name="GOR">100.0</A>
       <A name="WOR">1.0</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="oil_processing_path">Dilution</A>
       <A name="FOR">0.0</A>
       <Process class="HeavyOilDilution">
@@ -3489,6 +3501,7 @@
       <A name="GOR">100.0</A>
       <A name="WOR">1.0</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="oil_processing_path">Dilution</A>
       <A name="FOR">0.0</A>
       <Process class="HeavyOilDilution">
@@ -3507,6 +3520,7 @@
       <A name="GOR">100.0</A>
       <A name="WOR">1.0</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="oil_processing_path">Dilution</A>
       <A name="FOR">0.0</A>
       <Process class="HeavyOilDilution">
@@ -3525,6 +3539,7 @@
       <A name="GOR">100.0</A>
       <A name="WOR">1.0</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="oil_processing_path">Dilution</A>
       <A name="FOR">0.0</A>
       <Process class="HeavyOilDilution">
@@ -3543,6 +3558,7 @@
       <A name="GOR">100.0</A>
       <A name="WOR">1.0</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="oil_processing_path">Dilution</A>
       <A name="FOR">0.0</A>
       <Process class="HeavyOilDilution">
@@ -3564,6 +3580,7 @@
       <A name="API_bitumen">32.0</A>
       <A name="upgrader_type">Delayed coking</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="oil_processing_path">Upgrading</A>
       <A name="FOR">0.0</A>
       <A name="VOR">0.0</A>
@@ -3582,6 +3599,7 @@
       <A name="API">32.0</A>
       <A name="API_bitumen">32.0</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="oil_processing_path">Dilution</A>
       <A name="FOR">0.0</A>
       <A name="VOR">0.0</A>
@@ -3604,6 +3622,7 @@
       <A name="API_bitumen">32.0</A>
       <A name="upgrader_type">Hydroconversion</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="oil_processing_path">Upgrading</A>
       <A name="FOR">0.0</A>
       <A name="VOR">0.0</A>
@@ -3622,6 +3641,7 @@
       <A name="API">32.0</A>
       <A name="API_bitumen">32.0</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="oil_processing_path">Dilution</A>
       <A name="FOR">0.0</A>
       <A name="VOR">0.0</A>
@@ -3644,6 +3664,7 @@
       <A name="API_bitumen">32.0</A>
       <A name="upgrader_type">Combined</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="oil_processing_path">Upgrading</A>
       <A name="FOR">0.0</A>
       <A name="VOR">0.0</A>
@@ -3662,6 +3683,7 @@
       <A name="API">32.0</A>
       <A name="API_bitumen">32.0</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="oil_processing_path">Dilution</A>
       <A name="FOR">0.0</A>
       <A name="VOR">0.0</A>
@@ -5918,6 +5940,7 @@
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">143.0</A>
       <A name="VOR">5.0</A>
       <A name="frac_transport_tanker">1.0</A>
@@ -5977,6 +6000,7 @@
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">143.0</A>
       <A name="VOR">5.0</A>
       <A name="frac_transport_tanker">1.0</A>
@@ -6330,6 +6354,7 @@
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
@@ -6390,6 +6415,7 @@
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
@@ -6450,6 +6476,7 @@
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
@@ -6510,6 +6537,7 @@
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
@@ -6570,6 +6598,7 @@
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
@@ -6630,6 +6659,7 @@
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
@@ -6690,6 +6720,7 @@
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
@@ -6750,6 +6781,7 @@
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
@@ -6810,6 +6842,7 @@
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
@@ -6870,6 +6903,7 @@
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
@@ -6930,6 +6964,7 @@
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
@@ -6990,6 +7025,7 @@
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
@@ -7050,6 +7086,7 @@
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
@@ -7110,6 +7147,7 @@
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
@@ -7170,6 +7208,7 @@
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
@@ -7230,6 +7269,7 @@
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
@@ -7290,6 +7330,7 @@
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
@@ -7350,6 +7391,7 @@
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
@@ -7410,6 +7452,7 @@
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
@@ -7470,6 +7513,7 @@
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
@@ -7530,6 +7574,7 @@
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">1.0</A>
@@ -7891,6 +7936,7 @@
       <A name="API_bitumen">32.0</A>
       <A name="upgrader_type">Delayed coking</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="oil_processing_path">Upgrading</A>
       <A name="FOR">0.0</A>
       <A name="VOR">0.0</A>
@@ -7909,6 +7955,7 @@
       <A name="API">32.0</A>
       <A name="API_bitumen">32.0</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="oil_processing_path">Dilution</A>
       <A name="FOR">0.0</A>
       <A name="VOR">0.0</A>
@@ -7931,6 +7978,7 @@
       <A name="API_bitumen">32.0</A>
       <A name="upgrader_type">Hydroconversion</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="oil_processing_path">Upgrading</A>
       <A name="FOR">0.0</A>
       <A name="VOR">0.0</A>
@@ -7949,6 +7997,7 @@
       <A name="API">32.0</A>
       <A name="API_bitumen">32.0</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="oil_processing_path">Dilution</A>
       <A name="FOR">0.0</A>
       <A name="VOR">0.0</A>
@@ -7971,6 +8020,7 @@
       <A name="API_bitumen">32.0</A>
       <A name="upgrader_type">Combined</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="oil_processing_path">Upgrading</A>
       <A name="FOR">0.0</A>
       <A name="VOR">0.0</A>
@@ -7989,6 +8039,7 @@
       <A name="API">32.0</A>
       <A name="API_bitumen">32.0</A>
       <A name="gas_processing_path">Minimal</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="oil_processing_path">Dilution</A>
       <A name="FOR">0.0</A>
       <A name="VOR">0.0</A>
@@ -8607,6 +8658,7 @@
       <A name="stabilizer_column">1</A>
       <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
       <A name="FOR">182.0</A>
       <A name="VOR">0.0</A>
       <A name="frac_transport_tanker">1.0</A>

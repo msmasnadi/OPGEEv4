@@ -21,17 +21,22 @@ class Venting(Process):
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
+        self.VOR = field.attr("VOR")
+        if self.VOR.m == 0:
+            self.set_enabled(False)
+            return
+
         self.gas = field.gas
         self.pipe_leakage = field.attr("surface_piping_leakage")
         self.gas_lifting = field.attr("gas_lifting")
-        self.VOR = field.attr("VOR")
         self.GOR = field.attr("GOR")
+        self.FOR = field.attr("FOR")
         self.WOR = field.attr("WOR")
         self.GLIR = field.attr("GLIR")
         self.oil_prod = field.attr("oil_prod")
         self.res_press = field.attr("res_press")
         self.water_prod = self.oil_prod * self.WOR
-        self.VOR_over_GOR = self.VOR / self.GOR if self.GOR.m != 0 else ureg.Quantity(0, "frac")
+        self.VOR_over_GOR = self.VOR / (self.GOR - self.FOR) if (self.GOR.m - self.FOR.m) > 0 else ureg.Quantity(0, "frac")
         self.imported_fuel_gas_comp = field.imported_gas_comp["Imported Fuel"]
         self.imported_fuel_gas_mass_fracs = field.gas.component_mass_fractions(self.imported_fuel_gas_comp)
 
@@ -40,8 +45,8 @@ class Venting(Process):
         field = self.field
         # mass rate
 
-        input = self.find_input_stream("gas")
-        if input.is_uninitialized():
+        input = self.find_input_stream("gas for venting", raiseError=False)
+        if input is None or input.is_uninitialized():
             return
 
         input_tp = input.tp

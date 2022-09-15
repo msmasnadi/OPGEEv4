@@ -60,7 +60,7 @@ class GasDehydration(Process):
         field = self.field
 
         # mass rate
-        input = self.find_input_stream("gas")
+        input = self.find_input_stream("gas for gas dehydration")
 
         if input.is_uninitialized():
             return
