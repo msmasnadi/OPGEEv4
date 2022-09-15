@@ -213,6 +213,22 @@ class Model(Container):
         _logger.info(f"Writing '{csvpath}'")
         df.to_csv(csvpath, index=False)
 
+    def save_for_comparison(self, tuples, csvpath):
+        import pandas as pd
+        from opgee.core import magnitude
+
+        df = pd.DataFrame()
+
+        for (field, analysis) in tuples:
+            procs = field.processes()
+            energy_by_proc = {proc.name : magnitude(proc.energy.rates().sum()) for proc in procs}
+            df[field.name] = pd.Series(energy_by_proc)
+
+        df.index.name = 'process'
+        df.sort_index(axis='rows', inplace=True)
+
+        _logger.info(f"Writing '{csvpath}'")
+        df.to_csv(csvpath)
 
     @classmethod
     def from_xml(cls, elt):
