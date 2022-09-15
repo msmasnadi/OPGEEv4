@@ -185,8 +185,7 @@ class Field(Container):
         # TBD: Document the "_after_init" processing order
         for iterator in [self.processes(), self.streams()]:
             for obj in iterator:
-                if obj.enabled:
-                    obj._after_init()
+                obj._after_init()
 
     def __str__(self):
         return f"<Field '{self.name}'>"
@@ -515,7 +514,7 @@ class Field(Container):
 
         :return: (4-tuple of sets of Processes)
         """
-        processes = [proc for proc in self.processes() if proc.is_enabled()]
+        processes = self.processes()
         cycles = self.cycles
 
         procs_in_cycles = set(flatten(cycles)) if cycles else set()
@@ -646,6 +645,16 @@ class Field(Container):
     def processes(self):
         """
         Gets all instances of subclasses of `Process` for this `Field`.
+
+        :return: (iterator of `Process` (subclasses) instances) in this `Field`
+        """
+        procs = [proc for proc in self.all_processes() if proc.is_enabled()]
+        return procs
+
+    def all_processes(self):
+        """
+        Gets all instances of subclasses of `Process` for this `Field`, including
+        disabled Processes.
 
         :return: (iterator of `Process` (subclasses) instances) in this `Field`
         """
@@ -841,7 +850,7 @@ class Field(Container):
         total = Energy()
         processes_to_exclude = processes_to_exclude or []
         for proc in self.processes():
-            if proc.enabled and proc.name not in processes_to_exclude:
+            if proc.name not in processes_to_exclude:
                 total.add_rates_from(proc.energy)
 
         return total
