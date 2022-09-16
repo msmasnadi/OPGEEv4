@@ -10,4 +10,4 @@ def test_gas_branch(configure_logging_for_tests):
 def test_gas_path_2(test_gas_branch):
     analysis = test_gas_branch.get_analysis('test_gas_path_2')
     field = analysis.get_field('test_gas_path_2')
-    field.run(analysis, compute_ci=True, smart_defaults=False)
+    field.run(analysis, compute_ci=True)

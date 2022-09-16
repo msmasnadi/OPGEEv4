@@ -123,13 +123,13 @@ class SmartDefault(OpgeeObject):
         return cls._run_order
 
     @classmethod
-    def apply_defaults(cls, analysis, field):
+    def apply_defaults(cls, field, analysis=None):
         """
         Apply all SmartDefaults for the given ``analysis`` and ``field`` objects,
         in dependency order.
 
-        :param analysis: (opgee.Analysis) The analysis being run.
         :param field: (opgee.Field) The field being run.
+        :param analysis: (opgee.Analysis) The analysis being run.
         :return: none
         """
         for attr_name in cls.run_order():
