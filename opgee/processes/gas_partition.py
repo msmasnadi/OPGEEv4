@@ -80,10 +80,11 @@ class GasPartition(Process):
         if gas_lifting:
             exported_gas.subtract_rates_from(gas_lifting)
 
-        gas_to_reinjection = self.find_output_stream("gas for gas reinjection compressor")
-        if self.natural_gas_reinjection or (self.gas_flooding and self.flood_gas_type == "NG"):
-            gas_to_reinjection.copy_flow_rates_from(exported_gas)
-            gas_to_reinjection.multiply_flow_rates(self.fraction_remaining_gas_inj)
+        gas_to_reinjection = self.find_output_stream("gas for gas reinjection compressor", raiseError=False)
+        if gas_to_reinjection:
+            if self.natural_gas_reinjection or (self.gas_flooding and self.flood_gas_type == "NG"):
+                gas_to_reinjection.copy_flow_rates_from(exported_gas)
+                gas_to_reinjection.multiply_flow_rates(self.fraction_remaining_gas_inj)
 
         # gas_mass_rate = exported_gas.total_gas_rate()
         # gas_mass_energy_density = self.gas.mass_energy_density(exported_gas)

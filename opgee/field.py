@@ -173,6 +173,11 @@ class Field(Container):
         self.resolve_process_choices()  # allows smart defaults to set process choices
         self._check_run_after_procs()       # TBD: write test (also, move call to validate()?
 
+        # TBD: Document the "_after_init" processing order
+        # for iterator in [self.processes(), self.streams()]:
+        for obj in self.processes():
+            obj._after_init()
+
         # we use networkx to reason about the directed graph of Processes (nodes)
         # and Streams (edges).
         self.graph = g = self._connect_processes()
@@ -182,10 +187,7 @@ class Field(Container):
         # if cycles:
         #     _logger.debug(f"Field '{self.name}' has cycles: {cycles}")
 
-        # TBD: Document the "_after_init" processing order
-        for iterator in [self.processes(), self.streams()]:
-            for obj in iterator:
-                obj._after_init()
+
 
     def __str__(self):
         return f"<Field '{self.name}'>"
@@ -213,6 +215,10 @@ class Field(Container):
         start_procs = {p for p in self.processes() if p.impute_start} or {stream.src_proc for stream in start_streams}
 
         start_count = len(start_procs)
+        # No impute
+        if start_count == 0:
+            return
+
         if start_count != 1:
             procs = f": {start_procs}" if start_count else ""
 
@@ -515,12 +521,17 @@ class Field(Container):
         :return: (4-tuple of sets of Processes)
         """
         processes = self.processes()
-        cycles = self.cycles
 
-        procs_in_cycles = set(flatten(cycles)) if cycles else set()
+        enabled_procs_cycles = []
+        for cycle in self.cycles:
+            for proc in cycle:
+                if proc.enabled:
+                    enabled_procs_cycles.append(proc)
+
+        procs_in_cycles = set(enabled_procs_cycles) if enabled_procs_cycles else set()
         cycle_dependent = set()
 
-        if cycles:
+        if enabled_procs_cycles:
             for process in processes:
                 if process not in procs_in_cycles and self._depends_on_cycle(process):
                     cycle_dependent.add(process)
@@ -705,7 +716,7 @@ class Field(Container):
         process = self.process_dict.get(name)
 
         if process is None and raiseError:
-            raise OpgeeException(f"Process named '{name}' was not found in field '{self.name}'")
+            raise OpgeeException(f"Process '{name}' was not found in field '{self.name}'")
 
         return process
 
@@ -818,13 +829,13 @@ class Field(Container):
         #
         # Turn off all processes identified in groups, then turn on those in the selected groups.
         #
+        to_enable = []
         for choice_name, choice in process_choice_dict.items():
             attr = attr_dict.get(choice_name)
             if attr is None:
                 raise OpgeeException(
                     f"ProcessChoice '{choice_name}' has no corresponding attribute in field '{self.name}'")
 
-            to_enable = []
             selected_group_name = attr.value.lower()
 
             for group_name, group in choice.groups_dict.items():
@@ -841,9 +852,9 @@ class Field(Container):
                 for obj in procs + streams:
                     obj.set_enabled(False)
 
-            # enable the chosen procs and streams
-            for obj in to_enable:
-                obj.set_enabled(True)
+        # enable the chosen procs and streams
+        for obj in to_enable:
+            obj.set_enabled(True)
 
     def sum_process_energy(self, processes_to_exclude=None) -> Energy:
 

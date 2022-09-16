@@ -49,39 +49,65 @@
 <!--			<A name="ecosystem_richness">Low carbon</A>-->
 <!--			<A name="field_development_intensity">Low</A>-->
 
-			<A name="downhole_pump">0</A>
-      <A name="water_reinjection">0</A>
-      <A name="natural_gas_reinjection">0</A>
+			<A name="downhole_pump">1</A>
+      <A name="water_reinjection">1</A>
+      <A name="natural_gas_reinjection">1</A>
       <A name="water_flooding">0</A>
       <A name="gas_lifting">0</A>
       <A name="gas_flooding">0</A>
       <A name="steam_flooding">0</A>
-      <A name="oil_sands_mine">Non-integrated with upgrader</A>
-      <A name="country">Canada</A>
-      <A name="name">CNRL Horizon</A>
-      <A name="API">8.0</A>
-      <A name="API_bitumen">8.0</A>
+      <A name="oil_sands_mine">None</A>
+      <A name="country">Generic</A>
+      <A name="name">Generic</A>
+      <A name="age">35.0</A>
+      <A name="depth">7240.0</A>
+      <A name="oil_prod">1500.0</A>
+      <A name="num_prod_wells">8</A>
+      <A name="num_water_inj_wells">5</A>
+      <A name="well_diam">2.78</A>
+      <A name="prod_index">3.0</A>
+      <A name="res_press">1556.6</A>
+      <A name="res_temp">150.0</A>
+      <A name="offshore">0.0</A>
+      <A name="API">30.0</A>
+      <A name="gas_comp_N2">2.0</A>
+      <A name="gas_comp_CO2">6.0</A>
+      <A name="gas_comp_C1">84.0</A>
+      <A name="gas_comp_C2">4.0</A>
+      <A name="gas_comp_C3">2.0</A>
+      <A name="gas_comp_C4">1.0</A>
+      <A name="gas_comp_H2S">1.0</A>
+      <A name="GOR">908.0</A>
+      <A name="WOR">4.31</A>
+      <A name="WIR">5.31</A>
+      <A name="GLIR">1500.0</A>
+      <A name="GFIR">1362.0</A>
+      <A name="flood_gas_type">NG</A>
+      <A name="SOR">3.0</A>
+      <A name="fraction_elec_onsite">0.0</A>
+      <A name="fraction_remaining_gas_inj">1.0</A>
+      <A name="fraction_water_reinjected">1.0</A>
+      <A name="fraction_steam_cogen">0.0</A>
+      <A name="fraction_steam_solar">0.0</A>
       <Process class="CrudeOilDewatering">
         <A name="heater_treater">0</A>
       </Process>
-      <A name="stabilizer_column">0</A>
-      <A name="gas_processing_path">None</A>
-<!--      <A name="common_gas_process_choice">None</A>-->
-      <A name="oil_processing_path">Dilution</A>
-      <A name="FOR">0.0</A>
-      <Process class="HeavyOilDilution">
-        <A name="fraction_diluent">0.3</A>
-      </Process>
-      <A name="frac_transport_tanker">0.0</A>
+      <A name="stabilizer_column">1</A>
+      <A name="upgrader_type">None</A>
+      <A name="gas_processing_path">Sour Gas Reinjection</A>
+      <A name="common_gas_process_choice">None</A>
+      <A name="FOR">182.0</A>
+      <A name="VOR">0.0</A>
+      <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
       <A name="frac_transport_rail">0.0</A>
       <A name="frac_transport_truck">0.0</A>
-      <A name="transport_dist_tanker">0.0</A>
-      <A name="transport_dist_barge">0.0</A>
-      <A name="transport_dist_pipeline">2500.0</A>
-      <A name="transport_dist_rail">0.0</A>
-      <A name="transport_dist_truck">0.0</A>
+      <A name="transport_dist_tanker">5082.0</A>
+      <A name="transport_dist_barge">500.0</A>
+      <A name="transport_dist_pipeline">750.0</A>
+      <A name="transport_dist_rail">800.0</A>
+      <A name="transport_dist_truck">100.0</A>
 		</Field>
 
 	</Analysis>
@@ -128,11 +154,13 @@
 		<ProcessChoice name="gas_processing_path">
 			<ProcessGroup name="None">
 				<ProcessRef name="GasGathering"/>
+				<ProcessRef name="GasPartition"/>
 				<StreamRef name="GasGathering => GasPartition"/>
 			</ProcessGroup>
 			<ProcessGroup name="Minimal">
 				<ProcessRef name="GasGathering"/>
 				<ProcessRef name="GasDehydration"/>
+				<ProcessRef name="GasPartition"/>
 				<StreamRef name="GasGathering => GasDehydration"/>
 				<StreamRef name="GasDehydration => GasPartition"/>
 			</ProcessGroup>
@@ -141,6 +169,7 @@
 				<ProcessRef name="GasDehydration"/>
 				<ProcessRef name="AcidGasRemoval"/>
 				<ProcessRef name="Demethanizer"/>
+				<ProcessRef name="GasPartition"/>
 				<StreamRef name="GasGathering => GasDehydration"/>
 				<StreamRef name="GasDehydration => AcidGasRemoval"/>
 				<StreamRef name="AcidGasRemoval => Demethanizer"/>
@@ -152,6 +181,7 @@
 				<ProcessRef name="GasGathering"/>
 				<ProcessRef name="GasDehydration"/>
 				<ProcessRef name="AcidGasRemoval"/>
+				<ProcessRef name="GasPartition"/>
 				<StreamRef name="GasGathering => GasDehydration"/>
 				<StreamRef name="GasDehydration => AcidGasRemoval"/>
 				<StreamRef name="AcidGasRemoval => GasPartition"/>
@@ -161,6 +191,7 @@
 				<ProcessRef name="GasGathering"/>
 				<ProcessRef name="GasDehydration"/>
 				<ProcessRef name="Demethanizer"/>
+				<ProcessRef name="GasPartition"/>
 				<StreamRef name="GasGathering => GasDehydration"/>
 				<StreamRef name="GasDehydration => Demethanizer"/>
 				<StreamRef name="Demethanizer => GasPartition"/>
@@ -171,6 +202,7 @@
 				<ProcessRef name="GasGathering"/>
 				<ProcessRef name="GasDehydration"/>
 				<ProcessRef name="RyanHolmes"/>
+				<ProcessRef name="GasPartition"/>
 				<ProcessRef name="CO2ReinjectionCompressor"/>
 				<ProcessRef name="CO2InjectionWell"/>
 				<StreamRef name="GasGathering => GasDehydration"/>
@@ -202,6 +234,7 @@
 				<ProcessRef name="CO2ReinjectionCompressor"/>
 				<ProcessRef name="CO2InjectionWell"/>
 				<ProcessRef name="Demethanizer"/>
+				<ProcessRef name="GasPartition"/>
 				<StreamRef name="GasGathering => GasDehydration"/>
 				<StreamRef name="GasDehydration => PreMembraneChiller"/>
 				<StreamRef name="PreMembraneChiller => PreMembraneCompressor"/>
@@ -219,7 +252,6 @@
 
 		<ProcessChoice name="common_gas_process_choice">
 			<ProcessGroup name="All">
-				<ProcessRef name="GasPartition"/>
 				<ProcessRef name="GasLiftingCompressor"/>
 				<ProcessRef name="GasReinjectionCompressor"/>
 				<ProcessRef name="TransmissionCompressor"/>
@@ -234,9 +266,6 @@
 				<ProcessRef name="PostStorageCompressor"/>
 				<ProcessRef name="NGL"/>
 				<StreamRef name="CO2Membrane => CO2ReinjectionCompressor"/>
-				<StreamRef name="GasPartition => GasReinjectionCompressor"/>
-				<StreamRef name="GasPartition => TransmissionCompressor"/>
-				<StreamRef name="GasPartition => ProductionBoundary"/>
 				<StreamRef name="GasLiftingCompressor => DownholePump"/>
 				<StreamRef name="GasReinjectionCompressor => GasReinjectionWell"/>
 				<StreamRef name="transmission gas for storage"/>
@@ -456,6 +485,10 @@
 
 		<Stream src="CrudeOilTransport" dst="TransportationBoundary">
 			<Contains>oil</Contains>
+		</Stream>
+
+		<Stream src="PetrocokeTransport" dst="TransportationBoundary">
+			<Contains>petrocoke</Contains>
 		</Stream>
 
 

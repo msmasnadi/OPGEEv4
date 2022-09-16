@@ -6,6 +6,8 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
+import pint
+
 from . import ureg
 from .analysis import Analysis
 from .container import Container
@@ -166,6 +168,9 @@ class Model(Container):
 
         def partial_ci(obj):
             ghgs = obj.emissions.data.sum(axis='columns')['GHG']
+            if not isinstance(ghgs, pint.Quantity):
+                ghgs = ureg.Quantity(ghgs, "tonne/day")
+
             ci = ghgs / energy
             # convert to g/MJ, but we don't need units in CSV file
             return ci.to("grams/MJ").m

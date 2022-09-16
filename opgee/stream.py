@@ -262,7 +262,7 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     def hydrocarbon_rate(self, phase):
         """
-        Summarize rates for each hydrocarbons
+        Summarize rates for each hydrocarbon
 
         :param phase: (str) the name of a phase of matter ('gas', 'liquid' or 'solid')
         :return: (float) the summation of flow rates of all hydrocarbons
