@@ -544,7 +544,8 @@ class Field(Container):
                 if proc.is_enabled():
                     enabled_procs_cycles.append(proc)
                 else:
-                    _logger.warn(f"Disabled proc {proc} is in a cycle {cycle}")
+                    _logger.debug(f"Disabled proc {proc} is in a cycle {cycle}")
+
 
         procs_in_cycles = set(enabled_procs_cycles)
         cycle_dependent = set()
@@ -664,7 +665,7 @@ class Field(Container):
                 if not dst.is_enabled():
                     disabled.append(dst)
 
-                _logger.warn(f"{s} is connected to disabled processes: {disabled}")
+                _logger.debug(f"{s} is connected to disabled processes: {disabled}")
 
             src.add_output_stream(s)
             dst.add_input_stream(s)
