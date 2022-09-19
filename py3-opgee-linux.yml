@@ -5,6 +5,7 @@ channels:
   - defaults
 dependencies:
   - colour
+  - cython=0.29.30
   - dash>=2.5.1
   - graphviz
   - python-graphviz
