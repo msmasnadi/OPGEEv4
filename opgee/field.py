@@ -104,7 +104,8 @@ class Field(Container):
         self.carbon_intensity = ureg.Quantity(0.0, "g/MJ")
         self.procs_beyond_boundary = None
 
-        self.graph = self.cycles = None
+        self.graph = None
+        self.cycles = None
 
         self.process_data = {}
 
@@ -117,6 +118,7 @@ class Field(Container):
 
         self.import_export = ImportExport()
 
+    # TBD: write test
     def _check_run_after_procs(self):
         """
         For procs tagged 'after="True"', allow outputs only to other "after" procs.
@@ -169,7 +171,10 @@ class Field(Container):
         self.water = Water(self)
         self.steam_generator = SteamGenerator(self)
 
-        SmartDefault.apply_defaults(None, self)
+        # The analysis arg now defaults to None, which means we've lost the ability to
+        # have defaults that depend on Analysis attributes, e.g., "Analysis.gwp_horizon".
+        # TODO: decide whether to give up that feature and drop analysis keyword
+        SmartDefault.apply_defaults(self)
         self.resolve_process_choices()  # allows smart defaults to set process choices
         self._check_run_after_procs()       # TBD: write test (also, move call to validate()?
 
@@ -182,7 +187,12 @@ class Field(Container):
         # and Streams (edges).
         self.graph = g = self._connect_processes()
 
-        self.cycles = cycles = list(nx.simple_cycles(g))
+        self.cycles = list(nx.simple_cycles(g))
+
+        # if self.cycles:
+        #     _logger.debug(f"Field '{self.name}' has cycles: {self.cycles}")
+
+
 
     def __str__(self):
         return f"<Field '{self.name}'>"
@@ -229,14 +239,13 @@ class Field(Container):
             # TODO: shouldn't be possible
             raise OpgeeException("Impute failed due to a process loop. Use Stream attribute impute='0' to break cycle.")
 
-    def run(self, analysis, compute_ci=True, smart_defaults=True):
+    def run(self, analysis, compute_ci=True):
         """
         Run all Processes defined for this Field, in the order computed from the graph
         characteristics, using the settings in `analysis` (e.g., GWP).
 
         :param analysis: (Analysis) the `Analysis` to use for analysis-specific settings.
         :param compute_ci: (bool) if False, CI calculation is not performed (used by some tests)
-        :param smart_defaults: (bool) if False, don't run smart defaults. (For testing only.)
         :return: None
         """
         if self.is_enabled():
@@ -248,10 +257,6 @@ class Field(Container):
             self.procs_beyond_boundary = boundary_proc.beyond_boundary()
 
             self.reset()
-            # if smart_defaults:
-            #     SmartDefault.apply_defaults(analysis, self)
-            #     self.resolve_process_choices()  # allows smart defaults to set process choices
-
             self._impute()
             self.reset_iteration()
             self.run_processes(analysis)
@@ -280,9 +285,9 @@ class Field(Container):
 
     def reset_streams(self):
         for stream in self.streams():
-            # If a stream is disabled, leave it so. Otherwise disable it if either of
-            # its source or destination processes is disabled.
-            if stream.enabled and not (stream.src_proc.enabled and stream.dst_proc.enabled):
+            # If a stream is disabled, leave it so. (self.streams() returns only enabled streams.)
+            # Otherwise disable it if either of its source or destination processes is disabled.
+            if not (stream.src_proc.enabled and stream.dst_proc.enabled):
                 stream.set_enabled(False)
 
             stream.reset()
@@ -430,6 +435,11 @@ class Field(Container):
         # Accumulate error msgs so user can correct them all at once.
         msgs = []
 
+        try:
+            self._check_run_after_procs()
+        except OpgeeException as e:
+            msgs.append(str(e))
+
         for proc in self.boundary_processes():
             # Cycles cannot span the current boundary. Test this by checking that the boundary
             # proc is not in any cycle. (N.B. __init__ evaluates and stores cycles.)
@@ -493,6 +503,15 @@ class Field(Container):
         return any([process in cycle for cycle in self.cycles])
 
     def _depends_on_cycle(self, process, visited=None):
+        """
+        Walk backwards (via input streams) and see if we encounter any
+        node more than once, in which case ``process`` depends on a cycle.
+
+        :param process: (opgee.Process) the Process that may depend on cycles.
+        :param visited: (set) the Processes we've already encountered in our search.
+        :return: (bool) True if ``process`` depends on any cycle, False otherwise.
+        """
+
         visited = visited or set()
 
         for predecessor in process.predecessors():
@@ -517,13 +536,19 @@ class Field(Container):
         """
         processes = self.processes()
 
+        # TODO: Wennan, I think the better fix here is to ensure that there are
+        #   no disabled process in cycles.
+
         enabled_procs_cycles = []
         for cycle in self.cycles:
             for proc in cycle:
-                if proc.enabled:
+                if proc.is_enabled():
                     enabled_procs_cycles.append(proc)
+                else:
+                    _logger.debug(f"Disabled proc {proc} is in a cycle {cycle}")
 
-        procs_in_cycles = set(enabled_procs_cycles) if enabled_procs_cycles else set()
+
+        procs_in_cycles = set(enabled_procs_cycles)
         cycle_dependent = set()
 
         if enabled_procs_cycles:
@@ -632,6 +657,16 @@ class Field(Container):
         for s in self.streams():
             s.src_proc = src = self.find_process(s.src_name)
             s.dst_proc = dst = self.find_process(s.dst_name)
+
+            if not (src.is_enabled() and dst.is_enabled()):
+                disabled = []
+                if not src.is_enabled():
+                    disabled.append(src)
+
+                if not dst.is_enabled():
+                    disabled.append(dst)
+
+                _logger.debug(f"{s} is connected to disabled processes: {disabled}")
 
             src.add_output_stream(s)
             dst.add_input_stream(s)

@@ -222,13 +222,14 @@ class Model(Container):
         import pandas as pd
         from opgee.core import magnitude
 
-        df = pd.DataFrame()
-
+        cols = []
         for (field, analysis) in tuples:
             procs = field.processes()
             energy_by_proc = {proc.name : magnitude(proc.energy.rates().sum()) for proc in procs}
-            df[field.name] = pd.Series(energy_by_proc)
+            s = pd.Series(energy_by_proc, name=field.name)
+            cols.append(s)
 
+        df = pd.concat(cols, axis='columns')
         df.index.name = 'process'
         df.sort_index(axis='rows', inplace=True)
 

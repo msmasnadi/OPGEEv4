@@ -34,9 +34,9 @@ def test_parsing(gas_paths):
     proc_names, stream_names = acid_gas.process_and_stream_refs()
     assert set(stream_names) == {'AcidGasRemoval => GasPartition',
                                  'GasDehydration => AcidGasRemoval',
-                                 'GasGathering => GasDehydration'} and set(proc_names) == {'GasDehydration',
-                                                                                           'GasGathering',
-                                                                                           'AcidGasRemoval'}
+                                 'GasGathering => GasDehydration'}
+
+    assert set(proc_names) == {'GasDehydration', 'GasGathering', 'AcidGasRemoval'}
 
 
 def test_missing_group(gas_paths):
