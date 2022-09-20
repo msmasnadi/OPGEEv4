@@ -26,9 +26,9 @@ class LNGTransport(Process):
         super()._after_init()
         self.field = field = self.get_field()
         self.gas = field.gas
-        self.transport_share_fuel = field.transport_share_fuel.loc["LNG"]
-        self.transport_parameter = field.transport_parameter[["LNG", "Units"]]
-        self.transport_by_mode = field.transport_by_mode.loc["LNG"]
+        self.transport_share_fuel = self.model.transport_share_fuel.loc["LNG"]
+        self.transport_parameter = self.model.transport_parameter[["LNG", "Units"]]
+        self.transport_by_mode = self.model.transport_by_mode.loc["LNG"]
 
     def run(self, analysis):
         self.print_running_msg()

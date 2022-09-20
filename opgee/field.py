@@ -155,9 +155,9 @@ class Field(Container):
         # TODO: It's good practice to declare all instance vars in __init__ (set to None perhaps)
         #       other programmers (and PyCharm) recognize them as proper instance variables and
         #       not random values set in other methods.
-        self.transport_share_fuel = model.transport_share_fuel
-        self.transport_parameter = model.transport_parameter
-        self.transport_by_mode = model.transport_by_mode
+        # self.transport_share_fuel = model.transport_share_fuel
+        # self.transport_parameter = model.transport_parameter
+        # self.transport_by_mode = model.transport_by_mode
         self.upstream_CI = model.upstream_CI
         self.vertical_drill_df = model.vertical_drill_df
         self.horizontal_drill_df = model.horizontal_drill_df
@@ -183,11 +183,6 @@ class Field(Container):
         self.graph = g = self._connect_processes()
 
         self.cycles = cycles = list(nx.simple_cycles(g))
-
-        # if cycles:
-        #     _logger.debug(f"Field '{self.name}' has cycles: {cycles}")
-
-
 
     def __str__(self):
         return f"<Field '{self.name}'>"

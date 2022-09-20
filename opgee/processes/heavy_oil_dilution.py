@@ -47,9 +47,9 @@ class HeavyOilDilution(Process):
         self.final_mix_tp = TemperaturePressure(self.attr("final_mix_temp"),
                                                 self.attr("final_mix_press"))
 
-        self.transport_share_fuel = field.transport_share_fuel.loc["Diluent"]
-        self.transport_parameter = field.transport_parameter[["Diluent", "Units"]]
-        self.transport_by_mode = field.transport_by_mode.loc["Diluent"]
+        self.transport_share_fuel = self.model.transport_share_fuel.loc["Diluent"]
+        self.transport_parameter = self.model.transport_parameter[["Diluent", "Units"]]
+        self.transport_by_mode = self.model.transport_by_mode.loc["Diluent"]
 
     def run(self, analysis):
         self.print_running_msg()

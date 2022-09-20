@@ -52,8 +52,8 @@ class Exploration(Process):
              self.horizontal_drill_energy_intensity * self.frac_wells_horizontal * self.length_lateral) * self.num_wells
         self.drill_energy_consumption = field.model.const("diesel-LHV") * self.drill_fuel_consumption
 
-        self.transport_share_fuel = field.transport_share_fuel.loc["Crude"]
-        self.transport_parameter = field.transport_parameter[["Crude", "Units"]]
+        self.transport_share_fuel = self.model.transport_share_fuel.loc["Crude"]
+        self.transport_parameter = self.model.transport_parameter[["Crude", "Units"]]
         self.frac_transport_mode = field.attrs_with_prefix("frac_transport_").rename("Fraction")
         self.transport_dist = field.attrs_with_prefix("transport_dist_").rename("Distance")
         self.transport_by_mode = self.frac_transport_mode.to_frame().join(self.transport_dist)

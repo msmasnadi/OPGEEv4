@@ -26,9 +26,9 @@ class PetrocokeTransport(Process):
         super()._after_init()
         self.field = field = self.get_field()
         self.oil = field.oil
-        self.transport_share_fuel = field.transport_share_fuel.loc["Petrocoke"]
-        self.transport_parameter = field.transport_parameter[["Petrocoke", "Units"]]
-        self.transport_by_mode = field.transport_by_mode.loc["Petrocoke"]
+        self.transport_share_fuel = self.model.transport_share_fuel.loc["Petrocoke"]
+        self.transport_parameter = self.model.transport_parameter[["Petrocoke", "Units"]]
+        self.transport_by_mode = self.model.transport_by_mode.loc["Petrocoke"]
         self.petro_coke_heating_value = self.model.const("petrocoke-heating-value")
 
     def run(self, analysis):
