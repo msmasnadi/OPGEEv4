@@ -8,14 +8,14 @@
 #
 from .shared import get_init_lifting_stream
 from .. import ureg
+from ..combine_streams import combine_streams
 from ..core import STP
+from ..core import TemperaturePressure
+from ..error import OpgeeException
+from ..import_export import N2, CO2_Flooding, NATURAL_GAS
 from ..log import getLogger
 from ..process import Process
 from ..stream import PHASE_GAS, Stream
-from ..error import OpgeeException
-from ..core import TemperaturePressure
-from ..import_export import N2, CO2_Flooding, NATURAL_GAS
-from ..combine_streams import combine_streams
 
 _logger = getLogger(__name__)
 

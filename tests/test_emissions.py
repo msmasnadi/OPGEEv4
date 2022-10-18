@@ -11,6 +11,7 @@ def test_set_rate():
     e.set_rate(EM_FUGITIVES, 'CO2', rate)
     assert e.data.loc['CO2', EM_FUGITIVES] == rate
 
+
 def test_set_rate_error():
     """Test that an unknown gas name throws an EmissionsError"""
     e = Emissions()
@@ -24,6 +25,7 @@ def emissions_of_two_gases():
     e = Emissions()
     e.set_rates(EM_LAND_USE, CO2=123.45, N2O=45.6)
     return e.data
+
 
 @pytest.mark.parametrize(
     "gas,rate", [('CO2', 123.45), ('N2O', 45.6), ('CO', 0.0), ('CH4', 0.0), ('VOC', 0.0)]
@@ -39,6 +41,7 @@ def test_set_rates_error1():
     with pytest.raises(EmissionsError, match=r".*Unrecognized gas*"):
         e.set_rates(EM_FLARING, H2O=123.45)
 
+
 def test_set_rates_error2():
     """Test that an unknown category name throws an EmissionsError"""
     e = Emissions()
@@ -53,13 +56,14 @@ def emissions_for_gwp():
     e.set_rates(EM_FLARING, CO2=1000, N2O=10, CH4=2, CO=1, VOC=1)
     return e
 
+
 @pytest.mark.parametrize(
     "gwp_horizon, gwp_version, expected",
-    [(20,  'AR4',     1000 + 10 * 289 + 2 * 72 + 7.65 + 14),
-     (20,  'AR5',     1000 + 10 * 264 + 2 * 84 + 7.65 + 14),
-     (20,  'AR5_CCF', 1000 + 10 * 298 + 2 * 86 + 18.6 + 14),
-     (100, 'AR4',     1000 + 10 * 298 + 2 * 25 +  1.6 + 3.1),
-     (100, 'AR5',     1000 + 10 * 265 + 2 * 28 +  2.7 + 4.5),
+    [(20, 'AR4', 1000 + 10 * 289 + 2 * 72 + 7.65 + 14),
+     (20, 'AR5', 1000 + 10 * 264 + 2 * 84 + 7.65 + 14),
+     (20, 'AR5_CCF', 1000 + 10 * 298 + 2 * 86 + 18.6 + 14),
+     (100, 'AR4', 1000 + 10 * 298 + 2 * 25 + 1.6 + 3.1),
+     (100, 'AR5', 1000 + 10 * 265 + 2 * 28 + 2.7 + 4.5),
      ]
 )
 def test_gwp(test_model, emissions_for_gwp, gwp_horizon, gwp_version, expected):
@@ -72,16 +76,19 @@ def test_gwp(test_model, emissions_for_gwp, gwp_horizon, gwp_version, expected):
     # check that original rates are unchanged
     assert all(rates == original_rates)
 
-    #print(f"GHG for ({gwp_horizon}, {gwp_version} => {ghg}")
+    # print(f"GHG for ({gwp_horizon}, {gwp_version} => {ghg}")
     assert rates.loc['GHG', EM_FLARING] == ureg.Quantity(pytest.approx(expected), 'tonne/day')
+
 
 def test_use_GWP_error(test_model):
     with pytest.raises(OpgeeException, match=r".*GWP version must be one of*"):
         analysis = test_model.get_analysis('test')
         analysis.use_GWP(20, 'AR4_CCF')
 
+
 def test_units():
     Emissions._units == ureg.Unit("tonne/day")
+
 
 def test_add_from_series():
     em = Emissions()

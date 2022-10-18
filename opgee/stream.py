@@ -374,11 +374,11 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     def set_rates_from_series(self, series, phase, upper_bound_stream=None):
         """
-        set rates from pandas series given phase
+        set rates from pandas series given phase given the upper bound stream
 
         :param series:
         :param phase:
-        :param upper_bound_stream:
+        :param upper_bound_stream: (Stream) the result stream's component rate cannot exceed the component rate from this stream
         :return:
         """
         self.initialized = True
