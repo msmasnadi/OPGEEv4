@@ -28,7 +28,6 @@ class RyanHolmes(Process):
 
     def run(self, analysis):
         self.print_running_msg()
-        field = self.field
 
         # mass rate
         input = self.find_input_stream("gas for Ryan Holmes")
@@ -82,7 +81,6 @@ class RyanHolmes(Process):
         energy_use.set_rate(EN_DIESEL, diesel_energy_consumption)
 
         # import/export
-        # import_product = field.import_export
         self.set_import_from_energy(energy_use)
 
         # emissions

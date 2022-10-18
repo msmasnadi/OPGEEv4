@@ -20,11 +20,9 @@ class SourGasInjection(Process):
 
     def run(self, analysis):
         self.print_running_msg()
-        field = self.field
 
         # mass rate
         input = self.find_input_stream("gas for sour gas injection")
-
         if input.is_uninitialized():
             return
 

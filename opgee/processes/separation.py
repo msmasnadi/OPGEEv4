@@ -70,12 +70,7 @@ class Separation(Process):
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
-        gas_after = self.find_output_stream("gas for flaring", raiseError=False)
-        if gas_after is None:
-            gas_after = self.find_output_stream("gas for venting", raiseError=False)
-            if gas_after is None:
-                gas_after = self.find_output_stream("gas for gas gathering")
-
+        gas_after = self.find_output_stream("gas for partition")
         gas_after.copy_gas_rates_from(input)
         gas_after.subtract_rates_from(gas_fugitives)
 
@@ -99,7 +94,6 @@ class Separation(Process):
         energy_use.set_rate(energy_carrier, energy_consumption_sum)
 
         # import/export
-        # import_product = field.import_export
         self.set_import_from_energy(energy_use)
 
         # emission rate
@@ -142,11 +136,7 @@ class Separation(Process):
         gas = field.gas
         std_tp = field.stp
 
-        gas_after = self.find_output_stream("gas for flaring", raiseError=False)
-        if gas_after is None:
-            gas_after = self.find_output_stream("gas for venting", raiseError=False)
-            if gas_after is None:
-                gas_after = self.find_output_stream("gas for gas gathering")
+        gas_after = self.find_output_stream("gas for partition")
 
         last = self.num_of_stages - 1
         stream = Stream("stage_stream", TemperaturePressure(temperature_of_stages[last],

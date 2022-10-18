@@ -50,42 +50,41 @@
 <!--			<A name="field_development_intensity">Low</A>-->
 
 			<A name="downhole_pump">1</A>
-      <A name="water_reinjection">1</A>
+      <A name="water_reinjection">0</A>
       <A name="natural_gas_reinjection">1</A>
       <A name="water_flooding">0</A>
       <A name="gas_lifting">0</A>
       <A name="gas_flooding">0</A>
       <A name="steam_flooding">0</A>
       <A name="oil_sands_mine">None</A>
-      <A name="country">Generic</A>
-      <A name="name">Generic</A>
-      <A name="age">35.0</A>
-      <A name="depth">7240.0</A>
-      <A name="oil_prod">1500.0</A>
-      <A name="num_prod_wells">8</A>
-      <A name="num_water_inj_wells">5</A>
-      <A name="well_diam">2.78</A>
-      <A name="prod_index">3.0</A>
-      <A name="res_press">1556.6</A>
-      <A name="res_temp">150.0</A>
+      <A name="country">Algeria</A>
+      <A name="name">Hassi R'Mel</A>
+      <A name="age">48.0</A>
+      <A name="depth">7309.0</A>
+      <A name="oil_prod">180000.0</A>
+      <A name="num_prod_wells">160</A>
+      <A name="num_water_inj_wells">133</A>
+      <A name="well_diam">3.28</A>
+      <A name="prod_index">6.8</A>
+      <A name="res_press">5874.0</A>
+      <A name="res_temp">202.0</A>
       <A name="offshore">0.0</A>
-      <A name="API">30.0</A>
-      <A name="gas_comp_N2">2.0</A>
-      <A name="gas_comp_CO2">6.0</A>
-      <A name="gas_comp_C1">84.0</A>
-      <A name="gas_comp_C2">4.0</A>
-      <A name="gas_comp_C3">2.0</A>
-      <A name="gas_comp_C4">1.0</A>
-      <A name="gas_comp_H2S">1.0</A>
-      <A name="GOR">908.0</A>
-      <A name="WOR">4.31</A>
-      <A name="WIR">5.31</A>
-      <A name="GLIR">1500.0</A>
-      <A name="GFIR">1362.0</A>
-      <A name="flood_gas_type">NG</A>
-      <A name="SOR">3.0</A>
+      <A name="API">66.64</A>
+      <A name="gas_comp_N2">2.86</A>
+      <A name="gas_comp_CO2">0.33</A>
+      <A name="gas_comp_C1">89.18</A>
+      <A name="gas_comp_C2">5.3</A>
+      <A name="gas_comp_C3">1.62</A>
+      <A name="gas_comp_C4">0.71</A>
+      <A name="gas_comp_H2S">0.0</A>
+      <A name="GOR">30503.0</A>
+      <A name="WOR">8.7</A>
+      <A name="WIR">9.7</A>
+      <A name="GLIR">363.8</A>
+      <A name="GFIR">45754.5</A>
+      <A name="SOR">0.0</A>
       <A name="fraction_elec_onsite">0.0</A>
-      <A name="fraction_remaining_gas_inj">1.0</A>
+      <A name="fraction_remaining_gas_inj">0.5</A>
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
       <A name="fraction_steam_solar">0.0</A>
@@ -93,20 +92,20 @@
         <A name="heater_treater">0</A>
       </Process>
       <A name="stabilizer_column">1</A>
-      <A name="upgrader_type">None</A>
-      <A name="gas_processing_path">Sour Gas Reinjection</A>
-      <A name="common_gas_process_choice">None</A>
-      <A name="FOR">182.0</A>
+      <A name="FOR">568.39</A>
       <A name="VOR">0.0</A>
+      <Process class="HeavyOilDilution">
+        <A name="fraction_diluent">0.0</A>
+      </Process>
       <A name="frac_transport_tanker">1.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
       <A name="frac_transport_rail">0.0</A>
       <A name="frac_transport_truck">0.0</A>
-      <A name="transport_dist_tanker">5082.0</A>
-      <A name="transport_dist_barge">500.0</A>
-      <A name="transport_dist_pipeline">750.0</A>
-      <A name="transport_dist_rail">800.0</A>
+      <A name="transport_dist_tanker">5762.42</A>
+      <A name="transport_dist_barge">0.0</A>
+      <A name="transport_dist_pipeline">315.0</A>
+      <A name="transport_dist_rail">0.0</A>
       <A name="transport_dist_truck">100.0</A>
 		</Field>
 
@@ -241,7 +240,6 @@
 				<StreamRef name="PreMembraneCompressor => CO2Membrane"/>
 				<StreamRef name="CO2Membrane => AcidGasRemoval"/>
 				<StreamRef name="CO2Membrane => CO2ReinjectionCompressor"/>
-				<StreamRef name="CO2Membrane => CO2ReinjectionCompressor"/>
 				<StreamRef name="CO2ReinjectionCompressor => CO2InjectionWell"/>
 				<StreamRef name="CO2InjectionWell => ReservoirWellInterface"/>
 				<StreamRef name="AcidGasRemoval => Demethanizer"/>
@@ -335,6 +333,7 @@
 			<Process class="HeavyOilUpgrading"/>
 			<Process class="GasGathering"/>
 			<Process class="GasPartition"/>
+			<Process class="VFPartition"/>
 			<Process class="GasDehydration"/>
 			<Process class="AcidGasRemoval"/>
 			<Process class="Demethanizer"/>
@@ -390,12 +389,8 @@
 			<Contains>water</Contains>
 		</Stream>
 
-		<Stream src="Separation" dst="Flaring">
-			<Contains>gas for flaring</Contains>
-		</Stream>
-
-		<Stream src="Separation" dst="Venting">
-			<Contains>gas for venting</Contains>
+		<Stream src="Separation" dst="VFPartition">
+			<Contains>gas for partition</Contains>
 		</Stream>
 
 		<Stream src="Separation" dst="GasGathering">
@@ -447,20 +442,16 @@
 			<Contains>gas for VRU</Contains>
 		</Stream>
 
-		<Stream src="HeavyOilUpgrading" dst="Flaring">
-			<Contains>gas for flaring</Contains>
+		<Stream src="HeavyOilUpgrading" dst="VFPartition">
+			<Contains>gas for partition</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilStorage" dst="Flaring">
-			<Contains>gas for flaring</Contains>
+		<Stream src="CrudeOilStorage" dst="VFPartition">
+			<Contains>gas for partition</Contains>
 		</Stream>
 
-		<Stream src="BitumenMining" dst="Flaring">
-			<Contains>gas for flaring</Contains>
-		</Stream>
-
-		<Stream src="BitumenMining" dst="VRUCompressor">
-			<Contains>gas for VRU</Contains>
+		<Stream src="BitumenMining" dst="VFPartition">
+			<Contains>gas for partition</Contains>
 		</Stream>
 
 		<Stream src="HeavyOilUpgrading" dst="CrudeOilStorage">
@@ -526,12 +517,17 @@
 
 
 <!--		gas processing path-->
-		<Stream src="Flaring" dst="Venting">
-			<Contains>gas for venting</Contains>
+
+		<Stream src="VFPartition" dst="Flaring" name="gas for flaring">
+			<Contains>gas for flaring</Contains>
 		</Stream>
 
-		<Stream src="Flaring" dst="GasGathering">
-			<Contains>gas for gas gathering</Contains>
+		<Stream src="VFPartition" dst="Flaring" name="methane slip">
+			<Contains>methane slip</Contains>
+		</Stream>
+
+		<Stream src="VFPartition" dst="Venting">
+			<Contains>gas for venting</Contains>
 		</Stream>
 
 		<Stream src="Venting" dst="GasGathering">

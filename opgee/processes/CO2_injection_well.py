@@ -16,15 +16,12 @@ _logger = getLogger(__name__)
 class CO2InjectionWell(Process):
     def _after_init(self):
         super()._after_init()
-        self.field = field = self.get_field()
 
     def run(self, analysis):
         self.print_running_msg()
-        field = self.field
 
         # mass rate
         input = self.find_input_stream("gas for CO2 injection well")
-
         if input.is_uninitialized():
             return
 

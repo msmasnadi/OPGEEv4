@@ -164,7 +164,7 @@
         <Option>Hydroconversion</Option>
         <Option desc="Combined hydroconversion and fluid coking">Combined</Option>
       </Options>
-      <Options name="gas_processing_path" default="Acid Wet Gas">
+      <Options name="gas_processing_path" default="Minimal">
         <Option desc="">None</Option>
         <Option desc="Dehydrator">Minimal</Option>
         <Option desc="Dehydrator + Amine Process">Acid Gas</Option>
@@ -188,7 +188,7 @@
       <AttrDef name="upgrader_type" desc="Upgrader type" options="upgrader_type" type="str"/>
       <AttrDef name="gas_processing_path" desc="Associated gas processing path" options="gas_processing_path" type="str"/>
       <AttrDef name="common_gas_process_choice" desc="Processes common to all gas pathways" options="common_gas_processes" type="str"/>
-      <AttrDef name="FOR" unit="scf/bbl_oil" desc="Ratio of flaring to oil production" type="float">141.3</AttrDef>  <!-- TODO: in Excel, this references Flaring!M49, which is computed -->
+      <AttrDef name="FOR" unit="scf/bbl_oil" desc="Ratio of flaring to oil production" type="float">141.3</AttrDef>  <!-- TODO: Add smart default value using Zhang's lookup table -->
       <AttrDef name="VOR" unit="scf/bbl_oil" desc="Ratio of venting to oil production" type="float">5.0</AttrDef>
       <AttrDef name="oil_processing_path" desc="Associated oil processing path" options="oil_processing_path" type="str"/>
       <AttrDef name="temperature_mined_bitumen" desc="Mined bitumen temperature" type="float" unit="degF">80.0</AttrDef>
@@ -357,21 +357,6 @@
 
       <AttrDef name="reflux_ratio" type="float" unit="frac" desc="gas dehydration reflux ratio">2.25</AttrDef>
       <AttrDef name="regeneration_feed_temp" type="float" unit="degF" desc="gas dehydration regeneration feed temperature">200.0</AttrDef>
-
-      <AttrDef name="chiller_outlet_temp" type="float" unit="degF" desc="pre membrane chiller outlet temperature">35.0</AttrDef>
-      <AttrDef name="fug_emissions_chiller" type="float" unit="percent" desc="pre membrane chiller fugitive emissions rate">0.0</AttrDef>
-      <AttrDef name="feed_press_AGR" type="float" unit="psia">500.0</AttrDef>
-
-      <Options name="amine_solution" default="conv DEA">
-        <Option>conv DEA</Option>
-        <Option>high DEA</Option>
-        <Option>MEA</Option>
-        <Option>DGA</Option>
-        <Option>MDEA</Option>
-      </Options>
-      <AttrDef name="type_amine_AGR" type="str" options="amine_solution">conv DEA</AttrDef>
-      <AttrDef name="ratio_reflux_reboiler_AGR" type="float" unit="frac" desc="Reflux ratio in reboiler">2.0</AttrDef>
-      <AttrDef name="regeneration_AGR_temp" type="float" unit="degF" desc="Regeneration feed temperature">205.0</AttrDef>
       <AttrDef name="natural_gas_to_liquefaction_frac" type="float" unit="frac" desc="Fraction of natural gas to liquefaction">0.5</AttrDef>
 
 
@@ -631,17 +616,30 @@
     </ClassAttrs>
 
     <ClassAttrs name="AcidGasRemoval">
-      <AttrDef name="eta_reboiler_AGR" type="float" unit="frac" desc="AGR reboiler Gas-fired heater fuel use">1.25</AttrDef>
+      <Options name="amine_solution" default="MDEA">
+        <Option>conv DEA</Option>
+        <Option>high DEA</Option>
+        <Option>MEA</Option>
+        <Option>DGA</Option>
+        <Option>MDEA</Option>
+      </Options>
+
+      <Options name="prime_mover_type" default="NG_engine">
+        <Option>NG_engine</Option>
+        <Option>Electric_motor</Option>
+      </Options>
+
+      <AttrDef name="eta_reboiler" type="float" unit="frac" desc="AGR reboiler Gas-fired heater fuel use">1.25</AttrDef>
       <AttrDef name="air_cooler_delta_T" type="float" unit="delta_degF" desc="AGR air cooler delta T, air side">40.0</AttrDef>
       <AttrDef name="air_cooler_fan_eff" type="float" unit="percent" desc="AGR air cooler fan efficiency">70.0</AttrDef>
       <AttrDef name="air_cooler_press_drop" type="float" unit="inch" desc="AGR air cooler pressure drop">0.6</AttrDef>
       <AttrDef name="air_cooler_speed_reducer_eff" type="float" unit="percent" desc="AGR air cooler speed reducer efficiency">92.0</AttrDef>
       <AttrDef name="eta_compressor" type="float" unit="frac" desc="AGR compressor efficiency">75.0</AttrDef>
-      <Options name="prime_mover_type" default="Electric_motor">
-        <Option>NG_engine</Option>
-        <Option>Electric_motor</Option>
-      </Options>
-      <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">Electric_motor</AttrDef>
+      <AttrDef name="feed_press" type="float" unit="psia">500.0</AttrDef>
+      <AttrDef name="type_amine" type="str" options="amine_solution">MDEA</AttrDef>
+      <AttrDef name="ratio_reflux_reboiler" type="float" unit="frac" desc="Reflux ratio in reboiler">7.0</AttrDef>
+      <AttrDef name="regeneration_temp" type="float" unit="degF" desc="Regeneration feed temperature">205.0</AttrDef>
+      <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
     </ClassAttrs>
 
     <ClassAttrs name="PreMembraneCompressor">
@@ -656,8 +654,22 @@
       <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
     </ClassAttrs>
 
+    <ClassAttrs name="PreMembraneChiller">
+      <AttrDef name="chiller_outlet_temp" type="float" unit="degF" desc="pre membrane chiller outlet temperature">35.0</AttrDef>
+    </ClassAttrs>
+
     <ClassAttrs name="RyanHolmes">
       <AttrDef name="daily_use_engine" type="float" unit="hr/day" desc="Backup diesel engine daily usage">2.63</AttrDef>
+    </ClassAttrs>
+
+    <ClassAttrs name="CO2Membrane">
+      <AttrDef name="eta_compressor" type="float" unit="percent" desc="sour gas injection compressor efficiency">75.0</AttrDef>
+      <Options name="prime_mover_type" default="NG_engine">
+        <Option>NG_engine</Option>
+        <Option>Electric_motor</Option>
+      </Options>
+      <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
+      <AttrDef name="press_drop_across_membrane" type="float" unit="psia" desc="presssure drop across the membrane">150.0</AttrDef>
     </ClassAttrs>
 
     <ClassAttrs name="CO2ReinjectionCompressor">
@@ -680,7 +692,7 @@
 
     <ClassAttrs name="Demethanizer">
       <AttrDef name="feed_press_demethanizer" type="float" unit="psia" desc="desired pressure for demethanizer reaction">600.0</AttrDef>
-      <AttrDef name="colume_pressure" type="float" unit="psia" desc="Demethanizer column pressure">240.0</AttrDef>
+      <AttrDef name="column_pressure" type="float" unit="psia" desc="Demethanizer column pressure">240.0</AttrDef>
       <AttrDef name="methane_to_NLG_ratio" type="float" unit="frac" desc="methane to ethane NGL composition molar ratio at NGL product stream">0.03</AttrDef>
       <AttrDef name="eta_reboiler_demethanizer" type="float" unit="frac" desc="Reboiler gas-fired heater fuel use">1.25</AttrDef>
       <AttrDef name="air_cooler_delta_T" type="float" unit="delta_degF" desc="AGR air cooler delta T, air side">40.0</AttrDef>
@@ -736,12 +748,23 @@
 
       <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
       <AttrDef name="eta_compressor" type="float" unit="percent" desc="gas reinjection compressor efficiency">75.0</AttrDef>
+
+    </ClassAttrs>
+
+    <ClassAttrs name="GasPartition">
+      <Options name="CO2_source_options" default="Natural subsurface reservoir">
+        <Option>Natural subsurface reservoir</Option>
+        <Option>Anthropogenic</Option>
+      </Options>
       <AttrDef name="N2_flooding_temp" type="float" unit="degF" desc="nitrogen flooding temperature">197.0</AttrDef>
       <AttrDef name="C1_flooding_temp" type="float" unit="degF" desc="methane flooding temperature">60</AttrDef>
       <AttrDef name="N2_flooding_press" type="float" unit="psia" desc="nitrogen flooding pressure">125.0</AttrDef>
       <AttrDef name="C1_flooding_press" type="float" unit="psia" desc="methane flooding pressure">600</AttrDef>
       <AttrDef name="CO2_flooding_temp" type="float" unit="degF" desc="CO2 flooding temperature">60</AttrDef>
       <AttrDef name="CO2_flooding_press" type="float" unit="psia" desc="CO2 flooding pressure">600.0</AttrDef>
+      <AttrDef name="CO2_source" type="str" options="CO2_source_options">Natural subsurface reservoir</AttrDef>
+      <AttrDef name="impurity_CH4_in_CO2" type="float" unit="frac" desc="Impurity CH4 in CO2 from natural source domes">0.03</AttrDef>
+      <AttrDef name="impurity_N2_in_CO2" type="float" unit="frac" desc="Impurity N2 in CO2 from CO2 capture plants">0.03</AttrDef>
 
     </ClassAttrs>
 

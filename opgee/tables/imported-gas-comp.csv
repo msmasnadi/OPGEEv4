@@ -1,4 +1,4 @@
-,Imported Fuel,Processed Produced Gas,Air,Gas Flooding,Membrane Separation Gas,Upgrader Gas,Storage Gas
+,Imported Fuel,Processed Produced Gas,Air,NG Flooding,Membrane Separation Gas,Upgrader Gas,Storage Gas
 ,mol_pct,mol_pct,mol_pct,mol_pct,mol_pct,mol_pct,mol_pct
 N2,0.4,0.4,77.4396,2,42,0,0
 O2,0,0,20.531,0,0,0,0

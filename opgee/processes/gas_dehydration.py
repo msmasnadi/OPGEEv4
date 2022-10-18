@@ -8,7 +8,7 @@
 #
 import numpy as np
 
-from .shared import get_energy_consumption
+from .shared import get_energy_consumption, get_bounded_value, predict_blower_energy_use
 from .. import ureg
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY
@@ -19,6 +19,13 @@ from ..process import run_corr_eqns
 from ..thermodynamics import ChemicalInfo
 
 _logger = getLogger(__name__)
+
+# Input values for variable getting from HYSYS
+variable_bound_dict = {"feed_gas_press": [14.7, 1014.7],  # unit in psia
+                       "feed_gas_temp": [80.0, 100.0],  # unit in degree F
+                       "water_content_volume": [0.0005, 0.005],
+                       "reflux_ratio": [1.5, 3.0],
+                       "regeneration_feed_temp": [190.0, 200.0]}  # unit in degree F
 
 
 class GasDehydration(Process):
@@ -46,7 +53,6 @@ class GasDehydration(Process):
 
         self.gas_path = field.attr("gas_processing_path")
 
-        # TODO: update this after setting streams to use default names
         self.gas_path_dict = {"Minimal": "gas for gas partition",
                               "Acid Gas": "gas for AGR",
                               "Acid Wet Gas": "gas for AGR",
@@ -57,11 +63,9 @@ class GasDehydration(Process):
 
     def run(self, analysis):
         self.print_running_msg()
-        field = self.field
 
         # mass rate
         input = self.find_input_stream("gas for gas dehydration")
-
         if input.is_uninitialized():
             return
 
@@ -82,14 +86,17 @@ class GasDehydration(Process):
 
         feed_gas_temp, feed_gas_press = input.tp.get()
 
-        # how much moisture in gas
+        # how much moisture in gas (Bukacek Method) [Carrioll JJ. The water content of acid gas and sour gas from
+        # 100°F to 220°F and pressures to 10000 psia, Paper presented at the 81st Annual Gas Processors Association
+        # Convention, 11–13 March 2002, Dallas, Texas, USA.] TODO: Bukacek method is incorrect when NG is sour.
+        #  Considering using a different method to calculate water content
         water_critical_temp = self.gas.component_Tc["H2O"]
         water_critical_press = self.gas.component_Pc["H2O"]
         tau = ureg.Quantity(1 - feed_gas_temp.to("kelvin").m / water_critical_temp.to("kelvin").m, "dimensionless")
         Tc_over_T = ureg.Quantity(water_critical_temp.to("kelvin").m / feed_gas_temp.to("kelvin").m, "dimensionless")
         pseudo_pressure = self.pseudo_pressure(tau, Tc_over_T, water_critical_press)
-        B = 10 ** (6.69449 - 3083.87 / (feed_gas_temp.m + 459.67))
-        water_content = 47430 * pseudo_pressure.m / feed_gas_press.to("Pa").m + B
+        B = 10 ** (6.69449 - 3083.87 / feed_gas_temp.to("degR").m)
+        water_content = 47430 * pseudo_pressure.to("Pa").m / feed_gas_press.to("Pa").m + B
         water_content = ureg.Quantity(water_content, "lb/mmscf")
 
         gas_volume_rate = self.gas.tot_volume_flow_rate_STP(input)
@@ -97,31 +104,30 @@ class GasDehydration(Process):
         water_content_volume = water_content * gas_volume_rate / ChemicalInfo.mol_weight("H2O") / self.mol_to_scf
         water_content_volume = water_content_volume / gas_multiplier
 
-        x1 = feed_gas_press.to("psia").m
-        x2 = feed_gas_temp.to("degF").m
-        x3 = water_content_volume.to("mmscf/day").m
-        x4 = self.reflux_ratio.m
-        x5 = self.regeneration_feed_temp.to("degF").m
+        # Gas dehydration modeling based on Aspen HYSYS
+        x1 = get_bounded_value(feed_gas_press.to("psia").m, "feed_gas_press", variable_bound_dict)
+        x2 = get_bounded_value(feed_gas_temp.to("degF").m, "feed_gas_temp", variable_bound_dict)
+        x3 = get_bounded_value(water_content_volume.to("mmscf/day").m, "water_content_volume", variable_bound_dict)
+        x4 = get_bounded_value(self.reflux_ratio.m, "reflux_ratio", variable_bound_dict)
+        x5 = get_bounded_value(self.regeneration_feed_temp.to("degF").m, "regeneration_feed_temp", variable_bound_dict)
+
         corr_result_df = run_corr_eqns(x1, x2, x3, x4, x5, self.gas_dehydration_tbl)
         reboiler_heavy_duty = ureg.Quantity(max(0., corr_result_df["Reboiler"] * gas_multiplier), "kW")
         pump_duty = ureg.Quantity(max(0, corr_result_df["Pump"] * gas_multiplier), "kW")
         condenser_thermal_load = ureg.Quantity(max(0., corr_result_df["Condenser"] * gas_multiplier), "kW")
+
+        # TODO: Add this stream to water treatment process
         water_output = ureg.Quantity(max(0., corr_result_df["Resid water"]), "lb/mmscf")
 
         reboiler_fuel_use = reboiler_heavy_duty * self.eta_reboiler_dehydrator
-        blower_air_quantity = condenser_thermal_load / self.air_elevation_const / self.air_cooler_delta_T
-        blower_CFM = blower_air_quantity / self.air_density_ratio
-        blower_delivered_hp = blower_CFM * self.water_press / self.air_cooler_fan_eff
-        blower_fan_motor_hp = blower_delivered_hp / self.air_cooler_speed_reducer_eff
-        air_cooler_energy_consumption = get_energy_consumption("Electric_motor", blower_fan_motor_hp)
+        air_cooler_energy_consumption = predict_blower_energy_use(self, condenser_thermal_load)
 
         # energy-use
         energy_use = self.energy
         energy_use.set_rate(EN_NATURAL_GAS, reboiler_fuel_use)
-        energy_use.set_rate(EN_ELECTRICITY, air_cooler_energy_consumption)
+        energy_use.set_rate(EN_ELECTRICITY, air_cooler_energy_consumption + pump_duty)
 
         # import/export
-        # import_product = field.import_export
         self.set_import_from_energy(energy_use)
 
         # emissions

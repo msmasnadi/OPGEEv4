@@ -11,8 +11,8 @@
 		<A name="functional_unit">oil</A>
 		<A name="boundary">Production</A>
 		<A name="energy_basis">LHV</A>
-	  <A name="GWP_horizon">100</A>
-	  <A name="GWP_version">AR5</A>
+		<A name="GWP_horizon">100</A>
+		<A name="GWP_version">AR5</A>
 		<Field name="test"/>
 	</Analysis>
 
@@ -89,4 +89,710 @@
 			<Contains>crude oil</Contains>
 		</Stream>
 	</Field>
+
+	<Analysis name="test_gas_processes">
+		<A name="functional_unit">gas</A>
+		<A name="boundary">Production</A>
+		<A name="energy_basis">LHV</A>
+		<A name="GWP_horizon">100</A>
+		<A name="GWP_version">AR4</A>
+		<Field name="test_RyanHolmes"/>
+		<Field name="test_AcidGasRemoval"/>
+		<Field name="test_Demethanizer"/>
+		<Field name="test_PreMembraneChiller"/>
+		<Field name="test_PreMembraneCompressor"/>
+		<Field name="test_CO2Membrane"/>
+		<Field name="test_CO2ReinjectionCompressor"/>
+		<Field name="test_CO2InjectionWell"/>
+		<Field name="test_GasDehydration"/>
+		<Field name="test_VFPartition"/>
+		<Field name="test_Flaring"/>
+		<Field name="test_Venting"/>
+		<Field name="test_SourGasCompressor"/>
+		<Field name="test_SourGasInjection"/>
+		<Field name="test_VRUCompressor"/>
+		<Field name="test_GasReinjectionCompressor"/>
+		<Field name="test_N2Flooding"/>
+		<Field name="test_CO2Flooding"/>
+		<Field name="test_NGFlooding_onsite_gas"/>
+		<Field name="test_NGFlooding_offset_gas"/>
+		<Field name="test_GasLifting"/>
+	</Analysis>
+
+	<Field name="test_VRUCompressor">
+
+		<Process class="Before"/>
+		<Process class="VRUCompressor">
+			<A name="leak_rate">0.0</A>
+		</Process>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="VRUCompressor">
+			<Contains>gas for VRU</Contains>
+			<Component name="CO2" phase="gas">0.00484</Component>
+			<Component name="C1" phase="gas">0.10656</Component>
+			<Component name="C2" phase="gas">0.04359</Component>
+			<Component name="C3" phase="gas">0.02422</Component>
+			<Component name="C4" phase="gas">0.01453</Component>
+			<A name="temperature">60</A>
+			<A name="pressure">14.7</A>
+		</Stream>
+
+		<Stream src="VRUCompressor" dst="ProductionBoundary">
+			<Contains>gas for gas gathering</Contains>
+		</Stream>
+	</Field>
+
+	<Field name="test_N2Flooding">
+
+		<A name="gas_flooding">1</A>
+		<A name="flood_gas_type">N2</A>
+		<A name="GFIR">1000.00</A>
+		<A name="oil_prod">750000</A>
+
+		<Process class="Before"/>
+		<Process class="GasPartition">
+			<A name="leak_rate">0.0</A>
+		</Process>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="GasPartition">
+			<Component name="N2" phase="gas">33.72045</Component>
+			<Component name="CO2" phase="gas">0.39369</Component>
+			<Component name="C1" phase="gas">628.08845</Component>
+			<Component name="C2" phase="gas">82.89785</Component>
+			<Component name="C3" phase="gas">12.02115</Component>
+			<Component name="C4" phase="gas">1.66488</Component>
+			<Contains>gas for gas partition</Contains>
+			<A name="temperature">90</A>
+			<A name="pressure">500</A>
+		</Stream>
+
+		<Stream src="GasPartition" dst="ProductionBoundary" name="gas for reinjection compressor">
+			<Contains>gas for gas reinjection compressor</Contains>
+		</Stream>
+
+		<Stream src="GasPartition" dst="ProductionBoundary" name="exported gas">
+			<Contains>gas</Contains>
+		</Stream>
+	</Field>
+
+	<Field name="test_CO2Flooding">
+
+		<A name="gas_processing_path">CO2-EOR Membrane</A>
+		<A name="gas_flooding">1</A>
+		<A name="flood_gas_type">CO2</A>
+		<A name="GFIR">175.00</A>
+		<A name="oil_prod">1050000</A>
+
+		<Process class="Before"/>
+		<Process class="GasPartition">
+			<A name="leak_rate">0.0</A>
+		</Process>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="GasPartition">
+			<Component name="N2" phase="gas">713.36959</Component>
+			<Component name="CO2" phase="gas">21.82737</Component>
+			<Component name="C1" phase="gas">21293.10498</Component>
+			<Component name="C2" phase="gas">2412.59701</Component>
+			<Component name="C3" phase="gas">388.05021</Component>
+			<Component name="C4" phase="gas">56.60595</Component>
+			<Contains>gas for gas partition</Contains>
+			<A name="temperature">90</A>
+			<A name="pressure">500</A>
+		</Stream>
+
+		<Stream src="GasPartition" dst="ProductionBoundary" name="gas for reinjection compressor">
+			<Contains>gas for gas reinjection compressor</Contains>
+		</Stream>
+
+		<Stream src="GasPartition" dst="ProductionBoundary" name="exported gas">
+			<Contains>gas</Contains>
+		</Stream>
+	</Field>
+
+	<Field name="test_NGFlooding_onsite_gas">
+
+		<A name="gas_flooding">1</A>
+		<A name="flood_gas_type">NG</A>
+		<A name="GFIR">175.00</A>
+		<A name="oil_prod">1050000</A>
+
+		<Process class="Before"/>
+		<Process class="GasPartition">
+			<A name="leak_rate">0.0</A>
+		</Process>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="GasPartition">
+			<Component name="N2" phase="gas">1238.49035</Component>
+			<Component name="CO2" phase="gas">22.18231</Component>
+			<Component name="C1" phase="gas">21767.34999</Component>
+			<Component name="C2" phase="gas">2487.21637</Component>
+			<Component name="C3" phase="gas">434.48842</Component>
+			<Component name="C4" phase="gas">61.96500</Component>
+			<Contains>gas for gas partition</Contains>
+			<A name="temperature">90</A>
+			<A name="pressure">500</A>
+		</Stream>
+
+		<Stream src="GasPartition" dst="ProductionBoundary" name="gas for reinjection compressor">
+			<Contains>gas for gas reinjection compressor</Contains>
+		</Stream>
+
+		<Stream src="GasPartition" dst="ProductionBoundary" name="exported gas">
+			<Contains>gas</Contains>
+		</Stream>
+	</Field>
+
+	<Field name="test_NGFlooding_offset_gas">
+		<A name="gas_flooding">1</A>
+		<A name="flood_gas_type">NG</A>
+		<A name="GFIR">17500</A>
+		<A name="oil_prod">1050000</A>
+
+		<Process class="Before"/>
+		<Process class="GasPartition">
+			<A name="leak_rate">0.0</A>
+		</Process>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="GasPartition">
+			<Component name="N2" phase="gas">1238.49035</Component>
+			<Component name="CO2" phase="gas">22.18231</Component>
+			<Component name="C1" phase="gas">21767.34999</Component>
+			<Component name="C2" phase="gas">2487.21637</Component>
+			<Component name="C3" phase="gas">434.48842</Component>
+			<Component name="C4" phase="gas">61.96500</Component>
+			<Contains>gas for gas partition</Contains>
+			<A name="temperature">90</A>
+			<A name="pressure">500</A>
+		</Stream>
+
+		<Stream src="GasPartition" dst="ProductionBoundary" name="gas for reinjection compressor">
+			<Contains>gas for gas reinjection compressor</Contains>
+		</Stream>
+
+		<Stream src="GasPartition" dst="ProductionBoundary" name="exported gas">
+			<Contains>gas</Contains>
+		</Stream>
+	</Field>
+
+
+	<Field name="test_GasLifting">
+		<A name="gas_lifting">1</A>
+		<A name="GLIR">30.26</A>
+		<A name="oil_prod">175000</A>
+		<A name="WOR">0.5</A>
+
+		<Process class="Before"/>
+		<Process class="GasPartition">
+			<A name="leak_rate">0.0</A>
+		</Process>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="GasPartition">
+			<Component name="N2" phase="gas">74.66587</Component>
+			<Component name="CO2" phase="gas">0.68657</Component>
+			<Component name="C1" phase="gas">1396.66024</Component>
+			<Component name="C2" phase="gas">158.83035</Component>
+			<Component name="C3" phase="gas">27.68547</Component>
+			<Component name="C4" phase="gas">3.95904</Component>
+			<Contains>gas for gas partition</Contains>
+			<A name="temperature">90</A>
+			<A name="pressure">500</A>
+		</Stream>
+
+		<Stream src="GasPartition" dst="ProductionBoundary" name="gas for gas lifting compressor">
+			<Contains>lifting gas</Contains>
+		</Stream>
+
+		<Stream src="GasPartition" dst="ProductionBoundary" name="exported gas">
+			<Contains>gas</Contains>
+		</Stream>
+	</Field>
+
+	<Field name="test_RyanHolmes">
+
+		<Process class="Before"/>
+		<Process class="RyanHolmes">
+			<A name="leak_rate">0</A>
+		</Process>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="RyanHolmes">
+			<Contains>gas for Ryan Holmes</Contains>
+			<Component name="N2" phase="gas">4.90</Component>
+			<Component name="CO2" phase="gas">0.89</Component>
+			<Component name="C1" phase="gas">87.59</Component>
+			<Component name="C2" phase="gas">9.76</Component>
+			<Component name="C3" phase="gas">4.37</Component>
+			<Component name="C4" phase="gas">2.53</Component>
+		</Stream>
+
+		<Stream src="RyanHolmes" dst="ProductionBoundary" name="Light HC stream from Ryan-Holmes">
+			<Contains>gas for gas partition</Contains>
+		</Stream>
+
+		<Stream src="RyanHolmes" dst="ProductionBoundary" name="Heavy HC stream from Ryan-Holmes">
+			<Contains>gas for NGL</Contains>
+		</Stream>
+
+		<Stream src="RyanHolmes" dst="ProductionBoundary" name="CO2 stream from Ryan-Holmes">
+			<Contains>gas for CO2 compressor</Contains>
+		</Stream>
+	</Field>
+
+	<Field name="test_VFPartition">
+
+		<A name="gas_processing_path">CO2-EOR Membrane</A>
+		<A name="FOR">38.92</A>
+		<A name="GOR">1419.00</A>
+		<A name="oil_prod">1050000.00</A>
+
+		<Process class="Before"/>
+		<Process class="VFPartition"/>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="VFPartition" name="gas after separator">
+			<Contains>gas for partition</Contains>
+			<Component name="N2" phase="gas">1273.95270</Component>
+			<Component name="CO2" phase="gas">8621.69525</Component>
+			<Component name="C1" phase="gas">22749.56356</Component>
+			<Component name="C2" phase="gas">2534.19558</Component>
+			<Component name="C3" phase="gas">1135.92322</Component>
+			<Component name="C4" phase="gas">656.21049</Component>
+			<A name="temperature">90</A>
+			<A name="pressure">500</A>
+		</Stream>
+
+		<Stream src="Before" dst="VFPartition" name="flaring gas from crude oil storage">
+			<Contains>gas for partition</Contains>
+			<Component name="CO2" phase="gas">18.81895</Component>
+			<Component name="C1" phase="gas">414.01686</Component>
+			<Component name="C2" phase="gas">169.37053</Component>
+			<Component name="C3" phase="gas">94.09474</Component>
+			<Component name="C4" phase="gas">56.45684</Component>
+			<A name="temperature">14.7</A>
+			<A name="pressure">60</A>
+		</Stream>
+
+		<Stream src="VFPartition" dst="ProductionBoundary" name="gas for flaring">
+			<Contains>gas for flaring</Contains>
+		</Stream>
+
+		<Stream src="VFPartition" dst="ProductionBoundary" name="methane slip">
+			<Contains>methane slip</Contains>
+		</Stream>
+
+		<Stream src="VFPartition" dst="ProductionBoundary" name="gas for venting">
+			<Contains>gas for venting</Contains>
+		</Stream>
+
+	</Field>
+
+	<Field name="test_Flaring">
+
+		<A name="gas_processing_path">CO2-EOR Membrane</A>
+
+		<Process class="Before"/>
+		<Process class="After"/>
+		<Process class="Flaring"/>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="Flaring" name="flaring gas">
+			<Contains>gas for flaring</Contains>
+			<Component name="N2" phase="gas">31.94705</Component>
+			<Component name="CO2" phase="gas">234.99181</Component>
+			<Component name="C1" phase="gas">983.75556</Component>
+			<Component name="C2" phase="gas">232.61217</Component>
+			<Component name="C3" phase="gas">122.40893</Component>
+			<Component name="C4" phase="gas">72.80982</Component>
+			<A name="temperature">14.7</A>
+			<A name="pressure">60</A>
+		</Stream>
+
+		<Stream src="Before" dst="Flaring" name="methane slip">
+			<Contains>methane slip</Contains>
+			<Component name="N2" phase="gas">2.32162</Component>
+			<Component name="CO2" phase="gas">15.74628</Component>
+			<Component name="C1" phase="gas">42.21280</Component>
+			<Component name="C2" phase="gas">4.92692</Component>
+			<Component name="C3" phase="gas">2.24156</Component>
+			<Component name="C4" phase="gas">1.29875</Component>
+			<A name="temperature">14.7</A>
+			<A name="pressure">60</A>
+		</Stream>
+
+		<Stream src="Before" dst="ProductionBoundary">
+			<Contains>gas</Contains>
+			<Component name="C1" phase="gas">100</Component>
+		</Stream>
+
+	</Field>
+
+	<Field name="test_Venting">
+
+		<A name="gas_processing_path">CO2-EOR Membrane</A>
+		<A name="VOR">2.76016</A>
+		<A name="FOR">38.92</A>
+		<A name="GOR">1419.00</A>
+
+		<Process class="Before"/>
+		<Process class="Venting"/>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="Venting">
+			<Contains>gas for venting</Contains>
+			<Component name="N2" phase="gas">1239.68403</Component>
+			<Component name="CO2" phase="gas">8389.77610</Component>
+			<Component name="C1" phase="gas">22137.61206</Component>
+			<Component name="C2" phase="gas">2466.02703</Component>
+			<Component name="C3" phase="gas">1105.36747</Component>
+			<Component name="C4" phase="gas">638.55877</Component>
+			<A name="temperature">90</A>
+			<A name="pressure">500</A>
+		</Stream>
+
+		<Stream src="Venting" dst="ProductionBoundary">
+			<Contains>gas for gas gathering</Contains>
+		</Stream>
+
+	</Field>
+
+	<Field name="test_GasDehydration">
+
+		<A name="gas_processing_path">CO2-EOR Membrane</A>
+
+		<Process class="Before"/>
+		<Process class="GasDehydration">
+			<A name="leak_rate">0.00037981</A>
+		</Process>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="GasDehydration">
+			<Contains>gas for gas dehydration</Contains>
+			<Component name="N2" phase="gas">1238.76023</Component>
+			<Component name="CO2" phase="gas">8386.14390</Component>
+			<Component name="C1" phase="gas">22178.75088</Component>
+			<Component name="C2" phase="gas">2487.77114</Component>
+			<Component name="C3" phase="gas">1117.64436</Component>
+			<Component name="C4" phase="gas">645.94232</Component>
+			<A name="temperature">90</A>
+			<A name="pressure">500</A>
+		</Stream>
+
+		<Stream src="GasDehydration" dst="ProductionBoundary">
+			<Contains>gas for chiller</Contains>
+		</Stream>
+
+	</Field>
+
+	<Field name="test_AcidGasRemoval">
+
+		<Process class="Before"/>
+		<Process class="AcidGasRemoval">
+			<A name="leak_rate">0.00041373</A>
+		</Process>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="AcidGasRemoval">
+			<Contains>gas for AGR</Contains>
+			<Component name="N2" phase="gas">4.58962</Component>
+			<Component name="CO2" phase="gas">0.83675</Component>
+			<Component name="C1" phase="gas">73.79065</Component>
+			<Component name="C2" phase="gas">9.17195</Component>
+			<Component name="C3" phase="gas">4.11574</Component>
+			<Component name="C4" phase="gas">2.37814</Component>
+			<Component name="H2S" phase="gas">17.57070</Component>
+			<A name="temperature">90</A>
+			<A name="pressure">500</A>
+		</Stream>
+
+		<Stream src="AcidGasRemoval" dst="ProductionBoundary" name="Light HC stream from Ryan-Holmes">
+			<Contains>gas for demethanizer</Contains>
+		</Stream>
+
+	</Field>
+
+	<Field name="test_Demethanizer">
+
+		<Process class="Before"/>
+		<Process class="Demethanizer">
+			<A name="leak_rate">0.00</A>
+		</Process>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="Demethanizer">
+			<Contains>gas for demethanizer</Contains>
+			<Component name="N2" phase="gas">4.58687</Component>
+			<Component name="CO2" phase="gas">0.41830</Component>
+			<Component name="C1" phase="gas">82.01280</Component>
+			<Component name="C2" phase="gas">9.16647</Component>
+			<Component name="C3" phase="gas">4.11328</Component>
+			<Component name="C4" phase="gas">2.37671</Component>
+			<A name="temperature">90</A>
+			<A name="pressure">500</A>
+		</Stream>
+
+		<Stream src="Demethanizer" dst="ProductionBoundary" name="Light HC stream from Ryan-Holmes">
+			<Contains>gas for NGL</Contains>
+		</Stream>
+
+		<Stream src="Demethanizer" dst="ProductionBoundary" name="Heavy HC stream from Ryan-Holmes">
+			<Contains>gas for gas partition</Contains>
+		</Stream>
+
+	</Field>
+
+	<Field name="test_PreMembraneChiller">
+
+		<Process class="Before"/>
+		<Process class="PreMembraneChiller">
+			<A name="leak_rate">0.00</A>
+		</Process>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="PreMembraneChiller">
+			<Contains>gas for chiller</Contains>
+			<Component name="N2" phase="gas">1238.9609</Component>
+			<Component name="CO2" phase="gas">8387.5011</Component>
+			<Component name="C1" phase="gas">22182.3128</Component>
+			<Component name="C2" phase="gas">2488.1614</Component>
+			<Component name="C3" phase="gas">1117.8183</Component>
+			<Component name="C4" phase="gas">646.0427</Component>
+			<A name="temperature">90</A>
+			<A name="pressure">500</A>
+		</Stream>
+
+		<Stream src="PreMembraneChiller" dst="ProductionBoundary">
+			<Contains>gas for compressor</Contains>
+		</Stream>
+
+	</Field>
+
+	<Field name="test_PreMembraneCompressor">
+
+		<Process class="Before"/>
+		<Process class="PreMembraneCompressor">
+			<A name="leak_rate">0.000001188</A>
+		</Process>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="PreMembraneCompressor">
+			<Contains>gas for compressor</Contains>
+			<Component name="N2" phase="gas">1238.9609</Component>
+			<Component name="CO2" phase="gas">8387.5011</Component>
+			<Component name="C1" phase="gas">22182.3128</Component>
+			<Component name="C2" phase="gas">2488.1614</Component>
+			<Component name="C3" phase="gas">1117.8183</Component>
+			<Component name="C4" phase="gas">646.0427</Component>
+			<A name="temperature">90</A>
+			<A name="pressure">500</A>
+		</Stream>
+
+		<Stream src="PreMembraneCompressor" dst="ProductionBoundary">
+			<Contains>gas for CO2 membrane</Contains>
+		</Stream>
+
+	</Field>
+
+	<Field name="test_CO2Membrane">
+
+		<Process class="Before"/>
+
+		<Process class="CO2Membrane"/>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="CO2Membrane">
+			<Contains>gas for CO2 membrane</Contains>
+			<Component name="N2" phase="gas">1238.95945</Component>
+			<Component name="CO2" phase="gas">8387.49116</Component>
+			<Component name="C1" phase="gas">22182.28649</Component>
+			<Component name="C2" phase="gas">2488.15845</Component>
+			<Component name="C3" phase="gas">1117.81700</Component>
+			<Component name="C4" phase="gas">646.041947</Component>
+			<A name="temperature">35</A>
+			<A name="pressure">500</A>
+		</Stream>
+
+		<Stream src="CO2Membrane" dst="ProductionBoundary" name="gas for AGR">
+			<Contains>gas for AGR</Contains>
+		</Stream>
+
+		<Stream src="CO2Membrane" dst="ProductionBoundary" name="gas for CO2 compressor">
+			<Contains>gas for CO2 compressor</Contains>
+		</Stream>
+
+	</Field>
+
+	<Field name="test_CO2ReinjectionCompressor">
+		<A name="res_press">8000.0</A>
+
+		<Process class="Before"/>
+		<Process class="After"/>
+		<Process class="CO2ReinjectionCompressor">
+			<A name="leak_rate">0.000001188</A>
+		</Process>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="CO2ReinjectionCompressor" name="AGR to CO2 compressor">
+			<Contains>gas for CO2 compressor</Contains>
+			<Component name="CO2" phase="gas">2770.14636</Component>
+			<A name="temperature">90</A>
+			<A name="pressure">500</A>
+		</Stream>
+
+		<Stream src="Before" dst="CO2ReinjectionCompressor" name="CO2 membrane to CO2 compressor">
+			<Contains>gas for CO2 compressor</Contains>
+			<Component name="N2" phase="gas">525.318807</Component>
+			<Component name="CO2" phase="gas">5594.456607</Component>
+			<Component name="C1" phase="gas">354.916584</Component>
+			<Component name="C2" phase="gas">74.644754</Component>
+			<Component name="C3" phase="gas">49.183948</Component>
+			<Component name="C4" phase="gas">38.116475</Component>
+			<A name="temperature">60</A>
+			<A name="pressure">165</A>
+		</Stream>
+
+		<Stream src="CO2ReinjectionCompressor" dst="ProductionBoundary">
+			<Contains>gas for CO2 injection well</Contains>
+		</Stream>
+
+	</Field>
+
+	<Field name="test_CO2InjectionWell">
+
+		<Process class="Before"/>
+		<Process class="After"/>
+		<Process class="CO2InjectionWell">
+			<A name="leak_rate">0.000014656</A>
+		</Process>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="CO2InjectionWell">
+			<Contains>gas for CO2 injection well</Contains>
+			<Component name="N2" phase="gas">525.318183</Component>
+			<Component name="CO2" phase="gas">8364.593032</Component>
+			<Component name="C1" phase="gas">354.916162</Component>
+			<Component name="C2" phase="gas">74.644665</Component>
+			<Component name="C3" phase="gas">49.183890</Component>
+			<Component name="C4" phase="gas">38.116430</Component>
+			<A name="temperature">136</A>
+			<A name="pressure">8500</A>
+		</Stream>
+
+		<Stream src="CO2InjectionWell" dst="ProductionBoundary">
+			<Contains>gas for reservoir</Contains>
+		</Stream>
+
+	</Field>
+
+	<Field name="test_SourGasCompressor">
+
+		<A name="res_press">1531.23</A>
+
+		<Process class="Before"/>
+		<Process class="After"/>
+		<Process class="SourGasCompressor">
+			<A name="leak_rate">0.0</A>
+		</Process>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="SourGasCompressor">
+			<Contains>gas for sour gas compressor</Contains>
+			<Component name="N2" phase="gas">4.80935</Component>
+			<Component name="CO2" phase="gas">642.57354</Component>
+			<Component name="C1" phase="gas">85.98923</Component>
+			<Component name="C2" phase="gas">9.61046</Component>
+			<Component name="C3" phase="gas">4.31245</Component>
+			<Component name="C4" phase="gas">2.49179</Component>
+			<A name="temperature">90</A>
+			<A name="pressure">500</A>
+		</Stream>
+
+		<Stream src="SourGasCompressor" dst="ProductionBoundary">
+			<Contains>gas for sour gas injection</Contains>
+		</Stream>
+
+	</Field>
+
+		<Field name="test_SourGasInjection">
+
+		<Process class="Before"/>
+		<Process class="After"/>
+		<Process class="SourGasInjection">
+			<A name="leak_rate">0.001</A>
+		</Process>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="SourGasInjection">
+			<Contains>gas for sour gas injection</Contains>
+			<Component name="N2" phase="gas">4.80935</Component>
+			<Component name="CO2" phase="gas">642.57354</Component>
+			<Component name="C1" phase="gas">85.98923</Component>
+			<Component name="C2" phase="gas">9.61046</Component>
+			<Component name="C3" phase="gas">4.31245</Component>
+			<Component name="C4" phase="gas">2.49179</Component>
+			<A name="temperature">124.2</A>
+			<A name="pressure">2031.2</A>
+		</Stream>
+
+		<Stream src="SourGasInjection" dst="ProductionBoundary">
+			<Contains>gas for reservoir</Contains>
+		</Stream>
+
+	</Field>
+
+	<Field name="test_GasReinjectionCompressor">
+
+		<A name="res_press">5874</A>
+
+		<Process class="Before"/>
+		<Process class="After"/>
+		<Process class="GasReinjectionCompressor">
+			<A name="leak_rate">0.0268859</A>
+		</Process>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="GasReinjectionCompressor">
+			<Contains>gas for gas reinjection compressor</Contains>
+			<Component name="N2" phase="gas">2538.13283</Component>
+			<Component name="CO2" phase="gas">23.02784</Component>
+			<Component name="C1" phase="gas">44497.80735</Component>
+			<Component name="C2" phase="gas">5050.88746</Component>
+			<Component name="C3" phase="gas">888.76776</Component>
+			<Component name="C4" phase="gas">126.93968</Component>
+			<A name="temperature">90</A>
+			<A name="pressure">500</A>
+		</Stream>
+
+		<Stream src="GasReinjectionCompressor" dst="ProductionBoundary">
+			<Contains>gas for gas reinjection well</Contains>
+		</Stream>
+
+	</Field>
+
 </Model>

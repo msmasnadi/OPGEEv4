@@ -17,6 +17,11 @@ class GasReinjectionWell(Process):
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
+        self.gas_flooding = field.attr("gas_flooding")
+        if not self.gas_flooding:
+            self.set_enabled(False)
+            return
+
         self.gas = field.gas
 
     def run(self, analysis):

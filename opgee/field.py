@@ -380,14 +380,14 @@ class Field(Container):
         :param net_import: (Pandas.Series) net import energy rates (water is mass rate)
         :return: total emissions (units of g CO2)
         """
-        from .import_export import WATER
+        from .import_export import WATER, N2, CO2_Flooding
 
         imported_emissions = ureg.Quantity(0.0, "tonne/day")
 
         for product, energy_rate in net_import.items():
-            # TODO: Water is not in self.upstream_CI and not in upstream-CI.csv,
+            # TODO: Water, N2, and CO2 flooding is not in self.upstream_CI and not in upstream-CI.csv,
             #  which has units of g/mmbtu
-            if product == WATER:
+            if product == WATER or product == N2 or product == CO2_Flooding:
                 continue
 
             energy_rate = (energy_rate if isinstance(energy_rate, pint.Quantity)

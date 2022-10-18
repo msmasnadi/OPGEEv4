@@ -11,6 +11,7 @@ from .shared import get_energy_carrier
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
+from .. import ureg
 
 _logger = getLogger(__name__)
 
@@ -29,16 +30,17 @@ class PreMembraneCompressor(Process):
         field = self.field
 
         input = self.find_input_stream("gas for compressor")
-
         if input.is_uninitialized():
             return
 
         loss_rate = self.venting_fugitive_rate()
+        loss_rate = min(ureg.Quantity(0.95, "frac"), loss_rate)
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
         gas_to_CO2_membrane = self.find_output_stream("gas for CO2 membrane")
         gas_to_CO2_membrane.copy_flow_rates_from(input)
         gas_to_CO2_membrane.subtract_rates_from(gas_fugitives)
+        self.set_iteration_value(gas_to_CO2_membrane.total_flow_rate())
 
         overall_compression_ratio = self.discharge_press / input.tp.P
         energy_consumption, output_temp, output_press = \

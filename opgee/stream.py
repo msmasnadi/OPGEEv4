@@ -372,16 +372,20 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.initialized = True
         return self.set_flow_rate(name, PHASE_SOLID, rate)
 
-    def set_rates_from_series(self, series, phase):
+    def set_rates_from_series(self, series, phase, upper_bound_stream=None):
         """
         set rates from pandas series given phase
 
         :param series:
         :param phase:
+        :param upper_bound_stream:
         :return:
         """
         self.initialized = True
-        self.components.loc[series.index, phase] = series
+        self.components.loc[series.index, phase] = series.clip(lower=0)
+        if upper_bound_stream is not None:
+            self.components.loc[series.index, phase] =\
+                self.components.loc[series.index, phase].clip(upper=upper_bound_stream.components.loc[series.index, phase])
 
     def multiply_factor_from_series(self, series, phase):
         """

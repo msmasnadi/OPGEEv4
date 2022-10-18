@@ -28,12 +28,8 @@ class VRUCompressor(Process):
         self.print_running_msg()
         field = self.field
 
-        if not self.all_streams_ready("gas for VRU"):
-            return
-
         # mass rate
-        input = self.find_input_streams("gas for VRU",combine=True)
-
+        input = self.find_input_stream("gas for VRU")
         if input.is_uninitialized():
             return
 
@@ -63,7 +59,6 @@ class VRUCompressor(Process):
         energy_use.set_rate(energy_carrier, energy_consumption)
 
         # import/export
-        # import_product = field.import_export
         self.set_import_from_energy(energy_use)
 
         # emissions

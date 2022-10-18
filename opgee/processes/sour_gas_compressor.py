@@ -24,11 +24,6 @@ class SourGasCompressor(Process):
         self.res_press = field.attr("res_press")
         self.eta_compressor = self.attr("eta_compressor")
         self.prime_mover_type = self.attr("prime_mover_type")
-        self.gas_flooding = field.attr("gas_flooding")
-        self.flood_gas_type = field.attr("flood_gas_type")
-        self.GFIR = field.attr("GFIR")
-        self.oil_prod = field.attr("oil_prod")
-        self.gas_flooding_vol_rate = self.oil_prod * self.GFIR
 
     def run(self, analysis):
         self.print_running_msg()
@@ -36,7 +31,6 @@ class SourGasCompressor(Process):
 
         # mass rate
         input = self.find_input_stream("gas for sour gas compressor")
-
         if input.is_uninitialized():
             return
 
@@ -47,16 +41,9 @@ class SourGasCompressor(Process):
         gas_to_injection.copy_flow_rates_from(input)
         gas_to_injection.subtract_rates_from(gas_fugitives)
 
-        total_CO2_mass_rate = input.gas_flow_rate("CO2")
-        if self.gas_flooding and self.flood_gas_type == "CO2":
-            CO2_mass_rate = self.gas_flooding_vol_rate * field.gas.component_gas_rho_STP["CO2"]
-            imported_CO2_mass_rate = CO2_mass_rate - gas_to_injection.gas_flow_rate("CO2")
-            total_CO2_mass_rate += imported_CO2_mass_rate
-        input.set_gas_flow_rate("CO2", total_CO2_mass_rate)
-
         discharge_press = self.res_press + ureg.Quantity(500.0, "psia")
         overall_compression_ratio = discharge_press / input.tp.P
-        energy_consumption, output_temp, output_press = \
+        energy_consumption, output_temp, _ = \
             Compressor.get_compressor_energy_consumption(
                 self.field,
                 self.prime_mover_type,
@@ -64,7 +51,8 @@ class SourGasCompressor(Process):
                 overall_compression_ratio,
                 input)
 
-        gas_to_injection.tp.set(T=output_temp, P=input.tp.P)
+        gas_to_injection.tp.set(T=output_temp, P=discharge_press)
+        field.save_process_data(sour_gas_reinjection_mass_rate=gas_to_injection.gas_flow_rate("CO2"))
 
         # energy-use
         energy_use = self.energy
@@ -72,7 +60,6 @@ class SourGasCompressor(Process):
         energy_use.set_rate(energy_carrier, energy_consumption)
 
         # import/export
-        # import_product = field.import_export
         self.set_import_from_energy(energy_use)
 
         # emissions

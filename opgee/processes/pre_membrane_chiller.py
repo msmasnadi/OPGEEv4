@@ -18,29 +18,27 @@ _logger = getLogger(__name__)
 class PreMembraneChiller(Process):
     def _after_init(self):
         super()._after_init()
-        self.field = field = self.get_field()
-        self.outlet_temp = field.attr("chiller_outlet_temp")
-        self.fug_emissions_chiller = field.attr("fug_emissions_chiller")
+        self.outlet_temp = self.attr("chiller_outlet_temp")
         self.pressure_drop = ureg.Quantity(56.0, "delta_degC")
         self.feed_stream_mass_rate = ureg.Quantity(6.111072, "tonne/day")
-        self.compressor_load = ureg.Quantity(3.44, "MW")
+        self.compressor_load = ureg.Quantity(3.44, "kW")
 
     def run(self, analysis):
         self.print_running_msg()
-        field = self.field
 
         # mass rate
         input = self.find_input_stream("gas for chiller")
-
         if input.is_uninitialized():
             return
 
-        gas_fugitives = self.set_gas_fugitives(input, self.fug_emissions_chiller.to("frac"))
+        loss_rate = self.venting_fugitive_rate()
+        gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
         gas_to_compressor = self.find_output_stream("gas for compressor")
         gas_to_compressor.copy_flow_rates_from(input)
         gas_to_compressor.subtract_rates_from(gas_fugitives)
         gas_to_compressor.tp.set(T=self.outlet_temp, P=input.tp.P)
+        self.set_iteration_value(gas_to_compressor.total_flow_rate())
 
         delta_temp = input.tp.T - self.outlet_temp
         energy_consumption = (self.compressor_load * input.total_gas_rate() /
@@ -51,7 +49,6 @@ class PreMembraneChiller(Process):
         energy_use.set_rate(EN_ELECTRICITY, energy_consumption)
 
         # import/export
-        # import_product = field.import_export
         self.set_import_from_energy(energy_use)
 
         # emissions

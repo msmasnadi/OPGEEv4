@@ -1,0 +1,70 @@
+#
+# GasPartition class
+#
+# Author: Wennan Long
+#
+# Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
+# See LICENSE.txt for license details.
+#
+from .. import ureg
+from ..core import STP
+from ..log import getLogger
+from ..process import Process
+from ..stream import PHASE_GAS, Stream
+
+_logger = getLogger(__name__)
+
+
+class VFPartition(Process):
+    """
+    VF (Venting and Flaring) partition is to check the reasonable amount of gas goes to venting, flaring and further process
+    """
+
+    def _after_init(self):
+        super()._after_init()
+        self.field = field = self.get_field()
+        self.gas = field.gas
+        self.FOR = field.attr("FOR")
+        self.mol_per_scf = field.model.const("mol-per-scf")
+        self.oil_volume_rate = field.attr("oil_prod")
+        self.combusted_gas_frac = field.attr(
+            "combusted_gas_frac")  # TODO: add smart default to this parameter from lookup table
+
+    def run(self, analysis):
+        self.print_running_msg()
+        field = self.field
+
+        if not self.all_streams_ready("gas for partition"):
+            return
+
+        input = self.find_input_streams("gas for partition", combine=True)
+        if input.is_uninitialized():
+            return
+
+        gas_mol_fraction = self.gas.total_molar_flow_rate(input)
+        gas_volume_rate = gas_mol_fraction / self.mol_per_scf
+        SCO_bitumen_ratio = field.get_process_data("SCO_bitumen_ratio")
+        if SCO_bitumen_ratio:
+            volume_of_gas_flared = self.oil_volume_rate * self.FOR / SCO_bitumen_ratio
+        else:
+            volume_of_gas_flared = self.oil_volume_rate * self.FOR
+        frac_gas_flared = min(ureg.Quantity(1, "frac"), volume_of_gas_flared / gas_volume_rate)
+
+        methane_slip = self.find_output_stream("methane slip")
+        methane_slip.copy_flow_rates_from(input)
+        multiplier = (frac_gas_flared * (1 - self.combusted_gas_frac)).m
+        methane_slip.multiply_flow_rates(multiplier)
+        methane_slip.set_tp(tp=STP)
+
+        gas_to_flare = self.find_output_stream("gas for flaring")
+        gas_to_flare.copy_flow_rates_from(input)
+        gas_to_flare.multiply_flow_rates(frac_gas_flared.m)
+        gas_to_flare.subtract_rates_from(methane_slip)
+        gas_to_flare.set_tp(tp=STP)
+
+        output_gas = self.find_output_stream("gas for venting")
+        output_gas.copy_flow_rates_from(input)
+        output_gas.subtract_rates_from(gas_to_flare)
+        output_gas.subtract_rates_from(methane_slip)
+
+        self.set_iteration_value(output_gas.total_flow_rate())

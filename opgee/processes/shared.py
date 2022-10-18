@@ -12,12 +12,16 @@ from ..error import OpgeeException
 from ..stream import Stream, PHASE_GAS
 
 _slope = {"NG_engine": -0.6035,
-          "Diesel_engine": -0.4299,
           "NG_turbine": -0.1279}
 
 _intercept = {"NG_engine": 7922.4,
-              "Diesel_engine": 7235.4,
               "NG_turbine": 9219.6}
+
+_maxBHP = {"NG_engine": 2800.0,
+           "Diesel_engine": 3000.0,
+           "NG_turbine": 21000.0,
+           "Electric_motor": 1000.0}
+
 
 def get_efficiency(prime_mover_type, brake_horsepower):
     """
@@ -26,38 +30,40 @@ def get_efficiency(prime_mover_type, brake_horsepower):
     :param brake_horsepower:
     :return: (pint.Quantity) efficiency in units of "btu/horsepower/hour"
     """
-    brake_horsepower = brake_horsepower.to("horsepower")
+    brake_horsepower = brake_horsepower.to("horsepower").m
+    brake_horsepower = min(_maxBHP[prime_mover_type], brake_horsepower)
 
     if prime_mover_type == "Electric_motor":
-        efficiency = 2967 * brake_horsepower.m ** (-0.018) if brake_horsepower != 0.0 else 3038
+        efficiency = 2967 * brake_horsepower ** (-0.018) if brake_horsepower != 0.0 else 3038
+    elif prime_mover_type == "Diesel_engine":
+        efficiency = 0.0004 * brake_horsepower ** 2 - 1.6298 * brake_horsepower + 7955.8
     else:
-        efficiency = _slope[prime_mover_type] * brake_horsepower.m + _intercept[prime_mover_type]
+        efficiency = _slope[prime_mover_type] * brake_horsepower + _intercept[prime_mover_type]
 
-    efficiency = max(efficiency, 6000)
     return ureg.Quantity(efficiency, "btu/horsepower/hour")
 
 
-def get_gas_lifting_init_stream(gas,
-                                imported_fuel_gas_comp,
-                                imported_fuel_gas_mass_fracs,
-                                GLIR, oil_prod, water_prod, tp):
+def get_init_lifting_stream(gas,
+                            lifting_gas_stream,
+                            gas_lifting_vol_rate):
     """
     Generate initial gas stream for lifting
 
+    :param gas_lifting_vol_rate: GLIR * (oil rate + water rate)
+    :param lifting_gas_stream: (Stream) stream that used for gas lifting
     :param gas: (Gas) the current Field's ``Gas`` instance
-    :param imported_fuel_gas_comp: (float) Pandas Series imported fuel gas composition
-    :param imported_fuel_gas_mass_fracs: (float) Pandas.Series imported fuel gas mass fractions
-    :param GLIR: (float) gas lifting injection ratio
-    :param oil_prod: (float) oil production volume rate
-    :param water_prod: (float) water production volume rate
-    :param tp: (TemperaturePressure) object holding T and P for the stream returned
     :return: (Stream) initial gas lifting stream
     """
-    series = (imported_fuel_gas_mass_fracs * GLIR * (oil_prod + water_prod) *
-              gas.component_gas_rho_STP[imported_fuel_gas_comp.index])
 
-    stream = Stream("gas lifting stream", tp)
+    lifting_gas_mass_fracs = gas.component_mass_fractions(gas.component_molar_fractions(lifting_gas_stream))
+
+    series = (lifting_gas_mass_fracs *
+              gas_lifting_vol_rate *
+              gas.component_gas_rho_STP[lifting_gas_stream.gas_flow_rates().index])
+
+    stream = Stream("gas lifting stream", lifting_gas_stream.tp)
     stream.set_rates_from_series(series, PHASE_GAS)
+    stream.set_tp(lifting_gas_stream.tp)
     return stream
 
 
@@ -126,3 +132,17 @@ def get_energy_consumption(prime_mover_type, brake_horsepower):
     energy_consumption = (brake_horsepower * eff).to("mmBtu/day")
 
     return energy_consumption
+
+
+def get_bounded_value(value, name, variable_bound_dict):
+    """
+
+    :param value:
+    :param name:
+    :param variable_bound_dict: dictionary of bounded variables; key = variable name (str), value = [min, max]
+    :return:
+    """
+    if name not in variable_bound_dict:
+        raise OpgeeException(f"Variable bound dictionary does not have {name}")
+
+    return min(max(value, variable_bound_dict[name][0]), variable_bound_dict[name][1])

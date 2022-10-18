@@ -966,7 +966,7 @@ class Gas(AbstractSubstance):
         reduced_temp = reduced_temperature.m
         reduced_press = reduced_pressure.m
 
-        z_factor_A = 1.39 * (reduced_temp - 0.92) ** 0.5 - 0.36 * reduced_temp - 0.101
+        z_factor_A = 1.39 * (max(0, reduced_temp - 0.92)) ** 0.5 - 0.36 * reduced_temp - 0.101
         z_factor_B = (reduced_press * (0.62 - 0.23 * reduced_temp) +
                       reduced_press ** 2 * (0.066 / (reduced_temp - 0.86) - 0.037) +
                       0.32 * reduced_temp ** 6 / (10 ** (9 * reduced_temp - 9)))

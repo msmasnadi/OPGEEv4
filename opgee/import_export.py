@@ -25,22 +25,27 @@ RESID = "Residual fuel"
 PETCOKE = "Pet. coke"
 ELECTRICITY = "Electricity"
 WATER = "Water"
+N2 = "N2"
+CO2_Flooding = "CO2 flooding"
+
 
 class ImportExport(OpgeeObject):
     IMPORT = 'import'
     EXPORT = 'export'
     NET_IMPORTS = 'net imports'
 
-    unit_dict = {NATURAL_GAS : "mmbtu/day",
+    unit_dict = {NATURAL_GAS: "mmbtu/day",
                  UPG_PROC_GAS: "mmbtu/day",
-                 NGL_LPG     : "mmbtu/day",
-                 DILUENT     : "mmbtu/day",
-                 CRUDE_OIL   : "mmbtu/day",
-                 DIESEL      : "mmbtu/day",
-                 RESID       : "mmbtu/day",
-                 PETCOKE     : "mmbtu/day",
-                 ELECTRICITY : "kWh/day",
-                 WATER       : "tonne/day"}
+                 NGL_LPG: "mmbtu/day",
+                 DILUENT: "mmbtu/day",
+                 CRUDE_OIL: "mmbtu/day",
+                 DIESEL: "mmbtu/day",
+                 RESID: "mmbtu/day",
+                 PETCOKE: "mmbtu/day",
+                 ELECTRICITY: "kWh/day",
+                 WATER: "tonne/day",
+                 N2: "tonne/day",
+                 CO2_Flooding: "tonne/day"}
 
     imports_set = set(unit_dict.keys())
 
@@ -53,7 +58,7 @@ class ImportExport(OpgeeObject):
          :return: (pandas.DataFrame) An empty imports or exports DataFrame with
             the columns and types set
          """
-        df = pd.DataFrame({name : pd.Series([], dtype=f"pint[{units}]")
+        df = pd.DataFrame({name: pd.Series([], dtype=f"pint[{units}]")
                            for name, units in cls.unit_dict.items()})
 
         return df
@@ -147,13 +152,14 @@ class ImportExport(OpgeeObject):
 
         :return: (pandas.DataFrame) total imports, exports, and net imports by resource
         """
+
         def _sum(series, name):
             from . import ureg
             # Sum of an empty series is returned as int(0); need to initialize units
             return series.sum() if len(series) > 0 else ureg.Quantity(0.0, self.unit_dict[name])
 
         def _totals(df):
-            totals = {name : _sum(df[name], name) for name in df.columns}
+            totals = {name: _sum(df[name], name) for name in df.columns}
             return pd.Series(totals)
 
         imports = _totals(self.import_df)

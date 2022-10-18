@@ -99,9 +99,8 @@ class BitumenMining(Process):
         gas_fugitives = Stream("gas_fugitives", tp=self.field.stp)
         gas_fugitives.set_rates_from_series(mine_offgas_rate, PHASE_GAS)
 
-        gas_flaring = self.find_output_stream("gas for flaring", raiseError=False)
-        if gas_flaring:
-            gas_flaring.set_rates_from_series(mine_flaring_rate, PHASE_GAS)
+        gas_flaring = self.find_output_stream("gas for partition")
+        gas_flaring.set_rates_from_series(mine_flaring_rate, PHASE_GAS)
 
         # energy-use
         energy_use = self.energy
