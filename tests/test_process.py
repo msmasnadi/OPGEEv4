@@ -146,6 +146,10 @@ def test_bad_process_data(procB):
         procB.field.get_process_data("nonexistent-data-key", raiseError=True)
 
 
+def approx_equal(a, b, abs=10E-8):
+    "Check that two Quantities are approximately equal"
+    return a.m == pytest.approx(b.m)
+
 # Test gas processing units
 def test_VRUCompressor(test_model):
     analysis = test_model.get_analysis('test_gas_processes')
@@ -153,7 +157,9 @@ def test_VRUCompressor(test_model):
     field.run(analysis)
     proc = field.find_process('VRUCompressor')
     # ensure total energy flow rates
-    assert proc.energy.data.sum() == ureg.Quantity(0.341449400556889, "mmbtu/day")
+    total = proc.energy.data.sum()
+    expected = ureg.Quantity(0.341449400556889, "mmbtu/day")
+    assert approx_equal(total, expected)
 
 
 def test_VFPartition(test_model):
@@ -162,8 +168,9 @@ def test_VFPartition(test_model):
     field.run(analysis)
     proc = field.find_process('VFPartition')
     # ensure total energy flow rates
-    assert proc.find_output_stream("methane slip").gas_flow_rates().sum() == \
-           ureg.Quantity(71.03912192600949, "tonne/day")
+    total = proc.find_output_stream("methane slip").gas_flow_rates().sum()
+    expected = ureg.Quantity(71.03912192600949, "tonne/day")
+    assert approx_equal(total, expected)
 
 
 def test_Flaring(test_model):
@@ -172,7 +179,9 @@ def test_Flaring(test_model):
     field.run(analysis)
     proc = field.find_process('Flaring')
     # ensure total energy flow rates
-    assert proc.emissions.rates(analysis.gwp).loc["GHG"].sum() == ureg.Quantity(5298.998755911673, "tonne/day")
+    total = proc.emissions.rates(analysis.gwp).loc["GHG"].sum()
+    expected = ureg.Quantity(5298.998755911673, "tonne/day")
+    assert approx_equal(total, expected)
 
 
 def test_Venting(test_model):
@@ -181,7 +190,9 @@ def test_Venting(test_model):
     field.run(analysis)
     proc = field.find_process('Venting')
     # ensure total energy flow rates
-    assert proc.emissions.rates(analysis.gwp).loc["GHG"].sum() == ureg.Quantity(1149.7618654739997, "tonne/day")
+    total = proc.emissions.rates(analysis.gwp).loc["GHG"].sum()
+    expected = ureg.Quantity(1149.7618654739997, "tonne/day")
+    assert approx_equal(total, expected)
 
 
 def test_AcidGasRemoval(test_model):
@@ -190,7 +201,9 @@ def test_AcidGasRemoval(test_model):
     field.run(analysis)
     proc = field.find_process('AcidGasRemoval')
     # ensure total energy flow rates
-    assert proc.energy.data.sum() == ureg.Quantity(268.768111460195, "mmbtu/day")
+    total = proc.energy.data.sum()
+    expected = ureg.Quantity(268.768111460195, "mmbtu/day")
+    assert approx_equal(total, expected)
 
 
 def test_GasDehydration(test_model):
@@ -199,7 +212,9 @@ def test_GasDehydration(test_model):
     field.run(analysis)
     proc = field.find_process('GasDehydration')
     # ensure total energy flow rates
-    assert proc.energy.data.sum() == ureg.Quantity(681.6879728269338, "mmbtu/day")
+    total = proc.energy.data.sum()
+    expected = ureg.Quantity(681.6879728269338, "mmbtu/day")
+    assert approx_equal(total, expected)
 
 
 def test_Demethanizer(test_model):
@@ -208,7 +223,9 @@ def test_Demethanizer(test_model):
     field.run(analysis)
     proc = field.find_process('Demethanizer')
     # ensure total energy flow rates
-    assert proc.energy.data.sum() == ureg.Quantity(37.91301173818107, "mmbtu/day")
+    total = proc.energy.data.sum()
+    expected = ureg.Quantity(37.91301173818107, "mmbtu/day")
+    assert approx_equal(total, expected)
 
 
 def test_PreMembraneChiller(test_model):
@@ -217,7 +234,9 @@ def test_PreMembraneChiller(test_model):
     field.run(analysis)
     proc = field.find_process('PreMembraneChiller')
     # ensure total energy flow rates
-    assert proc.energy.data.sum() == ureg.Quantity(907.0197708571166, "mmbtu/day")
+    total = proc.energy.data.sum()
+    expected = ureg.Quantity(907.0197708571166, "mmbtu/day")
+    assert approx_equal(total, expected)
 
 
 def test_PreMembraneCompressor(test_model):
@@ -235,7 +254,9 @@ def test_CO2Membrane(test_model):
     field.run(analysis)
     proc = field.find_process('CO2Membrane')
     # ensure total energy flow rates
-    assert proc.energy.data.sum() == ureg.Quantity(4048.7718266075976, "mmbtu/day")
+    total = proc.energy.data.sum()
+    expected = ureg.Quantity(4048.7718266075976, "mmbtu/day")
+    assert approx_equal(total, expected)
 
 
 def test_CO2ReinjectionCompressor(test_model):
@@ -244,7 +265,9 @@ def test_CO2ReinjectionCompressor(test_model):
     field.run(analysis)
     proc = field.find_process('CO2ReinjectionCompressor')
     # ensure total energy flow rates
-    assert proc.energy.data.sum() == ureg.Quantity(7164.538831055389, "mmbtu/day")
+    total = proc.energy.data.sum()
+    expected = ureg.Quantity(7164.538831055389, "mmbtu/day")
+    assert approx_equal(total, expected)
 
 
 def test_CO2InjectionWell(test_model):
@@ -262,7 +285,9 @@ def test_RyanHolmes(test_model):
     field.run(analysis)
     proc = field.find_process('RyanHolmes')
     # ensure total energy flow rates
-    assert proc.energy.data.sum() == ureg.Quantity(416.0247918820408, "mmbtu/day")
+    total = proc.energy.data.sum()
+    expected = ureg.Quantity(416.0247918820408, "mmbtu/day")
+    assert approx_equal(total, expected)
 
 
 def test_SourGasCompressor(test_model):
@@ -271,7 +296,10 @@ def test_SourGasCompressor(test_model):
     field.run(analysis)
     proc = field.find_process('SourGasCompressor')
     # ensure total energy flow rates
-    assert proc.energy.data.sum() == ureg.Quantity(245.10194671727402, "mmbtu/day")
+    total = proc.energy.data.sum()
+    expected = ureg.Quantity(245.10194671727402, "mmbtu/day")
+    assert approx_equal(total, expected)
+
 
 
 def test_SourGasInjection(test_model):
@@ -280,7 +308,9 @@ def test_SourGasInjection(test_model):
     field.run(analysis)
     proc = field.find_process('SourGasInjection')
     # ensure total energy flow rates
-    assert proc.emissions.rates(analysis.gwp).loc["GHG"].sum() == ureg.Quantity(2.8431898600000003, "tonne/day")
+    total = proc.emissions.rates(analysis.gwp).loc["GHG"].sum()
+    expected = ureg.Quantity(2.8431898600000003, "tonne/day")
+    assert approx_equal(total, expected)
 
 
 def test_GasReinjectionCompressor(test_model):
@@ -289,7 +319,9 @@ def test_GasReinjectionCompressor(test_model):
     field.run(analysis)
     proc = field.find_process('GasReinjectionCompressor')
     # ensure total energy flow rates
-    assert proc.energy.data.sum() == ureg.Quantity(64286.0886714168, "mmbtu/day")
+    total = proc.energy.data.sum()
+    expected = ureg.Quantity(64286.0886714168, "mmbtu/day")
+    assert approx_equal(total, expected)
 
 
 def test_N2Flooding(test_model):
@@ -310,8 +342,10 @@ def test_CO2Flooding_CO2_reinjection(test_model):
     field.run(analysis)
     proc = field.find_process('GasPartition')
     # ensure total energy flow rates
-    assert proc.find_output_stream("gas for gas reinjection compressor").gas_flow_rates().sum() == \
-           ureg.Quantity(1399.5948519637434, "tonne/day")
+    total = proc.find_output_stream("gas for gas reinjection compressor").gas_flow_rates().sum()
+    expected = ureg.Quantity(1399.5948519637434, "tonne/day")
+    assert approx_equal(total, expected)
+
     assert proc.find_output_stream("gas").gas_flow_rates().sum() == ureg.Quantity(24885.555110000005, "tonne/day")
 
 
@@ -344,9 +378,13 @@ def test_CO2Flooding_sour_gas_reinjection(test_model):
     field.save_process_data(sour_gas_reinjection_mass_rate=ureg.Quantity(8387.50113, "tonne/day"))
     field.run(analysis)
     proc = field.find_process('GasPartition')
+
     # ensure total energy flow rates
-    assert proc.find_output_stream("gas for gas reinjection compressor").gas_flow_rates().sum() == \
-           ureg.Quantity(1375.9995089637432, "tonne/day")
+    s = proc.find_output_stream("gas for gas reinjection compressor")
+    total = s.gas_flow_rates().sum()
+    expected = ureg.Quantity(1375.9995089637432, "tonne/day")
+    assert approx_equal(total, expected)
+
     assert proc.find_output_stream("gas").gas_flow_rates().sum() == ureg.Quantity(24885.555110000005, "tonne/day")
 
 
