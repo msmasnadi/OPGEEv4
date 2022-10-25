@@ -17,6 +17,8 @@ process_translator = {
     'Crude oil transport' : 'CrudeOilTransport',
     'Demethanizer' : 'Demethanizer',
     'Downhole pump (Lifting)' : 'DownholePump',
+    'Drilling & Development' : 'Drilling',
+    'Exploration' : 'Exploration',
     'Flaring' : 'Flaring',
     'Gas dehydration' : 'GasDehydration',
     'Gas distribution' : 'GasDistribution',
@@ -29,7 +31,8 @@ process_translator = {
     'Heavy oil dilution' : 'HeavyOilDilution',
     'Heavy oil upgrading' : 'HeavyOilUpgrading',
     'Liquefaction' : 'LNGLiquefaction',
-    'Water treatment' : 'WaterTreatment',
+    # 'Makeup water treatment' : '',
+    # 'Makeup watter treatment' : '', # SPELLING ERROR
     'Mining' : 'BitumenMining',
     'Petcoke handling and storage' : 'PetrocokeTransport',
     'Post-storage compressor' : 'PostStorageCompressor',
@@ -45,8 +48,7 @@ process_translator = {
     'VRU compressor' : 'VRUCompressor',
     'Venting' : 'Venting',
     'Water injection' : 'WaterInjection',
-    'Exploration' : 'Exploration',
-    'Drilling & Development' : 'Drilling'
+    'Water treatment' : 'WaterTreatment',
 }
 
 

@@ -47,7 +47,7 @@ class Emissions(OpgeeObject):
 
     #: `Emissions.emissions` defines the set of substances tracked by this class.
     #: In addition, the `Model` class computes CO2-equivalent GHG emission using its
-    #: current settings for GWP values and stored in the a row with index 'GHG'.
+    #: current settings for GWP values and stored in a row with index 'GHG'.
     emissions = ['VOC', 'CO', 'CH4', 'N2O', 'CO2']
 
     indices = emissions + ['GHG']

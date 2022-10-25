@@ -38,4 +38,4 @@ dependencies:
     - thermosteam==0.28.12
     - pyXSteam==0.4.8
     - dash-cytoscape>=0.3.0
-    - ray
+    - ray==2.0.0

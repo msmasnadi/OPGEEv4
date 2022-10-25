@@ -7,6 +7,8 @@
 # See LICENSE.txt for license details.
 #
 import pint
+import time
+import datetime
 
 from . import ureg
 from .constants import std_temperature, std_pressure
@@ -48,7 +50,7 @@ def elt_name(elt):
     return elt.attrib.get('name')
 
 
-def instantiate_subelts(elt, cls, as_dict=False):
+def instantiate_subelts(elt, cls, as_dict=False, include_names=None):
     """
     Return a list of instances of ``cls`` (or of its indicated subclass of ``Process``).
 
@@ -56,10 +58,16 @@ def instantiate_subelts(elt, cls, as_dict=False):
     :param cls: (type) the class to instantiate. If cls is Process, the class will
         be that indicated instead in the element's "class" attribute.
     :param as_dict: (bool) if True, return a dictionary of subelements, keyed by name
+    :param include_names: (list of str) Names of elements to include (i.e., the element's
+       attrib dict must have a "name" item, whose value is compared to the list). If
+       ``include_names`` is not None, then elements with names not in the list list are
+       ignored.
     :return: (list) instantiated objects
     """
     tag = cls.__name__  # class name matches element name
-    objs = [cls.from_xml(e) for e in elt.findall(tag)]
+
+    include = None if include_names is None else set(include_names)
+    objs = [cls.from_xml(e) for e in elt.findall(tag) if include is None or e.attrib.get('name') in include]
 
     if as_dict:
         d = {obj.name: obj for obj in objs}
@@ -307,3 +315,31 @@ class TemperaturePressure(OpgeeObject):
 
 # Standard temperature and pressure
 STP = TemperaturePressure(std_temperature, std_pressure)
+
+class Timer:
+    def __init__(self, feature_name):
+        self.feature_name = feature_name
+        self.start_time = None
+        self.stop_time  = None
+
+    def start(self):
+        self.start_time = time.time()
+        return self
+
+    def stop(self):
+        self.stop_time = time.time()
+        return self
+
+    def duration(self):
+        seconds = self.stop_time - self.start_time
+        return datetime.timedelta(seconds=int(seconds))
+
+    def __str__(self):
+        if self.start_time is None:
+            return f"Timer '{self.feature_name}' is uninitialized>"
+        elif self.stop_time is None:
+            return f"<Timer for '{self.feature_name}' is running>"
+        else:
+            d = self.duration()
+            return f"<'{self.feature_name}' completed in {d}>"
+

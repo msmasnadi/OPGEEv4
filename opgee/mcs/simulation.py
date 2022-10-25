@@ -6,14 +6,12 @@
 # Copyright (c) 2022 the author and The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-import datetime
 import json
 import os
 import pandas as pd
-import time
 
 from ..config import pathjoin
-from ..core import OpgeeObject, split_attr_name
+from ..core import OpgeeObject, split_attr_name, Timer
 from ..error import OpgeeException, McsSystemError, McsUserError, CommandlineError, ModelValidationError
 from ..log import getLogger
 from ..model_file import ModelFile
@@ -437,6 +435,7 @@ class Simulation(OpgeeObject):
 
     def run_field(self, field, trial_nums=None):
         """
+        Run the Monte Carlo simulation for the given field and trial numbers.
 
         :param field: (opgee.Field) the Field to evaluate in MCS
         :param trial_nums: (iterator of ints) the trial numbers to run, or
@@ -550,7 +549,7 @@ class Simulation(OpgeeObject):
         :param field_names: (list of str) names of fields to run
         :return: none
         """
-        start = time.time()
+        timer = Timer('Simulation.run').start()
 
         ana = self.analysis
         fields = [ana.get_field(name) for name in field_names] if field_names else self.chosen_fields()
@@ -561,10 +560,7 @@ class Simulation(OpgeeObject):
             else:
                 _logger.info(f"Ignoring disabled {field}")
 
-        finish = time.time()
-        seconds = finish - start
-        duration = datetime.timedelta(seconds=int(seconds))
-        _logger.info(f"Simulation.run completed in {duration}")
+        _logger.info(timer.stop())
 
         # results for a field in `analysis`. Each column represents the results
         # of a single output variable. Each row represents the value of all output

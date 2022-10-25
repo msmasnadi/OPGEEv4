@@ -249,7 +249,7 @@ class Field(Container):
         :return: None
         """
         if self.is_enabled():
-            _logger.info(f"Running '{self}'")
+            _logger.debug(f"Running '{self}'")
 
             # Cache the sets of processes within and outside the current boundary. We use
             # this information in compute_carbon_intensity() to ignore irrelevant procs.

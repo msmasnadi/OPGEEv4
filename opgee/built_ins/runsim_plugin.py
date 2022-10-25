@@ -25,6 +25,9 @@ class RunsimCommand(SubcommandABC):
         # parser.add_argument('--overwrite', action='store_true',
         #                     help='''OVERWRITE prior results, if any.''')
 
+        parser.add_argument('-a', '--address', default=None,
+                            help='''The (ip:port) address of the Ray head process.''')
+
         parser.add_argument('-c', '--cpu_count', type=int, default=0,
                             help='''The number of CPUs to use to run the MCS. A value of
                             zero means use all available CPUs. This flag implies -d/--distributed.''')
@@ -41,6 +44,9 @@ class RunsimCommand(SubcommandABC):
         parser.add_argument('--debug', action='store_true',
                             help='''Use the Manager/Worker architecture, but don't use "ray" 
                             (primarily for debugging)''')
+
+        parser.add_argument('-n', '--nodes', type=int, default=None,
+                            help='''The number of compute nodes to use to distribute the MCS. Default is 1.''')
 
         parser.add_argument('-s', '--simulation_dir',
                             help='''The top-level directory to use for this simulation "package"''')
@@ -61,10 +67,13 @@ class RunsimCommand(SubcommandABC):
         sim_dir = args.simulation_dir
         field_names = args.fields
 
-        if args.distributed or args.cpu_count:
-            mgr = Manager()
+        if args.distributed or args.cpu_count or args.nodes:
+            # TBD: Should we submit the batch commands from this sub-command?
+            # https://github.com/amq92/simple_slurm might be useful.
+
+            mgr = Manager(args.address)
             mgr.run_mcs(sim_dir, field_names=field_names, cpu_count=args.cpu_count,
-                        trial_nums=args.trials, debug=args.debug)
+                        nodes=args.nodes, trial_nums=args.trials, debug=args.debug)
         else:
             sim = Simulation(sim_dir, field_names=field_names)
             trial_nums = (None if args.trials == 'all' else parseTrialString(args.trials))

@@ -237,15 +237,17 @@ class Model(Container):
         df.to_csv(csvpath)
 
     @classmethod
-    def from_xml(cls, elt):
+    def from_xml(cls, elt, field_names=None):
         """
         Instantiate an instance from an XML element
 
         :param elt: (etree.Element) representing a <Model> element
+        :param field_names: (list of str) the names of fields to include. Any other
+          fields are ignored when building the model from the XML.
         :return: (Model) instance populated from XML
         """
         analyses = instantiate_subelts(elt, Analysis)
-        fields = instantiate_subelts(elt, Field)
+        fields = instantiate_subelts(elt, Field, include_names=field_names)
         table_updates = instantiate_subelts(elt, TableUpdate, as_dict=True)
         attr_dict = cls.instantiate_attrs(elt)
 

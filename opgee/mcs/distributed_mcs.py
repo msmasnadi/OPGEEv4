@@ -1,13 +1,11 @@
-import datetime
 import os
 import ray
 from ray.util.actor_pool import ActorPool
 #from ray.exceptions import RayTaskError
 import re
-import time
 import traceback
 
-from ..core import OpgeeObject
+from ..core import OpgeeObject, Timer
 from ..error import OpgeeException
 from ..log  import getLogger
 from .simulation import Simulation
@@ -81,8 +79,7 @@ class FieldResult(OpgeeObject):
         self.error = error
 
     def __str__(self):
-        duration = datetime.timedelta(seconds=int(self.duration))
-        return f"<FieldResult {self.field_name} in {duration}; error:{self.error}>"
+        return f"<FieldResult {self.field_name} in {self.duration}; error:{self.error}>"
 
 
 # Used only for debugging, no need for test coverage
@@ -97,7 +94,7 @@ class LocalWorker(OpgeeObject):        # pragma: no cover
         :param field_name: (str) the name of the field to run
         :return: None
         """
-        start = time.time()
+        timer = Timer('run_field').start()
 
         field = self.sim.analysis.get_field(field_name)
         if field.is_enabled():
@@ -117,13 +114,14 @@ class LocalWorker(OpgeeObject):        # pragma: no cover
         else:
             error = RemoteError(f"Ignoring disabled field {field}", field_name)
 
-        finish = time.time()
-        duration = finish - start
+        timer.stop()
 
-        result = FieldResult(field_name, duration, error=error)
+        result = FieldResult(field_name, timer.duration(), error=error)
         _logger.debug(f"LocalWorker.run_field('{field_name}') returning {result}")
         return result
 
+#
+# NOTES: can call ray.init(ip_address) to connect to an existing cluster
 
 @ray.remote
 class Worker(LocalWorker):
@@ -145,13 +143,14 @@ class Worker(LocalWorker):
 
 
 class Manager(OpgeeObject):
-    def __init__(self):
-        pass
+    def __init__(self, address=None):
+        self.address = address
 
     def start_cluster(self, num_cpus=None):
         if not ray.is_initialized():
             _logger.info("Starting ray processes...")
-            ray.init(num_cpus=num_cpus)     # apparently now called on first API usage
+            # apparently now called on first API usage
+            ray.init(num_cpus=num_cpus, address=self.address)
             _logger.debug("Ray has started.")
 
     def stop_cluster(self):
@@ -159,11 +158,12 @@ class Manager(OpgeeObject):
         ray.shutdown()
         _logger.debug("Ray has stopped.")
 
-    def run_mcs(self, sim_dir, field_names=None, cpu_count=0, trial_nums=None, debug=False):
+    def run_mcs(self, sim_dir, field_names=None, address=None, cpu_count=0,
+                nodes=None, trial_nums=None, debug=False):
         from ..config import getParamAsInt
         from ..utils import parseTrialString
 
-        start = time.time()
+        timer = Timer('Manager.run_mcs').start()
 
         sim = Simulation(sim_dir, save_to_path='')
 
@@ -179,10 +179,12 @@ class Manager(OpgeeObject):
             w = LocalWorker(sim_dir)
             for field_name in field_names:
                 result = w.run_field(field_name, trial_nums=trial_nums)
-                _logger.info(f"Completed MCS on field '{result.field_name}' in {int(result.duration)} seconds")
+                _logger.info(f"Completed MCS on field '{result.field_name}' in {int(result.duration)}")
         else:
             cpus = cpu_count or getParamAsInt('OPGEE.CPUsToUse') or os.cpu_count()
-            self.start_cluster(num_cpus=cpus)
+            nodes = nodes or 1
+
+            self.start_cluster(num_cpus=cpus, address=address)
 
             # Start the worker processes
             workers = [Worker.remote(sim_dir) for _ in range(cpus)]
@@ -211,10 +213,7 @@ class Manager(OpgeeObject):
             _logger.debug("Workers finished")
             self.stop_cluster()
 
-        finish = time.time()
-        seconds = finish - start
-        duration = datetime.timedelta(seconds=int(seconds))
-        _logger.info(f"Manager.run_mcs completed in {duration}")
+        _logger.info(timer.stop())
 #
 # This approach also worked
 #
