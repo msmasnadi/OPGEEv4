@@ -47,7 +47,6 @@ class ReservoirWellInterface(Process):
 
         # mass rate
         input = self.find_input_stream("crude oil")
-
         if input.is_uninitialized():
             return
 

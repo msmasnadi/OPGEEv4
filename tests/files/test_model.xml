@@ -116,7 +116,10 @@
 		<Field name="test_CO2Flooding"/>
 		<Field name="test_NGFlooding_onsite_gas"/>
 		<Field name="test_NGFlooding_offset_gas"/>
-		<Field name="test_GasLifting"/>
+		<Field name="test_GasLifting_low_GLIR"/>
+		<Field name="test_GasLifting_high_GLIR"/>
+		<Field name="test_GasLiftingCompressor"/>
+		<Field name="test_NGReinjection"/>
 	</Analysis>
 
 	<Field name="test_VRUCompressor">
@@ -285,11 +288,82 @@
 	</Field>
 
 
-	<Field name="test_GasLifting">
+	<Field name="test_NGReinjection">
+		<A name="natural_gas_reinjection">1</A>
+		<A name="fraction_remaining_gas_inj">0.34</A>
+
+		<Process class="Before"/>
+		<Process class="GasPartition">
+			<A name="leak_rate">0.0</A>
+		</Process>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="GasPartition">
+			<Component name="N2" phase="gas">129.86448</Component>
+			<Component name="CO2" phase="gas">5.58453</Component>
+			<Component name="C1" phase="gas">5425.28672</Component>
+			<Component name="C2" phase="gas">1437.42736</Component>
+			<Component name="C3" phase="gas">76.47057</Component>
+			<Component name="C4" phase="gas">7.29731</Component>
+			<Contains>gas for gas partition</Contains>
+			<A name="temperature">90</A>
+			<A name="pressure">500</A>
+		</Stream>
+
+		<Stream src="GasPartition" dst="ProductionBoundary" name="gas for reinjection compressor">
+			<Contains>gas for gas reinjection compressor</Contains>
+		</Stream>
+
+		<Stream src="GasPartition" dst="ProductionBoundary" name="exported gas">
+			<Contains>gas</Contains>
+		</Stream>
+	</Field>
+
+
+	<Field name="test_GasLifting_low_GLIR">
 		<A name="gas_lifting">1</A>
 		<A name="GLIR">30.26</A>
 		<A name="oil_prod">175000</A>
 		<A name="WOR">0.5</A>
+		<A name="gas_flooding">0</A>
+		<A name="natural_gas_reinjection">0</A>
+
+		<Process class="Before"/>
+		<Process class="GasPartition">
+			<A name="leak_rate">0.0</A>
+		</Process>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="GasPartition">
+			<Component name="N2" phase="gas">74.66587</Component>
+			<Component name="CO2" phase="gas">0.68657</Component>
+			<Component name="C1" phase="gas">1396.66024</Component>
+			<Component name="C2" phase="gas">158.83035</Component>
+			<Component name="C3" phase="gas">27.68547</Component>
+			<Component name="C4" phase="gas">3.95904</Component>
+			<Contains>gas for gas partition</Contains>
+			<A name="temperature">90</A>
+			<A name="pressure">500</A>
+		</Stream>
+
+		<Stream src="GasPartition" dst="ProductionBoundary" name="gas for gas lifting compressor">
+			<Contains>lifting gas</Contains>
+		</Stream>
+
+		<Stream src="GasPartition" dst="ProductionBoundary" name="exported gas">
+			<Contains>gas</Contains>
+		</Stream>
+	</Field>
+
+	<Field name="test_GasLifting_high_GLIR">
+		<A name="gas_lifting">1</A>
+		<A name="GLIR">30260</A>
+		<A name="oil_prod">175000</A>
+		<A name="WOR">0.5</A>
+		<A name="gas_flooding">0</A>
+		<A name="natural_gas_reinjection">0</A>
 
 		<Process class="Before"/>
 		<Process class="GasPartition">
@@ -791,6 +865,72 @@
 
 		<Stream src="GasReinjectionCompressor" dst="ProductionBoundary">
 			<Contains>gas for gas reinjection well</Contains>
+		</Stream>
+
+	</Field>
+
+	<Field name="test_GasLiftingCompressor">
+
+		<A name="res_press">3655</A>
+
+		<Process class="Before"/>
+		<Process class="After"/>
+		<Process class="GasLiftingCompressor">
+			<A name="leak_rate">0.0</A>
+		</Process>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="GasLiftingCompressor">
+			<Contains>lifting gas</Contains>
+			<Component name="N2" phase="gas">1.78957</Component>
+			<Component name="C1" phase="gas">141.74357</Component>
+			<Component name="C2" phase="gas">10.31035</Component>
+			<Component name="C3" phase="gas">11.08621</Component>
+			<A name="temperature">90</A>
+			<A name="pressure">500</A>
+		</Stream>
+
+		<Stream src="GasLiftingCompressor" dst="ProductionBoundary">
+			<Contains>lifting gas</Contains>
+		</Stream>
+
+	</Field>
+
+	<Analysis name="test_common_processes">
+		<A name="functional_unit">oil</A>
+		<A name="boundary">Production</A>
+		<A name="energy_basis">LHV</A>
+		<A name="GWP_horizon">100</A>
+		<A name="GWP_version">AR4</A>
+		<Field name="test_ReservoirWellInterface"/>
+	</Analysis>
+
+	<Field name="test_ReservoirWellInterface">
+
+		<A name="res_press">1450.00</A>
+		<A name="res_temp">259.0</A>
+
+		<Process class="Before"/>
+		<Process class="After"/>
+		<Process class="ReservoirWellInterface"/>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="ReservoirWellInterface">
+			<Contains>crude oil</Contains>
+			<Component name="N2" phase="gas">219.34013</Component>
+			<Component name="CO2" phase="gas">1861.01603</Component>
+			<Component name="C1" phase="gas">9421.01484</Component>
+			<Component name="C2" phase="gas">2848.92131</Component>
+			<Component name="C3" phase="gas">1001.29669</Component>
+			<Component name="C4" phase="gas">1638.39324</Component>
+			<Component name="oil" phase="liquid">13157.12901</Component>
+			<Component name="H2O" phase="liquid">14308.8570</Component>
+		</Stream>
+
+		<Stream src="ReservoirWellInterface" dst="ProductionBoundary">
+			<Contains>crude oil</Contains>
 		</Stream>
 
 	</Field>

@@ -143,13 +143,7 @@ class Field(Container):
 
         self.LNG_temp = model.const("LNG-temp")
 
-        # TODO: not used anywhere
-        # self.stab_column = self.attr("stabilizer_column")
-
         self.upgrader_type = self.attr("upgrader_type")     # used only in smart default
-
-        self.prime_mover_type_lifting = self.attr("prime_mover_type_gas_lifting")
-        self.eta_compressor_lifting = self.attr("eta_compressor_lifting")
 
         self.wellhead_tp = TemperaturePressure(self.attr("wellhead_temperature"), self.attr("wellhead_pressure"))
 

@@ -345,16 +345,6 @@
 
       <AttrDef name="combusted_gas_frac" type="float" unit="percent" desc="Combusted gas total fraction" GE="0" LE="100">93.0</AttrDef>
       <AttrDef name="surface_piping_leakage" type="float" unit="kg/day" desc="Surface piping leakage for venting kg CH4/d">0.0</AttrDef>
-      <AttrDef name="eta_compressor_lifting" type="float" unit="percent" desc="Gas lifting compressor parameters (1-5 stages) - compressor efficiency">75.0</AttrDef>
-      <Options name="prime_mover_type_gas_lifting" default="NG_engine">
-        <Option>NG_engine</Option>
-        <Option>Electric_motor</Option>
-        <Option>Diesel_engine</Option>
-        <Option>NG_turbine</Option>
-      </Options>
-
-      <AttrDef name="prime_mover_type_gas_lifting" type="str" options="prime_mover_type_gas_lifting">NG_engine</AttrDef>
-
       <AttrDef name="reflux_ratio" type="float" unit="frac" desc="gas dehydration reflux ratio">2.25</AttrDef>
       <AttrDef name="regeneration_feed_temp" type="float" unit="degF" desc="gas dehydration regeneration feed temperature">200.0</AttrDef>
       <AttrDef name="natural_gas_to_liquefaction_frac" type="float" unit="frac" desc="Fraction of natural gas to liquefaction">0.5</AttrDef>
@@ -721,23 +711,17 @@
       <AttrDef name="eta_compressor" type="float" unit="percent" desc="VRU compressor efficiency">75.0</AttrDef>
     </ClassAttrs>
 
-<!--     <ClassAttrs name="GasFloodingCompressor">-->
-<!--      <Options name="prime_mover_type" default="NG_engine">-->
-<!--        <Option>NG_engine</Option>-->
-<!--        <Option>Electric_motor</Option>-->
-<!--      </Options>-->
-<!--      <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>-->
-<!--      <AttrDef name="eta_compressor" type="float" unit="percent" desc="gas reinjection compressor efficiency">75.0</AttrDef>-->
-
-<!--    </ClassAttrs>-->
-
-
-    <ClassAttrs name="GasLiftingCompressor">
+     <ClassAttrs name="GasLiftingCompressor">
+      <AttrDef name="eta_compressor" type="float" unit="percent" desc="Gas lifting compressor parameters (1-5 stages) - compressor efficiency">75.0</AttrDef>
       <Options name="prime_mover_type" default="NG_engine">
         <Option>NG_engine</Option>
         <Option>Electric_motor</Option>
+        <Option>Diesel_engine</Option>
+        <Option>NG_turbine</Option>
       </Options>
+
       <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
+
     </ClassAttrs>
 
     <ClassAttrs name="GasReinjectionCompressor">

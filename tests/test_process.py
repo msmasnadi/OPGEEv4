@@ -150,6 +150,7 @@ def approx_equal(a, b, abs=10E-8):
     "Check that two Quantities are approximately equal"
     return a.m == pytest.approx(b.m)
 
+
 # Test gas processing units
 def test_VRUCompressor(test_model):
     analysis = test_model.get_analysis('test_gas_processes')
@@ -301,7 +302,6 @@ def test_SourGasCompressor(test_model):
     assert approx_equal(total, expected)
 
 
-
 def test_SourGasInjection(test_model):
     analysis = test_model.get_analysis('test_gas_processes')
     field = analysis.get_field('test_SourGasInjection')
@@ -372,6 +372,17 @@ def test_NGFlooding_onsite(test_model):
     assert proc.find_output_stream("gas").gas_flow_rates().sum() == ureg.Quantity(22187.2424492469, "tonne/day")
 
 
+def test_NGReinjection(test_model):
+    analysis = test_model.get_analysis('test_gas_processes')
+    field = analysis.get_field('test_NGReinjection')
+    field.run(analysis)
+    proc = field.find_process('GasPartition')
+    # ensure total energy flow rates
+    assert proc.find_output_stream("gas for gas reinjection compressor").gas_flow_rates().sum() == \
+           ureg.Quantity(2407.8565298000003, "tonne/day")
+    assert proc.find_output_stream("gas").gas_flow_rates().sum() == ureg.Quantity(4674.0744402, "tonne/day")
+
+
 def test_CO2Flooding_sour_gas_reinjection(test_model):
     analysis = test_model.get_analysis('test_gas_processes')
     field = analysis.get_field('test_CO2Flooding')
@@ -399,9 +410,9 @@ def test_NGFlooding_offset(test_model):
     assert proc.find_output_stream("gas").gas_flow_rates().sum() == ureg.Quantity(0, "tonne/day")
 
 
-def test_GasLifting(test_model):
+def test_GasLifting_low_GLIR(test_model):
     analysis = test_model.get_analysis('test_gas_processes')
-    field = analysis.get_field('test_GasLifting')
+    field = analysis.get_field('test_GasLifting_low_GLIR')
     field.run(analysis)
     proc = field.find_process('GasPartition')
     # ensure total energy flow rates
@@ -410,4 +421,35 @@ def test_GasLifting(test_model):
     assert proc.find_output_stream("gas").gas_flow_rates().sum() == ureg.Quantity(1486.1372117994458, "tonne/day")
 
 
+def test_GasLifting_high_GLIR(test_model):
+    analysis = test_model.get_analysis('test_gas_processes')
+    field = analysis.get_field('test_GasLifting_high_GLIR')
+    field.run(analysis)
+    proc = field.find_process('GasPartition')
+    # ensure total energy flow rates
+    assert proc.find_output_stream("lifting gas").gas_flow_rates().sum() == \
+           ureg.Quantity(1662.4875399999996, "tonne/day")
+    assert proc.find_output_stream("gas").gas_flow_rates().sum() == 0
 
+
+def test_GasLiftingCompressor(test_model):
+    analysis = test_model.get_analysis('test_gas_processes')
+    field = analysis.get_field('test_GasLiftingCompressor')
+    field.run(analysis)
+    proc = field.find_process('GasLiftingCompressor')
+    # ensure total energy flow rates
+    total = proc.energy.data.sum()
+    expected = ureg.Quantity(143.67018427181395, "mmbtu/day")
+    assert approx_equal(total, expected)
+
+
+# Test common processing units
+def test_ReservoirWellInterface(test_model):
+    analysis = test_model.get_analysis('test_common_processes')
+    field = analysis.get_field('test_ReservoirWellInterface')
+    field.run(analysis)
+    proc = field.find_process('ReservoirWellInterface')
+    # ensure total energy flow rates
+    total = proc.energy.data.sum()
+    expected = ureg.Quantity(143.67018427181395, "mmbtu/day")
+    assert approx_equal(total, expected)

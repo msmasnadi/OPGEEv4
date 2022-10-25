@@ -34,14 +34,11 @@ class GasReinjectionCompressor(Process):
         if input.is_uninitialized():
             return
 
-        total_rate_for_compression = Stream("total_rate_for_compression", tp=input.tp)
-        total_rate_for_compression.copy_flow_rates_from(input)
-
         loss_rate = self.venting_fugitive_rate()
-        gas_fugitives = self.set_gas_fugitives(total_rate_for_compression, loss_rate)
+        gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
         gas_to_well = self.find_output_stream("gas for gas reinjection well")
-        gas_to_well.copy_flow_rates_from(total_rate_for_compression)
+        gas_to_well.copy_flow_rates_from(input)
         gas_to_well.subtract_rates_from(gas_fugitives)
 
         discharge_press = self.res_press + ureg.Quantity(500., "psi")
@@ -51,7 +48,7 @@ class GasReinjectionCompressor(Process):
             self.prime_mover_type,
             self.eta_compressor,
             overall_compression_ratio,
-            total_rate_for_compression)
+            input)
 
         gas_to_well.tp.set(T=output_temp, P=discharge_press)
 
