@@ -3,7 +3,7 @@ ipyparallel
 ipython
 lxml
 matplotlib
-networkxw
+networkx
 numpy
 pandas
 pint
