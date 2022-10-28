@@ -20,8 +20,8 @@ dependencies:
   - numpy
   - ordered-set
   - pandas
-  - pint
-  - pint-pandas
+  - pint=0.19.2
+  - pint-pandas=0.2
   - pip
   - pydot
   - pytest
