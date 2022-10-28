@@ -15,10 +15,9 @@ def main():
 
     pkgs = re.split('\s+', lines.strip())
     expr = '^(' + '|'.join(pkgs) + ')'
-    cmd = f"conda list | egrep '{expr}'"
+    cmd = f"conda list | egrep -i '{expr}'"
 
-    proc = subprocess.run(cmd,
-                          shell=True, capture_output=True, text=True)
+    proc = subprocess.run(cmd, shell=True, capture_output=True, text=True)
 
     lines = proc.stdout.split('\n')
     with open(reqs_out, 'w') as f:

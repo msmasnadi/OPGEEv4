@@ -11,6 +11,7 @@ pint-pandas
 pydot
 pytest
 python-dateutil
+pyxsteam
 ray
 scipy
 semver

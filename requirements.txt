@@ -13,6 +13,7 @@ pint-pandas==0.2
 pydot==1.4.1
 pytest==7.1.2
 python-dateutil==2.8.2
+pyxsteam==0.4.8
 ray==2.0.1
 scipy==1.9.3
 semver==2.13.0
