@@ -1,27 +1,32 @@
+import re
 from opgee.version import VERSION
 from setuptools import setup
 
-requirements = [
-    'dash>=2.5.1',
-    'dash-cytoscape',
-    'ipython',
-    'lxml',
-    'networkx',
-    'numba',
-    'numpy==1.22',
-    'pandas',
-    'pint',
-    'pint-pandas',
-    'pydot',
-    'pytest',
-    'sphinx>=4.4.0',
-    'sphinx-argparse>=0.2.5',
-    'sphinx-rtd-theme>=0.5.1',
-    'thermosteam==0.28.12',
-    'thermo==0.2.10',
-    'pyxsteam==0.4.8',
-    'ray',
-]
+with open("requirements.txt") as f:
+    contents = f.read()
+
+requirements = re.split('\s+', contents)
+# requirements = [
+#     'dash>=2.5.1',
+#     'dash-cytoscape',
+#     'ipython',
+#     'lxml',
+#     'networkx',
+#     'numba',
+#     'numpy==1.22',
+#     'pandas',
+#     'pint',
+#     'pint-pandas',
+#     'pydot',
+#     'pytest',
+#     'sphinx>=4.4.0',
+#     'sphinx-argparse>=0.2.5',
+#     'sphinx-rtd-theme>=0.5.1',
+#     'thermosteam==0.28.12',
+#     'thermo==0.2.10',
+#     'pyxsteam==0.4.8',
+#     'ray',
+# ]
 
 long_description = '''
 opgee
