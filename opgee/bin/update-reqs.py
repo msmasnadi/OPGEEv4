@@ -11,9 +11,8 @@ def main():
     reqs_out = REPO_DIR + "requirements.txt"
 
     with open(reqs_in) as f:
-        lines = f.read()
+        pkgs = [line.strip() for line in f.readlines() if not line.startswith('#')]
 
-    pkgs = re.split('\s+', lines.strip())
     expr = '^(' + '|'.join(pkgs) + ')'
     cmd = f"conda list | egrep -i '{expr}'"
 

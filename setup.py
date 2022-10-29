@@ -1,11 +1,11 @@
-import re
 from opgee.version import VERSION
 from setuptools import setup
 
 with open("requirements.txt") as f:
-    contents = f.read()
+    lines = f.readlines()
 
-requirements = re.split('\s+', contents)
+requirements = [line.strip() for line in lines if not line.startswith('#')]
+
 # requirements = [
 #     'dash>=2.5.1',
 #     'dash-cytoscape',
