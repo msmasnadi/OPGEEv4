@@ -32,14 +32,10 @@ class ReservoirWellInterface(Process):
 
         self.num_prod_wells = field.attr("num_prod_wells")
         self.productivity_index = field.attr("prod_index")
-        self.permeability = field.attr("res_perm")
-        self.thickness = field.attr("res_thickness")
-        self.gas_flooding = field.attr("gas_flooding")
-        self.flood_gas_type = field.attr("flood_gas_type")
+        self.permeability = self.attr("res_perm")
+        self.res_thickness = self.attr("res_thickness")
         self.oil_prod = field.attr("oil_prod")
-        self.GFIR = field.attr("GFIR")
         self.frac_CO2_breakthrough = self.attr("frac_CO2_breakthrough")
-        self.CO2_flooding_vol_rate = self.oil_prod * self.GFIR * self.frac_CO2_breakthrough
 
     def run(self, analysis):
         self.print_running_msg()
@@ -47,25 +43,24 @@ class ReservoirWellInterface(Process):
 
         # mass rate
         input = self.find_input_stream("crude oil")
-
         if input.is_uninitialized():
             return
 
         input.set_tp(self.res_tp)
 
         output = self.find_output_stream("crude oil")
+        output.copy_flow_rates_from(input)
+
+        CO2_flooding_rate = field.get_process_data("CO2_mass_rate")
+        if CO2_flooding_rate:
+            CO2_breakthrough_mass_rate = CO2_flooding_rate * self.frac_CO2_breakthrough
+            output.add_flow_rate("CO2", PHASE_GAS, CO2_breakthrough_mass_rate)
+
         # Check
         self.set_iteration_value(output.total_flow_rate())
 
-        if self.gas_flooding and self.flood_gas_type == "CO2":
-            flooding_CO2_rate = field.gas.component_gas_rho_STP["CO2"] * self.CO2_flooding_vol_rate
-            output.copy_flow_rates_from(input)
-            output.add_flow_rate("CO2", PHASE_GAS, flooding_CO2_rate)
-        else:
-            output.copy_flow_rates_from(input)
-
         # bottom hole flowing pressure
-        bottomhole_flowing_press = self.get_bottomhole_press(input)
+        bottomhole_flowing_press = self.get_bottomhole_press(output)
         output.tp.set(T=self.res_tp.T, P=bottomhole_flowing_press)
 
     def impute(self):
@@ -109,23 +104,19 @@ class ReservoirWellInterface(Process):
         gas_formation_volume_factor = gas.volume_factor(input_stream)
 
         # reservoir and flowing pressures at wellbore interface
-        prod_liquid_flowing_BHP = (input_stream.tp.P - fluid_rate_per_well / self.productivity_index).to("psia")
-
-        # TODO: replace line 112 and line 113 in the smart default
-        if prod_liquid_flowing_BHP.m < 0:
-            prod_liquid_flowing_BHP = ureg.Quantity(100, "psia")
+        prod_liquid_flowing_BHP = max((input_stream.tp.P - fluid_rate_per_well / self.productivity_index).to("psia"),
+                                      ureg.Quantity(100, "psia"))
 
         boundary = ureg.Quantity(2000., "psia")
         if res_press <= boundary:
             # flowing bottomhole pressure at producer (gas phase, low pressure)
             delta_P_square = (gas_viscosity * z_factor * std_P * stream_temp *
                               np.log(1000 / 0.5) * gas_rate_per_well /
-                              (np.pi * self.permeability * self.thickness * std_T)).to("psia**2")
+                              (np.pi * self.permeability * self.res_thickness * std_T)).to("psia**2")
             prod_gas_flowing_BHP = np.sqrt(res_press ** 2 - delta_P_square)
         else:
-            # flowing bottomhole pressure at producer (gas phase, high pressure)
             delta_P_high = (gas_viscosity * gas_formation_volume_factor * np.log(1000 / 0.5) * gas_rate_per_well /
-                            (2 * np.pi * self.permeability * self.thickness)).to("psia")
+                            (2 * np.pi * self.permeability * self.res_thickness)).to("psia")
             prod_gas_flowing_BHP = res_press - delta_P_high
 
         prod_flowing_BHP = min(prod_liquid_flowing_BHP, prod_gas_flowing_BHP)

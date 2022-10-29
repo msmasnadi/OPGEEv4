@@ -35,7 +35,7 @@ class Separation(Process):
         self.outlet_tp = TemperaturePressure(self.attr("temperature_outlet"),
                                              self.attr("pressure_outlet"))
 
-        self.temperature_stage1 = field.wellhead_tp.T
+        self.temperature_stage1 = field.attr("wellhead_temperature")
         self.temperature_stage2 = (self.temperature_stage1.to("kelvin") + self.outlet_tp.T.to("kelvin")) / 2
 
         self.pressure_stage1 = self.attr("pressure_first_stage")
@@ -62,7 +62,6 @@ class Separation(Process):
 
     def run(self, analysis):
         self.print_running_msg()
-        field = self.field
 
         # mass rate
         input = self.find_input_stream("crude oil")
@@ -103,8 +102,6 @@ class Separation(Process):
         emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
 
         emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
-
-        self.field.save_process_data(separation_solution_GOR=final_GOR)
 
     def impute(self):
         field = self.field

@@ -30,27 +30,19 @@ class CrudeOilStabilization(Process):
         self.eta_electricity = self.attr("eta_electricity")
         self.prime_mover_type = self.attr("prime_mover_type")
         self.eta_compressor = self.attr("eta_compressor")
-        self.oil_sands_mine = field.attr("oil_sands_mine")
-        if self.oil_sands_mine != "None":
-            self.set_enabled(False)
-            return
 
     def run(self, analysis):
         self.print_running_msg()
         field = self.field
 
-
-
         # mass rate
         input = self.find_input_stream("oil for stabilization")
-
         if input.is_uninitialized():
             return
 
         input_T, input_P = input.tp.get()
 
-        average_temp = (self.stab_tp.T.m + input_T.m) / 2
-        average_temp = ureg.Quantity(average_temp, "degF")
+        average_temp = (self.stab_tp.T.to("kelvin") + input_T.to("kelvin")) / 2
 
         oil = self.field.oil
         oil_specific_heat = oil.specific_heat(oil.API, average_temp)
@@ -79,11 +71,11 @@ class CrudeOilStabilization(Process):
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
-        output = self.find_output_stream("oil for storage")
+        output_oil = self.find_output_stream("oil for storage")
         oil_for_storage = oil_mass_rate - output_stab_gas.total_gas_rate() - gas_fugitives.total_gas_rate()
-        output.set_liquid_flow_rate("oil", oil_for_storage, tp=self.stab_tp)
+        output_oil.set_liquid_flow_rate("oil", oil_for_storage, tp=self.stab_tp)
 
-        self.set_iteration_value(output_stab_gas.total_flow_rate() + output.total_flow_rate())
+        self.set_iteration_value(output_stab_gas.total_flow_rate() + output_oil.total_flow_rate())
 
         # energy use
         heat_duty = oil_mass_rate * oil_specific_heat * (self.stab_tp.T - input_T) * (1 + self.eps_stab)
@@ -114,5 +106,3 @@ class CrudeOilStabilization(Process):
         emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
 
         emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
-
-        self.field.save_process_data(oil_stab_solution_GOR_outlet=solution_GOR_outlet)

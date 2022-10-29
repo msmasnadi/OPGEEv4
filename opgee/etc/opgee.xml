@@ -458,8 +458,12 @@
 			<Contains>oil for storage</Contains>
 		</Stream>
 
-		<Stream src="HeavyOilUpgrading" dst="ProductionBoundary">
+		<Stream src="HeavyOilUpgrading" dst="ProductionBoundary" name="exported petrocoke">
 			<Contains>petrocoke</Contains>
+		</Stream>
+
+		<Stream src="HeavyOilUpgrading" dst="ProductionBoundary" name="exported process gas">
+			<Contains>process gas</Contains>
 		</Stream>
 
 		<Stream src="ProductionBoundary" dst="PetrocokeTransport">

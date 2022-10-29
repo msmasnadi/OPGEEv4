@@ -17,16 +17,10 @@ class GasReinjectionWell(Process):
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
-        self.gas_flooding = field.attr("gas_flooding")
-        if not self.gas_flooding:
-            self.set_enabled(False)
-            return
-
         self.gas = field.gas
 
     def run(self, analysis):
         self.print_running_msg()
-        field = self.field
 
         # mass rate
         input = self.find_input_stream("gas for gas reinjection well")
