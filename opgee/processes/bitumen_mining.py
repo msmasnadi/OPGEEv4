@@ -48,7 +48,7 @@ class BitumenMining(Process):
                                                     field.attr("pressure_mined_bitumen"))
         self.downhole_pump = field.attr("downhole_pump")
         self.oil_prod_rate = field.attr("oil_prod")
-        self.upgrader_type = self.field.attr("upgrader_type")
+        self.upgrader_type = field.attr("upgrader_type")
         self.upgrader_mining_prod_onsite = True if self.upgrader_type != "None" else False
         self.gas_comp = field.attrs_with_prefix("gas_comp_")
         self.FOR = field.attr("FOR")

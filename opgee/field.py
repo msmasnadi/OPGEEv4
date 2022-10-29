@@ -145,8 +145,6 @@ class Field(Container):
 
         self.upgrader_type = self.attr("upgrader_type")     # used only in smart default
 
-        self.wellhead_tp = TemperaturePressure(self.attr("wellhead_temperature"), self.attr("wellhead_pressure"))
-
         # TODO: Why are these copied into the Field object? Why not access them from Model?
         # TODO: It's good practice to declare all instance vars in __init__ (set to None perhaps)
         #       other programmers (and PyCharm) recognize them as proper instance variables and

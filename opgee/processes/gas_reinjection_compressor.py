@@ -13,7 +13,6 @@ from .. import ureg
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
-from ..stream import Stream
 
 _logger = getLogger(__name__)
 

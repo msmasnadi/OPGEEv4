@@ -113,12 +113,12 @@ class GasPartition(Process):
                 import_product.set_import(self.name, N2, N2_mass_rate)
             elif self.flood_gas_type == "CO2":
                 CO2_mass_rate = self.gas_flooding_vol_rate * field.gas.component_gas_rho_STP["CO2"]
-                if field.get_process_data("CO2_reinjection_mass_rate") is not None:
-                    CO2_mass_rate = max(ureg.Quantity(0, "tonne/day"),
-                                        CO2_mass_rate - field.get_process_data("CO2_reinjection_mass_rate"))
-                if field.get_process_data("sour_gas_reinjection_mass_rate") is not None:
-                    CO2_mass_rate = max(ureg.Quantity(0, "tonne/day"),
-                                        CO2_mass_rate - field.get_process_data("sour_gas_reinjection_mass_rate"))
+                CO2_reinjection_mass_rate = field.get_process_data("CO2_reinjection_mass_rate")
+                sour_gas_reinjection_mass_rate = field.get_process_data("sour_gas_reinjection_mass_rate")
+                if CO2_reinjection_mass_rate:
+                    CO2_mass_rate = max(ureg.Quantity(0, "tonne/day"), CO2_mass_rate - CO2_reinjection_mass_rate)
+                if sour_gas_reinjection_mass_rate:
+                    CO2_mass_rate = max(ureg.Quantity(0, "tonne/day"), CO2_mass_rate - sour_gas_reinjection_mass_rate)
 
                 if self.CO2_source == "Natural subsurface reservoir":
                     impurity_mass_rate = CO2_mass_rate * self.impurity_CH4_in_CO2
@@ -130,6 +130,7 @@ class GasPartition(Process):
                 reinjected_gas_stream.set_tp(self.CO2_flooding_tp)
 
                 import_product.set_import(self.name, CO2_Flooding, CO2_mass_rate + impurity_mass_rate)
+                field.save_process_data(CO2_mass_rate=CO2_mass_rate)
             else:
                 input_STP = Stream("input_stream_at_STP", tp=STP)
                 input_STP.copy_flow_rates_from(input, tp=STP)
@@ -155,13 +156,16 @@ class GasPartition(Process):
                     exported_gas_stream.set_tp(tp=STP)
                     import_product.set_import(self.name, NATURAL_GAS, imported_NG_energy_rate)
 
+            gas_to_reinjection = self.find_output_stream("gas for gas reinjection compressor")
+            gas_to_reinjection.copy_flow_rates_from(reinjected_gas_stream)
+
         elif self.natural_gas_reinjection:
             reinjected_gas_stream.copy_flow_rates_from(input)
             reinjected_gas_stream.multiply_flow_rates(self.fraction_remaining_gas_inj)
             exported_gas_stream.subtract_rates_from(reinjected_gas_stream, PHASE_GAS)
 
-        gas_to_reinjection = self.find_output_stream("gas for gas reinjection compressor")
-        gas_to_reinjection.copy_flow_rates_from(reinjected_gas_stream)
+            gas_to_reinjection = self.find_output_stream("gas for gas reinjection compressor")
+            gas_to_reinjection.copy_flow_rates_from(reinjected_gas_stream)
 
         exported_gas = self.find_output_stream("gas")
         exported_gas.copy_flow_rates_from(exported_gas_stream)
