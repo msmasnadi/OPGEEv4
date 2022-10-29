@@ -104,10 +104,8 @@
       <AttrDef name="prod_index" unit="bbl_oil/(psia*day)" type="float" desc="Productivity index">17.0</AttrDef>
       <AttrDef name="res_press" unit="psia" desc="Average reservoir pressure" type="float">1556.6</AttrDef>
       <AttrDef name="res_temp" unit="degF" desc="Average reservoir temperature" type="float">200.0</AttrDef>
-      <AttrDef name="res_thickness" unit="ft" desc="Average reservoir thickness" type="float">50</AttrDef>
-      <AttrDef name="res_perm" unit="mD" desc="Reservoir permeability" type="float">100</AttrDef>
-      <AttrDef name="wellhead_pressure" type="float" unit="psia" >500</AttrDef>
-      <AttrDef name="wellhead_temperature" type="float" unit="degF" >80</AttrDef>
+      <AttrDef name="wellhead_temperature" type="float" unit="degF" >150</AttrDef>
+
       <AttrDef name="offshore" type="binary" desc="Offshore?">0</AttrDef>
 
       <!-- Fluid properties -->
@@ -345,16 +343,6 @@
 
       <AttrDef name="combusted_gas_frac" type="float" unit="percent" desc="Combusted gas total fraction" GE="0" LE="100">93.0</AttrDef>
       <AttrDef name="surface_piping_leakage" type="float" unit="kg/day" desc="Surface piping leakage for venting kg CH4/d">0.0</AttrDef>
-      <AttrDef name="eta_compressor_lifting" type="float" unit="percent" desc="Gas lifting compressor parameters (1-5 stages) - compressor efficiency">75.0</AttrDef>
-      <Options name="prime_mover_type_gas_lifting" default="NG_engine">
-        <Option>NG_engine</Option>
-        <Option>Electric_motor</Option>
-        <Option>Diesel_engine</Option>
-        <Option>NG_turbine</Option>
-      </Options>
-
-      <AttrDef name="prime_mover_type_gas_lifting" type="str" options="prime_mover_type_gas_lifting">NG_engine</AttrDef>
-
       <AttrDef name="reflux_ratio" type="float" unit="frac" desc="gas dehydration reflux ratio">2.25</AttrDef>
       <AttrDef name="regeneration_feed_temp" type="float" unit="degF" desc="gas dehydration regeneration feed temperature">200.0</AttrDef>
       <AttrDef name="natural_gas_to_liquefaction_frac" type="float" unit="frac" desc="Fraction of natural gas to liquefaction">0.5</AttrDef>
@@ -409,6 +397,7 @@
       <AttrDef name="REC_fracturing_flowback" desc="Fracturing flowback captured with reduced emissons completions?" type="binary">1</AttrDef>
       <AttrDef name="number_well_workovers" desc="Workovers needed over lifetime of well" type="float">4.0</AttrDef>
     </ClassAttrs>
+
     <ClassAttrs name="DownholePump">
       <Options name="prime_mover_type" default="NG_engine">
         <Option>NG_engine</Option>
@@ -420,9 +409,13 @@
 
       <AttrDef name="eta_pump_well" type="float" unit="percent" desc="pump efficiency">65</AttrDef>
       <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
+      <AttrDef name="wellhead_pressure" type="float" unit="psia" >500</AttrDef>
     </ClassAttrs>
+
     <ClassAttrs name="ReservoirWellInterface">
-      <AttrDef name="frac_CO2_breakthrough" desc="Fraction of CO2 breaking through to producers" unit="percent" type="float">59</AttrDef>
+      <AttrDef name="res_thickness" unit="ft" desc="Average reservoir thickness" type="float">50</AttrDef>
+      <AttrDef name="res_perm" unit="mD" desc="Reservoir permeability" type="float">100</AttrDef>
+      <AttrDef name="frac_CO2_breakthrough" desc="Fraction of CO2 breaking through to producers" unit="frac" type="float">0.59</AttrDef>
     </ClassAttrs>
     <ClassAttrs name="WaterInjection">
       <Options name="prime_mover_type" default="NG_engine">
@@ -721,23 +714,17 @@
       <AttrDef name="eta_compressor" type="float" unit="percent" desc="VRU compressor efficiency">75.0</AttrDef>
     </ClassAttrs>
 
-<!--     <ClassAttrs name="GasFloodingCompressor">-->
-<!--      <Options name="prime_mover_type" default="NG_engine">-->
-<!--        <Option>NG_engine</Option>-->
-<!--        <Option>Electric_motor</Option>-->
-<!--      </Options>-->
-<!--      <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>-->
-<!--      <AttrDef name="eta_compressor" type="float" unit="percent" desc="gas reinjection compressor efficiency">75.0</AttrDef>-->
-
-<!--    </ClassAttrs>-->
-
-
-    <ClassAttrs name="GasLiftingCompressor">
+     <ClassAttrs name="GasLiftingCompressor">
+      <AttrDef name="eta_compressor" type="float" unit="percent" desc="Gas lifting compressor parameters (1-5 stages) - compressor efficiency">75.0</AttrDef>
       <Options name="prime_mover_type" default="NG_engine">
         <Option>NG_engine</Option>
         <Option>Electric_motor</Option>
+        <Option>Diesel_engine</Option>
+        <Option>NG_turbine</Option>
       </Options>
+
       <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
+
     </ClassAttrs>
 
     <ClassAttrs name="GasReinjectionCompressor">

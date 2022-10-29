@@ -6,6 +6,7 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
+from .shared import get_energy_carrier
 from .. import ureg
 from ..core import TemperaturePressure
 from ..emissions import EM_COMBUSTION
@@ -43,11 +44,9 @@ class CrudeOilDewatering(Process):
 
     def run(self, analysis):
         self.print_running_msg()
-        field = self.field
 
         # mass rate
         input = self.find_input_stream("crude oil")
-
         if input.is_uninitialized():
             return
 
@@ -56,13 +55,10 @@ class CrudeOilDewatering(Process):
         water_rate = input.flow_rate("H2O", PHASE_LIQUID)
         temp = self.temperature_heater_treater if self.heater_treater else input_T
 
-        # TODO: unused
-        # separator_final_SOR = field.get_process_data("separator_final_SOR")
-
         try:
             output = self.oil_path_dict[self.oil_path]
         except:
-            raise OpgeeException(f"{self.name} oil path is not recognized:{self.oil_path}. "
+            raise OpgeeException(f"{self.name} oil path is not recognized:{self.oil_path}."
                                  f"Must be one of {list(self.oil_path_dict.keys())}")
         output_oil = self.find_output_stream(output)
 
@@ -74,10 +70,10 @@ class CrudeOilDewatering(Process):
         if water_to_treatment is not None:
             water_to_treatment.set_liquid_flow_rate("H2O", water_rate, tp=output_tp)
 
-        average_oil_temp = ureg.Quantity((input_T.m + self.temperature_heater_treater.m) / 2, "degF")
+        average_oil_temp = (input_T.to("kelvin") + temp.to("kelvin")) / 2
         oil_heat_capacity = self.field.oil.specific_heat(self.field.oil.API, average_oil_temp)
         water_heat_capacity = self.field.water.specific_heat(average_oil_temp)
-        delta_temp = ureg.Quantity(self.temperature_heater_treater.m - input_T.m, "delta_degF")
+        delta_temp = abs(input_T - temp)
         heat_duty = ureg.Quantity(0.0, "mmBtu/day")
 
         if self.heater_treater:
@@ -87,13 +83,12 @@ class CrudeOilDewatering(Process):
 
         # energy_use
         energy_use = self.energy
-        energy_carrier = EN_NATURAL_GAS if self.prime_mover_type == "NG_engine" else EN_ELECTRICITY
         energy_consumption = \
             heat_duty / self.eta_gas if self.prime_mover_type == "NG_engine" else heat_duty / self.eta_electricity
-        energy_use.set_rate(energy_carrier, energy_consumption.to("mmBtu/day"))
+        energy_carrier = get_energy_carrier(self.prime_mover_type)
+        energy_use.set_rate(energy_carrier, energy_consumption)
 
         # import/export
-        # import_product = field.import_export
         self.set_import_from_energy(energy_use)
 
         # emissions

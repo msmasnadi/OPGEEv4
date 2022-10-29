@@ -1,5 +1,5 @@
 Items,Fraction,Delayed coking,Hydroconversion,Combined,Unit
-API gravity of resuling upgraded product output,none,33.2,31.1,31.1,deg API
+API gravity of resulting upgraded product output,none,33.2,31.1,31.1,deg API
 Process gas (PG) yield per bbl SCO output,total,500.5450619,340.5880343,649.5242798,scf/bbl_oil
 Process gas (PG) yield per bbl SCO output,Fraction PG to self use - Heating (W/O cogen),0.65,0.8,0.724697591,frac
 Process gas (PG) yield per bbl SCO output,Fraction PG to self use - H2 gen,0,0,0.21858728,frac

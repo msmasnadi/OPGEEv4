@@ -26,6 +26,7 @@ PETCOKE = "Pet. coke"
 ELECTRICITY = "Electricity"
 WATER = "Water"
 N2 = "N2"
+H2 = "H2"
 CO2_Flooding = "CO2 flooding"
 
 
@@ -45,6 +46,7 @@ class ImportExport(OpgeeObject):
                  ELECTRICITY: "kWh/day",
                  WATER: "tonne/day",
                  N2: "tonne/day",
+                 H2: "tonne/day",
                  CO2_Flooding: "tonne/day"}
 
     imports_set = set(unit_dict.keys())

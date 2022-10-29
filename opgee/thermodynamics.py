@@ -1131,7 +1131,7 @@ class Gas(AbstractSubstance):
     # TODO: used only in tests
     def volume_energy_density(self, stream):
         """
-        Calculate gas volume density
+        Calculate gas volume energy density
 
         :param stream:
 
