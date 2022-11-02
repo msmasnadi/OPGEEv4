@@ -38,6 +38,8 @@ class HeavyOilDilution(Process):
 
         self.diluent_API = self.attr("diluent_API")
         self.dilution_SG = self.oil.specific_gravity(self.diluent_API)
+        self.dilbit_API = self.attr("dilbit_API")
+        self.dilbit_SG = self.oil.specific_gravity(self.dilbit_API)
 
         self.dilution_type = self.attr("dilution_type")
         self.diluent_tp = TemperaturePressure(self.attr("diluent_temp"),
@@ -53,7 +55,7 @@ class HeavyOilDilution(Process):
 
     def run(self, analysis):
         self.print_running_msg()
-        field =self.field
+        field = self.field
 
         # mass rate
         input_oil = self.find_input_stream("oil for dilution", raiseError=False)
@@ -69,63 +71,44 @@ class HeavyOilDilution(Process):
                 (input_bitumen is not None and input_bitumen.is_uninitialized()):
             return
 
-        output = self.find_output_stream("oil for storage")
-        oil_mass_rate = input_oil.liquid_flow_rate("oil") if input_oil is not None else ureg.Quantity(0.0, "tonne/day")
-        bitumen_mass_rate =\
-            input_bitumen.liquid_flow_rate("oil") if input_bitumen is not None else ureg.Quantity(0.0, "tonne/day")
-        total_mass_rate = oil_mass_rate + bitumen_mass_rate
-        output.set_liquid_flow_rate("oil", total_mass_rate, tp=self.final_mix_tp)
+        if input_oil:
+            input_liquid_mass_rate = input_oil.liquid_flow_rate("oil")
+            input_liquid_SG = self.oil.oil_specific_gravity
+        elif input_bitumen:
+            input_liquid_mass_rate = input_bitumen.liquid_flow_rate("oil")
+            input_liquid_SG = self.bitumen_SG
 
         frac_diluent = self.frac_diluent
-
-        total_mass_oil_bitumen_before_dilution = total_mass_rate
-        final_SG = self.oil_SG if self.oil_sand_mine is None else self.bitumen_SG
-        total_volume_oil_bitumen_before_dilution = 0 if frac_diluent == 1 else \
-            total_mass_oil_bitumen_before_dilution / final_SG / self.water_density
-        expected_volume_oil_bitumen = self.oil_prod_rate if frac_diluent == 1 else \
-            self.oil_prod_rate / (1 - frac_diluent)
-        required_volume_diluent = expected_volume_oil_bitumen if frac_diluent == 1 else \
-            expected_volume_oil_bitumen * frac_diluent
+        input_liquid_vol_rate = input_liquid_mass_rate / input_liquid_SG / self.water_density
+        expected_volume_oil_bitumen = input_liquid_vol_rate if frac_diluent == 1 else \
+            input_liquid_vol_rate / (1 - frac_diluent)
+        required_volume_diluent = expected_volume_oil_bitumen * frac_diluent
 
         if self.dilution_type == "Diluent":
             required_mass_dilution = required_volume_diluent * self.dilution_SG * self.water_density
-            total_mass_diluted_oil = required_mass_dilution + total_mass_oil_bitumen_before_dilution
+            total_mass_diluted_oil = required_mass_dilution + input_liquid_mass_rate
+            diluent_LHV = field.oil.mass_energy_density(API=self.diluent_API)
         else:
-            total_mass_diluted_oil = expected_volume_oil_bitumen * self.dilution_SG
+            total_mass_diluted_oil = expected_volume_oil_bitumen * self.dilbit_SG * self.water_density
             required_mass_dilution = total_mass_diluted_oil if frac_diluent == 1 else \
-                total_mass_diluted_oil - total_mass_oil_bitumen_before_dilution
+                max(0, total_mass_diluted_oil - input_liquid_mass_rate)
+            diluent_SG = required_mass_dilution / required_volume_diluent / self.water_density
+            diluent_LHV = field.oil.mass_energy_density(API=field.oil.API_from_SG(diluent_SG))
 
-        # TODO: unused variable
-        # diluted_oil_bitumen_SG = self.oil_SG if expected_volume_oil_bitumen <= 0 else \
-        #     total_mass_diluted_oil / expected_volume_oil_bitumen / self.water_density
+        output_oil = self.find_output_stream("oil for storage", raiseError=False)
+        if output_oil is None:
+            output_oil = self.find_output_stream("oil for upgrading")
+        output_oil.set_liquid_flow_rate("oil", total_mass_diluted_oil, tp=self.final_mix_tp)
 
-        stream = Stream("diluent", self.before_diluent_tp)
-        diluent_density = self.oil.density(stream, self.dilution_SG, self.oil.gas_specific_gravity,
-                                           self.oil.gas_oil_ratio)
-        heavy_oil_density = self.oil.density(stream, self.oil_SG, self.oil.gas_specific_gravity, self.oil.gas_oil_ratio)
-        diluent_energy_density_mass = self.oil.mass_energy_density(API=self.diluent_API)
-        heavy_oil_energy_density_mass = self.oil.mass_energy_density(API=self.oil.API)
-        diluent_energy_density_vol = diluent_energy_density_mass * diluent_density
-        heavy_oil_energy_density_vol = heavy_oil_energy_density_mass * heavy_oil_density
+        self.field.save_process_data(final_diluent_LHV_mass=diluent_LHV)
+        diluent_energy_rate = required_mass_dilution * diluent_LHV
 
-        final_diluent_LHV_mass = \
-            diluent_energy_density_mass if frac_diluent == 1.0 or self.dilution_type == "Diluent" \
-                else (
-                             diluent_energy_density_vol *
-                             total_mass_diluted_oil -
-                             total_mass_oil_bitumen_before_dilution *
-                             heavy_oil_energy_density_vol) / required_mass_dilution
-
-        self.field.save_process_data(final_diluent_LHV_mass=final_diluent_LHV_mass)
-
-        oil_mass_energy_density = self.oil.mass_energy_density(self.diluent_API)
-        oil_LHV_rate = required_mass_dilution * oil_mass_energy_density
-
+        # Calculate imported diluent energy consumption
         fuel_consumption = TransportEnergy.get_transport_energy_dict(self.field,
                                                                      self.transport_parameter,
                                                                      self.transport_share_fuel,
                                                                      self.transport_by_mode,
-                                                                     oil_LHV_rate,
+                                                                     diluent_energy_rate,
                                                                      "Diluent")
 
         energy_use = self.energy
@@ -135,7 +118,7 @@ class HeavyOilDilution(Process):
         # import/export
         import_product = field.import_export
         self.set_import_from_energy(energy_use)
-        import_product.set_export(self.name, DILUENT, oil_LHV_rate)
+        import_product.set_export(self.name, DILUENT, diluent_energy_rate)
 
         # emission
         emissions = self.emissions

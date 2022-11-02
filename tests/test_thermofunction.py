@@ -27,6 +27,12 @@ def test_oil_specific_gravity(oil_instance):
     assert oil_SG == ureg.Quantity(pytest.approx(oil_instance.oil_specific_gravity.m), "frac")
 
 
+def test_oil_API_from_SG(oil_instance):
+    oil_SG = oil_instance.specific_gravity(oil_instance.API)
+    oil_API = oil_instance.API_from_SG(oil_SG)
+    assert oil_API == ureg.Quantity(pytest.approx(oil_instance.API.m), "degAPI")
+
+
 def test_reservoir_solution_GOR(oil_instance):
     res_GOR = oil_instance.reservoir_solution_GOR()
     assert res_GOR == ureg.Quantity(pytest.approx(291.334541), "scf/bbl_oil")
@@ -321,6 +327,7 @@ def test_energy_flow_rate(gas_instance, stream):
 def water_instance(test_model):
     field = test_model.get_field("test")
     return field.water
+
 
 def test_water_density(water_instance):
     density = water_instance.density()

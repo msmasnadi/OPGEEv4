@@ -1,10 +1,10 @@
 Type,Method,Fraction,Distance
 _,_,frac,mile
-Diluent,tanker,0,0
-Diluent,barge,0,0
-Diluent,pipeline,1,2500
-Diluent,rail,0,0
-Diluent,truck,0,0
+Diluent,tanker,1.00,8000.00
+Diluent,barge,0.00,500.00
+Diluent,pipeline,1.00,1000.00
+Diluent,rail,0.00,800.00
+Diluent,truck,0.00,100.00
 LNG,tanker,1,5082
 LNG,barge,0,500
 LNG,pipeline,0,750

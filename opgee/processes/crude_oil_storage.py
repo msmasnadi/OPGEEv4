@@ -27,7 +27,8 @@ class CrudeOilStorage(Process):
         self.tonne_to_bbl = model.const("tonne-to-bbl")
 
         self.storage_gas_comp = field.imported_gas_comp["Storage Gas"]
-        self.CH4_comp = self.storage_gas_comp["C1"]
+        self.storage_gas_mass_comp = field.gas.component_mass_fractions(self.storage_gas_comp)
+        self.CH4_comp = self.storage_gas_mass_comp["C1"]
         self.f_FG_CS_VRU = self.attr("f_FG_CS_VRU")
         self.f_FG_CS_FL = self.attr("f_FG_CS_FL")
 
@@ -38,20 +39,19 @@ class CrudeOilStorage(Process):
         # TODO: LPG to blend with crude oil need to be implement after gas branch
         # mass rate
         input = self.find_input_streams("oil for storage", combine=True)
-
         if input.is_uninitialized():
             return
 
         oil_mass_rate = input.liquid_flow_rate("oil")
         # TODO: loss rate need to be replaced by VF-component
         loss_rate = self.venting_fugitive_rate()
-        loss_rate = ureg.Quantity(0.47, "kg/bbl_oil")
+        loss_rate = ureg.Quantity(0.827, "kg/bbl_oil")
         gas_exsolved_upon_flashing = oil_mass_rate * loss_rate * self.tonne_to_bbl / \
                                      self.CH4_comp if self.oil_sands_mine == "None" else ureg.Quantity(0, "tonne/day")
 
-        vapor_to_flare = self.f_FG_CS_FL * gas_exsolved_upon_flashing * self.storage_gas_comp
-        vapor_to_VRU = self.f_FG_CS_VRU * gas_exsolved_upon_flashing * self.storage_gas_comp
-        gas_fugitives = (1 - self.f_FG_CS_VRU - self.f_FG_CS_FL) * gas_exsolved_upon_flashing * self.storage_gas_comp
+        vapor_to_flare = self.f_FG_CS_FL * gas_exsolved_upon_flashing * self.storage_gas_mass_comp
+        vapor_to_VRU = self.f_FG_CS_VRU * gas_exsolved_upon_flashing * self.storage_gas_mass_comp
+        gas_fugitives = (1 - self.f_FG_CS_VRU - self.f_FG_CS_FL) * gas_exsolved_upon_flashing * self.storage_gas_mass_comp
 
         stp = field.stp
 

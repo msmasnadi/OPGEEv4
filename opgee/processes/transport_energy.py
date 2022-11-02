@@ -71,27 +71,27 @@ class TransportEnergy(OpgeeObject):
                 load_factor, mode)
 
         # TODO: then you can do this. Use same approach below for transport_energy_density()
-        # ocean_tanker_dest_energy_consumption = transp_energy(ocean_tanker_load_factor_dest, "tanker")
+        # ocean_tanker_orig_dest_energy_consumption = transp_energy(ocean_tanker_load_factor_dest, "tanker")
 
-        ocean_tanker_dest_energy_consumption = \
+        ocean_tanker_orig_dest_energy_consumption = \
             TransportEnergy.get_water_transport_energy_consumption(
                 residual_oil_LHV,
                 residual_oil_density,
                 ocean_tanker_load_factor_dest,
                 "tanker")
-        ocean_tanker_orig_energy_consumption = \
+        ocean_tanker_dest_orig_energy_consumption = \
             TransportEnergy.get_water_transport_energy_consumption(
                 residual_oil_LHV,
                 residual_oil_density,
                 ocean_tanker_load_factor_origin,
                 "tanker")
-        barge_dest_energy_consumption = \
+        barge_orig_dest_energy_consumption = \
             TransportEnergy.get_water_transport_energy_consumption(
                 residual_oil_LHV,
                 residual_oil_density,
                 barge_load_factor_dest,
                 "barge")
-        barge_orig_energy_consumption = \
+        barge_dest_orig_energy_consumption = \
             TransportEnergy.get_water_transport_energy_consumption(
                 residual_oil_LHV,
                 residual_oil_density,
@@ -101,70 +101,71 @@ class TransportEnergy(OpgeeObject):
         ocean_tanker_hp = ureg.Quantity(9070 + 0.101 * ocean_tanker_size.m, "hp")
         barge_hp = ureg.Quantity(5600 / 22500 * barge_capacity.m, "hp")
 
-        ocean_tanker_dest_energy_intensity = \
+        ocean_tanker_orig_dest_energy_intensity = \
             TransportEnergy.transport_energy_intensity(
                 ocean_tanker_speed,
                 ocean_tanker_size,
                 barge_capacity,
                 barge_speed,
-                ocean_tanker_dest_energy_consumption,
+                ocean_tanker_orig_dest_energy_consumption,
                 ocean_tanker_load_factor_dest,
                 ocean_tanker_hp,
                 "tanker")
-        barge_dest_energy_intensity = \
+        barge_orig_dest_energy_intensity = \
             TransportEnergy.transport_energy_intensity(
                 ocean_tanker_speed,
                 ocean_tanker_size,
                 barge_capacity,
                 barge_speed,
-                barge_dest_energy_consumption,
+                barge_orig_dest_energy_consumption,
                 barge_load_factor_dest,
                 barge_hp,
                 "barge")
-        pipeline_dest_energy_intensity = (energy_intensity_pipeline_turbine *
-                                          frac_power_pipeline_turbine +
-                                          energy_intensity_pipeline_engine_current *
-                                          frac_power_pipeline_engine_current +
-                                          energy_intensity_pipeline_engine_future *
-                                          frac_power_pipeline_engine_future)
-        ocean_tanker_origin_energy_intensity = \
+        pipeline_orig_dest_energy_intensity = (energy_intensity_pipeline_turbine *
+                                               frac_power_pipeline_turbine +
+                                               energy_intensity_pipeline_engine_current *
+                                               frac_power_pipeline_engine_current +
+                                               energy_intensity_pipeline_engine_future *
+                                               frac_power_pipeline_engine_future)
+        ocean_tanker_dest_orig_energy_intensity = \
             TransportEnergy.transport_energy_intensity(
                 ocean_tanker_speed,
                 ocean_tanker_size,
                 barge_capacity,
                 barge_speed,
-                ocean_tanker_orig_energy_consumption,
+                ocean_tanker_dest_orig_energy_consumption,
                 ocean_tanker_load_factor_origin,
                 ocean_tanker_hp,
                 "tanker")
-        barge_origin_energy_intensity = \
+        barge_dest_orig_energy_intensity = \
             TransportEnergy.transport_energy_intensity(
                 ocean_tanker_speed,
                 ocean_tanker_size,
                 barge_capacity,
                 barge_speed,
-                barge_orig_energy_consumption,
+                barge_dest_orig_energy_consumption,
                 barge_load_factor_origin,
                 barge_hp,
                 "barge")
 
-        pipeline_origin_energy_intensity = ureg.Quantity(0.0, "btu/tonne/mile")
-        rail_origin_energy_intensity = ureg.Quantity(200.0, "btu/tonne/mile")
-        truck_origin_energy_intensity = energy_intensity_truck
+        pipeline_dest_orig_energy_intensity = ureg.Quantity(0.0, "btu/tonne/mile")
+        rail_dest_orig_energy_intensity = ureg.Quantity(200.0, "btu/tonne/mile")
+        truck_dest_orig_energy_intensity = energy_intensity_truck
 
-        transport_dest_energy_consumption = pd.Series([ocean_tanker_dest_energy_intensity, barge_dest_energy_intensity,
-                                                       pipeline_dest_energy_intensity, energy_intensity_rail_transport,
-                                                       energy_intensity_truck], dtype="pint[btu/tonne/mile]")
+        transport_orig_dest_energy_consumption = \
+            pd.Series([ocean_tanker_orig_dest_energy_intensity, barge_orig_dest_energy_intensity,
+                       pipeline_orig_dest_energy_intensity, energy_intensity_rail_transport,
+                       energy_intensity_truck], dtype="pint[btu/tonne/mile]")
 
         # save to the field and retrieve them from exploration
         if prod_type == "crude":
-            field.save_process_data(ocean_tanker_dest_energy_intensity=ocean_tanker_dest_energy_intensity)
+            field.save_process_data(ocean_tanker_dest_energy_intensity=ocean_tanker_orig_dest_energy_intensity)
             field.save_process_data(energy_intensity_truck=energy_intensity_truck)
 
-        transport_origin_energy_consumption = pd.Series(
-            [ocean_tanker_origin_energy_intensity, barge_origin_energy_intensity,
-             pipeline_origin_energy_intensity, rail_origin_energy_intensity,
-             truck_origin_energy_intensity], dtype="pint[btu/tonne/mile]")
+        transport_dest_origin_energy_consumption = \
+            pd.Series([ocean_tanker_dest_orig_energy_intensity, barge_dest_orig_energy_intensity,
+                       pipeline_dest_orig_energy_intensity, rail_dest_orig_energy_intensity,
+                       truck_dest_orig_energy_intensity], dtype="pint[btu/tonne/mile]")
 
         if prod_type == "diluent":
             denominator = field.get_process_data("final_diluent_LHV_mass")
@@ -175,8 +176,8 @@ class TransportEnergy(OpgeeObject):
         else:
             denominator = field.model.const("petrocoke-heating-value") / 1.10231
 
-        transport_energy_consumption =\
-            (transport_dest_energy_consumption + transport_origin_energy_consumption) / denominator
+        transport_energy_consumption = \
+            (transport_orig_dest_energy_consumption + transport_dest_origin_energy_consumption) / denominator
 
         fuel_consumption = \
             TransportEnergy.fuel_consumption(
@@ -254,7 +255,7 @@ class TransportEnergy(OpgeeObject):
         common = energy_consumption * load_factor * hp
         if type == "tanker":
             result = common / ocean_tanker_speed / ocean_tanker_size
-        else: # must be "barge" since we checked.
+        else:  # must be "barge" since we checked.
             result = common / barge_capacity / barge_speed
         return result
 

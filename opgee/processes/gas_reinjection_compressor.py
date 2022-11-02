@@ -29,7 +29,10 @@ class GasReinjectionCompressor(Process):
     def run(self, analysis):
         self.print_running_msg()
 
-        input = self.find_input_stream("gas for gas reinjection compressor")
+        input = self.find_input_stream("gas for gas reinjection compressor", raiseError=False)
+        if input is None:
+            self.set_enabled(False)
+            return
         if input.is_uninitialized():
             return
 

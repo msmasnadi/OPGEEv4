@@ -30,7 +30,10 @@ class GasLiftingCompressor(Process):
         field = self.field
 
         # mass rate
-        input = self.find_input_stream("lifting gas")
+        input = self.find_input_stream("lifting gas", raiseError=None)
+        if input is None:
+            self.set_enabled(False)
+            return
 
         if input.is_uninitialized():
             return

@@ -402,6 +402,18 @@ class Oil(AbstractSubstance):
         result = 141.5 / (API_grav_value + 131.5)
         return ureg.Quantity(result, "frac")
 
+    @staticmethod
+    def API_from_SG(SG):
+        """
+        Calculate API from specific gravity
+        :param SG:
+        :return:
+        """
+
+        SG = SG.to("frac").m if isinstance(SG, pint.Quantity) else SG
+        result = 141.5 / SG - 131.5
+        return ureg.Quantity(result, "degAPI")
+
     # TODO used only in tests
     def reservoir_solution_GOR(self):
         """

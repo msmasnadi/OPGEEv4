@@ -47,9 +47,6 @@ class AcidGasRemoval(Process):
         self.eta_compressor = self.attr("eta_compressor")
         self.prime_mover_type = self.attr("prime_mover_type")
 
-        if self.type_amine == "MDEA":
-            variable_bound_dict["reflux_ratio"] = [6.5, 8.0]
-
     def run(self, analysis):
         self.print_running_msg()
         field = self.field
@@ -69,34 +66,37 @@ class AcidGasRemoval(Process):
         CH4_feed_mass_rate = input.gas_flow_rate("C1")
         CO2_to_demethanizer = min(0.05 * CO2_feed_mass_rate, 0.001 * CH4_feed_mass_rate)
 
-        gas_to_demethanizer = self.find_output_stream("gas for demethanizer", raiseError=False)
-        if gas_to_demethanizer is not None:
-            gas_to_demethanizer.copy_flow_rates_from(input)
-            gas_to_demethanizer.set_gas_flow_rate("CO2", CO2_to_demethanizer)
-            gas_to_demethanizer.subtract_rates_from(gas_fugitives)
-            self.set_iteration_value(gas_to_demethanizer.total_flow_rate())
-        else:
-            gas_to_gathering = self.find_output_stream("gas for gas partition")
-            gas_to_gathering.copy_flow_rates_from(input)
-            gas_to_gathering.set_gas_flow_rate("CO2", CO2_to_demethanizer)
-            gas_to_gathering.subtract_rates_from(gas_fugitives)
-            self.set_iteration_value(gas_to_gathering.total_flow_rate())
+        output_gas = self.find_output_stream("gas for demethanizer", raiseError=False)
+        if output_gas is None:
+            output_gas = self.find_output_stream("gas for gas partition")
+        output_gas.copy_flow_rates_from(input)
+        output_gas.set_gas_flow_rate("CO2", CO2_to_demethanizer)
+        output_gas.subtract_rates_from(gas_fugitives)
+        self.set_iteration_value(output_gas.total_flow_rate())
 
         gas_to_CO2_reinjection = self.find_output_stream("gas for CO2 compressor", raiseError=False)
         if gas_to_CO2_reinjection is not None:
             gas_to_CO2_reinjection.copy_flow_rates_from(input)
-            gas_to_CO2_reinjection.subtract_rates_from(gas_to_demethanizer)
+            gas_to_CO2_reinjection.subtract_rates_from(output_gas)
             gas_to_CO2_reinjection.subtract_rates_from(gas_fugitives)
-            self.set_iteration_value(gas_to_CO2_reinjection.total_flow_rate())
 
         # AGR modeling based on Aspen HYSYS
         feed_gas_mol_frac = self.gas.component_molar_fractions(input)
         if "CO2" not in feed_gas_mol_frac.index:
             _logger.warning(f"Feed gas does not contain CO2")
-        elif "H2S" not in feed_gas_mol_frac.index:
+            mol_frac_CO2 = 0
+        else:
+            mol_frac_CO2 = get_bounded_value(feed_gas_mol_frac["CO2"].to("frac").m, "mol_frac_CO2", variable_bound_dict)
+
+        if "H2S" not in feed_gas_mol_frac.index:
             _logger.warning(f"Feed gas does not contain H2S")
-        mol_frac_CO2 = get_bounded_value(feed_gas_mol_frac["CO2"].to("frac").m, "mol_frac_CO2", variable_bound_dict)
-        mol_frac_H2S = get_bounded_value(feed_gas_mol_frac["H2S"].to("frac").m, "mol_frac_H2S", variable_bound_dict)
+            mol_frac_H2S = 0
+        else:
+            mol_frac_H2S = get_bounded_value(feed_gas_mol_frac["H2S"].to("frac").m, "mol_frac_H2S", variable_bound_dict)
+
+        if mol_frac_H2S > 0.01:
+            self.type_amine = "MDEA"
+            variable_bound_dict["reflux_ratio"] = [6.5, 8.0]
 
         reflux_ratio = get_bounded_value(self.ratio_reflux_reboiler.to("frac").m, "reflux_ratio", variable_bound_dict)
         regen_temp = get_bounded_value(self.regeneration_temp.to("degF").m, "regen_temp", variable_bound_dict)
@@ -126,7 +126,7 @@ class AcidGasRemoval(Process):
                                                          self.prime_mover_type,
                                                          self.eta_compressor,
                                                          overall_compression_ratio,
-                                                         gas_to_demethanizer,
+                                                         output_gas,
                                                          inlet_tp=input.tp)
 
         # energy-use

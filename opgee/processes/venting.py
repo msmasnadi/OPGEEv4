@@ -30,9 +30,12 @@ class Venting(Process):
         self.oil_prod = field.attr("oil_prod")
         self.res_press = field.attr("res_press")
         self.water_prod = self.oil_prod * self.WOR
-        self.VOR_over_GOR = self.VOR / (self.GOR - self.FOR) if (self.GOR.m - self.FOR.m) > 0 else ureg.Quantity(0, "frac")
+        self.VOR_over_GOR = self.VOR / (self.GOR - self.FOR) if (self.GOR.m - self.FOR.m) > 0 else ureg.Quantity(0,
+                                                                                                                 "frac")
         self.imported_fuel_gas_comp = field.imported_gas_comp["Imported Fuel"]
         self.imported_fuel_gas_mass_fracs = field.gas.component_mass_fractions(self.imported_fuel_gas_comp)
+
+        self.is_first_loop = True
 
     def run(self, analysis):
         self.print_running_msg()
@@ -53,9 +56,14 @@ class Venting(Process):
 
         gas_to_vent = Stream("venting_gas", tp=field.stp)
         gas_to_vent.copy_flow_rates_from(input, tp=field.stp)
-        if field.get_process_data("lifting_gas_stream") is not None:
-            gas_to_vent.subtract_rates_from(field.get_process_data("lifting_gas_stream"), PHASE_GAS)
         gas_to_vent.multiply_flow_rates(venting_frac.to("frac").m)
+
+        if self.is_first_loop:
+            field.save_process_data(gas_to_vent_init=gas_to_vent)
+            self.is_first_loop = False
+
+        if self.gas_lifting and field.get_process_data("gas_to_vent_init"):
+            gas_to_vent = field.get_process_data("gas_to_vent_init")
 
         gas_fugitives = self.set_gas_fugitives(input, fugitive_frac.to("frac").m)
 

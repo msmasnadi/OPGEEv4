@@ -75,14 +75,20 @@ class Demethanizer(Process):
             get_bounded_value(self.methane_to_NLG_ratio.to("frac").m, "methane_to_NGL_ratio", variable_bound_dict)
 
         feed_gas_mol_frac = self.gas.component_molar_fractions(input)
+
         if "C1" not in feed_gas_mol_frac.index:
+            _logger.warning(f"Feed gas does not contain C1")
+            inlet_C1_mol_frac = 0
+        else:
+            inlet_C1_mol_frac =\
+                get_bounded_value(feed_gas_mol_frac["C1"].to("frac").m, "inlet_C1_mol_frac", variable_bound_dict)
+
+        if "C2" not in feed_gas_mol_frac.index:
             _logger.warning(f"Feed gas does not contain C2")
-        elif "C2" not in feed_gas_mol_frac.index:
-            _logger.warning(f"Feed gas does not contain C2")
-        inlet_C1_mol_frac =\
-            get_bounded_value(feed_gas_mol_frac["C1"].to("frac").m, "inlet_C1_mol_frac", variable_bound_dict)
-        inlet_C2_mol_frac =\
-            get_bounded_value(feed_gas_mol_frac["C2"].to("frac").m, "inlet_C2_mol_frac", variable_bound_dict)
+            inlet_C2_mol_frac = 0
+        else:
+            inlet_C2_mol_frac =\
+                get_bounded_value(feed_gas_mol_frac["C2"].to("frac").m, "inlet_C2_mol_frac", variable_bound_dict)
 
         gas_volume_rate = self.gas.tot_volume_flow_rate_STP(input)
         scale_value = gas_volume_rate.to("mmscf/day").m / multiplier
@@ -107,9 +113,12 @@ class Demethanizer(Process):
 
         hydrocarbon_mol_rate = pd.Series({name: self.gas.molar_flow_rate(input, name) for name in hydrocarbon_label})
 
-        fuel_gas_prod = (hydrocarbon_mol_rate["C1"] - NGL_mol_frac["C1"] / NGL_mol_frac["C2"] * hydrocarbon_mol_rate[
-            "C2"]) / \
-                        (fuel_gas_mol_frac["C1"] - NGL_mol_frac["C1"] * fuel_gas_mol_frac["C2"] / NGL_mol_frac["C2"])
+        if NGL_mol_frac["C2"].m == 0 or (fuel_gas_mol_frac["C1"] - NGL_mol_frac["C1"] * fuel_gas_mol_frac["C2"] / NGL_mol_frac["C2"]).m == 0:
+            fuel_gas_prod = ureg.Quantity(0, "mole/day")
+        else:
+            fuel_gas_prod = \
+                (hydrocarbon_mol_rate["C1"] - NGL_mol_frac["C1"] / NGL_mol_frac["C2"] * hydrocarbon_mol_rate["C2"]) / \
+                (fuel_gas_mol_frac["C1"] - NGL_mol_frac["C1"] * fuel_gas_mol_frac["C2"] / NGL_mol_frac["C2"])
 
         reboiler_fuel_use = reboiler_heavy_duty * self.eta_reboiler_demethanizer
         cooler_energy_consumption = predict_blower_energy_use(self, cooler_thermal_load)
