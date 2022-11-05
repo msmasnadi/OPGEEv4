@@ -141,10 +141,29 @@ class Worker(LocalWorker):
             _logger.error(f"In Worker.run_field('{field_name}'): {e_name}: {e}\n{trace}")
             raise e
 
+MCS_MODE_LOCAL = 'local'
+MCS_MODE_CLUSTER = 'cluster'
 
 class Manager(OpgeeObject):
-    def __init__(self, address=None):
-        self.address = address
+    def __init__(self, address=None, mode=MCS_MODE_LOCAL):
+        self.address = address or 'auto'
+
+        valid = (MCS_MODE_LOCAL, MCS_MODE_CLUSTER)
+        if mode not in valid:
+            raise OpgeeException(f"Valid modes for MCS Manager are {valid}; got '{mode}'")
+
+        self.mode = mode
+
+    def connect_to_cluster(self):
+        """
+        Connect to the cluster assumed to be already running at address $RAY_ADDRESS.
+        """
+        # address = os.getenv('RAY_ADDRESS')
+        # if not address:
+        #     raise OpgeeException("Environment variable 'RAY_ADDRESS' is not set.")
+
+        _logger.debug(f"Connecting to ray cluster at '{self.address}'")
+        ray.init(address=self.address)
 
     def start_cluster(self, num_cpus=None):
         if not ray.is_initialized():
@@ -158,8 +177,7 @@ class Manager(OpgeeObject):
         ray.shutdown()
         _logger.debug("Ray has stopped.")
 
-    def run_mcs(self, sim_dir, field_names=None, address=None, cpu_count=0,
-                nodes=None, trial_nums=None, debug=False):
+    def run_mcs(self, sim_dir, field_names=None, cpu_count=0, trial_nums=None, debug=False):
         from ..config import getParamAsInt
         from ..utils import parseTrialString
 
@@ -167,12 +185,13 @@ class Manager(OpgeeObject):
 
         sim = Simulation(sim_dir, save_to_path='')
 
-        trial_nums = (range(sim.trials) if trial_nums == 'all'
-                      else parseTrialString(trial_nums))
+        trial_nums = range(sim.trials) if trial_nums == 'all' else parseTrialString(trial_nums)
 
         # Caller can specify a subset of possible fields to run. Default is to run all.
         # TBD: check for unknown field names
         field_names = field_names or sim.field_names
+
+        mode = self.mode
 
         if debug:
             # test worker in current process for debugging
@@ -181,12 +200,20 @@ class Manager(OpgeeObject):
                 result = w.run_field(field_name, trial_nums=trial_nums)
                 _logger.info(f"Completed MCS on field '{result.field_name}' in {int(result.duration)}")
         else:
-            cpus = cpu_count or getParamAsInt('OPGEE.CPUsToUse') or os.cpu_count()
-            nodes = nodes or 1
+            if mode == 'local':
+                cpus = cpu_count or getParamAsInt('OPGEE.CPUsToUse') or os.cpu_count()
+                self.start_cluster(num_cpus=cpus)
 
-            self.start_cluster(num_cpus=cpus, address=address)
+            elif mode == 'cluster':
+                self.connect_to_cluster()
+                res = ray.cluster_resources()
+                cpus = int(res['CPU'])
 
-            # Start the worker processes
+            else:
+                # shouldn't be possible
+                raise OpgeeException(f"Unknown MCS mode '{mode}")
+
+            # Start the worker processes on all available CPUs
             workers = [Worker.remote(sim_dir) for _ in range(cpus)]
 
             pool = ActorPool(workers)
