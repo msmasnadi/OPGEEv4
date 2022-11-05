@@ -53,8 +53,8 @@ def _tasks_by_node(tasks_per_node=None, job_nodelist=None, node_names=None):
 
         # pass nodelist to scontrol to expand into node names
         args = ['scontrol', 'show', 'hostnames', node_list]
-        output = subprocess.run(args, check=True, text=True, stdout=subprocess.PIPE).stdout
-        node_names = re.split('\s+', output.strip())
+        output = subprocess.run(args, check=True, text=True, capture_output=True)
+        node_names = re.split('\s+', output.stdout.strip())
 
     pairs = zip(node_names, counts)
     return pairs
@@ -70,11 +70,12 @@ def start_ray_cluster(port):
     from ..mcs.slurm import srun
 
     pairs = list(_tasks_by_node())
+    print(f"Pairs: {pairs}")
     node_dict = {node: count for node, count in pairs}
 
     # Run the ray "head" on the first node, so get the ip address
     head, head_ntasks = pairs[0]
-    ip_addr = srun('hostname --ip-address', head, check=True).strip()
+    ip_addr = srun('hostname --ip-address', head, capture_output=True).strip()
     address = f"{ip_addr}:{port}"
 
     # Generate a UUID to use as redis password

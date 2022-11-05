@@ -15,23 +15,27 @@ from ..log import getLogger
 
 _logger = getLogger(__name__)
 
-def srun(command, node, ntasks=1, background=True, sleep=0, check=False):
-    if check:
+def srun(command, node, ntasks=1, background=True, sleep=0, capture_output=False):
+    if capture_output:
         background = False
         text = True
     else:
         text = False
 
-    amper = '&' if background else ''
-    srun_command = f'srun --nodes=1 --ntasks={ntasks} --nodelist {node} "{command}" {amper}'
+    amper = ' &' if background else ''
+    srun_command = f'srun --nodes=1 --ntasks={ntasks} --nodelist {node} {command}{amper}'
 
     _logger.debug(f"Running command '{srun_command}'")
-    proc = subprocess.run(srun_command, shell=True, check=check, text=text)
+    try:
+        proc = subprocess.run(srun_command, shell=True, check=True, text=text, 
+                              capture_output=capture_output)
+    except subprocess.CalledProcessError as e:
+        raise OpgeeException(f"srun failed: {e}: {e.stderr}")
 
     if sleep:
         time.sleep(sleep)
 
-    return proc.stdout if check else proc
+    return proc.stdout if capture_output else proc
 
 
 def sbatch(command, sleep=0, **kwargs):
@@ -41,10 +45,11 @@ def sbatch(command, sleep=0, **kwargs):
     args = [f'--{fix_kw(k)}={v}' for k, v in kwargs.items() if v is not None]
     args_str = ' '.join(args)
 
-    sbatch_command = f'sbatch {args_str} "{command}"'
+    sbatch_command = f'sbatch {args_str} {command}'
 
     _logger.debug(f"Running '{sbatch_command}'")
-    proc = subprocess.run(sbatch_command, shell=True, check=True, text=True)
+    proc = subprocess.run(sbatch_command, shell=True, check=True, text=True,
+                          capture_output=capture_output)
     output = proc.stdout
 
     result = re.search('\d+', output)
