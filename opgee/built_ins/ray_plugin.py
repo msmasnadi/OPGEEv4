@@ -69,7 +69,7 @@ def start_ray_cluster(port):
     import uuid
     from ..mcs.slurm import srun
 
-    pairs = _tasks_by_node()
+    pairs = list(_tasks_by_node())
     node_dict = {node: count for node, count in pairs}
 
     # Run the ray "head" on the first node, so get the ip address
