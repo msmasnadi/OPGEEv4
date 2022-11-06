@@ -27,7 +27,7 @@ def srun(command, node, ntasks=1, background=True, sleep=0, capture_output=False
 
     _logger.debug(f"Running command '{srun_command}'")
     try:
-        proc = subprocess.run(srun_command, shell=True, check=True, text=text, 
+        proc = subprocess.run(srun_command, shell=True, check=True, text=text,
                               capture_output=capture_output)
     except subprocess.CalledProcessError as e:
         raise OpgeeException(f"srun failed: {e}: {e.stderr}")
@@ -38,27 +38,46 @@ def srun(command, node, ntasks=1, background=True, sleep=0, capture_output=False
     return proc.stdout if capture_output else proc
 
 
-def sbatch(command, sleep=0, **kwargs):
-    def fix_kw(kw):
-        return kw.replace('_', '-')
+def _fix_kw(kw):
+    return kw.replace('_', '-')
 
-    args = [f'--{fix_kw(k)}={v}' for k, v in kwargs.items() if v is not None]
-    args_str = ' '.join(args)
-
+def _run_sbatch(args_str, command, sleep=0):
     sbatch_command = f'sbatch {args_str} {command}'
-
     _logger.debug(f"Running '{sbatch_command}'")
-    proc = subprocess.run(sbatch_command, shell=True, check=True, text=True,
-                          capture_output=capture_output)
+    proc = subprocess.run(sbatch_command, shell=True, check=True,
+                          text=True, capture_output=True)
     output = proc.stdout
 
     result = re.search('\d+', output)
-    jobId = int(result.group(0)) if result else -1
+    job_id = int(result.group(0)) if result else -1
 
     if sleep:
         time.sleep(sleep)
 
-    return jobId
+    return job_id
+
+def sbatch(command, sleep=0, **kwargs):
+    args = [f'--{_fix_kw(k)}={v}' for k, v in kwargs.items() if v is not None]
+    args_str = ' '.join(args)
+
+    job_id = _run_sbatch(args_str, command, sleep=sleep)
+    return job_id
+
+def sbatch_het_job(command, *args, sleep=0):
+    """
+    Call sbatch on a heterogenous job, where the arguments after ``command`` are
+    dictionaries of kwargs for each "sub"-sbatch command.
+    """
+    arg_groups = []
+
+    for kwargs in args:
+        arg_group = [f'--{_fix_kw(k)}={v}' for k, v in kwargs.items() if v is not None]
+        arg_group_str = ' '.join(arg_group)
+        arg_groups.append(arg_group_str)
+
+    args_str = ' : '.join(arg_groups)
+    job_id = _run_sbatch(args_str, command, sleep=sleep)
+    return job_id
 
 
 class Slurm(object):

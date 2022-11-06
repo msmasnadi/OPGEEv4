@@ -64,31 +64,50 @@ def start_ray_cluster(port):
     Must be called from a script submitted with "sbatch" on SLURM. The sbatch command
     is told how many tasks to start; this function gets this info from the environment.
 
+    Sbatch documentation says "When the job allocation is finally granted for the batch
+    script, Slurm runs a single copy of the batch script on the first node in the set
+    of allocated nodes."
+
     :return: the address (ip:port) of the head of the running ray cluster
     """
+    import socket
     import uuid
     from ..mcs.slurm import srun
 
-    pairs = list(_tasks_by_node())
-    print(f"Pairs: {pairs}")
+    pairs = _tasks_by_node()
     node_dict = {node: count for node, count in pairs}
 
-    # Run the ray "head" on the first node, so get the ip address
-    head, head_ntasks = pairs[0]
-    ip_addr = srun('hostname --ip-address', head, capture_output=True).strip()
+    host_name = socket.gethostname()
+    ip_addr = socket.gethostbyname(host_name)
     address = f"{ip_addr}:{port}"
+
+    # extract, e.g., 'sh03-ln02' from 'sh03-ln02.stanford.edu'
+    head = host_name.split('.')[0]
 
     # Generate a UUID to use as redis password
     passwd = uuid.uuid4()
 
     _logger.info(f"Starting ray head on node {head} at {address}")
-    srun(f'ray start --head --address={address} --redis-password={passwd} --block', sleep=30)
+    srun(f'ray start --head --node-ip-address={ip_addr} --port={port} --redis-password={passwd} --block', sleep=30)
 
-    # Remove the head task from the node dictionary to leave only available worker tasks
+    # TBD: It's not this simple. The "head" involves several processes. Maybe head needs to
+    #  allocate a whole node and assume cpu_count - N of the CPUs are available for workers?
+    #  Need to know exactly how many processes Ray starts up. Looks like:
+    #  1. ray start --head
+    #  2. gcs_server
+    #  3. monitor.py
+    #  4. python ray.util.client.server
+    #  5. python dashboard.py
+    #  6. raylet
+    #  7. python log_monitor.py
+    #  8. python agent.py
+
+    # Remove the head task from node_dict to leave only available worker tasks
+    head_ntasks = node_dict[head]
     if head_ntasks == 1:
-        del node_dict[head] # nothing more available on this node
+        del node_dict[head] # nothing else is available on this node
     else:
-        node_dict[head] = head_ntasks - 1
+        node_dict[head] -= 1
 
     # Start the worker "raylets"
     for node, ntasks in node_dict.items():
@@ -96,7 +115,7 @@ def start_ray_cluster(port):
         command = f'ray start --address={address} --num-cpus={ntasks} --redis-password={passwd} --block'
         srun(command, node, sleep=5)
 
-    return 'ray://' + address
+    return address
 
 class RayCommand(SubcommandABC):
     def __init__(self, subparsers):

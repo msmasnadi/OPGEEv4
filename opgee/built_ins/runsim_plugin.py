@@ -126,7 +126,7 @@ class RunsimCommand(SubcommandABC):
         from ..utils import parseTrialString
         from ..mcs.simulation import Simulation
         from ..mcs.distributed_mcs import Manager
-        from ..mcs.slurm import sbatch
+        from ..mcs.slurm import sbatch_het_job
 
         sim_dir = args.simulation_dir
         field_names = args.fields       # TBD: if not set, get fields from XML
@@ -150,15 +150,21 @@ class RunsimCommand(SubcommandABC):
                 # "opg ray start" writes the ray head address to the address-file
                 command = f'opg ray start --port={args.port} --address-file="{addr_file}"'
 
-                # Load "opgee" conda environment? Might be unnecessary.
-                # Create a ray cluster with the given number of tasks
-                sbatch(command, sleep=5,
-                       ntasks=args.ntasks,
-                       time=args.time,
-                       partition=partition,
-                       job_name=job_name,
-                       mem_per_cpu=getParam('SLURM.MemPerCPU'),
-                       )
+                # Create a ray cluster with the given number of worker tasks
+                sbatch_het_job(command,
+                               # head node configuration
+                               dict(ntasks=8,       # the number of processes run by "ray start --head"
+                                    nodes="1:1",
+                                    time=args.time,
+                                    partition=partition,
+                                    job_name=job_name,
+                                    mem_per_cpu=getParam('SLURM.MemPerCPU')),
+
+                               # worker node configuration
+                               dict(ntasks=args.ntasks,
+                                    mem_per_cpu=getParam('SLURM.MemPerCPU'),
+                                    ),
+                               sleep=5)
 
                 # Wait for addr_file to appear
                 while not os.path.exists(addr_file):
