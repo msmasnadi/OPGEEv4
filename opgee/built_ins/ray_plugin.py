@@ -146,7 +146,7 @@ class RayCommand(SubcommandABC):
         import ray
         from ..error import OpgeeException
 
-        addr_file = args.address_file
+        addr_file = args.address_file or getParam('SLURM.RayAddressFile')
 
         if args.mode == 'start':
             if "SLURM_JOB_ID" not in os.environ:
