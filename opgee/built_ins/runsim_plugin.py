@@ -154,7 +154,7 @@ class RunsimCommand(SubcommandABC):
                 sbatch_het_job(command,
                                # head node configuration
                                dict(ntasks=8,       # the number of processes run by "ray start --head"
-                                    nodes="1:1",
+                                    nodes=1,
                                     time=args.time,
                                     partition=partition,
                                     job_name=job_name,

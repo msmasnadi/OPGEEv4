@@ -4,6 +4,7 @@
 # See the https://opensource.org/licenses/MIT for license details.
 import os
 import re
+import socket
 import subprocess
 
 from ..config import getParam
@@ -70,7 +71,6 @@ def start_ray_cluster(port):
 
     :return: the address (ip:port) of the head of the running ray cluster
     """
-    import socket
     import uuid
     from ..mcs.slurm import srun
 
@@ -88,7 +88,7 @@ def start_ray_cluster(port):
     passwd = uuid.uuid4()
 
     _logger.info(f"Starting ray head on node {head} at {address}")
-    srun(f'ray start --head --node-ip-address={ip_addr} --port={port} --redis-password={passwd} --block', sleep=30)
+    srun(f'ray start --head --node-ip-address={ip_addr} --port={port} --redis-password={passwd} --block', head, sleep=30)
 
     # TBD: It's not this simple. The "head" involves several processes. Maybe head needs to
     #  allocate a whole node and assume cpu_count - N of the CPUs are available for workers?
