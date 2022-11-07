@@ -87,8 +87,9 @@ class RunsimCommand(SubcommandABC):
                                 connect to an existing cluster ("{MODE_CLUSTER}"). Default is "{dflt_mode}". 
                                 Mode is ignored if --debug is specified, since "ray" isn't used in that case.''')
 
-        parser.add_argument('-n', "--ntasks", type=int, default=1,
-                            help="Number of worker tasks to create. Default is the number of fields.")
+        parser.add_argument('-n', "--ntasks", type=int, default=None,
+                            help='''Number of worker tasks to create. Default is the number of fields, if
+                                specified using -f/--fields.''')
 
         parser.add_argument('-p', "--partition", default=None,
                             help=f'''The name of the partition to use for job submissions. Default is the
@@ -122,13 +123,22 @@ class RunsimCommand(SubcommandABC):
         import os
         import time
         from ..config import getParam, getParamAsInt
-        from ..utils import parseTrialString, mkdirs
+        from ..error import OpgeeException
+        from ..utils import parseTrialString
         from ..mcs.simulation import Simulation
         from ..mcs.distributed_mcs import Manager
         from ..mcs.slurm import sbatch_het_job
 
         sim_dir = args.simulation_dir
         field_names = args.fields       # TBD: if not set, get fields from XML
+
+        ntasks = args.ntasks
+
+        if ntasks is None:
+            if field_names:
+                ntasks = len(field_names.split(','))
+            else:
+                raise OpgeeException(f"Must specify field names (-f/--fields) or -n/--ntasks")
 
         if args.serial:
             sim = Simulation(sim_dir, field_names=field_names)
@@ -150,8 +160,6 @@ class RunsimCommand(SubcommandABC):
                 # "opg ray start" writes the ray head address to the address-file
                 command = f'opg ray start --port={args.port} --address-file="{addr_file}"'
 
-                # sbatch --chdir=$HOME/slurm --partition=normal --job-name=opg-test --ntasks=8 --tasks-per-node=8 --cpus-per-task=1 --mem-per-cpu=100m --time=10 : --ntasks=5 --cpus-per-task=1 --mem-per-cpu=100m --time=10 opg ray start
-
                 # Create a ray cluster with the given number of worker tasks
                 sbatch_het_job(command,
                                # Ray head configuration
@@ -167,7 +175,7 @@ class RunsimCommand(SubcommandABC):
                                     ),
 
                                # Ray worker configuration
-                               dict(ntasks=args.ntasks,
+                               dict(ntasks=ntasks,
                                     cpus_per_task=1,
                                     mem_per_cpu=getParam('SLURM.WorkerMemPerCPU'),
                                     time=args.time,
