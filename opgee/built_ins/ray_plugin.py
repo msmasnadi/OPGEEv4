@@ -70,7 +70,8 @@ def start_ray_cluster(port):
 
     :return: the address (ip:port) of the head of the running ray cluster
     """
-    import uuid
+    # import uuid
+    from ..utils import mkdirs
     from ..mcs.slurm import srun
 
     pairs = _tasks_by_node()
@@ -85,15 +86,17 @@ def start_ray_cluster(port):
     head = host_name.split('.')[0]
 
     # Generate a UUID to use as redis password
-    passwd = uuid.uuid4()
+    # passwd = uuid.uuid4()
+
+    ray_temp_dir = getParam('Ray.TempDir')
+    mkdirs(ray_temp_dir)
 
     _logger.info(f"Starting ray head on node {head} at {address}")
     # srun(f'ray start --head --node-ip-address={ip_addr} --port={port} --redis-password={passwd} --block', head, sleep=30)
-    # srun(f'ray start --head --node-ip-address={ip_addr} --port={port} --block', head, sleep=30)
-    srun(f'ray start --head --port={port} --block', head, sleep=30)
+    srun(f'ray start --head --port={port} --block --temp-dir="{ray_temp_dir}"', head, sleep=30)
 
     # sbatch should have allocated a node with at least this many CPUs available
-    head_procs = getParamAsInt("SLURM.NumRayHeadProcs")
+    head_procs = getParamAsInt("Ray.HeadProcs")
     head_tasks = node_dict[head]
 
     if head_tasks < head_procs:
@@ -108,12 +111,12 @@ def start_ray_cluster(port):
 
     # Start the worker "raylets"
     for node, ntasks in node_dict.items():
-        # launch workers serially to avoid race condition (see
+        # launch workers serially with 5 sec delay between to avoid race condition (see
         # https://discuss.ray.io/t/ray-on-slurm-hpc-starting-worker-nodes-simultaneously/6399/8
         _logger.info(f"Starting {ntasks} worker(s) on {node}")
         for i in range(ntasks):
             # command = f'ray start --address={address} --num-cpus={ntasks} --redis-password={passwd} --block'
-            command = f'ray start --address={address} --ntasks=1 --block'
+            command = f'ray start --address={address} --block --temp-dir="{ray_temp_dir}"'
             srun(command, node, sleep=5)
 
     return address
@@ -124,7 +127,7 @@ class RayCommand(SubcommandABC):
         super().__init__('ray', subparsers, kwargs)
 
     def addArgs(self, parser):
-        addr_file = getParam('SLURM.RayAddressFile')
+        addr_file = getParam('Ray.AddressFile')
 
         parser.add_argument('mode', choices=['start', 'stop'],
                             help='''Whether to start or stop the Ray cluster. To start a Ray cluster, 
@@ -134,11 +137,11 @@ class RayCommand(SubcommandABC):
 
         parser.add_argument('-A', '--address-file', default=None,
                             help=f'''The path to a file holding the address (ip:port) of the Ray
-                                cluster "head". Default is the value of config var "SLURM.RayAddressFile",
+                                cluster "head". Default is the value of config var "Ray.AddressFile",
                                 currently "{addr_file}". The command 'opg ray start' writes this file, and
                                 the commands "opg runsim" and "opg ray stop" both read it.''')
 
-        dflt_port = getParam('SLURM.RayPort')
+        dflt_port = getParam('Ray.Port')
         parser.add_argument('-P', '--port', type=int, default=dflt_port,
                             help=f"The port number to use for the Ray head. Default is {dflt_port}")
 
@@ -148,7 +151,7 @@ class RayCommand(SubcommandABC):
         import ray
         from ..error import OpgeeException
 
-        addr_file = args.address_file or getParam('SLURM.RayAddressFile')
+        addr_file = args.address_file or getParam('Ray.AddressFile')
 
         if args.mode == 'start':
             if "SLURM_JOB_ID" not in os.environ:

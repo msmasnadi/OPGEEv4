@@ -23,9 +23,9 @@ def srun(command, node, ntasks=1, background=True, sleep=0, capture_output=False
         text = False
 
     amper = ' &' if background else ''
-    srun_command = f'srun --nodes=1 --ntasks={ntasks} --nodelist {node} {command}{amper}'
-
+    srun_command = f'srun --nodes=1 --ntasks={ntasks} --nodelist={node} {command}{amper}'
     _logger.debug(f"Running command '{srun_command}'")
+
     try:
         proc = subprocess.run(srun_command, shell=True, check=True, text=text,
                               capture_output=capture_output)

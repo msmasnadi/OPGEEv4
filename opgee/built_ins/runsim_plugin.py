@@ -31,9 +31,9 @@ class RunsimCommand(SubcommandABC):
         job_name  = getParam('SLURM.JobName')
         load_env  = getParam('SLURM.LoadEnvironment')
         partition = getParam('SLURM.Partition')
-        addr_file = getParam('SLURM.RayAddressFile')
         min_per_task = getParam('SLURM.MinutesPerTask')
-        dflt_port = getParam('SLURM.RayPort')
+        addr_file = getParam('Ray.AddressFile')
+        dflt_port = getParam('Ray.Port')
         dflt_mode = getParam('OPGEE.RunsimMode')
         log_file  = getParam('OPGEE.LogFile')
 
@@ -49,7 +49,7 @@ class RunsimCommand(SubcommandABC):
 
         parser.add_argument('-A', '--address-file', default=addr_file,
                             help=f'''The path to a file holding the address (ip:port) of the Ray
-                                cluster "head". Default is the value of config var "SLURM.RayAddressFile",
+                                cluster "head". Default is the value of config var "Ray.AddressFile",
                                 currently {addr_file}''')
 
         parser.add_argument('-c', '--cpu-count', type=int, default=0,
@@ -95,7 +95,8 @@ class RunsimCommand(SubcommandABC):
                                  value of config variable "SLURM.Partition", currently '{partition}'.''')
 
         parser.add_argument('-P', '--port', type=int, default=dflt_port,
-                            help=f'''The port number to use the "head" of the Ray cluster. Default is {dflt_port}''')
+                            help=f'''The port number to use the "head" of the Ray cluster. Default is
+                             the value of config var "Ray.Port", currently {dflt_port}''')
 
         parser.add_argument('-s', '--simulation-dir',
                             help='''The top-level directory to use for this simulation "package"''')
@@ -121,7 +122,7 @@ class RunsimCommand(SubcommandABC):
         import os
         import time
         from ..config import getParam, getParamAsInt
-        from ..utils import parseTrialString
+        from ..utils import parseTrialString, mkdirs
         from ..mcs.simulation import Simulation
         from ..mcs.distributed_mcs import Manager
         from ..mcs.slurm import sbatch_het_job
@@ -138,7 +139,7 @@ class RunsimCommand(SubcommandABC):
             if args.mode == MODE_CLUSTER:
                 job_name = args.job_name or getParam('SLURM.JobName')
                 partition = args.partition or getParam('SLURM.Partition')
-                num_head_procs = getParamAsInt("SLURM.NumRayHeadProcs")
+                head_procs = getParamAsInt("Ray.HeadProcs")
                 addr_file = args.address_file
 
                 try:
@@ -158,8 +159,8 @@ class RunsimCommand(SubcommandABC):
                                     partition=partition,
                                     job_name=job_name,
                                     nodes=1,
-                                    tasks_per_node=num_head_procs,
-                                    ntasks=num_head_procs,
+                                    tasks_per_node=head_procs,
+                                    ntasks=head_procs,
                                     cpus_per_task=1,
                                     mem_per_cpu=getParam('SLURM.HeadMemPerCPU'),
                                     time=args.time,
@@ -177,13 +178,14 @@ class RunsimCommand(SubcommandABC):
                 # Wait for addr_file to appear
                 while not os.path.exists(addr_file):
                     _logger.debug(f"Waiting for '{addr_file}' to be written.")
-                    time.sleep(5)
+                    time.sleep(10)
 
                 with open(addr_file, 'r') as f:
                     address = f.read().strip()
 
                 # Wait until we connect to Ray cluster
                 while True:
+                    _logger.debug(f"Waiting for Ray to become available")
                     try:
                         ray.init(address=address)
                     except ConnectionError:
@@ -195,4 +197,3 @@ class RunsimCommand(SubcommandABC):
             mgr = Manager(address=address, mode=args.mode)
             mgr.run_mcs(sim_dir, field_names=field_names, cpu_count=args.cpu_count,
                         trial_nums=args.trials, debug=args.debug)
-
