@@ -108,10 +108,13 @@ def start_ray_cluster(port):
 
     # Start the worker "raylets"
     for node, ntasks in node_dict.items():
+        # launch workers serially to avoid race condition (see
+        # https://discuss.ray.io/t/ray-on-slurm-hpc-starting-worker-nodes-simultaneously/6399/8
         _logger.info(f"Starting {ntasks} worker(s) on {node}")
-        # command = f'ray start --address={address} --num-cpus={ntasks} --redis-password={passwd} --block'
-        command = f'ray start --address={address} --num-cpus={ntasks} --block'
-        srun(command, node, sleep=5)
+        for i in range(ntasks):
+            # command = f'ray start --address={address} --num-cpus={ntasks} --redis-password={passwd} --block'
+            command = f'ray start --address={address} --ntasks=1 --block'
+            srun(command, node, sleep=5)
 
     return address
 
