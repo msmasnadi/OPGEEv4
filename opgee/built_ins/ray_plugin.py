@@ -95,7 +95,7 @@ def start_ray_cluster(port):
     head_procs = getParamAsInt("Ray.HeadProcs")
     head_tasks = node_dict[head]
 
-    head_mem = getParam('SLURM.HeadMemPerCPU'),
+    head_mem = getParam('SLURM.HeadMemPerCPU')
 
     _logger.info(f"Starting ray head on node {head} at {address}")
     # srun(f'ray start --head --node-ip-address={ip_addr} --port={port} --redis-password={passwd} --block', head, sleep=30)
@@ -112,7 +112,7 @@ def start_ray_cluster(port):
         # subtract the head tasks to leave available worker tasks
         node_dict[head] -= head_procs
 
-    worker_mem = getParam('SLURM.WorkerMemPerCPU'),
+    worker_mem = getParam('SLURM.WorkerMemPerCPU')
 
     # Start the worker "raylets"
     for node, ntasks in node_dict.items():
