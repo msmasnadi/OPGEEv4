@@ -136,7 +136,7 @@ class RunsimCommand(SubcommandABC):
 
         if ntasks is None:
             if field_names:
-                ntasks = len(field_names.split(','))
+                ntasks = len(field_names)
             else:
                 raise OpgeeException(f"Must specify field names (-f/--fields) or -n/--ntasks")
 
