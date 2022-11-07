@@ -51,7 +51,7 @@ class ReservoirWellInterface(Process):
         output = self.find_output_stream("crude oil")
         output.copy_flow_rates_from(input)
 
-        CO2_flooding_rate = field.get_process_data("CO2_mass_rate")
+        CO2_flooding_rate = field.get_process_data("CO2_flooding_rate_init")
         if CO2_flooding_rate:
             CO2_breakthrough_mass_rate = CO2_flooding_rate * self.frac_CO2_breakthrough
             output.add_flow_rate("CO2", PHASE_GAS, CO2_breakthrough_mass_rate)

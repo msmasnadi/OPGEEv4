@@ -140,7 +140,7 @@ def get_bounded_value(value, name, variable_bound_dict):
     :param value:
     :param name:
     :param variable_bound_dict: dictionary of bounded variables; key = variable name (str), value = [min, max]
-    :return:
+    :return: bounded valued without unit
     """
     if name not in variable_bound_dict:
         raise OpgeeException(f"Variable bound dictionary does not have {name}")

@@ -162,7 +162,7 @@
         <Option>Hydroconversion</Option>
         <Option desc="Combined hydroconversion and fluid coking">Combined</Option>
       </Options>
-      <Options name="gas_processing_path" default="Minimal">
+      <Options name="gas_processing_path" default="Acid Wet Gas">
         <Option desc="">None</Option>
         <Option desc="Dehydrator">Minimal</Option>
         <Option desc="Dehydrator + Amine Process">Acid Gas</Option>
@@ -573,19 +573,12 @@
     </ClassAttrs>
 
     <ClassAttrs name="HeavyOilDilution">
-      <Options name="dilution_API" default="55.20">
-        <Option>55.20</Option>
-        <Option>23.0</Option>
-      </Options>
       <Options name="diluent_or_dilbit" default="Diluent">
         <Option>Diluent</Option>
         <Option>Dilbit</Option>
       </Options>
-      <Options name="dilution_API" default="55.20">
-        <Option>55.20</Option>
-        <Option>23.0</Option>
-      </Options>
-      <AttrDef name="diluent_API" options="dilution_API" type="float" unit="degAPI"/>
+      <AttrDef name="diluent_API" type="float" unit="degAPI">55.2</AttrDef>
+      <AttrDef name="dilbit_API" type="float" unit="degAPI">23.0</AttrDef>
       <AttrDef name="dilution_type" options="diluent_or_dilbit"/>
       <AttrDef name="diluent_temp" unit="degF" type="float" desc="Diluent temperature">60.0</AttrDef>
       <AttrDef name="diluent_press" unit="psia" type="float" desc="Diluent pressure">14.7</AttrDef>
@@ -609,7 +602,7 @@
     </ClassAttrs>
 
     <ClassAttrs name="AcidGasRemoval">
-      <Options name="amine_solution" default="MDEA">
+      <Options name="amine_solution" default="conv DEA">
         <Option>conv DEA</Option>
         <Option>high DEA</Option>
         <Option>MEA</Option>
@@ -629,7 +622,7 @@
       <AttrDef name="air_cooler_speed_reducer_eff" type="float" unit="percent" desc="AGR air cooler speed reducer efficiency">92.0</AttrDef>
       <AttrDef name="eta_compressor" type="float" unit="frac" desc="AGR compressor efficiency">75.0</AttrDef>
       <AttrDef name="feed_press" type="float" unit="psia">500.0</AttrDef>
-      <AttrDef name="type_amine" type="str" options="amine_solution">MDEA</AttrDef>
+      <AttrDef name="type_amine" type="str" options="amine_solution">conv DEA</AttrDef>
       <AttrDef name="ratio_reflux_reboiler" type="float" unit="frac" desc="Reflux ratio in reboiler">7.0</AttrDef>
       <AttrDef name="regeneration_temp" type="float" unit="degF" desc="Regeneration feed temperature">205.0</AttrDef>
       <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>

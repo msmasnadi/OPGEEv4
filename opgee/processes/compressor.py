@@ -123,7 +123,7 @@ class Compressor(OpgeeObject):
         tp = inlet_tp or inlet_stream.tp
         inlet_temp, inlet_press = tp.get()
 
-        if overall_compression_ratio < 1:
+        if overall_compression_ratio < 1 or inlet_stream.has_zero_flow():
             return energy_consumption, inlet_temp, inlet_press
 
         compression_ratio = Compressor.get_compression_ratio(overall_compression_ratio)

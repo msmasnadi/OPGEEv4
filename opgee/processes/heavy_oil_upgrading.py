@@ -141,8 +141,10 @@ class HeavyOilUpgrading(Process):
         # Petrocoke calculation
         coke_dict = d["Coke yield per bbl SCO output"] * SCO_output
         coke_to_stockpile_and_transport = \
-            max(0, input_liquid_mass_rate - SCO_output_mass_rate - proc_gas_exported_mass_rate.sum())
-        coke_to_heat = max(0, coke_dict.sum() - coke_to_stockpile_and_transport)
+            ureg.Quantity(max(0, (input_liquid_mass_rate - SCO_output_mass_rate - proc_gas_exported_mass_rate.sum()).to(
+                "tonne/day").m), "tonne/day")
+        coke_to_heat = \
+            ureg.Quantity(max(0, (coke_dict.sum() - coke_to_stockpile_and_transport).to("tonne/day").m), "tonne/day")
 
         if self.field.get_process_data("frac_coke_exported") is None:
             self.field.save_process_data(
@@ -158,8 +160,9 @@ class HeavyOilUpgrading(Process):
         NG_stream = Stream("NG_stream", tp=STP)
         upgrader_gas_stream = Stream("upgrader_gas_stream", tp=STP)
         NG_mass_rate = calculate_mass_rate_from_volume_rate(NG_to_cogen + NG_to_heat + NG_to_H2, self.NG_comp)
-        upgrader_mass_rate =\
-            calculate_mass_rate_from_volume_rate(proc_gas_to_heat + proc_gas_to_H2 + proc_gas_flared, self.upgrader_gas_comp)
+        upgrader_mass_rate = \
+            calculate_mass_rate_from_volume_rate(proc_gas_to_heat + proc_gas_to_H2 + proc_gas_flared,
+                                                 self.upgrader_gas_comp)
         NG_stream.set_rates_from_series(NG_mass_rate, PHASE_GAS)
         upgrader_gas_stream.set_rates_from_series(upgrader_mass_rate, PHASE_GAS)
 

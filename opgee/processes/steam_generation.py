@@ -14,6 +14,7 @@ from ..error import BalanceError
 from ..error import OpgeeException
 from ..log import getLogger
 from ..process import Process
+from ..import_export import WATER, CO2_Flooding, NATURAL_GAS
 
 _logger = getLogger(__name__)
 
@@ -70,6 +71,7 @@ class SteamGeneration(Process):
         self.print_running_msg()
         self.set_iteration_value(0)
         field = self.field
+        import_product = field.import_export
 
         if self.SOR.m == 0:
             raise OpgeeException(f"Steam-oil-ratio is zero in the {self.name} process")
@@ -80,17 +82,14 @@ class SteamGeneration(Process):
         blowdown_water_mass_rate = water_mass_rate_for_injection * (
                 self.steam_quality_after_blowdown - self.steam_quality_outlet) / self.steam_quality_outlet
         waste_water_from_blowdown = blowdown_water_mass_rate * (1 - self.fraction_blowdown_recycled)
+        import_product.set_export(self.name, WATER, waste_water_from_blowdown)
+
         recycled_blowdown_water = blowdown_water_mass_rate * self.fraction_blowdown_recycled
 
-        output_waste_water = self.find_output_stream("waste water")
-        output_waste_water.set_liquid_flow_rate("H2O",
-                                                waste_water_from_blowdown.to("tonne/day"),
-                                                tp=self.waste_water_reinjection_tp)
-        #TODO: output it to the production boundary
-        # if recycled_blowdown_water.m != 0:
-        #     output_recycled_blowdown_water = self.find_output_stream("blowdown water")
-        #     output_recycled_blowdown_water.set_liquid_flow_rate("H2O", recycled_blowdown_water.to("tonne/day"),
-        #                                                         tp=self.waste_water_reinjection_tp)
+        recycled_water_stream = self.find_output_stream("recycled water")
+        recycled_water_stream.set_liquid_flow_rate("H2O",
+                                                   recycled_blowdown_water.to("tonne/day"),
+                                                   tp=self.waste_water_reinjection_tp)
 
         input_prod_water = self.find_input_stream("produced water for steam generation")
         if input_prod_water.is_uninitialized():
@@ -137,7 +136,6 @@ class SteamGeneration(Process):
         energy_use.set_rate(EN_ELECTRICITY, total_power_required - electricity_HRSG.to("mmBtu/day"))
 
         # import/export
-        # import_product = field.import_export
         self.set_import_from_energy(energy_use)
 
         emissions = self.emissions

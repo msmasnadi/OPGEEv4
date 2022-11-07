@@ -498,3 +498,25 @@ def test_HeavyOilUpgrading(test_model):
     total = proc.energy.data.sum()
     expected = ureg.Quantity(63524.64102838269, "mmbtu/day")
     assert approx_equal(total, expected)
+
+
+def test_HeavyOilDilution(test_model):
+    analysis = test_model.get_analysis('test_oil_processes')
+    field = analysis.get_field('test_HeavyOilDilution')
+    field.run(analysis)
+    proc = field.find_process('HeavyOilDilution')
+    # ensure total energy flow rates
+    total = proc.energy.data.sum()
+    expected = ureg.Quantity(2609.1316115952463, "mmbtu/day")
+    assert approx_equal(total, expected)
+
+
+def test_CrudeOilStorage(test_model):
+    analysis = test_model.get_analysis('test_oil_processes')
+    field = analysis.get_field('test_CrudeOilStorage')
+    field.run(analysis)
+    proc = field.find_process('CrudeOilStorage')
+    # ensure total emission flow rates
+    total = proc.emissions.data.loc["GHG"].sum()
+    expected = ureg.Quantity(1885.055763739042, "tonne/day")
+    assert approx_equal(total, expected)

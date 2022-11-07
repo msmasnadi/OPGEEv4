@@ -92,7 +92,6 @@ class GasPartition(Process):
 
             if sum(iteration_series) >= self.iteration_tolerance:
                 lifting_gas_to_compressor.copy_flow_rates_from(input)
-                self.field.save_process_data(lifting_gas_stream=lifting_gas_to_compressor)
                 return
 
             exported_gas_stream.subtract_rates_from(lifting_gas_to_compressor, PHASE_GAS)
@@ -113,6 +112,8 @@ class GasPartition(Process):
                 import_product.set_import(self.name, N2, N2_mass_rate)
             elif self.flood_gas_type == "CO2":
                 CO2_mass_rate = self.gas_flooding_vol_rate * field.gas.component_gas_rho_STP["CO2"]
+                if field.get_process_data("CO2_flooding_rate_init") is None:
+                    field.save_process_data(CO2_flooding_rate_init=CO2_mass_rate)
                 CO2_reinjection_mass_rate = field.get_process_data("CO2_reinjection_mass_rate")
                 sour_gas_reinjection_mass_rate = field.get_process_data("sour_gas_reinjection_mass_rate")
                 if CO2_reinjection_mass_rate:
@@ -157,7 +158,8 @@ class GasPartition(Process):
                     import_product.set_import(self.name, NATURAL_GAS, imported_NG_energy_rate)
 
             gas_to_reinjection = self.find_output_stream("gas for gas reinjection compressor")
-            gas_to_reinjection.copy_flow_rates_from(reinjected_gas_stream)
+            if reinjected_gas_stream.total_flow_rate().m != 0:
+                gas_to_reinjection.copy_flow_rates_from(reinjected_gas_stream)
 
         elif self.natural_gas_reinjection:
             reinjected_gas_stream.copy_flow_rates_from(input)

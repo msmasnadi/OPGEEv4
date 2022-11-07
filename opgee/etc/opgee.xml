@@ -51,25 +51,24 @@
 
 			<A name="downhole_pump">1</A>
       <A name="water_reinjection">0</A>
-      <A name="natural_gas_reinjection">1</A>
+      <A name="natural_gas_reinjection">0</A>
       <A name="water_flooding">0</A>
       <A name="gas_lifting">0</A>
       <A name="gas_flooding">0</A>
-      <A name="steam_flooding">0</A>
+      <A name="steam_flooding">1</A>
       <A name="oil_sands_mine">None</A>
-      <A name="country">Algeria</A>
-      <A name="name">Hassi R'Mel</A>
-      <A name="age">48.0</A>
-      <A name="depth">7309.0</A>
-      <A name="oil_prod">180000.0</A>
-      <A name="num_prod_wells">160</A>
-      <A name="num_water_inj_wells">133</A>
-      <A name="well_diam">3.28</A>
+      <A name="name">Test 67 - Thermal EOR 11 / SOR = 4 / 50% solar</A>
+      <A name="age">38.0</A>
+      <A name="depth">2000.0</A>
+      <A name="oil_prod">1500.0</A>
+      <A name="num_prod_wells">18</A>
+      <A name="num_water_inj_wells">15</A>
+      <A name="well_diam">2.78</A>
       <A name="prod_index">6.8</A>
-      <A name="res_press">5874.0</A>
-      <A name="res_temp">202.0</A>
+      <A name="res_press">430.0</A>
+      <A name="res_temp">106.0</A>
       <A name="offshore">0.0</A>
-      <A name="API">66.64</A>
+      <A name="API">15.0</A>
       <A name="gas_comp_N2">2.86</A>
       <A name="gas_comp_CO2">0.33</A>
       <A name="gas_comp_C1">89.18</A>
@@ -77,36 +76,22 @@
       <A name="gas_comp_C3">1.62</A>
       <A name="gas_comp_C4">0.71</A>
       <A name="gas_comp_H2S">0.0</A>
-      <A name="GOR">30503.0</A>
-      <A name="WOR">8.7</A>
-      <A name="WIR">9.7</A>
+      <A name="GOR">100.0</A>
+      <A name="WOR">1.0</A>
+      <A name="WIR">2.0</A>
       <A name="GLIR">363.8</A>
-      <A name="GFIR">45754.5</A>
-      <A name="SOR">0.0</A>
+      <A name="GFIR">150.0</A>
+      <A name="SOR">4.0</A>
       <A name="fraction_elec_onsite">0.0</A>
-      <A name="fraction_remaining_gas_inj">0.5</A>
+      <A name="fraction_remaining_gas_inj">0.0</A>
       <A name="fraction_water_reinjected">1.0</A>
       <A name="fraction_steam_cogen">0.0</A>
-      <A name="fraction_steam_solar">0.0</A>
+      <A name="fraction_steam_solar">0.5</A>
       <Process class="CrudeOilDewatering">
-        <A name="heater_treater">0</A>
+        <A name="heater_treater">1</A>
       </Process>
-      <A name="stabilizer_column">1</A>
-      <A name="FOR">568.39</A>
-      <A name="VOR">0.0</A>
-      <Process class="HeavyOilDilution">
-        <A name="fraction_diluent">0.0</A>
-      </Process>
-      <A name="frac_transport_tanker">1.0</A>
-      <A name="frac_transport_barge">0.0</A>
-      <A name="frac_transport_pipeline">1.0</A>
-      <A name="frac_transport_rail">0.0</A>
-      <A name="frac_transport_truck">0.0</A>
-      <A name="transport_dist_tanker">5762.42</A>
-      <A name="transport_dist_barge">0.0</A>
-      <A name="transport_dist_pipeline">315.0</A>
-      <A name="transport_dist_rail">0.0</A>
-      <A name="transport_dist_truck">100.0</A>
+      <A name="stabilizer_column">0</A>
+      <A name="oil_processing_path">Storage</A>
 		</Field>
 
 	</Analysis>
@@ -511,11 +496,7 @@
 		</Stream>
 
 		<Stream src="SteamGeneration" dst="WaterTreatment">
-			<Contains>water</Contains>
-		</Stream>
-
-		<Stream src="SteamGeneration" dst="ProductionBoundary">
-			<Contains>waste water</Contains>
+			<Contains>recycled water</Contains>
 		</Stream>
 
 
@@ -662,7 +643,7 @@
 			<Contains>gas for reservoir</Contains>
 		</Stream>
 
-		<Stream src="GasPartition" dst="TransmissionCompressor">
+		<Stream src="ProductionBoundary" dst="TransmissionCompressor">
 			<Contains>gas for transmission</Contains>
 		</Stream>
 

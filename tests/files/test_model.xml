@@ -1105,6 +1105,8 @@
 		<A name="GWP_horizon">100</A>
 		<A name="GWP_version">AR4</A>
 		<Field name="test_HeavyOilUpgrading"/>
+		<Field name="test_HeavyOilDilution"/>
+		<Field name="test_CrudeOilStorage"/>
 	</Analysis>
 
 
@@ -1138,6 +1140,59 @@
 
 		<Stream src="HeavyOilUpgrading" dst="ProductionBoundary" name="petrocoke">
 			<Contains>petrocoke</Contains>
+		</Stream>
+
+	</Field>
+
+	<Field name="test_HeavyOilDilution">
+
+		<A name="upgrader_type">Delayed coking</A>
+		<A name="API">10.0</A>
+		<Process class="Before"/>
+		<Process class="HeavyOilDilution">
+			<A name="fraction_diluent">0.25</A>
+		</Process>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="HeavyOilDilution">
+			<Contains>oil for dilution</Contains>
+			<Component name="oil" phase="liquid">15436.66225</Component>
+			<A name="temperature">90.0</A>
+			<A name="pressure">100.0</A>
+		</Stream>
+
+		<Stream src="HeavyOilDilution" dst="ProductionBoundary" name="oil">
+			<Contains>oil for storage</Contains>
+		</Stream>
+
+	</Field>
+
+
+	<Field name="test_CrudeOilStorage">
+
+		<Process class="Before"/>
+		<Process class="CrudeOilStorage"/>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="CrudeOilStorage">
+			<Contains>oil for storage</Contains>
+			<Component name="oil" phase="liquid">19453.21339</Component>
+			<A name="temperature">60.0</A>
+			<A name="pressure">14.7</A>
+		</Stream>
+
+		<Stream src="CrudeOilStorage" dst="ProductionBoundary" name="oil">
+			<Contains>oil</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilStorage" dst="ProductionBoundary" name="gas for VRU">
+			<Contains>gas for VRU</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilStorage" dst="ProductionBoundary" name="gas for partition">
+			<Contains>gas for partition</Contains>
 		</Stream>
 
 	</Field>
