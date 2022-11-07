@@ -91,13 +91,13 @@ def start_ray_cluster(port):
     ray_temp_dir = getParam('Ray.TempDir')
     mkdirs(ray_temp_dir)
 
-    _logger.info(f"Starting ray head on node {head} at {address}")
-    # srun(f'ray start --head --node-ip-address={ip_addr} --port={port} --redis-password={passwd} --block', head, sleep=30)
-    srun(f'ray start --head --port={port} --block --temp-dir="{ray_temp_dir}"', head, sleep=30)
-
     # sbatch should have allocated a node with at least this many CPUs available
     head_procs = getParamAsInt("Ray.HeadProcs")
     head_tasks = node_dict[head]
+
+    _logger.info(f"Starting ray head on node {head} at {address}")
+    # srun(f'ray start --head --node-ip-address={ip_addr} --port={port} --redis-password={passwd} --block', head, sleep=30)
+    srun(f'ray start --head --port={port} --block --temp-dir="{ray_temp_dir}"', head, ntasks=head_procs, sleep=30)
 
     if head_tasks < head_procs:
         raise OpgeeException(f"Expected head node to have at least {head_procs} task allocated, but it has only {head_tasks}")
