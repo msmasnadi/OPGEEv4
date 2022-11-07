@@ -1,6 +1,7 @@
 #
 # Adapted from launch.py from https://github.com/pengzhenghao/use-ray-with-slurm.git
 #
+from opgee.config import getParam
 from opgee.subcommand import SubcommandABC
 
 class LaunchCommand(SubcommandABC):
@@ -12,7 +13,12 @@ class LaunchCommand(SubcommandABC):
         '''
         Process the command-line arguments for this sub-command
         '''
-        DEFAULT_RAY_PORT = 6379
+        from ..mcs.slurm import DEFAULT_RAY_PORT
+
+        job_name = getParam('SLURM.JobName')
+        env_name = getParam('SLURM.LoadEnvironment')
+        partition = getParam('SLURM.Partition')
+        log_file = getParam('OPGEE.LogFile')
 
         parser.add_argument("command",
                             help='''The command you wish to execute. For example: 
@@ -26,19 +32,20 @@ class LaunchCommand(SubcommandABC):
                             help="Show but don't run SLURM commands. Implies --no-delete.")
 
         parser.add_argument('-e', "--load-env", default="",
-                            help='''A command to load your environment. Default is the value of 
-                                config variable "SLURM.LoadEnvironment".''')
+                            help=f'''A command to load your environment. Default is the value of 
+                                config variable "SLURM.LoadEnvironment, currently '{env_name}'".''')
 
         parser.add_argument('-j', "--job-name", default=None,
-                            help=f'''The job name. Default is value of config variable "SLURM.JobName".''')
+                            help=f'''The job name. Default is value of config variable "SLURM.JobName",
+                            currently '{job_name}'.''')
 
         parser.add_argument('-l', "--log-file", default=None,
                             help=f'''The path to the logfile to create. Default is the value of config
-                                variable 'OPGEE.LogFile'.''')
+                                variable 'OPGEE.LogFile', currently {log_file}'.''')
 
         parser.add_argument('-N', "--node", default="",
                             help='''The specified nodes to use. Same format as the return of 'sinfo'. 
-                            Default is ''.''')
+                                Default is ''.''')
 
         parser.add_argument('-n', "--num-nodes", type=int, default=1,
                             help="Number of nodes to use. Default is 1.")
@@ -47,8 +54,8 @@ class LaunchCommand(SubcommandABC):
                             help="Number of GPUs to use in each node. Default is 0.")
 
         parser.add_argument('-p', "--partition", default=None,
-                            help='''The name of the partition to use for job submissions. Default is the
-                                value of config variable "SLURM.Partition".''')
+                            help=f'''The name of the partition to use for job submissions. Default is the
+                                 value of config variable "SLURM.Partition", currently '{partition}'.''')
 
         parser.add_argument('-P', '--port', type=int, default=DEFAULT_RAY_PORT,
                             help=f"The port number to use for the Ray head. Default is {DEFAULT_RAY_PORT}")

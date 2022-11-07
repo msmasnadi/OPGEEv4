@@ -45,12 +45,18 @@ export IP_HEAD
 
 echo "IP Head: $IP_HEAD"
 
+export RAY_ADDRESS="ray://$IP_HEAD"
+
+echo "Ray address: $RAY_ADDRESS"
+
 echo "STARTING HEAD at $node_1"
 # srun --nodes=1 --ntasks=1 -w $node_1 start-head.sh $ip $redis_password &
 srun --nodes=1 --ntasks=1 --nodelist $node_1 \
   ray start --head --node-ip-address=$ip --port=$port --redis-password=$redis_password --block &
 sleep 30
 
+# RJP: this allocates one worker per node. We want to do this per task instead.
+# RJP: try using $SLURM_NTASKS instead of $SLURM_JOB_NUM_NODES.
 worker_num=$(($SLURM_JOB_NUM_NODES - 1)) # number of nodes other than the head node
 for ((i = 1; i <= $worker_num; i++)); do
   node_i=${nodes_array[$i]}
@@ -60,5 +66,5 @@ for ((i = 1; i <= $worker_num; i++)); do
 done
 ##############################################################################################
 
-# Command can connect to Ray using $IP_HEAD address
+# Command can connect to Ray using $RAY_ADDRESS
 {{COMMAND}} {{COMMAND_SUFFIX}}

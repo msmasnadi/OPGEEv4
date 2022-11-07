@@ -33,6 +33,8 @@ class RunsimCommand(SubcommandABC):
         load_env  = getParam('SLURM.LoadEnvironment')
         partition = getParam('SLURM.Partition')
         addr_file = getParam('SLURM.RayAddressFile')
+        min_per_task = getParam('SLURM.MinutesPerTask')
+
         log_file  = getParam('OPGEE.LogFile')
 
         # parser.add_argument('-a', '--analysis',
@@ -110,11 +112,11 @@ class RunsimCommand(SubcommandABC):
                             comma-delimited ranges and individual trail numbers, e.g. "1-20,22, 35, 42, 44-50").
                             The special string "all" (the default) runs all defined trials.''')
 
-        # TBD: make this a config variable
-        parser.add_argument('--time', default='60',
-                            help=f'''The amount of wall time to allocate for each task. Default is 60 minutes.
-                                Acceptable time formats include "minutes", "minutes:seconds", "hours:minutes:seconds",
-                                and formats involving days, which we shouldn't require.''')
+        parser.add_argument('--time', default=min_per_task,
+                            help=f'''The amount of wall time to allocate for each task. Default is 
+                                {min_per_task} minutes. Acceptable time formats include "minutes", 
+                                "minutes:seconds", "hours:minutes:seconds", and formats involving days, 
+                                which we shouldn't require.''')
 
         return parser   # for auto-doc generation
 
@@ -122,7 +124,7 @@ class RunsimCommand(SubcommandABC):
     def run(self, args, tool):
         import os
         import time
-        from ..config import getParam
+        from ..config import getParam, getParamAsInt
         from ..utils import parseTrialString
         from ..mcs.simulation import Simulation
         from ..mcs.distributed_mcs import Manager
@@ -140,6 +142,7 @@ class RunsimCommand(SubcommandABC):
             if args.mode == MODE_CLUSTER:
                 job_name = args.job_name or getParam('SLURM.JobName')
                 partition = args.partition or getParam('SLURM.Partition')
+                num_head_procs = getParamAsInt("SLURM.NumRayHeadProcs")
                 addr_file = args.address_file
 
                 try:
@@ -150,21 +153,30 @@ class RunsimCommand(SubcommandABC):
                 # "opg ray start" writes the ray head address to the address-file
                 command = f'opg ray start --port={args.port} --address-file="{addr_file}"'
 
+                # sbatch --chdir=$HOME/slurm --partition=normal --job-name=opg-test --ntasks=8 --tasks-per-node=8 --cpus-per-task=1 --mem-per-cpu=100m --time=10 : --ntasks=5 --cpus-per-task=1 --mem-per-cpu=100m --time=10 opg ray start
+
                 # Create a ray cluster with the given number of worker tasks
                 sbatch_het_job(command,
-                               # head node configuration
-                               dict(ntasks=8,       # the number of processes run by "ray start --head"
-                                    nodes=1,
-                                    time=args.time,
+                               # Ray head configuration
+                               dict(chdir=getParam('SLURM.RunDir'),
                                     partition=partition,
                                     job_name=job_name,
-                                    mem_per_cpu=getParam('SLURM.MemPerCPU')),
-
-                               # worker node configuration
-                               dict(ntasks=args.ntasks,
-                                    mem_per_cpu=getParam('SLURM.MemPerCPU'),
+                                    nodes=1,
+                                    tasks_per_node=num_head_procs,
+                                    ntasks=num_head_procs,
+                                    cpus_per_task=1,
+                                    mem_per_cpu=getParam('SLURM.HeadMemPerCPU'),
+                                    time=args.time,
                                     ),
-                               sleep=5)
+
+                               # Ray worker configuration
+                               dict(ntasks=args.ntasks,
+                                    cpus_per_task=1,
+                                    mem_per_cpu=getParam('SLURM.WorkerMemPerCPU'),
+                                    time=args.time,
+                                    ),
+
+                               sleep=15)
 
                 # Wait for addr_file to appear
                 while not os.path.exists(addr_file):

@@ -152,10 +152,10 @@ class RayCommand(SubcommandABC):
             address = start_ray_cluster(args.port)
 
             # write the file to a temporary name and move it after closed to handle race condition
-            _logger.debug(f'Writing address "{address}" to "{addr_file}')
+            _logger.debug(f'Writing address "{address}" to "{addr_file}"')
             tmp_file = addr_file + '.tmp'
             with open(tmp_file, 'w') as f:
-                f.write(address)
+                f.write(address + '\n')
 
             os.rename(tmp_file, addr_file)
 
