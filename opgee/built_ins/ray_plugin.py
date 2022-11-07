@@ -90,7 +90,8 @@ def start_ray_cluster(port):
     passwd = uuid.uuid4()
 
     _logger.info(f"Starting ray head on node {head} at {address}")
-    srun(f'ray start --head --node-ip-address={ip_addr} --port={port} --redis-password={passwd} --block', head, sleep=30)
+    # srun(f'ray start --head --node-ip-address={ip_addr} --port={port} --redis-password={passwd} --block', head, sleep=30)
+    srun(f'ray start --head --node-ip-address={ip_addr} --port={port} --block', head, sleep=30)
 
     # sbatch should have allocated a node with at least this many CPUs available
     head_procs = getParamAsInt("SLURM.NumRayHeadProcs")
@@ -109,7 +110,8 @@ def start_ray_cluster(port):
     # Start the worker "raylets"
     for node, ntasks in node_dict.items():
         _logger.info(f"Starting {ntasks} worker(s) on {node}")
-        command = f'ray start --address={address} --num-cpus={ntasks} --redis-password={passwd} --block'
+        # command = f'ray start --address={address} --num-cpus={ntasks} --redis-password={passwd} --block'
+        command = f'ray start --address={address} --num-cpus={ntasks} --block'
         srun(command, node, sleep=5)
 
     return address
