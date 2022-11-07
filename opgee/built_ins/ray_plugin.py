@@ -89,7 +89,7 @@ def start_ray_cluster(port):
 
     _logger.info(f"Starting ray head on node {head} at {address}")
     # srun(f'ray start --head --node-ip-address={ip_addr} --port={port} --redis-password={passwd} --block', head, sleep=30)
-    srun(f'ray start --head --node-ip-address={ip_addr} --port={port} --block', head, sleep=30)
+    srun(f'ray start --head --node-ip-address={ip_addr} --port={port} --gcs-server-port=6379 --block', head, sleep=30)      # TBD: try forcing a different GCS port
 
     # sbatch should have allocated a node with at least this many CPUs available
     head_procs = getParamAsInt("SLURM.NumRayHeadProcs")
