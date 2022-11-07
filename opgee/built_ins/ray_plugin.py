@@ -7,7 +7,8 @@ import re
 import socket
 import subprocess
 
-from ..config import getParam
+from ..config import getParam, getParamAsInt
+from ..error import OpgeeException
 from ..log import getLogger
 from ..subcommand import SubcommandABC
 
@@ -76,6 +77,7 @@ def start_ray_cluster(port):
 
     pairs = _tasks_by_node()
     node_dict = {node: count for node, count in pairs}
+    _logger.debug(f"node_dict: {node_dict}")
 
     host_name = socket.gethostname()
     ip_addr = socket.gethostbyname(host_name)
@@ -90,28 +92,23 @@ def start_ray_cluster(port):
     _logger.info(f"Starting ray head on node {head} at {address}")
     srun(f'ray start --head --node-ip-address={ip_addr} --port={port} --redis-password={passwd} --block', head, sleep=30)
 
-    # TBD: It's not this simple. The "head" involves several processes. Maybe head needs to
-    #  allocate a whole node and assume cpu_count - N of the CPUs are available for workers?
-    #  Need to know exactly how many processes Ray starts up. Looks like:
-    #  1. ray start --head
-    #  2. gcs_server
-    #  3. monitor.py
-    #  4. python ray.util.client.server
-    #  5. python dashboard.py
-    #  6. raylet
-    #  7. python log_monitor.py
-    #  8. python agent.py
+    # sbatch should have allocated a node with at least this many CPUs available
+    head_procs = getParamAsInt("SLURM.NumRayHeadProcs")
+    head_tasks = node_dict[head]
 
-    # Remove the head task from node_dict to leave only available worker tasks
-    head_ntasks = node_dict[head]
-    if head_ntasks == 1:
-        del node_dict[head] # nothing else is available on this node
+    if head_tasks < head_procs:
+        raise OpgeeException(f"Expected head node to have at least {head_procs} task allocated, but it has only {head_tasks}")
+
+    if head_procs == head_tasks:
+        # nothing remains available on this node to assign to workers
+        del node_dict[head]
     else:
-        node_dict[head] -= 1
+        # subtract the head tasks to leave available worker tasks
+        node_dict[head] -= head_procs
 
     # Start the worker "raylets"
     for node, ntasks in node_dict.items():
-        _logger.info(f"Starting {ntasks} worker on {node}")
+        _logger.info(f"Starting {ntasks} worker(s) on {node}")
         command = f'ray start --address={address} --num-cpus={ntasks} --redis-password={passwd} --block'
         srun(command, node, sleep=5)
 
