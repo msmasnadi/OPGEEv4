@@ -27,14 +27,13 @@ class RunsimCommand(SubcommandABC):
     def addArgs(self, parser):
         from ..config import getParam
         from ..utils import ParseCommaList
-        from ..built_ins.ray_plugin import DEFAULT_RAY_PORT
 
         job_name  = getParam('SLURM.JobName')
         load_env  = getParam('SLURM.LoadEnvironment')
         partition = getParam('SLURM.Partition')
         addr_file = getParam('SLURM.RayAddressFile')
         min_per_task = getParam('SLURM.MinutesPerTask')
-
+        dflt_port = getParam('SLURM.RayPort')
         dflt_mode = getParam('OPGEE.RunsimMode')
         log_file  = getParam('OPGEE.LogFile')
 
@@ -60,9 +59,6 @@ class RunsimCommand(SubcommandABC):
 
         parser.add_argument('-d', "--no-delete", action='store_true',
                             help="Don't delete the temporary file (useful primarily for debugging.)")
-
-        # parser.add_argument('-D', '--debug', action='store_true',
-        #                     help="Show but don't run SLURM commands. Implies --no-delete.")
 
         parser.add_argument('--debug', action='store_true',
                             help='''Use the Manager/Worker architecture, but don't use "ray" 
@@ -98,9 +94,8 @@ class RunsimCommand(SubcommandABC):
                             help=f'''The name of the partition to use for job submissions. Default is the
                                  value of config variable "SLURM.Partition", currently '{partition}'.''')
 
-        parser.add_argument('-P', '--port', type=int, default=DEFAULT_RAY_PORT,
-                            help=f'''The port number to use the "head" of the Ray cluster. 
-                                Default is {DEFAULT_RAY_PORT}''')
+        parser.add_argument('-P', '--port', type=int, default=dflt_port,
+                            help=f'''The port number to use the "head" of the Ray cluster. Default is {dflt_port}''')
 
         parser.add_argument('-s', '--simulation-dir',
                             help='''The top-level directory to use for this simulation "package"''')

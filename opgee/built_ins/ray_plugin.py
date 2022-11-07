@@ -14,8 +14,6 @@ from ..subcommand import SubcommandABC
 
 _logger = getLogger(__name__)
 
-DEFAULT_RAY_PORT = 6379
-
 TaskPattern = re.compile('^(\d+)\(x(\d+)\)')
 
 def _tasks_by_node(tasks_per_node=None, job_nodelist=None, node_names=None):
@@ -136,8 +134,9 @@ class RayCommand(SubcommandABC):
                                 currently "{addr_file}". The command 'opg ray start' writes this file, and
                                 the commands "opg runsim" and "opg ray stop" both read it.''')
 
-        parser.add_argument('-P', '--port', type=int, default=DEFAULT_RAY_PORT,
-                            help=f"The port number to use for the Ray head. Default is {DEFAULT_RAY_PORT}")
+        dflt_port = getParam('SLURM.RayPort')
+        parser.add_argument('-P', '--port', type=int, default=dflt_port,
+                            help=f"The port number to use for the Ray head. Default is {dflt_port}")
 
         return parser
 
