@@ -15,20 +15,20 @@ from ..log import getLogger
 
 _logger = getLogger(__name__)
 
-def srun(command, node, ntasks=1, background=True, sleep=0, capture_output=False):
-    if capture_output:
-        background = False
-        text = True
-    else:
-        text = False
+def fix_kwargs(kwargs):
+    args = [f"--{k.replace('_', '-')}={v}" for k, v in kwargs.items() if v is not None]
+    args_str = ' '.join(args)
+    return args_str
 
-    amper = ' &' if background else ''
-    srun_command = f'srun --nodes=1 --ntasks={ntasks} --nodelist={node} {command}{amper}'
+def srun(command, sleep=0, capture_output=False, **kwargs):
+    srun_args = fix_kwargs(kwargs)
+    srun_command = f'srun {srun_args} {command}'
+
     _logger.debug(f"Running command '{srun_command}'")
 
     try:
-        proc = subprocess.run(srun_command, shell=True, check=True, text=text,
-                              capture_output=capture_output)
+        proc = subprocess.run(srun_command, shell=True, check=True,
+                              text=capture_output, capture_output=capture_output)
     except subprocess.CalledProcessError as e:
         raise OpgeeException(f"srun failed: {e}: {e.stderr}")
 
@@ -38,16 +38,14 @@ def srun(command, node, ntasks=1, background=True, sleep=0, capture_output=False
     return proc.stdout if capture_output else proc
 
 
-def _fix_kw(kw):
-    return kw.replace('_', '-')
-
 def _run_sbatch(args_str, command, sleep=0):
     sbatch_command = f'sbatch {args_str} {command}'
     _logger.debug(f"Running '{sbatch_command}'")
+
     proc = subprocess.run(sbatch_command, shell=True, check=True,
                           text=True, capture_output=True)
-    output = proc.stdout
 
+    output = proc.stdout
     result = re.search('\d+', output)
     job_id = int(result.group(0)) if result else -1
 
@@ -57,9 +55,7 @@ def _run_sbatch(args_str, command, sleep=0):
     return job_id
 
 def sbatch(command, sleep=0, **kwargs):
-    args = [f'--{_fix_kw(k)}={v}' for k, v in kwargs.items() if v is not None]
-    args_str = ' '.join(args)
-
+    args_str = fix_kwargs(kwargs)
     job_id = _run_sbatch(args_str, command, sleep=sleep)
     return job_id
 
@@ -71,8 +67,7 @@ def sbatch_het_job(command, *args, sleep=0):
     arg_groups = []
 
     for kwargs in args:
-        arg_group = [f'--{_fix_kw(k)}={v}' for k, v in kwargs.items() if v is not None]
-        arg_group_str = ' '.join(arg_group)
+        arg_group_str = fix_kwargs(kwargs)
         arg_groups.append(arg_group_str)
 
     args_str = ' : '.join(arg_groups)

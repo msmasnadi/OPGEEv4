@@ -95,9 +95,12 @@ def start_ray_cluster(port):
     head_procs = getParamAsInt("Ray.HeadProcs")
     head_tasks = node_dict[head]
 
+    head_mem = getParam('SLURM.HeadMemPerCPU'),
+
     _logger.info(f"Starting ray head on node {head} at {address}")
     # srun(f'ray start --head --node-ip-address={ip_addr} --port={port} --redis-password={passwd} --block', head, sleep=30)
-    srun(f'ray start --head --port={port} --block --temp-dir="{ray_temp_dir}"', head, ntasks=head_procs, sleep=30)
+    srun(f'ray start --head --port={port} --block --temp-dir="{ray_temp_dir}" &',
+         sleep=30, nodelist=head, nodes=1, ntasks=head_procs, mem_per_cpu=head_mem, cpus_per_task=1)
 
     if head_tasks < head_procs:
         raise OpgeeException(f"Expected head node to have at least {head_procs} task allocated, but it has only {head_tasks}")
@@ -109,6 +112,8 @@ def start_ray_cluster(port):
         # subtract the head tasks to leave available worker tasks
         node_dict[head] -= head_procs
 
+    worker_mem = getParam('SLURM.WorkerMemPerCPU'),
+
     # Start the worker "raylets"
     for node, ntasks in node_dict.items():
         # launch workers serially with 5 sec delay between to avoid race condition (see
@@ -116,8 +121,8 @@ def start_ray_cluster(port):
         _logger.info(f"Starting {ntasks} worker(s) on {node}")
         for i in range(ntasks):
             # command = f'ray start --address={address} --num-cpus={ntasks} --redis-password={passwd} --block'
-            command = f'ray start --address={address} --block --temp-dir="{ray_temp_dir}"'
-            srun(command, node, sleep=5)
+            command = f'ray start --address={address} --block --temp-dir="{ray_temp_dir}" &'
+            srun(command, sleep=5, nodelist=node, ntasks=1, cpus_per_task=1, mem_per_cpu=worker_mem)
 
     return address
 
