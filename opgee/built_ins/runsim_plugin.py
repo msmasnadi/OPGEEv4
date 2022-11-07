@@ -35,6 +35,7 @@ class RunsimCommand(SubcommandABC):
         addr_file = getParam('SLURM.RayAddressFile')
         min_per_task = getParam('SLURM.MinutesPerTask')
 
+        dflt_mode = getParam('OPGEE.RunsimMode')
         log_file  = getParam('OPGEE.LogFile')
 
         # parser.add_argument('-a', '--analysis',
@@ -47,7 +48,7 @@ class RunsimCommand(SubcommandABC):
                             help='''The (ip:port) address of the Ray head process. Default is to use
                                 the value of environment variable "RAY_ADDRESS" if it is not empty.''')
 
-        parser.add_argument('-A', '--address-file', default=None,
+        parser.add_argument('-A', '--address-file', default=addr_file,
                             help=f'''The path to a file holding the address (ip:port) of the Ray
                                 cluster "head". Default is the value of config var "SLURM.RayAddressFile",
                                 currently {addr_file}''')
@@ -85,9 +86,9 @@ class RunsimCommand(SubcommandABC):
                             help=f'''The path to the logfile to create. Default is the value of config
                                 variable 'OPGEE.LogFile', currently {log_file}'.''')
 
-        parser.add_argument('-m', '--mode', choices=KNOWN_MODES, default=MODE_LOCAL,
+        parser.add_argument('-m', '--mode', choices=KNOWN_MODES, default=dflt_mode,
                             help=f'''Whether to run on the local node or user's computer ("{MODE_LOCAL}"), or to 
-                                connect to an existing cluster ("{MODE_CLUSTER}"). Default is "{MODE_LOCAL}". 
+                                connect to an existing cluster ("{MODE_CLUSTER}"). Default is "{dflt_mode}". 
                                 Mode is ignored if --debug is specified, since "ray" isn't used in that case.''')
 
         parser.add_argument('-n', "--ntasks", type=int, default=1,
@@ -180,7 +181,7 @@ class RunsimCommand(SubcommandABC):
 
                 # Wait for addr_file to appear
                 while not os.path.exists(addr_file):
-                    _logger.debug("Waiting for '{addr_file}' to be written.")
+                    _logger.debug(f"Waiting for '{addr_file}' to be written.")
                     time.sleep(5)
 
                 with open(addr_file, 'r') as f:
