@@ -43,13 +43,14 @@ def _tasks_by_node(tasks_per_node=None, job_nodelist=None, node_names=None):
 
         return result
 
-    tasks = tasks_per_node or os.getenv('SLURM_TASKS_PER_NODE')
+    tasks = tasks_per_node or os.getenv('SLURM_TASKS_PER_NODE_HET_GROUP_1')
     counts = []
     for item in tasks.split(','):
         counts.extend(get_counts(item))
 
     if node_names is None:
-        node_list = job_nodelist or os.getenv('SLURM_JOB_NODELIST')
+        # Get the nodes allocated to workers
+        node_list = job_nodelist or os.getenv('SLURM_JOB_NODELIST_HET_GROUP_1')
 
         # pass nodelist to scontrol to expand into node names
         args = ['scontrol', 'show', 'hostnames', node_list]
@@ -93,7 +94,7 @@ def start_ray_cluster(port):
 
     # sbatch should have allocated a node with at least this many CPUs available
     head_procs = getParamAsInt("Ray.HeadProcs")
-    head_tasks = node_dict[head]
+    # head_tasks = node_dict[head]
 
     head_mem = getParam('SLURM.HeadMemPerCPU')
 
@@ -102,15 +103,18 @@ def start_ray_cluster(port):
     srun(f'ray start --head --port={port} --block --temp-dir="{ray_temp_dir}" &',
          sleep=30, nodelist=head, nodes=1, ntasks=head_procs, mem_per_cpu=head_mem, cpus_per_task=1)
 
-    if head_tasks < head_procs:
-        raise OpgeeException(f"Expected head node to have at least {head_procs} task allocated, but it has only {head_tasks}")
-
-    if head_procs == head_tasks:
-        # nothing remains available on this node to assign to workers
-        del node_dict[head]
-    else:
-        # subtract the head tasks to leave available worker tasks
-        node_dict[head] -= head_procs
+    #
+    # Modified _tasks_by_node to return only worker info since head just runs on the current node
+    #
+    # if head_tasks < head_procs:
+    #     raise OpgeeException(f"Expected head node to have at least {head_procs} task allocated, but it has only {head_tasks}")
+    #
+    # if head_procs == head_tasks:
+    #     # nothing remains available on this node to assign to workers
+    #     del node_dict[head]
+    # else:
+    #     # subtract the head tasks to leave available worker tasks
+    #     node_dict[head] -= head_procs
 
     worker_mem = getParam('SLURM.WorkerMemPerCPU')
 
@@ -121,8 +125,9 @@ def start_ray_cluster(port):
         _logger.info(f"Starting {ntasks} worker(s) on {node}")
         for i in range(ntasks):
             # command = f'ray start --address={address} --num-cpus={ntasks} --redis-password={passwd} --block'
-            command = f'ray start --address={address} --block --temp-dir="{ray_temp_dir}" &'
-            srun(command, sleep=5, nodelist=node, ntasks=1, cpus_per_task=1, mem_per_cpu=worker_mem)
+            command = f'ray start --address={address} --block --temp-dir="{ray_temp_dir} --num-cpus=1" &'
+            srun(command, sleep=5, nodelist=node, nodes=1, ntasks=1,
+                 cpus_per_task=1, mem_per_cpu=worker_mem, cpu_bind='none')
 
     return address
 
