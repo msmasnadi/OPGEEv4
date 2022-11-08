@@ -8,7 +8,7 @@ import socket
 import subprocess
 
 from ..config import getParam, getParamAsInt
-from ..error import OpgeeException
+#from ..error import OpgeeException
 from ..log import getLogger
 from ..subcommand import SubcommandABC
 
@@ -16,21 +16,12 @@ _logger = getLogger(__name__)
 
 TaskPattern = re.compile('^(\d+)\(x(\d+)\)')
 
-def _tasks_by_node(tasks_per_node=None, job_nodelist=None, node_names=None):
+def _tasks_by_node():
     """
     Parse the packed formats of node names and tasks per node offered by SLURM
-    to produce a list of (node_name, task_count) pairs. The keyword arguments are
-    primarily for testing. In practice, this function will extract the values
-    from environment variables.
+    to produce a list of (node_name, task_count) pairs. All inputs values are
+    found in environment variables.
 
-    :param tasks_per_node: (str) must be in the same format as env variable
-        $SLURM_TASKS_PER_NODE, e.g., '1(x2),7(x2),1,2,1'. If not provided,
-        the environment variable will be used directly.
-    :param job_nodelist: (str) must be in the same format as env variable
-        $SLURM_JOB_NODELIST, e.g., 'sh02-01n[49-52,54-56]' If not provided,
-        the environment variable will be used directly.
-    :param node_names: (list of str) names of nodes. If provided, this list
-        will be used instead of parsing ``job_nodelist`` or $SLURM_JOB_NODELIST.
     :return: (list) pairs of format (node_name, task count).
     """
     def get_counts(expr):
@@ -43,19 +34,34 @@ def _tasks_by_node(tasks_per_node=None, job_nodelist=None, node_names=None):
 
         return result
 
-    tasks = tasks_per_node or os.getenv('SLURM_TASKS_PER_NODE_HET_GROUP_1')
+    # For heterogeneous jobs, some env vars have instances for each group,
+    # in env vars with extended names. Collect each of these into single
+    # variables for processing.
+    if (het_count := os.getenv('SLURM_HET_SIZE')):
+        _logger.debug(f"heterogeneous job with {het_count} groups")
+        node_lists = []
+        task_lists = []
+
+        for i in range(int(het_count)):
+            task_lists.append(os.getenv(f'SLURM_TASKS_PER_NODE_HET_GROUP_{i}'))
+            node_lists.append(os.getenv(f'SLURM_JOB_NODELIST_HET_GROUP_{i}'))
+
+        tasks = ','.join(task_lists)
+        nodes = ','.join(node_lists)
+    else:
+        tasks = os.getenv('SLURM_TASKS_PER_NODE') # e.g., '1(x2),7(x2),1,2,1'
+        nodes = os.getenv('SLURM_JOB_NODELIST')   # e.g., 'sh02-01n[49-52,54-56]'
+
+    _logger.debug(f"nodes '{nodes}', tasks '{tasks}'")
+
     counts = []
     for item in tasks.split(','):
         counts.extend(get_counts(item))
 
-    if node_names is None:
-        # Get the nodes allocated to workers
-        node_list = job_nodelist or os.getenv('SLURM_JOB_NODELIST_HET_GROUP_1')
-
-        # pass nodelist to scontrol to expand into node names
-        args = ['scontrol', 'show', 'hostnames', node_list]
-        output = subprocess.run(args, check=True, text=True, capture_output=True)
-        node_names = re.split('\s+', output.stdout.strip())
+    # pass nodelist to scontrol to expand into node names
+    args = ['scontrol', 'show', 'hostnames', nodes]
+    output = subprocess.run(args, check=True, text=True, capture_output=True)
+    node_names = re.split('\s+', output.stdout.strip())
 
     pairs = zip(node_names, counts)
     return pairs
@@ -71,9 +77,13 @@ def start_ray_cluster(port):
 
     :return: the address (ip:port) of the head of the running ray cluster
     """
-    # import uuid
     from ..utils import mkdirs
     from ..mcs.slurm import srun
+
+    # Deprecated? Apparently no redis in ray version > 2.0
+    # import uuid
+    # Generate a UUID to use as redis password
+    # passwd = uuid.uuid4()
 
     pairs = _tasks_by_node()
     node_dict = {node: count for node, count in pairs}
@@ -85,9 +95,6 @@ def start_ray_cluster(port):
 
     # extract, e.g., 'sh03-ln02' from 'sh03-ln02.stanford.edu'
     head = host_name.split('.')[0]
-
-    # Generate a UUID to use as redis password
-    # passwd = uuid.uuid4()
 
     ray_temp_dir = getParam('Ray.TempDir')
     mkdirs(ray_temp_dir)
@@ -103,6 +110,8 @@ def start_ray_cluster(port):
     srun(f'ray start --head --port={port} --block --temp-dir="{ray_temp_dir}" &',
          sleep=30, nodelist=head, nodes=1, ntasks=head_procs, mem_per_cpu=head_mem, cpus_per_task=1)
 
+    #
+    # With heterogeneous job, workers won't be assigned to the node appearing in HET_GROUP_0
     #
     # Modified _tasks_by_node to return only worker info since head just runs on the current node
     #
@@ -124,10 +133,10 @@ def start_ray_cluster(port):
         # https://discuss.ray.io/t/ray-on-slurm-hpc-starting-worker-nodes-simultaneously/6399/8
         _logger.info(f"Starting {ntasks} worker(s) on {node}")
         for i in range(ntasks):
-            # command = f'ray start --address={address} --num-cpus={ntasks} --redis-password={passwd} --block'
-            command = f'ray start --address={address} --block --temp-dir="{ray_temp_dir} --num-cpus=1" &'
+            # Run 'ray start' once on each node, telling it how many CPUs to use
+            command = f'ray start --address={address} --block --temp-dir="{ray_temp_dir} --num-cpus={ntasks}" &'
             srun(command, sleep=5, nodelist=node, nodes=1, ntasks=1,
-                 cpus_per_task=1, mem_per_cpu=worker_mem, cpu_bind='none')
+                 cpus_per_task={ntasks}, mem_per_cpu=worker_mem, cpu_bind='none') # TBD: unsure about cpu_bind arg
 
     return address
 
