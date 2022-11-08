@@ -102,8 +102,10 @@ def start_ray_cluster(port):
     # sbatch should have allocated a node with at least this many CPUs available
     # head_procs = getParamAsInt("Ray.HeadProcs")
 
+    cores = getParamAsInt('SLURM.MinimumCoresPerNode')
+
     _logger.info(f"Starting ray head on node {head} at {address}")
-    srun(f'ray start --head --port={port} --block --temp-dir="{ray_temp_dir}" &',
+    srun(f'ray start --head --port={port} --temp-dir="{ray_temp_dir}" --block &',
          sleep=30, nodelist=head, nodes=1, ntasks=1) # , cpus_per_task=head_procs)
 
     # TBD: if this (homogeneous job) approach seems better, simplify to ignore tasks per node
@@ -113,8 +115,9 @@ def start_ray_cluster(port):
         _logger.info(f"Starting workers on {node}")
 
         # Run 'ray start' once on each node
-        command = f'ray start --address={address} --block --temp-dir="{ray_temp_dir}" &'
+        command = f'ray start --address={address} --num-cpus={cores} --temp-dir="{ray_temp_dir}" --block &'
         srun(command, sleep=5, nodelist=node, nodes=1, ntasks=1)
+
         # , cpu_bind='none')  # TBD: unsure about cpu_bind arg
 
     #
