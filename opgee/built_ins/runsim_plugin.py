@@ -89,7 +89,7 @@ class RunsimCommand(SubcommandABC):
 
         parser.add_argument('-n', "--ntasks", type=int, default=None,
                             help='''Number of worker tasks to create. Default is the number of fields, if
-                                specified using -f/--fields.''')
+                                specified using -f/--fields, otherwise -n/--ntasks is required.''')
 
         parser.add_argument('-p', "--partition", default=None,
                             help=f'''The name of the partition to use for job submissions. Default is the
@@ -127,7 +127,7 @@ class RunsimCommand(SubcommandABC):
         from ..utils import parseTrialString
         from ..mcs.simulation import Simulation
         from ..mcs.distributed_mcs import Manager
-        from ..mcs.slurm import sbatch_het_job
+        from ..mcs.slurm import sbatch, sbatch_het_job
 
         sim_dir = args.simulation_dir
         field_names = args.fields       # TBD: if not set, get fields from XML
@@ -160,28 +160,42 @@ class RunsimCommand(SubcommandABC):
                 # "opg ray start" writes the ray head address to the address-file
                 command = f'opg ray start --port={args.port} --address-file="{addr_file}"'
 
-                # Create a ray cluster with the given number of worker tasks
-                sbatch_het_job(command,
-                               # Ray head configuration
-                               dict(chdir=getParam('SLURM.RunDir'),
-                                    partition=partition,
-                                    job_name=job_name,
-                                    nodes=1,
-                                    tasks_per_node=1,
-                                    ntasks=1,
-                                    cpus_per_task=head_procs,
-                                    mem_per_cpu=getParam('SLURM.HeadMemPerCPU'),
-                                    time=args.time,
-                                    ),
+                homogenous = True
 
-                               # Ray worker configuration
-                               dict(ntasks=ntasks,
-                                    cpus_per_task=1,
-                                    mem_per_cpu=getParam('SLURM.WorkerMemPerCPU'),
-                                    time=args.time,
-                                    ),
+                if homogenous:
+                    # compute number of nodes required for ntasks
+                    cores = getParamAsInt('SLURM.MinimumCoresPerNode')
+                    worker_nodes = ntasks // cores + (1 if ntasks % cores else 0)
 
-                               sleep=15)
+                    sbatch(command, sleep=15,
+                           partition=partition,
+                           job_name=job_name,
+                           nodes=worker_nodes + 1,
+                           ntasks_per_node=1,
+                           time=args.time,
+                           )
+                else:
+                    # Submit a heterogeneous job to SLURM. (Never got this to work...)
+                    # Create a ray cluster with the given number of worker tasks
+                    sbatch_het_job(command,
+                                   # Ray head configuration
+                                   dict(chdir=getParam('SLURM.RunDir'),
+                                        partition=partition,
+                                        job_name=job_name,
+                                        nodes=1,
+                                        tasks_per_node=1,
+                                        ntasks=1,
+                                        cpus_per_task=head_procs,
+                                        time=args.time,
+                                        ),
+
+                                   # Ray worker configuration
+                                   dict(ntasks=1,
+                                        cpus_per_task=1,
+                                        time=args.time,
+                                        ),
+
+                                   sleep=15)
 
                 # Wait for addr_file to appear
                 while not os.path.exists(addr_file):

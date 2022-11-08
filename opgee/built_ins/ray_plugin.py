@@ -101,14 +101,11 @@ def start_ray_cluster(port):
 
     # sbatch should have allocated a node with at least this many CPUs available
     head_procs = getParamAsInt("Ray.HeadProcs")
-    # head_tasks = node_dict[head]
-
-    head_mem = getParam('SLURM.HeadMemPerCPU')
 
     _logger.info(f"Starting ray head on node {head} at {address}")
     # srun(f'ray start --head --node-ip-address={ip_addr} --port={port} --redis-password={passwd} --block', head, sleep=30)
     srun(f'ray start --head --port={port} --block --temp-dir="{ray_temp_dir}" &',
-         sleep=30, nodelist=head, nodes=1, ntasks=1, cpus_per_task=head_procs, mem_per_cpu=head_mem)
+         sleep=30, nodelist=head, nodes=1, ntasks=1, cpus_per_task=head_procs)
 
     #
     # With heterogeneous job, workers won't be assigned to the node appearing in HET_GROUP_0
@@ -125,8 +122,6 @@ def start_ray_cluster(port):
     #     # subtract the head tasks to leave available worker tasks
     #     node_dict[head] -= head_procs
 
-    worker_mem = getParam('SLURM.WorkerMemPerCPU')
-
     # Start the worker "raylets"
     for node, ntasks in node_dict.items():
         # launch workers serially with 5 sec delay between to avoid race condition (see
@@ -136,7 +131,7 @@ def start_ray_cluster(port):
             # Run 'ray start' once on each node, telling it how many CPUs to use
             command = f'ray start --address={address} --block --temp-dir="{ray_temp_dir} --num-cpus={ntasks}" &'
             srun(command, sleep=5, nodelist=node, nodes=1, ntasks=1,
-                 cpus_per_task=ntasks, mem_per_cpu=worker_mem, cpu_bind='none') # TBD: unsure about cpu_bind arg
+                 cpus_per_task=ntasks, cpu_bind='none') # TBD: unsure about cpu_bind arg
 
     return address
 
