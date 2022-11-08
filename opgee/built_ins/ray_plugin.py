@@ -136,7 +136,7 @@ def start_ray_cluster(port):
             # Run 'ray start' once on each node, telling it how many CPUs to use
             command = f'ray start --address={address} --block --temp-dir="{ray_temp_dir} --num-cpus={ntasks}" &'
             srun(command, sleep=5, nodelist=node, nodes=1, ntasks=1,
-                 cpus_per_task={ntasks}, mem_per_cpu=worker_mem, cpu_bind='none') # TBD: unsure about cpu_bind arg
+                 cpus_per_task=ntasks, mem_per_cpu=worker_mem, cpu_bind='none') # TBD: unsure about cpu_bind arg
 
     return address
 
