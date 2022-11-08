@@ -149,7 +149,7 @@ class RunsimCommand(SubcommandABC):
             if args.mode == MODE_CLUSTER:
                 job_name = args.job_name or getParam('SLURM.JobName')
                 partition = args.partition or getParam('SLURM.Partition')
-                head_procs = getParamAsInt("Ray.HeadProcs")
+                # head_procs = getParamAsInt("Ray.HeadProcs")
                 addr_file = args.address_file
 
                 try:
@@ -168,6 +168,7 @@ class RunsimCommand(SubcommandABC):
                     worker_nodes = ntasks // cores + (1 if ntasks % cores else 0)
 
                     sbatch(command, sleep=15,
+                           chdir=getParam('SLURM.RunDir'),
                            partition=partition,
                            job_name=job_name,
                            nodes=worker_nodes + 1,
@@ -185,7 +186,7 @@ class RunsimCommand(SubcommandABC):
                                         nodes=1,
                                         tasks_per_node=1,
                                         ntasks=1,
-                                        cpus_per_task=head_procs,
+                                        # cpus_per_task=head_procs,
                                         time=args.time,
                                         ),
 
@@ -207,7 +208,7 @@ class RunsimCommand(SubcommandABC):
 
                 # Wait until we connect to Ray cluster
                 while True:
-                    _logger.debug(f"Waiting for Ray to become available")
+                    _logger.debug(f"Waiting for Ray to become available at {address}")
                     try:
                         ray.init(address=address)
                     except ConnectionError:

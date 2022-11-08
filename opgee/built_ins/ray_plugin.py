@@ -100,12 +100,22 @@ def start_ray_cluster(port):
     mkdirs(ray_temp_dir)
 
     # sbatch should have allocated a node with at least this many CPUs available
-    head_procs = getParamAsInt("Ray.HeadProcs")
+    # head_procs = getParamAsInt("Ray.HeadProcs")
 
     _logger.info(f"Starting ray head on node {head} at {address}")
-    # srun(f'ray start --head --node-ip-address={ip_addr} --port={port} --redis-password={passwd} --block', head, sleep=30)
     srun(f'ray start --head --port={port} --block --temp-dir="{ray_temp_dir}" &',
-         sleep=30, nodelist=head, nodes=1, ntasks=1, cpus_per_task=head_procs)
+         sleep=30, nodelist=head, nodes=1, ntasks=1) # , cpus_per_task=head_procs)
+
+    # TBD: if this (homogeneous job) approach seems better, simplify to ignore tasks per node
+    # Launch workers serially with 5 sec delay between to avoid race condition (see
+    # https://discuss.ray.io/t/ray-on-slurm-hpc-starting-worker-nodes-simultaneously/6399/8
+    for node in node_dict:
+        _logger.info(f"Starting workers on {node}")
+
+        # Run 'ray start' once on each node
+        command = f'ray start --address={address} --block --temp-dir="{ray_temp_dir}" &'
+        srun(command, sleep=5, nodelist=node, nodes=1, ntasks=1)
+        # , cpu_bind='none')  # TBD: unsure about cpu_bind arg
 
     #
     # With heterogeneous job, workers won't be assigned to the node appearing in HET_GROUP_0
@@ -122,16 +132,18 @@ def start_ray_cluster(port):
     #     # subtract the head tasks to leave available worker tasks
     #     node_dict[head] -= head_procs
 
+    # TBD: heterogeneous approach did not work. Couldn't see how to specify in sbatch given that
+    #  we didn't know how many tasks per node were available.
+
     # Start the worker "raylets"
-    for node, ntasks in node_dict.items():
-        # launch workers serially with 5 sec delay between to avoid race condition (see
-        # https://discuss.ray.io/t/ray-on-slurm-hpc-starting-worker-nodes-simultaneously/6399/8
-        _logger.info(f"Starting {ntasks} worker(s) on {node}")
-        for i in range(ntasks):
-            # Run 'ray start' once on each node, telling it how many CPUs to use
-            command = f'ray start --address={address} --block --temp-dir="{ray_temp_dir} --num-cpus={ntasks}" &'
-            srun(command, sleep=5, nodelist=node, nodes=1, ntasks=1,
-                 cpus_per_task=ntasks, cpu_bind='none') # TBD: unsure about cpu_bind arg
+
+    # for node, ntasks in node_dict.items():
+    #     _logger.info(f"Starting {ntasks} worker(s) on {node}")
+    #     for i in range(ntasks):
+    #         # Run 'ray start' once on each node, telling it how many CPUs to use
+    #         command = f'ray start --address={address} --block --temp-dir="{ray_temp_dir} --num-cpus={ntasks}" &'
+    #         srun(command, sleep=5, nodelist=node, nodes=1, ntasks=1,
+    #              cpus_per_task=ntasks, cpu_bind='none')
 
     return address
 
