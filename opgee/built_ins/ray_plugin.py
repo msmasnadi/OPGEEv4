@@ -108,7 +108,7 @@ def start_ray_cluster(port):
     _logger.info(f"Starting ray head on node {head} at {address}")
     # srun(f'ray start --head --node-ip-address={ip_addr} --port={port} --redis-password={passwd} --block', head, sleep=30)
     srun(f'ray start --head --port={port} --block --temp-dir="{ray_temp_dir}" &',
-         sleep=30, nodelist=head, nodes=1, ntasks=head_procs, mem_per_cpu=head_mem, cpus_per_task=1)
+         sleep=30, nodelist=head, nodes=1, ntasks=1, cpus_per_task=head_procs, mem_per_cpu=head_mem)
 
     #
     # With heterogeneous job, workers won't be assigned to the node appearing in HET_GROUP_0
