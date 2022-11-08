@@ -174,6 +174,7 @@ class RunsimCommand(SubcommandABC):
                            nodes=worker_nodes + 1,
                            ntasks_per_node=1,
                            time=args.time,
+                           mem='10G',
                            )
                 else:
                     # Submit a heterogeneous job to SLURM. (Never got this to work...)
