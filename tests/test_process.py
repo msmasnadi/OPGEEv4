@@ -2,7 +2,7 @@ import pytest
 from opgee import ureg
 from opgee.energy import EN_NATURAL_GAS, EN_CRUDE_OIL
 from opgee.emissions import EM_FLARING
-from opgee.error import OpgeeException
+from opgee.error import OpgeeException, ZeroEnergyFlowError
 from opgee.process import Process, _get_subclass, Reservoir
 
 
@@ -525,7 +525,13 @@ def test_CrudeOilStorage(test_model):
 def test_SteamGeneration_OTSG(test_model):
     analysis = test_model.get_analysis('test_water_processes')
     field = analysis.get_field('test_SteamGeneration_OTSG')
-    field.run(analysis)
+
+    try:
+        field.run(analysis)
+    except ZeroEnergyFlowError:
+        # we expect zero energy flow at boundary on this test
+        pass
+
     proc = field.find_process('SteamGeneration')
     # ensure total emission flow rates
     total = proc.energy.data.sum()
@@ -536,7 +542,13 @@ def test_SteamGeneration_OTSG(test_model):
 def test_SteamGeneration_Cogen(test_model):
     analysis = test_model.get_analysis('test_water_processes')
     field = analysis.get_field('test_SteamGeneration_Cogen')
-    field.run(analysis)
+
+    try:
+        field.run(analysis)
+    except ZeroEnergyFlowError:
+        # we expect zero energy flow at boundary on this test
+        pass
+
     proc = field.find_process('SteamGeneration')
     # ensure total emission flow rates
     total = proc.energy.data.sum()
@@ -547,7 +559,13 @@ def test_SteamGeneration_Cogen(test_model):
 def test_SteamGeneration_Solar(test_model):
     analysis = test_model.get_analysis('test_water_processes')
     field = analysis.get_field('test_SteamGeneration_Solar')
-    field.run(analysis)
+
+    try:
+        field.run(analysis)
+    except ZeroEnergyFlowError:
+        # we expect zero energy flow at boundary on this test
+        pass
+
     proc = field.find_process('SteamGeneration')
     # ensure total emission flow rates
     total = proc.energy.data.sum()
