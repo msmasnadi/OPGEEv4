@@ -12,7 +12,6 @@ petrocoke-heating-value,26949429,btu/tonne
 residual-oil-LHV,140352.522201194,btu/gal
 residual-oil-density,3752,g/gal
 diesel-LHV,128450,btu/gal
-steam-press-upper-limit,200,bar
 tonne-to-bbl,7.33,bbl_oil/tonne
 air-elevation-corr,0.24,btu/(lb*delta_degF)
 air-density-ratio,0.0749,lb/ft**3

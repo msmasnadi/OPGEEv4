@@ -361,7 +361,9 @@ class Field(Container):
         # self.carbon_intensity = ci = (total_emissions / export_LHV).to('grams/MJ')
 
         boundary_energy_flow_rate = self.boundary_energy_flow_rate(analysis)
-        self.carbon_intensity = ci = (total_emissions / boundary_energy_flow_rate).to('grams/MJ')
+        self.carbon_intensity = ci = ureg.Quantity(0, 'grams/MJ')
+        if boundary_energy_flow_rate.m != 0:
+            self.carbon_intensity = ci = (total_emissions / boundary_energy_flow_rate).to('grams/MJ')
 
         return ci
 

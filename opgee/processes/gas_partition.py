@@ -171,3 +171,4 @@ class GasPartition(Process):
 
         exported_gas = self.find_output_stream("gas")
         exported_gas.copy_flow_rates_from(exported_gas_stream)
+        field.save_process_data(exported_gas=exported_gas)

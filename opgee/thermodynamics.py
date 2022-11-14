@@ -1121,7 +1121,7 @@ class Gas(AbstractSubstance):
         return mass_energy_density.to("MJ/kg")
 
     @staticmethod
-    def combustion_enthalpy(molar_fracs, temperature):
+    def combustion_enthalpy(molar_fracs, temperature, phase):
         """
         calculate OTSG/HRSG combustion enthalpy
 
@@ -1130,13 +1130,17 @@ class Gas(AbstractSubstance):
 
         :return:
         """
-        latent_heat_water = Chemical("water").Hvap(T=273.15)
-        latent_heat_water = ureg.Quantity(latent_heat_water, "joule/mole")
 
         enthalpy = pd.Series(
-            {name: Enthalpy(name, temperature, phase=PHASE_GAS, with_units=False) for name in molar_fracs.index},
+            {name: Enthalpy(name, temperature, phase=phase, with_units=False) for name in molar_fracs.index},
             dtype="pint[joule/mole]")
-        enthalpy["H2O"] = max(enthalpy["H2O"] - latent_heat_water, ureg.Quantity(0.0, "joule/mole"))
+
+        if "H2O" in molar_fracs and phase == PHASE_GAS:
+            water = Chemical("water")
+            water_T_ref = water.T_ref
+            latent_heat_water = water.Hvap(T=water_T_ref)
+            latent_heat_water = ureg.Quantity(latent_heat_water, "joule/mole")
+            enthalpy["H2O"] = max(enthalpy["H2O"] - latent_heat_water, ureg.Quantity(0.0, "joule/mole"))
 
         return enthalpy
 

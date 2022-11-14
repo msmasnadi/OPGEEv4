@@ -1197,4 +1197,111 @@
 
 	</Field>
 
+	<Analysis name="test_water_processes">
+		<A name="functional_unit">oil</A>
+		<A name="boundary">Production</A>
+		<A name="energy_basis">LHV</A>
+		<A name="GWP_horizon">100</A>
+		<A name="GWP_version">AR4</A>
+		<Field name="test_SteamGeneration_OTSG"/>
+		<Field name="test_SteamGeneration_Cogen"/>
+		<Field name="test_SteamGeneration_Solar"/>
+	</Analysis>
+
+	<Field name="test_SteamGeneration_OTSG">
+		<A name="oil_prod">100000.0</A>
+		<A name="SOR">2.0</A>
+		<A name="steam_flooding">1</A>
+		<A name="res_press">1531.23</A>
+
+		<Process class="Before"/>
+		<Process class="SteamGeneration"/>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="SteamGeneration" name="produced water">
+			<Contains>produced water for steam generation</Contains>
+			<Component name="H2O" phase="liquid">31929.035171733634</Component>
+			<A name="temperature">140.0</A>
+			<A name="pressure">200.0</A>
+		</Stream>
+
+		<Stream src="Before" dst="SteamGeneration" name="makeup water">
+			<Contains>makeup water for steam generation</Contains>
+			<Component name="H2O" phase="liquid">0.0</Component>
+			<A name="temperature">60.0</A>
+			<A name="pressure">14.7</A>
+		</Stream>
+
+		<Stream src="SteamGeneration" dst="ProductionBoundary" name="water">
+			<Contains>recycled water</Contains>
+		</Stream>
+
+	</Field>
+
+	<Field name="test_SteamGeneration_Cogen">
+		<A name="oil_prod">100000.0</A>
+		<A name="SOR">2.0</A>
+		<A name="steam_flooding">1</A>
+		<A name="res_press">1531.23</A>
+		<A name="fraction_steam_cogen">1</A>
+		<A name="duct_firing">1</A>
+
+		<Process class="Before"/>
+		<Process class="SteamGeneration"/>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="SteamGeneration" name="produced water">
+			<Contains>produced water for steam generation</Contains>
+			<Component name="H2O" phase="liquid">31929.035171733634</Component>
+			<A name="temperature">140.0</A>
+			<A name="pressure">200.0</A>
+		</Stream>
+
+		<Stream src="Before" dst="SteamGeneration" name="makeup water">
+			<Contains>makeup water for steam generation</Contains>
+			<Component name="H2O" phase="liquid">0.0</Component>
+			<A name="temperature">60.0</A>
+			<A name="pressure">14.7</A>
+		</Stream>
+
+		<Stream src="SteamGeneration" dst="ProductionBoundary" name="water">
+			<Contains>recycled water</Contains>
+		</Stream>
+
+	</Field>
+
+	<Field name="test_SteamGeneration_Solar">
+		<A name="oil_prod">100000.0</A>
+		<A name="SOR">2.0</A>
+		<A name="steam_flooding">1</A>
+		<A name="res_press">1531.23</A>
+		<A name="fraction_steam_solar">1</A>
+
+		<Process class="Before"/>
+		<Process class="SteamGeneration"/>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="SteamGeneration" name="produced water">
+			<Contains>produced water for steam generation</Contains>
+			<Component name="H2O" phase="liquid">31929.035171733634</Component>
+			<A name="temperature">140.0</A>
+			<A name="pressure">200.0</A>
+		</Stream>
+
+		<Stream src="Before" dst="SteamGeneration" name="makeup water">
+			<Contains>makeup water for steam generation</Contains>
+			<Component name="H2O" phase="liquid">0.0</Component>
+			<A name="temperature">60.0</A>
+			<A name="pressure">14.7</A>
+		</Stream>
+
+		<Stream src="SteamGeneration" dst="ProductionBoundary" name="water">
+			<Contains>recycled water</Contains>
+		</Stream>
+
+	</Field>
+
 </Model>

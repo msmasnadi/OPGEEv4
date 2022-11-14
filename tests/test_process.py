@@ -520,3 +520,36 @@ def test_CrudeOilStorage(test_model):
     total = proc.emissions.data.loc["GHG"].sum()
     expected = ureg.Quantity(1885.055763739042, "tonne/day")
     assert approx_equal(total, expected)
+
+
+def test_SteamGeneration_OTSG(test_model):
+    analysis = test_model.get_analysis('test_water_processes')
+    field = analysis.get_field('test_SteamGeneration_OTSG')
+    field.run(analysis)
+    proc = field.find_process('SteamGeneration')
+    # ensure total emission flow rates
+    total = proc.energy.data.sum()
+    expected = ureg.Quantity(67895.96099734664, "mmBtu/day")
+    assert approx_equal(total, expected)
+
+
+def test_SteamGeneration_Cogen(test_model):
+    analysis = test_model.get_analysis('test_water_processes')
+    field = analysis.get_field('test_SteamGeneration_Cogen')
+    field.run(analysis)
+    proc = field.find_process('SteamGeneration')
+    # ensure total emission flow rates
+    total = proc.energy.data.sum()
+    expected = ureg.Quantity(99558.64685355888, "mmBtu/day")
+    assert approx_equal(total, expected)
+
+
+def test_SteamGeneration_Solar(test_model):
+    analysis = test_model.get_analysis('test_water_processes')
+    field = analysis.get_field('test_SteamGeneration_Solar')
+    field.run(analysis)
+    proc = field.find_process('SteamGeneration')
+    # ensure total emission flow rates
+    total = proc.energy.data.sum()
+    expected = ureg.Quantity(1216.7129922580275, "mmBtu/day")
+    assert approx_equal(total, expected)
