@@ -82,16 +82,17 @@ def removeTree(path, ignore_errors=True):
 #         print(f"Can't symlink '{src} to '{dst}'")
 #         raise
 #
-# def filecopy(src, dst, removeDst=True):
-#     'Copy src file to dst, optionally removing dst first to avoid writing through symlinks'
-#     from shutil import copy2        # equivalent to "cp -p"
-#
-#     _logger.debug(f"copyfile({src}, dst, removeDst)")
-#     if removeDst and os.path.islink(dst):
-#         os.remove(dst)
-#
-#     copy2(src, dst)
-#
+
+def filecopy(src, dst, removeDst=True):
+    'Copy src file to dst, optionally removing dst first to avoid writing through symlinks'
+    from shutil import copy2        # equivalent to "cp -p"
+
+    _logger.debug(f"copyfile({src}, dst, removeDst)")
+    if removeDst and os.path.islink(dst):
+        os.remove(dst)
+
+    copy2(src, dst)
+
 # def copyfiles(files, dstdir, removeDst=True):
 #     '''
 #     :param files: a list of files to copy

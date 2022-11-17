@@ -25,7 +25,7 @@ dependencies:
   - pip
   - pydot
   - pytest
-  - python=3.8
+  - python>=3.9
   - semver
   - setuptools
   - sphinx>=4.3.0
