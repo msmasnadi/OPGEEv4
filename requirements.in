@@ -1,4 +1,8 @@
 dash
+dash-core-components
+dash-cytoscape
+dash-html-components
+dash-table
 future
 ipyparallel
 ipython
@@ -19,5 +23,5 @@ semver
 setuptools
 sphinx
 sphinx-argparse
-sphinx-rtd-theme
+sphinx_rtd_theme
 thermosteam

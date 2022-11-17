@@ -1,0 +1,8 @@
+#!/bin/sh
+#SBATCH --account=
+#SBATCH --partition=slurm
+#SBATCH --job-name=mcs-engine
+#SBATCH --tasks-per-node=4
+#SBATCH --ntasks=4
+#SBATCH --time=00:20:00
+srun /Users/rjp/anaconda/bin/python -m ipyparallel.engine --profile-dir="/Users/rjp/.ipython/profile_pygcam" --cluster-id="mcs"

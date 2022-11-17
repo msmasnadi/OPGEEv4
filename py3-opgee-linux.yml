@@ -10,7 +10,7 @@ dependencies:
   - graphviz
   - python-graphviz
   - ipython
-  - ipyparallel
+  - ipyparallel=8.4.1
   - jinja2
   - llvm-openmp
   - lxml>=4.9.0

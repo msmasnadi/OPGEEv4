@@ -1,0 +1,7 @@
+#!/bin/sh
+#SBATCH --account=
+#SBATCH --partition=slurm
+#SBATCH --job-name=mcs-controller
+#SBATCH --ntasks=1
+#SBATCH --time=00:20:00
+/Users/rjp/anaconda/bin/python -m ipyparallel.controller --profile-dir="/Users/rjp/.ipython/profile_pygcam" --cluster-id="mcs"

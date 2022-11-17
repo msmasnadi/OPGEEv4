@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 #
 # Update requirements.txt to reflect versions installed using the YML file
 #
@@ -13,10 +14,14 @@ def main():
     with open(reqs_in) as f:
         pkgs = [line.strip() for line in f.readlines() if not line.startswith('#')]
 
-    expr = '^(' + '|'.join(pkgs) + ')'
-    cmd = f"conda list | egrep -i '{expr}'"
+    expr = '(' + '|'.join(pkgs) + ')'
+    cmd = f"conda list -f '{expr}' | egrep -v '^#'"
+    # | egrep -i '{expr}'
 
+    # print(cmd)
     proc = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+
+    # print(f"Lines:\n{proc.stdout}")
 
     lines = proc.stdout.split('\n')
     with open(reqs_out, 'w') as f:

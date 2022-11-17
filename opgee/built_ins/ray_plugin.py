@@ -105,7 +105,7 @@ def start_ray_cluster(port):
     cores = getParamAsInt('SLURM.MinimumCoresPerNode')
 
     _logger.info(f"Starting ray head on node {head} at {address}")
-    srun(f'ray start --head --port={port} --temp-dir="{ray_temp_dir}" --block &',
+    srun(f'ray start --head --node-ip-address={ip_addr} --port={port} --temp-dir="{ray_temp_dir}" --block &',
          sleep=30, nodelist=head, nodes=1, ntasks=1) # , cpus_per_task=head_procs)
 
     # TBD: if this (homogeneous job) approach seems better, simplify to ignore tasks per node

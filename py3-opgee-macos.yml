@@ -7,7 +7,7 @@ dependencies:
   - colour
   - dash>=2.5.1
   - ipython
-  - ipyparallel
+  - ipyparallel=8.4.1
   - jinja2
   - llvm-openmp
   - lxml>=4.9.0

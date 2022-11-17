@@ -207,6 +207,9 @@ class RunsimCommand(SubcommandABC):
                 with open(addr_file, 'r') as f:
                     address = f.read().strip()
 
+                # TBD: see if this helps on SLURM
+                address = f"ray://{address}:{args.port}"
+
                 # Wait until we connect to Ray cluster
                 while True:
                     _logger.debug(f"Waiting for Ray to become available at {address}")

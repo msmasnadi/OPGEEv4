@@ -51,7 +51,7 @@ EXPR  := $(shell printf "^(%s)=\n" '$(MODS)')
 RTD_REQS = rtd.requirements.txt
 TRAVIS_REQS = requirements.txt
 
-clean-requirements:
+clean-reqs:
 	rm $(RTD_REQS) $(TRAVIS_REQS)
 
 rtd-reqs $(RTD_REQS): requirements.in
@@ -60,20 +60,7 @@ rtd-reqs $(RTD_REQS): requirements.in
 
 # "pip freeze" erroneously reports pytest==0.0.0
 travis-reqs $(TRAVIS_REQS): requirements.in
-	echo "colour"       > $(TRAVIS_REQS)
-	echo "dash"        >> $(TRAVIS_REQS)
-	echo "numpy"       >> $(TRAVIS_REQS)
-	echo "pandas"      >> $(TRAVIS_REQS)
-	echo "pint"        >> $(TRAVIS_REQS)
-	echo "pint-pandas" >> $(TRAVIS_REQS)
-	echo "pytest"      >> $(TRAVIS_REQS)
-	echo "scipy"       >> $(TRAVIS_REQS)
-	echo "pytest-cov"  >> $(TRAVIS_REQS)
-	echo "codecov"     >> $(TRAVIS_REQS)
-	pip freeze | egrep -v '^(numpy|pandas|pint|pytest|scipy)' | egrep '$(EXPR)' >> $(TRAVIS_REQS)
-
-test:
-	@echo "pip freeze | egrep -v '^(numpy|pandas|pint|pytest|scipy)' | egrep '$(EXPR)' >> $(TRAVIS_REQS)"
+	./update-reqs.py
 
 #
 # Virtual environment / package dependency support
