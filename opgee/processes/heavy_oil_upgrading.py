@@ -24,6 +24,11 @@ class HeavyOilUpgrading(Process):
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
+        self.upgrader_type = field.attr("upgrader_type")
+        if self.upgrader_type == "None":
+            self.set_enabled(False)
+            return
+
         self.oil = self.field.oil
         self.water = self.field.water
         self.upgrader_gas_comp = field.imported_gas_comp["Upgrader Gas"]
@@ -34,14 +39,10 @@ class HeavyOilUpgrading(Process):
         self.NG_heating_value = self.model.const("NG-heating-value")
         self.petro_coke_heating_value = self.model.const("petrocoke-heating-value")
         self.mole_to_scf = self.model.const("mol-per-scf")
-        self.upgrader_type = field.attr("upgrader_type")
+
         self.water = self.field.water
         self.water_density = self.water.density()
         self.bitumen_API = field.attr("API_bitumen")
-
-        self.upgrading_insitu_oil = True \
-            if self.upgrader_type != "None" and \
-               self.oil_sands_mine != "Non-integrated with upgrader" else False
 
     def run(self, analysis):
         self.print_running_msg()
@@ -50,9 +51,6 @@ class HeavyOilUpgrading(Process):
         # mass rate
         input_oil = self.find_input_stream("oil for upgrading", raiseError=False)
         input_bitumen = self.find_input_stream("bitumen for upgrading", raiseError=False)
-
-        if self.upgrader_type == "None":
-            return
 
         if input_oil is None and input_bitumen is None:
             return
@@ -91,8 +89,7 @@ class HeavyOilUpgrading(Process):
             input_liquid_SG = self.oil.specific_gravity(self.bitumen_API)
 
         input_liquid_vol_rate = input_liquid_mass_rate / (input_liquid_SG * self.water.density())
-        SCO_output = \
-            input_liquid_vol_rate * SCO_bitumen_ratio if self.upgrading_insitu_oil else ureg.Quantity(0.0, "bbl/day")
+        SCO_output = input_liquid_vol_rate * SCO_bitumen_ratio
 
         SCO_output_mass_rate = SCO_output * SCO_specific_gravity * self.water_density
         SCO_to_storage = self.find_output_stream("oil for storage")
@@ -153,6 +150,11 @@ class HeavyOilUpgrading(Process):
         coke_to_transport = self.find_output_stream("petrocoke")
         coke_to_transport.set_solid_flow_rate("PC", coke_to_stockpile_and_transport)
         coke_to_transport.set_tp(STP)
+
+        self.set_iteration_value(SCO_to_storage.total_flow_rate() +
+                                 coke_to_transport.total_flow_rate() +
+                                 flaring_gas.total_flow_rate() +
+                                 output_proc_gas.total_flow_rate())
 
         # energy use
         energy_use = self.energy

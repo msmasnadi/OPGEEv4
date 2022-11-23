@@ -26,6 +26,12 @@ class CrudeOilDewatering(Process):
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
+        self.oil_sand_mine = field.attr("oil_sands_mine")
+        # oil sand mining has no crude oil dewatering
+        if self.oil_sand_mine != "None":
+            self.set_enabled(False)
+            return
+
         self.heater_treater = self.attr("heater_treater")
         self.temperature_heater_treater = self.attr("temperature_heater_treater")
         self.heat_loss = self.attr("heat_loss")
@@ -35,12 +41,9 @@ class CrudeOilDewatering(Process):
         self.oil_path = field.attr("oil_processing_path")
         self.oil_path_dict = {"Stabilization": "oil for stabilization",
                               "Storage": "oil for storage",
-                              "Upgrading": "oil for upgrader",
-                              "Dilution": "oil for dilution"}
-        self.oil_sand_mine = field.attr("oil_sands_mine")
-        if self.oil_sand_mine != "None":
-            self.set_enabled(False)
-            return
+                              "Upgrading": "oil for upgrading",
+                              "Dilution": "oil for dilution",
+                              "Dilution and Upgrading": "oil for dilution"}
 
     def run(self, analysis):
         self.print_running_msg()

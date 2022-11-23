@@ -799,7 +799,7 @@ class Gas(AbstractSubstance):
         result = molar_flow_rate / total_molar_flow_rate
         return result.to("frac")
 
-    def component_molar_fractions(self, stream):
+    def component_molar_fractions(self, stream, index=None):
         """
 
         :param stream:
@@ -808,12 +808,15 @@ class Gas(AbstractSubstance):
         """
 
         total_molar_flow_rate = self.total_molar_flow_rate(stream)
-        gas_flow_rates = stream.gas_flow_rates()
+        gas_flow_rates = stream.gas_flow_rates(index)
 
         if len(gas_flow_rates) == 0:
             raise ModelValidationError("Can't compute molar fractions on an empty stream")
 
-        molar_flow_rate = gas_flow_rates / self.component_MW[gas_flow_rates.index]
+        if index is not None:
+            molar_flow_rate = gas_flow_rates / self.component_MW[index]
+        else:
+            molar_flow_rate = gas_flow_rates / self.component_MW[gas_flow_rates.index]
 
         result = molar_flow_rate / total_molar_flow_rate
         result = pd.Series(result, dtype="pint[fraction]")  # convert units

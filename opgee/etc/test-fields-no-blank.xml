@@ -4612,7 +4612,7 @@
       <A name="gas_lifting">0</A>
       <A name="gas_flooding">0</A>
       <A name="steam_flooding">0</A>
-      <A name="oil_sands_mine">Non-integrated with upgrader</A>
+      <A name="oil_sands_mine">Integrated with diluent</A>
       <A name="country">Canada</A>
       <A name="name">Jackpine/Scotford</A>
       <A name="age">38.0</A>
@@ -4674,7 +4674,7 @@
       <A name="gas_lifting">0</A>
       <A name="gas_flooding">0</A>
       <A name="steam_flooding">0</A>
-      <A name="oil_sands_mine">Non-integrated with upgrader</A>
+      <A name="oil_sands_mine">Integrated with diluent</A>
       <A name="country">Canada</A>
       <A name="name">CNRL Horizon</A>
       <A name="age">38.0</A>
@@ -4976,7 +4976,7 @@
       <A name="gas_lifting">0</A>
       <A name="gas_flooding">0</A>
       <A name="steam_flooding">0</A>
-      <A name="oil_sands_mine">Non-integrated with upgrader</A>
+      <A name="oil_sands_mine">Integrated with diluent</A>
       <A name="country">Canada</A>
       <A name="name">Jackpine/Scotford</A>
       <A name="age">38.0</A>
@@ -5279,7 +5279,7 @@
       <A name="gas_lifting">0</A>
       <A name="gas_flooding">0</A>
       <A name="steam_flooding">0</A>
-      <A name="oil_sands_mine">Non-integrated with upgrader</A>
+      <A name="oil_sands_mine">Integrated with diluent</A>
       <A name="country">Canada</A>
       <A name="name">Jackpine/Scotford</A>
       <A name="age">38.0</A>
@@ -6187,7 +6187,7 @@
       <A name="gas_lifting">0</A>
       <A name="gas_flooding">0</A>
       <A name="steam_flooding">0</A>
-      <A name="oil_sands_mine">Non-integrated with upgrader</A>
+      <A name="oil_sands_mine">Integrated with diluent</A>
       <A name="name">Diluent Test 0% - Non-integrated mine</A>
       <A name="age">38.0</A>
       <A name="depth">100.0</A>
@@ -6238,7 +6238,7 @@
       <A name="gas_lifting">0</A>
       <A name="gas_flooding">0</A>
       <A name="steam_flooding">0</A>
-      <A name="oil_sands_mine">Non-integrated with upgrader</A>
+      <A name="oil_sands_mine">Integrated with diluent</A>
       <A name="name">Diluent Test 25% - Non integrated mine</A>
       <A name="age">38.0</A>
       <A name="depth">100.0</A>
@@ -6289,7 +6289,7 @@
       <A name="gas_lifting">0</A>
       <A name="gas_flooding">0</A>
       <A name="steam_flooding">0</A>
-      <A name="oil_sands_mine">Non-integrated with upgrader</A>
+      <A name="oil_sands_mine">Integrated with diluent</A>
       <A name="name">Diluent Test 50% - Non integrated mine</A>
       <A name="age">38.0</A>
       <A name="depth">100.0</A>
@@ -6340,7 +6340,7 @@
       <A name="gas_lifting">0</A>
       <A name="gas_flooding">0</A>
       <A name="steam_flooding">0</A>
-      <A name="oil_sands_mine">Non-integrated with upgrader</A>
+      <A name="oil_sands_mine">Integrated with diluent</A>
       <A name="name">Diluent Test 75% - Non-integrated mine</A>
       <A name="age">38.0</A>
       <A name="depth">100.0</A>
@@ -6391,7 +6391,7 @@
       <A name="gas_lifting">0</A>
       <A name="gas_flooding">0</A>
       <A name="steam_flooding">0</A>
-      <A name="oil_sands_mine">Non-integrated with upgrader</A>
+      <A name="oil_sands_mine">Integrated with diluent</A>
       <A name="name">Diluent Test 100% -Non-integrated mine</A>
       <A name="age">38.0</A>
       <A name="depth">100.0</A>
@@ -6493,7 +6493,7 @@
       <A name="gas_lifting">0</A>
       <A name="gas_flooding">0</A>
       <A name="steam_flooding">0</A>
-      <A name="oil_sands_mine">Non-integrated with upgrader</A>
+      <A name="oil_sands_mine">Integrated with diluent</A>
       <A name="country">Canada</A>
       <A name="name">Oil sands test: Mine, DC, non-integrated</A>
       <A name="age">38.0</A>
@@ -6597,7 +6597,7 @@
       <A name="gas_lifting">0</A>
       <A name="gas_flooding">0</A>
       <A name="steam_flooding">0</A>
-      <A name="oil_sands_mine">Non-integrated with upgrader</A>
+      <A name="oil_sands_mine">Integrated with diluent</A>
       <A name="country">Canada</A>
       <A name="name">Oil sands test: Mine, HC, non-integrated</A>
       <A name="age">38.0</A>
@@ -6701,7 +6701,7 @@
       <A name="gas_lifting">0</A>
       <A name="gas_flooding">0</A>
       <A name="steam_flooding">0</A>
-      <A name="oil_sands_mine">Non-integrated with upgrader</A>
+      <A name="oil_sands_mine">Integrated with diluent</A>
       <A name="country">Canada</A>
       <A name="name">Oil sands test: Mine, HCFC, non-integrated</A>
       <A name="age">38.0</A>
@@ -21267,7 +21267,7 @@
       <A name="gas_lifting">0</A>
       <A name="gas_flooding">0</A>
       <A name="steam_flooding">0</A>
-      <A name="oil_sands_mine">Non-integrated with upgrader</A>
+      <A name="oil_sands_mine">Integrated with diluent</A>
       <A name="country">Canada</A>
       <A name="name">Test 46 - Oil sands test: Mine, DC, non-integrated</A>
       <A name="age">38.0</A>
@@ -21371,7 +21371,7 @@
       <A name="gas_lifting">0</A>
       <A name="gas_flooding">0</A>
       <A name="steam_flooding">0</A>
-      <A name="oil_sands_mine">Non-integrated with upgrader</A>
+      <A name="oil_sands_mine">Integrated with diluent</A>
       <A name="country">Canada</A>
       <A name="name">Test 48 - Oil sands test: Mine, HC, non-integrated</A>
       <A name="age">38.0</A>
@@ -21475,7 +21475,7 @@
       <A name="gas_lifting">0</A>
       <A name="gas_flooding">0</A>
       <A name="steam_flooding">0</A>
-      <A name="oil_sands_mine">Non-integrated with upgrader</A>
+      <A name="oil_sands_mine">Integrated with diluent</A>
       <A name="country">Canada</A>
       <A name="name">Test 50 - Oil sands test: Mine, HCFC, non-integrated</A>
       <A name="age">38.0</A>

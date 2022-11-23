@@ -2809,7 +2809,7 @@
       <A name="gas_lifting">0</A>
       <A name="gas_flooding">0</A>
       <A name="steam_flooding">0</A>
-      <A name="oil_sands_mine">Non-integrated with upgrader</A>
+      <A name="oil_sands_mine">Integrated with diluent</A>
       <A name="country">Canada</A>
       <A name="name">Jackpine/Scotford</A>
       <A name="API">32.0</A>
@@ -2844,7 +2844,7 @@
       <A name="gas_lifting">0</A>
       <A name="gas_flooding">0</A>
       <A name="steam_flooding">0</A>
-      <A name="oil_sands_mine">Non-integrated with upgrader</A>
+      <A name="oil_sands_mine">Integrated with diluent</A>
       <A name="country">Canada</A>
       <A name="name">CNRL Horizon</A>
       <A name="API">8.0</A>
@@ -3015,7 +3015,7 @@
       <A name="gas_lifting">0</A>
       <A name="gas_flooding">0</A>
       <A name="steam_flooding">0</A>
-      <A name="oil_sands_mine">Non-integrated with upgrader</A>
+      <A name="oil_sands_mine">Integrated with diluent</A>
       <A name="country">Canada</A>
       <A name="name">Jackpine/Scotford</A>
       <A name="API">32.0</A>
@@ -3189,7 +3189,7 @@
       <A name="gas_lifting">0</A>
       <A name="gas_flooding">0</A>
       <A name="steam_flooding">0</A>
-      <A name="oil_sands_mine">Non-integrated with upgrader</A>
+      <A name="oil_sands_mine">Integrated with diluent</A>
       <A name="country">Canada</A>
       <A name="name">Jackpine/Scotford</A>
       <A name="API">32.0</A>

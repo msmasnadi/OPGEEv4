@@ -12,6 +12,7 @@ from .. import ureg
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
+from ..stream import Stream
 
 _logger = getLogger(__name__)
 
@@ -49,19 +50,23 @@ class CO2ReinjectionCompressor(Process):
         field.save_process_data(CO2_reinjection_mass_rate=gas_to_well.gas_flow_rate("CO2"))
 
         discharge_press = self.res_press + ureg.Quantity(500.0, "psia")
-        overall_compression_ratio = discharge_press / input.tp.P
-        energy_consumption, out_temp, _ = Compressor.get_compressor_energy_consumption(self.field,
-                                                                                   self.prime_mover_type,
-                                                                                   self.eta_compressor,
-                                                                                   overall_compression_ratio,
-                                                                                   gas_to_well)
+        total_energy_consumption = ureg.Quantity(0, "mmbtu/day")
+        input_streams = self.find_input_streams("gas for CO2 compressor")
+        for _, input_stream in input_streams.items():
+            overall_compression_ratio = discharge_press / input_stream.tp.P
+            energy_consumption, out_temp, _ = Compressor.get_compressor_energy_consumption(self.field,
+                                                                                       self.prime_mover_type,
+                                                                                       self.eta_compressor,
+                                                                                       overall_compression_ratio,
+                                                                                       input_stream)
+            total_energy_consumption += energy_consumption
 
         gas_to_well.tp.set(T=out_temp, P=discharge_press)
 
         # energy-use
         energy_use = self.energy
         energy_carrier = get_energy_carrier(self.prime_mover_type)
-        energy_use.set_rate(energy_carrier, energy_consumption)
+        energy_use.set_rate(energy_carrier, total_energy_consumption)
 
         # import/export
         self.set_import_from_energy(energy_use)

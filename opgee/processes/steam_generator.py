@@ -499,12 +499,15 @@ class SteamGenerator(OpgeeObject):
         :return:
         """
 
-        processed_prod_gas_comp = \
-            self.field.get_process_data("exported_gas") if self.field.get_process_data(
-                "exported_gas") else self.processed_prod_gas_comp
-        gas_combusted = \
-            (self.imported_fuel_gas_comp * self.OTSG_frac_import_gas +
-             processed_prod_gas_comp * self.OTSG_frac_prod_gas)
+        processed_prod_gas_comp = self.processed_prod_gas_comp
+        if self.field.get_process_data("exported_gas"):
+            exported_gas_stream = self.field.get_process_data("exported_gas")
+            exported_gas_comp = self.gas.component_molar_fractions(exported_gas_stream, self.imported_fuel_gas_comp.index)
+            processed_prod_gas_comp = exported_gas_comp
+
+        frac_import_gas = self.OTSG_frac_import_gas if SG_type == "OTSG" else self.HRSG_frac_import_gas
+        frac_prod_gas = self.OTSG_frac_prod_gas if SG_type == "OTSG" else self.HRSG_frac_prod_gas
+        gas_combusted = self.imported_fuel_gas_comp * frac_import_gas + processed_prod_gas_comp * frac_prod_gas
         gas_MW_combust = self.gas.molar_weight_from_molar_fracs(gas_combusted)
         gas_LHV = self.gas.mass_energy_density_from_molar_fracs(gas_combusted)
 

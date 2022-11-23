@@ -1069,7 +1069,7 @@ class Field(Container):
     @SmartDefault.register('HeavyOilDilution.fraction_diluent', ['oil_sands_mine', 'upgrader_type'])
     def fraction_diluent_default(self, oil_sands_mine, upgrader_type):
         # =IF(AND(J56=1,J111=0),0.3,0) [J56 = 'oil sands mine nonint'; ; J111 = upgrader_type
-        return 0.3 if (oil_sands_mine == 'Non-integrated with upgrader' and upgrader_type == 'None') else 0.0
+        return 0.3 if (oil_sands_mine == 'Integrated with diluent' and upgrader_type == 'None') else 0.0
 
     @SmartDefault.register('fraction_elec_onsite', ['offshore'])
     def fraction_elec_onsite_default(self, offshore):

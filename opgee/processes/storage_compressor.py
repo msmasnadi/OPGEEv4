@@ -36,13 +36,11 @@ class StorageCompressor(Process):
 
         input = self.find_input_stream("gas for storage")
 
-        if input.has_zero_flow():
+        if input.is_uninitialized():
             return
 
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
-
-        input_energy_flow_rate = self.field.gas.energy_flow_rate(input)
 
         overall_compression_ratio = self.discharge_press / input.tp.P
         energy_consumption, output_temp, output_press = \

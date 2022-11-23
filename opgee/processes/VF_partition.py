@@ -41,6 +41,7 @@ class VFPartition(Process):
         if input.is_uninitialized():
             return
 
+        # TODO: update the FOR definition. FOR measures the total flaring rate
         gas_mol_fraction = self.gas.total_molar_flow_rate(input)
         gas_volume_rate = gas_mol_fraction / self.mol_per_scf
         SCO_bitumen_ratio = field.get_process_data("SCO_bitumen_ratio")

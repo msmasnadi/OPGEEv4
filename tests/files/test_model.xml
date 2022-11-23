@@ -731,19 +731,19 @@
 
 		<Stream src="Before" dst="CO2ReinjectionCompressor" name="AGR to CO2 compressor">
 			<Contains>gas for CO2 compressor</Contains>
-			<Component name="CO2" phase="gas">2770.14636</Component>
+			<Component name="CO2" phase="gas">2765.44374</Component>
 			<A name="temperature">90</A>
 			<A name="pressure">500</A>
 		</Stream>
 
 		<Stream src="Before" dst="CO2ReinjectionCompressor" name="CO2 membrane to CO2 compressor">
 			<Contains>gas for CO2 compressor</Contains>
-			<Component name="N2" phase="gas">525.318807</Component>
-			<Component name="CO2" phase="gas">5594.456607</Component>
-			<Component name="C1" phase="gas">354.916584</Component>
+			<Component name="N2" phase="gas">524.42675</Component>
+			<Component name="CO2" phase="gas">5584.95951</Component>
+			<Component name="C1" phase="gas">354.31546</Component>
 			<Component name="C2" phase="gas">74.644754</Component>
 			<Component name="C3" phase="gas">49.183948</Component>
-			<Component name="C4" phase="gas">38.116475</Component>
+			<Component name="C4" phase="gas">38.05254</Component>
 			<A name="temperature">60</A>
 			<A name="pressure">165</A>
 		</Stream>
@@ -940,6 +940,10 @@
 		<Field name="test_ReservoirWellInterface_CO2_flood"/>
 		<Field name="test_DownholePump"/>
 		<Field name="test_CrudeOilDewatering"/>
+		<Field name="test_CrudeOilDewatering_Upgrading"/>
+		<Field name="test_CrudeOilDewatering_Dilution"/>
+		<Field name="test_CrudeOilDewatering_Storage"/>
+		<Field name="test_CrudeOilDewatering_DilutionUpgrading"/>
 		<Field name="test_CrudeOilStabilization"/>
 	</Analysis>
 
@@ -1060,6 +1064,122 @@
 
 	</Field>
 
+	<Field name="test_CrudeOilDewatering_Upgrading">
+
+		<A name="oil_processing_path">Upgrading</A>
+
+		<Process class="Before"/>
+		<Process class="CrudeOilDewatering">
+			<A name="heater_treater">1</A>
+		</Process>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="CrudeOilDewatering">
+			<Contains>crude oil</Contains>
+			<Component name="oil" phase="liquid">55847.93157</Component>
+			<Component name="H2O" phase="liquid">7818.71042</Component>
+			<A name="temperature">90.0</A>
+			<A name="pressure">100.0</A>
+		</Stream>
+
+		<Stream src="CrudeOilDewatering" dst="ProductionBoundary" name="oil">
+			<Contains>oil for upgrading</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilDewatering" dst="ProductionBoundary" name="water">
+			<Contains>water</Contains>
+		</Stream>
+
+	</Field>
+
+	<Field name="test_CrudeOilDewatering_Dilution">
+
+		<A name="oil_processing_path">Dilution</A>
+
+		<Process class="Before"/>
+		<Process class="CrudeOilDewatering">
+			<A name="heater_treater">1</A>
+		</Process>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="CrudeOilDewatering">
+			<Contains>crude oil</Contains>
+			<Component name="oil" phase="liquid">55847.93157</Component>
+			<Component name="H2O" phase="liquid">7818.71042</Component>
+			<A name="temperature">90.0</A>
+			<A name="pressure">100.0</A>
+		</Stream>
+
+		<Stream src="CrudeOilDewatering" dst="ProductionBoundary" name="oil">
+			<Contains>oil for dilution</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilDewatering" dst="ProductionBoundary" name="water">
+			<Contains>water</Contains>
+		</Stream>
+
+	</Field>
+
+	<Field name="test_CrudeOilDewatering_Storage">
+
+		<A name="oil_processing_path">Storage</A>
+
+		<Process class="Before"/>
+		<Process class="CrudeOilDewatering">
+			<A name="heater_treater">1</A>
+		</Process>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="CrudeOilDewatering">
+			<Contains>crude oil</Contains>
+			<Component name="oil" phase="liquid">55847.93157</Component>
+			<Component name="H2O" phase="liquid">7818.71042</Component>
+			<A name="temperature">90.0</A>
+			<A name="pressure">100.0</A>
+		</Stream>
+
+		<Stream src="CrudeOilDewatering" dst="ProductionBoundary" name="oil">
+			<Contains>oil for storage</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilDewatering" dst="ProductionBoundary" name="water">
+			<Contains>water</Contains>
+		</Stream>
+
+	</Field>
+
+	<Field name="test_CrudeOilDewatering_DilutionUpgrading">
+
+		<A name="oil_processing_path">Dilution and Upgrading</A>
+
+		<Process class="Before"/>
+		<Process class="CrudeOilDewatering">
+			<A name="heater_treater">1</A>
+		</Process>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="CrudeOilDewatering">
+			<Contains>crude oil</Contains>
+			<Component name="oil" phase="liquid">55847.93157</Component>
+			<Component name="H2O" phase="liquid">7818.71042</Component>
+			<A name="temperature">90.0</A>
+			<A name="pressure">100.0</A>
+		</Stream>
+
+		<Stream src="CrudeOilDewatering" dst="ProductionBoundary" name="oil">
+			<Contains>oil for dilution</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilDewatering" dst="ProductionBoundary" name="water">
+			<Contains>water</Contains>
+		</Stream>
+
+	</Field>
+
 
 	<Field name="test_CrudeOilStabilization">
 		<A name="API">46.2</A>
@@ -1107,6 +1227,7 @@
 		<Field name="test_HeavyOilUpgrading"/>
 		<Field name="test_HeavyOilDilution"/>
 		<Field name="test_CrudeOilStorage"/>
+		<Field name="test_BitumenMining"/>
 	</Analysis>
 
 
@@ -1197,6 +1318,29 @@
 
 	</Field>
 
+	<Field name="test_BitumenMining">
+		<A name="oil_prod">150000</A>
+		<A name="API_bitumen">9.0</A>
+		<A name="upgrader_type">Delayed coking</A>
+		<A name="oil_sands_mine">Integrated with upgrader</A>
+		<A name="FOR">0.0</A>
+
+
+		<Process class="Before"/>
+		<Process class="BitumenMining"/>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="BitumenMining" dst="ProductionBoundary" name="oil">
+			<Contains>bitumen for upgrading</Contains>
+		</Stream>
+
+		<Stream src="BitumenMining" dst="ProductionBoundary" name="gas">
+			<Contains>gas for partition</Contains>
+		</Stream>
+
+	</Field>
+
 	<Analysis name="test_water_processes">
 		<A name="functional_unit">oil</A>
 		<A name="boundary">Production</A>
@@ -1206,6 +1350,7 @@
 		<Field name="test_SteamGeneration_OTSG"/>
 		<Field name="test_SteamGeneration_Cogen"/>
 		<Field name="test_SteamGeneration_Solar"/>
+		<Field name="test_WaterTreatment"/>
 	</Analysis>
 
 	<Field name="test_SteamGeneration_OTSG">
@@ -1300,6 +1445,45 @@
 
 		<Stream src="SteamGeneration" dst="ProductionBoundary" name="water">
 			<Contains>recycled water</Contains>
+		</Stream>
+
+	</Field>
+
+
+	<Field name="test_WaterTreatment">
+		<A name="oil_prod">100000.0</A>
+		<A name="SOR">2.0</A>
+		<A name="steam_flooding">1</A>
+		<A name="water_reinjection">0</A>
+		<A name="res_press">1531.23</A>
+		<A name="fraction_steam_solar">1</A>
+		<A name="WOR">2</A>
+
+		<Process class="Before"/>
+		<Process class="WaterTreatment"/>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="WaterTreatment" name="water after from separator">
+			<Contains>water</Contains>
+			<Component name="H2O" phase="liquid">29956.965</Component>
+			<A name="temperature">90.0</A>
+			<A name="pressure">100.0</A>
+		</Stream>
+
+		<Stream src="Before" dst="WaterTreatment" name="water after from crude oil dewatering">
+			<Contains>water</Contains>
+			<Component name="H2O" phase="liquid">1840.495</Component>
+			<A name="temperature">90.0</A>
+			<A name="pressure">100.0</A>
+		</Stream>
+
+		<Stream src="WaterTreatment" dst="ProductionBoundary" name="makeup water for steam generation">
+			<Contains>makeup water for steam generation</Contains>
+		</Stream>
+
+		<Stream src="WaterTreatment" dst="ProductionBoundary" name="produced water for steam generation">
+			<Contains>produced water for steam generation</Contains>
 		</Stream>
 
 	</Field>

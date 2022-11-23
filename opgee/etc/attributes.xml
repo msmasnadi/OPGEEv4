@@ -81,7 +81,8 @@
       <Options name="oil_sands_mine_type" default="None">
         <Option>None</Option>
         <Option>Integrated with upgrader</Option>
-        <Option>Non-integrated with upgrader</Option>
+        <Option>Integrated with diluent</Option>
+        <Option>Integrated with both</Option>
       </Options>
       <AttrDef name="oil_sands_mine" options="oil_sands_mine_type" desc="Oil sands mine"/>
 
@@ -437,7 +438,7 @@
       <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
     </ClassAttrs>
     <ClassAttrs name="BitumenMining">
-      <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
+      <AttrDef name="CH4_loss_rate" type="float" unit="scf/bbl" desc="Fugitive emissions rates from Baray et al. 2018. https://doi.org/10.5194/acp-18-7361-2018. Data from Table 2. Data collected in tonnes of CH4 per hour from each project">22.881511207</AttrDef>
     </ClassAttrs>
     <ClassAttrs name="MaintenanceAndWorkovers">
       <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
