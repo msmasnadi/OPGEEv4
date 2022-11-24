@@ -66,6 +66,8 @@ class CrudeOilStabilization(Process):
 
         output_stab_gas = self.find_output_stream("gas for gas gathering")
         gas_tp_after_separation = field.get_process_data("gas_tp_after_separation")
+        if gas_tp_after_separation is None:
+            gas_tp_after_separation = input.tp
         output_stab_gas.set_tp(gas_tp_after_separation)
         output_stab_gas.set_rates_from_series(gas_removed_mass_rate, PHASE_GAS)
 
