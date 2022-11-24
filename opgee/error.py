@@ -111,3 +111,15 @@ class McsSystemError(OpgeeException):
 
 class DistributionSpecError(OpgeeException):
     pass
+
+class RemoteError(OpgeeException):
+    """
+    Returned when we catch any exception so it can be handled
+    in the Manager.
+    """
+    def __init__(self, msg, field_name):
+        self.msg = msg
+        self.field_name = field_name
+
+    def __str__(self):
+        return f"<RemoteError field='{self.field_name} msg='{self.msg}'>"

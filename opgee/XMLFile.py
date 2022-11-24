@@ -89,7 +89,10 @@ class XMLFile(object):
         error on failure, else return boolean validity status. If no schema file
         is defined, return ``True``.
         """
-        import importlib_resources as imp
+        try:
+            import importlib.resources as imp
+        except:
+            import importlib_resources as imp
 
         if not self.schemaPath:
             return True

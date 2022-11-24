@@ -6,8 +6,14 @@
 # Copyright (c) 2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-import os
 
+# TBD:   ipcluster start -n=500 --profile=opgee --daemonize --clean-logs=true
+#
+# import ipyparallel as ipp
+# client = ipp.Client(profile='opgee', n=500)   # will this run the sbatch scripts for controller and engine?
+# client.wait_for_engines(N)  # wait for N engines to become available
+
+#import os
 import ray
 
 from ..log import getLogger
@@ -28,14 +34,13 @@ class RunsimCommand(SubcommandABC):
         from ..config import getParam
         from ..utils import ParseCommaList
 
+        dflt_mode = getParam('OPGEE.RunsimMode')
+        log_file  = getParam('OPGEE.LogFile')
         job_name  = getParam('SLURM.JobName')
         load_env  = getParam('SLURM.LoadEnvironment')
         partition = getParam('SLURM.Partition')
         min_per_task = getParam('SLURM.MinutesPerTask')
-        addr_file = getParam('Ray.AddressFile')
-        dflt_port = getParam('Ray.Port')
-        dflt_mode = getParam('OPGEE.RunsimMode')
-        log_file  = getParam('OPGEE.LogFile')
+        dflt_profile = getParam('IPP.Profile')
 
         # parser.add_argument('-a', '--analysis',
         #                     help='''The name of the analysis to run''')
@@ -43,17 +48,8 @@ class RunsimCommand(SubcommandABC):
         # parser.add_argument('--overwrite', action='store_true',
         #                     help='''OVERWRITE prior results, if any.''')
 
-        parser.add_argument('-a', '--address', default=None,
-                            help='''The (ip:port) address of the Ray head process. Default is to use
-                                the value of environment variable "RAY_ADDRESS" if it is not empty.''')
-
-        parser.add_argument('-A', '--address-file', default=addr_file,
-                            help=f'''The path to a file holding the address (ip:port) of the Ray
-                                cluster "head". Default is the value of config var "Ray.AddressFile",
-                                currently {addr_file}''')
-
-        parser.add_argument('-c', '--cpu-count', type=int, default=0,
-                            help='''The number of CPUs to use to run the MCS. A value of zero
+        parser.add_argument('-e', '--engines', type=int, default=0,
+                            help='''The number of engines to use to run the MCS. A value of zero
                                 means use all available CPUs. Ignored if --mode=cluster is specified,
                                 in which case all available CPUs on the remote cluster are used.''')
 
@@ -61,10 +57,10 @@ class RunsimCommand(SubcommandABC):
                             help="Don't delete the temporary file (useful primarily for debugging.)")
 
         parser.add_argument('--debug', action='store_true',
-                            help='''Use the Manager/Worker architecture, but don't use "ray" 
+                            help='''Use the Manager/Worker architecture, but don't use IPP 
                             (primarily for debugging Worker code)''')
 
-        parser.add_argument('-e', "--load-env", default="",
+        parser.add_argument('-E', "--load-env", default="",
                             help=f'''A command to load your python and/or module environment. Default 
                                 is the value of config variable "SLURM.LoadEnvironment, currently 
                                 '{load_env}'".''')
@@ -95,9 +91,9 @@ class RunsimCommand(SubcommandABC):
                             help=f'''The name of the partition to use for job submissions. Default is the
                                  value of config variable "SLURM.Partition", currently '{partition}'.''')
 
-        parser.add_argument('-P', '--port', type=int, default=dflt_port,
-                            help=f'''The port number to use the "head" of the Ray cluster. Default is
-                             the value of config var "Ray.Port", currently {dflt_port}''')
+        parser.add_argument('-P', '--profile', default=dflt_profile,
+                            help=f'''The name of the profile to use for the IPP cluster. Default is
+                             the value of config var "IPP.Profile", currently {dflt_profile}''')
 
         parser.add_argument('-s', '--simulation-dir',
                             help='''The top-level directory to use for this simulation "package"''')
@@ -126,7 +122,7 @@ class RunsimCommand(SubcommandABC):
         from ..error import OpgeeException
         from ..utils import parseTrialString
         from ..mcs.simulation import Simulation
-        from ..mcs.distributed_mcs import Manager
+        from ..mcs.distributed_mcs_ipp import Manager
         from ..mcs.slurm import sbatch, sbatch_het_job
 
         sim_dir = args.simulation_dir
@@ -221,6 +217,6 @@ class RunsimCommand(SubcommandABC):
 
                     break
 
-            mgr = Manager(address=address, mode=args.mode)
-            mgr.run_mcs(sim_dir, field_names=field_names, cpu_count=args.cpu_count,
+            mgr = Manager(profile=args.profile, mode=args.mode)
+            mgr.run_mcs(sim_dir, field_names=field_names, num_engines=args.engines,
                         trial_nums=args.trials, debug=args.debug)

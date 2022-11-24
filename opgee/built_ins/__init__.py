@@ -8,7 +8,7 @@ from .csv2xml_plugin import Csv2XmlCommand
 from .merge_plugin import MergeCommand
 from .gensim_plugin import GensimCommand
 from .ippsetup_plugin import IppSetupCommand
-from .ray_plugin import RayCommand
+# from .ray_plugin import RayCommand
 from .runsim_plugin import RunsimCommand
 #from .genwor_plugin import GenworCommand
 
@@ -23,7 +23,7 @@ BuiltinSubcommands = [
     IppSetupCommand,
     # LaunchCommand,
     MergeCommand,
-    RayCommand,
+    # RayCommand,
     RunCommand,
     RunsimCommand,
 ]

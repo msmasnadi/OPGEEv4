@@ -22,5 +22,8 @@ try:
 except:
     ureg = pint.UnitRegistry()  # pragma: no cover
 
-ureg.load_definitions(resourceStream('etc/units.txt'))
+stream = resourceStream('etc/units.txt')
+lines = [line.strip() for line in stream.readlines()]
+ureg.load_definitions(lines)
+
 pint.set_application_registry(ureg)

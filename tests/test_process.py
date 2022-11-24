@@ -367,8 +367,11 @@ def test_NGFlooding_onsite(test_model):
     field.run(analysis)
     proc = field.find_process('GasPartition')
     # ensure total energy flow rates
-    assert proc.find_output_stream("gas for gas reinjection compressor").gas_flow_rates().sum() == \
-           ureg.Quantity(3824.449990753103, "tonne/day")
+    total = proc.find_output_stream("gas for gas reinjection compressor").gas_flow_rates().sum()
+    expected = ureg.Quantity(3824.449990753103, "tonne/day")
+
+    assert approx_equal(total, expected)
+
     assert proc.find_output_stream("gas").gas_flow_rates().sum() == ureg.Quantity(22187.2424492469, "tonne/day")
 
 

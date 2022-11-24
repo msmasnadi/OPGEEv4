@@ -3,6 +3,8 @@ dash-core-components
 dash-cytoscape
 dash-html-components
 dash-table
+dask
+dask-jobqueue
 future
 ipyparallel
 ipython
@@ -15,7 +17,6 @@ pint
 pint-pandas
 pydot
 pytest
-python
 python-dateutil
 pyxsteam
 ray

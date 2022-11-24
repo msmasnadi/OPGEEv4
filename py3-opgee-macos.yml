@@ -6,6 +6,8 @@ channels:
 dependencies:
   - colour
   - dash>=2.5.1
+  - dask
+  - dask-jobqueue>=0.7.3
   - ipython
   - ipyparallel=8.4.1
   - jinja2
@@ -17,8 +19,10 @@ dependencies:
   - numpy
   - ordered-set
   - pandas
-  - pint=0.19.2
-  - pint-pandas=0.2
+#  - pint=0.19.2  (unconstrained installs 0.20.1)
+#  - pint-pandas=0.2 (unconstrained installs 0.3)
+  - pint
+  - pint-pandas
   - pip
   - pydot
   - pytest
@@ -30,9 +34,8 @@ dependencies:
   - sphinx_rtd_theme>=0.5.1
   - sphinxcontrib-serializinghtml
   - pip:
-    # These next three fail if upgraded beyond these versions
     - thermo==0.2.10    # several tests fail when using v0.2.21
-    - thermosteam==0.28.12
-    - pyXSteam==0.4.8
+    - thermosteam>=0.28.12
+    - pyXSteam>=0.4.8
     - dash-cytoscape>=0.3.0
     - ray

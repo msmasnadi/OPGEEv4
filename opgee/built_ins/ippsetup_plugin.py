@@ -25,6 +25,14 @@ c.SlurmControllerLauncher.batch_template_file = 'slurm_controller.template'
 c.SlurmEngineSetLauncher.batch_template_file = 'slurm_engine.template'
 """,
 
+#### In ipcluster_config.py, maybe use this instead of template file?
+# c.SlurmEngineSetLauncher.batch_template = """#!/bin/sh
+# #SBATCH --ntasks={n}
+# #SBATCH --mem-per-cpu=1G
+# #SBATCH --job-name=ipy-engine-
+# srun ipengine --profile-dir="{profile_dir}" --cluster-id=""
+#"""
+
     'ipengine_config.py': """
 #
 # Added by opg ippsetup
@@ -34,6 +42,13 @@ c.SlurmEngineSetLauncher.batch_template_file = 'slurm_engine.template'
 c.IPEngineApp.wait_for_url_file = 300
 c.IPEngine.timeout = 300
 """,
+
+#
+# Docs say "It’s useful on systems with shared filesystems to run the engines in
+# some scratch directory. This can be set with:
+#
+# c.IPEngine.work_dir = u'/path/to/scratch/' "
+#
 
     'ipcontroller_config.py': """
 #
