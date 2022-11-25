@@ -368,15 +368,6 @@ class Simulation(OpgeeObject):
         filename = self.trial_data_path(field, mkdir=True)
         self.trial_data_df.to_csv(filename)
 
-    # def consolidate_results(self):
-    #     """
-    #     Walk the trial directories, accumulating results into a single top-level
-    #     results file.
-    #
-    #     :return: the pathname of the results file.
-    #     """
-    #     pass
-
     def field_trial_data(self, field):
         """
         Read the trial data CSV from the top-level directory and return the DataFrame.

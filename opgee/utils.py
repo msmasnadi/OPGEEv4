@@ -17,7 +17,6 @@ from .log import getLogger
 
 _logger = getLogger(__name__)
 
-
 def ipython_info():  # pragma: no cover
     ip = False
     if 'ipykernel' in sys.modules:
@@ -25,7 +24,6 @@ def ipython_info():  # pragma: no cover
     elif 'IPython' in sys.modules:
         ip = 'terminal'
     return ip
-
 
 #
 # Custom argparse "action" to parse comma-delimited strings to lists
