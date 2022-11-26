@@ -89,7 +89,7 @@ class AcidGasRemoval(Process):
 
         if "H2S" not in feed_gas_mol_frac.index:
             if mol_frac_CO2 == 0:
-                _logger.warning(f"Feed gas does not contain H2S and CO2, please consider use non-AGR gas processing path")
+                _logger.warning(f"Feed gas does not contain H2S and CO2, please consider using non-AGR gas processing path")
             mol_frac_H2S = 0
         else:
             mol_frac_H2S = get_bounded_value(feed_gas_mol_frac["H2S"].to("frac").m, "mol_frac_H2S", variable_bound_dict)
