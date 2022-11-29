@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 from opgee.core import TemperaturePressure
-from opgee.stream import Stream
+from opgee.stream import Stream, PHASE_GAS
 from opgee import ureg
 
 
@@ -309,8 +309,8 @@ def test_combustion_enthalpy(gas_instance, stream):
     molar_fracs = pd.Series([9.2878, 2.4624, 0.0035, 0.2399],
                             index=["N2", "O2", "CO2", "H2O"], dtype="pint[mol/mol]")
     temperature = ureg.Quantity(80.33, "degF")
-    enthalpy = gas_instance.combustion_enthalpy(molar_fracs, temperature)
-    assert enthalpy["H2O"] == ureg.Quantity(pytest.approx(0.0), "joule/mole")
+    enthalpy = gas_instance.combustion_enthalpy(molar_fracs, temperature, PHASE_GAS)
+    assert enthalpy["H2O"] == ureg.Quantity(pytest.approx(120.4288942), "joule/mole")
 
 
 def test_volume_energy_density(gas_instance, stream):

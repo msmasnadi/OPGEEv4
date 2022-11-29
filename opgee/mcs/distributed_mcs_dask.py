@@ -72,7 +72,7 @@ def run_field(sim_dir, field_name, trial_nums=None):
 
 class Manager(OpgeeObject):
     def __init__(self, cluster_type=None):
-        cluster_type = (cluster_type or getParam('OPGEE.ClusterType')).lower
+        cluster_type = (cluster_type or getParam('OPGEE.ClusterType')).lower()
 
         valid = ('local', 'slurm')
         if cluster_type not in valid:

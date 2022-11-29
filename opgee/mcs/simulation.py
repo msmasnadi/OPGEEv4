@@ -208,6 +208,15 @@ class Simulation(OpgeeObject):
         if trials > 0:
             self.generate()
 
+    @classmethod
+    def read_model(cls, sim_dir):
+        """
+        Used by runsim to get the field names without loading the whole simulation
+        """
+        model_file = model_file_path(sim_dir)
+        mf = ModelFile(model_file, use_default_model=False)
+        return mf.model
+
     def _save_meta_data(self):
         self.metadata = {
             'analysis_name': self.analysis_name,

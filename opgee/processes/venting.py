@@ -68,7 +68,8 @@ class Venting(Process):
         gas_fugitives = self.set_gas_fugitives(input, fugitive_frac.to("frac").m)
 
         gas_to_gathering = self.find_output_stream("gas for gas gathering")
-        gas_to_gathering.copy_flow_rates_from(input, tp=input.tp)
+        gas_tp_after_separation = field.get_process_data("gas_tp_after_separation")
+        gas_to_gathering.copy_flow_rates_from(input, tp=gas_tp_after_separation)
         gas_to_gathering.subtract_rates_from(gas_to_vent)
         gas_to_gathering.subtract_rates_from(gas_fugitives)
 

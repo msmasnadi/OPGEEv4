@@ -1,22 +1,22 @@
 Stages,Treatment,Code,Apply,Volume loss,EC
 _,_,_,dimensionless,percent,kWh/bbl_water
-Stage 1,Dissolved air flotation,DAF,1,0,0.04
-Stage 1,Hydrocyclones,HYDRO,0,0,0.05
-Stage 2,Rotating biological contactors,RBC,1,0,0.03
-Stage 2,Absorbents,ABS,0,0,0.02
-Stage 2,Activated sludge,AS,0,0,0.15
-Stage 2,Trickling filters,TF,0,0,0.04
-Stage 2,Air stripping,AIR,0,0,0.11
-Stage 2,Aerated lagoons,AL,0,0,0.1
-Stage 2,Wetlands,CWL,0,26,0
-Stage 2,Microfiltration - used as a combined stage 1 and stage 2 technology,MF,0,0,0.03
-Stage 3,Dual media filtration,DMF,1,0,0
-Stage 3,Granular activated carbon,GAC,0,0,0.03
-Stage 3,Slow sand filtration,SSF,0,0,0
-Stage 3,Ozone,OZO,0,0,0.24
-Stage 3,Organoclay,ORG,0,0,0.01
-Stage 3,Ultrafiltration,UF,0,0,0.03
-Stage 3,Nanofiltration,NF,0,0,0.09
-Stage 4,Reverse osmosis,RO,0,0,0.2
-Stage 4,Electrodialysis reversal,EDR,0,0,0.48
-Stage 4,Warm lime softening,WLS,0,0,0.09
+Stage 1,Dissolved air flotation,DAF,1,0,0.03513458
+Stage 1,Hydrocyclones,HYDRO,0,0,0.04880686
+Stage 2,Rotating biological contactors,RBC,1,0,0.0349756
+Stage 2,Absorbents,ABS,0,0,0.0174878
+Stage 2,Activated sludge,AS,0,0,0.1462616
+Stage 2,Trickling filters,TF,0,0,0.0365654
+Stage 2,Air stripping,AIR,0,0,0.10524476
+Stage 2,Aerated lagoons,AL,0,0,0.095388
+Stage 2,Wetlands,CWL,0,26,0.00222572
+Stage 2,Microfiltration - used as a combined stage 1 and stage 2 technology,MF,0,0,0.031796
+Stage 3,Dual media filtration,DMF,1,0,0.00429246
+Stage 3,Granular activated carbon,GAC,0,0,0.02607272
+Stage 3,Slow sand filtration,SSF,0,0,0.00111286
+Stage 3,Ozone,OZO,0,0,0.2432394
+Stage 3,Organoclay,ORG,0,0,0.0143082
+Stage 3,Ultrafiltration,UF,0,0,0.031796
+Stage 3,Nanofiltration,NF,0,0,0.08791594
+Stage 4,Reverse osmosis,RO,0,0,0.2019046
+Stage 4,Electrodialysis reversal,EDR,0,0,0.47694
+Stage 4,Warm lime softening,WLS,0,0,0.092936846

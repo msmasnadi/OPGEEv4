@@ -2,7 +2,7 @@ import pytest
 from opgee import ureg
 from opgee.energy import EN_NATURAL_GAS, EN_CRUDE_OIL
 from opgee.emissions import EM_FLARING
-from opgee.error import OpgeeException
+from opgee.error import OpgeeException, ZeroEnergyFlowError
 from opgee.process import Process, _get_subclass, Reservoir
 
 
@@ -146,7 +146,7 @@ def test_bad_process_data(procB):
         procB.field.get_process_data("nonexistent-data-key", raiseError=True)
 
 
-def approx_equal(a, b, abs=10E-8):
+def approx_equal(a, b, abs=10E-6):
     "Check that two Quantities are approximately equal"
     return a.m == pytest.approx(b.m, abs=abs)
 
@@ -159,7 +159,7 @@ def test_VRUCompressor(test_model):
     proc = field.find_process('VRUCompressor')
     # ensure total energy flow rates
     total = proc.energy.data.sum()
-    expected = ureg.Quantity(0.341449400556889, "mmbtu/day")
+    expected = ureg.Quantity(0.3492926, "mmbtu/day")
     assert approx_equal(total, expected)
 
 
@@ -267,7 +267,7 @@ def test_CO2ReinjectionCompressor(test_model):
     proc = field.find_process('CO2ReinjectionCompressor')
     # ensure total energy flow rates
     total = proc.energy.data.sum()
-    expected = ureg.Quantity(7164.538831055389, "mmbtu/day")
+    expected = ureg.Quantity(5302.017155954589, "mmbtu/day")
     assert approx_equal(total, expected)
 
 
@@ -277,7 +277,9 @@ def test_CO2InjectionWell(test_model):
     field.run(analysis)
     proc = field.find_process('CO2InjectionWell')
     # ensure total energy flow rates
-    assert proc.emissions.rates(analysis.gwp).loc["GHG"].sum() == ureg.Quantity(0.259990500904288, "tonne/day")
+    total = proc.emissions.rates(analysis.gwp).loc["GHG"].sum()
+    expected = ureg.Quantity(0.259990500904288, "tonne/day")
+    assert approx_equal(total, expected)
 
 
 def test_RyanHolmes(test_model):
@@ -330,9 +332,13 @@ def test_N2Flooding(test_model):
     field.run(analysis)
     proc = field.find_process('GasPartition')
     # ensure total energy flow rates
-    assert proc.find_output_stream("gas for gas reinjection compressor").gas_flow_rates().sum() == \
-           ureg.Quantity(25127.68891663532, "tonne/day")
-    assert proc.find_output_stream("gas").gas_flow_rates().sum() == ureg.Quantity(758.78647, "tonne/day")
+    total = proc.find_output_stream("gas for gas reinjection compressor").gas_flow_rates().sum()
+    expected = ureg.Quantity(25127.68891663532, "tonne/day")
+    assert approx_equal(total, expected)
+
+    total = proc.find_output_stream("gas").gas_flow_rates().sum()
+    expected = ureg.Quantity(758.78647, "tonne/day")
+    assert approx_equal(total, expected)
 
 
 def test_CO2Flooding_CO2_reinjection(test_model_with_change):
@@ -346,7 +352,9 @@ def test_CO2Flooding_CO2_reinjection(test_model_with_change):
     expected = ureg.Quantity(1399.5948519637434, "tonne/day")
     assert approx_equal(total, expected)
 
-    assert proc.find_output_stream("gas").gas_flow_rates().sum() == ureg.Quantity(24885.555110000005, "tonne/day")
+    total = proc.find_output_stream("gas").gas_flow_rates().sum()
+    expected = ureg.Quantity(24885.555110000005, "tonne/day")
+    assert approx_equal(total, expected)
 
 
 def test_CO2Flooding_non_zero(test_model_with_change):
@@ -356,9 +364,13 @@ def test_CO2Flooding_non_zero(test_model_with_change):
     field.run(analysis)
     proc = field.find_process('GasPartition')
     # ensure total energy flow rates
-    assert proc.find_output_stream("gas for gas reinjection compressor").gas_flow_rates().sum() == \
-           ureg.Quantity(0, "tonne/day")
-    assert proc.find_output_stream("gas").gas_flow_rates().sum() == ureg.Quantity(24885.555110000005, "tonne/day")
+    total = proc.find_output_stream("gas for gas reinjection compressor").gas_flow_rates().sum()
+    expected = 0
+    assert total == expected
+
+    total = proc.find_output_stream("gas").gas_flow_rates().sum()
+    expected = ureg.Quantity(24885.555110000005, "tonne/day")
+    assert approx_equal(total, expected)
 
 
 def test_NGFlooding_onsite(test_model):
@@ -369,10 +381,11 @@ def test_NGFlooding_onsite(test_model):
     # ensure total energy flow rates
     total = proc.find_output_stream("gas for gas reinjection compressor").gas_flow_rates().sum()
     expected = ureg.Quantity(3824.449990753103, "tonne/day")
-
     assert approx_equal(total, expected)
 
-    assert proc.find_output_stream("gas").gas_flow_rates().sum() == ureg.Quantity(22187.2424492469, "tonne/day")
+    total = proc.find_output_stream("gas").gas_flow_rates().sum()
+    expected = ureg.Quantity(22187.2424492469, "tonne/day")
+    assert approx_equal(total, expected)
 
 
 def test_CO2Flooding_sour_gas_reinjection(test_model_with_change):
@@ -388,7 +401,9 @@ def test_CO2Flooding_sour_gas_reinjection(test_model_with_change):
     expected = ureg.Quantity(1375.9995089637432, "tonne/day")
     assert approx_equal(total, expected)
 
-    assert proc.find_output_stream("gas").gas_flow_rates().sum() == ureg.Quantity(24885.555110000005, "tonne/day")
+    total = proc.find_output_stream("gas").gas_flow_rates().sum()
+    expected = ureg.Quantity(24885.555110000005, "tonne/day")
+    assert approx_equal(total, expected)
 
 
 def test_NGFlooding_offset(test_model):
@@ -397,9 +412,13 @@ def test_NGFlooding_offset(test_model):
     field.run(analysis)
     proc = field.find_process('GasPartition')
     # ensure total energy flow rates
-    assert proc.find_output_stream("gas for gas reinjection compressor").gas_flow_rates().sum() == \
-           ureg.Quantity(382444.9990753103, "tonne/day")
-    assert proc.find_output_stream("gas").gas_flow_rates().sum() == ureg.Quantity(0, "tonne/day")
+    total = proc.find_output_stream("gas for gas reinjection compressor").gas_flow_rates().sum()
+    expected = ureg.Quantity(382444.9990753103, "tonne/day")
+    assert approx_equal(total, expected)
+
+    total = proc.find_output_stream("gas").gas_flow_rates().sum()
+    expected = 0.0
+    assert total == expected
 
 
 def test_GasLifting_low_GLIR(test_model):
@@ -408,9 +427,13 @@ def test_GasLifting_low_GLIR(test_model):
     field.run(analysis)
     proc = field.find_process('GasPartition')
     # ensure total energy flow rates
-    assert proc.find_output_stream("lifting gas").gas_flow_rates().sum() == \
-           ureg.Quantity(176.35032820055403, "tonne/day")
-    assert proc.find_output_stream("gas").gas_flow_rates().sum() == ureg.Quantity(1486.1372117994458, "tonne/day")
+    total = proc.find_output_stream("lifting gas").gas_flow_rates().sum()
+    expected = ureg.Quantity(176.35032820055403, "tonne/day")
+    assert approx_equal(total, expected)
+
+    total = proc.find_output_stream("gas").gas_flow_rates().sum()
+    expected = ureg.Quantity(1486.1372117994458, "tonne/day")
+    assert approx_equal(total, expected)
 
 
 def test_GasLifting_high_GLIR(test_model):
@@ -419,9 +442,13 @@ def test_GasLifting_high_GLIR(test_model):
     field.run(analysis)
     proc = field.find_process('GasPartition')
     # ensure total energy flow rates
-    assert proc.find_output_stream("lifting gas").gas_flow_rates().sum() == \
-           ureg.Quantity(1662.4875399999996, "tonne/day")
-    assert proc.find_output_stream("gas").gas_flow_rates().sum() == 0
+    total = proc.find_output_stream("lifting gas").gas_flow_rates().sum()
+    expected = ureg.Quantity(1662.4875399999996, "tonne/day")
+    assert approx_equal(total, expected)
+
+    total = proc.find_output_stream("gas").gas_flow_rates().sum()
+    expected = 0.0
+    assert total == expected
 
 
 # Test common processing units
@@ -472,12 +499,49 @@ def test_Separation(test_model):
 
 def test_CrudeOilDewatering(test_model):
     analysis = test_model.get_analysis('test_common_processes')
-    field = analysis.get_field('test_CrudeOilDewatering')
-    field.run(analysis)
-    proc = field.find_process('CrudeOilDewatering')
+    field_stab = analysis.get_field('test_CrudeOilDewatering')
+    field_upgrading = analysis.get_field("test_CrudeOilDewatering_Upgrading")
+    field_dilution = analysis.get_field("test_CrudeOilDewatering_Dilution")
+    field_storage = analysis.get_field("test_CrudeOilDewatering_Storage")
+    field_both = analysis.get_field("test_CrudeOilDewatering_DilutionUpgrading")
+
+    field_stab.run(analysis)
+    proc = field_stab.find_process('CrudeOilDewatering')
     # ensure total energy flow rates
     total = proc.energy.data.sum()
     expected = ureg.Quantity(6474.605161411582, "mmbtu/day")
+    assert approx_equal(total, expected)
+
+    field_upgrading.run(analysis)
+    proc = field_upgrading.find_process('CrudeOilDewatering')
+    output = proc.find_output_stream("oil for upgrading")
+    # ensure total mass flow rates
+    total = output.total_flow_rate()
+    expected = ureg.Quantity(55847.93157, "tonne/day")
+    assert approx_equal(total, expected)
+
+    field_dilution.run(analysis)
+    proc = field_dilution.find_process('CrudeOilDewatering')
+    output = proc.find_output_stream("oil for dilution")
+    # ensure total mass flow rates
+    total = output.total_flow_rate()
+    expected = ureg.Quantity(55847.93157, "tonne/day")
+    assert approx_equal(total, expected)
+
+    field_storage.run(analysis)
+    proc = field_storage.find_process('CrudeOilDewatering')
+    output = proc.find_output_stream("oil for storage")
+    # ensure total mass flow rates
+    total = output.total_flow_rate()
+    expected = ureg.Quantity(55847.93157, "tonne/day")
+    assert approx_equal(total, expected)
+
+    field_both.run(analysis)
+    proc = field_both.find_process('CrudeOilDewatering')
+    output = proc.find_output_stream("oil for dilution")
+    # ensure total mass flow rates
+    total = output.total_flow_rate()
+    expected = ureg.Quantity(55847.93157, "tonne/day")
     assert approx_equal(total, expected)
 
 
@@ -523,3 +587,83 @@ def test_CrudeOilStorage(test_model):
     total = proc.emissions.data.loc["GHG"].sum()
     expected = ureg.Quantity(1885.055763739042, "tonne/day")
     assert approx_equal(total, expected)
+
+
+def test_BitumenMining(test_model):
+    analysis = test_model.get_analysis('test_oil_processes')
+    field = analysis.get_field('test_BitumenMining')
+    field.run(analysis)
+    proc = field.find_process('BitumenMining')
+    # ensure total energy flow rates
+    total = proc.energy.data.sum()
+    expected = ureg.Quantity(60717.00400130419, "mmbtu/day")
+    assert approx_equal(total, expected)
+
+
+def test_SteamGeneration_OTSG(test_model):
+    analysis = test_model.get_analysis('test_water_processes')
+    field = analysis.get_field('test_SteamGeneration_OTSG')
+
+    try:
+        field.run(analysis)
+    except ZeroEnergyFlowError:
+        # we expect zero energy flow at boundary on this test
+        pass
+
+    proc = field.find_process('SteamGeneration')
+    # ensure total emission flow rates
+    total = proc.energy.data.sum()
+    expected = ureg.Quantity(67895.96099734664, "mmBtu/day")
+    assert approx_equal(total, expected)
+
+
+def test_SteamGeneration_Cogen(test_model):
+    analysis = test_model.get_analysis('test_water_processes')
+    field = analysis.get_field('test_SteamGeneration_Cogen')
+
+    try:
+        field.run(analysis)
+    except ZeroEnergyFlowError:
+        # we expect zero energy flow at boundary on this test
+        pass
+
+    proc = field.find_process('SteamGeneration')
+    # ensure total emission flow rates
+    total = proc.energy.data.sum()
+    expected = ureg.Quantity(99558.64685355888, "mmBtu/day")
+    assert approx_equal(total, expected)
+
+
+def test_SteamGeneration_Solar(test_model):
+    analysis = test_model.get_analysis('test_water_processes')
+    field = analysis.get_field('test_SteamGeneration_Solar')
+
+    try:
+        field.run(analysis)
+    except ZeroEnergyFlowError:
+        # we expect zero energy flow at boundary on this test
+        pass
+
+    proc = field.find_process('SteamGeneration')
+    # ensure total emission flow rates
+    total = proc.energy.data.sum()
+    expected = ureg.Quantity(1216.7129922580275, "mmBtu/day")
+    assert approx_equal(total, expected)
+
+
+def test_WaterTreatment(test_model):
+    analysis = test_model.get_analysis('test_water_processes')
+    field = analysis.get_field('test_WaterTreatment')
+
+    try:
+        field.run(analysis)
+    except ZeroEnergyFlowError:
+        # we expect zero energy flow at boundary on this test
+        pass
+
+    proc = field.find_process('WaterTreatment')
+    # ensure total emission flow rates
+    total = proc.energy.data.sum()
+    expected = ureg.Quantity(51.107496947788306, "mmBtu/day")
+    assert approx_equal(total, expected)
+

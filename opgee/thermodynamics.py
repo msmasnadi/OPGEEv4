@@ -799,7 +799,7 @@ class Gas(AbstractSubstance):
         result = molar_flow_rate / total_molar_flow_rate
         return result.to("frac")
 
-    def component_molar_fractions(self, stream):
+    def component_molar_fractions(self, stream, index=None):
         """
 
         :param stream:
@@ -808,12 +808,15 @@ class Gas(AbstractSubstance):
         """
 
         total_molar_flow_rate = self.total_molar_flow_rate(stream)
-        gas_flow_rates = stream.gas_flow_rates()
+        gas_flow_rates = stream.gas_flow_rates(index)
 
         if len(gas_flow_rates) == 0:
             raise ModelValidationError("Can't compute molar fractions on an empty stream")
 
-        molar_flow_rate = gas_flow_rates / self.component_MW[gas_flow_rates.index]
+        if index is not None:
+            molar_flow_rate = gas_flow_rates / self.component_MW[index]
+        else:
+            molar_flow_rate = gas_flow_rates / self.component_MW[gas_flow_rates.index]
 
         result = molar_flow_rate / total_molar_flow_rate
         result = pd.Series(result, dtype="pint[fraction]")  # convert units
@@ -1121,7 +1124,7 @@ class Gas(AbstractSubstance):
         return mass_energy_density.to("MJ/kg")
 
     @staticmethod
-    def combustion_enthalpy(molar_fracs, temperature):
+    def combustion_enthalpy(molar_fracs, temperature, phase):
         """
         calculate OTSG/HRSG combustion enthalpy
 
@@ -1130,13 +1133,17 @@ class Gas(AbstractSubstance):
 
         :return:
         """
-        latent_heat_water = Chemical("water").Hvap(T=273.15)
-        latent_heat_water = ureg.Quantity(latent_heat_water, "joule/mole")
 
         enthalpy = pd.Series(
-            {name: Enthalpy(name, temperature, phase=PHASE_GAS, with_units=False) for name in molar_fracs.index},
+            {name: Enthalpy(name, temperature, phase=phase, with_units=False) for name in molar_fracs.index},
             dtype="pint[joule/mole]")
-        enthalpy["H2O"] = max(enthalpy["H2O"] - latent_heat_water, ureg.Quantity(0.0, "joule/mole"))
+
+        if "H2O" in molar_fracs and phase == PHASE_GAS:
+            water = Chemical("water")
+            water_T_ref = water.T_ref
+            latent_heat_water = water.Hvap(T=water_T_ref)
+            latent_heat_water = ureg.Quantity(latent_heat_water, "joule/mole")
+            enthalpy["H2O"] = max(enthalpy["H2O"] - latent_heat_water, ureg.Quantity(0.0, "joule/mole"))
 
         return enthalpy
 
@@ -1254,8 +1261,16 @@ class Water(AbstractSubstance):
         :return: (float) water saturated temperature (unit = degF)
         """
 
-        Psat = saturated_pressure.to("Pa").m
-        saturated_temp = Tsat("H2O", Psat, with_units=True)
+        psat = saturated_pressure.to("Pa").m
+
+        # TODO: this try/except is temporary to see how many pytest errors derive from this
+        try:
+            saturated_temp = Tsat("H2O", psat, with_units=True)
+        except ValueError as e:
+            print(f"Tsat error: {e}")
+            print(f"Using saturated_temp = 0.0, psat: {psat}")
+            saturated_temp = 0.0        # TODO: obviously not correct!
+
         return saturated_temp
 
     def enthalpy_PT(self, pressure, temperature, mass_rate):

@@ -22,6 +22,9 @@ class GasGathering(Process):
         self.print_running_msg()
         field = self.field
 
+        if not self.all_streams_ready("gas for gas gathering"):
+            return
+
         # mass_rate
         input = self.find_input_streams("gas for gas gathering", combine=True)
         if input.is_uninitialized():

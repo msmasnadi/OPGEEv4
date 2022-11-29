@@ -302,13 +302,15 @@ class Stream(XmlInstantiable, AttributeMixin):
     #
     # Convenience functions
     #
-    def gas_flow_rates(self):
+    def gas_flow_rates(self, index=None):
         """
         Return all positive gas flows
 
         :return: (pandas.Series) all flow rates
         """
         gas = self.components.gas
+        if index is not None:
+            return gas[index]
         return gas[gas > 0]
 
     def gas_flow_rate(self, name):

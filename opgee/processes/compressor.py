@@ -47,8 +47,7 @@ class Compressor(OpgeeObject):
 
             delta_temp = (inlet_temp.to("rankine") * compression_ratio ** (z_factor * ratio) - inlet_temp) * 0.2
             inlet_temp = ureg.Quantity(inlet_temp.m + delta_temp.m, "degF")
-            inlet_press = (compression_ratio * inlet_press if j == 0 else
-                           inlet_press * compression_ratio * num_of_compression)
+            inlet_press = compression_ratio * inlet_press
 
         work_sum = ureg.Quantity(work.m, "hp*day/mmscf")
         return work_sum, inlet_temp, inlet_press

@@ -26,6 +26,7 @@ class ReservoirWellInterface(Process):
         self.res_tp = TemperaturePressure(field.attr("res_temp"),
                                           field.attr("res_press"))
         self.oil_sand_mine = field.attr("oil_sands_mine")
+        # oil sand mining has no reservoir well interface
         if self.oil_sand_mine != "None":
             self.set_enabled(False)
             return

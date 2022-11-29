@@ -11,9 +11,18 @@ from ..subcommand import SubcommandABC
 
 _logger = getLogger(__name__)
 
-MODE_CLUSTER = 'cluster'
-MODE_LOCAL = 'local'
-KNOWN_MODES = [MODE_CLUSTER, MODE_LOCAL]
+def positive_int(value):
+    import argparse
+
+    try:
+        i = int(value)
+    except:
+        i = 0   # the effect is to convert a ValueError into an ArgumentTypeError
+
+    if i <= 0:
+        raise argparse.ArgumentTypeError(f"{value} is not a positive integer")
+
+    return i
 
 class RunsimCommand(SubcommandABC):
     def __init__(self, subparsers):
@@ -24,9 +33,9 @@ class RunsimCommand(SubcommandABC):
         from ..config import getParam
         from ..utils import ParseCommaList
 
-        log_file  = getParam('OPGEE.LogFile')
-        job_name  = getParam('SLURM.JobName')
-        load_env  = getParam('SLURM.LoadEnvironment')
+        # log_file  = getParam('OPGEE.LogFile')
+        # job_name  = getParam('SLURM.JobName')
+        # load_env  = getParam('SLURM.LoadEnvironment')
         partition = getParam('SLURM.Partition')
         min_per_task = getParam('SLURM.MinutesPerTask')
 
@@ -47,20 +56,31 @@ class RunsimCommand(SubcommandABC):
         #                         is the value of config variable "SLURM.LoadEnvironment, currently
         #                         '{load_env}'".''')
 
-        parser.add_argument('-f', '--fields', action=ParseCommaList,
+        #
+        # User can specify fields by name, or the number of fields to run MCS for, but not both.
+        #
+        group = parser.add_mutually_exclusive_group()
+
+        group.add_argument('-f', '--fields', action=ParseCommaList,
                             help='''Run only the specified field or fields. Argument may be a 
                             comma-delimited list of Field names. Otherwise all fields defined in the
-                            analysis are run.''')
+                            analysis are run. (Mutually exclusive with -N/--nfields.)''')
 
-        parser.add_argument('-m', '--minutes', default=min_per_task,
+        group.add_argument('-N', "--num-fields", type=positive_int, default=None,
+                            help='''Run MCS simulations on the first "num-fields" only.
+                            (Mutually exclusive with -f/--fields.)''')
+
+
+        parser.add_argument('-m', '--minutes', default=min_per_task, type=positive_int,
                             help=f'''The amount of wall time to allocate for each task. Default is 
                                 {min_per_task} minutes. Acceptable time formats include "minutes", 
                                 "minutes:seconds", "hours:minutes:seconds", and formats involving days, 
                                 which we shouldn't require.''')
 
-        parser.add_argument('-n', "--ntasks", type=int, default=None,
+        parser.add_argument('-n', "--ntasks", type=positive_int, default=None,
                             help='''Number of worker tasks to create. Default is the number of fields, if
                                 specified using -f/--fields, otherwise -n/--ntasks is required.''')
+
 
         parser.add_argument('-p', "--partition", default=None,
                             help=f'''The name of the partition to use for job submissions. Default is the
@@ -87,14 +107,23 @@ class RunsimCommand(SubcommandABC):
         from ..mcs.distributed_mcs_dask import Manager
 
         sim_dir = args.simulation_dir
-        field_names = args.fields       # TBD: if not set, get fields from XML
+        field_names = args.fields or []
+        num_fields = args.num_fields
         ntasks = args.ntasks
 
+        if not (ntasks or num_fields or field_names):
+            raise OpgeeException(f"Must specify field names (-f/--fields), number of fields "
+                                 f"(-N/--num-fields) or number of tasks (-n/--ntasks)")
+
+        if not field_names:
+            m = Simulation.read_model(sim_dir)
+            field_names = m.ordered_field_names()
+
+        if num_fields:
+            field_names = field_names[:num_fields]
+
         if ntasks is None:
-            if field_names:
-                ntasks = len(field_names)
-            else:
-                raise OpgeeException(f"Must specify field names (-f/--fields) or -n/--ntasks")
+            ntasks = len(field_names)
 
         if args.serial:
             sim = Simulation(sim_dir, field_names=field_names)

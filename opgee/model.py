@@ -33,6 +33,7 @@ class Model(Container):
 
         self.analysis_dict = self.adopt(analyses, asDict=True)
         self.field_dict = self.adopt(fields, asDict=True)
+        self._ordered_field_names = [f.name for f in fields]
 
         self.table_mgr = tbl_mgr = TableManager(updates=table_updates)
 
@@ -122,6 +123,9 @@ class Model(Container):
             raise OpgeeException(f"Field named '{name}' is not defined in Model")
 
         return field
+
+    def ordered_field_names(self):
+        return self._ordered_field_names
 
     def const(self, name):
         """

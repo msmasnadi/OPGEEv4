@@ -99,6 +99,7 @@ class HeavyOilDilution(Process):
         if output_oil is None:
             output_oil = self.find_output_stream("oil for upgrading")
         output_oil.set_liquid_flow_rate("oil", total_mass_diluted_oil, tp=self.final_mix_tp)
+        self.set_iteration_value(output_oil.total_flow_rate())
 
         self.field.save_process_data(final_diluent_LHV_mass=diluent_LHV)
         diluent_energy_rate = required_mass_dilution * diluent_LHV

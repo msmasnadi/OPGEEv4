@@ -37,6 +37,7 @@ class DownholePump(Process):
         self.prime_mover_type = self.attr("prime_mover_type")
         self.wellhead_tp = TemperaturePressure(field.attr("wellhead_temperature"), self.attr("wellhead_pressure"))
 
+        # oil sand mining has no downhole pump
         self.oil_sand_mine = field.attr("oil_sands_mine")
         if self.oil_sand_mine != "None":
             self.set_enabled(False)
