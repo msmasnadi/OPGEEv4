@@ -89,7 +89,6 @@ class SteamGenerator(OpgeeObject):
             (self.res_press + self.steam_injection_delta_press) * \
             self.friction_loss_steam_distr * self.pressure_loss_choke_wellhead
 
-        self.steam_generator_temp_outlet = self.water.saturated_temperature(self.steam_generator_press_outlet)
         self.O2_excess_HRSG = self.gas_turbine_tlb["Turbine excess air"][self.gas_turbine_type]
 
         self.prod_gas_reactants_comp = self.get_combustion_comp(self.reaction_combustion_coeff,
@@ -126,9 +125,9 @@ class SteamGenerator(OpgeeObject):
                                                                   exhaust_consump_MW)
         input_enthalpy_per_unit_fuel = \
             gas_LHV + air_requirement_LHV_fuel - LHV_fuel["outlet_before_economizer"]
-        shell_loss_per_unit_fuel =\
+        shell_loss_per_unit_fuel = \
             self.loss_shell_OTSG * gas_LHV if self.OTSG_fuel_type == "Gas" else self.loss_shell_OTSG * self.oil.mass_energy_density()
-        other_loss_per_unit_fuel =\
+        other_loss_per_unit_fuel = \
             self.loss_gaseous_OTSG / gas_MW_combust if self.OTSG_fuel_type == "Gas" else self.loss_liquid_OTSG
         available_enthalpy = max(input_enthalpy_per_unit_fuel -
                                  shell_loss_per_unit_fuel -
@@ -230,8 +229,9 @@ class SteamGenerator(OpgeeObject):
         exhaust_consump_LHV_stream = temp.sum() / exhaust_consump_MW / exhaust_consump_sum
         exhaust_consump = exhaust_consump.drop(labels=["C1"])
 
-        inlet_temp =\
-            self.duct_firing_inlet_temp if self.duct_firing else self.gas_turbine_tlb["Turbine exhaust temp."][self.gas_turbine_type]
+        inlet_temp = \
+            self.duct_firing_inlet_temp if self.duct_firing else self.gas_turbine_tlb["Turbine exhaust temp."][
+                self.gas_turbine_type]
 
         if self.duct_firing:
             inlet, inlet_sum, inlet_MW, inlet_LHV_fuel, inlet_LHV_stream, duct_additional_fuel = \
@@ -384,7 +384,7 @@ class SteamGenerator(OpgeeObject):
             self.gas.molar_weight_from_molar_fracs(air_requirement_fuel.drop(labels=["C1"])) / \
             air_requirement_fuel.drop(labels=["C1"]).sum()
         temp = \
-            air_requirement_fuel *\
+            air_requirement_fuel * \
             self.gas.combustion_enthalpy(air_requirement_fuel, self.temperature_inlet_air_OTSG, PHASE_GAS)
         air_requirement_LHV_fuel = temp.sum() / gas_MW_combust
         air_requirement_LHV_stream = temp.sum() / air_requirement_MW / air_requirement_fuel_sum
@@ -475,8 +475,10 @@ class SteamGenerator(OpgeeObject):
                                                                 self.steam_quality_outlet,
                                                                 desired_steam_mass_rate)
         blowdown_mass_rate = blowdown_water_mass_rate
+
+        steam_generator_temp_outlet = self.water.saturated_temperature(self.steam_generator_press_outlet)
         blowdown_before_heat_recovery_enthalpy_rate = self.water.enthalpy_PT(self.steam_generator_press_outlet,
-                                                                             self.steam_generator_temp_outlet,
+                                                                             steam_generator_temp_outlet,
                                                                              blowdown_mass_rate)
         blowdown_after_heat_recovery_enthalpy_rate = self.water.enthalpy_PT(self.waste_water_reinjection_press,
                                                                             self.waste_water_reinjection_temp,
@@ -502,7 +504,8 @@ class SteamGenerator(OpgeeObject):
         processed_prod_gas_comp = self.processed_prod_gas_comp
         if self.field.get_process_data("exported_gas"):
             exported_gas_stream = self.field.get_process_data("exported_gas")
-            exported_gas_comp = self.gas.component_molar_fractions(exported_gas_stream, self.imported_fuel_gas_comp.index)
+            exported_gas_comp = self.gas.component_molar_fractions(exported_gas_stream,
+                                                                   self.imported_fuel_gas_comp.index)
             processed_prod_gas_comp = exported_gas_comp
 
         frac_import_gas = self.OTSG_frac_import_gas if SG_type == "OTSG" else self.HRSG_frac_import_gas

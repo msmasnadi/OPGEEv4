@@ -333,7 +333,7 @@ def test_N2Flooding(test_model):
     proc = field.find_process('GasPartition')
     # ensure total energy flow rates
     total = proc.find_output_stream("gas for gas reinjection compressor").gas_flow_rates().sum()
-    expected = ureg.Quantity(25127.68891663532, "tonne/day")
+    expected = ureg.Quantity(25119.961268953437, "tonne/day")
     assert approx_equal(total, expected)
 
     total = proc.find_output_stream("gas").gas_flow_rates().sum()
@@ -349,7 +349,7 @@ def test_CO2Flooding_CO2_reinjection(test_model_with_change):
     proc = field.find_process('GasPartition')
     # ensure total energy flow rates
     total = proc.find_output_stream("gas for gas reinjection compressor").gas_flow_rates().sum()
-    expected = ureg.Quantity(1399.5948519637434, "tonne/day")
+    expected = ureg.Quantity(1343.1746081034992, "tonne/day")
     assert approx_equal(total, expected)
 
     total = proc.find_output_stream("gas").gas_flow_rates().sum()
@@ -380,11 +380,11 @@ def test_NGFlooding_onsite(test_model):
     proc = field.find_process('GasPartition')
     # ensure total energy flow rates
     total = proc.find_output_stream("gas for gas reinjection compressor").gas_flow_rates().sum()
-    expected = ureg.Quantity(3824.449990753103, "tonne/day")
+    expected = ureg.Quantity(3822.9029097093676, "tonne/day")
     assert approx_equal(total, expected)
 
     total = proc.find_output_stream("gas").gas_flow_rates().sum()
-    expected = ureg.Quantity(22187.2424492469, "tonne/day")
+    expected = ureg.Quantity(22188.78953029063, "tonne/day")
     assert approx_equal(total, expected)
 
 
@@ -398,7 +398,7 @@ def test_CO2Flooding_sour_gas_reinjection(test_model_with_change):
     # ensure total energy flow rates
     s = proc.find_output_stream("gas for gas reinjection compressor")
     total = s.gas_flow_rates().sum()
-    expected = ureg.Quantity(1375.9995089637432, "tonne/day")
+    expected = ureg.Quantity(1319.5792651034992, "tonne/day")
     assert approx_equal(total, expected)
 
     total = proc.find_output_stream("gas").gas_flow_rates().sum()
@@ -413,7 +413,7 @@ def test_NGFlooding_offset(test_model):
     proc = field.find_process('GasPartition')
     # ensure total energy flow rates
     total = proc.find_output_stream("gas for gas reinjection compressor").gas_flow_rates().sum()
-    expected = ureg.Quantity(382444.9990753103, "tonne/day")
+    expected = ureg.Quantity(382290.2909709368, "tonne/day")
     assert approx_equal(total, expected)
 
     total = proc.find_output_stream("gas").gas_flow_rates().sum()
@@ -428,11 +428,11 @@ def test_GasLifting_low_GLIR(test_model):
     proc = field.find_process('GasPartition')
     # ensure total energy flow rates
     total = proc.find_output_stream("lifting gas").gas_flow_rates().sum()
-    expected = ureg.Quantity(176.35032820055403, "tonne/day")
+    expected = ureg.Quantity(175.68741278451643, "tonne/day")
     assert approx_equal(total, expected)
 
     total = proc.find_output_stream("gas").gas_flow_rates().sum()
-    expected = ureg.Quantity(1486.1372117994458, "tonne/day")
+    expected = ureg.Quantity(1486.8001272154836, "tonne/day")
     assert approx_equal(total, expected)
 
 
