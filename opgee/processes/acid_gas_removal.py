@@ -83,13 +83,13 @@ class AcidGasRemoval(Process):
         # AGR modeling based on Aspen HYSYS
         feed_gas_mol_frac = self.gas.component_molar_fractions(input)
         if "CO2" not in feed_gas_mol_frac.index:
-            _logger.warning(f"Feed gas does not contain CO2")
             mol_frac_CO2 = 0
         else:
             mol_frac_CO2 = get_bounded_value(feed_gas_mol_frac["CO2"].to("frac").m, "mol_frac_CO2", variable_bound_dict)
 
         if "H2S" not in feed_gas_mol_frac.index:
-            _logger.warning(f"Feed gas does not contain H2S")
+            if mol_frac_CO2 == 0:
+                _logger.warning(f"Feed gas does not contain H2S and CO2, please consider using non-AGR gas processing path")
             mol_frac_H2S = 0
         else:
             mol_frac_H2S = get_bounded_value(feed_gas_mol_frac["H2S"].to("frac").m, "mol_frac_H2S", variable_bound_dict)
