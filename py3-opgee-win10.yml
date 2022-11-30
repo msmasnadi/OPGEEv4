@@ -9,11 +9,10 @@ dependencies:
   - dask
   - dask-jobqueue>=0.7.3
   - decorator
-#  - ipython
   - jinja2
   - libpng
   - libtiff
-  - llvm-openmp
+  - llvmlite=0.39.1
   - lxml>=4.9.0
   - networkx
   - numba
