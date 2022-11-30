@@ -24,7 +24,7 @@ dependencies:
   - pydot
   - pyparsing
   - pytest
-  - python>=3.10
+  - python>=3.9.0,<3.10.0
   - semver
   - setuptools
   - sphinx>=4.3.0

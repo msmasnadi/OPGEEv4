@@ -8,8 +8,6 @@ dependencies:
   - dash>=2.5.1
   - dask
   - dask-jobqueue>=0.7.3
- # - ipython
- # - ipyparallel=8.4.1
   - jinja2
   - llvm-openmp
   - lxml>=4.9.0
@@ -17,16 +15,13 @@ dependencies:
   - nuitka
   - numba
   - numpy
-#  - ordered-set
   - pandas
-#  - pint=0.19.2  (unconstrained installs 0.20.1)
-#  - pint-pandas=0.2 (unconstrained installs 0.3)
   - pint
   - pint-pandas
   - pip
   - pydot
   - pytest
-  - python>=3.9
+  - python>=3.9.0,<3.10.0
   - semver
   - setuptools
   - sphinx>=4.3.0
@@ -38,4 +33,3 @@ dependencies:
     - thermosteam>=0.28.12
     - pyXSteam>=0.4.8
     - dash-cytoscape>=0.3.0
-#    - ray
