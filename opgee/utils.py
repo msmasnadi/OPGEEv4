@@ -305,8 +305,8 @@ def dequantify_dataframe(df):
 
     items = {}
 
-    for name, series in df.iteritems():
-        d = {idx: quantity.m for idx, quantity in series.iteritems()}
+    for name, series in df.items():
+        d = {idx: quantity.m for idx, quantity in series.items()}
         items[name] = d
 
     new_df = pd.DataFrame(items)

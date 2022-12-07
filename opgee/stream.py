@@ -451,7 +451,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         if phase:
             self.components[phase] = stream.components[phase]
         else:
-            self.components[:] = stream.components
+            self.components[self.components.columns] = stream.components
 
         self.electricity = stream.electricity
         self.tp.copy_from(tp or stream.tp)

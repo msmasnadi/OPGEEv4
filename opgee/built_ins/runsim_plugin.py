@@ -67,7 +67,7 @@ class RunsimCommand(SubcommandABC):
                             analysis are run. (Mutually exclusive with -N/--nfields.)''')
 
         group.add_argument('-N', "--num-fields", type=positive_int, default=None,
-                            help='''Run MCS simulations on the first "num-fields" only.
+                           help='''Run MCS simulations on the first "num-fields" only.
                             (Mutually exclusive with -f/--fields.)''')
 
 
@@ -80,8 +80,6 @@ class RunsimCommand(SubcommandABC):
         parser.add_argument('-n', "--ntasks", type=positive_int, default=None,
                             help='''Number of worker tasks to create. Default is the number of fields, if
                                 specified using -f/--fields, otherwise -n/--ntasks is required.''')
-
-
         parser.add_argument('-p', "--partition", default=None,
                             help=f'''The name of the partition to use for job submissions. Default is the
                                  value of config variable "SLURM.Partition", currently '{partition}'.''')
@@ -116,8 +114,8 @@ class RunsimCommand(SubcommandABC):
                                  f"(-N/--num-fields) or number of tasks (-n/--ntasks)")
 
         if not field_names:
-            m = Simulation.read_model(sim_dir)
-            field_names = m.ordered_field_names()
+            metadata = Simulation.read_metadata(sim_dir)
+            field_names = metadata['field_names']
 
         if num_fields:
             field_names = field_names[:num_fields]

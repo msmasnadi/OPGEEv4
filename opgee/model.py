@@ -33,7 +33,9 @@ class Model(Container):
 
         self.analysis_dict = self.adopt(analyses, asDict=True)
         self.field_dict = self.adopt(fields, asDict=True)
-        self._ordered_field_names = [f.name for f in fields]
+
+        # Deprecated
+        # self._ordered_field_names = [f.name for f in fields]
 
         self.table_mgr = tbl_mgr = TableManager(updates=table_updates)
 
@@ -124,8 +126,9 @@ class Model(Container):
 
         return field
 
-    def ordered_field_names(self):
-        return self._ordered_field_names
+    # Deprecated
+    # def ordered_field_names(self):
+    #     return self._ordered_field_names
 
     def const(self, name):
         """
@@ -241,7 +244,7 @@ class Model(Container):
         df.to_csv(csvpath)
 
     @classmethod
-    def from_xml(cls, elt, field_names=None):
+    def from_xml(cls, elt, analysis_names=None, field_names=None):
         """
         Instantiate an instance from an XML element
 
@@ -250,7 +253,12 @@ class Model(Container):
           fields are ignored when building the model from the XML.
         :return: (Model) instance populated from XML
         """
-        analyses = instantiate_subelts(elt, Analysis)
+        analyses = instantiate_subelts(elt, Analysis, include_names=analysis_names)
+
+        if field_names:
+            for analysis in analyses:
+                analysis.restrict_fields(field_names)
+
         fields = instantiate_subelts(elt, Field, include_names=field_names)
         table_updates = instantiate_subelts(elt, TableUpdate, as_dict=True)
         attr_dict = cls.instantiate_attrs(elt)

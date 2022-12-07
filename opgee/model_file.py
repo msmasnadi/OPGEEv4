@@ -40,7 +40,7 @@ class ModelFile(XMLFile):
     def __init__(self, pathnames, add_stream_components=True,
                  use_class_path=True, use_default_model=True,
                  instantiate_model=True, save_to_path=None,
-                 field_names=None):
+                 analysis_names=None, field_names=None):
         """
         Several steps are performed, some of which are dependent on the function's parameters:
 
@@ -67,8 +67,10 @@ class ModelFile(XMLFile):
            "/etc/attributes.xml".
         :param instantiate_model: (bool) whether to parse the merged XML to create a ``Model``
             instance.
-        :param save_to_path: (str) If provided, the final merged XML will written to this pathname.
-        :param field_names: (list of str) the names of fields to include. Any other fields are
+        :param save_to_path: (str) If provided, the final merged XML will be written to this pathname.
+        :param analysis_names: (list of str) the names of Analyses to include. If not None, only
+            the given named Analysis elements will be loaded.
+        :param field_names: (list of str) the names of Fields to include. Any other fields are
             ignored when building the model from the XML. (Avoids long model build times for
             Monte Carlo simulations on a large number of fields.)
         """
@@ -184,13 +186,15 @@ class ModelFile(XMLFile):
 
             reload_subclass_dict()
 
-        _logger.info(load_timer.stop())
+        _logger.debug(load_timer.stop())
 
         # the merge subcommand specifies instantiate_model=False, but normally the model is loaded.
         if instantiate_model:
             build_timer = Timer('ModelFile build model').start()
-            self.model = model = Model.from_xml(base_root)
-            _logger.info(build_timer.stop())
+            _logger.debug(build_timer)
+            self.model = model = Model.from_xml(base_root, analysis_names=analysis_names,
+                                                field_names=field_names)
+            _logger.debug(build_timer.stop())
 
             model.validate()
 

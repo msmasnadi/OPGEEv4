@@ -7,7 +7,7 @@
 # See LICENSE.txt for license details.
 #
 from .attributes import AttrDefs, AttributeMixin
-from .core import XmlInstantiable
+from .core import  ureg, XmlInstantiable
 from .emissions import Emissions
 from .energy import Energy
 from .error import OpgeeException
@@ -100,7 +100,7 @@ class Container(XmlInstantiable, AttributeMixin):
         recursively working our way down the Container hierarchy, and storing each
         result at each container level.
         """
-        self.energy.data[:] = 0.0
+        self.energy.reset()
         data = self.energy.data
 
         for child in self.children():
@@ -117,7 +117,7 @@ class Container(XmlInstantiable, AttributeMixin):
         :return: (pandas.Series) the emissions Series.
         """
         data = self.emissions.data
-        data[:] = 0.0
+        data[data.columns] = ureg.Quantity(0.0, 't/d')
 
         for child in self.children():
             if not procs_to_exclude or child not in procs_to_exclude:

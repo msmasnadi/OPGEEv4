@@ -104,7 +104,12 @@ class Manager(OpgeeObject):
                 job_name=getParam('SLURM.JobName'),
             )
         elif cluster_type == 'local':
-            self.cluster = cluster = LocalCluster(n_workers=num_engines, processes=True)
+            # Set processes=False and swap n_workers and threads_per_worker to use threads in one
+            # process, which is helpful for debugging. Note that some packages are not thread-safe.
+            # Running with n_workers=1, threads_per_worker=2 resulted in weird runtime errors in Chemical.
+            # self.cluster = cluster = LocalCluster(n_workers=1, threads_per_worker=num_engines, processes=False)
+
+            self.cluster = cluster = LocalCluster(n_workers=num_engines, threads_per_worker=1, processes=True)
 
         else:
             raise McsSystemError(f"Unknown cluster type '{cluster_type}'. Valid options are 'slurm' and 'local'.")
@@ -124,11 +129,14 @@ class Manager(OpgeeObject):
             except dask.distributed.TimeoutError as e:
                 print(e)
 
+        _logger.info("Workers are running")
         return client
 
     def stop_cluster(self):
         _logger.info("Stopping cluster")
-        self.client.shutdown()
+        # self.client.scheduler.shutdown()
+        self.client.close()
+        self.client = self.cluster = None
 
     def run_mcs(self, sim_dir, field_names=None, num_engines=0, trial_nums=None,
                 minutes_per_task=None):
@@ -136,7 +144,7 @@ class Manager(OpgeeObject):
 
         timer = Timer('Manager.run_mcs').start()
 
-        sim = Simulation(sim_dir, save_to_path='')
+        sim = Simulation(sim_dir, field_names=field_names, save_to_path='')
 
         trial_nums = range(sim.trials) if trial_nums == 'all' else parseTrialString(trial_nums)
 
@@ -163,3 +171,4 @@ class Manager(OpgeeObject):
 
         self.stop_cluster()
         _logger.info(timer.stop())
+

@@ -174,10 +174,12 @@ class Simulation(OpgeeObject):
       up to 1 million trials while ensuring that no directory contains more than 1000 items.
       Limiting directory size improves performance.
     """
-    def __init__(self, sim_dir, analysis_name=None, trials=0, field_names=None, save_to_path=None):
+    def __init__(self, sim_dir, analysis_name=None, trials=0, field_names=None,
+                 save_to_path=None, meta_data_only=False):
         self.pathname = sim_dir
         self.results_dir = pathjoin(sim_dir, RESULTS_DIR)
         self.model_file = model_file_path(sim_dir)
+        self.model = None
 
         # TBD: to allow the same trial_num to be run across fields, cache field
         #      trial_data in a dict by field name rather than a single DF
@@ -196,9 +198,13 @@ class Simulation(OpgeeObject):
         if analysis_name:
             self._save_meta_data()
         else:
-            self._load_meta_data()
+            self._load_meta_data(field_names)
 
-        mf = ModelFile(self.model_file, use_default_model=False, save_to_path=save_to_path)
+        if meta_data_only:
+            return
+
+        mf = ModelFile(self.model_file, use_default_model=False, analysis_names=[self.analysis_name],
+                       field_names=field_names, save_to_path=save_to_path)
         self.model = mf.model
 
         self.analysis = analysis = self.model.get_analysis(self.analysis_name, raiseError=False)
@@ -209,13 +215,12 @@ class Simulation(OpgeeObject):
             self.generate()
 
     @classmethod
-    def read_model(cls, sim_dir):
+    def read_metadata(cls, sim_dir):
         """
         Used by runsim to get the field names without loading the whole simulation
         """
-        model_file = model_file_path(sim_dir)
-        mf = ModelFile(model_file, use_default_model=False)
-        return mf.model
+        sim = Simulation(sim_dir, meta_data_only=True)
+        return sim.metadata
 
     def _save_meta_data(self):
         self.metadata = {
@@ -227,7 +232,7 @@ class Simulation(OpgeeObject):
         with open(self.metadata_path(), 'w') as fp:
             json.dump(self.metadata, fp, indent=2)
 
-    def _load_meta_data(self):
+    def _load_meta_data(self, field_names):
         metadata_path = self.metadata_path()
         try:
             with open(metadata_path, 'r') as fp:
@@ -235,9 +240,15 @@ class Simulation(OpgeeObject):
         except Exception as e:
             raise McsUserError(f"Failed to load simulation '{metadata_path}' : {e}")
 
+        if field_names:
+            names = set(field_names)
+            # Use list comprehension rather than set.intersection to maintain original order
+            self.field_names = [name for name in metadata['field_names'] if name in names]
+        else:
+            self.field_names = metadata['field_names']
+
         self.analysis_name = metadata['analysis_name']
         self.trials        = metadata['trials']
-        self.field_names   = metadata['field_names']
 
     @classmethod
     def new(cls, sim_dir, model_files, analysis_name, trials,
@@ -425,7 +436,7 @@ class Simulation(OpgeeObject):
     def set_trial_data(self, field, trial_num):
         data = self.trial_data(field, trial_num)
 
-        for name, value in data.iteritems():
+        for name, value in data.items():
             attr = self.lookup(name, field)
             attr.explicit = True
             attr.set_value(value)

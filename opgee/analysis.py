@@ -57,6 +57,17 @@ class Analysis(Container):
         # object which isn't fully instantiated until after we are.
         self.gwp = None
 
+    def restrict_fields(self, field_names):
+        """
+        Remove from the Analysis all Fields that are not named in ``field_names``.
+
+        :param field_names: (list of str) the names of Fields to include
+        :return: none
+        """
+        names = set(field_names)
+        # Use list comprehension rather than set.intersection to maintain original order
+        self._field_names = [name for name in self._field_names if name in names]
+
     def _after_init(self):
         self.check_attr_constraints(self.attr_dict)
 

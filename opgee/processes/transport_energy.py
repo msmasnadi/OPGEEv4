@@ -201,7 +201,7 @@ class TransportEnergy(OpgeeObject):
         parameter_value = parameter_table.iloc[:, 0]
         parameter_unit = parameter_table["Units"]
         parameter_dict = {}
-        for name, value in parameter_value.iteritems():
+        for name, value in parameter_value.items():
             parameter_dict[name] = ureg.Quantity(float(value), parameter_unit[name])
 
         return parameter_dict
@@ -280,7 +280,7 @@ class TransportEnergy(OpgeeObject):
         transport_energy_consumption.index = transport_distance.index
 
         result = {}
-        for type, frac in transport_share_fuel.iteritems():
+        for type, frac in transport_share_fuel.items():
             temp = (transport_energy_consumption * transport_distance * fraction_transport * frac).sum() * LHV
             result[type] = temp if type != EN_DIESEL else temp + LHV * feed_loss
         return result

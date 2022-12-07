@@ -8,7 +8,7 @@
 #
 import pandas as pd
 
-from .core import OpgeeObject
+from .core import ureg, OpgeeObject
 from .error import OpgeeException
 from .log import getLogger
 
@@ -40,6 +40,8 @@ class Energy(OpgeeObject):
 
     _carrier_set = set(carriers)
 
+    _units = ureg.Unit("mmbtu/day")
+
     @classmethod
     def create_energy_series(cls):
         """
@@ -47,10 +49,14 @@ class Energy(OpgeeObject):
 
          :return: (pandas.Series) Zero-filled energy carrier Series
          """
-        return pd.Series(data=0.0, index=cls.carriers, name='energy', dtype="pint[mmbtu/day]")
+        return pd.Series(data=0.0, index=cls.carriers, name='energy', dtype=f"pint[{cls._units}]")
 
     def __init__(self):
         self.data = self.create_energy_series()
+
+    @classmethod
+    def units(cls):
+        return cls._units
 
     def rates(self):
         """
@@ -136,4 +142,4 @@ class Energy(OpgeeObject):
 
         :return:
         """
-        self.data[:] = 0.0
+        self.data[self.data.index] = 0.0

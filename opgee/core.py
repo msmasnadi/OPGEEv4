@@ -60,7 +60,7 @@ def instantiate_subelts(elt, cls, as_dict=False, include_names=None):
     :param as_dict: (bool) if True, return a dictionary of subelements, keyed by name
     :param include_names: (list of str) Names of elements to include (i.e., the element's
        attrib dict must have a "name" item, whose value is compared to the list). If
-       ``include_names`` is not None, then elements with names not in the list list are
+       ``include_names`` is not None, then elements with names not in the list are
        ignored.
     :return: (list) instantiated objects
     """
@@ -336,10 +336,12 @@ class Timer:
 
     def __str__(self):
         if self.start_time is None:
-            return f"Timer '{self.feature_name}' is uninitialized>"
+            status = "is uninitialized"
         elif self.stop_time is None:
-            return f"<Timer for '{self.feature_name}' is running>"
+            status = "is running"
         else:
             d = self.duration()
-            return f"<'{self.feature_name}' completed in {d}>"
+            status = f"completed in {d}"
+
+        return f"<Timer '{self.feature_name}' {status}>"
 
