@@ -65,7 +65,15 @@ travis-reqs $(TRAVIS_REQS): requirements.in
 #
 # Virtual environment / package dependency support
 #
-TEST_YML=py3-opgee-macos.yml
+UNAME=$(strip $(shell uname))
+ifeq ($(UNAME), Darwin)
+	YML_FILE=py3-opgee-macos.yml
+else ifeq ($(UNAME), Linux)
+	YML_FILE=py3-opgee-linux.yml
+else
+	YML_FILE=py3-opgee-win10.yml
+endif
+
 
 #INPUT_YML=py3-opgee-macos.yml
 #
@@ -78,8 +86,8 @@ TEST_YML=py3-opgee-macos.yml
 remove-opgee:
 	conda env remove -n opgee
 
-create-opgee: $(TEST_YML)
-	conda env create -f $(TEST_YML)
+create-opgee: $(YML_FILE)
+	conda env create -f $(YML_FILE)
 
 install-opgee:
 	bash -l -c 'conda activate opgee && pip install -e .'
