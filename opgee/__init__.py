@@ -2,15 +2,15 @@
 # Author: Richard Plevin
 # See LICENSE.txt for license details.
 #
+import warnings
+
 import pint
 import pint_pandas
 from .pkg_utils import resourceStream
 
-import warnings
-
 #warnings.filterwarnings("ignore", category=DeprecationWarning)
 #warnings.filterwarnings("error", category=UserWarning) # turn warning into error to debug
-warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", category=UserWarning) # turn warning into error to debug
 
 #
 # Try to use the "ureg" from thermosteam to avoid mixing and matching registries.
@@ -25,5 +25,4 @@ except:
 stream = resourceStream('etc/units.txt')
 lines = [line.strip() for line in stream.readlines()]
 ureg.load_definitions(lines)
-
 pint.set_application_registry(ureg)
