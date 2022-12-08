@@ -79,7 +79,7 @@ class SteamGeneration(Process):
 
         input_prod_water = self.find_input_stream("produced water for steam generation")
         input_makeup_water = self.find_input_stream("makeup water for steam generation")
-        if input_prod_water.is_uninitialized() or input_makeup_water.is_uninitialized():
+        if input_prod_water.is_uninitialized() and input_makeup_water.is_uninitialized():
             return
 
         prod_water_mass_rate = input_prod_water.liquid_flow_rate("H2O")

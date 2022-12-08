@@ -37,9 +37,8 @@ class CO2Membrane(Process):
 
         gas_to_AGR = self.find_output_stream("gas for AGR")
         AGR_mol_fracs = 1 - self.membrane_comp
-        AGR_mass_fracs = field.gas.component_mass_fractions(AGR_mol_fracs)
         gas_to_AGR.copy_flow_rates_from(input, tp=field.stp)
-        gas_to_AGR.multiply_factor_from_series(AGR_mass_fracs, PHASE_GAS)
+        gas_to_AGR.multiply_factor_from_series(AGR_mol_fracs, PHASE_GAS)
 
         gas_to_compressor = self.find_output_stream("gas for CO2 compressor")
         gas_to_compressor.copy_flow_rates_from(input)

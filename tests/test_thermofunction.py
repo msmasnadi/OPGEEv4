@@ -289,8 +289,18 @@ def test_gas_volume_flow_rate_STP(gas_instance):
     s.set_flow_rate("C1", "gas", 147.1241)
     s.set_flow_rate("C2", "gas", 5.7095)
     s.set_flow_rate("C3", "gas", 4.1863)
-    vol_flow_rate_STP = gas_instance.tot_volume_flow_rate_STP(s)
+    vol_flow_rate_STP = gas_instance.volume_flow_rate_STP(s)
     assert vol_flow_rate_STP == ureg.Quantity(pytest.approx(7.94253339), "mmscf/day")
+
+
+def test_gas_volume_flow_rate_STP(gas_instance):
+    s = Stream("test_stream", test_tp)
+    s.set_flow_rate("N2", "gas", 1.0638)
+    s.set_flow_rate("C1", "gas", 147.1241)
+    s.set_flow_rate("C2", "gas", 5.7095)
+    s.set_flow_rate("C3", "gas", 4.1863)
+    vol_flow_rates_STP = gas_instance.volume_flow_rates_STP(s)
+    assert vol_flow_rates_STP["C1"] == ureg.Quantity(pytest.approx(7.655224459297064), "mmscf/day")
 
 
 def test_gas_mass_energy_density(gas_instance, stream):

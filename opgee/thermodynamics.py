@@ -176,6 +176,7 @@ def Tsat(component, Psat, with_units=True):
     :return:
     """
     chemical = ChemicalInfo.chemical(component)
+    Psat = min(chemical.Pc * 0.99, Psat)
     result = chemical.Tsat(Psat)
 
     if with_units:
@@ -783,6 +784,18 @@ class Gas(AbstractSubstance):
 
         return molar_flow_rate
 
+    def molar_flow_rates(self, stream):
+        """
+        get molar flow rate from stream
+
+        :param stream:
+        :param name:
+
+        :return: (float) molar flow rate (unit = mol/day)
+        """
+
+        return pd.Series({name: self.molar_flow_rate(stream, name) for name in stream.component_names})
+
     def component_molar_fraction(self, name, stream):
         """
 
@@ -803,6 +816,7 @@ class Gas(AbstractSubstance):
         """
 
         :param stream:
+        :param index: Gas Component's Index Array
 
         :return:(float) Panda Series component molar fractions
         """
@@ -1066,10 +1080,11 @@ class Gas(AbstractSubstance):
 
     def volume_flow_rate(self, stream):
         """
+        Calculate volume flow rate from given stream.
 
         :param stream:
 
-        :return: Gas volume flow rate (unit = m3/day)
+        :return: (Float) Total gas volume flow rate, unit = m3/day
         """
         total_mass_rate = stream.total_gas_rate()
         density = self.density(stream)
@@ -1077,15 +1092,27 @@ class Gas(AbstractSubstance):
         volume_flow_rate = total_mass_rate / density
         return volume_flow_rate
 
-    def tot_volume_flow_rate_STP(self, stream):
+    def volume_flow_rate_STP(self, stream):
         """
+        Calculate volume flow rate from given stream under standard condition
 
         :param stream:
-        :return: Gas volume flow rate at standard temp and press (unit = m3/day)
+        :return: (Float) Total gas volume flow rate, unit = m3/day
         """
-        total_molar_flow_rate = self.total_molar_flow_rate(stream)
-        result = total_molar_flow_rate / self.model.const("mol-per-scf")
-        return result.to("mmscf/day")
+        return self.volume_flow_rates_STP(stream).sum()
+
+    def volume_flow_rates_STP(self, stream):
+        """
+        Calculate volume flow rates from given stream under standard condition
+
+        :param stream:
+        :return: (pd.Series) gas volume flow rates, unit = m3/day
+        """
+        stream_STP = Stream("stream_STP", tp=STP)
+        stream_STP.copy_flow_rates_from(stream, tp=STP)
+
+        result = stream_STP.gas_flow_rates() / self.component_gas_rho_STP[stream_STP.gas_flow_rates().index]
+        return result
 
     def mass_energy_density(self, stream):
         """
@@ -1262,14 +1289,7 @@ class Water(AbstractSubstance):
         """
 
         psat = saturated_pressure.to("Pa").m
-
-        # TODO: this try/except is temporary to see how many pytest errors derive from this
-        try:
-            saturated_temp = Tsat("H2O", psat, with_units=True)
-        except ValueError as e:
-            print(f"Tsat error: {e}")
-            print(f"Using saturated_temp = 0.0, psat: {psat}")
-            saturated_temp = 0.0        # TODO: obviously not correct!
+        saturated_temp = Tsat("H2O", psat, with_units=True)
 
         return saturated_temp
 

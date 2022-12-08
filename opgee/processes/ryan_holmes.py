@@ -54,7 +54,7 @@ class RyanHolmes(Process):
         gas_to_CO2_reinjection.multiply_factor_from_series(self.RH_process_tbl.loc[:, "CO2-rich"], PHASE_GAS)
 
         # Ryan-Holmes Process
-        volume_flow_rate_STP = self.gas.tot_volume_flow_rate_STP(input)
+        volume_flow_rate_STP = self.gas.volume_flow_rate_STP(input)
         feed_stream_rate = ureg.Quantity(45., "mmscf/day")
         turbine_consume_rate = ureg.Quantity(25800., "scf/hr")
         tot_turbine_consumption_rate = volume_flow_rate_STP / feed_stream_rate * turbine_consume_rate

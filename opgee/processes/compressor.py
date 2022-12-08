@@ -133,7 +133,7 @@ class Compressor(OpgeeObject):
                                                                                     inlet_stream,
                                                                                     compression_ratio,
                                                                                     num_stages)
-        volume_flow_rate_STP = field.gas.tot_volume_flow_rate_STP(inlet_stream)
+        volume_flow_rate_STP = field.gas.volume_flow_rate_STP(inlet_stream)
         total_energy = total_work * volume_flow_rate_STP
         brake_horse_power = total_energy / eta_compressor
         energy_consumption = get_energy_consumption(prime_mover_type, brake_horse_power)

@@ -66,48 +66,56 @@ class WaterTreatment(Process):
 
         input_water_mass_rate = input.liquid_flow_rate("H2O")
 
-        # Water reinjection, water flooding, and steam flooding are mutually exclusive
+        # Water reinjection and water flooding are mutually exclusive
+        injected_water_vol_demand = ureg.Quantity(0.0, "barrel_water/day")
         if self.water_reinjection:
             injected_water_vol_demand = self.oil_volume_rate * self.WOR * self.frac_water_reinj
         elif self.water_flooding:
             injected_water_vol_demand = self.oil_volume_rate * self.WIR
-        elif self.steam_flooding:
-            injected_water_vol_demand = self.oil_volume_rate * self.SOR
-        else:
-            injected_water_vol_demand = ureg.Quantity(0.0, "barrel_water/day")
+
+        injected_steam_vol_demand = ureg.Quantity(0.0, "barrel_water/day")
+        if self.steam_flooding:
+            injected_steam_vol_demand = self.oil_volume_rate * self.SOR
 
         injected_water_mass_demand = injected_water_vol_demand * self.water_density_STP
+        injected_steam_mass_demand = injected_steam_vol_demand * self.water_density_STP
 
-        makeup_water_mass_to_downstream = max(injected_water_mass_demand - input_water_mass_rate,
-                                              ureg.Quantity(0.0, "tonne/day"))
-        prod_water_mass_to_downstream = min(injected_water_mass_demand, input_water_mass_rate)
+        makeup_water_mass = max(injected_water_mass_demand - input_water_mass_rate, ureg.Quantity(0.0, "tonne/day"))
+        prod_water_mass = min(injected_water_mass_demand, input_water_mass_rate)
+
+        makeup_steam_mass =\
+            max(injected_steam_mass_demand - input_water_mass_rate + prod_water_mass,
+                ureg.Quantity(0.0, "tonne/day"))
+        prod_steam_mass =\
+            min(injected_steam_mass_demand, input_water_mass_rate - prod_water_mass)
 
         if self.steam_flooding:
             makeup_water_to_steam = self.find_output_stream("makeup water for steam generation")
             prod_water_to_steam = self.find_output_stream("produced water for steam generation")
-            prod_water_to_steam.set_liquid_flow_rate("H2O", prod_water_mass_to_downstream.to("tonne/day"), tp=input.tp)
-            if makeup_water_mass_to_downstream.m != 0:
-                makeup_water_to_steam.set_liquid_flow_rate("H2O", makeup_water_mass_to_downstream.to("tonne/day"),
+            prod_water_to_steam.set_liquid_flow_rate("H2O", prod_steam_mass.to("tonne/day"), tp=input.tp)
+            if makeup_steam_mass.m != 0:
+                makeup_water_to_steam.set_liquid_flow_rate("H2O", makeup_steam_mass.to("tonne/day"),
                                                            tp=self.makeup_water_tp)
-        elif self.water_flooding or self.water_reinjection:
+        if self.water_flooding or self.water_reinjection:
             prod_water_to_reinjection = self.find_output_stream("produced water for water injection")
             makeup_water_to_reinjection = self.find_output_stream("makeup water for water injection")
             prod_water_to_reinjection.set_liquid_flow_rate("H2O",
-                                                           prod_water_mass_to_downstream.to("tonne/day"), tp=input.tp)
-            if makeup_water_mass_to_downstream.m != 0:
+                                                           prod_water_mass.to("tonne/day"), tp=input.tp)
+            if makeup_water_mass.m != 0:
                 makeup_water_to_reinjection.set_liquid_flow_rate("H2O",
-                                                                 makeup_water_mass_to_downstream.to("tonne/day"),
+                                                                 makeup_water_mass.to("tonne/day"),
                                                                  tp=self.makeup_water_tp)
 
-        water_for_disp = input_water_mass_rate - makeup_water_mass_to_downstream - prod_water_mass_to_downstream
+        water_for_disp =\
+            input_water_mass_rate - makeup_water_mass - makeup_steam_mass - prod_water_mass - prod_steam_mass
         self.set_iteration_value(water_for_disp)
 
         surface_disp_rate = water_for_disp * self.frac_disp_surface
         subsurface_disp_rate = water_for_disp * self.frac_disp_subsurface
 
         water_density = field.water.density(input.tp.T, input.tp.P)
-        prod_water_vol_downstream = prod_water_mass_to_downstream / water_density
-        makeup_water_vol_downstream = makeup_water_mass_to_downstream / water_density
+        prod_water_vol_downstream = (prod_water_mass + prod_steam_mass) / water_density
+        makeup_water_vol_downstream = (makeup_water_mass + makeup_steam_mass) / water_density
 
         # energy use
         prod_water_elec = self.get_water_treatment_elec(self.water_treatment_table, prod_water_vol_downstream)
@@ -129,7 +137,7 @@ class WaterTreatment(Process):
         import_product = field.import_export
         self.set_import_from_energy(energy_use_makeup)
         self.set_import_from_energy(energy_use_prod)
-        import_product.set_import(self.name, WATER, makeup_water_mass_to_downstream)
+        import_product.set_import(self.name, WATER, makeup_water_mass + makeup_steam_mass)
         import_product.set_export(self.name, WATER, surface_disp_rate + subsurface_disp_rate)
 
         self.sum_intermediate_results()

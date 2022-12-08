@@ -97,7 +97,8 @@
 		<A name="GWP_horizon">100</A>
 		<A name="GWP_version">AR4</A>
 		<Field name="test_RyanHolmes"/>
-		<Field name="test_AcidGasRemoval"/>
+		<Field name="test_AcidGasRemoval_Aspen"/>
+		<Field name="test_AcidGasRemoval_testbook"/>
 		<Field name="test_Demethanizer"/>
 		<Field name="test_PreMembraneChiller"/>
 		<Field name="test_PreMembraneCompressor"/>
@@ -575,7 +576,7 @@
 
 	</Field>
 
-	<Field name="test_AcidGasRemoval">
+	<Field name="test_AcidGasRemoval_Aspen">
 
 		<Process class="Before"/>
 		<Process class="AcidGasRemoval">
@@ -594,6 +595,34 @@
 			<Component name="C4" phase="gas">2.37814</Component>
 			<Component name="H2S" phase="gas">17.57070</Component>
 			<A name="temperature">90</A>
+			<A name="pressure">500</A>
+		</Stream>
+
+		<Stream src="AcidGasRemoval" dst="ProductionBoundary" name="Light HC stream from Ryan-Holmes">
+			<Contains>gas for demethanizer</Contains>
+		</Stream>
+
+	</Field>
+
+	<Field name="test_AcidGasRemoval_testbook">
+
+		<Process class="Before"/>
+		<Process class="AcidGasRemoval">
+			<A name="leak_rate">0.000259240</A>
+		</Process>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="AcidGasRemoval">
+			<Contains>gas for AGR</Contains>
+			<Component name="N2" phase="gas">727.476031</Component>
+			<Component name="CO2" phase="gas">110433.409384</Component>
+			<Component name="C1" phase="gas">22249.585190</Component>
+			<Component name="C2" phase="gas">2464.073833</Component>
+			<Component name="C3" phase="gas">1090.975172</Component>
+			<Component name="C4" phase="gas">619.587073</Component>
+			<Component name="H2S" phase="gas">0.0</Component>
+			<A name="temperature">60</A>
 			<A name="pressure">500</A>
 		</Stream>
 
