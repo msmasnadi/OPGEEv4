@@ -11,7 +11,7 @@ import pint
 from . import ureg
 from .analysis import Analysis
 from .container import Container
-from .core import instantiate_subelts, elt_name
+from .core import instantiate_subelts, elt_name, magnitude
 from .error import OpgeeException
 from .field import Field
 from .log import getLogger
@@ -227,7 +227,6 @@ class Model(Container):
 
     def save_for_comparison(self, tuples, csvpath):
         import pandas as pd
-        from opgee.core import magnitude
 
         cols = []
         for (field, analysis) in tuples:

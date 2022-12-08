@@ -159,7 +159,7 @@ def test_VRUCompressor(test_model):
     proc = field.find_process('VRUCompressor')
     # ensure total energy flow rates
     total = proc.energy.data.sum()
-    expected = ureg.Quantity(0.3492926, "mmbtu/day")
+    expected = ureg.Quantity(0.347490006, "mmbtu/day")
     assert approx_equal(total, expected)
 
 
@@ -196,14 +196,25 @@ def test_Venting(test_model):
     assert approx_equal(total, expected)
 
 
-def test_AcidGasRemoval(test_model):
+def test_AcidGasRemoval_Aspen(test_model):
     analysis = test_model.get_analysis('test_gas_processes')
-    field = analysis.get_field('test_AcidGasRemoval')
+    field = analysis.get_field('test_AcidGasRemoval_Aspen')
     field.run(analysis)
     proc = field.find_process('AcidGasRemoval')
     # ensure total energy flow rates
     total = proc.energy.data.sum()
-    expected = ureg.Quantity(268.768111460195, "mmbtu/day")
+    expected = ureg.Quantity(267.794943, "mmbtu/day")
+    assert approx_equal(total, expected)
+
+
+def test_AcidGasRemoval_testbook(test_model):
+    analysis = test_model.get_analysis('test_gas_processes')
+    field = analysis.get_field('test_AcidGasRemoval_testbook')
+    field.run(analysis)
+    proc = field.find_process('AcidGasRemoval')
+    # ensure total energy flow rates
+    total = proc.energy.data.sum()
+    expected = ureg.Quantity(781308.7244344904, "mmbtu/day")
     assert approx_equal(total, expected)
 
 
@@ -214,7 +225,7 @@ def test_GasDehydration(test_model):
     proc = field.find_process('GasDehydration')
     # ensure total energy flow rates
     total = proc.energy.data.sum()
-    expected = ureg.Quantity(681.6879728269338, "mmbtu/day")
+    expected = ureg.Quantity(679.408523, "mmbtu/day")
     assert approx_equal(total, expected)
 
 
@@ -225,7 +236,7 @@ def test_Demethanizer(test_model):
     proc = field.find_process('Demethanizer')
     # ensure total energy flow rates
     total = proc.energy.data.sum()
-    expected = ureg.Quantity(37.91301173818107, "mmbtu/day")
+    expected = ureg.Quantity(37.8165183, "mmbtu/day")
     assert approx_equal(total, expected)
 
 
@@ -256,7 +267,7 @@ def test_CO2Membrane(test_model):
     proc = field.find_process('CO2Membrane')
     # ensure total energy flow rates
     total = proc.energy.data.sum()
-    expected = ureg.Quantity(4048.7718266075976, "mmbtu/day")
+    expected = ureg.Quantity(4035.23283, "mmbtu/day")
     assert approx_equal(total, expected)
 
 
@@ -267,7 +278,7 @@ def test_CO2ReinjectionCompressor(test_model):
     proc = field.find_process('CO2ReinjectionCompressor')
     # ensure total energy flow rates
     total = proc.energy.data.sum()
-    expected = ureg.Quantity(5302.017155954589, "mmbtu/day")
+    expected = ureg.Quantity(5274.50039, "mmbtu/day")
     assert approx_equal(total, expected)
 
 
@@ -289,7 +300,7 @@ def test_RyanHolmes(test_model):
     proc = field.find_process('RyanHolmes')
     # ensure total energy flow rates
     total = proc.energy.data.sum()
-    expected = ureg.Quantity(416.0247918820408, "mmbtu/day")
+    expected = ureg.Quantity(414.763217, "mmbtu/day")
     assert approx_equal(total, expected)
 
 
@@ -300,7 +311,7 @@ def test_SourGasCompressor(test_model):
     proc = field.find_process('SourGasCompressor')
     # ensure total energy flow rates
     total = proc.energy.data.sum()
-    expected = ureg.Quantity(245.10194671727402, "mmbtu/day")
+    expected = ureg.Quantity(244.014547, "mmbtu/day")
     assert approx_equal(total, expected)
 
 
@@ -322,7 +333,7 @@ def test_GasReinjectionCompressor(test_model):
     proc = field.find_process('GasReinjectionCompressor')
     # ensure total energy flow rates
     total = proc.energy.data.sum()
-    expected = ureg.Quantity(64286.0886714168, "mmbtu/day")
+    expected = ureg.Quantity(64113.74141179, "mmbtu/day")
     assert approx_equal(total, expected)
 
 
@@ -552,7 +563,7 @@ def test_CrudeOilStabilization(test_model):
     proc = field.find_process('CrudeOilStabilization')
     # ensure total energy flow rates
     total = proc.energy.data.sum()
-    expected = ureg.Quantity(16388.222006247037, "mmbtu/day")
+    expected = ureg.Quantity(16387.96681238, "mmbtu/day")
     assert approx_equal(total, expected)
 
 

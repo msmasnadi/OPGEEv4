@@ -1,9 +1,17 @@
-from opgee.processes.transport_energy import TransportEnergy
-from .shared import get_energy_carrier
+#
+# CrudeOilTransport class
+#
+# Author: Wennan Long
+#
+# Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
+# See LICENSE.txt for license details.
+#
 from ..emissions import EM_COMBUSTION
 from ..import_export import CRUDE_OIL
 from ..log import getLogger
 from ..process import Process
+from ..processes.transport_energy import TransportEnergy
+from .shared import get_energy_carrier
 
 _logger = getLogger(__name__)
 

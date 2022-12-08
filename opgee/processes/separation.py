@@ -6,16 +6,15 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-from opgee.processes.compressor import Compressor
-
-from .shared import get_energy_carrier, get_energy_consumption_stages
 from ..combine_streams import combine_streams
 from ..core import TemperaturePressure
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
+from ..processes.compressor import Compressor
 from ..stream import Stream, PHASE_LIQUID
 from ..thermodynamics import rho
+from .shared import get_energy_carrier, get_energy_consumption_stages
 
 _logger = getLogger(__name__)
 

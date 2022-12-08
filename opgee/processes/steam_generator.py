@@ -8,10 +8,9 @@
 #
 import pandas as pd
 
-from opgee import ureg
-from opgee.core import OpgeeObject
-from opgee.stream import PHASE_GAS
-
+from .. import ureg
+from ..core import OpgeeObject
+from ..stream import PHASE_GAS
 
 class SteamGenerator(OpgeeObject):
     def __init__(self, field):
@@ -502,8 +501,8 @@ class SteamGenerator(OpgeeObject):
         """
 
         processed_prod_gas_comp = self.processed_prod_gas_comp
-        if self.field.get_process_data("exported_gas"):
-            exported_gas_stream = self.field.get_process_data("exported_gas")
+        exported_gas_stream = self.field.get_process_data("exported_gas")
+        if exported_gas_stream and exported_gas_stream.total_flow_rate().m != 0.0:
             exported_gas_comp = self.gas.component_molar_fractions(exported_gas_stream,
                                                                    self.imported_fuel_gas_comp.index)
             processed_prod_gas_comp = exported_gas_comp

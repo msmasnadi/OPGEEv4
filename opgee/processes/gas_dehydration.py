@@ -99,7 +99,7 @@ class GasDehydration(Process):
         water_content = 47430 * pseudo_pressure.to("Pa").m / feed_gas_press.to("Pa").m + B
         water_content = ureg.Quantity(water_content, "lb/mmscf")
 
-        gas_volume_rate = self.gas.tot_volume_flow_rate_STP(input)
+        gas_volume_rate = self.gas.volume_flow_rate_STP(input)
         gas_multiplier = gas_volume_rate.to("mmscf/day").m / 1.0897  # multiplier for gas load in correlation equation
         water_content_volume = water_content * gas_volume_rate / ChemicalInfo.mol_weight("H2O") / self.mol_to_scf
         water_content_volume = water_content_volume / gas_multiplier

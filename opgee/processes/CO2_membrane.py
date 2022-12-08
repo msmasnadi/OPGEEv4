@@ -6,13 +6,13 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-from opgee.processes.compressor import Compressor
-from .shared import get_energy_carrier
 from ..constants import std_pressure
 from ..emissions import EM_COMBUSTION
 from ..log import getLogger
 from ..process import Process
+from ..processes.compressor import Compressor
 from ..stream import PHASE_GAS
+from .shared import get_energy_carrier
 
 _logger = getLogger(__name__)
 
@@ -37,9 +37,8 @@ class CO2Membrane(Process):
 
         gas_to_AGR = self.find_output_stream("gas for AGR")
         AGR_mol_fracs = 1 - self.membrane_comp
-        AGR_mass_fracs = field.gas.component_mass_fractions(AGR_mol_fracs)
         gas_to_AGR.copy_flow_rates_from(input, tp=field.stp)
-        gas_to_AGR.multiply_factor_from_series(AGR_mass_fracs, PHASE_GAS)
+        gas_to_AGR.multiply_factor_from_series(AGR_mol_fracs, PHASE_GAS)
 
         gas_to_compressor = self.find_output_stream("gas for CO2 compressor")
         gas_to_compressor.copy_flow_rates_from(input)

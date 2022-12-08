@@ -90,7 +90,7 @@ class Demethanizer(Process):
             inlet_C2_mol_frac =\
                 get_bounded_value(feed_gas_mol_frac["C2"].to("frac").m, "inlet_C2_mol_frac", variable_bound_dict)
 
-        gas_volume_rate = self.gas.tot_volume_flow_rate_STP(input)
+        gas_volume_rate = self.gas.volume_flow_rate_STP(input)
         scale_value = gas_volume_rate.to("mmscf/day").m / multiplier
 
         x1 = feed_gas_press

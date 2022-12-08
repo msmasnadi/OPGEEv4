@@ -16,7 +16,7 @@ _logger = getLogger(__name__)
 
 NO_DEP = '_'    # dummy dependency so these also show up in graph
 
-class ProcessNotFound(OpgeeException):
+class ProcessNotFoundError(OpgeeException):
     """
     Raised when an attribute of a named `Process` is unavailable for
     Smart Default processing because the `Process` doesn't exist in
@@ -140,7 +140,7 @@ class SmartDefault(OpgeeObject):
 
             try:
                 obj, attr_obj = dep.find_attr(attr_name, analysis, field)
-            except ProcessNotFound as e:
+            except ProcessNotFoundError as e:
                 _logger.warn(f"{e} (ignoring)")
                 continue    # skip this smart default
 
@@ -152,7 +152,7 @@ class SmartDefault(OpgeeObject):
             # collect values of all attributes we depend on
             try:
                 tups = [dep.find_attr(name, analysis, field) for name in dep.dependencies]
-            except ProcessNotFound as e:
+            except ProcessNotFoundError as e:
                 _logger.warn(f"{e} (ignoring)")
                 continue    # skip this smart default
 
@@ -202,7 +202,7 @@ class SmartDefault(OpgeeObject):
         else:
             obj = field.find_process(class_name, raiseError=False)
             if obj is None:
-                    raise ProcessNotFound(f"Process not found for '{class_name}.{attr_name}' in {field}")
+                    raise ProcessNotFoundError(f"Process not found for '{class_name}.{attr_name}' in {field}")
 
         attr_obj = obj.attr_dict.get(attr_name)
         if attr_obj is None:

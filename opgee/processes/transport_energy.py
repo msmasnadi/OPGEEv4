@@ -8,9 +8,9 @@
 #
 import pandas as pd
 
-from opgee import ureg
-from opgee.core import OpgeeObject
-from opgee.error import OpgeeException
+from .. import ureg
+from ..core import OpgeeObject
+from ..error import OpgeeException
 from ..energy import EN_DIESEL
 
 

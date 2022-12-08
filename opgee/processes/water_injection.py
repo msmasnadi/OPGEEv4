@@ -59,6 +59,9 @@ class WaterInjection(Process):
 
         input_prod = self.find_input_stream("produced water for water injection")
         input_makeup = self.find_input_stream("makeup water for water injection")
+        if input_prod.is_uninitialized() and input_makeup.is_uninitialized():
+            return
+
         total_water_mass = input_prod.liquid_flow_rate("H2O") + input_makeup.liquid_flow_rate("H2O")
         total_water_volume = total_water_mass / self.water_density
         single_well_water_volume = total_water_volume / self.num_water_inj_wells
