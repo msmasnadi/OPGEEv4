@@ -10,7 +10,6 @@ import pandas as pd
 
 from .core import STP
 from .core import TemperaturePressure
-from .error import OpgeeException
 from .log import getLogger
 from .stream import PHASE_LIQUID, Stream
 from .thermodynamics import Oil, Gas, Water

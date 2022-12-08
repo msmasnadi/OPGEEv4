@@ -83,9 +83,9 @@ class Stream(XmlInstantiable, AttributeMixin):
     _phases = [PHASE_SOLID, PHASE_LIQUID, PHASE_GAS]
 
     # HCs with 1-60 carbon atoms, i.e., C1, C2, ..., C50
-    table_name = "pubchem-cid"
     mgr = TableManager()
-    pubchem_cid_df = mgr.get_table("pubchem-cid")
+    table_name = "pubchem-cid"
+    pubchem_cid_df = mgr.get_table(table_name)
 
     idx = pubchem_cid_df.index
     _hydrocarbons = list(idx)

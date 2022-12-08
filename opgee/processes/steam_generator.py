@@ -8,10 +8,9 @@
 #
 import pandas as pd
 
-from opgee import ureg
-from opgee.core import OpgeeObject
-from opgee.stream import PHASE_GAS
-
+from .. import ureg
+from ..core import OpgeeObject
+from ..stream import PHASE_GAS
 
 class SteamGenerator(OpgeeObject):
     def __init__(self, field):

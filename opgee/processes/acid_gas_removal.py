@@ -6,8 +6,7 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-from opgee.processes.compressor import Compressor
-from .shared import get_energy_carrier, predict_blower_energy_use, get_bounded_value, get_energy_consumption
+from ..processes.compressor import Compressor
 from .. import ureg
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..log import getLogger
@@ -15,6 +14,7 @@ from ..process import Process, run_corr_eqns
 from ..error import OpgeeException
 from ..stream import Stream
 from ..core import STP
+from .shared import get_energy_carrier, predict_blower_energy_use, get_bounded_value, get_energy_consumption
 
 _logger = getLogger(__name__)
 
@@ -24,6 +24,7 @@ variable_bound_dict = {"mol_frac_CO2": [0.0, 0.2],
                        "reflux_ratio": [1.5, 3.0],
                        "regen_temp": [190.0, 220.0], # unit in degree F
                        "feed_gas_press": [14.7, 514.7]} # unit in psia
+
 amine_solution_K_value_dict = { "conv DEA" : 1.45,
                                 "high DEA": 0.95,
                                 "MEA" : 2.05,
@@ -35,6 +36,8 @@ class AcidGasRemoval(Process):
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
+        m = field.model
+
         self.gas = field.gas
         self.type_amine = self.attr("type_amine")
         self.ratio_reflux_reboiler = self.attr("ratio_reflux_reboiler")
@@ -43,14 +46,14 @@ class AcidGasRemoval(Process):
         self.eta_reboiler = self.attr("eta_reboiler")
         self.air_cooler_delta_T = self.attr("air_cooler_delta_T")
         self.air_cooler_press_drop = self.attr("air_cooler_press_drop")
-        self.air_elevation_const = field.model.const("air-elevation-corr")
-        self.air_density_ratio = field.model.const("air-density-ratio")
+        self.air_elevation_const = m.const("air-elevation-corr")
+        self.air_density_ratio = m.const("air-density-ratio")
         self.water_press = field.water.density() * \
                            self.air_cooler_press_drop * \
-                           field.model.const("gravitational-acceleration")
+                           m.const("gravitational-acceleration")
         self.air_cooler_fan_eff = self.attr("air_cooler_fan_eff")
         self.air_cooler_speed_reducer_eff = self.attr("air_cooler_speed_reducer_eff")
-        self.AGR_table = field.model.AGR_tbl
+        self.AGR_table = m.AGR_tbl
         self.eta_compressor = self.attr("eta_compressor")
         self.prime_mover_type = self.attr("prime_mover_type")
         self.amine_solution_K_value =\
