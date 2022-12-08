@@ -42,7 +42,8 @@ class Analysis(Container):
     def __init__(self, name, attr_dict=None, field_names=None, groups=None):
         super().__init__(name, attr_dict=attr_dict)
 
-        self._field_names = field_names     # this list is extended in _after_init
+        self._field_names = field_names     # may be extended in _after_init
+
         self.groups = groups
 
         # The following are set from attributes or config info in _after_init()
@@ -84,6 +85,7 @@ class Analysis(Container):
                 matches = [field for field in model.fields() if field.name == text]
 
             fields.extend(matches)
+            self._field_names.extend([field.name for field in matches])
 
         # storing into dict eliminates duplicates
         self.field_dict = {field.name: field for field in fields}

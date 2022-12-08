@@ -204,7 +204,7 @@ class Process(XmlInstantiable, AttributeMixin):
 
         self.intermediate_results = None
 
-        self.iv = IntermediateValues()
+        self.iv = IntermediateValues()      # TODO: appears unused (except in test code). Deprecated?
 
         # Support for cycles
         self.visit_count = 0        # increment when the Process has been run

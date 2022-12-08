@@ -11,19 +11,9 @@ from .. import ureg
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process, run_corr_eqns
-from ..error import OpgeeException
-from ..stream import Stream
-from ..core import STP
 from .shared import get_energy_carrier, predict_blower_energy_use, get_bounded_value, get_energy_consumption
 
 _logger = getLogger(__name__)
-
-# Input values for variable getting from HYSYS
-variable_bound_dict = {"mol_frac_CO2": [0.0, 0.2],
-                       "mol_frac_H2S": [0.0, 0.15],
-                       "reflux_ratio": [1.5, 3.0],
-                       "regen_temp": [190.0, 220.0], # unit in degree F
-                       "feed_gas_press": [14.7, 514.7]} # unit in psia
 
 amine_solution_K_value_dict = { "conv DEA" : 1.45,
                                 "high DEA": 0.95,
@@ -128,6 +118,16 @@ class AcidGasRemoval(Process):
 
 
     def calculate_energy_consumption_from_Aspen(self, input, output_gas, mol_frac_CO2, mol_frac_H2S):
+
+        # TODO: Wennan, I made this a local var that gets reset on each call. Less efficient, but
+        #  not subject to random behavior!
+        # Input values for variable getting from HYSYS
+        variable_bound_dict = {"mol_frac_CO2": [0.0, 0.2],
+                               "mol_frac_H2S": [0.0, 0.15],
+                               "reflux_ratio": [1.5, 3.0],
+                               "regen_temp": [190.0, 220.0],  # unit in degree F
+                               "feed_gas_press": [14.7, 514.7]}  # unit in psia
+
         mol_frac_CO2 = get_bounded_value(mol_frac_CO2.to("frac").m, "mol_frac_CO2", variable_bound_dict)
         mol_frac_H2S = get_bounded_value(mol_frac_H2S.to("frac").m, "mol_frac_H2S", variable_bound_dict)
 

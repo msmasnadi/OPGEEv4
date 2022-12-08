@@ -12,7 +12,7 @@ import pint
 from . import ureg
 from .config import getParamAsList
 from .container import Container
-from .core import elt_name, instantiate_subelts, dict_from_list, TemperaturePressure, STP
+from .core import elt_name, instantiate_subelts, dict_from_list, STP
 from .energy import Energy
 from .error import (OpgeeException, OpgeeStopIteration, OpgeeMaxIterationsReached,
                     OpgeeIterationConverged, ModelValidationError, ZeroEnergyFlowError)
@@ -24,7 +24,7 @@ from .processes.steam_generator import SteamGenerator
 from .smart_defaults import SmartDefault
 from .stream import Stream
 from .thermodynamics import Oil, Gas, Water
-from .utils import getBooleanXML, flatten, roundup
+from .utils import getBooleanXML, roundup
 
 _logger = getLogger(__name__)
 
@@ -783,7 +783,7 @@ class Field(Container):
 
         obj.set_enabled(attrib.get('enabled', '1'))
         obj.set_extend(attrib.get('extend', '0'))
-        obj.set_modifies(attrib.get('modifies'))
+        obj.set_modifies(attrib.get('modified'))    # "modified" attr is changed to "modified" after merging
 
         return obj
 
