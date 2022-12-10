@@ -174,7 +174,7 @@ class Emissions(OpgeeObject):
     # TODO: Why does this add only CO2, CH4, and CO? What about all other components? (Discuss with Adam)
     def add_from_stream(self, category, stream):
         """
-        Add emission flow rates from a Stream instance to the given emissions category.
+        Add emission flow rates from a Stream instance to the given emissions' category.
 
         :param category: (str) one of the defined emissions categories
         :param stream: (Stream)
@@ -192,7 +192,7 @@ class Emissions(OpgeeObject):
 
     def set_from_stream(self, category, stream):
         """
-        Set emission flow rates from a Stream instance to the given emissions category.
+        Set emission flow rates from a Stream instance to the given emissions' category.
 
         :param category: (str) one of the defined emissions categories
         :param stream: (Stream)
@@ -210,7 +210,7 @@ class Emissions(OpgeeObject):
 
     def add_from_series(self, category, series):
         """
-        Add emission flow rates from a Series instance to the given emissions category.
+        Add emission flow rates from a Series instance to the given emissions' category.
 
         :param category: (str) one of the defined emissions categories
         :param series: (Series)
@@ -229,7 +229,7 @@ class Emissions(OpgeeObject):
 
     def set_from_series(self, category, series):
         """
-        Set emission flow rates from a Series instance to the given emissions category.
+        Set emission flow rates from a Series instance to the given emissions' category.
 
         :param category: (str) one of the defined emissions categories
         :param series: (Series)

@@ -20,13 +20,6 @@ from ..thermodynamics import ChemicalInfo
 
 _logger = getLogger(__name__)
 
-# Input values for variable getting from HYSYS
-variable_bound_dict = {"feed_gas_press": [14.7, 1014.7],  # unit in psia
-                       "feed_gas_temp": [80.0, 100.0],  # unit in degree F
-                       "water_content_volume": [0.0005, 0.005],
-                       "reflux_ratio": [1.5, 3.0],
-                       "regeneration_feed_temp": [190.0, 200.0]}  # unit in degree F
-
 
 class GasDehydration(Process):
     def _after_init(self):
@@ -105,6 +98,13 @@ class GasDehydration(Process):
         water_content_volume = water_content_volume / gas_multiplier
 
         # Gas dehydration modeling based on Aspen HYSYS
+        # Input values for variable getting from HYSYS
+        variable_bound_dict = {"feed_gas_press": [14.7, 1014.7],  # unit in psia
+                               "feed_gas_temp": [80.0, 100.0],  # unit in degree F
+                               "water_content_volume": [0.0005, 0.005],
+                               "reflux_ratio": [1.5, 3.0],
+                               "regeneration_feed_temp": [190.0, 200.0]}  # unit in degree F
+
         x1 = get_bounded_value(feed_gas_press.to("psia").m, "feed_gas_press", variable_bound_dict)
         x2 = get_bounded_value(feed_gas_temp.to("degF").m, "feed_gas_temp", variable_bound_dict)
         x3 = get_bounded_value(water_content_volume.to("mmscf/day").m, "water_content_volume", variable_bound_dict)

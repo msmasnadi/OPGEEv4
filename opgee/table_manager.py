@@ -62,6 +62,7 @@ class TableManager(OpgeeObject):
         TableDef("fracture-consumption-table", index_col=0),
         TableDef("land-use-EF", index_col=[0,1], has_units=True),
         TableDef("pubchem-cid", index_col=0),
+        TableDef("ASPEN_input_boundary", index_col=[0,1]),
         TableDef("demethanizer", index_col=0, index_row=[0,1])
     ]
 

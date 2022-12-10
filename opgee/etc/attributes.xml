@@ -47,9 +47,6 @@
       <AttrDef name="GWP_version" options="GWP version" type="str"/>
       <AttrDef name="functional_unit" options="Functional unit" type="str"/>
 
-<!--      TODO: Deprecated!-->
-      <AttrDef name="energy_basis" options="Energy basis" type="str"/>
-
       <!-- We need this at the Analysis level to ensure all fields are evaluated to same bounds -->
       <Options name="boundaries" default="Production">
         <Option>Production</Option>
