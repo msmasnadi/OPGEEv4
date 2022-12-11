@@ -170,7 +170,7 @@ def test_VFPartition(test_model):
     proc = field.find_process('VFPartition')
     # ensure total energy flow rates
     total = proc.find_output_stream("methane slip").gas_flow_rates().sum()
-    expected = ureg.Quantity(71.03912192600949, "tonne/day")
+    expected = ureg.Quantity(76.74077437660227, "tonne/day")
     assert approx_equal(total, expected)
 
 

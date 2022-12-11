@@ -3,7 +3,6 @@
 
 	<Analysis name="test_boundary_procs">
 		<A name="functional_unit">gas</A>
-		<A name="energy_basis">LHV</A>
 		<A name="GWP_horizon">100</A>
 		<A name="GWP_version">AR5</A>
 		<Field name="field1"/>

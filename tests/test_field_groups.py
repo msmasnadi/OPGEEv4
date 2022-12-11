@@ -6,7 +6,6 @@ field_groups_model_xml = """
 
 	<Analysis name="test">
 	  <A name="functional_unit">oil</A>
-	  <A name="energy_basis">LHV</A>
 	  <A name="GWP_horizon">100</A>
 	  <A name="GWP_version">AR5</A>
 	  <Group regex="1">.*Foo.*</Group>
