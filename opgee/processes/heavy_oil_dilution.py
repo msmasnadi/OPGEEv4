@@ -31,7 +31,7 @@ class HeavyOilDilution(Process):
         self.downhole_pump = field.attr("downhole_pump")
         self.oil_sand_mine = field.attr("oil_sands_mine")
 
-        self.bitumen_API = field.attr("API_bitumen")
+        self.bitumen_API = field.attr("API")
         self.bitumen_SG = self.oil.specific_gravity(self.bitumen_API)
         self.bitumen_tp = TemperaturePressure(field.attr("temperature_mined_bitumen"),
                                               field.attr("pressure_mined_bitumen"))
@@ -80,7 +80,7 @@ class HeavyOilDilution(Process):
 
         frac_diluent = self.frac_diluent
         input_liquid_vol_rate = input_liquid_mass_rate / input_liquid_SG / self.water_density
-        expected_volume_oil_bitumen = input_liquid_vol_rate if frac_diluent == 1 else \
+        expected_volume_oil_bitumen = input_liquid_vol_rate if abs(frac_diluent - 1) <= 0.01 else \
             input_liquid_vol_rate / (1 - frac_diluent)
         required_volume_diluent = expected_volume_oil_bitumen * frac_diluent
 

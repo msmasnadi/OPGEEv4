@@ -107,8 +107,7 @@
       <AttrDef name="offshore" type="binary" desc="Offshore?">0</AttrDef>
 
       <!-- Fluid properties -->
-      <AttrDef name="API" desc="API gravity of produced crude" unit="degAPI" type="float">32.80</AttrDef>
-      <AttrDef name="API_bitumen" unit="degAPI" type="float" desc="API gravity of bitumen">8.0</AttrDef>
+      <AttrDef name="API" desc="API gravity of produced crude" unit="degAPI" type="float">32.80</AttrDef> <!-- TODO: bitumen and heavy oil need a new default value -->
       <AttrDef name="total_dissolved_solids" desc="water total dissolved solid (TDS)" unit="mg/L" type="float">5000.0</AttrDef>
 
 <!--      TODO: change it to import export csv.-->
@@ -152,6 +151,7 @@
       <AttrDef name="fraction_steam_solar" desc="Fraction of steam generation via solar thermal" unit = "frac" type="float" GE="0" LE="1">0.0</AttrDef>
       <AttrDef name="gas_pressure_after_boosting" type="float" unit="psia" desc="Separator gas outlet pressure after boosting compressors">500</AttrDef>
       <AttrDef name="friction_factor" type="float" unit="frac" desc="wellbore friction factor">0.02</AttrDef>
+      <AttrDef name="AGR_feedin_press" type="float" unit="psia">500.0</AttrDef>
 
       <!-- Processing practices -->
       <Options name="upgrader_type" default="None">
@@ -620,7 +620,7 @@
       <AttrDef name="air_cooler_press_drop" type="float" unit="inch" desc="AGR air cooler pressure drop">0.6</AttrDef>
       <AttrDef name="air_cooler_speed_reducer_eff" type="float" unit="percent" desc="AGR air cooler speed reducer efficiency">92.0</AttrDef>
       <AttrDef name="eta_compressor" type="float" unit="frac" desc="AGR compressor efficiency">75.0</AttrDef>
-      <AttrDef name="feed_press" type="float" unit="psia">500.0</AttrDef>
+
       <AttrDef name="type_amine" type="str" options="amine_solution">conv DEA</AttrDef>
       <AttrDef name="ratio_reflux_reboiler" type="float" unit="frac" desc="Reflux ratio in reboiler">7.0</AttrDef>
       <AttrDef name="regeneration_temp" type="float" unit="degF" desc="Regeneration feed temperature">205.0</AttrDef>

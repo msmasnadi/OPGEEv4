@@ -1346,7 +1346,7 @@
 
 	<Field name="test_BitumenMining">
 		<A name="oil_prod">150000</A>
-		<A name="API_bitumen">9.0</A>
+		<A name="API">9.0</A>
 		<A name="upgrader_type">Delayed coking</A>
 		<A name="oil_sands_mine">Integrated with upgrader</A>
 		<A name="FOR">0.0</A>

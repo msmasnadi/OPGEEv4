@@ -31,7 +31,7 @@ class AcidGasRemoval(Process):
         self.gas = field.gas
         self.type_amine = self.attr("type_amine")
         self.ratio_reflux_reboiler = self.attr("ratio_reflux_reboiler")
-        self.feed_pressure = self.attr("feed_press")
+        self.AGR_feedin_press = field.attr("AGR_feedin_press")
         self.regeneration_temp = self.attr("regeneration_temp")
         self.eta_reboiler = self.attr("eta_reboiler")
         self.air_cooler_delta_T = self.attr("air_cooler_delta_T")
@@ -137,7 +137,7 @@ class AcidGasRemoval(Process):
 
         reflux_ratio = get_bounded_value(self.ratio_reflux_reboiler.to("frac").m, "reflux_ratio", variable_bound_dict)
         regen_temp = get_bounded_value(self.regeneration_temp.to("degF").m, "regen_temp", variable_bound_dict)
-        feed_gas_press = get_bounded_value(self.feed_pressure.to("psia").m, "feed_gas_press", variable_bound_dict)
+        feed_gas_press = get_bounded_value(self.AGR_feedin_press.to("psia").m, "feed_gas_press", variable_bound_dict)
 
         gas_volume_rate = self.gas.volume_flow_rate_STP(input)
         gas_multiplier = gas_volume_rate.to("mmscf/day").m / 1.0897  # multiplier for gas load in correlation equation
