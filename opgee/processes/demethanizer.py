@@ -22,16 +22,6 @@ from ..thermodynamics import ChemicalInfo
 
 _logger = getLogger(__name__)
 
-# Input values for variable getting from HYSYS
-variable_bound_dict = {"feed_gas_press": [600.0, 1000.0],  # unit in psia
-                       "column_press": [155.0, 325.0],  # unit in psia
-                       "methane_to_NGL_ratio": [0.01, 0.05],
-                       "inlet_C1_mol_frac": [0.50, 0.95],
-                       "inlet_C2_mol_frac": [0.05, 0.95]}
-
-# Multiplier for gas load in correlation equation
-multiplier = 99.8
-
 
 class Demethanizer(Process):
     def _after_init(self):
@@ -67,6 +57,12 @@ class Demethanizer(Process):
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
         # Demethanizer modeling based on Aspen HYSYS
+        # Input values for variable getting from HYSYS
+        variable_bound_dict = {"feed_gas_press": [600.0, 1000.0],  # unit in psia
+                               "column_press": [155.0, 325.0],  # unit in psia
+                               "methane_to_NGL_ratio": [0.01, 0.05],
+                               "inlet_C1_mol_frac": [0.50, 0.95],
+                               "inlet_C2_mol_frac": [0.05, 0.95]}
         feed_gas_press =\
             get_bounded_value(self.feed_press_demethanizer.to("psia").m, "feed_gas_press", variable_bound_dict)
         column_press =\
@@ -91,6 +87,9 @@ class Demethanizer(Process):
                 get_bounded_value(feed_gas_mol_frac["C2"].to("frac").m, "inlet_C2_mol_frac", variable_bound_dict)
 
         gas_volume_rate = self.gas.volume_flow_rate_STP(input)
+
+        # Multiplier for gas load in correlation equation
+        multiplier = 99.8
         scale_value = gas_volume_rate.to("mmscf/day").m / multiplier
 
         x1 = feed_gas_press
@@ -113,7 +112,8 @@ class Demethanizer(Process):
 
         hydrocarbon_mol_rate = pd.Series({name: self.gas.molar_flow_rate(input, name) for name in hydrocarbon_label})
 
-        if NGL_mol_frac["C2"].m == 0 or (fuel_gas_mol_frac["C1"] - NGL_mol_frac["C1"] * fuel_gas_mol_frac["C2"] / NGL_mol_frac["C2"]).m == 0:
+        if NGL_mol_frac["C2"].m == 0 or (
+                fuel_gas_mol_frac["C1"] - NGL_mol_frac["C1"] * fuel_gas_mol_frac["C2"] / NGL_mol_frac["C2"]).m == 0:
             fuel_gas_prod = ureg.Quantity(0, "mole/day")
         else:
             fuel_gas_prod = \

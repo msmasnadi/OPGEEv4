@@ -42,7 +42,7 @@ class HeavyOilUpgrading(Process):
 
         self.water = self.field.water
         self.water_density = self.water.density()
-        self.bitumen_API = field.attr("API_bitumen")
+        self.bitumen_API = field.attr("API")
 
     def run(self, analysis):
         self.print_running_msg()

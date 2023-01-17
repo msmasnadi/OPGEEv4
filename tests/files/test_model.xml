@@ -10,7 +10,6 @@
 	<Analysis name="test">
 		<A name="functional_unit">oil</A>
 		<A name="boundary">Production</A>
-		<A name="energy_basis">LHV</A>
 		<A name="GWP_horizon">100</A>
 		<A name="GWP_version">AR5</A>
 		<Field name="test"/>
@@ -19,7 +18,6 @@
 	<Analysis name="test2">
 		<A name="functional_unit">oil</A>
 		<A name="boundary">Production</A>
-		<A name="energy_basis">LHV</A>
 	  <A name="GWP_horizon">100</A>
 	  <A name="GWP_version">AR5</A>
 		<Group regex="1">.*test</Group>
@@ -93,7 +91,6 @@
 	<Analysis name="test_gas_processes">
 		<A name="functional_unit">gas</A>
 		<A name="boundary">Production</A>
-		<A name="energy_basis">LHV</A>
 		<A name="GWP_horizon">100</A>
 		<A name="GWP_version">AR4</A>
 		<Field name="test_RyanHolmes"/>
@@ -962,7 +959,7 @@
 	<Analysis name="test_common_processes">
 		<A name="functional_unit">oil</A>
 		<A name="boundary">Production</A>
-		<A name="energy_basis">LHV</A>
+		
 		<A name="GWP_horizon">100</A>
 		<A name="GWP_version">AR4</A>
 		<Field name="test_ReservoirWellInterface"/>
@@ -1250,7 +1247,7 @@
 	<Analysis name="test_oil_processes">
 		<A name="functional_unit">oil</A>
 		<A name="boundary">Production</A>
-		<A name="energy_basis">LHV</A>
+		
 		<A name="GWP_horizon">100</A>
 		<A name="GWP_version">AR4</A>
 		<Field name="test_HeavyOilUpgrading"/>
@@ -1349,7 +1346,7 @@
 
 	<Field name="test_BitumenMining">
 		<A name="oil_prod">150000</A>
-		<A name="API_bitumen">9.0</A>
+		<A name="API">9.0</A>
 		<A name="upgrader_type">Delayed coking</A>
 		<A name="oil_sands_mine">Integrated with upgrader</A>
 		<A name="FOR">0.0</A>
@@ -1373,7 +1370,7 @@
 	<Analysis name="test_water_processes">
 		<A name="functional_unit">oil</A>
 		<A name="boundary">Production</A>
-		<A name="energy_basis">LHV</A>
+		
 		<A name="GWP_horizon">100</A>
 		<A name="GWP_version">AR4</A>
 		<Field name="test_SteamGeneration_OTSG"/>

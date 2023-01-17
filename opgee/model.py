@@ -33,10 +33,6 @@ class Model(Container):
 
         self.analysis_dict = self.adopt(analyses, asDict=True)
         self.field_dict = self.adopt(fields, asDict=True)
-
-        # Deprecated
-        # self._ordered_field_names = [f.name for f in fields]
-
         self.table_mgr = tbl_mgr = TableManager(updates=table_updates)
 
         # load all the GWP options

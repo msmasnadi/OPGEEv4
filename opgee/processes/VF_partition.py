@@ -41,27 +41,30 @@ class VFPartition(Process):
         if input.is_uninitialized():
             return
 
-        # TODO: update the FOR definition. FOR measures the total flaring rate
-        gas_mol_fraction = self.gas.total_molar_flow_rate(input)
-        gas_volume_rate = gas_mol_fraction / self.mol_per_scf
+        input_stream_mol_fracs = field.gas.component_molar_fractions(input)
         SCO_bitumen_ratio = field.get_process_data("SCO_bitumen_ratio")
+        temp = self.oil_volume_rate * self.FOR / self.combusted_gas_frac
         if SCO_bitumen_ratio:
-            volume_of_gas_flared = self.oil_volume_rate * self.FOR / SCO_bitumen_ratio
+            volume_of_gas_flared = temp / SCO_bitumen_ratio
         else:
-            volume_of_gas_flared = self.oil_volume_rate * self.FOR
-        frac_gas_flared = min(ureg.Quantity(1, "frac"), volume_of_gas_flared / gas_volume_rate)
+            volume_of_gas_flared = temp
 
-        methane_slip = self.find_output_stream("methane slip")
-        methane_slip.copy_flow_rates_from(input)
-        multiplier = (frac_gas_flared * (1 - self.combusted_gas_frac)).m
-        methane_slip.multiply_flow_rates(multiplier)
-        methane_slip.set_tp(tp=STP)
+        temp = volume_of_gas_flared * input_stream_mol_fracs
+        volume_rate_gas_combusted = temp * self.combusted_gas_frac
+        volume_rate_gas_slip = temp * (1 - self.combusted_gas_frac)
+
+        temp = field.gas.component_gas_rho_STP[volume_rate_gas_combusted.index]
+        mass_rate_gas_combusted =\
+            volume_rate_gas_combusted * temp
+        mass_rate_gas_slip = volume_rate_gas_slip * temp
 
         gas_to_flare = self.find_output_stream("gas for flaring")
-        gas_to_flare.copy_flow_rates_from(input)
-        gas_to_flare.multiply_flow_rates(frac_gas_flared.m)
-        gas_to_flare.subtract_rates_from(methane_slip)
+        gas_to_flare.set_rates_from_series(mass_rate_gas_combusted, PHASE_GAS, input)
         gas_to_flare.set_tp(tp=STP)
+
+        methane_slip = self.find_output_stream("methane slip")
+        methane_slip.set_rates_from_series(mass_rate_gas_slip, PHASE_GAS, input.subtract_rates_from(gas_to_flare, PHASE_GAS))
+        methane_slip.set_tp(tp=STP)
 
         output_gas = self.find_output_stream("gas for venting")
         output_gas.copy_flow_rates_from(input)

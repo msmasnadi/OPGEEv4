@@ -42,7 +42,7 @@ class BitumenMining(Process):
             return
 
         self.oil = field.oil
-        self.API_bitumen = field.attr("API_bitumen")
+        self.API_bitumen = field.attr("API")
         self.bitumen_SG = self.oil.specific_gravity(self.API_bitumen)
 
         self.mined_bitumen_tp = TemperaturePressure(field.attr("temperature_mined_bitumen"),

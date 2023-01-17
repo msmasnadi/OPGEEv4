@@ -26,6 +26,7 @@ class CO2Membrane(Process):
         self.press_drop = self.attr("press_drop_across_membrane")
         self.eta_compressor = self.attr("eta_compressor")
         self.prime_mover_type = self.attr("prime_mover_type")
+        self.AGR_feedin_press = field.attr("AGR_feedin_press")
 
     def run(self, analysis):
         self.print_running_msg()
@@ -37,7 +38,8 @@ class CO2Membrane(Process):
 
         gas_to_AGR = self.find_output_stream("gas for AGR")
         AGR_mol_fracs = 1 - self.membrane_comp
-        gas_to_AGR.copy_flow_rates_from(input, tp=field.stp)
+        gas_to_AGR.copy_flow_rates_from(input)
+        gas_to_AGR.tp.P = self.AGR_feedin_press
         gas_to_AGR.multiply_factor_from_series(AGR_mol_fracs, PHASE_GAS)
 
         gas_to_compressor = self.find_output_stream("gas for CO2 compressor")
