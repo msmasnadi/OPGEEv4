@@ -133,9 +133,18 @@ class Manager(OpgeeObject):
         return client
 
     def stop_cluster(self):
+        from time import sleep
+
         _logger.info("Stopping cluster")
-        # self.client.scheduler.shutdown()
         self.client.close()
+        sleep(5)
+        self.client.shutdown()
+        sleep(5)
+
+        #self.client.retire_workers()
+        #sleep(1)
+        #self.client.scheduler.shutdown()
+
         self.client = self.cluster = None
 
     def run_mcs(self, sim_dir, field_names=None, num_engines=0, trial_nums=None,
@@ -152,6 +161,7 @@ class Manager(OpgeeObject):
         # Caller can specify a subset of possible fields to run. Default is to run all.
         field_names = field_names or sim.field_names
 
+        # N.B. start_cluster saves client in self.client and returns it as well
         client = self.start_cluster(num_engines=num_engines, minutes_per_task=minutes_per_task)
 
         def _run_field(field_name):
