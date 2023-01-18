@@ -19,5 +19,5 @@ build:
     python: "mambaforge-4.10"
 
 conda:
-  environment: py3-opgee-linux.yml
+  environment: py3-opgee-travis.yml
 
