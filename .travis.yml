@@ -5,13 +5,30 @@ os:
   # - osx
 python :
   - "3.9"
-  - "3.10.11"
   #- "nightly"
-  #- "pypy3"
 
 install:
-  - pip install -r requirements.txt
-  - python setup.py -q install
+  - wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - source "$HOME/miniconda/etc/profile.d/conda.sh"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  # Useful for debugging any issues with conda
+  - conda info -a
+
+  # Use the YML file instead of the command line below
+  - conda env create -f py3-opgee-linux.yml
+
+  # Replace dep1 dep2 ... with your dependencies
+  #  conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION dep1 dep2 ...
+
+  - conda activate opgee
+  - python -m pip install .
+
+  #- pip install -r requirements.txt
+  # - python setup.py -q install
+
   - pip install pytest-cov codecov coveralls PyYAML
 
 addons:
