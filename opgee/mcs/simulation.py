@@ -24,16 +24,16 @@ _logger = getLogger(__name__)
 
 
 TRIAL_DATA_CSV = 'trial_data.csv'
-RESULTS_DIR = 'results'                 # TBD: better to store results.csv in field_dir along with trial_data.csv?
+RESULTS_CSV = 'results.csv'
 MODEL_FILE = 'merged_model.xml'
 META_DATA_FILE = 'metadata.json'
 
 DISTROS_CSV = 'mcs/etc/parameter_distributions.csv'
 
-DIGITS = 3
+DEFAULT_DIGITS = 3
 
-def magnitude(quantity):          # pragma: no cover
-    return round(quantity.m, DIGITS)
+def magnitude(quantity, digits=DEFAULT_DIGITS):          # pragma: no cover
+    return round(quantity.m, digits)
 
 def model_file_path(sim_dir):     # pragma: no cover
     model_file = pathjoin(sim_dir, MODEL_FILE)
@@ -177,7 +177,7 @@ class Simulation(OpgeeObject):
     def __init__(self, sim_dir, analysis_name=None, trials=0, field_names=None,
                  save_to_path=None, meta_data_only=False):
         self.pathname = sim_dir
-        self.results_dir = pathjoin(sim_dir, RESULTS_DIR)
+        #self.results_dir = pathjoin(sim_dir, RESULTS_DIR)
         self.model_file = model_file_path(sim_dir)
         self.model = None
 
@@ -302,6 +302,14 @@ class Simulation(OpgeeObject):
         path = pathjoin(d, TRIAL_DATA_CSV)
         return path
 
+    def results_path(self, field, mkdir=False):
+        d = self.field_dir(field)
+        if mkdir:
+            mkdirs(d)
+        path = pathjoin(d, RESULTS_CSV)
+        return path
+
+
     # TBD: needed only if we want to parallelize within fields rather than just across fields
     # def trial_dir(self, field, trial_num, mkdir=False):
     #     """
@@ -386,7 +394,13 @@ class Simulation(OpgeeObject):
 
     def save_trial_data(self, field):
         filename = self.trial_data_path(field, mkdir=True)
+        _logger.info(f"Writing '{filename}'")
         self.trial_data_df.to_csv(filename)
+
+    def save_trial_results(self, field, df):
+        filename = self.results_path(field, mkdir=True)
+        _logger.info(f"Writing '{filename}'")
+        df.to_csv(filename, index=False)
 
     def field_trial_data(self, field):
         """
@@ -504,10 +518,7 @@ class Simulation(OpgeeObject):
                 'other']
 
         df = pd.DataFrame.from_records(results, columns=cols)
-        mkdirs(self.results_dir)
-        pathname = pathjoin(self.results_dir, field.name + '.csv')
-        _logger.info(f"Writing '{pathname}'")
-        df.to_csv(pathname, index=False)
+        self.save_trial_results(field, df)
 
     # Deprecated
     # def run_trial(self, field, trial_num):
