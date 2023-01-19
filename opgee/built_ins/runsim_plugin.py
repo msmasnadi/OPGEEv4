@@ -80,7 +80,7 @@ class RunsimCommand(SubcommandABC):
         parser.add_argument('-n', "--ntasks", type=positive_int, default=None,
                             help='''Number of worker tasks to create. Default is the number of fields, if
                                 specified using -f/--fields, otherwise -n/--ntasks is required.''')
-        
+
         parser.add_argument('-p', "--partition", default=None,
                             help=f'''The name of the partition to use for job submissions. Default is the
                                  value of config variable "SLURM.Partition", currently '{partition}'.''')

@@ -231,7 +231,7 @@ class Field(Container):
             # TODO: shouldn't be possible
             raise OpgeeException("Impute failed due to a process loop. Use Stream attribute impute='0' to break cycle.")
 
-    def run(self, analysis, compute_ci=True):
+    def run(self, analysis, compute_ci=True, trial_num=None):
         """
         Run all Processes defined for this Field, in the order computed from the graph
         characteristics, using the settings in `analysis` (e.g., GWP).
@@ -241,7 +241,8 @@ class Field(Container):
         :return: None
         """
         if self.is_enabled():
-            _logger.info(f"Running '{self}'")
+            trial_str = f"trial {trial_num} of " if trial_num is not None else ""
+            _logger.info(f"Running {trial_str}{self}")
 
             # Cache the sets of processes within and outside the current boundary. We use
             # this information in compute_carbon_intensity() to ignore irrelevant procs.

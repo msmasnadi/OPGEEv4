@@ -474,11 +474,10 @@ class Simulation(OpgeeObject):
         trial_nums = range(self.trials) if trial_nums is None else trial_nums
 
         for trial_num in trial_nums:
-            _logger.debug(f"Running trial {trial_num} for {field}")
             self.set_trial_data(field, trial_num)
 
             try:
-                field.run(analysis)
+                field.run(analysis, trial_num=trial_num)
                 field.report()
             except ModelValidationError as e:
                 _logger.warning(f"Skipping trial {trial_num} in {field}: {e}")
