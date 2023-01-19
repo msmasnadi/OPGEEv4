@@ -5,12 +5,12 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - colour=0.5.1
-  - cytho0.29.30
+  - colour
+  - cython=0.29.30
   - dash=2.7.0
-  - dask2022.7.0
+  - dask=2022.7.0
   - dask-jobqueue=0.8.1
-  - graphviz=2.5.0
+  - graphviz
   - jinja2=3.0.3
   - llvm-openmp=15.0.6
   - lxml=4.9.1
