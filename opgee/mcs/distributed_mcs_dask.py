@@ -98,9 +98,9 @@ class Manager(OpgeeObject):
             queue = getParam('SLURM.Partition')
             job_name = getParam('SLURM.JobName')
 
-            _logger.debug(f"""SLURMCluster(cores={cores}, processes={cores}, memory={memory},
-walltime= {walltime}, account= {account}, local_directory= {local_directory}, 
-\queue= {queue}, job_name= {job_name})""")
+            _logger.debug(f"""SLURMCluster(cores={cores}, processes={cores}, memory='{memory}',
+walltime='{walltime}', account='{account}', local_directory='{local_directory}', 
+queue='{queue}', job_name='{job_name}')""")
 
             # TBD: make most of these arguments config parameters and/or cmdline args
             cluster = SLURMCluster(cores=cores, processes=cores, memory=memory,
