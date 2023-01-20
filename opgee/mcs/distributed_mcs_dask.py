@@ -109,11 +109,12 @@ class Manager(OpgeeObject):
             queue = getParam('SLURM.Partition')
             job_name = getParam('SLURM.JobName')
             interface = getParam('SLURM.Interface') or None
+            shell = getParam('SLURM.Shell')
 
             # "Failed to launch worker.  You cannot use the --no-nanny argument when n_workers > 1."
             nanny = True        # "Whether or not to start a nanny process"
 
-            job_script_prologue = ['conda activate opgee']
+            job_script_prologue = None # ['conda activate opgee'] failed
 
 #             _logger.debug(f"""SLURMCluster(cores={cores}, processes={processes}, memory='{memory}',
 # walltime='{walltime}', account='{account}', local_directory='{local_directory}',
@@ -125,7 +126,7 @@ class Manager(OpgeeObject):
                                    local_directory=local_directory,
                                    queue=queue, job_name=job_name, nanny=nanny,
                                    job_script_prologue=job_script_prologue,
-                                   interface=interface)
+                                   shebang=shell, interface=interface)
 
             _logger.debug(cluster.job_script())
 
