@@ -104,7 +104,8 @@ queue='{queue}', job_name='{job_name}')""")
 
             # TBD: make most of these arguments config parameters and/or cmdline args
             cluster = SLURMCluster(cores=cores, processes=cores, memory=memory,
-                                   walltime=walltime, account=account, local_directory=local_directory,
+                                   walltime=walltime, # account=account,
+                                   local_directory=local_directory,
                                    queue=queue, job_name=job_name)
 
         elif cluster_type == 'local':
