@@ -4,6 +4,10 @@ from dask_jobqueue import SLURMCluster
 from dask.distributed import Client, LocalCluster, as_completed
 import traceback
 
+# To debug dask
+import logging
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+
 from ..core import OpgeeObject, Timer
 from ..config import getParam, getParamAsInt
 from ..error import RemoteError, McsSystemError
@@ -107,15 +111,20 @@ class Manager(OpgeeObject):
             # "Failed to launch worker.  You cannot use the --no-nanny argument when n_workers > 1."
             nanny = True        # "Whether or not to start a nanny process"
 
-            _logger.debug(f"""SLURMCluster(cores={cores}, processes={processes}, memory='{memory}',
-walltime='{walltime}', account='{account}', local_directory='{local_directory}', 
-queue='{queue}', job_name='{job_name}', nanny={nanny})""")
+            job_script_prologue = ['conda activate opgee']
+
+#             _logger.debug(f"""SLURMCluster(cores={cores}, processes={processes}, memory='{memory}',
+# walltime='{walltime}', account='{account}', local_directory='{local_directory}',
+# queue='{queue}', job_name='{job_name}', nanny={nanny}, job_script_prologue={job_script_prologue})""")
 
             # n_workers: "Number of workers to start by default. Defaults to 0. See the scale method"
             cluster = SLURMCluster(cores=cores, processes=processes, memory=memory,
                                    walltime=walltime, account=account,
                                    local_directory=local_directory,
-                                   queue=queue, job_name=job_name, nanny=nanny)
+                                   queue=queue, job_name=job_name, nanny=nanny,
+                                   job_script_prologue=job_script_prologue)
+
+            _logger.debug(cluster.job_script())
 
             _logger.debug(f"cluster.scale(cores={num_engines})")
             cluster.scale(cores=num_engines)  # scale up to the desired total number of cores
