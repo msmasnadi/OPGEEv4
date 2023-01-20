@@ -88,27 +88,36 @@ class Manager(OpgeeObject):
 
         _logger.info(f"Creating {cluster_type} cluster")
 
-        cores = getParamAsInt('SLURM.CoresPerNode')
+        cores = getParamAsInt('SLURM.CoresPerNode') # "Total number of cores per job"
 
         if cluster_type == 'slurm':
+            # "Cut the job up into this many processes. Good for GIL workloads or for nodes with
+            #  many cores. By default, process ~= sqrt(cores) so that the number of processes and
+            #  the number of threads per process is roughly the same."
+            processes = cores
+
             minutes_per_task = minutes_per_task or getParamAsInt("SLURM.MinutesPerTask")
-            memory = "2GiB"
+            memory = "2GiB"     # "Total amount of memory per job"
             walltime = _walltime(minutes_per_task)
             account = getParam('SLURM.Account') or None
             local_directory = getParam('SLURM.TempDir')
             queue = getParam('SLURM.Partition')
             job_name = getParam('SLURM.JobName')
-            nanny = False
 
-            _logger.debug(f"""SLURMCluster(cores={cores}, processes={cores}, memory='{memory}',
+            # "Failed to launch worker.  You cannot use the --no-nanny argument when n_workers > 1."
+            nanny = True        # "Whether or not to start a nanny process"
+
+            _logger.debug(f"""SLURMCluster(cores={cores}, processes={processes}, memory='{memory}',
 walltime='{walltime}', account='{account}', local_directory='{local_directory}', 
 queue='{queue}', job_name='{job_name}', nanny={nanny})""")
 
-            cluster = SLURMCluster(cores=cores, processes=cores, memory=memory,
+            # n_workers: "Number of workers to start by default. Defaults to 0. See the scale method"
+            cluster = SLURMCluster(cores=cores, processes=processes, memory=memory,
                                    walltime=walltime, account=account,
                                    local_directory=local_directory,
                                    queue=queue, job_name=job_name, nanny=nanny)
 
+            _logger.debug(f"cluster.scale(cores={num_engines})")
             cluster.scale(cores=num_engines)  # scale up to the desired total number of cores
 
         elif cluster_type == 'local':
@@ -121,8 +130,6 @@ queue='{queue}', job_name='{job_name}', nanny={nanny})""")
 
         else:
             raise McsSystemError(f"Unknown cluster type '{cluster_type}'. Valid options are 'slurm' and 'local'.")
-
-        # cluster.scale(cores=num_engines)    # scale up to the desired total # of cores
 
         _logger.info(f"Starting {cluster_type } cluster")
         self.client = client = Client(cluster)
