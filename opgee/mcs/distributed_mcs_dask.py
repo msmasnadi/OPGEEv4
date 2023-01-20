@@ -93,7 +93,7 @@ class Manager(OpgeeObject):
             minutes_per_task = minutes_per_task or getParamAsInt("SLURM.MinutesPerTask")
             memory = "2GiB"
             walltime = _walltime(minutes_per_task)
-            account = getParam('SLURM.Account')
+            account = getParam('SLURM.Account') or None
             local_directory = getParam('SLURM.TempDir')
             queue = getParam('SLURM.Partition')
             job_name = getParam('SLURM.JobName')
@@ -102,9 +102,8 @@ class Manager(OpgeeObject):
 walltime='{walltime}', account='{account}', local_directory='{local_directory}', 
 queue='{queue}', job_name='{job_name}')""")
 
-            # TBD: make most of these arguments config parameters and/or cmdline args
             cluster = SLURMCluster(cores=cores, processes=cores, memory=memory,
-                                   walltime=walltime, # account=account,
+                                   walltime=walltime, account=account,
                                    local_directory=local_directory,
                                    queue=queue, job_name=job_name)
 
@@ -128,13 +127,12 @@ queue='{queue}', job_name='{job_name}')""")
         while True:
             try:
                 print('.', sep='', end='')
-                client.wait_for_workers(1, 10) # wait for 1 worker with 10 sec timeout
-                print('')
+                client.wait_for_workers(1, 15) # wait for 1 worker with 15 sec timeout
                 break
             except dask.distributed.TimeoutError as e:
                 print(e)
 
-        _logger.info("Workers are running")
+        _logger.info("\nWorkers are running")
         return client
 
     def stop_cluster(self):
