@@ -11,7 +11,7 @@ from .simulation import Simulation
 
 _logger = getLogger(__name__)
 
-def walltime(minutes: int) -> str:
+def _walltime(minutes: int) -> str:
     """
     Convert minutes to a walltime string suitable for SLURM
 
@@ -91,18 +91,22 @@ class Manager(OpgeeObject):
 
         if cluster_type == 'slurm':
             minutes_per_task = minutes_per_task or getParamAsInt("SLURM.MinutesPerTask")
+            memory = "2GiB"
+            walltime = _walltime(minutes_per_task)
+            account = getParam('SLURM.Account')
+            local_directory = getParam('SLURM.TempDir')
+            queue = getParam('SLURM.Partition')
+            job_name = getParam('SLURM.JobName')
+
+            _logger.debug(f"""SLURMCluster(cores={cores}, processes={cores}, memory={memory},
+walltime= {walltime}, account= {account}, local_directory= {local_directory}, 
+\queue= {queue}, job_name= {job_name})""")
 
             # TBD: make most of these arguments config parameters and/or cmdline args
-            cluster = SLURMCluster(
-                cores=cores,
-                processes=cores,
-                memory="2GiB",
-                walltime=walltime(minutes_per_task),
-                account=getParam('SLURM.Account'),
-                local_directory=getParam('SLURM.TempDir'),
-                queue=getParam('SLURM.Partition'),
-                job_name=getParam('SLURM.JobName'),
-            )
+            cluster = SLURMCluster(cores=cores, processes=cores, memory=memory,
+                                   walltime=walltime, account=account, local_directory=local_directory,
+                                   queue=queue, job_name=job_name)
+
         elif cluster_type == 'local':
             # Set processes=False and swap n_workers and threads_per_worker to use threads in one
             # process, which is helpful for debugging. Note that some packages are not thread-safe.
