@@ -101,8 +101,9 @@ class Manager(OpgeeObject):
             processes = cores
 
             minutes_per_task = minutes_per_task or getParamAsInt("SLURM.MinutesPerTask")
-            memory = "2GiB"     # "Total amount of memory per job"
             walltime = _walltime(minutes_per_task)
+
+            memory = getParam('SLURM.MemPerJob')
             account = getParam('SLURM.Account') or None
             local_directory = getParam('SLURM.TempDir')
             queue = getParam('SLURM.Partition')
