@@ -109,7 +109,9 @@ class Manager(OpgeeObject):
             queue = getParam('SLURM.Partition')
             job_name = getParam('SLURM.JobName')
             interface = getParam('SLURM.Interface') or None
+
             shell = getParam('SLURM.Shell')
+            shebang = '#!' + shell if shell else None
 
             # "Failed to launch worker.  You cannot use the --no-nanny argument when n_workers > 1."
             nanny = True        # "Whether or not to start a nanny process"
@@ -126,7 +128,7 @@ class Manager(OpgeeObject):
                                    local_directory=local_directory,
                                    queue=queue, job_name=job_name, nanny=nanny,
                                    job_script_prologue=job_script_prologue,
-                                   shebang=shell, interface=interface)
+                                   shebang=shebang, interface=interface)
 
             _logger.debug(cluster.job_script())
 
