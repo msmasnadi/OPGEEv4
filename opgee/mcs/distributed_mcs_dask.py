@@ -1,3 +1,4 @@
+import asyncio
 import dask
 from dask_jobqueue import SLURMCluster
 from dask.distributed import Client, LocalCluster, as_completed
@@ -97,15 +98,18 @@ class Manager(OpgeeObject):
             local_directory = getParam('SLURM.TempDir')
             queue = getParam('SLURM.Partition')
             job_name = getParam('SLURM.JobName')
+            nanny = False
 
             _logger.debug(f"""SLURMCluster(cores={cores}, processes={cores}, memory='{memory}',
 walltime='{walltime}', account='{account}', local_directory='{local_directory}', 
-queue='{queue}', job_name='{job_name}')""")
+queue='{queue}', job_name='{job_name}', nanny={nanny})""")
 
             cluster = SLURMCluster(cores=cores, processes=cores, memory=memory,
                                    walltime=walltime, account=account,
                                    local_directory=local_directory,
-                                   queue=queue, job_name=job_name)
+                                   queue=queue, job_name=job_name, nanny=nanny)
+
+            cluster.scale(cores=num_engines)  # scale up to the desired total number of cores
 
         elif cluster_type == 'local':
             # Set processes=False and swap n_workers and threads_per_worker to use threads in one
@@ -118,7 +122,7 @@ queue='{queue}', job_name='{job_name}')""")
         else:
             raise McsSystemError(f"Unknown cluster type '{cluster_type}'. Valid options are 'slurm' and 'local'.")
 
-        cluster.scale(cores=num_engines)    # scale up to the desired total # of cores
+        # cluster.scale(cores=num_engines)    # scale up to the desired total # of cores
 
         _logger.info(f"Starting {cluster_type } cluster")
         self.client = client = Client(cluster)
@@ -129,8 +133,9 @@ queue='{queue}', job_name='{job_name}')""")
                 print('.', sep='', end='')
                 client.wait_for_workers(1, 15) # wait for 1 worker with 15 sec timeout
                 break
-            except dask.distributed.TimeoutError as e:
-                print(e)
+            except (dask.distributed.TimeoutError, asyncio.exceptions.TimeoutError) as e:
+                pass
+                #print(e) # prints "Only 0/1 workers arrived after 15"
 
         _logger.info("\nWorkers are running")
         return client
