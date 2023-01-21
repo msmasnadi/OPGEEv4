@@ -91,6 +91,7 @@ class Manager(OpgeeObject):
         cluster_type = self.cluster_type
 
         _logger.info(f"Creating {cluster_type} cluster")
+        _logger.info(f"minutes_per_task={minutes_per_task}")
 
         cores = getParamAsInt('SLURM.CoresPerNode') # "Total number of cores per job"
 
@@ -106,6 +107,7 @@ class Manager(OpgeeObject):
 
             job_script_prologue = None # ['conda activate opgee'] failed
             minutes_per_task = minutes_per_task or getParamAsInt("SLURM.MinutesPerTask"),
+            _logger.info(f"minutes_per_task={minutes_per_task}")
 
             arg_dict = dict(
                 account = getParam('SLURM.Account') or None,
