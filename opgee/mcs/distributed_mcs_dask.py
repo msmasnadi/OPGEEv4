@@ -105,15 +105,16 @@ class Manager(OpgeeObject):
             nanny = True        # "Whether to start a nanny process"
 
             job_script_prologue = None # ['conda activate opgee'] failed
+            minutes_per_task = minutes_per_task or getParamAsInt("SLURM.MinutesPerTask"),
 
             arg_dict = dict(
-                minutes_per_task = minutes_per_task or getParamAsInt("SLURM.MinutesPerTask"),
+                account = getParam('SLURM.Account') or None,
+                job_name = getParam('SLURM.JobName'),
+                queue = getParam('SLURM.Partition'),
                 walltime = _walltime(minutes_per_task),
                 memory = getParam('SLURM.MemPerJob'),
-                account = getParam('SLURM.Account') or None,
+                processes=processes,
                 local_directory = getParam('SLURM.TempDir'),
-                queue = getParam('SLURM.Partition'),
-                job_name = getParam('SLURM.JobName'),
                 interface = getParam('SLURM.Interface') or None,
                 shebang = '#!' + shell if shell else None,
                 nanny = nanny,
