@@ -98,38 +98,32 @@ class Manager(OpgeeObject):
             # "Cut the job up into this many processes. Good for GIL workloads or for nodes with
             #  many cores. By default, process ~= sqrt(cores) so that the number of processes and
             #  the number of threads per process is roughly the same."
-            processes = cores
-
-            minutes_per_task = minutes_per_task or getParamAsInt("SLURM.MinutesPerTask")
-            walltime = _walltime(minutes_per_task)
-
-            memory = getParam('SLURM.MemPerJob')
-            account = getParam('SLURM.Account') or None
-            local_directory = getParam('SLURM.TempDir')
-            queue = getParam('SLURM.Partition')
-            job_name = getParam('SLURM.JobName')
-            interface = getParam('SLURM.Interface') or None
-
+            processes = cores // 2  # two cores per process
             shell = getParam('SLURM.Shell')
-            shebang = '#!' + shell if shell else None
 
-            # "Failed to launch worker.  You cannot use the --no-nanny argument when n_workers > 1."
-            nanny = True        # "Whether or not to start a nanny process"
+            # N.B. "Failed to launch worker. You cannot use the --no-nanny argument when n_workers > 1."
+            nanny = True        # "Whether to start a nanny process"
 
             job_script_prologue = None # ['conda activate opgee'] failed
 
-#             _logger.debug(f"""SLURMCluster(cores={cores}, processes={processes}, memory='{memory}',
-# walltime='{walltime}', account='{account}', local_directory='{local_directory}',
-# queue='{queue}', job_name='{job_name}', nanny={nanny}, job_script_prologue={job_script_prologue})""")
+            arg_dict = dict(
+                minutes_per_task = minutes_per_task or getParamAsInt("SLURM.MinutesPerTask"),
+                walltime = _walltime(minutes_per_task),
+                memory = getParam('SLURM.MemPerJob'),
+                account = getParam('SLURM.Account') or None,
+                local_directory = getParam('SLURM.TempDir'),
+                queue = getParam('SLURM.Partition'),
+                job_name = getParam('SLURM.JobName'),
+                interface = getParam('SLURM.Interface') or None,
+                shebang = '#!' + shell if shell else None,
+                nanny = nanny,
+                job_script_prologue = job_script_prologue,
+            )
+
+            _logger.debug(f"SLURMCluster({arg_dict})")
 
             # n_workers: "Number of workers to start by default. Defaults to 0. See the scale method"
-            cluster = SLURMCluster(cores=cores, processes=processes, memory=memory,
-                                   walltime=walltime, account=account,
-                                   local_directory=local_directory,
-                                   queue=queue, job_name=job_name, nanny=nanny,
-                                   job_script_prologue=job_script_prologue,
-                                   shebang=shebang, interface=interface)
-
+            cluster = SLURMCluster(**arg_dict)
             _logger.debug(cluster.job_script())
 
             _logger.debug(f"cluster.scale(cores={num_engines})")
