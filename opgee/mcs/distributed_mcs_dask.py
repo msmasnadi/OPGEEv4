@@ -126,7 +126,7 @@ class Manager(OpgeeObject):
 
             # n_workers: "Number of workers to start by default. Defaults to 0. See the scale method"
             cluster = SLURMCluster(**arg_dict)
-            _logger.debug("\n", cluster.job_script())
+            _logger.debug(cluster.job_script())
 
             _logger.debug(f"cluster.scale(cores={num_engines})")
             cluster.scale(cores=num_engines)  # scale up to the desired total number of cores
