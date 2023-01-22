@@ -4,9 +4,9 @@ from dask_jobqueue import SLURMCluster
 from dask.distributed import Client, LocalCluster, as_completed
 import traceback
 
-# To debug dask
-import logging
-logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+# To debug dask, uncomment the following 2 lines
+# import logging
+# logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 from ..core import OpgeeObject, Timer
 from ..config import getParam, getParamAsInt
@@ -126,7 +126,7 @@ class Manager(OpgeeObject):
 
             # n_workers: "Number of workers to start by default. Defaults to 0. See the scale method"
             cluster = SLURMCluster(**arg_dict)
-            _logger.debug(cluster.job_script())
+            _logger.debug("\n", cluster.job_script())
 
             _logger.debug(f"cluster.scale(cores={num_engines})")
             cluster.scale(cores=num_engines)  # scale up to the desired total number of cores
