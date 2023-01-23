@@ -119,12 +119,8 @@ class Manager(OpgeeObject):
                 local_directory = getParam('SLURM.TempDir'),
                 interface = getParam('SLURM.Interface') or None,
                 shebang = '#!' + shell if shell else None,
-                nanny = nanny,
+                nanny = nanny,  # can't seem to get nanny = False to work...
                 job_script_prologue = job_script_prologue,
-
-                # We use "scale" to get the desired number of workers. This also allows
-                # us to set nanny=False
-                n_workers=1,
             )
 
             _logger.debug(f"calling SLURMCluster({arg_dict})")
