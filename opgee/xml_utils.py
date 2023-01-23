@@ -56,7 +56,7 @@ def attr_to_xml(fields, dtypes, xml_path, analysis_name, modifies='default'):
     analysis = ET.SubElement(root, 'Analysis', attrib={'name' : analysis_name})
 
     # Convert fields to xml
-    for field_name, col in fields.iteritems():
+    for field_name, col in fields.items():
         field = ET.SubElement(analysis, 'Field',
                               attrib={'name' : field_name, 'modifies' : modifies})
 
