@@ -124,7 +124,7 @@ class Manager(OpgeeObject):
 
                 # We use "scale" to get the desired number of workers. This also allows
                 # us to set nanny=False
-                n_workers=0,
+                n_workers=1,
             )
 
             _logger.debug(f"calling SLURMCluster({arg_dict})")
