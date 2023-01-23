@@ -9,7 +9,7 @@ import traceback
 # logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 from ..core import OpgeeObject, Timer
-from ..config import getParam, getParamAsInt
+from ..config import getParam, getParamAsInt, getParamAsBoolean
 from ..error import RemoteError, McsSystemError
 from ..log  import getLogger
 from .simulation import Simulation
@@ -98,11 +98,12 @@ class Manager(OpgeeObject):
             # "Cut the job up into this many processes. Good for GIL workloads or for nodes with
             #  many cores. By default, process ~= sqrt(cores) so that the number of processes and
             #  the number of threads per process is roughly the same."
-            processes = cores // 2  # two cores per process
+            processes_per_core = getParamAsInt('SLURM.ProcessesPerCore')
+            processes = cores // processes_per_core
             shell = getParam('SLURM.Shell')
 
             # N.B. "Failed to launch worker. You cannot use the --no-nanny argument when n_workers > 1."
-            nanny = True        # "Whether to start a nanny process"
+            nanny = getParamAsBoolean('SLURM.UseNanny')  # "Whether to start a nanny process"
 
             job_script_prologue = None # ['conda activate opgee'] failed
             minutes_per_task = minutes_per_task or getParamAsInt("SLURM.MinutesPerTask")
@@ -120,15 +121,19 @@ class Manager(OpgeeObject):
                 shebang = '#!' + shell if shell else None,
                 nanny = nanny,
                 job_script_prologue = job_script_prologue,
+
+                # We use "scale" to get the desired number of workers. This also allows
+                # us to set nanny=False
+                n_workers=0,
             )
 
-            _logger.debug(f"SLURMCluster({arg_dict})")
+            _logger.debug(f"calling SLURMCluster({arg_dict})")
 
             # n_workers: "Number of workers to start by default. Defaults to 0. See the scale method"
             cluster = SLURMCluster(**arg_dict)
             _logger.debug(cluster.job_script())
 
-            _logger.debug(f"cluster.scale(cores={num_engines})")
+            _logger.debug(f"calling cluster.scale(cores={num_engines})")
             cluster.scale(cores=num_engines)  # scale up to the desired total number of cores
 
         elif cluster_type == 'local':
