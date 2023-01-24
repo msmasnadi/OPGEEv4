@@ -61,9 +61,10 @@ def run_field(sim_dir, field_name, trial_nums=None):
         except Exception as e:
             # Convert any exceptions to a RemoteError instance and return it to Manager
             e_name = e.__class__.__name__
-            trace = ''.join(traceback.format_stack())
-            _logger.error(f"In LocalWorker.run_field('{field_name}'): {e_name}: {e}\n{trace}")
-            error = RemoteError(f"{e_name}: {e}\n{trace}", field_name)
+            show_trace = False  # turns out not to be very informative
+            trace =  '\n' + ''.join(traceback.format_stack()) if show_trace else ''
+            _logger.error(f"In run_field('{field_name}'): {e_name}: {e}{trace}")
+            error = RemoteError(f"{e_name}: {e}{trace}", field_name)
 
     else:
         error = RemoteError(f"Ignoring disabled field {field}", field_name)
