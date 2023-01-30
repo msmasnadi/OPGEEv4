@@ -60,7 +60,8 @@ def run_field(sim_dir, field_name, trial_nums=None):
 
         except TrialErrorWrapper as e:
             trial = e.trial
-            e_name = trial.error.__class__.__name__
+            e = e.error
+            e_name = e.__class__.__name__
             _logger.error(f"In run_field('{field_name}'): trial={trial} {e_name}: {e}")
             error = RemoteError(f"{e_name}: {e}", field_name, trial=trial)
 
