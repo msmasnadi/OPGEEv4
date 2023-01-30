@@ -127,21 +127,12 @@
         <Option>None</Option>
       </Options>
 
-<!--      <Options name="source_CO2" default="reservoir">-->
-<!--        <Option desc="natural subsurface reservoir">Reservoir</Option>-->
-<!--        <Option>Anthropogenic</Option>-->
-<!--      </Options>-->
-
       <AttrDef name="GOR" desc="Gas-to-oil ratio" unit="scf/bbl_oil" type="float">2429.3</AttrDef>
-
       <AttrDef name="WOR" desc="Water-to-oil ratio" unit="bbl_water/bbl_oil" type="float" GT="0">6.0</AttrDef>
       <AttrDef name="WIR" desc="Water injection ratio" unit="bbl_water/bbl_oil" type="float">7.0</AttrDef>
       <AttrDef name="GLIR" desc="Gas lifting injection ratio" unit="scf/bbl_liquid" type="float">364.0</AttrDef>
       <AttrDef name="GFIR" desc="Gas flooding injection ratio" unit="scf/bbl_oil" type="float">3644.0</AttrDef>
-
       <AttrDef name="liquids_unloading" options="Liquids unloading" type="str"/>
-
-<!--      <AttrDef name="source_CO2" desc="" options="source_CO2" type="str"/>-->
       <AttrDef name="perc_sequestration_credit" desc="Percentage of sequestration credit assigned to the oilfield" unit="percent" type="float">0</AttrDef>
       <AttrDef name="SOR" desc="Steam-to-oil ratio" unit="bbl_steam/bbl_oil" type="float">0</AttrDef>
       <AttrDef name="fraction_elec_onsite" desc="Fraction of required electricity generated onsite" type="float" GE="0" LE="1">0.0</AttrDef>
@@ -339,13 +330,14 @@
         <Option>D</Option>
       </Options>
       <AttrDef name="gas_turbine_type" options="gas_turbine_type"/>
-
       <AttrDef name="combusted_gas_frac" type="float" unit="percent" desc="Combusted gas total fraction" GE="0" LE="100">93.0</AttrDef>
       <AttrDef name="surface_piping_leakage" type="float" unit="kg/day" desc="Surface piping leakage for venting kg CH4/d">0.0</AttrDef>
       <AttrDef name="reflux_ratio" type="float" unit="frac" desc="gas dehydration reflux ratio">2.25</AttrDef>
       <AttrDef name="regeneration_feed_temp" type="float" unit="degF" desc="gas dehydration regeneration feed temperature">200.0</AttrDef>
       <AttrDef name="natural_gas_to_liquefaction_frac" type="float" unit="frac" desc="Fraction of natural gas to liquefaction">0.5</AttrDef>
-
+      <AttrDef name="frac_CO2_breakthrough" desc="Fraction of CO2 breaking through to producers" unit="frac" type="float">0.59</AttrDef>
+<!--      component fugitive input-->
+      <AttrDef name="GOR_cutoff" type="float" unit="kscf/bbl" desc="GOR cutoff used for define the oil field and gas field">100.0</AttrDef>
 
     </ClassAttrs>
     <ClassAttrs name="SurveyTruck">
@@ -414,7 +406,7 @@
     <ClassAttrs name="ReservoirWellInterface">
       <AttrDef name="res_thickness" unit="ft" desc="Average reservoir thickness" type="float">50</AttrDef>
       <AttrDef name="res_perm" unit="mD" desc="Reservoir permeability" type="float">100</AttrDef>
-      <AttrDef name="frac_CO2_breakthrough" desc="Fraction of CO2 breaking through to producers" unit="frac" type="float">0.59</AttrDef>
+
     </ClassAttrs>
     <ClassAttrs name="WaterInjection">
       <Options name="prime_mover_type" default="NG_engine">

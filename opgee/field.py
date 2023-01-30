@@ -8,6 +8,7 @@
 #
 import networkx as nx
 import pint
+import pandas as pd
 
 from . import ureg
 from .config import getParamAsList
@@ -395,7 +396,7 @@ class Field(Container):
     # TODO Is this function deprecated or just not used yet?
     def get_carbon_credit(self, byproduct_names, analysis):
         """
-        Calculate carbon credit from byproduct
+        Calculate carbon credit from byproduct used for displacement co-production method
 
         :param net_import: (Pandas.Series) net import energy rates (water is mass rate)
         :return: total emissions (units of g CO2)
@@ -410,6 +411,104 @@ class Field(Container):
                 carbon_credit += export.loc[process_name, name] * self.upstream_CI.loc[name, "EF"]
 
         return carbon_credit
+
+    @staticmethod
+    def comp_fugitive_productivity(prod_mat_gas, mean):
+        """
+        Given field mean, find the value in the gas productivity table
+
+        :param mean:
+        :param prod_mat_gas:
+        :return:
+        """
+        result = \
+            prod_mat_gas[(prod_mat_gas['Bin low'] < mean) & (prod_mat_gas['Bin high'] >= mean)].index.values.astype(
+                int)[0]
+
+        return result
+
+    @staticmethod
+    def comp_fugitive_loss(loss_mat_ave, assignment):
+        """
+        Given assignment, find the loss rate in the loss rate table
+
+        :param loss_mat_ave:
+        :param assignment:
+        :return:
+        """
+        return loss_mat_ave.iloc[assignment - 1, :]
+    def get_component_and_site_fugitive(self):
+        """
+        Calculate loss rate for downhole pump, separation, and crude oil storage using Jeff's component fugitive model
+
+        :return: (Pandas.Series) Process unit loss rate
+        """
+
+        model = self.model
+        GOR = self.attr("GOR").to("kscf/bbl").m
+        GOR_cutoff = self.attr("GOR_cutoff").to("kscf/bbl").m
+        oil_rate = self.attr("oil_prod")
+        productivity = oil_rate * (GOR + self.attr("gas_lifting") * self.attr("GLIR"))
+
+        if self.attr("gas_flooding") and self.attr("flood_gas_type" == "CO2"):
+            productivity += oil_rate * self.attr("GFIR") * self.attr("frac_CO2_breakthrough")
+        productivity /= self.attr("num_prod_wells")
+
+        productivity = productivity.to("kscf/day").m
+
+        loss_mat_gas = model.loss_matrix_gas
+        loss_mat_oil = model.loss_matrix_oil
+        prod_mat_gas = model.productivity_gas
+        prod_mat_oil = model.productivity_oil
+
+        field_productivity = \
+            pd.DataFrame(
+                columns=['Assignment', 'col_shift', 'Mean gas rate (Mscf/well/day)', 'Frac total gas'],
+                index=prod_mat_gas.index)
+
+        field_productivity['Mean gas rate (Mscf/well/day)'] = \
+            prod_mat_gas['Normalized rate'] if GOR > GOR_cutoff else prod_mat_oil['Normalized rate']
+        field_productivity['Mean gas rate (Mscf/well/day)'] *= productivity
+
+        field_productivity['Frac total gas'] = \
+            prod_mat_gas['Frac total gas'] if GOR > GOR_cutoff else prod_mat_oil['Frac total gas']
+
+        field_productivity['Assignment'] = \
+            field_productivity.apply(
+                lambda row: self.comp_fugitive_productivity(prod_mat_gas, row['Mean gas rate (Mscf/well/day)']), axis=1)
+
+        cols_gas = ['Well', 'Header', 'Heater', 'Separator', 'Meter', 'Tanks-leaks', 'Tank-thief hatch', 'Recip Comp',
+                    'Dehydrator', 'Chem Inj Pump', 'Pneum Controllers', 'Flash factor', 'LU-plunger', 'LU-no plunger']
+        cols_oil = ['Well', 'Header', 'Heater', 'Separator', 'Meter', 'Tanks-leaks', 'Tank-thief hatch', 'Recip Comp',
+                    'Dehydrator', 'Chem Inj Pump', 'Pneum Controllers', 'Flash factor']
+        tranch = range(10)
+        flash_factor = 0.51  # kg CH4/bbl (total flashing gas). Divide by 0.51 to correct for fraction of wells controlled in Rutherford et al. 2021
+
+        cols = cols_gas if GOR > GOR_cutoff else cols_oil
+        loss_mat = loss_mat_gas if GOR > GOR_cutoff else loss_mat_oil
+        loss_mat_ave = loss_mat.mean(axis=0).values
+        loss_mat_ave = loss_mat_ave.reshape(len(tranch), len(cols))
+        df = pd.DataFrame(loss_mat_ave, columns=cols, index=range(len(tranch)))
+
+        df = field_productivity.apply(lambda row: self.comp_fugitive_loss(df, row['Assignment']), axis=1)
+        comp_fugitive = df.T.dot(field_productivity['Frac total gas'])
+        comp_fugitive['Flash factor'] /= flash_factor
+
+        separation_loss_rate = comp_fugitive['Separator']
+        tank_loss_rate = comp_fugitive['Flash factor']
+        pump_loss_rate = comp_fugitive.drop('Separator')
+        pump_loss_rate = comp_fugitive.drop('Flash factor')
+        pump_loss_rate = pump_loss_rate.sum()
+
+        process_loss_rate_dict = {
+            'Separation' : separation_loss_rate,
+            'CrudeOilStorage' : tank_loss_rate,
+            'DownholePump' : pump_loss_rate}
+
+        process_loss_rate =\
+            pd.Series(data=process_loss_rate_dict, index=['Separation', 'CrudeOilStorage', 'DownholePump'])
+
+        return process_loss_rate
 
     def validate(self):
         """

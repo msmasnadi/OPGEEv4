@@ -63,7 +63,11 @@ class TableManager(OpgeeObject):
         TableDef("land-use-EF", index_col=[0,1], has_units=True),
         TableDef("pubchem-cid", index_col=0),
         TableDef("ASPEN_input_boundary", index_col=[0,1]),
-        TableDef("demethanizer", index_col=0, index_row=[0,1])
+        TableDef("demethanizer", index_col=0, index_row=[0,1]),
+        TableDef("loss-matrix-oil", index_col=0),
+        TableDef("loss-matrix-gas", index_col=0),
+        TableDef("productivity-gas", index_col=0),
+        TableDef("productivity-oil", index_col=0)
     ]
 
     _table_def_dict = {tbl_def.basename: tbl_def for tbl_def in table_defs}

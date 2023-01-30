@@ -36,7 +36,7 @@ class ReservoirWellInterface(Process):
         self.permeability = self.attr("res_perm")
         self.res_thickness = self.attr("res_thickness")
         self.oil_prod = field.attr("oil_prod")
-        self.frac_CO2_breakthrough = self.attr("frac_CO2_breakthrough")
+        self.frac_CO2_breakthrough = field.attr("frac_CO2_breakthrough")
 
     def run(self, analysis):
         self.print_running_msg()

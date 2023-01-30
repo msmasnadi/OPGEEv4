@@ -776,6 +776,11 @@ class Process(XmlInstantiable, AttributeMixin):
         _logger.debug(f"Running {type(self)} name='{self.name}'")
 
     def venting_fugitive_rate(self):
+
+        loss_rate = self.field.get_component_and_site_fugitive()
+        # Get loss rate for downhole pump
+        # if self.name == "DownholePump":
+
         return self.attr('leak_rate')
 
     def init_intermediate_results(self, names):

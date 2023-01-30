@@ -85,6 +85,12 @@ class Model(Container):
 
         self.pubchem_cid = tbl_mgr.get_table("pubchem-cid")
 
+        # tables for the fugitive model
+        self.loss_matrix_gas = tbl_mgr.get_table("loss-matrix-gas")
+        self.loss_matrix_oil = tbl_mgr.get_table("loss-matrix-oil")
+        self.productivity_gas = tbl_mgr.get_table("productivity-gas")
+        self.productivity_oil = tbl_mgr.get_table("productivity-oil")
+
         # TBD: should these be settable per Analysis?
         # parameters controlling process cyclic calculations
         self.maximum_iterations = self.attr('maximum_iterations')

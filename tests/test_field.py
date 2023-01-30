@@ -49,15 +49,13 @@ model_xml_2 = """
 </Model>
 """
 
+
 def test_bad_boundary():
     with pytest.raises(XmlFormatError, match=".*UnknownBoundary is not a known boundary name.*"):
-       model = load_model_from_str(model_xml_1)
+        model = load_model_from_str(model_xml_1)
 
     with pytest.raises(XmlFormatError, match=".*Duplicate declaration of boundary.*"):
-       model = load_model_from_str(model_xml_2)
+        model = load_model_from_str(model_xml_2)
 
     # model.validate()
     # analysis = model.get_analysis('test')
-
-
-
