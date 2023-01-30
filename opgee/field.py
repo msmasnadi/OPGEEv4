@@ -18,7 +18,7 @@ from .error import (OpgeeException, OpgeeStopIteration, OpgeeMaxIterationsReache
                     OpgeeIterationConverged, ModelValidationError, ZeroEnergyFlowError)
 from .import_export import ImportExport
 from .log import getLogger
-from .process import Process, Aggregator, Reservoir
+from .process import Process, Aggregator, Reservoir, decache_subclasses
 from .process_groups import ProcessChoice
 from .processes.steam_generator import SteamGenerator
 from .smart_defaults import SmartDefault
@@ -266,6 +266,9 @@ class Field(Container):
     def reset(self):
         self.reset_streams()
         self.reset_processes()
+
+        SmartDefault.decache()
+        decache_subclasses()
 
     def reset_iteration(self):
         Process.clear_iterating_process_list()

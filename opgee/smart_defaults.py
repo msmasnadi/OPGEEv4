@@ -100,6 +100,10 @@ class SmartDefault(OpgeeObject):
         return decorator
 
     @classmethod
+    def decache(cls):
+        cls._run_order = None
+
+    @classmethod
     def run_order(cls):
         """
         Create a directed graph of the dependencies among attributes and return the

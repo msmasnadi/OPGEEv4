@@ -122,4 +122,4 @@ class RemoteError(OpgeeException):
         self.field_name = field_name
 
     def __str__(self):
-        return f"<RemoteError field='{self.field_name} msg='{self.msg}'>"
+        return f"<RemoteError field='{self.field_name}' msg='{self.msg}'>"

@@ -67,6 +67,9 @@ def _subclass_dict(superclass):
 #
 _Subclass_dict: Optional[dict] = None
 
+def decache_subclasses():
+    global _Subclass_dict
+    _Subclass_dict = None
 
 def _get_subclass(cls, subclass_name, reload=False):
     """
