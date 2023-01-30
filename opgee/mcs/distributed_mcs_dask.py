@@ -10,7 +10,7 @@ import traceback
 
 from ..core import OpgeeObject, Timer
 from ..config import getParam, getParamAsInt, getParamAsBoolean
-from ..error import RemoteError, McsSystemError
+from ..error import RemoteError, McsSystemError #, TrialErrorWrapper
 from ..log  import getLogger
 from .simulation import Simulation
 
@@ -58,13 +58,22 @@ def run_field(sim_dir, field_name, trial_nums=None):
         try:
             sim.run_field(field, trial_nums=trial_nums)
 
+        # except TrialErrorWrapper as e:
+        #     trial = e.trial
+        #     e_name = trial.error.__class__.__name__
+        #     _logger.error(f"In run_field('{field_name}'): trial={trial} {e_name}: {e}")
+        #     error = RemoteError(f"{e_name}: {e}", field_name, trial=trial)
+
         except Exception as e:
             # Convert any exceptions to a RemoteError instance and return it to Manager
             e_name = e.__class__.__name__
-            show_trace = False  # turns out not to be very informative
-            trace =  '\n' + ''.join(traceback.format_stack()) if show_trace else ''
-            _logger.error(f"In run_field('{field_name}'): {e_name}: {e}{trace}")
-            error = RemoteError(f"{e_name}: {e}{trace}", field_name)
+
+            # show_trace = False  # turns out not to be very informative
+            # trace =  '\n' + ''.join(traceback.format_stack()) if show_trace else ''
+            # _logger.error(f"In run_field('{field_name}'): {e_name}: {e}{trace}")
+
+            _logger.error(f"In run_field('{field_name}'): {e_name}: {e}")
+            error = RemoteError(f"{e_name}: {e}", field_name)
 
     else:
         error = RemoteError(f"Ignoring disabled field {field}", field_name)

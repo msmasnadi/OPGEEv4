@@ -12,7 +12,8 @@ import pandas as pd
 
 from ..config import pathjoin
 from ..core import OpgeeObject, split_attr_name, Timer
-from ..error import OpgeeException, McsSystemError, McsUserError, CommandlineError, ModelValidationError
+from ..error import (OpgeeException, McsSystemError, McsUserError, CommandlineError,
+                     ModelValidationError) #, TrialErrorWrapper)
 from ..log import getLogger
 from ..model_file import ModelFile
 from ..pkg_utils import resourceStream
@@ -479,6 +480,7 @@ class Simulation(OpgeeObject):
             try:
                 field.run(analysis, trial_num=trial_num)
                 field.report()
+
             except ModelValidationError as e:
                 _logger.warning(f"Skipping trial {trial_num} in {field}: {e}")
                 continue

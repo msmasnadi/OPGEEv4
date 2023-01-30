@@ -12,7 +12,7 @@ import pandas as pd
 
 from . import ureg
 from .core import OpgeeObject, XmlInstantiable, A, instantiate_subelts, elt_name, validate_unit, magnitude
-from .error import OpgeeException, AttributeError
+from .error import OpgeeException, AttributeError, ModelValidationError
 from .log import getLogger
 from .utils import coercible
 
@@ -196,7 +196,7 @@ class AttrDefs(OpgeeObject):
         """
         attrs = self.classes.get(classname)
         if attrs is None and raiseError:
-            raise OpgeeException(f"class_attrs: classname {classname} is unknown.")
+            raise AttributeError(f"class_attrs: classname {classname} is unknown.")
 
         return attrs
 
@@ -215,7 +215,7 @@ class AttributeMixin():
         try:
             obj = self.attr_dict[attr_name]
         except KeyError:
-            raise OpgeeException(f"Attribute '{attr_name}' not found in {self}")
+            raise AttributeError(f"Attribute '{attr_name}' not found in {self}")
 
         return obj.value
 
@@ -225,7 +225,7 @@ class AttributeMixin():
         """
         obj = self.attr_dict.get(attr_name)
         if obj is None:
-            raise OpgeeException(f"Attribute '{attr_name}' not found in {self}")
+            raise AttributeError(f"Attribute '{attr_name}' not found in {self}")
 
         obj.set_value(value)
 
@@ -280,7 +280,7 @@ class AttributeMixin():
 
             unknown_attrs = set(user_values.keys()) - set(combined_dict.keys())
             if unknown_attrs:
-                raise OpgeeException(f"Attributes {list(unknown_attrs)} in model XML for '{classname}' lack metadata")
+                raise AttributeError(f"Attributes {list(unknown_attrs)} in model XML for '{classname}' lack metadata")
 
             # set up all attributes with default values
             for name, attr_def in combined_dict.items():
@@ -320,7 +320,7 @@ class AttributeMixin():
             # If the definition of an attribute of a subprocess is not known, look at Process's attributes
             attr_def = class_attrs.attr_dict.get(attr_name) or (process_attr_dict.get(attr_name) if is_a_process(cls) else None)
             if not attr_def:
-                raise OpgeeException(f"Attribute '{attr_name}' not found for class '{cls.__name__}'")
+                raise ModelValidationError(f"Attribute '{attr_name}' not found for class '{cls.__name__}'")
 
             constraints = attr_def.constraints
 
@@ -330,7 +330,7 @@ class AttributeMixin():
                     # print(f"Testing ({value} {op} {limit}) for attr {attr_name}")
                     func, symbol = funcs[op]
                     if not func(value, limit):
-                        raise OpgeeException(f"Attribute '{attr_name}': constraint failed: value {value} is not {symbol} {limit}")
+                        raise ModelValidationError(f"Attribute '{attr_name}': constraint failed: value {value} is not {symbol} {limit}")
 
         # Check exclusive groups
         for group, attr_names in class_attrs.excludes.items():
@@ -338,10 +338,10 @@ class AttributeMixin():
 
             if sum(values) not in (0, 1):
                 items = list(zip(attr_names, values))
-                raise OpgeeException(f"Exclusive attribute group '{group}' has multiple items selected: {items}")
+                raise ModelValidationError(f"Exclusive attribute group '{group}' has multiple items selected: {items}")
 
         # Check synchronized groups
         for group, attr_names, in class_attrs.syncs.items():
             values = [attr_dict[attr_name].value for attr_name in attr_names]
             if sum(values[1:]) != values[0]:
-                raise OpgeeException(f"Attributes in synchronized group '{group}' have differing values")
+                raise ModelValidationError(f"Attributes in synchronized group '{group}' have differing values")
