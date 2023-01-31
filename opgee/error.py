@@ -12,7 +12,7 @@ class OpgeeException(Exception):
 
 
 # Parent of the two exceptions thrown to stop process cycles
-class OpgeeStopIteration(Exception):
+class OpgeeStopIteration(OpgeeException):
     def __init__(self, reason):
         self.reason = reason
 
