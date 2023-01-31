@@ -480,12 +480,14 @@ class Simulation(OpgeeObject):
                 field.run(analysis, trial_num=trial_num)
                 field.report()
 
-            except ModelValidationError as e:
+            #except ModelValidationError as e:
+            except Exception as e:
                 _logger.warning(f"Skipping trial {trial_num} in {field}: {e}")
                 continue
 
-            except OpgeeException as e:
-                raise TrialErrorWrapper(e, trial_num)
+            # This exits the trial loop, so probably better to skip & continue
+            # except OpgeeException as e:
+            #     raise TrialErrorWrapper(e, trial_num)
 
             # TBD: Save results (which?)
             # energy: Series dtype = "mmbtu/d"
