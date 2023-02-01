@@ -26,18 +26,21 @@ def _walltime(minutes: int) -> str:
     """
     return f"{minutes // 60 :02d}:{minutes % 60 :02d}:00"
 
+# Global to track how many tasks each worker is running
+_task_count = 0
+
 class FieldResult(OpgeeObject):
-    __slots__ = ['ok', 'field_name', 'duration', 'error']
+    __slots__ = ['ok', 'field_name', 'duration', 'error', 'task_count']
 
     def __init__(self, field_name, duration, error=None):
         self.ok = error is None
         self.field_name = field_name
         self.duration = duration
         self.error = error
+        self.task_count = _task_count
 
     def __str__(self):
-        return f"<FieldResult {self.field_name} in {self.duration}; error:{self.error}>"
-
+        return f"<FieldResult {self.field_name} in {self.duration}; task_count:{self.task_count} error:{self.error}>"
 
 def run_field(sim_dir, field_name, trial_nums=None):
     """
@@ -53,6 +56,9 @@ def run_field(sim_dir, field_name, trial_nums=None):
     field = sim.analysis.get_field(field_name)
 
     if field.is_enabled():
+        global _task_count
+        _task_count += 1
+
         field_dir = sim.field_dir(field)
         log_file = f"{field_dir}/opgee-field.log"
         setLogFile(log_file, remove_old_file=True)
