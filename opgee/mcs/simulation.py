@@ -456,6 +456,10 @@ class Simulation(OpgeeObject):
             attr.explicit = True
             attr.set_value(value)
 
+            # Debugging only
+            # if name == 'WOR' and value == 0:
+            #     pass
+
         self.analysis._after_init()
         field._after_init()
 
