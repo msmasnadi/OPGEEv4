@@ -174,6 +174,14 @@ def _configureLogger(name, force=False):
         logger.addHandler(logging.NullHandler())
         _debug("Added NullHandler to root logger")
 
+def setLogFile(pathname, remove_old_file=False):
+    from .config import setParam
+    if remove_old_file and os.path.isfile(pathname):
+        os.remove(pathname)
+
+    setParam('OPGEE.LogFile', pathname)
+    configureLogs(force=True)
+
 
 def configureLogs(force=False):
     '''

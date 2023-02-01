@@ -11,8 +11,9 @@ import traceback
 from ..core import OpgeeObject, Timer
 from ..config import getParam, getParamAsInt, getParamAsBoolean
 from ..error import RemoteError, McsSystemError, TrialErrorWrapper
-from ..log  import getLogger
+from ..log  import getLogger, setLogFile
 from .simulation import Simulation
+from ..utils import removeTree
 
 _logger = getLogger(__name__)
 
@@ -49,9 +50,13 @@ def run_field(sim_dir, field_name, trial_nums=None):
     timer = Timer('run_field').start()
 
     sim = Simulation(sim_dir, save_to_path='')
-
     field = sim.analysis.get_field(field_name)
+
     if field.is_enabled():
+        field_dir = sim.results_path(field)
+        log_file = f"{field_dir}/opgee-field.log"
+        setLogFile(log_file, remove_old_file=True)
+
         _logger.info(f"Running MCS for field '{field_name}'")
 
         error = None
@@ -192,6 +197,12 @@ class Manager(OpgeeObject):
         timer = Timer('Manager.run_mcs').start()
 
         sim = Simulation(sim_dir, field_names=field_names, save_to_path='')
+
+        # Put the log for the monitor process in the simulation directory.
+        # Workers will set the log file to within the directory for the
+        # field it's currently running.
+        log_file = f"{sim_dir}/opgee-mcs.log"
+        setLogFile(log_file, remove_old_file=True)
 
         trial_nums = range(sim.trials) if trial_nums == 'all' else parseTrialString(trial_nums)
 
