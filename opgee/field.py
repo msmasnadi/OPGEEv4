@@ -242,7 +242,7 @@ class Field(Container):
         """
         if self.is_enabled():
             trial_str = f"trial {trial_num} of " if trial_num is not None else ""
-            _logger.info(f"Running {trial_str}{self}")
+            _logger.info(f"Running {trial_str}'{self.name}'")
 
             # Cache the sets of processes within and outside the current boundary. We use
             # this information in compute_carbon_intensity() to ignore irrelevant procs.
