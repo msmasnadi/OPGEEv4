@@ -53,7 +53,7 @@ def run_field(sim_dir, field_name, trial_nums=None):
     field = sim.analysis.get_field(field_name)
 
     if field.is_enabled():
-        field_dir = sim.results_path(field)
+        field_dir = sim.field_dir(field)
         log_file = f"{field_dir}/opgee-field.log"
         setLogFile(log_file, remove_old_file=True)
 

@@ -178,7 +178,6 @@ class Simulation(OpgeeObject):
     def __init__(self, sim_dir, analysis_name=None, trials=0, field_names=None,
                  save_to_path=None, meta_data_only=False):
         self.pathname = sim_dir
-        #self.results_dir = pathjoin(sim_dir, RESULTS_DIR)
         self.model_file = model_file_path(sim_dir)
         self.model = None
 
