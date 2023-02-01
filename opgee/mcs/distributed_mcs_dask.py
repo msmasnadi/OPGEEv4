@@ -30,17 +30,18 @@ def _walltime(minutes: int) -> str:
 _task_count = 0
 
 class FieldResult(OpgeeObject):
-    __slots__ = ['ok', 'field_name', 'duration', 'error', 'task_count']
+    __slots__ = ['ok', 'field_name', 'duration', 'completed', 'task_count', 'error']
 
-    def __init__(self, field_name, duration, error=None):
+    def __init__(self, field_name, duration, completed, error=None):
         self.ok = error is None
         self.field_name = field_name
         self.duration = duration
-        self.error = error
+        self.completed = completed
         self.task_count = _task_count
+        self.error = error
 
     def __str__(self):
-        return f"<FieldResult {self.field_name} in {self.duration}; task_count:{self.task_count} error:{self.error}>"
+        return f"<FieldResult {self.completed} trials of {self.field_name} in {self.duration}; task_count:{self.task_count} error:{self.error}>"
 
 def run_field(sim_dir, field_name, trial_nums=None):
     """
@@ -67,7 +68,7 @@ def run_field(sim_dir, field_name, trial_nums=None):
 
         error = None
         try:
-            sim.run_field(field, trial_nums=trial_nums)
+            completed = sim.run_field(field, trial_nums=trial_nums)
 
         except TrialErrorWrapper as e:
             trial = e.trial
@@ -92,7 +93,7 @@ def run_field(sim_dir, field_name, trial_nums=None):
 
     timer.stop()
 
-    result = FieldResult(field_name, timer.duration(), error=error)
+    result = FieldResult(field_name, timer.duration(), completed, error=error)
     _logger.debug(f"run_field('{field_name}') returning {result}")
     return result
 

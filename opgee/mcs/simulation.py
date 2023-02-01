@@ -469,7 +469,7 @@ class Simulation(OpgeeObject):
         :param field: (opgee.Field) the Field to evaluate in MCS
         :param trial_nums: (iterator of ints) the trial numbers to run, or
            ``None`` to run all trials.
-        :return: none
+        :return: (int) the number of successfully run trials
         """
         analysis = self.analysis
 
@@ -477,11 +477,14 @@ class Simulation(OpgeeObject):
 
         trial_nums = range(self.trials) if trial_nums is None else trial_nums
 
+        completed = 0
+
         for trial_num in trial_nums:
             try:
                 self.set_trial_data(field, trial_num)
                 field.run(analysis, trial_num=trial_num)
                 field.report()
+                completed += 1
 
             #except ModelValidationError as e:
             except Exception as e:
@@ -527,6 +530,8 @@ class Simulation(OpgeeObject):
 
         df = pd.DataFrame.from_records(results, columns=cols)
         self.save_trial_results(field, df)
+
+        return completed
 
     # Deprecated
     # def run_trial(self, field, trial_num):
