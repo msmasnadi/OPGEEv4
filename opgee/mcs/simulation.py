@@ -203,16 +203,28 @@ class Simulation(OpgeeObject):
         if meta_data_only:
             return
 
-        mf = ModelFile(self.model_file, use_default_model=False, analysis_names=[self.analysis_name],
-                       field_names=field_names, save_to_path=save_to_path)
-        self.model = mf.model
-
-        self.analysis = analysis = self.model.get_analysis(self.analysis_name, raiseError=False)
-        if not analysis:
-            raise CommandlineError(f"Analysis '{self.analysis_name}' was not found in model")
+        self.load_model(save_to_path=save_to_path)
 
         if trials > 0:
             self.generate()
+
+    def load_model(self, save_to_path=None):
+        """
+        Loads the model (reading just the field being run by this Simulation) from XML
+        to avoid carrying state between trials.
+
+        :return: none
+        """
+        mf = ModelFile(self.model_file, use_default_model=False,
+                       analysis_names=[self.analysis_name],
+                       field_names=self.field_names,
+                       save_to_path=save_to_path)
+        self.model = mf.model
+
+        self.analysis = self.model.get_analysis(self.analysis_name, raiseError=False)
+        if not self.analysis:
+            raise CommandlineError(f"Analysis '{self.analysis_name}' was not found in model")
+
 
     @classmethod
     def read_metadata(cls, sim_dir):
@@ -481,14 +493,14 @@ class Simulation(OpgeeObject):
 
         for trial_num in trial_nums:
             try:
+                self.load_model()   # reloads from XML to avoid stale state
                 self.set_trial_data(field, trial_num)
                 field.run(analysis, trial_num=trial_num)
                 field.report()
                 completed += 1
 
-            #except ModelValidationError as e:
             except Exception as e:
-                _logger.warning(f"Skipping trial {trial_num} in {field}: {e}")
+                _logger.warning(f"Exception raised in trial {trial_num} in {field}: {e}")
                 continue
 
             # This exits the trial loop, so probably better to skip & continue
@@ -502,7 +514,8 @@ class Simulation(OpgeeObject):
             # ghgs: Quantity "t/d" CO2e
             # ci: Quantity "g/MJ" CO2e
             #
-            energy = field.energy.data
+
+            # energy = field.energy.data
             emissions = field.emissions.data
 
             ghg = emissions.loc['GHG']
@@ -532,47 +545,6 @@ class Simulation(OpgeeObject):
         self.save_trial_results(field, df)
 
         return completed
-
-    # Deprecated
-    # def run_trial(self, field, trial_num):
-    #     # Run a single trial and return a tuple with results
-    #
-    #     analysis = self.analysis
-    #
-    #     _logger.debug(f"Running trial {trial_num} for {field}")
-    #     self.set_trial_data(field, trial_num)
-    #
-    #     try:
-    #         field.run(analysis)
-    #         #field.report()
-    #     except ModelValidationError as e:
-    #         _logger.error(f"Skipping trial {trial_num}: {e}")
-    #         return None
-    #
-    #     # TBD: Save results (which?)
-    #     # energy: Series dtype = "mmbtu/d"
-    #     # emissions: DataFrame: cols are categories (Combustion, Land-use, Venting, Flaring, Fugitives, Other)
-    #     #                       rows are (VOC, CO, CH4, N2O, CO2, GHG)
-    #     # ghgs: Quantity "t/d" CO2e
-    #     # ci: Quantity "g/MJ" CO2e
-    #     #
-    #     # energy = field.energy.data
-    #     emissions = field.emissions.data
-    #
-    #     ghg = emissions.loc['GHG']
-    #     total_ghg = ghg.sum()
-    #     ci = field.compute_carbon_intensity(analysis)
-    #     vff = ghg['Venting'] + ghg['Flaring'] + ghg['Fugitives']
-    #
-    #     tup = (trial_num,
-    #            magnitude(ci),
-    #            magnitude(total_ghg),
-    #            magnitude(ghg['Combustion']),
-    #            magnitude(ghg['Land-use']),
-    #            magnitude(vff),
-    #            magnitude(ghg['Other']))
-    #
-    #     return tup
 
     def run(self, trial_nums, field_names=None):
         """

@@ -53,7 +53,7 @@ def run_field(sim_dir, field_name, trial_nums=None):
     """
     timer = Timer('run_field').start()
 
-    sim = Simulation(sim_dir, save_to_path='')
+    sim = Simulation(sim_dir, field_names=[field_name], save_to_path='')
     field = sim.analysis.get_field(field_name)
 
     if field.is_enabled():

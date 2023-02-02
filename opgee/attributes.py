@@ -12,7 +12,7 @@ import pandas as pd
 
 from . import ureg
 from .core import OpgeeObject, XmlInstantiable, A, instantiate_subelts, elt_name, validate_unit, magnitude
-from .error import OpgeeException, AttributeError, ModelValidationError
+from .error import AttributeError, ModelValidationError
 from .log import getLogger
 from .utils import coercible
 
