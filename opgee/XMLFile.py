@@ -5,7 +5,7 @@
 .. Copyright (c) 2015-2022 Richard Plevin
    See the https://opensource.org/licenses/MIT for license details.
 '''
-from io import StringIO
+from io import BytesIO
 from lxml import etree as ET
 
 from .config import getConfigDict, getParam
@@ -70,7 +70,7 @@ class XMLFile(object):
         xml_string = self.xml_string
 
         if xml_string:
-            file_like = StringIO(xml_string)
+            file_like = BytesIO(xml_string)
             _logger.debug("Reading from XML string")
         else:
             file_like = self.filename
