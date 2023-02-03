@@ -37,7 +37,7 @@ class ModelFile(XMLFile):
     _loaded_stream_components = False
     _loaded_user_classes = False
 
-    def __init__(self, pathnames, add_stream_components=True,
+    def __init__(self, pathnames, xml_string=None, add_stream_components=True,
                  use_class_path=True, use_default_model=True,
                  instantiate_model=True, save_to_path=None,
                  analysis_names=None, field_names=None):
@@ -58,7 +58,12 @@ class ModelFile(XMLFile):
         4. Construct the model data structure from the input XML file and store the result in `self.model`.
 
         :param pathnames: (str, or list or tuple of str) the name(s) of the file(s) to read.
-           If None or empty list, ``use_default_model`` must be True, or there's nothing to load.
+           If None or empty list, ``use_default_model`` must be True, or ``xml_string`` must be used.
+        :param xml_string: (str) text representation of XML to use instead of ``pathnames``. If provided,
+            this string must comprise the full model XML, including attribute definitions. (That is, the
+            file "etc/attributes.xml" will not be read. Also, no "final" XML is written out and the
+            ``save_to_path`` argument is ignored (and no default path is used). Note that ``xml_string``
+            is used primarily to reduce disk I/O in Monte Carlo mode.
         :param add_stream_components: (bool) whether to load additional `Stream` components using the
            value of config parameter "OPGEE.StreamComponents".
         :param use_class_path: (bool) whether to load custom python classes from the path indicated by
@@ -81,8 +86,8 @@ class ModelFile(XMLFile):
         if not isinstance(pathnames, (list, tuple)):
             pathnames = [] if pathnames is None else [pathnames]
 
-        if not (pathnames or use_default_model):
-            raise OpgeeException(f"ModelFile: no model XML file specified")
+        if not (pathnames or use_default_model or xml_string):
+            raise OpgeeException(f"ModelFile: no model XML file or string specified")
 
         opgee_xml = 'etc/opgee.xml'
         attributes_xml = 'etc/attributes.xml'
@@ -92,15 +97,16 @@ class ModelFile(XMLFile):
         base_path   = pathnames.pop(0) if (pathnames and not use_default_model) else None
 
         # Use superclass XMLFile to load base file we will merge into
-        super().__init__(base_stream or base_path, schemaPath='etc/opgee.xsd')
+        super().__init__(base_stream or base_path, xml_string=xml_string, schemaPath='etc/opgee.xsd')
         self.root = base_root = self.tree.getroot()
 
         # Read and validate the format of any other input files.
         xml_files = [XMLFile(path, schemaPath='etc/opgee.xsd') for path in pathnames]
 
-        # Push the XMLFile for attributes.xml onto the front of 'xml_files'
-        attr_stream = resourceStream(attributes_xml, stream_type='bytes', decode=None)
-        xml_files.insert(0, XMLFile(attr_stream, schemaPath='etc/opgee.xsd'))
+        if not xml_string:
+            # Push the XMLFile for attributes.xml onto the front of 'xml_files'
+            attr_stream = resourceStream(attributes_xml, stream_type='bytes', decode=None)
+            xml_files.insert(0, XMLFile(attr_stream, schemaPath='etc/opgee.xsd'))
 
         # Read all XML files and merge everything below <Model> into base_root
         for xml_file in xml_files:
@@ -140,12 +146,14 @@ class ModelFile(XMLFile):
             for child in elt:
                 elt.remove(child)
 
-        # function argument overrides config file variable
-        save_to_path = getParam('OPGEE.XmlSavePathname') if save_to_path is None else save_to_path
+        # TBD: currently each worker overwrites the same file. Maybe just skip this next line? Skip if xml_string?
+        if not xml_string:
+            # function argument overrides config file variable
+            save_to_path = getParam('OPGEE.XmlSavePathname') if save_to_path is None else save_to_path
 
-        # Save the merged file if indicated
-        if save_to_path:
-            save_xml(save_to_path, base_root, backup=True)
+            # Save the merged file if indicated
+            if save_to_path:
+                save_xml(save_to_path, base_root, backup=True)
 
         # There must be exactly one <AttrDefs> as child of <Model>
         found = base_root.findall('AttrDefs')
@@ -202,10 +210,6 @@ class ModelFile(XMLFile):
             pathnames.insert(0, opgee_xml if base_stream else base_path)
             model.set_pathnames(pathnames)
 
-    # Deprecated
-    # @classmethod
-    # def attr_defs(cls):
-    #     return cls._attr_defs
 
     @classmethod
     def from_xml_string(cls, xml_string):
@@ -226,7 +230,7 @@ class ModelFile(XMLFile):
         os.close(fd)
 
         try:
-            model_file = ModelFile([tmp_file],
+            model_file = ModelFile([tmp_file],      # TBD: use xml_string=xml_string
                                    add_stream_components=False,
                                    use_class_path=False,
                                    use_default_model=False,

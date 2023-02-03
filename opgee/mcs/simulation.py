@@ -177,9 +177,20 @@ class Simulation(OpgeeObject):
     """
     def __init__(self, sim_dir, analysis_name=None, trials=0, field_names=None,
                  save_to_path=None, meta_data_only=False):
+
+        if not os.path.isdir(sim_dir):
+            raise McsUserError(f"Simulation directory '{sim_dir}' does not exist.")
+
         self.pathname = sim_dir
         self.model_file = model_file_path(sim_dir)
         self.model = None
+        self.model_xml_string = None
+
+        try:
+            with open(self.model_file) as f:
+                self.model_xml_string = f.read()
+        except Exception as e:
+            raise McsSystemError(f"Failed to read model file '{self.model_file}' to XML string: {e}")
 
         # TBD: to allow the same trial_num to be run across fields, cache field
         #      trial_data in a dict by field name rather than a single DF
@@ -191,9 +202,6 @@ class Simulation(OpgeeObject):
         self.analysis = None
         self.field_names = field_names
         self.metadata = None
-
-        if not os.path.isdir(self.pathname):
-            raise McsUserError(f"Simulation directory '{self.pathname}' does not exist.")
 
         if analysis_name:
             self._save_meta_data()
@@ -215,7 +223,9 @@ class Simulation(OpgeeObject):
 
         :return: none
         """
-        mf = ModelFile(self.model_file, use_default_model=False,
+        mf = ModelFile(self.model_file,
+                       xml_string=self.model_xml_string,
+                       use_default_model=False,
                        analysis_names=[self.analysis_name],
                        field_names=self.field_names,
                        save_to_path=save_to_path)
@@ -483,8 +493,6 @@ class Simulation(OpgeeObject):
            ``None`` to run all trials.
         :return: (int) the number of successfully run trials
         """
-        analysis = self.analysis
-
         results = []
 
         trial_nums = range(self.trials) if trial_nums is None else trial_nums
@@ -493,9 +501,9 @@ class Simulation(OpgeeObject):
 
         for trial_num in trial_nums:
             try:
-                self.load_model()   # reloads from XML to avoid stale state
+                self.load_model()   # reloads from cached XML string to avoid stale state
                 self.set_trial_data(field, trial_num)
-                field.run(analysis, trial_num=trial_num)
+                field.run(self.analysis, trial_num=trial_num)
                 field.report()
                 completed += 1
 
@@ -520,7 +528,7 @@ class Simulation(OpgeeObject):
 
             ghg = emissions.loc['GHG']
             total_ghg = ghg.sum()
-            ci = field.compute_carbon_intensity(analysis)
+            ci = field.compute_carbon_intensity(self.analysis)
             vff = ghg['Venting'] + ghg['Flaring'] + ghg['Fugitives']
 
             tup = (trial_num,
