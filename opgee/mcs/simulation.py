@@ -182,18 +182,9 @@ class Simulation(OpgeeObject):
             raise McsUserError(f"Simulation directory '{sim_dir}' does not exist.")
 
         self.pathname = sim_dir
-        self.model_file = model_file_path(sim_dir)
+        self.model_file = model_file = model_file_path(sim_dir)
         self.model = None
         self.model_xml_string = None
-
-        try:
-            with open(self.model_file) as f:
-                self.model_xml_string = f.read()
-        except Exception as e:
-            raise McsSystemError(f"Failed to read model file '{self.model_file}' to XML string: {e}")
-
-        # TBD: to allow the same trial_num to be run across fields, cache field
-        #      trial_data in a dict by field name rather than a single DF
 
         self.trial_data_df = None # loaded on demand by ``trial_data`` method.
         self.trials = trials
@@ -203,13 +194,25 @@ class Simulation(OpgeeObject):
         self.field_names = field_names
         self.metadata = None
 
+        if not analysis_name:
+            self._load_meta_data(field_names)
+            if meta_data_only:
+                return
+
+        try:
+            _logger.debug(f"Caching file '{model_file}' as xml_string")
+            with open(model_file) as f:
+                self.model_xml_string = f.read()
+        except Exception as e:
+            raise McsSystemError(f"Failed to read model file '{model_file}' to XML string: {e}")
+
+        # TBD: to allow the same trial_num to be run across fields, cache field
+        #      trial_data in a dict by field name rather than a single DF
+
         if analysis_name:
             self._save_meta_data()
-        else:
-            self._load_meta_data(field_names)
-
-        if meta_data_only:
-            return
+            if meta_data_only:
+                return
 
         self.load_model(save_to_path=save_to_path)
 

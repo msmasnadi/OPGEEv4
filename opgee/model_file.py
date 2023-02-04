@@ -81,7 +81,8 @@ class ModelFile(XMLFile):
         """
         load_timer = Timer('ModelFile load XML').start()
 
-        _logger.debug(f"Loading model from: {pathnames}")
+        source = "XML string" if xml_string else pathnames
+        _logger.debug(f"Loading model from: {source}")
 
         if not isinstance(pathnames, (list, tuple)):
             pathnames = [] if pathnames is None else [pathnames]

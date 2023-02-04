@@ -37,7 +37,7 @@ class XMLFile(object):
            when processing Conditional XML.
         """
         self.filename = filename
-        self.xml_string = str.encode(xml_string)
+        self.xml_string = str.encode(xml_string) if xml_string else None
         self.tree = None
         self.conditionalXML = conditionalXML
         self.varDict = varDict or getConfigDict(section=getParam('OPGEE.DefaultProject'))
