@@ -1,5 +1,5 @@
 import re
-from opgee.mcs.distributed_mcs_dask import Manager, RemoteError, FieldResult
+from opgee.mcs.distributed_mcs_dask import RemoteError, FieldResult
 from .utils_for_tests import tmpdir
 
 # def test_dist_mcs():
