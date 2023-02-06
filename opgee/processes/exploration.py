@@ -39,7 +39,10 @@ class Exploration(Process):
         self.distance_survey = field.attr("distance_survey")
         self.number_wells_dry = field.attr("number_wells_dry")
         self.number_wells_exploratory = field.attr("number_wells_exploratory")
-        self.num_wells = field.attr("num_prod_wells") + field.attr("num_water_inj_wells")
+
+        num_prod_wells = field.attr("num_prod_wells") if self.oil_sands_mine == "None" else 0
+        self.num_wells = num_prod_wells + field.attr("num_water_inj_wells")
+        
         self.depth = field.attr("depth")
         self.frac_wells_horizontal = field.attr("fraction_wells_horizontal")
         self.length_lateral = field.attr("length_lateral")

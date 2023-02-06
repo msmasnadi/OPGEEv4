@@ -1041,7 +1041,11 @@ class Field(Container):
     def num_producing_wells_default(self, oil_sands_mine, oil_prod):
         # =IF(OR(Oil_sands_mine_int_01=1,Oil_sands_mine_nonint_01=1),0,IF(ROUND(J63/87.5,0)<1,1,ROUNDUP(J63/87.5,0)))
         # J63 = oil_prod
-        return 0 if oil_sands_mine != 'None' else max(1.0, round(oil_prod.m/87.5, 0))
+
+        # Owing to constraint that requires num_prod_wells > 0, we return 1 for oils_sands mine.
+        # num_prod_wells is used only in Exploration, ReservoirWellInterface, and DownholePump, which
+        # shouldn't exist for oils sands mines.
+        return 1 if oil_sands_mine != 'None' else max(1.0, round(oil_prod.m/87.5, 0))
 
     @SmartDefault.register('num_water_inj_wells', ['oil_sands_mine', 'oil_prod', 'num_prod_wells'])
     def oil_prod_default(self, oil_sands_mine, oil_prod, num_prod_wells):
