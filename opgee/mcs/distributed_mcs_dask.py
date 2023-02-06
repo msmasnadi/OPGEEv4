@@ -13,7 +13,6 @@ from ..config import getParam, getParamAsInt, getParamAsBoolean
 from ..error import RemoteError, McsSystemError, TrialErrorWrapper
 from ..log  import getLogger, setLogFile
 from .simulation import Simulation
-from ..utils import removeTree
 
 _logger = getLogger(__name__)
 
@@ -49,6 +48,7 @@ def run_field(sim_dir, field_name, trial_nums=None):
 
     :param sim_dir: (str) the directory containing the simulation information
     :param field_name: (str) the name of the field to run
+    :param trial_nums: (list of int) trial numbers to run. If ``None``, run all trials.
     :return: (FieldResult)
     """
     timer = Timer('run_field').start()
@@ -172,14 +172,14 @@ class Manager(OpgeeObject):
         _logger.info("Waiting for workers")
         while True:
             try:
-                print('.', sep='', end='')
+                # print('.', sep='', end='')
                 client.wait_for_workers(1, 15) # wait for 1 worker with 15 sec timeout
                 break
             except (dask.distributed.TimeoutError, asyncio.exceptions.TimeoutError) as e:
                 pass
                 #print(e) # prints "Only 0/1 workers arrived after 15"
 
-        _logger.info("\nWorkers are running")
+        _logger.info("Workers are running")
         return client
 
     def stop_cluster(self):
