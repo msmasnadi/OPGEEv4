@@ -106,7 +106,10 @@ def read_distributions(pathname=None):
                 _logger.info(f"* Ignoring distribution on {name}, Lognormal has stdev = 0")
                 continue
 
-            rv = get_frozen_rv('lognormal', logmean=mean, logstdev=stdev)
+            if low == '' or high == '':     # must specify both low and high
+                rv = get_frozen_rv('lognormal', logmean=mean, logstdev=stdev)
+            else:
+                rv = get_frozen_rv('truncated_lognormal', logmean=mean, logstdev=stdev, low=low, high=high)
 
         elif shape == 'empirical':
             rv = get_frozen_rv('empirical', pathname=pathname, colname=name)

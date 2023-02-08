@@ -63,7 +63,10 @@ def mkdirs(newdir, mode=0o770):
 def removeTree(path, ignore_errors=True):
     import shutil
     _logger.debug(f"shutil.rmtree('{path}')")
-    shutil.rmtree(path, ignore_errors=ignore_errors)
+    if os.path.lexists(path) and os.path.islink(path):
+        os.remove(path)
+    else:
+        shutil.rmtree(path, ignore_errors=ignore_errors)
 
 
 # Not used currently
