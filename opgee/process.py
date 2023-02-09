@@ -777,7 +777,7 @@ class Process(XmlInstantiable, AttributeMixin):
 
     def venting_fugitive_rate(self):
 
-        loss_rate = self.field.get_component_and_site_fugitive()
+        loss_rate = self.field.component_and_site_fugitive_table
         # Get loss rate for downhole pump
         # if self.name == "DownholePump":
 

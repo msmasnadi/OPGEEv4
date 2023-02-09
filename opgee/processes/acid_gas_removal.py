@@ -119,8 +119,6 @@ class AcidGasRemoval(Process):
 
     def calculate_energy_consumption_from_Aspen(self, input, output_gas, mol_frac_CO2, mol_frac_H2S):
 
-        # TODO: Wennan, I made this a local var that gets reset on each call. Less efficient, but
-        #  not subject to random behavior!
         # Input values for variable getting from HYSYS
         variable_bound_dict = {"mol_frac_CO2": [0.0, 0.2],
                                "mol_frac_H2S": [0.0, 0.15],

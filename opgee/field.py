@@ -117,6 +117,8 @@ class Field(Container):
 
         self.stp = STP
 
+        self.component_and_site_fugitive_table = None
+
         self.import_export = ImportExport()
 
     # TBD: write test
@@ -181,6 +183,8 @@ class Field(Container):
         self.graph = g = self._connect_processes()
 
         self.cycles = list(nx.simple_cycles(g))
+
+        self.component_and_site_fugitive_table = self.get_component_and_site_fugitive()
 
         # if self.cycles:
         #     _logger.debug(f"Field '{self.name}' has cycles: {self.cycles}")
@@ -445,12 +449,12 @@ class Field(Container):
         """
 
         model = self.model
-        GOR = self.attr("GOR").to("kscf/bbl").m
-        GOR_cutoff = self.attr("GOR_cutoff").to("kscf/bbl").m
+        GOR = self.attr("GOR")
+        GOR_cutoff = self.attr("GOR_cutoff")
         oil_rate = self.attr("oil_prod")
         productivity = oil_rate * (GOR + self.attr("gas_lifting") * self.attr("GLIR"))
 
-        if self.attr("gas_flooding") and self.attr("flood_gas_type" == "CO2"):
+        if self.attr("gas_flooding") and self.attr("flood_gas_type") == "CO2":
             productivity += oil_rate * self.attr("GFIR") * self.attr("frac_CO2_breakthrough")
         productivity /= self.attr("num_prod_wells")
 
@@ -499,6 +503,9 @@ class Field(Container):
         pump_loss_rate = comp_fugitive.drop('Separator')
         pump_loss_rate = comp_fugitive.drop('Flash factor')
         pump_loss_rate = pump_loss_rate.sum()
+
+        compressor_list = ["SourGasCompressor", "GasReinjectionCompressor"]
+        well_list = ["CO2InjectionWell", "GasReinjectionWell", "SourGasInjection"]
 
         process_loss_rate_dict = {
             'Separation' : separation_loss_rate,

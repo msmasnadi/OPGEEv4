@@ -8402,6 +8402,7 @@
       <A name="fraction_steam_solar">0.5</A>
     </Field>
     <Field name="Field 468" modifies="template">
+      <A name="water_reinjection">0</A>
       <A name="oil_sands_mine">None</A>
       <A name="name">Test 69 - Gas processing option 1</A>
       <A name="gas_processing_path">Minimal</A>
