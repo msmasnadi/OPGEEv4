@@ -148,7 +148,7 @@ class ClassAttrs(XmlInstantiable):
         """
         value = obj.get(key)
         if value is None and raiseError:
-            raise AttributeError(dict_name, key)
+            raise AttributeError(f"Attribute definition for '{key}' was not found in {dict_name}")
 
         return value
 
