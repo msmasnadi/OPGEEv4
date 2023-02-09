@@ -476,6 +476,7 @@ class Simulation(OpgeeObject):
         return s
 
     def set_trial_data(self, field, trial_num):
+        _logger.debug(f"set_trial_data for trial {trial_num})")
         data = self.trial_data(field, trial_num)
 
         for name, value in data.items():
@@ -508,6 +509,9 @@ class Simulation(OpgeeObject):
         for trial_num in trial_nums:
             try:
                 self.load_model()   # reloads from cached XML string to avoid stale state
+
+                field = self.analysis.get_field(field.name) # use new instance of field
+
                 self.set_trial_data(field, trial_num)
                 field.run(self.analysis, trial_num=trial_num)
                 field.report()
