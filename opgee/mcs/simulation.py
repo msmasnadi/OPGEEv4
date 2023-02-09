@@ -9,11 +9,11 @@
 import json
 import os
 import pandas as pd
+import traceback
 
 from ..config import pathjoin
 from ..core import OpgeeObject, split_attr_name, Timer
-from ..error import (OpgeeException, McsSystemError, McsUserError, CommandlineError,
-                     ModelValidationError, TrialErrorWrapper)
+from ..error import OpgeeException, McsSystemError, McsUserError, CommandlineError
 from ..log import getLogger
 from ..model_file import ModelFile
 from ..pkg_utils import resourceStream
@@ -508,20 +508,23 @@ class Simulation(OpgeeObject):
 
         for trial_num in trial_nums:
             try:
-                self.load_model()   # reloads from cached XML string to avoid stale state
+                # Reload from cached XML string to avoid stale state
+                self.load_model()
 
-                field = self.analysis.get_field(field.name) # use new instance of field
+                # Use the new instance of field from the reloaded model
+                field = self.analysis.get_field(field.name)
 
                 self.set_trial_data(field, trial_num)
-                field.run(self.analysis, trial_num=trial_num)
-                field.report()
+                field.run(self.analysis, compute_ci=True, trial_num=trial_num)
+                # field.report()
                 completed += 1
 
             except Exception as e:
                 _logger.warning(f"Exception raised in trial {trial_num} in {field}: {e}")
+                _logger.debug(traceback.format_exc())
                 continue
 
-            # This exits the trial loop, so probably better to skip & continue
+            # The following would exit the trial loop, so probably better to skip & continue
             # except OpgeeException as e:
             #     raise TrialErrorWrapper(e, trial_num)
 
@@ -533,12 +536,13 @@ class Simulation(OpgeeObject):
             # ci: Quantity "g/MJ" CO2e
             #
 
+            ci = field.carbon_intensity
+
             # energy = field.energy.data
             emissions = field.emissions.data
 
             ghg = emissions.loc['GHG']
             total_ghg = ghg.sum()
-            ci = field.compute_carbon_intensity(self.analysis)
             vff = ghg['Venting'] + ghg['Flaring'] + ghg['Fugitives']
 
             tup = (trial_num,

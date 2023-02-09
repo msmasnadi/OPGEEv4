@@ -30,9 +30,9 @@ class SteamGeneration(Process):
         self.steam_flooding_check = field.attr("steam_flooding")
         self.SOR = field.attr("SOR")
 
-        if self.steam_flooding_check != 1 or self.SOR == 0:
-            self.set_enabled(False)
-            return
+        # if self.steam_flooding_check != 1 or self.SOR == 0:
+        #     self.set_enabled(False)
+        #     return
 
         self.oil_volume_rate = field.attr("oil_prod")
         self.steam_quality_outlet = self.attr("steam_quality_outlet")
@@ -70,6 +70,12 @@ class SteamGeneration(Process):
         self.steam_generator = field.steam_generator
 
     def run(self, analysis):
+
+        # Moved here from _after_init() to allow MCS to reset attributes
+        if self.steam_flooding_check != 1 or self.SOR == 0:
+            self.set_enabled(False)
+            return
+
         self.print_running_msg()
         self.set_iteration_value(0)
         field = self.field

@@ -6,10 +6,10 @@ from .utils_for_tests import load_test_model
 def constraint_model(configure_logging_for_tests):
     return
 
-
-def test_excludes():
-    with pytest.raises(OpgeeException, match=r".*Exclusive attribute.*"):
-        load_test_model('test_attr_constraints_1.xml')
+# N.B. The previously mutually exclusive attributes tested here no longer are exclusive
+# def test_excludes():
+#     with pytest.raises(OpgeeException, match=r".*Exclusive attribute.*"):
+#         load_test_model('test_attr_constraints_1.xml')
 
 
 def test_syncs():

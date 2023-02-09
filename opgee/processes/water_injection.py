@@ -32,9 +32,9 @@ class WaterInjection(Process):
         self.water_reinjection = field.attr("water_reinjection")
         self.water_flooding = field.attr("water_flooding")
 
-        if self.water_reinjection == 0 and self.water_flooding == 0:
-            self.set_enabled(False)
-            return
+        # if self.water_reinjection == 0 and self.water_flooding == 0:
+        #     self.set_enabled(False)
+        #     return
 
         self.prod_index = field.attr("prod_index")
         self.water = field.water
@@ -52,6 +52,11 @@ class WaterInjection(Process):
         self.prime_mover_type = self.attr("prime_mover_type")
 
     def run(self, analysis):
+        # Moved this here from _after_init()
+        if self.water_reinjection == 0 and self.water_flooding == 0:
+            self.set_enabled(False)
+            return
+
         self.print_running_msg()
 
         if self.num_water_inj_wells.m == 0:
