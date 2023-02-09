@@ -72,8 +72,8 @@
 
       <!-- mutually exclusive -->
       <AttrDef name="water_flooding" type="binary" desc="Water flooding">0</AttrDef>
-      <AttrDef name="gas_flooding" type="binary" desc="Gas flooding" exclusive="flooding">0</AttrDef>
-      <AttrDef name="steam_flooding" type="binary" desc="Steam flooding" exclusive="flooding">0</AttrDef>
+      <AttrDef name="gas_flooding" type="binary" desc="Gas flooding">0</AttrDef>
+      <AttrDef name="steam_flooding" type="binary" desc="Steam flooding">0</AttrDef>
 
       <Options name="oil_sands_mine_type" default="None">
         <Option>None</Option>
