@@ -26,6 +26,7 @@ _logger = getLogger(__name__)
 
 TRIAL_DATA_CSV = 'trial_data.csv'
 RESULTS_CSV = 'results.csv'
+FAILURES_CSV = 'failures.csv'
 MODEL_FILE = 'merged_model.xml'
 META_DATA_FILE = 'metadata.json'
 
@@ -337,6 +338,10 @@ class Simulation(OpgeeObject):
         path = pathjoin(d, RESULTS_CSV)
         return path
 
+    def failures_path(self, field):
+        d = self.field_dir(field)
+        path = pathjoin(d, FAILURES_CSV)
+        return path
 
     # TBD: needed only if we want to parallelize within fields rather than just across fields
     # def trial_dir(self, field, trial_num, mkdir=False):
@@ -425,10 +430,16 @@ class Simulation(OpgeeObject):
         _logger.info(f"Writing '{filename}'")
         self.trial_data_df.to_csv(filename)
 
-    def save_trial_results(self, field, df):
+    def save_trial_results(self, field, df, failures):
         filename = self.results_path(field, mkdir=True)
         _logger.info(f"Writing '{filename}'")
         df.to_csv(filename, index=False)
+
+        # Save info on failed trials, too
+        with open(self.failures_path(field), 'w') as f:
+            f.write("trial_num,message\n")
+            for trial_num, msg in failures:
+                f.write(f'{trial_num},"{msg}"\n')
 
     def field_trial_data(self, field):
         """
@@ -500,11 +511,12 @@ class Simulation(OpgeeObject):
            ``None`` to run all trials.
         :return: (int) the number of successfully run trials
         """
-        results = []
 
         trial_nums = range(self.trials) if trial_nums is None else trial_nums
 
         completed = 0
+        results = []
+        failures = []
 
         for trial_num in trial_nums:
             try:
@@ -520,6 +532,7 @@ class Simulation(OpgeeObject):
                 completed += 1
 
             except Exception as e:
+                failures.append((trial_num, e))
                 _logger.warning(f"Exception raised in trial {trial_num} in {field}: {e}")
                 _logger.debug(traceback.format_exc())
                 continue
@@ -528,15 +541,7 @@ class Simulation(OpgeeObject):
             # except OpgeeException as e:
             #     raise TrialErrorWrapper(e, trial_num)
 
-            # TBD: Save results (which?)
-            # energy: Series dtype = "mmbtu/d"
-            # emissions: DataFrame: cols are categories (Combustion, Land-use, Venting, Flaring, Fugitives, Other)
-            #                       rows are (VOC, CO, CH4, N2O, CO2, GHG)
-            # ghgs: Quantity "t/d" CO2e
-            # ci: Quantity "g/MJ" CO2e
-            #
-
-            ci = field.carbon_intensity
+            ci = field.carbon_intensity     # computed and saved in field.run()
 
             # energy = field.energy.data
             emissions = field.emissions.data
@@ -564,7 +569,7 @@ class Simulation(OpgeeObject):
                 'other']
 
         df = pd.DataFrame.from_records(results, columns=cols)
-        self.save_trial_results(field, df)
+        self.save_trial_results(field, df, failures)
 
         return completed
 
