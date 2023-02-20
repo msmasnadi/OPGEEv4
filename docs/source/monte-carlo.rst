@@ -18,8 +18,8 @@ OPGEE support for Monte Carlo Simulation includes:
 
     and combines them to create ``all_wor.csv`` in that same directory. All rows in which "WOR"
     is zero or ``NaN`` are deleted. The ``gensim`` command randomly draws values for fields'
-    ``WOR`` attributes from the remaining values.  Note that this script needs to be run only
-    if/when the input files are updated.
+    ``WOR`` attributes from the remaining values.  **Note that this script needs to be run only
+    if/when the input files are updated.**
 
   * The ``csv2xml`` subcommand, which converts a specifically formatted CSV file containing field attributes
     to the XML representation required for running in OPGEE. The primary source file (``opgee/etc/test-fields.csv``)
@@ -119,11 +119,36 @@ The parameters distributions file is a CSV file with the following columns:
 Running a simulation
 -----------------------
 
+Before running a simulation, the simulation directory must be created using the ``gensim``
+sub-command, described above. The simulation directory must be specified using the "-s/--simulation-dir"
+argument to the ``runsim`` sub-command. This directory holds a fully expanded version of the model,
+the input data generated from parameter distributions, and after running the simulation, the results
+for each field.
+
+The simulation directory contains a sub-directory for each field evaluated, in which the files "results.csv"
+and "failures.csv" will be written when all trials for the field have been run.
+
 The ``runsim`` sub-command
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* runsim
+The ``runsim`` command can run simulations in any of three modes:
 
-  * running a trial
-  * multiprocessing
-  * results
+1. *Serially*, in which one model run is executed at a time. This is the slowest method, but often
+   the most convenient to use for debugging. To select serial mode, use the "-S/--serial" command-line
+   option.
+
+2. If the "-s/--serial" option is not used, the simulation mode is determined from the configuration file
+   variable ``OPGEE.ClusterType``, which defaults to ``local``. The other recognized value is ``slurm``.
+
+   In local mode, the simulation is run on a single- or multiple-CPU computer. By default,
+   ``runsim`` will spawn a process for each available processor. The number of tasks can be
+   controlled by the "-n/--ntasks" argument to ``runsim``. Each process runs the designated
+   number of trials for a field before moving onto any remaining fields.
+
+3. If "-s/--serial" is not used, and the value of ``OPGEE.ClusterType`` is ``slurm``, the SLURM
+   task management system is used. Note that this option works only on high-performance computing
+   (HPC) clusters that use SLURM. In this mode, ``runsim`` submits a designated number of jobs which
+   are allocated to available compute nodes. Again, each process runs the required trials for one
+   field to completion before starting on any remaining fields. Note that there are several
+   :doc:`configuration file <opgee.config>` options controlling behavior on SLURM systems.
+
