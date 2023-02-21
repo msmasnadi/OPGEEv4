@@ -1008,10 +1008,9 @@
 
 	<Field name="test_ReservoirWellInterface_CO2_flood">
 
+		<A name="frac_CO2_breakthrough">1</A>
 		<Process class="Before"/>
-		<Process class="ReservoirWellInterface">
-			<A name="frac_CO2_breakthrough">1</A>
-		</Process>
+		<Process class="ReservoirWellInterface"/>
 
 		<Process class="Boundary" boundary="Production"/>
 

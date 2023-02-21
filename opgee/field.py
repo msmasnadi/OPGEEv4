@@ -184,7 +184,7 @@ class Field(Container):
 
         self.cycles = list(nx.simple_cycles(g))
 
-        self.component_and_site_fugitive_table = self.get_component_and_site_fugitive()
+        self.component_and_site_fugitive_table = self.get_component_fugitive()
 
         # if self.cycles:
         #     _logger.debug(f"Field '{self.name}' has cycles: {self.cycles}")
@@ -364,7 +364,6 @@ class Field(Container):
         # export_df = self.import_export.export_df
         #export_LHV = export_df.drop(columns=["Water"]).sum(axis='columns').sum()
         # self.carbon_intensity = ci = (total_emissions / export_LHV).to('grams/MJ')
-
         boundary_energy_flow_rate = self.boundary_energy_flow_rate(analysis)
         self.carbon_intensity = ci = ureg.Quantity(0, 'grams/MJ')
         if boundary_energy_flow_rate.m != 0:
@@ -441,7 +440,7 @@ class Field(Container):
         :return:
         """
         return loss_mat_ave.iloc[assignment - 1, :]
-    def get_component_and_site_fugitive(self):
+    def get_component_fugitive(self):
         """
         Calculate loss rate for downhole pump, separation, and crude oil storage using Jeff's component fugitive model
 
@@ -481,6 +480,7 @@ class Field(Container):
             field_productivity.apply(
                 lambda row: self.comp_fugitive_productivity(prod_mat_gas, row['Mean gas rate (Mscf/well/day)']), axis=1)
 
+        # TODO: deduplicate it!
         cols_gas = ['Well', 'Header', 'Heater', 'Separator', 'Meter', 'Tanks-leaks', 'Tank-thief hatch', 'Recip Comp',
                     'Dehydrator', 'Chem Inj Pump', 'Pneum Controllers', 'Flash factor', 'LU-plunger', 'LU-no plunger']
         cols_oil = ['Well', 'Header', 'Heater', 'Separator', 'Meter', 'Tanks-leaks', 'Tank-thief hatch', 'Recip Comp',
