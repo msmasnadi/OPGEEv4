@@ -19,7 +19,7 @@ from .error import (OpgeeException, OpgeeStopIteration, OpgeeMaxIterationsReache
                     OpgeeIterationConverged, ModelValidationError, ZeroEnergyFlowError)
 from .import_export import ImportExport
 from .log import getLogger
-from .process import Process, Aggregator, Reservoir
+from .process import Process, Aggregator, Reservoir, decache_subclasses
 from .process_groups import ProcessChoice
 from .processes.steam_generator import SteamGenerator
 from .smart_defaults import SmartDefault
@@ -236,7 +236,7 @@ class Field(Container):
             # TODO: shouldn't be possible
             raise OpgeeException("Impute failed due to a process loop. Use Stream attribute impute='0' to break cycle.")
 
-    def run(self, analysis, compute_ci=True):
+    def run(self, analysis, compute_ci=True, trial_num=None):
         """
         Run all Processes defined for this Field, in the order computed from the graph
         characteristics, using the settings in `analysis` (e.g., GWP).
@@ -246,7 +246,8 @@ class Field(Container):
         :return: None
         """
         if self.is_enabled():
-            _logger.info(f"Running '{self}'")
+            trial_str = f"trial {trial_num} of " if trial_num is not None else ""
+            _logger.info(f"Running {trial_str}'{self.name}'")
 
             # Cache the sets of processes within and outside the current boundary. We use
             # this information in compute_carbon_intensity() to ignore irrelevant procs.
@@ -270,6 +271,9 @@ class Field(Container):
     def reset(self):
         self.reset_streams()
         self.reset_processes()
+
+        SmartDefault.decache()
+        decache_subclasses()
 
     def reset_iteration(self):
         Process.clear_iterating_process_list()
@@ -1143,7 +1147,11 @@ class Field(Container):
     def num_producing_wells_default(self, oil_sands_mine, oil_prod):
         # =IF(OR(Oil_sands_mine_int_01=1,Oil_sands_mine_nonint_01=1),0,IF(ROUND(J63/87.5,0)<1,1,ROUNDUP(J63/87.5,0)))
         # J63 = oil_prod
-        return 0 if oil_sands_mine != 'None' else max(1.0, round(oil_prod.m/87.5, 0))
+
+        # Owing to constraint that requires num_prod_wells > 0, we return 1 for oils_sands mine.
+        # num_prod_wells is used only in Exploration, ReservoirWellInterface, and DownholePump, which
+        # shouldn't exist for oils sands mines.
+        return 1 if oil_sands_mine != 'None' else max(1.0, round(oil_prod.m/87.5, 0))
 
     @SmartDefault.register('num_water_inj_wells', ['oil_sands_mine', 'oil_prod', 'num_prod_wells'])
     def oil_prod_default(self, oil_sands_mine, oil_prod, num_prod_wells):

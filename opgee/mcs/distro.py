@@ -125,6 +125,24 @@ def logfactor(factor):
 
     return lognormalRvFor95th(1 / factor, factor)
 
+class truncated_lognormal():
+    def __init__(self, logmean, logstdev, low, high):
+        self.logmean = logmean
+        self.logstdev = logstdev
+        self.low = low
+        self.high = high
+
+        self.rv = lognormalRv(logmean, logstdev)
+
+    def ppf(self, q):
+        y = self.rv.ppf(q)
+
+        # simple truncation of values below low to low, above high to high
+        y[ y < self.low ] = self.low
+        y[ y > self.high] = self.high
+
+        return y
+
 def triangle(min, mode, max):  # @ReservedAssignment
     # correct ordering if necessary
     if min > max:
@@ -189,7 +207,6 @@ class truncated_normal():
         # shift standard normal back to original shape and location
         shifted = y * self.stdev + self.mean
         return shifted
-
 
 class constant():
     """
@@ -377,6 +394,8 @@ class DistroGen(object):
         cls('lognormal', lambda mean, stdev: lognormalRvForNormal(mean, stdev))
         cls('lognormal', lambda low95, high95: lognormalRvFor95th(low95, high95))
         cls('lognormal', logfactor)
+
+        cls('truncated_lognormal', truncated_lognormal)
 
         # range=0.2 means a triangle with min, mode, max = (-0.2, 0, +0.2); for apply="add"
         cls('triangle', triangleRange)    # args: range (must be > 0)

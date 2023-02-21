@@ -6,7 +6,6 @@ dash-table
 dask
 dask-jobqueue
 future
-llvm-openmp
 lxml
 matplotlib
 networkx

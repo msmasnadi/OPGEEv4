@@ -23,7 +23,7 @@ from opgee.version import VERSION
 # -- Project information -----------------------------------------------------
 
 project = 'OPGEE'
-copyright = '2022, The Board of Trustees of the Leland Stanford Junior University'
+copyright = '2022-2023, The Board of Trustees of the Leland Stanford Junior University'
 author = 'Adam Brandt, Richard Plevin, Wennan Long'
 
 # The short X.Y version.

@@ -1,5 +1,5 @@
 import re
-from opgee.mcs.distributed_mcs_dask import Manager, RemoteError, FieldResult
+from opgee.mcs.distributed_mcs_dask import RemoteError, FieldResult
 from .utils_for_tests import tmpdir
 
 # def test_dist_mcs():
@@ -12,17 +12,18 @@ def test_remote_error():
     err_msg = "Short message"
     e = RemoteError(err_msg, field_name)
     s = str(e)
-    assert s ==  f"<RemoteError field='{field_name} msg='{err_msg}'>"
+    assert s ==  f"<RemoteError field='{field_name}' msg='{err_msg}'>"
 
 def test_field_result():
     field_name = 'field_10'
     duration = 10.6
     err_msg = 'no message'
+    completed = 10
     e = RemoteError(err_msg, field_name)
-    res = FieldResult(field_name, duration, error=e)
+    res = FieldResult(field_name, duration, completed, error=e)
 
     s = str(res)
-    pat = f'<FieldResult {field_name} in .*; error:.*>'
+    pat = f'<FieldResult {completed} trials of {field_name} in .*; task_count:0 error:.*>'
     assert re.match(pat, s) is not None
 
     assert res.duration == duration and res.field_name == field_name and res.error == e

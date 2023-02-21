@@ -9,10 +9,11 @@
 import json
 import os
 import pandas as pd
+import traceback
 
 from ..config import pathjoin
 from ..core import OpgeeObject, split_attr_name, Timer
-from ..error import OpgeeException, McsSystemError, McsUserError, CommandlineError, ModelValidationError
+from ..error import OpgeeException, McsSystemError, McsUserError, CommandlineError
 from ..log import getLogger
 from ..model_file import ModelFile
 from ..pkg_utils import resourceStream
@@ -24,16 +25,17 @@ _logger = getLogger(__name__)
 
 
 TRIAL_DATA_CSV = 'trial_data.csv'
-RESULTS_DIR = 'results'                 # TBD: better to store results.csv in field_dir along with trial_data.csv?
+RESULTS_CSV = 'results.csv'
+FAILURES_CSV = 'failures.csv'
 MODEL_FILE = 'merged_model.xml'
 META_DATA_FILE = 'metadata.json'
 
 DISTROS_CSV = 'mcs/etc/parameter_distributions.csv'
 
-DIGITS = 3
+DEFAULT_DIGITS = 3
 
-def magnitude(quantity):          # pragma: no cover
-    return round(quantity.m, DIGITS)
+def magnitude(quantity, digits=DEFAULT_DIGITS):          # pragma: no cover
+    return round(quantity.m, digits)
 
 def model_file_path(sim_dir):     # pragma: no cover
     model_file = pathjoin(sim_dir, MODEL_FILE)
@@ -105,7 +107,10 @@ def read_distributions(pathname=None):
                 _logger.info(f"* Ignoring distribution on {name}, Lognormal has stdev = 0")
                 continue
 
-            rv = get_frozen_rv('lognormal', logmean=mean, logstdev=stdev)
+            if low == '' or high == '':     # must specify both low and high
+                rv = get_frozen_rv('lognormal', logmean=mean, logstdev=stdev)
+            else:
+                rv = get_frozen_rv('truncated_lognormal', logmean=mean, logstdev=stdev, low=low, high=high)
 
         elif shape == 'empirical':
             rv = get_frozen_rv('empirical', pathname=pathname, colname=name)
@@ -176,13 +181,14 @@ class Simulation(OpgeeObject):
     """
     def __init__(self, sim_dir, analysis_name=None, trials=0, field_names=None,
                  save_to_path=None, meta_data_only=False):
-        self.pathname = sim_dir
-        self.results_dir = pathjoin(sim_dir, RESULTS_DIR)
-        self.model_file = model_file_path(sim_dir)
-        self.model = None
 
-        # TBD: to allow the same trial_num to be run across fields, cache field
-        #      trial_data in a dict by field name rather than a single DF
+        if not os.path.isdir(sim_dir):
+            raise McsUserError(f"Simulation directory '{sim_dir}' does not exist.")
+
+        self.pathname = sim_dir
+        self.model_file = model_file = model_file_path(sim_dir)
+        self.model = None
+        self.model_xml_string = None
 
         self.trial_data_df = None # loaded on demand by ``trial_data`` method.
         self.trials = trials
@@ -192,27 +198,50 @@ class Simulation(OpgeeObject):
         self.field_names = field_names
         self.metadata = None
 
-        if not os.path.isdir(self.pathname):
-            raise McsUserError(f"Simulation directory '{self.pathname}' does not exist.")
+        if not analysis_name:
+            self._load_meta_data(field_names)
+            if meta_data_only:
+                return
+
+        try:
+            _logger.debug(f"Caching file '{model_file}' as xml_string")
+            with open(model_file) as f:
+                self.model_xml_string = f.read()
+        except Exception as e:
+            raise McsSystemError(f"Failed to read model file '{model_file}' to XML string: {e}")
+
+        # TBD: to allow the same trial_num to be run across fields, cache field
+        #      trial_data in a dict by field name rather than a single DF
 
         if analysis_name:
             self._save_meta_data()
-        else:
-            self._load_meta_data(field_names)
+            if meta_data_only:
+                return
 
-        if meta_data_only:
-            return
-
-        mf = ModelFile(self.model_file, use_default_model=False, analysis_names=[self.analysis_name],
-                       field_names=field_names, save_to_path=save_to_path)
-        self.model = mf.model
-
-        self.analysis = analysis = self.model.get_analysis(self.analysis_name, raiseError=False)
-        if not analysis:
-            raise CommandlineError(f"Analysis '{self.analysis_name}' was not found in model")
+        self.load_model(save_to_path=save_to_path)
 
         if trials > 0:
             self.generate()
+
+    def load_model(self, save_to_path=None):
+        """
+        Loads the model (reading just the field being run by this Simulation) from XML
+        to avoid carrying state between trials.
+
+        :return: none
+        """
+        mf = ModelFile(self.model_file,
+                       xml_string=self.model_xml_string,
+                       use_default_model=False,
+                       analysis_names=[self.analysis_name],
+                       field_names=self.field_names,
+                       save_to_path=save_to_path)
+        self.model = mf.model
+
+        self.analysis = self.model.get_analysis(self.analysis_name, raiseError=False)
+        if not self.analysis:
+            raise CommandlineError(f"Analysis '{self.analysis_name}' was not found in model")
+
 
     @classmethod
     def read_metadata(cls, sim_dir):
@@ -302,6 +331,18 @@ class Simulation(OpgeeObject):
         path = pathjoin(d, TRIAL_DATA_CSV)
         return path
 
+    def results_path(self, field, mkdir=False):
+        d = self.field_dir(field)
+        if mkdir:
+            mkdirs(d)
+        path = pathjoin(d, RESULTS_CSV)
+        return path
+
+    def failures_path(self, field):
+        d = self.field_dir(field)
+        path = pathjoin(d, FAILURES_CSV)
+        return path
+
     # TBD: needed only if we want to parallelize within fields rather than just across fields
     # def trial_dir(self, field, trial_num, mkdir=False):
     #     """
@@ -386,7 +427,19 @@ class Simulation(OpgeeObject):
 
     def save_trial_data(self, field):
         filename = self.trial_data_path(field, mkdir=True)
+        _logger.info(f"Writing '{filename}'")
         self.trial_data_df.to_csv(filename)
+
+    def save_trial_results(self, field, df, failures):
+        filename = self.results_path(field, mkdir=True)
+        _logger.info(f"Writing '{filename}'")
+        df.to_csv(filename, index=False)
+
+        # Save info on failed trials, too
+        with open(self.failures_path(field), 'w') as f:
+            f.write("trial_num,message\n")
+            for trial_num, msg in failures:
+                f.write(f'{trial_num},"{msg}"\n')
 
     def field_trial_data(self, field):
         """
@@ -434,12 +487,17 @@ class Simulation(OpgeeObject):
         return s
 
     def set_trial_data(self, field, trial_num):
+        _logger.debug(f"set_trial_data for trial {trial_num})")
         data = self.trial_data(field, trial_num)
 
         for name, value in data.items():
             attr = self.lookup(name, field)
             attr.explicit = True
             attr.set_value(value)
+
+            # Debugging only
+            # if name == 'WOR' and value == 0:
+            #     pass
 
         self.analysis._after_init()
         field._after_init()
@@ -451,38 +509,45 @@ class Simulation(OpgeeObject):
         :param field: (opgee.Field) the Field to evaluate in MCS
         :param trial_nums: (iterator of ints) the trial numbers to run, or
            ``None`` to run all trials.
-        :return: none
+        :return: (int) the number of successfully run trials
         """
-        analysis = self.analysis
-
-        results = []
 
         trial_nums = range(self.trials) if trial_nums is None else trial_nums
 
-        for trial_num in trial_nums:
-            _logger.debug(f"Running trial {trial_num} for {field}")
-            self.set_trial_data(field, trial_num)
+        completed = 0
+        results = []
+        failures = []
 
+        for trial_num in trial_nums:
             try:
-                field.run(analysis)
-                field.report()
-            except ModelValidationError as e:
-                _logger.warning(f"Skipping trial {trial_num} in {field}: {e}")
+                # Reload from cached XML string to avoid stale state
+                self.load_model()
+
+                # Use the new instance of field from the reloaded model
+                field = self.analysis.get_field(field.name)
+
+                self.set_trial_data(field, trial_num)
+                field.run(self.analysis, compute_ci=True, trial_num=trial_num)
+                # field.report()
+                completed += 1
+
+            except Exception as e:
+                failures.append((trial_num, e))
+                _logger.warning(f"Exception raised in trial {trial_num} in {field}: {e}")
+                _logger.debug(traceback.format_exc())
                 continue
 
-            # TBD: Save results (which?)
-            # energy: Series dtype = "mmbtu/d"
-            # emissions: DataFrame: cols are categories (Combustion, Land-use, Venting, Flaring, Fugitives, Other)
-            #                       rows are (VOC, CO, CH4, N2O, CO2, GHG)
-            # ghgs: Quantity "t/d" CO2e
-            # ci: Quantity "g/MJ" CO2e
-            #
-            energy = field.energy.data
+            # The following would exit the trial loop, so probably better to skip & continue
+            # except OpgeeException as e:
+            #     raise TrialErrorWrapper(e, trial_num)
+
+            ci = field.carbon_intensity     # computed and saved in field.run()
+
+            # energy = field.energy.data
             emissions = field.emissions.data
 
             ghg = emissions.loc['GHG']
             total_ghg = ghg.sum()
-            ci = field.compute_carbon_intensity(analysis)
             vff = ghg['Venting'] + ghg['Flaring'] + ghg['Fugitives']
 
             tup = (trial_num,
@@ -504,51 +569,9 @@ class Simulation(OpgeeObject):
                 'other']
 
         df = pd.DataFrame.from_records(results, columns=cols)
-        mkdirs(self.results_dir)
-        pathname = pathjoin(self.results_dir, field.name + '.csv')
-        _logger.info(f"Writing '{pathname}'")
-        df.to_csv(pathname, index=False)
+        self.save_trial_results(field, df, failures)
 
-    # Deprecated
-    # def run_trial(self, field, trial_num):
-    #     # Run a single trial and return a tuple with results
-    #
-    #     analysis = self.analysis
-    #
-    #     _logger.debug(f"Running trial {trial_num} for {field}")
-    #     self.set_trial_data(field, trial_num)
-    #
-    #     try:
-    #         field.run(analysis)
-    #         #field.report()
-    #     except ModelValidationError as e:
-    #         _logger.error(f"Skipping trial {trial_num}: {e}")
-    #         return None
-    #
-    #     # TBD: Save results (which?)
-    #     # energy: Series dtype = "mmbtu/d"
-    #     # emissions: DataFrame: cols are categories (Combustion, Land-use, Venting, Flaring, Fugitives, Other)
-    #     #                       rows are (VOC, CO, CH4, N2O, CO2, GHG)
-    #     # ghgs: Quantity "t/d" CO2e
-    #     # ci: Quantity "g/MJ" CO2e
-    #     #
-    #     # energy = field.energy.data
-    #     emissions = field.emissions.data
-    #
-    #     ghg = emissions.loc['GHG']
-    #     total_ghg = ghg.sum()
-    #     ci = field.compute_carbon_intensity(analysis)
-    #     vff = ghg['Venting'] + ghg['Flaring'] + ghg['Fugitives']
-    #
-    #     tup = (trial_num,
-    #            magnitude(ci),
-    #            magnitude(total_ghg),
-    #            magnitude(ghg['Combustion']),
-    #            magnitude(ghg['Land-use']),
-    #            magnitude(vff),
-    #            magnitude(ghg['Other']))
-    #
-    #     return tup
+        return completed
 
     def run(self, trial_nums, field_names=None):
         """

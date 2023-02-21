@@ -23,7 +23,7 @@ PKGNAME = __name__.split('.')[0]
 
 _Loggers    = {}      # loggers created herein, keyed by module or package name
 _LogLevels  = None    # log levels keyed by module or package name
-_verbose    = False   # whether debug msgs should print
+_verbose    = False   # whether _debug() msgs should print
 
 # Can't use this module to debug itself
 def _debug(msg):
@@ -127,7 +127,7 @@ def _configureLogger(name, force=False):
         logger = _Loggers[name]
     except KeyError:
         # add unknown logger names
-        logger = getLogger(name)
+        logger = getLogger(name)  # N.B. adds logger to _Loggers dict
         _debug("Added unknown logger name '%s'" % name)
 
     # If not forcing, skip loggers that already have handlers installed
@@ -154,8 +154,9 @@ def _configureLogger(name, force=False):
     logger.propagate = False
 
     # flush and remove all handlers
-    for handler in logger.handlers:
-
+    _debug("Flushing and removing all handlers for %s" % logger)
+    handlers = logger.handlers.copy() # avoid iterating over the list we're removing items from
+    for handler in handlers:
         if not isinstance(handler, logging.NullHandler):
             handler.flush()
         logger.removeHandler(handler)
@@ -173,6 +174,14 @@ def _configureLogger(name, force=False):
     if not logger.handlers:
         logger.addHandler(logging.NullHandler())
         _debug("Added NullHandler to root logger")
+
+def setLogFile(pathname, remove_old_file=False):
+    from .config import setParam
+    if remove_old_file and os.path.isfile(pathname):
+        os.remove(pathname)
+
+    setParam('OPGEE.LogFile', pathname)
+    configureLogs(force=True)
 
 
 def configureLogs(force=False):

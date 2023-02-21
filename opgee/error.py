@@ -12,7 +12,7 @@ class OpgeeException(Exception):
 
 
 # Parent of the two exceptions thrown to stop process cycles
-class OpgeeStopIteration(Exception):
+class OpgeeStopIteration(OpgeeException):
     def __init__(self, reason):
         self.reason = reason
 
@@ -36,12 +36,15 @@ class AbstractMethodError(OpgeeException):
 
 
 class AttributeError(OpgeeException):
-    def __init__(self, dict_name, key):
-        self.dict_name = dict_name
-        self.key = key
+    pass
 
-    def __str__(self):
-        return f"Attribute {self.dict_name} for '{self.key}' was not found"
+# class AttributeError(OpgeeException):
+#     def __init__(self, dict_name, key):
+#         self.dict_name = dict_name
+#         self.key = key
+#
+#     def __str__(self):
+#         return f"Attribute {self.dict_name} for '{self.key}' was not found"
 
 
 class FileFormatError(OpgeeException):
@@ -117,9 +120,22 @@ class RemoteError(OpgeeException):
     Returned when we catch any exception so it can be handled
     in the Manager.
     """
-    def __init__(self, msg, field_name):
+    def __init__(self, msg, field_name, trial=None):
         self.msg = msg
         self.field_name = field_name
+        self.trial = trial
 
     def __str__(self):
-        return f"<RemoteError field='{self.field_name} msg='{self.msg}'>"
+        trial_str = f" trial={self.trial}" if self.trial is not None else ""
+        return f"<RemoteError field='{self.field_name}'{trial_str} msg='{self.msg}'>"
+
+class TrialErrorWrapper(OpgeeException):
+    """
+    Wraps an exception to add the trial number for debugging
+    """
+    def __init__(self, error, trial):
+        self.trial = trial
+        self.error = error
+
+    def __str__(self):
+        return f"trial:{self.trial} {self.error}"

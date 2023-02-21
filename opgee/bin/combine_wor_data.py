@@ -13,5 +13,7 @@ uk_df = pd.read_csv(uk_csv)
 orig_df = pd.read_csv(orig_csv)
 
 all = pd.concat([orig_df, norway_df, uk_df], axis="rows").dropna(axis='rows')
+all = all.query("WOR > 0") # drop any remaining rows with zero or negative values for WOR
+
 all_csv = etc_dir + 'all_wor.csv'
 all.to_csv(all_csv, index=False)

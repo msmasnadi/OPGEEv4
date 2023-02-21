@@ -9,7 +9,7 @@
 		<Group>First test</Group>		<!-- to test regex group matching -->
 		<A name="country">USA</A>
 
-		<!-- these are mutually exclusive but are not -->
+		<!-- these used to be mutually exclusive but are no longer -->
 		<A name="steam_flooding">1</A>
 		<A name="gas_flooding">1</A>
 

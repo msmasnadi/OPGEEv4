@@ -18,7 +18,7 @@ def test_read_xml():
 def test_bad_filename():
     xml_file = 'nonexistent-model.xml'
     xml_path = path_to_test_file(xml_file)
-    with pytest.raises(XmlFormatError, match=f"Can't read XML file '{xml_path}': .*"):
+    with pytest.raises(XmlFormatError, match=f"Can't read from XML file '{xml_path}': .*"):
         XMLFile(xml_path)
 
 def test_bad_model():
