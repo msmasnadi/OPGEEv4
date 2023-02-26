@@ -117,7 +117,7 @@ class Field(Container):
 
         self.stp = STP
 
-        self.component_and_site_fugitive_table = None
+        self.component_fugitive_table = None
 
         self.import_export = ImportExport()
 
@@ -184,7 +184,7 @@ class Field(Container):
 
         self.cycles = list(nx.simple_cycles(g))
 
-        self.component_and_site_fugitive_table = self.get_component_fugitive()
+        self.component_fugitive_table = self.get_component_fugitive()
 
         # if self.cycles:
         #     _logger.debug(f"Field '{self.name}' has cycles: {self.cycles}")
@@ -484,11 +484,10 @@ class Field(Container):
             field_productivity.apply(
                 lambda row: self.comp_fugitive_productivity(prod_mat_gas, row['Mean gas rate (Mscf/well/day)']), axis=1)
 
-        # TODO: deduplicate it!
-        cols_gas = ['Well', 'Header', 'Heater', 'Separator', 'Meter', 'Tanks-leaks', 'Tank-thief hatch', 'Recip Comp',
-                    'Dehydrator', 'Chem Inj Pump', 'Pneum Controllers', 'Flash factor', 'LU-plunger', 'LU-no plunger']
-        cols_oil = ['Well', 'Header', 'Heater', 'Separator', 'Meter', 'Tanks-leaks', 'Tank-thief hatch', 'Recip Comp',
-                    'Dehydrator', 'Chem Inj Pump', 'Pneum Controllers', 'Flash factor']
+        common_cols = ['Well', 'Header', 'Heater', 'Separator', 'Meter', 'Tanks-leaks', 'Tank-thief hatch', 'Recip Comp',
+                'Dehydrator', 'Chem Inj Pump', 'Pneum Controllers', 'Flash factor']
+        cols_gas = common_cols + ['LU-plunger', 'LU-no plunger']
+        cols_oil = common_cols
         tranch = range(10)
         flash_factor = 0.51  # kg CH4/bbl (total flashing gas). Divide by 0.51 to correct for fraction of wells controlled in Rutherford et al. 2021
 
@@ -517,7 +516,7 @@ class Field(Container):
             'DownholePump' : pump_loss_rate}
 
         process_loss_rate =\
-            pd.Series(data=process_loss_rate_dict, index=['Separation', 'CrudeOilStorage', 'DownholePump'])
+            pd.Series(data=process_loss_rate_dict, index=['Separation', 'CrudeOilStorage', 'DownholePump'], dtype="pint[frac]")
 
         return process_loss_rate
 

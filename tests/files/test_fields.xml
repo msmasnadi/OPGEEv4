@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <Model>
   <Analysis name="test-fields">
-    <Field name="Field 2" modifies="gas_lifting_field">
+    <Field name="Field 2" modifies="template">
       <A name="downhole_pump">0</A>
       <A name="water_reinjection">1</A>
       <A name="natural_gas_reinjection">1</A>
@@ -37,7 +37,7 @@
       <A name="transport_dist_pipeline">0.0</A>
       <A name="transport_dist_rail">0.0</A>
     </Field>
-    <Field name="Field 3" modifies="gas_lifting_field">
+    <Field name="Field 3" modifies="template">
       <A name="downhole_pump">0</A>
       <A name="water_reinjection">1</A>
       <A name="water_flooding">0</A>
@@ -71,7 +71,7 @@
       <A name="transport_dist_rail">0.0</A>
       <A name="transport_dist_truck">0.0</A>
     </Field>
-    <Field name="Field 4" modifies="gas_lifting_field">
+    <Field name="Field 4" modifies="template">
       <A name="downhole_pump">1</A>
       <A name="water_reinjection">1</A>
       <A name="natural_gas_reinjection">0</A>
@@ -101,7 +101,7 @@
       <A name="transport_dist_pipeline">24.0</A>
       <A name="transport_dist_rail">0.0</A>
     </Field>
-    <Field name="Field 5" modifies="gas_lifting_field">
+    <Field name="Field 5" modifies="template">
       <A name="downhole_pump">0</A>
       <A name="water_reinjection">0</A>
       <A name="natural_gas_reinjection">0</A>
@@ -136,4 +136,74 @@
       <A name="transport_dist_rail">0.0</A>
     </Field>
   </Analysis>
+
+  <Analysis name="test_fugitive">
+        <A name="functional_unit">oil</A>
+        <A name="GWP_horizon">100</A>
+        <A name="GWP_version">AR5</A>
+
+        <Field name="test_component_fugitive_oilfield"/>
+        <Field name="test_component_fugitive_gasfield"/>
+  </Analysis>
+
+  <Field name="test_component_fugitive_oilfield">
+      <A name="downhole_pump">0</A>
+      <A name="water_reinjection">1</A>
+      <A name="natural_gas_reinjection">1</A>
+      <A name="water_flooding">0</A>
+      <A name="gas_lifting">1</A>
+      <A name="gas_flooding">0</A>
+      <A name="steam_flooding">0</A>
+      <A name="oil_sands_mine">None</A>
+      <A name="country">Angola</A>
+      <A name="name">Girassol</A>
+      <A name="age">12.0</A>
+      <A name="depth">3937.0</A>
+      <A name="oil_prod">175000.0</A>
+      <A name="num_prod_wells">24.0</A>
+      <A name="num_water_inj_wells">20.0</A>
+      <A name="well_diam">8.0</A>
+      <A name="prod_index">90.9</A>
+      <A name="res_press">3655.0</A>
+      <A name="API">32.0</A>
+      <A name="GOR">584.29</A>
+      <A name="WOR">0.5</A>
+      <A name="WIR">1.5</A>
+      <A name="GLIR">30.26</A>
+      <A name="fraction_elec_onsite">1.0</A>
+      <A name="fraction_water_reinjected">1.0</A>
+      <A name="gas_processing_path">None</A>
+      <A name="frac_transport_tanker">1.0</A>
+      <A name="frac_transport_barge">0.0</A>
+      <A name="frac_transport_pipeline">0.0</A>
+      <A name="frac_transport_rail">0.0</A>
+      <A name="transport_dist_tanker">7984.0</A>
+      <A name="transport_dist_barge">0.0</A>
+      <A name="transport_dist_pipeline">0.0</A>
+      <A name="transport_dist_rail">0.0</A>
+    </Field>
+
+    <Field name="test_component_fugitive_gasfield">
+      <A name="downhole_pump">1</A>
+      <A name="water_reinjection">0</A>
+      <A name="natural_gas_reinjection">1</A>
+      <A name="water_flooding">0</A>
+      <A name="gas_lifting">0</A>
+      <A name="gas_flooding">0</A>
+      <A name="steam_flooding">0</A>
+      <A name="oil_sands_mine">None</A>
+      <A name="country">Denmark</A>
+      <A name="name">Dansk (Dan/Gorm/Tyra)</A>
+      <A name="age">29.0</A>
+      <A name="depth">6600.0</A>
+      <A name="oil_prod">8964.05</A>
+      <A name="num_prod_wells">52</A>
+      <A name="res_press">1419.0</A>
+      <A name="GOR">1857400.91</A>
+      <A name="WOR">1.77</A>
+      <A name="WIR">0.0</A>
+      <A name="frac_transport_tanker">1.0</A>
+      <A name="transport_dist_tanker">6135.0</A>
+    </Field>
+
 </Model>
