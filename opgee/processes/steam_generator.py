@@ -206,9 +206,6 @@ class SteamGenerator(OpgeeObject):
                          water_mass_rate_for_injection,
                          blowdown_water_mass_rate):
 
-        # TODO: Wennan, I'm think we need a 'ThermoState' object to hold temperature and pressure. (Not sure that's
-        #       the best name though.) It would simplify the many function calls that pass the two together.
-
         prod_water_enthalpy_rate, makeup_water_enthalpy_rate, blowdown_water_recoverable_enthalpy_rate, steam_out_enthalpy_rate = \
             self.get_water_steam_enthalpy_rate(prod_water_mass_rate,
                                                makeup_water_mass_rate,
@@ -444,6 +441,7 @@ class SteamGenerator(OpgeeObject):
             delta_error = (duct_additional_fuel_new - duct_additional_fuel) ** 2
             duct_additional_fuel = duct_additional_fuel_new
 
+        # TODO: these next lines will fail if delta_error is initially <= tolerance since these vars won't be set
         HRSG_inlet = HRSG_inlet.drop(labels=["C1"])
 
         return HRSG_inlet, HRSG_inlet_sum, HRSG_inlet_MW, HRSG_inlet_LHV_fuel, HRSG_inlet_LHV_stream, duct_additional_fuel

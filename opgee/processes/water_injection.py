@@ -31,11 +31,6 @@ class WaterInjection(Process):
         self.field = field = self.get_field()
         self.water_reinjection = field.attr("water_reinjection")
         self.water_flooding = field.attr("water_flooding")
-
-        # if self.water_reinjection == 0 and self.water_flooding == 0:
-        #     self.set_enabled(False)
-        #     return
-
         self.prod_index = field.attr("prod_index")
         self.water = field.water
         self.water_density = self.water.density()

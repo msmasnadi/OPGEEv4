@@ -6,13 +6,11 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-from .. import ureg
 from ..core import TemperaturePressure
 from ..emissions import EM_COMBUSTION
 from ..import_export import DILUENT
 from ..process import Process
 from ..processes.transport_energy import TransportEnergy
-from ..stream import Stream
 from .shared import get_energy_carrier
 
 

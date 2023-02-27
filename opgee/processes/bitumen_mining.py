@@ -12,7 +12,7 @@ from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
 from ..log import getLogger
 from ..process import Process
-from ..stream import PHASE_GAS, Stream
+from ..stream import Stream
 from ..error import OpgeeException
 
 _logger = getLogger(__name__)
@@ -38,6 +38,7 @@ class BitumenMining(Process):
 
         self.oil_sands_mine = field.attr("oil_sands_mine")
         if self.oil_sands_mine == "None":
+            # TODO: move this to the run() method
             self.set_enabled(False)
             return
 

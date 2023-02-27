@@ -69,6 +69,8 @@ class Exploration(Process):
         oil_mass_energy_density = field.oil.mass_energy_density()
         if self.field.get_process_data("crude_LHV") is None:
             self.field.save_process_data(crude_LHV=oil_mass_energy_density)
+
+        # TODO: why is this called if result is not used?
         _ = TransportEnergy.get_transport_energy_dict(field,
                                                       self.transport_parameter,
                                                       self.transport_share_fuel,

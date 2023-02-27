@@ -436,7 +436,9 @@ class Simulation(OpgeeObject):
         df.to_csv(filename, index=False)
 
         # Save info on failed trials, too
-        with open(self.failures_path(field), 'w') as f:
+        failures_csv = self.failures_path(field)
+        _logger.info(f"Writing {len(failures)} failures to '{failures_csv}'")
+        with open(failures_csv, 'w') as f:
             f.write("trial_num,message\n")
             for trial_num, msg in failures:
                 f.write(f'{trial_num},"{msg}"\n')

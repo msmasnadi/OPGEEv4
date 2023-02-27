@@ -10,7 +10,6 @@ from .shared import get_energy_carrier
 from .. import ureg
 from ..core import TemperaturePressure
 from ..emissions import EM_COMBUSTION
-from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY
 from ..error import OpgeeException
 from ..log import getLogger
 from ..process import Process
@@ -29,6 +28,7 @@ class CrudeOilDewatering(Process):
         self.oil_sand_mine = field.attr("oil_sands_mine")
         # oil sand mining has no crude oil dewatering
         if self.oil_sand_mine != "None":
+            # TODO: move this to the run() method
             self.set_enabled(False)
             return
 

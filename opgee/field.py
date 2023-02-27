@@ -245,7 +245,12 @@ class Field(Container):
         :param compute_ci: (bool) if False, CI calculation is not performed (used by some tests)
         :return: None
         """
+        from .core import Timer
+
+
         if self.is_enabled():
+            timer = Timer('field.run').start()
+
             trial_str = f"trial {trial_num} of " if trial_num is not None else ""
             _logger.info(f"Running {trial_str}'{self.name}'")
 
@@ -266,6 +271,7 @@ class Field(Container):
 
             self.get_emission_rates(analysis, procs_to_exclude=self.procs_beyond_boundary)
             self.carbon_intensity = self.compute_carbon_intensity(analysis) if compute_ci else None
+            _logger.info(timer.stop())
 
 
     def reset(self):

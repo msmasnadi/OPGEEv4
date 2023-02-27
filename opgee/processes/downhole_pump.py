@@ -40,6 +40,7 @@ class DownholePump(Process):
         # oil sand mining has no downhole pump
         self.oil_sand_mine = field.attr("oil_sands_mine")
         if self.oil_sand_mine != "None":
+            # TODO: move this to run() method
             self.set_enabled(False)
             return
 

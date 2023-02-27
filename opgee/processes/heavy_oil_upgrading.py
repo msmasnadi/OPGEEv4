@@ -26,6 +26,7 @@ class HeavyOilUpgrading(Process):
         self.field = field = self.get_field()
         self.upgrader_type = field.attr("upgrader_type")
         if self.upgrader_type == "None":
+            # TODO: move this to run() method
             self.set_enabled(False)
             return
 

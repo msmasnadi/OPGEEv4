@@ -19,7 +19,6 @@ _logger = getLogger(__name__)
 class PetrocokeTransport(Process):
     """
     Petrocoke transport calculate emissions from petrocoke to the market
-
     """
 
     def _after_init(self):

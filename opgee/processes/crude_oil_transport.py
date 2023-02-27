@@ -19,7 +19,6 @@ _logger = getLogger(__name__)
 class CrudeOilTransport(Process):
     """
     Crude oil transport calculate emissions from crude oil to the market
-
     """
 
     def _after_init(self):

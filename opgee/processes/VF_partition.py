@@ -6,18 +6,18 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-from .. import ureg
 from ..core import STP
 from ..log import getLogger
 from ..process import Process
-from ..stream import PHASE_GAS, Stream
+from ..stream import PHASE_GAS
 
 _logger = getLogger(__name__)
 
 
 class VFPartition(Process):
     """
-    VF (Venting and Flaring) partition is to check the reasonable amount of gas goes to venting, flaring and further process
+    VF (Venting and Flaring) partition is to check the reasonable amount of gas
+    goes to venting, flaring and further processes.
     """
 
     def _after_init(self):
@@ -27,8 +27,8 @@ class VFPartition(Process):
         self.FOR = field.attr("FOR")
         self.mol_per_scf = field.model.const("mol-per-scf")
         self.oil_volume_rate = field.attr("oil_prod")
-        self.combusted_gas_frac = field.attr(
-            "combusted_gas_frac")  # TODO: add smart default to this parameter from lookup table
+
+        self.combusted_gas_frac = field.attr("combusted_gas_frac")  # TODO: add smart default to this parameter from lookup table
 
     def run(self, analysis):
         self.print_running_msg()

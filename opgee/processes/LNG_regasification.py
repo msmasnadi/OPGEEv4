@@ -17,7 +17,6 @@ _logger = getLogger(__name__)
 class LNGRegasification(Process):
     """
     LNG liquefaction calculate emission of transported gas to regasification
-
     """
     def _after_init(self):
         super()._after_init()

@@ -28,6 +28,7 @@ class Drilling(Process):
         self.volume_per_well_fractured = field.attr("volume_per_well_fractured")
         self.oil_sand_mine = field.attr("oil_sands_mine")
         if self.oil_sand_mine != "None":
+            # TODO: move this to run method
             self.set_enabled(False)
             return
         self.land_use_EF = field.model.land_use_EF

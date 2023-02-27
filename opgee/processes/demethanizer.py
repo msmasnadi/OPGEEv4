@@ -13,7 +13,6 @@ from .shared import get_energy_carrier, predict_blower_energy_use, get_bounded_v
 from .. import ureg
 from ..core import STP
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
-from ..error import OpgeeException
 from ..log import getLogger
 from ..process import Process
 from ..process import run_corr_eqns

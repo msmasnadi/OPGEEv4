@@ -52,6 +52,7 @@ class WaterTreatment(Process):
         self.oil_sand_mine = field.attr("oil_sands_mine")
         # oil sand mining has no water treatment
         if self.oil_sand_mine != "None":
+            # TODO: move this to run()
             self.set_enabled(False)
             return
 

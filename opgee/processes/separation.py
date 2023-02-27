@@ -57,6 +57,7 @@ class Separation(Process):
         self.oil_sand_mine = field.attr("oil_sands_mine")
         # oil sand mining has no separation
         if self.oil_sand_mine != "None":
+            # TODO: move this to run()
             self.set_enabled(False)
             return
 

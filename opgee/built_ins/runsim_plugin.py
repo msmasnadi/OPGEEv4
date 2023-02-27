@@ -103,7 +103,7 @@ class RunsimCommand(SubcommandABC):
         from ..error import OpgeeException
         from ..utils import parseTrialString
         from ..mcs.simulation import Simulation
-        from ..mcs.distributed_mcs_dask import Manager
+        from ..mcs.distributed_mcs_dask import Manager, run_field
 
         sim_dir = args.simulation_dir
         field_names = args.fields or []
@@ -125,10 +125,9 @@ class RunsimCommand(SubcommandABC):
             ntasks = len(field_names)
 
         if args.serial:
-            sim = Simulation(sim_dir, field_names=field_names)
             trial_nums = (None if args.trials == 'all' else parseTrialString(args.trials))
-            sim.run(trial_nums)
-
+            for field_name in field_names:
+                run_field(sim_dir, field_name, trial_nums=trial_nums)
         else:
             mgr = Manager(cluster_type=args.cluster_type)
             mgr.run_mcs(sim_dir, field_names=field_names, num_engines=ntasks,
