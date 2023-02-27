@@ -1,6 +1,9 @@
 import pytest
+from opgee import ureg
 from .utils_for_tests import load_model_from_str
 from opgee.error import XmlFormatError
+from .utils_for_tests import load_test_model
+from .test_process import approx_equal
 
 model_xml_1 = """
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
@@ -48,6 +51,29 @@ model_xml_2 = """
 
 </Model>
 """
+
+
+@pytest.fixture(scope="module")
+def test_field(configure_logging_for_tests):
+    return load_test_model('test_fields.xml',
+                           use_default_model=True) # this is required since test_fields references "template" field
+
+
+def test_component_fugitive(test_field):
+    analysis = test_field.get_analysis('test_fugitive')
+    oilfield = analysis.get_field('test_component_fugitive_oilfield')
+    oilfield_component_fugitive_df = oilfield.get_component_fugitive()
+
+    assert approx_equal(oilfield_component_fugitive_df['Separation'], ureg.Quantity(3.053545e-05, "frac"))
+    assert approx_equal(oilfield_component_fugitive_df['CrudeOilStorage'], ureg.Quantity(0.931951, "frac"))
+    assert approx_equal(oilfield_component_fugitive_df['DownholePump'], ureg.Quantity(0.000440667, "frac"))
+
+    gasfield = analysis.get_field('test_component_fugitive_gasfield')
+    gasfield_component_fugitive_df = gasfield.get_component_fugitive()
+
+    assert approx_equal(gasfield_component_fugitive_df['Separation'], ureg.Quantity(3.77813e-5, "frac"))
+    assert approx_equal(gasfield_component_fugitive_df['CrudeOilStorage'], ureg.Quantity(0.4323671, "frac"))
+    assert approx_equal(gasfield_component_fugitive_df['DownholePump'], ureg.Quantity(0.00022904, "frac"))
 
 
 def test_bad_boundary():
