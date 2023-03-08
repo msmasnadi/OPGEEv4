@@ -21,7 +21,7 @@ class SourGasCompressor(Process):
         super()._after_init()
         self.field = field = self.get_field()
         self.gas = field.gas
-        self.res_press = field.attr("res_press")
+        self.res_press = field.res_press
         self.eta_compressor = self.attr("eta_compressor")
         self.prime_mover_type = self.attr("prime_mover_type")
 

@@ -32,8 +32,8 @@ class GasDehydration(Process):
         self.mol_to_scf = model.const("mol-per-scf")
         self.air_elevation_const = model.const("air-elevation-corr")
         self.air_density_ratio = model.const("air-density-ratio")
-        self.reflux_ratio = field.attr("reflux_ratio")
-        self.regeneration_feed_temp = field.attr("regeneration_feed_temp")
+        self.reflux_ratio = field.reflux_ratio
+        self.regeneration_feed_temp = field.regeneration_feed_temp
         self.eta_reboiler_dehydrator = self.attr("eta_reboiler_dehydrator")
         self.air_cooler_delta_T = self.attr("air_cooler_delta_T")
         self.air_cooler_press_drop = self.attr("air_cooler_press_drop")
@@ -44,7 +44,7 @@ class GasDehydration(Process):
                            self.air_cooler_press_drop * \
                            field.model.const("gravitational-acceleration")
 
-        self.gas_path = field.attr("gas_processing_path")
+        self.gas_path = field.gas_path
 
         self.gas_path_dict = {"Minimal": "gas for gas partition",
                               "Acid Gas": "gas for AGR",

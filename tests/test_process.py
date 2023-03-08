@@ -596,7 +596,7 @@ def test_CrudeOilStorage(test_model):
     proc = field.find_process('CrudeOilStorage')
     # ensure total emission flow rates
     total = proc.emissions.data.loc["GHG"].sum()
-    expected = ureg.Quantity(1885.055763739042, "tonne/day")
+    expected = ureg.Quantity(24.0898712, "tonne/day")
     assert approx_equal(total, expected)
 
 

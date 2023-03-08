@@ -18,6 +18,17 @@ _logger = getLogger(__name__)
 
 
 class CO2Membrane(Process):
+    """
+    This process represents the separation of CO2 from natural gas using a membrane.
+
+    input streams:
+        - gas for CO2 membrane
+
+    output streams:
+        - gas for AGR
+        - gas for CO2 compressor
+
+    """
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
@@ -26,7 +37,7 @@ class CO2Membrane(Process):
         self.press_drop = self.attr("press_drop_across_membrane")
         self.eta_compressor = self.attr("eta_compressor")
         self.prime_mover_type = self.attr("prime_mover_type")
-        self.AGR_feedin_press = field.attr("AGR_feedin_press")
+        self.AGR_feedin_press = field.AGR_feedin_press
 
     def run(self, analysis):
         self.print_running_msg()
@@ -60,9 +71,6 @@ class CO2Membrane(Process):
         energy_use = self.energy
         energy_carrier = get_energy_carrier(self.prime_mover_type)
         energy_use.set_rate(energy_carrier, energy_consumption)
-
-        # import/export
-        self.set_import_from_energy(energy_use)
 
         # emissions
         emissions = self.emissions

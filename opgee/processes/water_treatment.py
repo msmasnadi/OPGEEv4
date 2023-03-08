@@ -21,17 +21,17 @@ class WaterTreatment(Process):
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
-        self.oil_volume_rate = field.attr("oil_prod")
-        self.WOR = field.attr("WOR")
-        self.WIR = field.attr("WIR")
+        self.oil_volume_rate = field.oil_volume_rate
+        self.WOR = field.WOR
+        self.WIR = field.WIR
 
-        self.water_reinjection = field.attr("water_reinjection")
-        self.water_flooding = field.attr("water_flooding")
-        self.frac_water_reinj = field.attr("fraction_water_reinjected")
+        self.water_reinjection = field.water_reinjection
+        self.water_flooding = field.water_flooding
+        self.frac_water_reinj = field.frac_water_reinj
         self.water_density_STP = field.water.density()
 
-        self.steam_flooding = field.attr("steam_flooding")
-        self.SOR = field.attr("SOR")
+        self.steam_flooding = field.steam_flooding
+        self.SOR = field.SOR
         self.steam_quality_outlet = self.attr("steam_quality_at_generator_outlet")
         self.steam_quality_blowdown = self.attr("steam_quality_after_blowdown")
 
@@ -48,16 +48,16 @@ class WaterTreatment(Process):
         self.num_stages = self.attr("number_of_stages")
 
         self.init_intermediate_results(["Produced Water", "Makeup Water"])
-
-        self.oil_sand_mine = field.attr("oil_sands_mine")
-        # oil sand mining has no water treatment
-        if self.oil_sand_mine != "None":
-            self.set_enabled(False)
-            return
+        self.oil_sands_mine = field.oil_sands_mine
 
     def run(self, analysis):
         self.print_running_msg()
         field = self.field
+
+        # oil sand mining has no water treatment
+        if self.oil_sands_mine != "None":
+            self.set_enabled(False)
+            return
 
         # mass rate
         input = self.find_input_streams("water", combine=True)

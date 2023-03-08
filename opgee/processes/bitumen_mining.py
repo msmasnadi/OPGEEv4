@@ -20,39 +20,48 @@ _logger = getLogger(__name__)
 
 class BitumenMining(Process):
     """
-    This process takes ... do ...
+        This process takes input streams and produces output streams as part of an
+        oil sands mining operation.
 
-    input streams:
-        - (optional)
+        Inputs:
+            - Streams from bitumen path dictionary
 
-    output streams:
-        - (optional)
+        Outputs:
+            - Bitumen stream for upgrading or dilution
+            - Gas stream for partition
 
-    field data stored:
-        -
+        Attributes:
+            - oil_sands_mine: Name of the oil sands mine
+            - API_bitumen: API gravity of the bitumen
+            - bitumen_SG: Specific gravity of the bitumen
+            - mined_bitumen_tp: Temperature and pressure of the mined bitumen
+            - oil_prod_rate: Oil production rate
+            - upgrader_type: Type of upgrader used
+            - gas_comp: Gas composition
+            - FOR: Flaring oil ratio
+            - VOR: Venting oil ratio
+            - bitumen_path_dict: Dictionary of possible paths for the bitumen stream
+            - water_density: Density of water
+            - CH4_loss_rate: Methane loss rate
     """
-
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
 
-        self.oil_sands_mine = field.attr("oil_sands_mine")
-        if self.oil_sands_mine == "None":
-            self.set_enabled(False)
-            return
-
+        self.oil_sands_mine = field.oil_sands_mine
         self.oil = field.oil
-        self.API_bitumen = field.attr("API")
-        self.bitumen_SG = self.oil.specific_gravity(self.API_bitumen)
+        self.bitumen_SG = self.oil.specific_gravity(field.API)
 
-        self.mined_bitumen_tp = TemperaturePressure(field.attr("temperature_mined_bitumen"),
-                                                    field.attr("pressure_mined_bitumen"))
-        self.downhole_pump = field.attr("downhole_pump")
-        self.oil_prod_rate = field.attr("oil_prod")
-        self.upgrader_type = field.attr("upgrader_type")
-        self.gas_comp = field.attrs_with_prefix("gas_comp_")
-        self.FOR = field.attr("FOR")
-        self.VOR = field.attr("VOR")
+        self.mined_bitumen_t = field.mined_bitumen_t
+        self.mined_bitumen_p = field.mined_bitumen_p
+        self.mined_bitumen_tp = TemperaturePressure(self.mined_bitumen_t,
+                                                    self.mined_bitumen_p)
+        self.downhole_pump = field.downhole_pump
+        self.oil_volume_rate = field.oil_volume_rate
+        self.upgrader_type = field.upgrader_type
+        self.gas_comp = field.gas_comp
+        self.FOR = field.FOR
+        self.VOR = field.VOR
         self.bitumen_path_dict = {"Integrated with upgrader": "bitumen for upgrading",
                                   "Integrated with diluent": "bitumen for dilution",
                                   "Integrated with both": "bitumen for dilution"}
@@ -65,7 +74,11 @@ class BitumenMining(Process):
         self.print_running_msg()
         field = self.field
 
-        bitumen_mass_rate = self.oil_prod_rate * self.bitumen_SG * self.water_density
+        if self.oil_sands_mine == "None":
+            self.set_enabled(False)
+            return
+
+        bitumen_mass_rate = self.oil_volume_rate * self.bitumen_SG * self.water_density
         try:
             output = self.bitumen_path_dict[self.oil_sands_mine]
         except:
@@ -78,11 +91,10 @@ class BitumenMining(Process):
         self.set_iteration_value(output_bitumen.total_flow_rate())
 
         d = self.model.mining_energy_intensity
-
         mining_intensity_table = d[self.oil_sands_mine]
         unit_col = d["Units"]
 
-        temp = self.oil_prod_rate * field.gas.component_gas_rho_STP["C1"]
+        temp = self.oil_volume_rate * field.gas.component_gas_rho_STP["C1"]
         mine_flaring_rate = self.FOR * temp
         mine_CH4_rate = self.CH4_loss_rate * temp
 
@@ -96,13 +108,13 @@ class BitumenMining(Process):
         # energy-use
         energy_use = self.energy
         NG_consumption = \
-            self.oil_prod_rate * ureg.Quantity(mining_intensity_table["Natural gas use"],
-                                               unit_col["Natural gas use"]) * self.model.const("NG-heating-value")
+            self.oil_volume_rate * ureg.Quantity(mining_intensity_table["Natural gas use"],
+                                                 unit_col["Natural gas use"]) * self.model.const("NG-heating-value")
         diesel_consumption = \
-            self.oil_prod_rate * ureg.Quantity(mining_intensity_table["Diesel fuel use"],
-                                               unit_col["Diesel fuel use"]) * self.model.const("diesel-LHV")
+            self.oil_volume_rate * ureg.Quantity(mining_intensity_table["Diesel fuel use"],
+                                                 unit_col["Diesel fuel use"]) * self.model.const("diesel-LHV")
         electricity_consumption = \
-            self.oil_prod_rate * ureg.Quantity(mining_intensity_table["Electricity use"], unit_col["Electricity use"])
+            self.oil_volume_rate * ureg.Quantity(mining_intensity_table["Electricity use"], unit_col["Electricity use"])
         energy_use.set_rate(EN_NATURAL_GAS, NG_consumption.to("mmBtu/day"))
         energy_use.set_rate(EN_DIESEL, diesel_consumption.to("mmBtu/day"))
         energy_use.set_rate(EN_ELECTRICITY, electricity_consumption.to("mmBtu/day"))

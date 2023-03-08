@@ -23,7 +23,7 @@ class Separation(Process):
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
-        self.oil_volume_rate = field.attr("oil_prod")
+        self.oil_volume_rate = field.oil_volume_rate
 
         # Primary mover type is one of: {"NG_engine", "Electric_motor", "Diesel_engine", "NG_turbine"}
         self.prime_mover_type = self.attr("prime_mover_type")
@@ -34,40 +34,40 @@ class Separation(Process):
         self.outlet_tp = TemperaturePressure(self.attr("temperature_outlet"),
                                              self.attr("pressure_outlet"))
 
-        self.temperature_stage1 = field.attr("wellhead_temperature")
+        self.temperature_stage1 = field.wellhead_t
         self.temperature_stage2 = (self.temperature_stage1.to("kelvin") + self.outlet_tp.T.to("kelvin")) / 2
 
         self.pressure_stage1 = self.attr("pressure_first_stage")
         self.pressure_stage2 = self.attr("pressure_second_stage")
         self.pressure_stage3 = self.attr("pressure_third_stage")
 
-        self.oil_volume_rate = field.attr("oil_prod")  # (float) bbl/day
-        self.gas_oil_ratio = field.attr("GOR")  # (float) scf/bbl
-        self.gas_comp = field.attrs_with_prefix("gas_comp_")  # Pandas.Series (float) percent
+        self.gas_oil_ratio = field.gas_oil_ratio
+        self.gas_comp = field.gas_comp
 
-        self.water_oil_ratio = field.attr("WOR")
+        self.water_oil_ratio = field.WOR
 
         self.num_of_stages = self.attr("number_stages")
 
-        self.pressure_after_boosting = field.attr("gas_pressure_after_boosting")
+        self.pressure_after_boosting = field.stab_gas_press
 
         self.water_content = self.attr("water_content_oil_emulsion")
-        self.compressor_eff = self.attr("eta_compressor").to("frac")
-
-        self.oil_sand_mine = field.attr("oil_sands_mine")
-        # oil sand mining has no separation
-        if self.oil_sand_mine != "None":
-            self.set_enabled(False)
-            return
+        self.compressor_eff = self.attr("eta_compressor")
+        self.oil_sands_mine = field.oil_sands_mine
 
     def run(self, analysis):
         self.print_running_msg()
         field = self.field
 
+
+        # oil sand mining has no separation
+        if self.oil_sands_mine != "None":
+            self.set_enabled(False)
+            return
+
         # mass rate
         input = self.find_input_stream("crude oil")
 
-        loss_rate = self.venting_fugitive_rate()
+        loss_rate = field.component_fugitive_table[self.name]
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
         gas_after = self.find_output_stream("gas for partition")

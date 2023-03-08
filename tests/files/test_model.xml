@@ -1324,7 +1324,7 @@
 
 		<Stream src="Before" dst="CrudeOilStorage">
 			<Contains>oil for storage</Contains>
-			<Component name="oil" phase="liquid">19453.21339</Component>
+			<Component name="oil" phase="liquid">276.392143</Component>
 			<A name="temperature">60.0</A>
 			<A name="pressure">14.7</A>
 		</Stream>

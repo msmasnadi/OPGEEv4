@@ -29,7 +29,7 @@ class GasPartition(Process):
         super()._after_init()
         self.field = field = self.get_field()
         self.gas = field.gas
-        self.gas_lifting = field.attr("gas_lifting")
+        self.gas_lifting = field.gas_lifting
 
         self.CO2_source = self.attr("CO2_source")
         self.impurity_CH4_in_CO2 = self.attr("impurity_CH4_in_CO2")
@@ -37,17 +37,17 @@ class GasPartition(Process):
 
         self.imported_NG_comp = field.imported_gas_comp["NG Flooding"]
         self.imported_NG_mass_frac = field.gas.component_mass_fractions(self.imported_NG_comp)
-        self.API = field.attr("API")
+        self.API = field.API
 
-        self.fraction_remaining_gas_inj = field.attr("fraction_remaining_gas_inj")
-        self.natural_gas_reinjection = field.attr("natural_gas_reinjection")
-        self.gas_flooding = field.attr("gas_flooding")
-        self.flood_gas_type = field.attr("flood_gas_type")
-        self.GLIR = field.attr("GLIR")
-        self.oil_prod = field.attr("oil_prod")
-        self.WOR = field.attr("WOR")
+        self.fraction_remaining_gas_inj = field.fraction_remaining_gas_inj
+        self.natural_gas_reinjection = field.natural_gas_reinjection
+        self.gas_flooding = field.gas_flooding
+        self.flood_gas_type = field.flood_gas_type
+        self.GLIR = field.GLIR
+        self.oil_volume_rate = field.oil_volume_rate
+        self.WOR = field.WOR
         self.iteration_tolerance = field.model.attr("iteration_tolerance")
-        self.flood_gas_type = field.attr("flood_gas_type")
+        self.flood_gas_type = field.flood_gas_type
         self.N2_flooding_tp = TemperaturePressure(self.attr("N2_flooding_temp"),
                                                   self.attr("N2_flooding_press"))
         self.C1_flooding_tp = TemperaturePressure(self.attr("C1_flooding_temp"),
@@ -55,10 +55,9 @@ class GasPartition(Process):
         self.CO2_flooding_tp = TemperaturePressure(self.attr("CO2_flooding_temp"),
                                                    self.attr("CO2_flooding_press"))
 
-        self.GFIR = field.attr("GFIR")
-        self.oil_prod = field.attr("oil_prod")
-        self.gas_flooding_vol_rate = self.oil_prod * self.GFIR
-        self.gas_lifting_vol_rate = self.oil_prod * (1 + self.WOR) * self.GLIR
+        self.GFIR = field.GFIR
+        self.gas_flooding_vol_rate = self.oil_volume_rate * self.GFIR
+        self.gas_lifting_vol_rate = self.oil_volume_rate * (1 + self.WOR) * self.GLIR
         self.is_first_loop = True
 
     def run(self, analysis):

@@ -29,30 +29,24 @@ class WaterInjection(Process):
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
-        self.water_reinjection = field.attr("water_reinjection")
-        self.water_flooding = field.attr("water_flooding")
-
-        # if self.water_reinjection == 0 and self.water_flooding == 0:
-        #     self.set_enabled(False)
-        #     return
-
-        self.prod_index = field.attr("prod_index")
+        self.water_reinjection = field.water_reinjection
+        self.water_flooding = field.water_flooding
+        self.productivity_index = field.productivity_index
         self.water = field.water
         self.water_density = self.water.density()
-        self.res_press = field.attr("res_press")
-        self.num_water_inj_wells = field.attr("num_water_inj_wells")
+        self.res_press = field.res_press
+        self.num_water_inj_wells = field.num_water_inj_wells
         self.gravitation_acc = self.field.model.const("gravitational-acceleration")
         self.gravitation_const = self.field.model.const("gravitational-constant")
-        self.depth = field.attr("depth")
-        self.well_diam = field.attr("well_diam")
-        self.xsection_area = np.pi * (self.well_diam / 2) ** 2
-        self.friction_factor = field.attr("friction_factor")
+        self.depth = field.depth
+        self.prod_tubing_diam = field.prod_tubing_diam
+        self.xsection_area = np.pi * (self.prod_tubing_diam / 2) ** 2
+        self.friction_factor = field.friction_factor
         self.press_pump = self.attr("press_pump")
         self.eta_pump = self.attr("eta_pump")
         self.prime_mover_type = self.attr("prime_mover_type")
 
     def run(self, analysis):
-        # Moved this here from _after_init()
         if self.water_reinjection == 0 and self.water_flooding == 0:
             self.set_enabled(False)
             return
@@ -71,12 +65,12 @@ class WaterInjection(Process):
         total_water_volume = total_water_mass / self.water_density
         single_well_water_volume = total_water_volume / self.num_water_inj_wells
 
-        wellbore_flowing_press = single_well_water_volume / self.prod_index + self.res_press
+        wellbore_flowing_press = single_well_water_volume / self.productivity_index + self.res_press
         water_gravitation_head = self.water_density * self.gravitation_acc * self.depth
         water_flow_velocity = single_well_water_volume / self.xsection_area
 
         friction_loss = (self.friction_factor * self.depth * water_flow_velocity ** 2) / \
-                        (2 * self.well_diam * self.gravitation_const) * self.water_density
+                        (2 * self.prod_tubing_diam * self.gravitation_const) * self.water_density
         diff_press = wellbore_flowing_press - water_gravitation_head
 
         pumping_press = diff_press + friction_loss - self.press_pump \

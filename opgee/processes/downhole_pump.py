@@ -23,29 +23,30 @@ class DownholePump(Process):
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
-        self.downhole_pump = field.attr("downhole_pump")
-        self.gas_lifting = field.attr("gas_lifting")
-        self.res_temp = field.attr("res_temp")
-        self.oil_volume_rate = field.attr("oil_prod")
+        self.downhole_pump = field.downhole_pump
+        self.gas_lifting = field.gas_lifting
+        self.res_temp = field.res_temp
+        self.oil_volume_rate = field.oil_volume_rate
         self.eta_pump_well = self.attr("eta_pump_well")
-        self.prod_tubing_diam = diameter = field.attr("well_diam")
+        self.prod_tubing_diam = diameter = field.prod_tubing_diam
         self.prod_tubing_xsection_area = np.pi * (diameter / 2) ** 2
-        self.depth = field.attr("depth")
-        self.friction_factor = field.attr("friction_factor")
-        self.num_prod_wells = field.attr("num_prod_wells")
+        self.depth = field.depth
+        self.friction_factor = field.friction_factor
+        self.num_prod_wells = field.num_prod_wells
         self.gravitational_acceleration = field.model.const("gravitational-acceleration")
         self.prime_mover_type = self.attr("prime_mover_type")
-        self.wellhead_tp = TemperaturePressure(field.attr("wellhead_temperature"), self.attr("wellhead_pressure"))
-
-        # oil sand mining has no downhole pump
-        self.oil_sand_mine = field.attr("oil_sands_mine")
-        if self.oil_sand_mine != "None":
-            self.set_enabled(False)
-            return
+        self.wellhead_t = field.wellhead_t
+        self.wellhead_tp = TemperaturePressure(self.wellhead_t, self.attr("wellhead_pressure"))
+        self.oil_sand_mine = field.oil_sands_mine
 
     def run(self, analysis):
         self.print_running_msg()
         field = self.field
+
+        # oil sand mining has no downhole pump
+        if self.oil_sand_mine != "None":
+            self.set_enabled(False)
+            return
 
         # mass rate
         input = self.find_input_stream("crude oil")
@@ -54,7 +55,7 @@ class DownholePump(Process):
 
         lift_gas = self.find_input_stream('lifting gas', raiseError=None)
 
-        loss_rate = self.venting_fugitive_rate()
+        loss_rate = field.component_fugitive_table[self.name]
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
         output = self.find_output_stream("crude oil")

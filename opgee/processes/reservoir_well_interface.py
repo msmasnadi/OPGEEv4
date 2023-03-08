@@ -23,24 +23,24 @@ class ReservoirWellInterface(Process):
         super()._after_init()
         self.field = field = self.get_field()
 
-        self.res_tp = TemperaturePressure(field.attr("res_temp"),
-                                          field.attr("res_press"))
-        self.oil_sand_mine = field.attr("oil_sands_mine")
-        # oil sand mining has no reservoir well interface
-        if self.oil_sand_mine != "None":
-            self.set_enabled(False)
-            return
-
-        self.num_prod_wells = field.attr("num_prod_wells")
-        self.productivity_index = field.attr("prod_index")
+        self.res_tp = TemperaturePressure(field.res_temp,
+                                          field.res_press)
+        self.num_prod_wells = field.num_prod_wells
+        self.productivity_index = field.productivity_index
         self.permeability = self.attr("res_perm")
         self.res_thickness = self.attr("res_thickness")
-        self.oil_prod = field.attr("oil_prod")
-        self.frac_CO2_breakthrough = field.attr("frac_CO2_breakthrough")
+        self.oil_volume_rate = field.oil_volume_rate
+        self.frac_CO2_breakthrough = field.frac_CO2_breakthrough
+        self.oil_sands_mine = field.oil_sands_mine
 
     def run(self, analysis):
         self.print_running_msg()
         field = self.field
+
+        # oil sand mining has no reservoir well interface
+        if self.oil_sands_mine != "None":
+            self.set_enabled(False)
+            return
 
         # mass rate
         input = self.find_input_stream("crude oil")

@@ -17,8 +17,8 @@ class SteamGenerator(OpgeeObject):
         self.field = field
         model = field.model
 
-        self.SOR = field.attr("SOR")
-        self.oil_volume_rate = field.attr("oil_prod")
+        self.SOR = field.SOR
+        self.oil_volume_rate = field.oil_volume_rate
         self.steam_quality_outlet = field.attr("steam_quality_outlet")
         self.steam_quality_after_blowdown = field.attr("steam_quality_after_blowdown")
         self.fraction_blowdown_recycled = field.attr("fraction_blowdown_recycled")
@@ -26,9 +26,9 @@ class SteamGenerator(OpgeeObject):
         self.waste_water_reinjection_press = field.attr("waste_water_reinjection_press")
         self.friction_loss_steam_distr = field.attr("friction_loss_steam_distr")
         self.pressure_loss_choke_wellhead = field.attr("pressure_loss_choke_wellhead")
-        self.API = field.attr("API")
+        self.API = field.API
 
-        self.res_press = field.attr("res_press")
+        self.res_press = field.res_press
         self.steam_injection_delta_press = field.attr("steam_injection_delta_press")
 
         self.prod_water_inlet_temp = field.attr("prod_water_inlet_temp")

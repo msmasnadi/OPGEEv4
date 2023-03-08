@@ -35,7 +35,7 @@ class TransmissionCompressor(Process):
         self.prime_mover_type = self.attr("prime_mover_type")
         self.eta_compressor = self.attr("eta_compressor")
         self.gas_to_storage_frac = self.attr("gas_to_storage_frac")
-        self.natural_gas_to_liquefaction_frac = field.attr("natural_gas_to_liquefaction_frac")
+        self.natural_gas_to_liquefaction_frac = field.natural_gas_to_liquefaction_frac
         self.transmission_sys_discharge = self.attr("transmission_sys_discharge")
         self.loss_rate = self.venting_fugitive_rate()
 
