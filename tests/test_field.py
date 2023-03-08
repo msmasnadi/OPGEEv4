@@ -55,7 +55,8 @@ model_xml_2 = """
 
 @pytest.fixture(scope="module")
 def test_field(configure_logging_for_tests):
-    return load_test_model('test_fields.xml')
+    return load_test_model('test_fields.xml',
+                           use_default_model=True) # this is required since test_fields references "template" field
 
 
 def test_component_fugitive(test_field):
