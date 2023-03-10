@@ -24,31 +24,30 @@ class Exploration(Process):
         self.vertical_drill_df = field.vertical_drill_df
         self.horizontal_drill_df = field.horizontal_drill_df
 
-        self.well_size = field.attr("well_size")
-        self.well_complexity = field.attr("well_complexity")
-        self.eta_rig = field.attr("eta_rig")
+        self.well_size = field.well_size
+        self.well_complexity = field.well_complexity
+        self.eta_rig = field.eta_rig
         self.vertical_drill_energy_intensity = \
             (self.vertical_drill_df.loc[self.eta_rig]).loc[self.well_size][self.well_complexity]
         self.horizontal_drill_energy_intensity = \
             (self.horizontal_drill_df.loc[self.eta_rig]).loc[self.well_size][self.well_complexity]
 
-        self.oil_sands_mine = field.attr("oil_sands_mine")
-        self.offshore = field.attr("offshore")
-        self.weight_land_survey = field.attr("weight_land_survey")
-        self.weight_ocean_survey = field.attr("weight_ocean_survey")
-        self.distance_survey = field.attr("distance_survey")
-        self.number_wells_dry = field.attr("number_wells_dry")
-        self.number_wells_exploratory = field.attr("number_wells_exploratory")
+        self.oil_sands_mine = field.oil_sands_mine
+        self.offshore = field.offshore
+        self.weight_land_survey = field.weight_land_survey
+        self.weight_ocean_survey = field.weight_ocean_survey
+        self.distance_survey = field.distance_survey
+        self.number_wells_dry = field.number_wells_dry
+        self.number_wells_exploratory = field.number_wells_exploratory
 
-        num_prod_wells = field.attr("num_prod_wells") if self.oil_sands_mine == "None" else 0
-        self.num_wells = num_prod_wells + field.attr("num_water_inj_wells")
+        num_prod_wells = field.num_prod_wells if self.oil_sands_mine == "None" else 0
+        self.num_water_inj_wells = field.num_water_inj_wells
+        self.num_wells = num_prod_wells + self.num_water_inj_wells
 
-        self.depth = field.attr("depth")
-        self.frac_wells_horizontal = field.attr("fraction_wells_horizontal")
-        self.length_lateral = field.attr("length_lateral")
-        self.number_wells_dry = field.attr("number_wells_dry")
-        self.number_wells_exploratory = field.attr("number_wells_exploratory")
-        self.field_production_lifetime = field.attr("field_production_lifetime")
+        self.depth = field.depth
+        self.frac_wells_horizontal = field.frac_wells_horizontal
+        self.length_lateral = field.length_lateral
+        self.field_production_lifetime = field.field_production_lifetime
 
         self.drill_fuel_consumption = \
             (self.vertical_drill_energy_intensity * (1 - self.frac_wells_horizontal) * self.depth +

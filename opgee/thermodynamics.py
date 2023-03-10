@@ -349,13 +349,6 @@ class Oil(AbstractSubstance):
         """
         super().__init__(field)
 
-        # API: (float) API gravity
-        # gas_comp: (panda.Series, float) Produced gas composition; unit = fraction
-        # gas_oil_ratio: (float) The ratio of the volume of gas that comes out of solution to the volume of oil at
-        # standard conditions; unit = fraction
-        # reservoir_temperature: (float) average reservoir temperature; unit = F
-        # reservoir_pressure: (float) average reservoir pressure; unit = psia
-
         self.API = API = field.attr("API")
         self.oil_LHV_mass = self.mass_energy_density()
         self.component_LHV_mass['oil'] = self.oil_LHV_mass.to("joule/gram")

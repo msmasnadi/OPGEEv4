@@ -62,14 +62,14 @@ def test_field(configure_logging_for_tests):
 def test_component_fugitive(test_field):
     analysis = test_field.get_analysis('test_fugitive')
     oilfield = analysis.get_field('test_component_fugitive_oilfield')
-    oilfield_component_fugitive_df = oilfield.get_component_fugitive()
+    oilfield_component_fugitive_df = oilfield.component_fugitive_table
 
     assert approx_equal(oilfield_component_fugitive_df['Separation'], ureg.Quantity(3.053545e-05, "frac"))
     assert approx_equal(oilfield_component_fugitive_df['CrudeOilStorage'], ureg.Quantity(0.931951, "frac"))
     assert approx_equal(oilfield_component_fugitive_df['DownholePump'], ureg.Quantity(0.000440667, "frac"))
 
     gasfield = analysis.get_field('test_component_fugitive_gasfield')
-    gasfield_component_fugitive_df = gasfield.get_component_fugitive()
+    gasfield_component_fugitive_df = gasfield.component_fugitive_table
 
     assert approx_equal(gasfield_component_fugitive_df['Separation'], ureg.Quantity(3.77813e-5, "frac"))
     assert approx_equal(gasfield_component_fugitive_df['CrudeOilStorage'], ureg.Quantity(0.4323671, "frac"))

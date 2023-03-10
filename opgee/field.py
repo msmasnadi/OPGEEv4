@@ -118,6 +118,7 @@ class Field(Container):
         self.stp = STP
 
         self.component_fugitive_table = None
+        self.loss_mat_gas_ave_df = None
 
         self.import_export = ImportExport()
 
@@ -146,15 +147,76 @@ class Field(Container):
 
         self.LNG_temp = model.const("LNG-temp")
 
-        self.upgrader_type = self.attr("upgrader_type")     # used only in smart default
+        self.AGR_feedin_press = self.attr("AGR_feedin_press")
+        self.API = self.attr("API")
+        self.depth = self.attr("depth")
+        self.distance_survey = self.attr("distance_survey")
+        self.downhole_pump = self.attr("downhole_pump")
+        self.ecosystem_richness = self.attr("ecosystem_richness")
+        self.eta_rig = self.attr("eta_rig")
+        self.field_development_intensity = self.attr("field_development_intensity")
+        self.field_production_lifetime = self.attr("field_production_lifetime")
+        self.flood_gas_type = self.attr("flood_gas_type")
+        self.FOR = self.attr("FOR")
+        self.frac_CO2_breakthrough = self.attr("frac_CO2_breakthrough")
+        self.frac_water_reinj = self.attr("fraction_water_reinjected")
+        self.frac_wells_horizontal = self.attr("fraction_wells_horizontal")
+        self.fraction_elec_onsite = self.attr("fraction_elec_onsite")
+        self.fraction_remaining_gas_inj = self.attr("fraction_remaining_gas_inj")
+        self.fraction_steam_cogen = self.attr("fraction_steam_cogen")
+        self.fraction_steam_solar = self.attr("fraction_steam_solar")
+        self.fraction_wells_fractured = self.attr("fraction_wells_fractured")
+        self.friction_factor = self.attr("friction_factor")
+        self.friction_loss_steam_distr = self.attr("friction_loss_steam_distr")
+        self.gas_comp = self.attrs_with_prefix("gas_comp_")
+        self.gas_flooding = self.attr("gas_flooding")
+        self.gas_lifting = self.attr("gas_lifting")
+        self.gas_oil_ratio = self.attr("GOR")
+        self.gas_path = self.attr("gas_processing_path")
+        self.GOR = self.attr("GOR")
+        self.GFIR = self.attr("GFIR")
+        self.GLIR = self.attr("GLIR")
+        self.length_lateral = self.attr("length_lateral")
+        self.mined_bitumen_p = self.attr("pressure_mined_bitumen")
+        self.mined_bitumen_t = self.attr("temperature_mined_bitumen")
+        self.natural_gas_reinjection = self.attr("natural_gas_reinjection")
+        self.natural_gas_to_liquefaction_frac = self.attr("natural_gas_to_liquefaction_frac")
+        self.num_prod_wells = self.attr("num_prod_wells")
+        self.num_water_inj_wells = self.attr("num_water_inj_wells")
+        self.number_wells_dry = self.attr("number_wells_dry")
+        self.number_wells_exploratory = self.attr("number_wells_exploratory")
+        self.offshore = self.attr("offshore")
+        self.oil_path = self.attr("oil_processing_path")
+        self.oil_sands_mine = self.attr("oil_sands_mine")
+        self.oil_volume_rate = self.attr("oil_prod")
+        self.pipe_leakage = self.attr("surface_piping_leakage")
+        self.pressure_gradient_fracturing = self.attr("pressure_gradient_fracturing")
+        self.prod_tubing_diam = self.attr("well_diam")
+        self.productivity_index = self.attr("prod_index")
+        self.reflux_ratio = self.attr("reflux_ratio")
+        self.regeneration_feed_temp = self.attr("regeneration_feed_temp")
+        self.res_press = self.attr("res_press")
+        self.res_temp = self.attr("res_temp")
+        self.SOR = self.attr("SOR")
+        self.stab_gas_press = self.attr("gas_pressure_after_boosting")
+        self.steam_flooding = self.attr("steam_flooding")
+        self.upgrader_type = self.attr("upgrader_type")  # used only in smart default
+        self.volume_per_well_fractured = self.attr("volume_per_well_fractured")
+        self.VOR = self.attr("VOR")
+        self.water_flooding = self.attr("water_flooding")
+        self.water_reinjection = self.attr("water_reinjection")
+        self.weight_land_survey = self.attr("weight_land_survey")
+        self.weight_ocean_survey = self.attr("weight_ocean_survey")
+        self.well_complexity = self.attr("well_complexity")
+        self.well_size = self.attr("well_size")
+        self.wellhead_t = self.attr("wellhead_temperature")
+        self.WIR = self.attr("WIR")
+        self.WOR = self.attr("WOR")
 
         # TODO: Why are these copied into the Field object? Why not access them from Model?
         # TODO: It's good practice to declare all instance vars in __init__ (set to None perhaps)
         #       other programmers (and PyCharm) recognize them as proper instance variables and
         #       not random values set in other methods.
-        # self.transport_share_fuel = model.transport_share_fuel
-        # self.transport_parameter = model.transport_parameter
-        # self.transport_by_mode = model.transport_by_mode
         self.upstream_CI = model.upstream_CI
         self.vertical_drill_df = model.vertical_drill_df
         self.horizontal_drill_df = model.horizontal_drill_df
@@ -184,7 +246,7 @@ class Field(Container):
 
         self.cycles = list(nx.simple_cycles(g))
 
-        self.component_fugitive_table = self.get_component_fugitive()
+        self.component_fugitive_table, self.loss_mat_gas_ave_df = self.get_component_fugitive()
 
         # if self.cycles:
         #     _logger.debug(f"Field '{self.name}' has cycles: {self.cycles}")
@@ -496,6 +558,9 @@ class Field(Container):
         cols_oil = common_cols
         tranch = range(10)
         flash_factor = 0.51  # kg CH4/bbl (total flashing gas). Divide by 0.51 to correct for fraction of wells controlled in Rutherford et al. 2021
+        loss_mat_gas_ave = loss_mat_gas.mean(axis=0).values
+        loss_mat_gas_ave = loss_mat_gas_ave.reshape(len(tranch), len(cols_gas))
+        loss_mat_gas_ave_df = pd.DataFrame(data=loss_mat_gas_ave, index=prod_mat_gas["Bin low"], columns=cols_gas)
 
         cols = cols_gas if GOR > GOR_cutoff else cols_oil
         loss_mat = loss_mat_gas if GOR > GOR_cutoff else loss_mat_oil
@@ -514,17 +579,16 @@ class Field(Container):
         pump_loss_rate = pump_loss_rate.sum()
 
         compressor_list = ["SourGasCompressor", "GasReinjectionCompressor"]
-        well_list = ["CO2InjectionWell", "GasReinjectionWell", "SourGasInjection"]
+        # well_list = ["CO2InjectionWell", "GasReinjectionWell", "SourGasInjection"]
 
         process_loss_rate_dict = {
             'Separation' : separation_loss_rate,
             'CrudeOilStorage' : tank_loss_rate,
             'DownholePump' : pump_loss_rate}
 
-        process_loss_rate =\
-            pd.Series(data=process_loss_rate_dict, index=['Separation', 'CrudeOilStorage', 'DownholePump'], dtype="pint[frac]")
+        process_loss_rate = pd.Series(data=process_loss_rate_dict, dtype="pint[frac]")
 
-        return process_loss_rate
+        return process_loss_rate, loss_mat_gas_ave_df
 
     def validate(self):
         """

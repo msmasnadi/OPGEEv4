@@ -22,21 +22,21 @@ class Drilling(Process):
         super()._after_init()
         self.field = field = self.get_field()
 
-        self.fraction_wells_fractured = field.attr("fraction_wells_fractured")
+        self.fraction_wells_fractured = field.fraction_wells_fractured
         self.fracture_consumption_tbl = field.model.fracture_energy
-        self.pressure_gradient_fracturing = field.attr("pressure_gradient_fracturing")
-        self.volume_per_well_fractured = field.attr("volume_per_well_fractured")
-        self.oil_sand_mine = field.attr("oil_sands_mine")
-        if self.oil_sand_mine != "None":
-            # TODO: move this to run method
-            self.set_enabled(False)
-            return
+        self.pressure_gradient_fracturing = field.pressure_gradient_fracturing
+        self.volume_per_well_fractured = field.volume_per_well_fractured
+        self.oil_sand_mine = field.oil_sands_mine
         self.land_use_EF = field.model.land_use_EF
-        self.ecosystem_richness = field.attr("ecosystem_richness")
-        self.field_development_intensity = field.attr("field_development_intensity")
+        self.ecosystem_richness = field.ecosystem_richness
+        self.field_development_intensity = field.field_development_intensity
 
     def run(self, analysis):
         self.print_running_msg()
+
+        if self.oil_sand_mine != "None":
+            self.set_enabled(False)
+            return
 
         field = self.field
         fracture_energy_constant = self.get_fracture_constant()

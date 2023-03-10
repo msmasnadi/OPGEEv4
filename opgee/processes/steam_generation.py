@@ -27,14 +27,14 @@ class SteamGeneration(Process):
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
-        self.steam_flooding_check = field.attr("steam_flooding")
-        self.SOR = field.attr("SOR")
+        self.steam_flooding_check = field.steam_flooding
+        self.SOR = field.SOR
 
         # if self.steam_flooding_check != 1 or self.SOR == 0:
         #     self.set_enabled(False)
         #     return
 
-        self.oil_volume_rate = field.attr("oil_prod")
+        self.oil_volume_rate = field.oil_volume_rate
         self.steam_quality_outlet = self.attr("steam_quality_outlet")
         self.steam_quality_after_blowdown = self.attr("steam_quality_after_blowdown")
         self.fraction_blowdown_recycled = self.attr("fraction_blowdown_recycled")
@@ -43,10 +43,10 @@ class SteamGeneration(Process):
                                                               self.attr("waste_water_reinjection_press"))
 
         self.pressure_loss_choke_wellhead = self.attr("pressure_loss_choke_wellhead")
-        self.friction_loss_steam_distr = field.attr("friction_loss_steam_distr")
+        self.friction_loss_steam_distr = field.friction_loss_steam_distr
         self.water = field.water
         self.water_density = self.water.density()
-        self.res_press = field.attr("res_press")
+        self.res_press = field.res_press
         self.steam_injection_delta_press = self.attr("steam_injection_delta_press")
         self.steam_generator_press_outlet = \
             (self.res_press + self.steam_injection_delta_press) * \
@@ -58,8 +58,8 @@ class SteamGeneration(Process):
         self.eta_air_blower_HRSG = self.attr("eta_air_blower_HRSG")
         self.eta_air_blower_solar = self.attr("eta_air_blower_solar")
 
-        self.fraction_steam_cogen = field.attr("fraction_steam_cogen")
-        self.fraction_steam_solar = field.attr("fraction_steam_solar")
+        self.fraction_steam_cogen = field.fraction_steam_cogen
+        self.fraction_steam_solar = field.fraction_steam_solar
         self.fraction_OTSG = 1 - self.fraction_steam_cogen - self.fraction_steam_solar
 
         # TODO: the SteamGenerator is instantiated only here, in Field, yet it is used only

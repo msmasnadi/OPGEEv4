@@ -17,12 +17,26 @@ _logger = getLogger(__name__)
 
 
 class CO2ReinjectionCompressor(Process):
+    """
+        A process that compresses CO2 gas for reinjection into the reservoir.
+
+        Inputs:
+        - gas for CO2 compressor: The inlet stream of CO2 gas to the compressor.
+
+        Outputs:
+        - gas for CO2 injection well: The outlet stream of CO2 gas that is reinjected into the reservoir.
+
+        Attributes:
+        - res_press: The reservoir pressure in psia.
+        - eta_compressor: The compressor efficiency.
+        - prime_mover_type: The type of prime mover used to power the compressor.
+
+    """
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
         self.gas = field.gas
-        # TODO: remove field.xx to field.py and change the reference
-        self.res_press = field.attr("res_press")
+        self.res_press = field.res_press
         self.eta_compressor = self.attr("eta_compressor")
         self.prime_mover_type = self.attr("prime_mover_type")
 
@@ -30,10 +44,11 @@ class CO2ReinjectionCompressor(Process):
         self.print_running_msg()
         field = self.field
 
+        # Check if input stream is ready
         if not self.all_streams_ready("gas for CO2 compressor"):
             return
 
-        # mass rate
+        # Get input stream and fugitive gas
         input = self.find_input_streams("gas for CO2 compressor", combine=True)
         if input.is_uninitialized():
             return
@@ -41,13 +56,7 @@ class CO2ReinjectionCompressor(Process):
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
-        gas_to_well = self.find_output_stream("gas for CO2 injection well")
-        gas_to_well.copy_flow_rates_from(input)
-        gas_to_well.subtract_rates_from(gas_fugitives)
-        self.set_iteration_value(gas_to_well.total_flow_rate())
-
-        field.save_process_data(CO2_reinjection_mass_rate=gas_to_well.gas_flow_rate("CO2"))
-
+        # Calculate discharge pressure and iterate over input streams
         discharge_press = self.res_press + ureg.Quantity(500.0, "psia")
         total_energy_consumption = ureg.Quantity(0, "mmbtu/day")
         input_streams = self.find_input_streams("gas for CO2 compressor")
@@ -60,7 +69,15 @@ class CO2ReinjectionCompressor(Process):
                                                                                        input_stream)
             total_energy_consumption += energy_consumption
 
+        # Set output stream and iteration value
+        gas_to_well = self.find_output_stream("gas for CO2 injection well")
+        gas_to_well.copy_flow_rates_from(input)
+        gas_to_well.subtract_rates_from(gas_fugitives)
         gas_to_well.tp.set(T=out_temp, P=discharge_press)
+
+        self.set_iteration_value(gas_to_well.total_flow_rate())
+
+        field.save_process_data(CO2_reinjection_mass_rate=gas_to_well.gas_flow_rate("CO2"))
 
         # energy-use
         energy_use = self.energy

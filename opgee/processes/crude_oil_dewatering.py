@@ -10,6 +10,7 @@ from .shared import get_energy_carrier
 from .. import ureg
 from ..core import TemperaturePressure
 from ..emissions import EM_COMBUSTION
+from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY
 from ..error import OpgeeException
 from ..log import getLogger
 from ..process import Process
@@ -25,28 +26,27 @@ class CrudeOilDewatering(Process):
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
-        self.oil_sand_mine = field.attr("oil_sands_mine")
-        # oil sand mining has no crude oil dewatering
-        if self.oil_sand_mine != "None":
-            # TODO: move this to the run() method
-            self.set_enabled(False)
-            return
-
         self.heater_treater = self.attr("heater_treater")
         self.temperature_heater_treater = self.attr("temperature_heater_treater")
         self.heat_loss = self.attr("heat_loss")
         self.prime_mover_type = self.attr("prime_mover_type")
         self.eta_gas = (self.attr("eta_gas")).to("frac")
         self.eta_electricity = (self.attr("eta_electricity")).to("frac")
-        self.oil_path = field.attr("oil_processing_path")
+        self.oil_path = field.oil_path
         self.oil_path_dict = {"Stabilization": "oil for stabilization",
                               "Storage": "oil for storage",
                               "Upgrading": "oil for upgrading",
                               "Dilution": "oil for dilution",
                               "Dilution and Upgrading": "oil for dilution"}
+        self.oil_sands_mine = field.oil_sands_mine
 
     def run(self, analysis):
         self.print_running_msg()
+
+        # oil sand mining has no crude oil dewatering
+        if self.oil_sands_mine != "None":
+            self.set_enabled(False)
+            return
 
         # mass rate
         input = self.find_input_stream("crude oil")

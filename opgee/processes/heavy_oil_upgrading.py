@@ -24,18 +24,13 @@ class HeavyOilUpgrading(Process):
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
-        self.upgrader_type = field.attr("upgrader_type")
-        if self.upgrader_type == "None":
-            # TODO: move this to run() method
-            self.set_enabled(False)
-            return
-
+        self.upgrader_type = field.upgrader_type
         self.oil = self.field.oil
         self.water = self.field.water
         self.upgrader_gas_comp = field.imported_gas_comp["Upgrader Gas"]
         self.NG_comp = field.imported_gas_comp["Imported Fuel"]
-        self.oil_sands_mine = field.attr("oil_sands_mine")
-        self.fraction_elec_onsite = field.attr("fraction_elec_onsite")
+        self.oil_sands_mine = field.oil_sands_mine
+        self.fraction_elec_onsite = field.fraction_elec_onsite
         self.cogeneration_upgrading = self.attr("cogeneration_upgrading")
         self.NG_heating_value = self.model.const("NG-heating-value")
         self.petro_coke_heating_value = self.model.const("petrocoke-heating-value")
@@ -43,11 +38,15 @@ class HeavyOilUpgrading(Process):
 
         self.water = self.field.water
         self.water_density = self.water.density()
-        self.bitumen_API = field.attr("API")
+        self.bitumen_API = field.API
 
     def run(self, analysis):
         self.print_running_msg()
         field = self.field
+
+        if self.upgrader_type == "None":
+            self.set_enabled(False)
+            return
 
         # mass rate
         input_oil = self.find_input_stream("oil for upgrading", raiseError=False)

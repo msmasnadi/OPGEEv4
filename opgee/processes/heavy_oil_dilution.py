@@ -20,19 +20,18 @@ class HeavyOilDilution(Process):
         self.field = field = self.get_field()
         self.oil = self.field.oil
         self.oil_SG = self.oil.oil_specific_gravity
-        self.oil_prod_rate = field.attr("oil_prod")
+        self.oil_volume_rate = field.oil_volume_rate
 
         self.water = self.field.water
         self.water_density = self.water.density()
 
         self.frac_diluent = self.attr("fraction_diluent")
-        self.downhole_pump = field.attr("downhole_pump")
-        self.oil_sand_mine = field.attr("oil_sands_mine")
+        self.downhole_pump = field.downhole_pump
+        self.oil_sands_mine = field.oil_sands_mine
 
-        self.bitumen_API = field.attr("API")
-        self.bitumen_SG = self.oil.specific_gravity(self.bitumen_API)
-        self.bitumen_tp = TemperaturePressure(field.attr("temperature_mined_bitumen"),
-                                              field.attr("pressure_mined_bitumen"))
+        self.bitumen_SG = self.oil.specific_gravity(field.API)
+        self.bitumen_tp = TemperaturePressure(field.mined_bitumen_t,
+                                              field.mined_bitumen_p)
 
         self.diluent_API = self.attr("diluent_API")
         self.dilution_SG = self.oil.specific_gravity(self.diluent_API)
