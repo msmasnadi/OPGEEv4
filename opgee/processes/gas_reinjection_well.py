@@ -18,12 +18,17 @@ class GasReinjectionWell(Process):
         super()._after_init()
         self.field = field = self.get_field()
         self.gas = field.gas
+        self.natural_gas_reinjection = field.natural_gas_reinjection
+        self.gas_flooding = field.gas_flooding
 
     def run(self, analysis):
         self.print_running_msg()
 
         # mass rate
         input = self.find_input_stream("gas for gas reinjection well")
+        if input is None or (not self.natural_gas_reinjection and not self.gas_flooding):
+            self.set_enabled(False)
+            return
 
         if input.is_uninitialized():
             return

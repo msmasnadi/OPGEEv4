@@ -743,9 +743,21 @@ class Field(Container):
             run_order = nx.topological_sort(sg)
             for proc in run_order:
                 proc.run_if_enabled(analysis)
+                print(proc.name)
+
+            print("--------complete------")
+
+        def update_process(procs):
+            updated_procs = set()
+            for proc in procs:
+                proc.run_if_enabled(analysis)
+                if proc.is_enabled():
+                    updated_procs.add(proc)
+
+            return updated_procs
 
         # run all the cycle-independent nodes in topological order
-        run_procs_in_order(cycle_independent)
+        run_procs_in_order(update_process(cycle_independent))
 
         # If user has indicated a process with start-cycle="true", start there, otherwise
         # find a process with cycle-independent processes as inputs, and start there.
@@ -756,6 +768,8 @@ class Field(Container):
                 f"""Only one process can have cycle-start="true"; found {len(start_procs)}: {start_procs}""")
 
         max_iter = self.model.maximum_iterations
+
+        procs_in_cycles = update_process(procs_in_cycles)
 
         if procs_in_cycles:
             # Walk the cycle, starting at the indicated start process to generate an ordered list
@@ -795,13 +809,17 @@ class Field(Container):
                 try:
                     for proc in ordered_cycle:
                         proc.run_if_enabled(analysis)
+                        print(proc.name)
+                        print(proc.iteration_converged)
 
                 except OpgeeIterationConverged as e:
                     _logger.debug(e)
                     break
 
+            print("----loop complete----")
+
         # run all processes dependent on cycles, which are now complete
-        run_procs_in_order(cycle_dependent)
+        run_procs_in_order(update_process(cycle_dependent))
 
         # finally, run all "after='True'" procs, in sort order
         run_procs_in_order(run_afters)

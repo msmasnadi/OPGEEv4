@@ -81,10 +81,10 @@ class HeavyOilUpgrading(Process):
 
         SCO_API = heavy_oil_upgrading_table["API gravity of resulting upgraded product output"]
         SCO_specific_gravity = field.oil.specific_gravity(SCO_API)
-        if input_oil:
+        if input_oil and input_oil.is_initialized():
             input_liquid_mass_rate = input_oil.liquid_flow_rate("oil")
             input_liquid_SG = self.oil.oil_specific_gravity
-        elif input_bitumen:
+        elif input_bitumen and input_bitumen.is_initialized():
             input_liquid_mass_rate = input_bitumen.liquid_flow_rate("oil")
             input_liquid_SG = self.oil.specific_gravity(self.bitumen_API)
 
@@ -138,8 +138,11 @@ class HeavyOilUpgrading(Process):
         # Petrocoke calculation
         coke_dict = d["Coke yield per bbl SCO output"] * SCO_output
         coke_to_stockpile_and_transport = \
-            ureg.Quantity(max(0, (input_liquid_mass_rate - SCO_output_mass_rate - proc_gas_exported_mass_rate.sum()).to(
-                "tonne/day").m), "tonne/day")
+            ureg.Quantity(max(0, (
+                    input_liquid_mass_rate -
+                    SCO_output_mass_rate -
+                    proc_gas_exported_mass_rate.sum() -
+                    proc_gas_flaring_mass_rate.sum()).to("tonne/day").m), "tonne/day")
         coke_to_heat = \
             ureg.Quantity(max(0, (coke_dict.sum() - coke_to_stockpile_and_transport).to("tonne/day").m), "tonne/day")
 

@@ -47,7 +47,7 @@ class WaterInjection(Process):
         self.prime_mover_type = self.attr("prime_mover_type")
 
     def run(self, analysis):
-        if self.water_reinjection == 0 and self.water_flooding == 0:
+        if not self.water_reinjection and not self.water_flooding:
             self.set_enabled(False)
             return
 

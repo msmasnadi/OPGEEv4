@@ -70,10 +70,10 @@ class HeavyOilDilution(Process):
                 (input_bitumen is not None and input_bitumen.is_uninitialized()):
             return
 
-        if input_oil:
+        if input_oil and input_oil.is_initialized():
             input_liquid_mass_rate = input_oil.liquid_flow_rate("oil")
             input_liquid_SG = self.oil.oil_specific_gravity
-        elif input_bitumen:
+        elif input_bitumen and input_bitumen.is_initialized():
             input_liquid_mass_rate = input_bitumen.liquid_flow_rate("oil")
             input_liquid_SG = self.bitumen_SG
 

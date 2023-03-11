@@ -923,6 +923,8 @@ class Boundary(Process):
             # If we're an intermediate boundary, copy all inputs to outputs based on contents
             if not is_chosen_boundary:
                 for in_stream in self.inputs:
+                    if in_stream.is_uninitialized():
+                        break
                     contents = in_stream.contents
                     if len(contents) != 1:
                         raise ModelValidationError(f"Streams to and from boundaries must have only a single Content declaration; {self} inputs are {contents}")
@@ -955,7 +957,8 @@ class Boundary(Process):
                 self.field.save_process_data(exported_oil_LHV=exported_oil_LHV)
                 self.field.save_process_data(exported_prod_LHV=exported_prod_LHV)
 
-                self.field.save_process_data(is_chosen_boundary_processed=True)
+                if exported_prod_LHV.m != 0:
+                    self.field.save_process_data(is_chosen_boundary_processed=True)
 
 class Reservoir(Process):
     """

@@ -1259,7 +1259,7 @@
 	<Field name="test_HeavyOilUpgrading">
 
 		<A name="upgrader_type">Delayed coking</A>
-		<A name="API">10.0</A>
+		<A name="API">32.80</A>
 		<Process class="Before"/>
 		<Process class="HeavyOilUpgrading"/>
 
@@ -1267,9 +1267,9 @@
 
 		<Stream src="Before" dst="HeavyOilUpgrading">
 			<Contains>oil for upgrading</Contains>
-			<Component name="oil" phase="liquid">13146.47653</Component>
-			<A name="temperature">90.0</A>
-			<A name="pressure">100.0</A>
+			<Component name="oil" phase="liquid">287.26770</Component>
+			<A name="temperature">80.0</A>
+			<A name="pressure">14.7</A>
 		</Stream>
 
 		<Stream src="HeavyOilUpgrading" dst="ProductionBoundary" name="oil">

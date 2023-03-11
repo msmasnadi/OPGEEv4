@@ -24,6 +24,7 @@ class GasLiftingCompressor(Process):
         self.res_press = field.res_press
         self.prime_mover_type = self.attr("prime_mover_type")
         self.eta_compressor = self.attr("eta_compressor")
+        self.gas_lifting = field.gas_lifting
 
     def run(self, analysis):
         self.print_running_msg()
@@ -31,7 +32,7 @@ class GasLiftingCompressor(Process):
 
         # mass rate
         input = self.find_input_stream("lifting gas", raiseError=None)
-        if input is None:
+        if input is None or not self.gas_lifting:
             self.set_enabled(False)
             return
 

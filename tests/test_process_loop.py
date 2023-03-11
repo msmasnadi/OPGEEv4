@@ -18,15 +18,20 @@ class LoopProc2(Process):
         crude_oil = self.find_input_stream('crude oil')
         recycled_water = self.find_input_stream("water")
 
+        if crude_oil.is_uninitialized() and recycled_water.is_uninitialized():
+            return
+
         output = self.find_output_stream("crude oil")
         output.copy_flow_rates_from(crude_oil)
-        output.add_flow_rates_from(recycled_water)
+        output.set_liquid_flow_rate("H2O", recycled_water.liquid_flow_rate("H2O"))
         self.set_iteration_value(output.total_flow_rate())
 
 
 class LoopProc3(Process):
     def run(self, analysis):
         input = self.find_input_stream("crude oil")
+        if input.is_uninitialized():
+            return
         water = input.liquid_flow_rate("H2O")
         water_requirement = ureg.Quantity(160, "tonne/day")
 
@@ -44,6 +49,8 @@ class LoopProc3(Process):
 class LoopProc4(Process):
     def run(self, analysis):
         input = self.find_input_stream("export oil")
+        if input.is_uninitialized():
+            return
         gas = input.gas_flow_rate("C1")
         lifting_gas_requirement = ureg.Quantity(350, "tonne/day")
 

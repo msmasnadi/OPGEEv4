@@ -26,22 +26,26 @@ class Drilling(Process):
         self.fracture_consumption_tbl = field.model.fracture_energy
         self.pressure_gradient_fracturing = field.pressure_gradient_fracturing
         self.volume_per_well_fractured = field.volume_per_well_fractured
-        self.oil_sand_mine = field.oil_sands_mine
+        self.oil_sands_mine = field.oil_sands_mine
         self.land_use_EF = field.model.land_use_EF
         self.ecosystem_richness = field.ecosystem_richness
         self.field_development_intensity = field.field_development_intensity
 
+        num_prod_wells = field.num_prod_wells if self.oil_sands_mine == "None" else 0
+        self.num_water_inj_wells = field.num_water_inj_wells
+        self.num_wells = num_prod_wells + self.num_water_inj_wells
+
     def run(self, analysis):
         self.print_running_msg()
 
-        if self.oil_sand_mine != "None":
+        if self.oil_sands_mine != "None":
             self.set_enabled(False)
             return
 
         field = self.field
         fracture_energy_constant = self.get_fracture_constant()
         fracture_diesel_use = self.get_fracture_diesel(fracture_energy_constant)
-        fracture_fuel_consumption = self.fraction_wells_fractured * field.get_process_data("num_wells") * fracture_diesel_use
+        fracture_fuel_consumption = self.fraction_wells_fractured * self.num_wells * fracture_diesel_use
         fracture_energy_consumption = fracture_fuel_consumption * field.model.const("diesel-LHV")
         tot_energy_consumption = fracture_energy_consumption + field.get_process_data("drill_energy_consumption")
         wellhead_LHV_rate = field.get_process_data("wellhead_LHV_rate")

@@ -54,27 +54,36 @@ xml_string = """
 </Model>
 """
 
+
 class Boundary_proc_1(Process):
     def run(self, analysis):
         pass
 
+
 class Boundary_proc_2(Process):
     def run(self, analysis):
-        in_stream  = self.find_input_stream("crude oil")
+        in_stream = self.find_input_stream("crude oil")
+        if in_stream.is_uninitialized():
+            return
         out_stream = self.find_output_stream("crude oil")
         out_stream.copy_flow_rates_from(in_stream)
 
 
 class Boundary_proc_3(Process):
     def run(self, analysis):
-        in_stream  = self.find_input_stream("natural gas")
+        in_stream = self.find_input_stream("natural gas")
+        if in_stream.is_uninitialized():
+            return
         out_stream = self.find_output_stream("natural gas")
         out_stream.copy_flow_rates_from(in_stream)
+
 
 class Boundary_proc_4(Process):
     def run(self, analysis):
         for content in ("crude oil", "natural gas"):
             in_stream = self.find_input_stream(content)
+            if in_stream.is_uninitialized():
+                return
             out_stream = self.find_output_stream(content)
             out_stream.copy_flow_rates_from(in_stream)
 

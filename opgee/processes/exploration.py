@@ -90,7 +90,6 @@ class Exploration(Process):
 
         field.save_process_data(cumulative_export_LHV=cumulative_export_LHV)
         field.save_process_data(drill_energy_consumption=drill_energy_consumption)
-        field.save_process_data(num_wells=self.num_wells)
 
         # energy-use
         energy_use = self.energy

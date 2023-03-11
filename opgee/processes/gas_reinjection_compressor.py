@@ -25,14 +25,17 @@ class GasReinjectionCompressor(Process):
         self.res_press = field.res_press
         self.prime_mover_type = self.attr("prime_mover_type")
         self.eta_compressor = self.attr("eta_compressor")
+        self.natural_gas_reinjection = field.natural_gas_reinjection
+        self.gas_flooding = field.gas_flooding
 
     def run(self, analysis):
         self.print_running_msg()
 
         input = self.find_input_stream("gas for gas reinjection compressor", raiseError=False)
-        if input is None:
+        if input is None or (not self.natural_gas_reinjection and not self.gas_flooding):
             self.set_enabled(False)
             return
+
         if input.is_uninitialized():
             return
 
