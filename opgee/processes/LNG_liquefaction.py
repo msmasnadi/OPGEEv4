@@ -15,7 +15,6 @@ _logger = getLogger(__name__)
 class LNGLiquefaction(Process):
     """
     LNG liquefaction calculate emission of produced gas to liquefaction
-
     """
 
     def _after_init(self):

@@ -21,7 +21,6 @@ _logger = getLogger(__name__)
 class TransmissionCompressor(Process):
     """
     Transmission compressor calculate compressor emissions after the production site boundary.
-
     """
 
     def _after_init(self):
@@ -50,6 +49,7 @@ class TransmissionCompressor(Process):
 
         gas_fugitives = self.set_gas_fugitives(input, self.loss_rate)
 
+        # TODO: this is unused
         input_energy_flow_rate = self.field.gas.energy_flow_rate(input)
 
         # Transmission system properties

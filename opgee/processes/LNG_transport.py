@@ -18,8 +18,7 @@ _logger = getLogger(__name__)
 
 class LNGTransport(Process):
     """
-    LNG transport calculate emissions from LNG to the market
-
+    LNG transport calculate emissions from LNG to the marketåœ
     """
 
     def _after_init(self):

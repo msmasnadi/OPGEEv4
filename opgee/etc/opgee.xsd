@@ -243,7 +243,7 @@
 	<xs:element name='ProcessGroup'>
     <xs:complexType>
       <xs:choice maxOccurs='unbounded'>
- 				<xs:element minOccurs='1' ref='ProcessRef'/>
+ 				<xs:element minOccurs='0' ref='ProcessRef'/>
 				<xs:element minOccurs='0' ref='StreamRef'/>
  				<xs:element minOccurs='1' ref='ProcessChoice'/>
       </xs:choice>

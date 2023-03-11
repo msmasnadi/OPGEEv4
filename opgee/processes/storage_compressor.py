@@ -19,7 +19,6 @@ _logger = getLogger(__name__)
 class StorageCompressor(Process):
     """
     Storage compressor calculate emission from compressing gas for long-term (i.e., seasonal) storage.
-
     """
 
     def _after_init(self):

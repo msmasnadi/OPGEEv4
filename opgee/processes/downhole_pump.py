@@ -45,6 +45,7 @@ class DownholePump(Process):
 
         # oil sand mining has no downhole pump
         if self.oil_sand_mine != "None":
+            # TODO: move this to run() method
             self.set_enabled(False)
             return
 

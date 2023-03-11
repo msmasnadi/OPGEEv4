@@ -16,11 +16,10 @@ _logger = getLogger(__name__)
 class GasGathering(Process):
     def _after_init(self):
         super()._after_init()
-        self.field = field = self.get_field()
+        self.field = self.get_field()
 
     def run(self, analysis):
         self.print_running_msg()
-        field = self.field
 
         if not self.all_streams_ready("gas for gas gathering"):
             return
