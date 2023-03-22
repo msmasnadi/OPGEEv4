@@ -278,6 +278,14 @@ class A(OpgeeObject):
         self.value = value
         return value
 
+    def str_value(self):
+        """
+        Return the value of an attribute as a string.
+
+        :return: (str) string representation of the attribute value
+        """
+        return str(self.value)
+
     def __str__(self):
         type_str = type(self).__name__
         attrs = f"name='{self.name}' type='{self.pytype}' value='{self.value}'"

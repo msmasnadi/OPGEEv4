@@ -893,19 +893,19 @@ class Field(Container):
         return self.process_dict.values()
 
     # TBD: not used currently
-    def process_choice_node(self, name, raiseError=True):
-        """
-        Find a `ProcessChoice` instance by name.
-
-        :param name: (str) the name of the choice element
-        :param raiseError: (bool) whether to raise an error if `name` is not found
-        :return: (opgee.ProcessChoice) the instance found, or None
-        """
-        choice_node = self.process_choice_dict.get(name)
-        if choice_node is None and raiseError:
-            raise OpgeeException(f"Process choice '{name}' not found in field '{self.name}'")
-
-        return choice_node
+    # def process_choice_node(self, name, raiseError=True):
+    #     """
+    #     Find a `ProcessChoice` instance by name.
+    #
+    #     :param name: (str) the name of the choice element
+    #     :param raiseError: (bool) whether to raise an error if `name` is not found
+    #     :return: (opgee.ProcessChoice) the instance found, or None
+    #     """
+    #     choice_node = self.process_choice_dict.get(name)
+    #     if choice_node is None and raiseError:
+    #         raise OpgeeException(f"Process choice '{name}' not found in field '{self.name}'")
+    #
+    #     return choice_node
 
     def find_stream(self, name, raiseError=True):
         """
@@ -1035,7 +1035,7 @@ class Field(Container):
     def resolve_process_choices(self, process_choice_dict=None):
         """
         Disable all processes referenced in a `ProcessChoice`, then enable only the processes
-        in the selected `ProcessGroup`. The name of each `ProcessChoice` must also identify an
+        in the selected `ProcessGroup`. The name of each `ProcessChoice` must also identify a
         field-level attribute, whose value indicates the user's choice of `ProcessGroup`.
 
         :param process_choice_dict: (dict) optional dictionary for nested process choices. Used
@@ -1057,7 +1057,7 @@ class Field(Container):
                 raise OpgeeException(
                     f"ProcessChoice '{choice_name}' has no corresponding attribute in field '{self.name}'")
 
-            selected_group_name = attr.value.lower()
+            selected_group_name = attr.str_value().lower()
 
             for group_name, group in choice.groups_dict.items():
                 procs, streams = group.processes_and_streams(self)
