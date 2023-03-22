@@ -316,6 +316,8 @@ class Field(Container):
             trial_str = f"trial {trial_num} of " if trial_num is not None else ""
             _logger.info(f"Running {trial_str}'{self.name}'")
 
+            self.check_enabled_processes()
+
             # Cache the sets of processes within and outside the current boundary. We use
             # this information in compute_carbon_intensity() to ignore irrelevant procs.
             boundary_proc = self.boundary_process(analysis)
@@ -734,6 +736,16 @@ class Field(Container):
         cycle_independent = set(processes) - procs_in_cycles - cycle_dependent - run_afters
         return cycle_independent, procs_in_cycles, cycle_dependent, run_afters
 
+    def check_enabled_processes(self):
+        """
+        Iterate all processes and allow them to check if they should be disabled before they run.
+        """
+
+        processes = self.processes()
+
+        for proc in processes:
+            proc.check_enabled()
+
     def run_processes(self, analysis):
         cycle_independent, procs_in_cycles, cycle_dependent, run_afters = self._compute_graph_sections()
 
@@ -749,21 +761,9 @@ class Field(Container):
             run_order = nx.topological_sort(sg)
             for proc in run_order:
                 proc.run_if_enabled(analysis)
-                print(proc.name)
-
-            print("--------complete------")
-
-        def update_process(procs):
-            updated_procs = set()
-            for proc in procs:
-                proc.run_if_enabled(analysis)
-                if proc.is_enabled():
-                    updated_procs.add(proc)
-
-            return updated_procs
 
         # run all the cycle-independent nodes in topological order
-        run_procs_in_order(update_process(cycle_independent))
+        run_procs_in_order(cycle_independent)
 
         # If user has indicated a process with start-cycle="true", start there, otherwise
         # find a process with cycle-independent processes as inputs, and start there.
@@ -775,8 +775,6 @@ class Field(Container):
 
         max_iter = self.model.maximum_iterations
 
-        procs_in_cycles = update_process(procs_in_cycles)
-
         if procs_in_cycles:
             # Walk the cycle, starting at the indicated start process to generate an ordered list
             unvisited = procs_in_cycles.copy()
@@ -784,20 +782,36 @@ class Field(Container):
             if start_procs:
                 ordered_cycle = []
 
-                # recursive function to walk successors until we've visited all the procs in cycles
-                def process_successors(proc):
-                    if proc in unvisited:
-                        unvisited.remove(proc)
-                        ordered_cycle.append(proc)
+                # Perform a Breadth-First Search (BFS) traversal on a graph-like structure starting from the given node.
+                from collections import deque
+                def bfs(start_node):
+                    """
+                        Perform a Breadth-First Search (BFS) traversal on a graph-like structure starting from the given node.
 
-                        for successor in proc.successors():
-                            process_successors(successor)
+                        Args:
+                            start_node: The starting node for the BFS traversal.
 
-                process_successors(start_procs[0])
+                        Returns:
+                            ordered_cycle (list): A list containing the nodes visited in the order they were visited during the BFS traversal.
+                    """
+                    deck = deque([start_node])
+
+                    while deck:
+                        current_node = deck.popleft()
+
+                        if current_node in unvisited:
+                            unvisited.remove(current_node)
+                            ordered_cycle.append(current_node)
+
+                            for successor in current_node.successors():
+                                if successor in unvisited:
+                                    deck.append(successor)
+
+                bfs(start_procs[0])
 
                 # add in any processes in cycles not reachable from the start proc
                 for other in list(unvisited):
-                    process_successors(other)
+                    bfs(other)
 
             else:
                 # TBD: Compute ordering by looking for procs in cycle that are successors to
@@ -815,17 +829,13 @@ class Field(Container):
                 try:
                     for proc in ordered_cycle:
                         proc.run_if_enabled(analysis)
-                        print(proc.name)
-                        print(proc.iteration_converged)
 
                 except OpgeeIterationConverged as e:
                     _logger.debug(e)
                     break
 
-            print("----loop complete----")
-
         # run all processes dependent on cycles, which are now complete
-        run_procs_in_order(update_process(cycle_dependent))
+        run_procs_in_order(cycle_dependent)
 
         # finally, run all "after='True'" procs, in sort order
         run_procs_in_order(run_afters)

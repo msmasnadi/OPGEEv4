@@ -29,11 +29,6 @@ class SteamGeneration(Process):
         self.field = field = self.get_field()
         self.steam_flooding_check = field.steam_flooding
         self.SOR = field.SOR
-
-        # if self.steam_flooding_check != 1 or self.SOR == 0:
-        #     self.set_enabled(False)
-        #     return
-
         self.oil_volume_rate = field.oil_volume_rate
         self.steam_quality_outlet = self.attr("steam_quality_outlet")
         self.steam_quality_after_blowdown = self.attr("steam_quality_after_blowdown")
@@ -69,13 +64,11 @@ class SteamGeneration(Process):
         #       in run().
         self.steam_generator = field.steam_generator
 
-    def run(self, analysis):
-
-        # Moved here from _after_init() to allow MCS to reset attributes
+    def check_enabled(self):
         if self.steam_flooding_check != 1 or self.SOR == 0:
             self.set_enabled(False)
-            return
 
+    def run(self, analysis):
         self.print_running_msg()
         self.set_iteration_value(0)
         field = self.field
@@ -114,7 +107,8 @@ class SteamGeneration(Process):
 
         makeup_water_to_prod_water_frac = makeup_water_mass_rate / prod_water_mass_rate
 
-        fuel_consumption_OTSG = fuel_consumption_HRSG = fuel_consumption_solar = electricity_HRSG = ureg.Quantity(0, "MJ/day")
+        fuel_consumption_OTSG = fuel_consumption_HRSG = fuel_consumption_solar = electricity_HRSG = ureg.Quantity(0,
+                                                                                                                  "MJ/day")
 
         if self.fraction_OTSG.m != 0:
             fuel_consumption_OTSG, mass_in_OTSG, mass_out_OTSG, energy_in_OTSG, energy_out_OTSG = \
@@ -135,7 +129,7 @@ class SteamGeneration(Process):
             self.check_balance(energy_in_HRSG, energy_out_HRSG, "HRSG_energy")
 
         if self.fraction_steam_solar != 0:
-            fuel_consumption_solar =\
+            fuel_consumption_solar = \
                 self.steam_generator.solar_SG(prod_water_mass_rate * self.fraction_steam_solar,
                                               makeup_water_mass_rate * self.fraction_steam_solar)
 

@@ -226,6 +226,9 @@ class Process(XmlInstantiable, AttributeMixin):
         self.process_EF = self.get_process_EF()
         self.field = self.get_field()
 
+    def check_enabled(self):
+        return
+
     def __str__(self):
         type_str = type(self).__name__
         if type_str == self.name:
@@ -914,6 +917,17 @@ class Boundary(Process):
         field = self.get_field()
         proc = field.boundary_process(analysis)
         return proc == self
+
+    def set_enabled(self, value):
+        super().set_enabled(value)
+
+        if not value:
+            for s in self.inputs:
+                s.set_enabled(False)
+
+            for s in self.outputs:
+                s.set_enabled(False)
+
 
     def run(self, analysis):
         is_chosen_boundary = self.is_chosen_boundary(analysis)

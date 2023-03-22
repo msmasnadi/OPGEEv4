@@ -59,6 +59,7 @@ class GasPartition(Process):
         self.gas_flooding_vol_rate = self.oil_volume_rate * self.GFIR
         self.gas_lifting_vol_rate = self.oil_volume_rate * (1 + self.WOR) * self.GLIR
         self.is_first_loop = True
+        self.reset_flag = False
 
     def run(self, analysis):
         self.print_running_msg()
@@ -94,12 +95,12 @@ class GasPartition(Process):
                     lifting_gas_to_compressor.copy_flow_rates_from(init_stream)
                     self.is_first_loop = False
 
-                # Check
+
                 iteration_series = (lifting_gas_to_compressor.components.gas - input.components.gas).astype(float)
                 iteration_series[iteration_series < 0] = 0
-                self.set_iteration_value(iteration_series)
 
                 if sum(iteration_series) >= self.iteration_tolerance:
+                    self.set_iteration_value(iteration_series)
                     lifting_gas_to_compressor.copy_flow_rates_from(input)
                     return
 
@@ -119,8 +120,9 @@ class GasPartition(Process):
         exported_gas = self.find_output_stream("gas")
         exported_gas.copy_flow_rates_from(exported_gas_stream)
         field.save_process_data(exported_gas=exported_gas)
-        if self.gas_lifting:
+        if self.gas_lifting and not self.reset_flag:
             self.reset_iteration()
+            self.reset_flag = True
         self.set_iteration_value(exported_gas.total_flow_rate())
 
     def gas_flooding_setup(self, import_product, reinjected_gas_stream, exported_gas_stream):

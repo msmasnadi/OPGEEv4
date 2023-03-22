@@ -52,17 +52,10 @@ class Separation(Process):
 
         self.water_content = self.attr("water_content_oil_emulsion")
         self.compressor_eff = self.attr("eta_compressor")
-        self.oil_sands_mine = field.oil_sands_mine
 
     def run(self, analysis):
         self.print_running_msg()
         field = self.field
-
-
-        # oil sand mining has no separation
-        if self.oil_sands_mine != "None":
-            self.set_enabled(False)
-            return
 
         # mass rate
         input = self.find_input_stream("crude oil")

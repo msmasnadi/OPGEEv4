@@ -971,6 +971,7 @@
 		<Field name="test_CrudeOilDewatering_Storage"/>
 		<Field name="test_CrudeOilDewatering_DilutionUpgrading"/>
 		<Field name="test_CrudeOilStabilization"/>
+		<Field name="test_DownholePump_with_GasLifting"/>
 	</Analysis>
 
 	<Field name="test_ReservoirWellInterface">
@@ -1053,6 +1054,51 @@
 			<Component name="H2O" phase="liquid">1997.482843</Component>
 			<A name="temperature">198.196</A>
 			<A name="pressure">1440.350</A>
+		</Stream>
+
+		<Stream src="DownholePump" dst="ProductionBoundary">
+			<Contains>crude oil</Contains>
+		</Stream>
+
+	</Field>
+
+	<Field name="test_DownholePump_with_GasLifting">
+
+		<A name="gas_lifting">1</A>
+		<A name="GOR">600.0</A>
+		<A name="oil_prod">25019.48</A>
+		<A name="GLIR">1800.0</A>
+		<A name="num_prod_wells">24</A>
+
+		<Process class="Before"/>
+		<Process class="DownholePump">
+			<A name="leak_rate">0.00076463</A>
+		</Process>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="Before" dst="DownholePump" name="reservoir">
+			<Contains>crude oil</Contains>
+			<Component name="N2" phase="gas">14.409988</Component>
+			<Component name="CO2" phase="gas">2.608061</Component>
+			<Component name="C1" phase="gas">258.814598</Component>
+			<Component name="C2" phase="gas">28.756441</Component>
+			<Component name="C3" phase="gas">12.842098</Component>
+			<Component name="C4" phase="gas">7.410056</Component>
+			<Component name="oil" phase="liquid">3544.524012</Component>
+			<Component name="H2O" phase="liquid">8058.220047</Component>
+			<A name="temperature">198.196</A>
+			<A name="pressure">1056.5100</A>
+		</Stream>
+
+		<Stream src="Before" dst="DownholePump" name="lifting_gas">
+			<Contains>lifting gas</Contains>
+			<Component name="N2" phase="gas">30.44599</Component>
+			<Component name="C1" phase="gas">2411.48113</Component>
+			<Component name="C2" phase="gas">175.40988</Component>
+			<Component name="C3" phase="gas">18.86095</Component>
+			<A name="temperature">198.196</A>
+			<A name="pressure">1115.6150</A>
 		</Stream>
 
 		<Stream src="DownholePump" dst="ProductionBoundary">

@@ -46,24 +46,23 @@ class WaterInjection(Process):
         self.eta_pump = self.attr("eta_pump")
         self.prime_mover_type = self.attr("prime_mover_type")
 
-    def run(self, analysis):
+    def check_enabled(self):
         if not self.water_reinjection and not self.water_flooding:
             self.set_enabled(False)
-            return
 
+    def run(self, analysis):
         self.print_running_msg()
 
         if self.num_water_inj_wells.m == 0:
             raise OpgeeException(f"Got zero number of injector in the {self.name} process")
 
-        input_prod = self.find_input_stream("produced water for water injection")
-        input_makeup = self.find_input_stream("makeup water for water injection")
-        if input_prod.is_uninitialized() and input_makeup.is_uninitialized():
+        input = self.find_input_stream("water for water injection")
+        if input.is_uninitialized():
             return
 
-        total_water_mass = input_prod.liquid_flow_rate("H2O") + input_makeup.liquid_flow_rate("H2O")
-        total_water_volume = total_water_mass / self.water_density
-        single_well_water_volume = total_water_volume / self.num_water_inj_wells
+        water_mass = input.liquid_flow_rate("H2O")
+        water_volume = water_mass / self.water_density
+        single_well_water_volume = water_volume / self.num_water_inj_wells
 
         wellbore_flowing_press = single_well_water_volume / self.productivity_index + self.res_press
         water_gravitation_head = self.water_density * self.gravitation_acc * self.depth
@@ -83,10 +82,6 @@ class WaterInjection(Process):
 
         energy_carrier = get_energy_carrier(self.prime_mover_type)
         energy_use.set_rate(energy_carrier, water_pump_power)
-
-        # import/export
-        # import_product = field.import_export
-        self.set_import_from_energy(energy_use)
 
         # emission
         emissions = self.emissions
