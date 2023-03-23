@@ -40,13 +40,13 @@ class HeavyOilUpgrading(Process):
         self.water_density = self.water.density()
         self.bitumen_API = field.API
 
+    def check_enabled(self):
+        if self.upgrader_type == "None":
+            self.set_enabled(False)
+
     def run(self, analysis):
         self.print_running_msg()
         field = self.field
-
-        if self.upgrader_type == "None":
-            self.set_enabled(False)
-            return
 
         # mass rate
         input_oil = self.find_input_stream("oil for upgrading", raiseError=False)

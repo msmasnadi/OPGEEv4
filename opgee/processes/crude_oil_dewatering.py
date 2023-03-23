@@ -38,15 +38,9 @@ class CrudeOilDewatering(Process):
                               "Upgrading": "oil for upgrading",
                               "Dilution": "oil for dilution",
                               "Dilution and Upgrading": "oil for dilution"}
-        self.oil_sands_mine = field.oil_sands_mine
 
     def run(self, analysis):
         self.print_running_msg()
-
-        # oil sand mining has no crude oil dewatering
-        if self.oil_sands_mine != "None":
-            self.set_enabled(False)
-            return
 
         # mass rate
         input = self.find_input_stream("crude oil")

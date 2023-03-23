@@ -48,16 +48,10 @@ class WaterTreatment(Process):
         self.num_stages = self.attr("number_of_stages")
 
         self.init_intermediate_results(["Produced Water", "Makeup Water"])
-        self.oil_sands_mine = field.oil_sands_mine
 
     def run(self, analysis):
         self.print_running_msg()
         field = self.field
-
-        # oil sand mining has no water treatment
-        if self.oil_sands_mine != "None":
-            self.set_enabled(False)
-            return
 
         # mass rate
         input = self.find_input_streams("water", combine=True)
@@ -97,14 +91,9 @@ class WaterTreatment(Process):
                 makeup_water_to_steam.set_liquid_flow_rate("H2O", makeup_steam_mass.to("tonne/day"),
                                                            tp=self.makeup_water_tp)
         if self.water_flooding or self.water_reinjection:
-            prod_water_to_reinjection = self.find_output_stream("produced water for water injection")
-            makeup_water_to_reinjection = self.find_output_stream("makeup water for water injection")
-            prod_water_to_reinjection.set_liquid_flow_rate("H2O",
-                                                           prod_water_mass.to("tonne/day"), tp=input.tp)
-            if makeup_water_mass.m != 0:
-                makeup_water_to_reinjection.set_liquid_flow_rate("H2O",
-                                                                 makeup_water_mass.to("tonne/day"),
-                                                                 tp=self.makeup_water_tp)
+            water_to_reinjection = self.find_output_stream("water for water injection")
+            water_to_reinjection_rate = prod_water_mass + makeup_water_mass
+            water_to_reinjection.set_liquid_flow_rate("H2O", water_to_reinjection_rate, tp=input.tp)
 
         water_for_disp =\
             input_water_mass_rate - makeup_water_mass - makeup_steam_mass - prod_water_mass - prod_steam_mass

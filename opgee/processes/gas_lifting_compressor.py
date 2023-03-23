@@ -26,17 +26,18 @@ class GasLiftingCompressor(Process):
         self.eta_compressor = self.attr("eta_compressor")
         self.gas_lifting = field.gas_lifting
 
+    def check_enabled(self):
+        if not self.gas_lifting:
+            self.set_enabled(False)
+
     def run(self, analysis):
         self.print_running_msg()
         field = self.field
 
         # mass rate
         input = self.find_input_stream("lifting gas", raiseError=None)
-        if input is None or not self.gas_lifting:
-            self.set_enabled(False)
-            return
 
-        if input.is_uninitialized():
+        if input is None or input.is_uninitialized():
             return
 
         loss_rate = self.venting_fugitive_rate()

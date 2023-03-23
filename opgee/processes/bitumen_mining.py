@@ -74,10 +74,6 @@ class BitumenMining(Process):
         self.print_running_msg()
         field = self.field
 
-        if self.oil_sands_mine == "None":
-            self.set_enabled(False)
-            return
-
         bitumen_mass_rate = self.oil_volume_rate * self.bitumen_SG * self.water_density
         try:
             output = self.bitumen_path_dict[self.oil_sands_mine]

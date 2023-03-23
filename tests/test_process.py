@@ -497,6 +497,22 @@ def test_DownholePump(test_model):
     assert approx_equal(total, expected)
 
 
+def test_DownholePump_with_GasLifting(test_model):
+    analysis = test_model.get_analysis('test_common_processes')
+    field = analysis.get_field('test_DownholePump_with_GasLifting')
+    field.run(analysis)
+    proc = field.find_process('DownholePump')
+    # ensure total energy flow rates
+    total = proc.energy.data.sum()
+    expected = ureg.Quantity(0.0, "mmbtu/day")
+    assert approx_equal(total, expected)
+
+    # ensure total GHG flow rates
+    total = proc.emissions.data.loc["GHG"].sum()
+    expected = ureg.Quantity(51.56672984, "mmbtu/day")
+    assert approx_equal(total, expected)
+
+
 def test_Separation(test_model):
     analysis = test_model.get_analysis('test_gas_processes')
     field = analysis.get_field('test_Separation')
@@ -677,4 +693,3 @@ def test_WaterTreatment(test_model):
     total = proc.energy.data.sum()
     expected = ureg.Quantity(51.107496947788306, "mmBtu/day")
     assert approx_equal(total, expected)
-

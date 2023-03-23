@@ -37,12 +37,8 @@ class Drilling(Process):
 
     def run(self, analysis):
         self.print_running_msg()
-
-        if self.oil_sands_mine != "None":
-            self.set_enabled(False)
-            return
-
         field = self.field
+
         fracture_energy_constant = self.get_fracture_constant()
         fracture_diesel_use = self.get_fracture_diesel(fracture_energy_constant)
         fracture_fuel_consumption = self.fraction_wells_fractured * self.num_wells * fracture_diesel_use

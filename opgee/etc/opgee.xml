@@ -51,26 +51,24 @@
 <!--      <A name="transport_dist_pipeline">0.0</A>-->
 <!--      <A name="transport_dist_rail">0.0</A>-->
 
-			<A name="downhole_pump">1</A>
-      <A name="water_reinjection">1</A>
+			<A name="downhole_pump">0</A>
+      <A name="water_reinjection">0</A>
       <A name="natural_gas_reinjection">0</A>
       <A name="water_flooding">0</A>
       <A name="gas_lifting">0</A>
       <A name="gas_flooding">0</A>
       <A name="steam_flooding">0</A>
-      <A name="country">Azerbaijan</A>
-      <A name="name">Azeri</A>
-      <A name="age">17.0</A>
-      <A name="depth">9075.0</A>
-      <A name="oil_prod">655700.0</A>
-      <A name="num_prod_wells">77</A>
-      <A name="num_water_inj_wells">30</A>
-      <A name="well_diam">4.525</A>
-      <A name="prod_index">16.8</A>
-      <A name="res_press">1951.125</A>
-      <A name="res_temp">233.35</A>
+      <A name="country">Canada</A>
+      <A name="name">Suncor</A>
+      <A name="age">38.0</A>
+      <A name="depth">7122.0</A>
+      <A name="oil_prod">2098.0</A>
+      <A name="well_diam">2.775</A>
+      <A name="prod_index">6.8</A>
+      <A name="res_press">1531.23</A>
+      <A name="res_temp">198.196</A>
       <A name="offshore">0.0</A>
-      <A name="API">35.0</A>
+      <A name="API">32.8</A>
       <A name="gas_comp_N2">2.86</A>
       <A name="gas_comp_CO2">0.33</A>
       <A name="gas_comp_C1">89.18</A>
@@ -78,11 +76,11 @@
       <A name="gas_comp_C3">1.62</A>
       <A name="gas_comp_C4">0.71</A>
       <A name="gas_comp_H2S">0.0</A>
-      <A name="GOR">1299.0</A>
-      <A name="WOR">2.025808595</A>
-      <A name="WIR">3.025808595</A>
+      <A name="GOR">2429.3</A>
+      <A name="WOR">5.988459821</A>
+      <A name="WIR">6.988459821</A>
       <A name="GLIR">363.8</A>
-      <A name="GFIR">1948.5</A>
+      <A name="GFIR">3643.95</A>
       <A name="flood_gas_type">NG</A>
       <A name="SOR">0.0</A>
       <A name="fraction_elec_onsite">0.0</A>
@@ -93,26 +91,27 @@
       <Process class="CrudeOilDewatering">
         <A name="heater_treater">0</A>
       </Process>
-      <A name="stabilizer_column">1</A>
-      <A name="upgrader_type">None</A>
-      <A name="gas_processing_path">Acid Wet Gas</A>
-      <A name="FOR">22.34959858</A>
-      <A name="VOR">0.002</A>
+      <A name="stabilizer_column">0</A>
+      <A name="upgrader_type">Delayed coking</A>
+      <A name="gas_processing_path">None</A>
+      <A name="FOR">2.0</A>
+      <A name="VOR">0.0</A>
       <Process class="HeavyOilDilution">
         <A name="fraction_diluent">0.0</A>
       </Process>
-      <A name="frac_transport_tanker">1.0</A>
+      <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
       <A name="frac_transport_rail">0.0</A>
       <A name="frac_transport_truck">0.0</A>
-      <A name="transport_dist_tanker">8252.0</A>
+      <A name="transport_dist_tanker">0.0</A>
       <A name="transport_dist_barge">0.0</A>
-      <A name="transport_dist_pipeline">518.0</A>
+      <A name="transport_dist_pipeline">2500.0</A>
       <A name="transport_dist_rail">0.0</A>
-      <A name="transport_dist_truck">100.0</A>
-      <A name="oil_sands_mine">None</A>
-      <A name="oil_processing_path">Stabilization</A>
+      <A name="transport_dist_truck">0.0</A>
+      <A name="oil_sands_mine">Integrated with upgrader</A>
+      <A name="oil_processing_path">Upgrading</A>
+      <A name="common_gas_process_choice">None</A>
 		</Field>
 
 	</Analysis>
@@ -123,6 +122,53 @@
 		<Process class="Boundary" boundary="Production"/>
 		<Process class="Boundary" boundary="Transportation"/>
 		<Process class="Boundary" boundary="Distribution"/>
+
+		<ProcessChoice name="oil_sands_mine">
+			<ProcessGroup name="None">
+				<ProcessRef name="Reservoir"/>
+				<ProcessRef name="ReservoirWellInterface"/>
+				<ProcessRef name="DownholePump"/>
+				<ProcessRef name="Separation"/>
+				<ProcessRef name="CrudeOilDewatering"/>
+				<ProcessRef name="WaterTreatment"/>
+				<ProcessRef name="SteamGeneration"/>
+				<ProcessRef name="WaterInjection"/>
+				<ProcessRef name="Drilling"/>
+
+				<StreamRef name="Reservoir => ReservoirWellInterface"/>
+				<StreamRef name="ReservoirWellInterface => DownholePump"/>
+				<StreamRef name="DownholePump => Separation"/>
+				<StreamRef name="Separation => CrudeOilDewatering"/>
+				<StreamRef name="Separation => WaterTreatment"/>
+				<StreamRef name="Separation => VFPartition"/>
+				<StreamRef name="CrudeOilDewatering => CrudeOilStabilization"/>
+				<StreamRef name="CrudeOilDewatering => CrudeOilStorage"/>
+				<StreamRef name="CrudeOilDewatering => HeavyOilUpgrading"/>
+				<StreamRef name="CrudeOilDewatering => HeavyOilDilution"/>
+				<StreamRef name="WaterTreatment => ProductionBoundary"/>
+				<StreamRef name="produced water treatment"/>
+				<StreamRef name="makeup water treatment"/>
+				<StreamRef name="WaterTreatment => WaterInjection"/>
+			</ProcessGroup>
+
+			<ProcessGroup name="Integrated with upgrader">
+				<ProcessRef name="BitumenMining"/>
+
+				<StreamRef name="BitumenMining => HeavyOilUpgrading"/>
+			</ProcessGroup>
+
+			<ProcessGroup name="Integrated with diluent">
+				<ProcessRef name="BitumenMining"/>
+
+				<StreamRef name="BitumenMining => HeavyOilDilution"/>
+			</ProcessGroup>
+
+			<ProcessGroup name="Integrated with both">
+				<ProcessRef name="BitumenMining"/>
+
+				<StreamRef name="BitumenMining => HeavyOilDilution"/>
+			</ProcessGroup>
+		</ProcessChoice>
 
 		<ProcessChoice name="gas_processing_path">
 			<ProcessGroup name="None">
@@ -252,30 +298,30 @@
 			<ProcessGroup name="Stabilization">
 				<ProcessRef name="CrudeOilStabilization"/>
 				<ProcessRef name="CrudeOilStorage"/>
-				<ProcessRef name="CrudeOilDewatering"/>
-				<StreamRef name="CrudeOilDewatering => CrudeOilStabilization"/>
+<!--				<ProcessRef name="CrudeOilDewatering"/>-->
+<!--				<StreamRef name="CrudeOilDewatering => CrudeOilStabilization"/>-->
 				<StreamRef name="CrudeOilStabilization => CrudeOilStorage"/>
 			</ProcessGroup>
 
 			<ProcessGroup name="Storage">
 				<ProcessRef name="CrudeOilStorage"/>
-				<ProcessRef name="CrudeOilDewatering"/>
-				<StreamRef name="CrudeOilDewatering => CrudeOilStorage"/>
+<!--				<ProcessRef name="CrudeOilDewatering"/>-->
+<!--				<StreamRef name="CrudeOilDewatering => CrudeOilStorage"/>-->
 			</ProcessGroup>
 
 			<ProcessGroup name="Upgrading">
 				<ProcessRef name="HeavyOilUpgrading"/>
 				<ProcessRef name="CrudeOilStorage"/>
-				<ProcessRef name="CrudeOilDewatering"/>
-				<StreamRef name="CrudeOilDewatering => HeavyOilUpgrading"/>
+<!--				<ProcessRef name="CrudeOilDewatering"/>-->
+<!--				<StreamRef name="CrudeOilDewatering => HeavyOilUpgrading"/>-->
 				<StreamRef name="HeavyOilUpgrading => CrudeOilStorage"/>
 			</ProcessGroup>
 
 			<ProcessGroup name="Dilution">
 				<ProcessRef name="HeavyOilDilution"/>
 				<ProcessRef name="CrudeOilStorage"/>
-				<ProcessRef name="CrudeOilDewatering"/>
-				<StreamRef name="CrudeOilDewatering => HeavyOilDilution"/>
+<!--				<ProcessRef name="CrudeOilDewatering"/>-->
+<!--				<StreamRef name="CrudeOilDewatering => HeavyOilDilution"/>-->
 				<StreamRef name="HeavyOilDilution => CrudeOilStorage"/>
 			</ProcessGroup>
 
@@ -283,8 +329,8 @@
 				<ProcessRef name="HeavyOilDilution"/>
 				<ProcessRef name="HeavyOilUpgrading"/>
 				<ProcessRef name="CrudeOilStorage"/>
-				<ProcessRef name="CrudeOilDewatering"/>
-				<StreamRef name="CrudeOilDewatering => HeavyOilDilution"/>
+<!--				<ProcessRef name="CrudeOilDewatering"/>-->
+<!--				<StreamRef name="CrudeOilDewatering => HeavyOilDilution"/>-->
 				<StreamRef name="HeavyOilDilution => HeavyOilUpgrading"/>
 				<StreamRef name="HeavyOilUpgrading => CrudeOilStorage"/>
 			</ProcessGroup>
@@ -483,7 +529,7 @@
 			<Contains>water for subsurface disposal</Contains>
 		</Stream>
 
-		<Stream src="WaterTreatment" dst="SteamGeneration">
+		<Stream src="WaterTreatment" dst="SteamGeneration" name="produced water treatment">
 			<Contains>produced water for steam generation</Contains>
 		</Stream>
 
@@ -491,12 +537,8 @@
 			<Contains>makeup water for steam generation</Contains>
 		</Stream>
 
-		<Stream src="WaterTreatment" dst="WaterInjection" name="produced water treatment">
-			<Contains>produced water for water injection</Contains>
-		</Stream>
-
 		<Stream src="WaterTreatment" dst="WaterInjection">
-			<Contains>makeup water for water injection</Contains>
+			<Contains>water for water injection</Contains>
 		</Stream>
 
 		<Stream src="SteamGeneration" dst="WaterTreatment">
