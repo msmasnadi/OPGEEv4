@@ -63,7 +63,9 @@ class VFPartition(Process):
         gas_to_flare.set_tp(tp=STP)
 
         methane_slip = self.find_output_stream("methane slip")
-        methane_slip.set_rates_from_series(mass_rate_gas_slip, PHASE_GAS, input.subtract_rates_from(gas_to_flare, PHASE_GAS))
+        temp = Stream("temp", tp=input.tp)
+        temp.copy_flow_rates_from(input)
+        methane_slip.set_rates_from_series(mass_rate_gas_slip, PHASE_GAS, temp.subtract_rates_from(gas_to_flare, PHASE_GAS))
         methane_slip.set_tp(tp=STP)
 
         output_gas = self.find_output_stream("gas for venting")

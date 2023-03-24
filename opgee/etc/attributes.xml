@@ -176,7 +176,7 @@
       <AttrDef name="gas_processing_path" desc="Associated gas processing path" options="gas_processing_path" type="str"/>
       <AttrDef name="common_gas_process_choice" desc="Processes common to all gas pathways" options="common_gas_processes" type="str"/>
       <AttrDef name="FOR" unit="scf/bbl_oil" desc="Ratio of flaring to oil production" type="float">141.3</AttrDef>  <!-- TODO: Add smart default value using Zhang's lookup table -->
-      <AttrDef name="VOR" unit="scf/bbl_oil" desc="Ratio of venting to oil production" type="float">5.0</AttrDef>
+      <AttrDef name="frac_venting" unit="frac" desc="purposeful venting of post-flare gas" type="float">0.002</AttrDef>
       <AttrDef name="oil_processing_path" desc="Associated oil processing path" options="oil_processing_path" type="str"/>
       <AttrDef name="temperature_mined_bitumen" desc="Mined bitumen temperature" type="float" unit="degF">80.0</AttrDef>
       <AttrDef name="pressure_mined_bitumen" desc="Mined bitumen pressure" type="float" unit="psia">14.70</AttrDef>
@@ -335,7 +335,7 @@
       <AttrDef name="reflux_ratio" type="float" unit="frac" desc="gas dehydration reflux ratio">2.25</AttrDef>
       <AttrDef name="regeneration_feed_temp" type="float" unit="degF" desc="gas dehydration regeneration feed temperature">200.0</AttrDef>
       <AttrDef name="natural_gas_to_liquefaction_frac" type="float" unit="frac" desc="Fraction of natural gas to liquefaction">0.5</AttrDef>
-      <AttrDef name="frac_CO2_breakthrough" desc="Fraction of CO2 breaking through to producers" unit="frac" type="float">0.59</AttrDef>
+      <AttrDef name="frac_CO2_breakthrough" desc="Fraction of CO2 breaking through to producers" unit="percent" type="float">0.59</AttrDef>
 <!--      component fugitive input-->
       <AttrDef name="GOR_cutoff" type="float" unit="kscf/bbl" desc="GOR cutoff used for define the oil field and gas field">100.0</AttrDef>
 
@@ -529,8 +529,8 @@
       <AttrDef name="fraction_diluent" unit="frac" desc="Volume fraction of diluent in diluted crude" type="float" GE="0" LE="1">0.0</AttrDef>
     </ClassAttrs>
     <ClassAttrs name="CrudeOilStorage">
-      <AttrDef name="f_FG_CS_VRU" unit="percent" type="float" desc="storage gas recovery fraction" GE="0" LE="100">6.0</AttrDef>
-      <AttrDef name="f_FG_CS_FL" unit="percent" type="float" desc="storage gas flare fraction" GE="0" LE="100">43.0</AttrDef>
+      <AttrDef name="f_FG_CS_VRU" unit="percent" type="float" desc="storage gas recovery fraction" GE="0" LE="100">90.0</AttrDef>
+      <AttrDef name="f_FG_CS_FL" unit="percent" type="float" desc="storage gas flare fraction" GE="0" LE="100">10.0</AttrDef>
     </ClassAttrs>
 
     <ClassAttrs name="GasDehydration">
@@ -562,8 +562,8 @@
       <AttrDef name="air_cooler_speed_reducer_eff" type="float" unit="percent" desc="AGR air cooler speed reducer efficiency">92.0</AttrDef>
       <AttrDef name="eta_compressor" type="float" unit="frac" desc="AGR compressor efficiency">75.0</AttrDef>
 
-      <AttrDef name="type_amine" type="str" options="amine_solution">conv DEA</AttrDef>
-      <AttrDef name="ratio_reflux_reboiler" type="float" unit="frac" desc="Reflux ratio in reboiler">7.0</AttrDef>
+      <AttrDef name="type_amine" type="str" options="amine_solution">MDEA</AttrDef>
+      <AttrDef name="ratio_reflux_reboiler" type="float" unit="frac" desc="Reflux ratio in reboiler">2.0</AttrDef>
       <AttrDef name="regeneration_temp" type="float" unit="degF" desc="Regeneration feed temperature">205.0</AttrDef>
       <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
     </ClassAttrs>
@@ -619,7 +619,7 @@
     <ClassAttrs name="Demethanizer">
       <AttrDef name="feed_press_demethanizer" type="float" unit="psia" desc="desired pressure for demethanizer reaction">600.0</AttrDef>
       <AttrDef name="column_pressure" type="float" unit="psia" desc="Demethanizer column pressure">240.0</AttrDef>
-      <AttrDef name="methane_to_NLG_ratio" type="float" unit="frac" desc="methane to ethane NGL composition molar ratio at NGL product stream">0.03</AttrDef>
+      <AttrDef name="methane_to_LPG_ratio" type="float" unit="frac" desc="methane to ethane NGL composition molar ratio at NGL product stream">0.03</AttrDef>
       <AttrDef name="eta_reboiler_demethanizer" type="float" unit="frac" desc="Reboiler gas-fired heater fuel use">1.25</AttrDef>
       <AttrDef name="air_cooler_delta_T" type="float" unit="delta_degF" desc="AGR air cooler delta T, air side">40.0</AttrDef>
       <AttrDef name="air_cooler_fan_eff" type="float" unit="percent" desc="AGR air cooler fan efficiency">70.0</AttrDef>

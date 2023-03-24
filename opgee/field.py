@@ -202,7 +202,7 @@ class Field(Container):
         self.steam_flooding = self.attr("steam_flooding")
         self.upgrader_type = self.attr("upgrader_type")  # used only in smart default
         self.volume_per_well_fractured = self.attr("volume_per_well_fractured")
-        self.VOR = self.attr("VOR")
+        self.frac_venting = self.attr("frac_venting")
         self.water_flooding = self.attr("water_flooding")
         self.water_reinjection = self.attr("water_reinjection")
         self.weight_land_survey = self.attr("weight_land_survey")

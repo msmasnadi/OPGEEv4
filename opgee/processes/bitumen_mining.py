@@ -61,7 +61,6 @@ class BitumenMining(Process):
         self.upgrader_type = field.upgrader_type
         self.gas_comp = field.gas_comp
         self.FOR = field.FOR
-        self.VOR = field.VOR
         self.bitumen_path_dict = {"Integrated with upgrader": "bitumen for upgrading",
                                   "Integrated with diluent": "bitumen for dilution",
                                   "Integrated with both": "bitumen for dilution"}
