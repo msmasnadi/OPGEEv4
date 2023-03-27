@@ -43,15 +43,13 @@ class ProcessChoice(XmlInstantiable):
 
         return group
 
-    # def _after_init(self):
-    #     self.field = self.get_field()
-
     @classmethod
-    def from_xml(cls, elt):
+    def from_xml(cls, elt, parent=None):
         """
         Instantiate an instance from an XML element
 
         :param elt: (etree.Element) representing a <Process> element
+        :param parent: (None) ignored for this class
         :return: (Process) instance populated from XML
         """
         name = elt_name(elt)
@@ -60,7 +58,7 @@ class ProcessChoice(XmlInstantiable):
         extend = getBooleanXML(a.get('extend', 'false'))
         default = a.get('default')
 
-        groups  = instantiate_subelts(elt, ProcessGroup)
+        groups = instantiate_subelts(elt, ProcessGroup)
 
         obj = ProcessChoice(name, groups, extend, default)
         return obj
@@ -99,11 +97,12 @@ class ProcessGroup(XmlInstantiable):
         return (procs, streams)
 
     @classmethod
-    def from_xml(cls, elt):
+    def from_xml(cls, elt, parent=None):
         """
         Instantiate an instance from an XML element
 
         :param elt: (etree.Element) representing a <Process> element
+        :param parent: (None) ignored for this class
         :return: (Process) instance populated from XML
         """
         name = elt_name(elt)

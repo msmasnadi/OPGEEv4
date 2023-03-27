@@ -16,21 +16,23 @@ from .log import getLogger
 
 _logger = getLogger(__name__)
 
-class Container(XmlInstantiable, AttributeMixin):
+class Container(AttributeMixin, XmlInstantiable):
     """
     Generic hierarchical node element, has a name and contains other Containers and/or
     Processes (and subclasses thereof).
     """
-    def __init__(self, name, attr_dict=None, aggs=None, procs=None):
-        super().__init__(name)
+    def __init__(self, name, attr_dict=None, parent=None):
+        AttributeMixin.__init__(self, attr_dict=attr_dict)
+        XmlInstantiable.__init__(self, name, parent=parent)
 
         self.attr_defs = AttrDefs.get_instance()
-        self.attr_dict = attr_dict or {}
 
         self.emissions = Emissions()
         self.energy = Energy()
         self.import_export = ImportExport()
 
+
+    def add_children(self, aggs=None, procs=None, **kwargs):
         self.aggs  = self.adopt(aggs)
         self.procs = self.adopt(procs)
 
@@ -52,6 +54,10 @@ class Container(XmlInstantiable, AttributeMixin):
         """
         objs = self._children()
         return [obj for obj in objs if (include_disabled or obj.is_enabled())]
+
+    def validate(self):
+        for child in self.children():
+            child.validate()
 
     def descendant_procs(self, include_disabled=False):
         """

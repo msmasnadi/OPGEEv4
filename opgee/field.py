@@ -44,25 +44,92 @@ class Field(Container):
     See also :doc:`OPGEE XML documentation <opgee-xml>`
     """
 
-    def __init__(self, name, attr_dict=None, aggs=None, procs=None, streams=None, group_names=None,
-                 process_choice_dict=None):
+    def __init__(self, name, attr_dict=None, parent=None, group_names=None):
+        super().__init__(name, attr_dict=attr_dict, parent=parent)
 
-        # Note that `procs` include only Processes defined at the top-level of the field.
-        # Other Processes maybe defined within the Aggregators in `aggs`.
-        super().__init__(name, attr_dict=attr_dict, aggs=aggs, procs=procs)
+        self.model = model = self.find_container('Model')
+        self.group_names = group_names or []
 
-        self.model = None  # set in _after_init
-
-        self.group_names = group_names
-        self.stream_dict = dict_from_list(streams)
-
-        # Remember streams that declare themselves as system boundaries. Keys must be one of the
-        # values in the tuples in the _known_boundaries dictionary above.
-        self.boundary_dict = boundary_dict = {}
+        self.stream_dict = None
+        self.boundary_dict = {}
+        self.process_choice_dict = None
+        self.process_dict = None
+        self.agg_dict = None
 
         # DOCUMENT: boundary names must be predefined, but can be set in configuration.
         #   Each name must appear 0 or 1 times, and at least one boundary must be defined.
-        self.known_boundaries = known_boundaries = set(getParamAsList('OPGEE.Boundaries'))
+        self.known_boundaries = set(getParamAsList('OPGEE.Boundaries'))
+
+        # Each Field has one of these built-in processes
+        self.reservoir = None       # set in add_children()
+
+        # Additional builtin processes can be instantiated and added here if needed
+        self.builtin_procs = None   # set in add_children()
+
+        self.extend = False
+
+        # Stores the name of a Field that the current field copies then modifies
+        # If a Field named X appears in an Analysis element, and specifies that it
+        # modifies another Field Y, Field Y is copied and any elements defined within
+        # Field X are merged into the copy, and the copy is added to the Model with the
+        # new name. The "modifies" value is stored to record this behavior.
+        self.modifies = None
+
+        self.carbon_intensity = ureg.Quantity(0.0, "g/MJ")
+        self.procs_beyond_boundary = None
+
+        self.graph = None
+        self.cycles = None
+
+        self.process_data = {}
+
+        self.wellhead_tp = None
+
+        self.stp = STP
+
+        self.component_fugitive_table = None
+        self.loss_mat_gas_ave_df = None
+
+        self.import_export = ImportExport()
+
+        self.oil = Oil(self)
+        self.gas = Gas(self)
+        self.water = Water(self)
+
+        # set in add_children()
+        self.steam_generator = None
+
+        # TODO: Why are these copied into the Field object? Why not access them from Model?
+        # TODO: It's good practice to declare all instance vars in __init__ (set to None perhaps)
+        #       other programmers (and PyCharm) recognize them as proper instance variables and
+        #       not random values set in other methods.
+        self.upstream_CI = model.upstream_CI
+        self.vertical_drill_df = model.vertical_drill_df
+        self.horizontal_drill_df = model.horizontal_drill_df
+        self.imported_gas_comp = model.imported_gas_comp
+
+    # Used by _after_init and validate to descend model hierarchy
+    def _children(self):
+        return super()._children() + self.streams()
+
+    def add_children(self, aggs=None, procs=None, streams=None, process_choice_dict=None):
+        # Note that `procs` include only Processes defined at the top-level of the field.
+        # Other Processes maybe defined within the Aggregators in `aggs`.
+        super().add_children(aggs=aggs, procs=procs)
+
+        # Each Field has one of these built-in processes
+        self.reservoir = Reservoir(parent=self)
+
+        # Additional builtin processes can be instantiated and added here if needed
+        self.builtin_procs = [self.reservoir]
+
+        self.stream_dict = dict_from_list(streams)
+
+        known_boundaries = self.known_boundaries
+
+        # Remember streams that declare themselves as system boundaries. Keys must be one of the
+        # values in the tuples in the _known_boundaries dictionary above. s
+        boundary_dict = self.boundary_dict
 
         # Save references to boundary processes by name; fail if duplicate definitions are found.
         for proc in procs:
@@ -82,69 +149,14 @@ class Field(Container):
 
         self.process_choice_dict = process_choice_dict
 
-        # Each Field has one of these built-in processes
-        self.reservoir = Reservoir()
-
-        # Additional builtin processes can be instantiated and added here if needed
-        self.builtin_procs = [self.reservoir]
-
         all_procs = self.collect_processes()  # includes Reservoir
         self.process_dict = self.adopt(all_procs, asDict=True)
 
         self.agg_dict = {agg.name : agg for agg in self.descendant_aggs()}
 
-        self.extend = False
-
-        # Stores the name of a Field that the current field copies then modifies
-        # If a Field named X appears in an Analysis element, and specifies that it
-        # modifies another Field Y, Field Y is copied and any elements defined within
-        # Field X are merged into the copy, and the copy is added to the Model with the
-        # new name. The "modifies" value is stored to record this behavior.
-        self.modifies = None
-
-        self.carbon_intensity = ureg.Quantity(0.0, "g/MJ")
-        self.procs_beyond_boundary = None
-
-        self.graph = None
-        self.cycles = None
-
-        self.process_data = {}
-
-        # Set in _after_init()
-        self.oil = self.gas = self.water = self.steam_generator = None
-
-        self.wellhead_tp = None
-
-        self.stp = STP
-
-        self.component_fugitive_table = None
-        self.loss_mat_gas_ave_df = None
-
-        self.import_export = ImportExport()
-
-    # TBD: write test
-    def _check_run_after_procs(self):
-        """
-        For procs tagged 'after="True"', allow outputs only to other "after" procs.
-        """
-        def _run_after_ok(proc):
-            for dst in proc.successors():
-                if not dst.run_after:
-                    return False
-            return True
-
-        bad = [proc for proc in self.processes() if proc.run_after and not _run_after_ok(proc)]
-        if bad:
-            # DOCUMENT after=True attribute
-            raise OpgeeException(f"Processes {bad} are tagged 'after=True' but have output streams to non-'after' processes")
-
-        return True
-
-    def _after_init(self):
         self.check_attr_constraints(self.attr_dict)
 
-        self.model = model = self.find_parent('Model')
-
+        model = self.model
         self.LNG_temp = model.const("LNG-temp")
 
         self.AGR_feedin_press = self.attr("AGR_feedin_press")
@@ -213,45 +225,41 @@ class Field(Container):
         self.WIR = self.attr("WIR")
         self.WOR = self.attr("WOR")
 
-        # TODO: Why are these copied into the Field object? Why not access them from Model?
-        # TODO: It's good practice to declare all instance vars in __init__ (set to None perhaps)
-        #       other programmers (and PyCharm) recognize them as proper instance variables and
-        #       not random values set in other methods.
-        self.upstream_CI = model.upstream_CI
-        self.vertical_drill_df = model.vertical_drill_df
-        self.horizontal_drill_df = model.horizontal_drill_df
+        self.steam_generator = SteamGenerator(self) # accesses field.SOR
 
-        self.imported_gas_comp = model.imported_gas_comp
-
-        self.oil = Oil(self)
-        self.gas = Gas(self)
-        self.water = Water(self)
-        self.steam_generator = SteamGenerator(self)
+        self.component_fugitive_table, self.loss_mat_gas_ave_df = self.get_component_fugitive()
 
         # The analysis arg now defaults to None, which means we've lost the ability to
         # have defaults that depend on Analysis attributes, e.g., "Analysis.gwp_horizon".
         # TODO: decide whether to give up that feature and drop analysis keyword
         SmartDefault.apply_defaults(self)
         self.resolve_process_choices()  # allows smart defaults to set process choices
-        self._check_run_after_procs()       # TBD: write test (also, move call to validate()?
-
-        # TBD: Document the "_after_init" processing order
-        # for iterator in [self.processes(), self.streams()]:
-        for obj in self.processes():
-            obj._after_init()
 
         # we use networkx to reason about the directed graph of Processes (nodes)
         # and Streams (edges).
         self.graph = g = self._connect_processes()
 
         self.cycles = list(nx.simple_cycles(g))
-
-        self.component_fugitive_table, self.loss_mat_gas_ave_df = self.get_component_fugitive()
-
         # if self.cycles:
         #     _logger.debug(f"Field '{self.name}' has cycles: {self.cycles}")
 
+    # TBD: write test
+    def _check_run_after_procs(self):
+        """
+        For procs tagged 'after="True"', allow outputs only to other "after" procs.
+        """
+        def _run_after_ok(proc):
+            for dst in proc.successors():
+                if not dst.run_after:
+                    return False
+            return True
 
+        bad = [proc for proc in self.processes() if proc.run_after and not _run_after_ok(proc)]
+        if bad:
+            # DOCUMENT after=True attribute
+            raise OpgeeException(f"Processes {bad} are tagged 'after=True' but have output streams to non-'after' processes")
+
+        return True
 
     def __str__(self):
         return f"<Field '{self.name}'>"
@@ -357,7 +365,7 @@ class Field(Container):
     def reset_streams(self):
         for stream in self.streams():
             # If a stream is disabled, leave it so. (self.streams() returns only enabled streams.)
-            # Otherwise disable it if either of its source or destination processes is disabled.
+            # Otherwise, disable it if either of its source or destination processes is disabled.
             if not (stream.src_proc.enabled and stream.dst_proc.enabled):
                 stream.set_enabled(False)
 
@@ -520,7 +528,6 @@ class Field(Container):
 
         :return: (Pandas.Series) Process unit loss rate
         """
-
         model = self.model
         GOR = self.attr("GOR")
         GOR_cutoff = self.attr("GOR_cutoff")
@@ -606,6 +613,7 @@ class Field(Container):
         :return: none
         :raises ModelValidationError: raised if any validation condition is violated.
         """
+        super().validate()
 
         # Accumulate error msgs so user can correct them all at once.
         msgs = []
@@ -962,37 +970,37 @@ class Field(Container):
         self.modifies = modifies
 
     @classmethod
-    def from_xml(cls, elt):
+    def from_xml(cls, elt, parent=None):
         """
         Instantiate an instance from an XML element
 
         :param elt: (etree.Element) representing a <Field> element
+        :param parent (opgee.Analysis) the Analysis containing the new Field
         :return: (Field) instance populated from XML
         """
         name = elt_name(elt)
         attrib = elt.attrib
 
         attr_dict = cls.instantiate_attrs(elt)
+        group_names = [node.text for node in elt.findall('Group')]
 
-        aggs = instantiate_subelts(elt, Aggregator)
-        procs = instantiate_subelts(elt, Process)
-        streams = instantiate_subelts(elt, Stream)
+        field = Field(name, attr_dict=attr_dict, parent=parent, group_names=group_names)
+
+        field.set_enabled(attrib.get('enabled', '1'))
+        field.set_extend(attrib.get('extend', '0'))
+        field.set_modifies(attrib.get('modified'))    # "modified" attr is changed to "modified" after merging
+
+        aggs = instantiate_subelts(elt, Aggregator, parent=field)
+        procs = instantiate_subelts(elt, Process, parent=field)
+        streams = instantiate_subelts(elt, Stream, parent=field)
 
         choices = instantiate_subelts(elt, ProcessChoice)
         # Convert to lowercase to avoid simple lookup errors
         process_choice_dict = {choice.name.lower(): choice for choice in choices}
 
-        group_names = [node.text for node in elt.findall('Group')]
-
-        obj = Field(name, attr_dict=attr_dict, aggs=aggs, procs=procs,
-                    streams=streams, group_names=group_names,
-                    process_choice_dict=process_choice_dict)
-
-        obj.set_enabled(attrib.get('enabled', '1'))
-        obj.set_extend(attrib.get('extend', '0'))
-        obj.set_modifies(attrib.get('modified'))    # "modified" attr is changed to "modified" after merging
-
-        return obj
+        field.add_children(aggs=aggs, procs=procs, streams=streams,
+                           process_choice_dict=process_choice_dict)
+        return field
 
     def collect_processes(self):
         """

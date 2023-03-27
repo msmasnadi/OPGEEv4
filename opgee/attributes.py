@@ -11,7 +11,8 @@ from collections import defaultdict
 import pandas as pd
 
 from . import ureg
-from .core import OpgeeObject, XmlInstantiable, A, instantiate_subelts, elt_name, validate_unit, magnitude
+from .core import (OpgeeObject, XmlInstantiable, A, instantiate_subelts,
+                   elt_name, validate_unit, magnitude)
 from .error import AttributeError, ModelValidationError
 from .log import getLogger
 from .utils import coercible
@@ -25,16 +26,16 @@ class Options(XmlInstantiable):
         self.options = options
 
     @classmethod
-    def from_xml(cls, elt):
+    def from_xml(cls, elt, parent=None):
         option_elts = elt.findall('Option')
         options = [(elt.text, elt.attrib.get('label', elt.text), elt.attrib.get('desc')) for elt in option_elts]
         obj = Options(elt_name(elt), elt.attrib.get('default'), options)
         return obj
 
 class AttrDef(XmlInstantiable):
-    def __init__(self, name, value=None, pytype=None, option_set=None, unit=None,
+    def __init__(self, name, parent=None, value=None, pytype=None, option_set=None, unit=None,
                  constraints=None, exclusive=None, synchronized=None):
-        super().__init__(name)
+        super().__init__(name, parent=parent)
         self.default = None
         self.option_set = option_set        # the name of the option set, if any
         self.unit = unit
@@ -68,11 +69,12 @@ class AttrDef(XmlInstantiable):
         return f"<{type_str} {attrs}>"
 
     @classmethod
-    def from_xml(cls, elt):
+    def from_xml(cls, elt, parent=None):
         """
         Instantiate an instance from an XML element
 
         :param elt: (etree.Element) representing an <AttrDef> element
+        :param parent: (None) ignored for this class
         :return: (AttrDef) instance of class AttrDef
         """
         a = elt.attrib
@@ -117,12 +119,14 @@ class ClassAttrs(XmlInstantiable):
             if attr.exclusive:
                 excludes[attr.exclusive].append(attr.name)
 
+    # TBD: no change required post _after_init removal
     @classmethod
-    def from_xml(cls, elt):
+    def from_xml(cls, elt, parent=None):
         """
         Instantiate an instance from an XML element
 
         :param elt: (etree.Element) representing an <ClassAttrs> element
+        :param parent: (None) ignored for this class
         :return: (ClassAttrs) instance of class ClassAttrs
         """
         # add attributes to attr_dict from <AttrDef> elements
@@ -133,6 +137,7 @@ class ClassAttrs(XmlInstantiable):
 
         obj = cls(elt_name(elt), attr_dict, option_dict)
         return obj
+
 
     @staticmethod
     def _lookup(obj, dict_name, key, raiseError=True):
@@ -208,8 +213,8 @@ class AttributeMixin():
     ``self.attr_defs``.
     """
 
-    def __init__(self):
-        self.attr_dict = None
+    def __init__(self, attr_dict=None):
+        self.attr_dict = attr_dict or {}
 
     def attr(self, attr_name):
         try:

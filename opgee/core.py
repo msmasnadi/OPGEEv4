@@ -50,13 +50,14 @@ def elt_name(elt):
     return elt.attrib.get('name')
 
 
-def instantiate_subelts(elt, cls, as_dict=False, include_names=None):
+def instantiate_subelts(elt, cls, parent=None, as_dict=False, include_names=None):
     """
     Return a list of instances of ``cls`` (or of its indicated subclass of ``Process``).
 
     :param elt: (lxml.etree.Element) the parent element
     :param cls: (type) the class to instantiate. If cls is Process, the class will
         be that indicated instead in the element's "class" attribute.
+    :param parent: (XmlInstantiable) the parent to record in each object instantiated
     :param as_dict: (bool) if True, return a dictionary of subelements, keyed by name
     :param include_names: (list of str) Names of elements to include (i.e., the element's
        attrib dict must have a "name" item, whose value is compared to the list). If
@@ -67,14 +68,13 @@ def instantiate_subelts(elt, cls, as_dict=False, include_names=None):
     tag = cls.__name__  # class name matches element name
 
     include = None if include_names is None else set(include_names)
-    objs = [cls.from_xml(e) for e in elt.findall(tag) if include is None or e.attrib.get('name') in include]
+    objs = [cls.from_xml(e, parent=parent) for e in elt.findall(tag) if include is None or e.attrib.get('name') in include]
 
     if as_dict:
         d = {obj.name: obj for obj in objs}
         return d
     else:
         return objs
-
 
 def dict_from_list(objs):
     """
@@ -133,22 +133,24 @@ class XmlInstantiable(OpgeeObject):
 
     1. They subclass from XmlInstantiable or its subclasses
     2. They define ``__init__(self, name, **kwargs)`` and call ``super().__init__(name)``
-    3. They define ``@classmethod from_xml(cls, element)`` to create an instance from XML.
+    3. They define ``@classmethod from_xml(cls, element, parent=None)`` to create an instance from XML.
     4. Subclasses of Container and Process implement ``run(self)`` to perform any required operations.
 
     """
-
-    def __init__(self, name):
+    def __init__(self, name, parent=None):
         super().__init__()
         self.name = name
+        self.parent = parent
         self.enabled = True
-        self.parent = None
 
     def _after_init(self):
         pass
 
+    def set_parent(self, parent):
+        self.parent = parent
+
     @classmethod
-    def from_xml(cls, elt):
+    def from_xml(cls, elt, parent=None):
         raise AbstractMethodError(cls, 'XmlInstantiable.from_xml')
 
     def __str__(self):
@@ -162,6 +164,7 @@ class XmlInstantiable(OpgeeObject):
     def set_enabled(self, value):
         self.enabled = getBooleanXML(value)
 
+    # Deprecated once _after_init is eliminated
     def adopt(self, objs, asDict=False):
         """
         Set the `parent` of each object to self. This is used to create back pointers
@@ -177,14 +180,14 @@ class XmlInstantiable(OpgeeObject):
         objs = [] if objs is None else objs
 
         for obj in objs:
-            obj.parent = self
+            obj.set_parent(self)
 
         return {obj.name: obj for obj in objs} if asDict else objs
 
-    def find_parent(self, cls):
+    def find_container(self, cls):
         """
-        Ascend the parent links until an object of class `cls` is found, or
-        an object with a parent that is None.
+        Ascend the parent links in the object hierarchy until an object of class `cls`
+        is found, or an object with a parent that is None.
 
         :param cls: (type or str name of type) the class of the parent sought
         :return: (XmlInstantiable or None) the desired parent instance or None
@@ -195,7 +198,7 @@ class XmlInstantiable(OpgeeObject):
         if self.parent is None:
             return None
 
-        return self.parent.find_parent(cls)  # recursively ascend the graph
+        return self.parent.find_container(cls)  # recursively ascend the graph
 
 
 # to avoid redundantly reporting bad units

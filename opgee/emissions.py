@@ -88,7 +88,7 @@ class Emissions(OpgeeObject):
 
         :param gwp: (pandas.Series or None) the GWP values to use to compute GHG
         :return: (pandas.DataFrame) If `gwp` is none, the 'GHG' row of the DataFrame
-            will contain zeroes, otherwise CO2-equivalents will be computed computed
+            will contain zeroes, otherwise CO2-equivalents will be computed
             using the Series `gwp`.
         """
         if gwp is None:

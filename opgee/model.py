@@ -11,7 +11,7 @@ import pint
 from . import ureg
 from .analysis import Analysis
 from .container import Container
-from .core import instantiate_subelts, elt_name, magnitude
+from .core import elt_name, magnitude, instantiate_subelts
 from .error import OpgeeException
 from .field import Field
 from .log import getLogger
@@ -24,15 +24,23 @@ _logger = getLogger(__name__)
 
 class Model(Container):
 
-    def __init__(self, name, analyses, fields, table_updates, attr_dict=None):
-        super().__init__(name, attr_dict=attr_dict)
+    def __init__(self, name, attr_dict=None, table_updates=None):
+        super().__init__(name, attr_dict=attr_dict, parent=None)
 
         Model.instance = self
-
         self.schema_version = attr_dict.get('schema_version', DEFAULT_SCHEMA_VERSION)
 
-        self.analysis_dict = self.adopt(analyses, asDict=True)
-        self.field_dict = self.adopt(fields, asDict=True)
+        # These are set in from_xml after instantiation
+        self.analysis_dict = None
+        self.field_dict = None
+
+        self.pathnames = None  # set by calling set_pathnames(path)
+
+        # TBD: should these be settable per Analysis?
+        # parameters controlling process cyclic calculations
+        self.maximum_iterations = self.attr('maximum_iterations')
+        self.maximum_change = self.attr('maximum_change')
+
         self.table_mgr = tbl_mgr = TableManager(updates=table_updates)
 
         # load all the GWP options
@@ -43,16 +51,14 @@ class Model(Container):
         self.gwp_dict = {y: df.query('Years == @y').set_index('Gas', drop=True).drop('Years', axis='columns') for y in
                          self.gwp_horizons}
 
-        df = tbl_mgr.get_table('constants')
-        self.constants = {name: ureg.Quantity(float(row.value), row.unit) for name, row in df.iterrows()}
-        self.table_updates = None
+        constants_df = tbl_mgr.get_table('constants')
+        self.constants = {name: ureg.Quantity(float(row.value), row.unit) for name, row in constants_df.iterrows()}
 
-        #
         # TODO: to support PRELIM, we might want a way to handle these that is less model-specific
         #  Perhaps separate namespaces for each model, like
         #  self.table_dict = {'OPGEE' : OpgeeTables(tbl_mgr), 'PRELIM' : PrelimTables(tbl_mgr)}
         #  Then all the OPGEE-specific instance vars or pushed down into an OpgeeTables instance
-        #
+
         self.vertical_drill_df = tbl_mgr.get_table("vertical-drilling-energy-intensity")
         self.horizontal_drill_df = tbl_mgr.get_table("horizontal-drilling-energy-intensity")
         self.fracture_energy = tbl_mgr.get_table("fracture-consumption-table")
@@ -91,13 +97,7 @@ class Model(Container):
         self.productivity_gas = tbl_mgr.get_table("productivity-gas")
         self.productivity_oil = tbl_mgr.get_table("productivity-oil")
 
-        # TBD: should these be settable per Analysis?
-        # parameters controlling process cyclic calculations
-        self.maximum_iterations = self.attr('maximum_iterations')
-        self.maximum_change = self.attr('maximum_change')
-
-        self.pathnames = None  # set by calling set_pathnames(path)
-
+    # Deprecated when _after_init() is removed
     def _after_init(self):
         for iterator in [self.fields(), self.analyses()]:
             for obj in iterator:
@@ -128,10 +128,6 @@ class Model(Container):
 
         return field
 
-    # Deprecated
-    # def ordered_field_names(self):
-    #     return self._ordered_field_names
-
     def const(self, name):
         """
         Return the value of a constant declared in tables/constants.csv
@@ -151,9 +147,6 @@ class Model(Container):
         """
         return self.analyses()  # N.B. returns an iterator
 
-    def validate(self):
-        for child in self.children():
-            child.validate()
 
     def partial_ci_values(self, analysis, field, nodes):
         """
@@ -245,29 +238,30 @@ class Model(Container):
         df.to_csv(csvpath)
 
     @classmethod
-    def from_xml(cls, elt, analysis_names=None, field_names=None):
+    def from_xml(cls, elt, parent=None, analysis_names=None, field_names=None):
         """
         Instantiate an instance from an XML element
 
         :param elt: (etree.Element) representing a <Model> element
+        :param parent (None) this argument should be ``None`` for Model instances.
         :param field_names: (list of str) the names of fields to include. Any other
           fields are ignored when building the model from the XML.
         :return: (Model) instance populated from XML
         """
-        analyses = instantiate_subelts(elt, Analysis, include_names=analysis_names)
+        attr_dict = cls.instantiate_attrs(elt)
+        table_updates = instantiate_subelts(elt, TableUpdate, as_dict=True)
+
+        model = Model(elt_name(elt), attr_dict=attr_dict, table_updates=table_updates)
+
+        fields = instantiate_subelts(elt, Field, parent=model, include_names=field_names)
+        model.field_dict = model.adopt(fields, asDict=True)
+
+        analyses = instantiate_subelts(elt, Analysis, parent=model, include_names=analysis_names)
+
+        model.analysis_dict = model.adopt(analyses, asDict=True)
 
         if field_names:
             for analysis in analyses:
                 analysis.restrict_fields(field_names)
 
-        fields = instantiate_subelts(elt, Field, include_names=field_names)
-        table_updates = instantiate_subelts(elt, TableUpdate, as_dict=True)
-        attr_dict = cls.instantiate_attrs(elt)
-
-        obj = Model(elt_name(elt), analyses, fields, table_updates, attr_dict=attr_dict)
-
-        # do stuff that requires the fully instantiated hierarchy
-        obj._after_init()
-
-        return obj
-
+        return model

@@ -39,41 +39,35 @@ class Analysis(Container):
 
     See also :doc:`OPGEE XML documentation <opgee-xml>`
     """
-    def __init__(self, name, attr_dict=None, field_names=None, groups=None):
-        super().__init__(name, attr_dict=attr_dict)
+    def __init__(self, name, parent=None, attr_dict=None, field_names=None, groups=None):
+        super().__init__(name, attr_dict=attr_dict, parent=parent)
+        self.check_attr_constraints(self.attr_dict)
 
-        self._field_names = field_names     # may be extended in _after_init
+        self.model = model = self.find_container('Model')
 
+        # self.field_dict = None
+        self._field_names = field_names     # may be extended in add_children()
         self.groups = groups
 
-        # The following are set from attributes or config info in _after_init()
-        self.model = None
-        self.field_dict = None
-        self.functional_units = None
-        self.fn_unit = None
-        self.boundary = None
+        self.fn_unit = self.attr("functional_unit")
+        self.boundary = self.attr("boundary")
+
+        # Create validation sets from system.cfg to avoid hard-coding these
+        self.functional_units = set(getParamAsList('OPGEE.FunctionalUnits'))
 
         # This is set in _after_init() to a pandas.Series holding the current values in use,
         # indexed by gas name. Must be set after initialization since we reference the Model
         # object which isn't fully instantiated until after we are.
         self.gwp = None
 
-    def restrict_fields(self, field_names):
-        """
-        Remove from the Analysis all Fields that are not named in ``field_names``.
+        # Use the GWP years and version specified in XML
+        gwp_horizon = self.attr('GWP_horizon')
+        gwp_version = self.attr('GWP_version')
 
-        :param field_names: (list of str) the names of Fields to include
-        :return: none
-        """
-        names = set(field_names)
-        # Use list comprehension rather than set.intersection to maintain original order
-        self._field_names = [name for name in self._field_names if name in names]
+        self.use_GWP(gwp_horizon, gwp_version)
 
-    def _after_init(self):
-        self.check_attr_constraints(self.attr_dict)
-
-        self.model = model = self.find_parent('Model')
-
+    # def add_children(self):
+    #     model = self.model
         fields = [model.get_field(name) for name in self._field_names]
 
         for group in self.groups:
@@ -90,29 +84,17 @@ class Analysis(Container):
         # storing into dict eliminates duplicates
         self.field_dict = {field.name: field for field in fields}
 
-        # Use the GWP years and version specified in XML
-        gwp_horizon = self.attr('GWP_horizon')
-        gwp_version = self.attr('GWP_version')
-
-        self.use_GWP(gwp_horizon, gwp_version)
-
-        # Create validation sets from system.cfg to avoid hardcoding these
-        self.functional_units = set(getParamAsList('OPGEE.FunctionalUnits'))
-
-        self.fn_unit = self.attr("functional_unit")
-        self.boundary = self.attr("boundary")
-
-        self.validate()
-
-    def validate(self):
+    def restrict_fields(self, field_names):
         """
-        Ensure that the `Analysis` meets all logical requirements.
+        Remove from the Analysis all Fields that are not named in ``field_names``.
 
+        :param field_names: (list of str) the names of Fields to include
         :return: none
-        :raises ModelValidationError: if any logical requirement is violated
         """
-        for field in self.fields():
-            field.validate()
+        names = set(field_names)
+        # Use list comprehension rather than set.intersection to maintain original order
+        self._field_names = [name for name in self._field_names if name in names]
+
 
     def get_field(self, name, raiseError=True) -> Field:
         """
@@ -130,9 +112,14 @@ class Analysis(Container):
 
     def fields(self):
         """
-        Get the (enabled) `Field`s included in this `Analysis`.
+        Get the (enabled) ``Field``s included in this ``Analysis``.
+
         :return: (iterator) of Field instances
         """
+        # TODO: debugging only
+        if self.field_dict is None:
+            pass
+
         flds = [f for f in self.field_dict.values() if f.is_enabled()]  # N.B. returns an iterator
         return flds
 
@@ -230,11 +217,12 @@ class Analysis(Container):
             return self.field_dict.values()
 
     @classmethod
-    def from_xml(cls, elt):
+    def from_xml(cls, elt, parent=None):
         """
         Instantiate an instance from an XML element
 
         :param elt: (etree.Element) representing a <Analysis> element
+        :param parent (opgee.Model) the Model containing the new Analysis
         :return: (Analysis) instance populated from XML
         """
         name = elt_name(elt)
@@ -242,5 +230,5 @@ class Analysis(Container):
         field_names = [elt_name(node) for node in elt.findall('Field')]
         groups = [Group(node) for node in elt.findall('Group')]
 
-        obj = Analysis(name, attr_dict=attr_dict, field_names=field_names, groups=groups)
+        obj = Analysis(name, attr_dict=attr_dict, parent=parent, field_names=field_names, groups=groups)
         return obj

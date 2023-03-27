@@ -26,7 +26,7 @@ class TableUpdate(XmlInstantiable):
         self.cells = cells
 
     @classmethod
-    def from_xml(cls, elt):
+    def from_xml(cls, elt, parent=None):
         sub_elts = elt.findall('Cell')
         cells = [Cell(e.attrib['row'], e.attrib['col'], e.text) for e in sub_elts]
         return TableUpdate(elt_name(elt), cells)

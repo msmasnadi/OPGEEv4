@@ -16,7 +16,7 @@ from .combine_streams import combine_streams
 from .config import getParamAsBoolean
 from .constants import petrocoke_LHV
 from .container import Container
-from .core import OpgeeObject, XmlInstantiable, elt_name, instantiate_subelts, magnitude
+from .core import OpgeeObject, XmlInstantiable, elt_name, instantiate_subelts, instantiate_subelts, magnitude
 from .emissions import Emissions
 from .energy import Energy
 from .error import OpgeeException, AbstractMethodError, OpgeeIterationConverged, ModelValidationError
@@ -143,7 +143,7 @@ def run_corr_eqns(x1, x2, x3, x4, x5, coef_df):
     result = df.sum(axis="rows")
     return result
 
-class Process(XmlInstantiable, AttributeMixin):
+class Process(AttributeMixin, XmlInstantiable):
     """
     The "leaf" node in the container/process hierarchy. ``Process`` is an abstract superclass: actual runnable Process
     instances must be of subclasses of ``Process``, defined either in `opgee/processes/*.py` or in the user's files,
@@ -177,17 +177,23 @@ class Process(XmlInstantiable, AttributeMixin):
     _required_inputs = []
     _required_outputs = []
 
-    def __init__(self, name, desc=None, attr_dict=None, cycle_start=False, impute_start=False,
-                 boundary=None):
+    def __init__(self, name, attr_dict=None, parent=None, desc=None,
+                 cycle_start=False, impute_start=False, boundary=None):
         name = name or self.__class__.__name__
-        super().__init__(name)
 
-        self.attr_dict = attr_dict or {}
+        AttributeMixin.__init__(self, attr_dict=attr_dict)
+        XmlInstantiable.__init__(self, name, parent=parent)
+
+        self.model = self.find_container('Model')
+        self.field = self.find_container('Field')
+
         self.attr_defs = AttrDefs.get_instance()
+
+        self.check_attr_constraints(self.attr_dict)
 
         self.boundary = boundary    # the name of the boundary this Process defines, or None
 
-        self._model = None  # @property "model" caches model here after first lookup
+        self.process_EF = self.get_process_EF()
 
         self.desc = desc or name
         self.impute_start = getBooleanXML(impute_start)
@@ -218,13 +224,6 @@ class Process(XmlInstantiable, AttributeMixin):
         self.in_cycle = False
 
         self.process_EF = None
-
-    # Optional for Process subclasses
-    def _after_init(self):
-        self.check_attr_constraints(self.attr_dict)
-        self.validate()
-        self.process_EF = self.get_process_EF()
-        self.field = self.get_field()
 
     def check_enabled(self):
         return
@@ -437,27 +436,8 @@ class Process(XmlInstantiable, AttributeMixin):
 
         return gas_fugitives
 
-    @property
-    def model(self):
-        """
-        Return the `Model` this `Process` belongs to.
-
-        :return: (Model) the enclosing `Model` instance.
-        """
-        if not self._model:
-            self._model = self.find_parent('Model')
-
-        return self._model
-
+    # Deprecated after removing _after_init.
     def get_field(self):
-        """
-        Find and cache the Field instance that contains this Process
-
-        :return: (Field) the enclosing Field instance
-        """
-        if not self.field:
-            self.field = self.find_parent('Field')
-
         return self.field
 
     def visit(self):
@@ -868,11 +848,12 @@ class Process(XmlInstantiable, AttributeMixin):
         return True
 
     @classmethod
-    def from_xml(cls, elt):
+    def from_xml(cls, elt, parent=None):
         """
         Instantiate an instance from an XML element
 
         :param elt: (etree.Element) representing a <Process> element
+        :param parent (opgee.Analysis) the Analysis containing the new Process
         :return: (Process) instance populated from XML
         """
         name = elt_name(elt)
@@ -886,16 +867,15 @@ class Process(XmlInstantiable, AttributeMixin):
         subclass = _get_subclass(Process, classname)
         attr_dict = subclass.instantiate_attrs(elt, is_process=True)
 
-        obj = subclass(name, desc=desc, attr_dict=attr_dict,
-                       cycle_start=cycle_start, impute_start=impute_start,
-                       boundary=boundary)
+        proc = subclass(name, attr_dict=attr_dict, parent=parent, desc=desc,
+                        cycle_start=cycle_start, impute_start=impute_start,
+                        boundary=boundary)
 
-        obj.set_enabled(a.get('enabled', '1'))
-        obj.set_extend(a.get('extend', '0'))
+        proc.set_enabled(a.get('enabled', '1'))
+        proc.set_extend(a.get('extend', '0'))
+        proc.set_run_after(getBooleanXML(a.get('after', '0')))
 
-        obj.set_run_after(getBooleanXML(a.get('after', '0')))
-
-        return obj
+        return proc
 
 
 class Boundary(Process):
@@ -914,8 +894,7 @@ class Boundary(Process):
         super()._after_init()
 
     def is_chosen_boundary(self, analysis):
-        field = self.get_field()
-        proc = field.boundary_process(analysis)
+        proc = self.field.boundary_process(analysis)
         return proc == self
 
     def set_enabled(self, value):
@@ -976,12 +955,11 @@ class Boundary(Process):
 
 class Reservoir(Process):
     """
-    Reservoir represents natural resources such as oil and gas reservoirs, and water sources in the subsurface.
-    Each Field object holds a single Reservoir instance.
+    Reservoir represents natural resources such as oil and gas reservoirs, and water sources
+    in the subsurface. Each Field object holds a single Reservoir instance.
     """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__("Reservoir", desc='The Reservoir')
+    def __init__(self, parent=None):
+        super().__init__("Reservoir", parent=parent, desc='The Reservoir')
 
     def run(self, analysis):
         self.print_running_msg()
@@ -997,41 +975,41 @@ class After(Process):
     def run(self, analysis):
         pass
 
-    def impute(self):
-        pass
-
-
 #
 # This class is defined here rather than in container.py to avoid import loops and to
 # allow the reference to Aggregator above.
 #
 class Aggregator(Container):
-    def __init__(self, name, attr_dict=None, aggs=None, procs=None):
-        super().__init__(name, attr_dict=attr_dict, aggs=aggs, procs=procs)
+    def __init__(self, name, attr_dict=None, parent=None):
+        super().__init__(name, attr_dict=attr_dict, parent=parent)
+
+    def add_children(self, aggs=None, procs=None, **kwargs):
+        super().add_children(aggs=aggs, procs=procs)
 
     @classmethod
-    def from_xml(cls, elt):
+    def from_xml(cls, elt, parent=None):
         """
         Instantiate an instance from an XML element
 
         :param elt: (etree.Element) representing a <Aggregator> element
+        :param parent: (XmlInstantiable) the parent in the Model object hierarchy
+            for the object created here
         :return: (Aggregator) instance populated from XML
         """
         name = elt_name(elt)
-
-        aggs = instantiate_subelts(elt, Aggregator)
-        procs = instantiate_subelts(elt, Process)
-
         attr_dict = cls.instantiate_attrs(elt)
+        obj = cls(name, attr_dict=attr_dict, parent=parent)
 
-        obj = cls(name, attr_dict=attr_dict, aggs=aggs, procs=procs)
+        aggs = instantiate_subelts(elt, Aggregator, parent=obj)
+        procs = instantiate_subelts(elt, Process, parent=obj)
+
+        obj.add_children(aggs=aggs, procs=procs)
 
         # Aggregators are disabled if they are empty or contain only disabled aggs & procs
         enabled = not all([not child.is_enabled() for child in aggs + procs])
         obj.set_enabled(enabled)
 
         return obj
-
 
 def reload_subclass_dict():
     global _Subclass_dict

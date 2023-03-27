@@ -67,7 +67,7 @@ def carbon_to_molecule(c_name):
 #
 # Can streams have emissions (e.g., leakage) or is that attributed to a process?
 #
-class Stream(XmlInstantiable, AttributeMixin):
+class Stream(AttributeMixin, XmlInstantiable):
     """
     The `Stream` class represent the flow rates of single substances or mingled combinations of co-flowing substances
     in any of the three states of matter (solid, liquid, or gas). Streams and stream components are specified in mass
@@ -123,10 +123,10 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     _units = ureg.Unit('tonne/day')
 
-    def __init__(self, name, tp,
-                 src_name=None, dst_name=None, comp_matrix=None,
-                 contents=None, impute=True):
-        super().__init__(name)
+    def __init__(self, name, tp, parent=None, comp_matrix=None,
+                 src_name=None, dst_name=None,  contents=None, impute=True):
+        AttributeMixin.__init__(self) # no-op, but here for completeness
+        XmlInstantiable.__init__(self, name, parent=parent)
 
         # TBD: rename this self.comp_matrix for clarity
         self.components = self.create_component_matrix() if comp_matrix is None else comp_matrix
@@ -154,11 +154,14 @@ class Stream(XmlInstantiable, AttributeMixin):
         # if only temperature and pressure are set, though setting T & P makes no sense on an empty stream.
         self.has_exogenous_data = self.initialized = comp_matrix is not None
 
-    def _after_init(self):
-        self.check_attr_constraints(self.attr_dict)
-
     def __str__(self):
         return f"<Stream '{self.name}'>"
+
+    def children(self):
+        return []
+
+    def validate(self):
+        pass
 
     def reset(self):
         """
@@ -386,7 +389,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.initialized = True
         self.components.loc[series.index, phase] = series.clip(lower=0)
         if upper_bound_stream is not None:
-            self.components.loc[series.index, phase] =\
+            self.components.loc[series.index, phase] = \
                 self.components.loc[series.index, phase].clip(upper=upper_bound_stream.components.loc[series.index, phase])
 
     def multiply_factor_from_series(self, series, phase):
@@ -582,11 +585,12 @@ class Stream(XmlInstantiable, AttributeMixin):
         return stream_type in self.contents
 
     @classmethod
-    def from_xml(cls, elt):
+    def from_xml(cls, elt, parent=None):
         """
         Instantiate an instance from an XML element
 
         :param elt: (etree.Element) representing a <Stream> element
+        :param parent: (opgee.Field) the Field containing the new Stream
         :return: (Stream) instance of class Stream
         """
         a = elt.attrib
@@ -632,8 +636,8 @@ class Stream(XmlInstantiable, AttributeMixin):
         else:
             matrix = None  # let the stream create it
 
-        obj = Stream(name, tp, comp_matrix=matrix, src_name=src, dst_name=dst,
-                     contents=contents, impute=impute)
+        obj = Stream(name, tp, parent=parent, comp_matrix=matrix, impute=impute,
+                     src_name=src, dst_name=dst, contents=contents)
 
         return obj
 
