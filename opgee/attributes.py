@@ -119,7 +119,6 @@ class ClassAttrs(XmlInstantiable):
             if attr.exclusive:
                 excludes[attr.exclusive].append(attr.name)
 
-    # TBD: no change required post _after_init removal
     @classmethod
     def from_xml(cls, elt, parent=None):
         """

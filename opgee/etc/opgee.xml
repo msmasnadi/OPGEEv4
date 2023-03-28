@@ -117,8 +117,6 @@
 	</Analysis>
 
 	<Field name="template">
-		<Process class="After"/>
-
 		<Process class="Boundary" boundary="Production"/>
 		<Process class="Boundary" boundary="Transportation"/>
 		<Process class="Boundary" boundary="Distribution"/>

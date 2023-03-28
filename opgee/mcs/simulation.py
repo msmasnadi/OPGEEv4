@@ -153,8 +153,6 @@ class Distribution(OpgeeObject):
         return f"<Distribution '{self.full_name}' = {self.rv}>"
 
 
-# TBD: maybe have a "results" subdir, with file  for results of 1 analysis?
-
 class Simulation(OpgeeObject):
     # TBD: update this document string
     """
@@ -343,26 +341,6 @@ class Simulation(OpgeeObject):
         path = pathjoin(d, FAILURES_CSV)
         return path
 
-    # TBD: needed only if we want to parallelize within fields rather than just across fields
-    # def trial_dir(self, field, trial_num, mkdir=False):
-    #     """
-    #     Return the full pathname to the data for trial ``trial_num``,
-    #     optionally creating the directory.
-    #
-    #     :param trial_num: (int) the trial number
-    #     :param mkdir: (bool) whether to make the directory, if needed
-    #     :return: the trial's data directory
-    #     """
-    #     upper = trial_num // 1000
-    #     lower = trial_num % 1000
-    #
-    #     trial_dir = pathjoin(self.field_dir(field), 'trials', f"{upper:03d}", f"{lower:03d}")
-    #
-    #     if mkdir:
-    #         mkdirs(trial_dir)
-    #
-    #     return trial_dir
-
     def metadata_path(self):
         return pathjoin(self.pathname, META_DATA_FILE)
 
@@ -451,7 +429,7 @@ class Simulation(OpgeeObject):
         :param field: (opgee.Field  or str) a field instance or name to read data for
         :return: (pd.DataFrame) the values drawn for each field, parameter, and trial.
         """
-        # TBD: allow option of using same draws across fields.
+        # TBD: allow option of using same draws across fields?
 
         if isinstance(field, str):
             field = self.analysis.get_field(field)

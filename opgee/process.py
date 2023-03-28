@@ -212,8 +212,6 @@ class Process(AttributeMixin, XmlInstantiable):
 
         self.intermediate_results = None
 
-        # self.iv = IntermediateValues()      # Deprecated: unused (except in test code), now commented out
-
         # Support for cycles
         self.visit_count = 0        # increment when the Process has been run
         self.iteration_count = 0
@@ -962,17 +960,6 @@ class Reservoir(Process):
 
     def run(self, analysis):
         self.print_running_msg()
-
-
-# TBD: move both Output and After to tests/utils_for_tests.py after removing usages from opgee.xml
-class Output(Process):
-    def run(self, analysis):
-        pass
-
-# Required to load opgee.xml and some test XML files
-class After(Process):
-    def run(self, analysis):
-        pass
 
 #
 # This class is defined here rather than in container.py to avoid import loops and to

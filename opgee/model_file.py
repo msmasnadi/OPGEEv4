@@ -147,7 +147,7 @@ class ModelFile(XMLFile):
             for child in elt:
                 elt.remove(child)
 
-        # TBD: currently each worker overwrites the same file. Maybe just skip this next line? Skip if xml_string?
+        # TBD: currently each worker overwrites the same file. Maybe just skip this next line? Skip if running MCS?
         if not xml_string:
             # function argument overrides config file variable
             save_to_path = getParam('OPGEE.XmlSavePathname') if save_to_path is None else save_to_path
@@ -223,15 +223,18 @@ class ModelFile(XMLFile):
             nested elements.
         :return: (opgee.ModelFile) the ModelFile instance.
         """
+
+       ######## TBD: use ModelFile(xml_string=xml_string) instead of writing this file
         import os
         from tempfile import mkstemp
 
         fd, tmp_file = mkstemp(suffix='.xml', text=True)
         os.write(fd, str.encode(xml_string))
         os.close(fd)
+        #######
 
         try:
-            model_file = ModelFile([tmp_file],      # TBD: use xml_string=xml_string
+            model_file = ModelFile([tmp_file], # TBD: use xml_string=xml_string instead of tmp_file
                                    add_stream_components=False,
                                    use_class_path=False,
                                    use_default_model=False,

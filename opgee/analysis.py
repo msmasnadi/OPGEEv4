@@ -116,10 +116,6 @@ class Analysis(Container):
 
         :return: (iterator) of Field instances
         """
-        # TODO: debugging only
-        if self.field_dict is None:
-            pass
-
         flds = [f for f in self.field_dict.values() if f.is_enabled()]  # N.B. returns an iterator
         return flds
 

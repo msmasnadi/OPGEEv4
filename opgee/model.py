@@ -36,7 +36,6 @@ class Model(Container):
 
         self.pathnames = None  # set by calling set_pathnames(path)
 
-        # TBD: should these be settable per Analysis?
         # parameters controlling process cyclic calculations
         self.maximum_iterations = self.attr('maximum_iterations')
         self.maximum_change = self.attr('maximum_change')
