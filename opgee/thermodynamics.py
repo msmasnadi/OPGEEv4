@@ -358,6 +358,10 @@ class Oil(AbstractSubstance):
         self.total_molar_weight = (self.gas_comp * self.component_MW[self.gas_comp.index]).sum()
         self.gas_specific_gravity = self._gas_specific_gravity()
 
+    # TBD: not a real function: getting called by mistake so added this to debug.
+    # def find_container(self, *args, **kwds):
+    #     pass
+
     # TODO: Used only once, immediately above
     def _gas_specific_gravity(self):
         """

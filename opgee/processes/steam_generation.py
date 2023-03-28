@@ -24,9 +24,13 @@ tolerance = 0.01
 
 
 class SteamGeneration(Process):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
     def _after_init(self):
         super()._after_init()
-        self.field = field = self.get_field()
+        field = self.field
         self.steam_flooding_check = field.steam_flooding
         self.SOR = field.SOR
         self.oil_volume_rate = field.oil_volume_rate
@@ -65,6 +69,7 @@ class SteamGeneration(Process):
         self.steam_generator = field.steam_generator
 
     def check_enabled(self):
+        # TODO: Don't silently edit the user's model: raise an error instead.
         if self.steam_flooding_check != 1 or self.SOR == 0:
             self.set_enabled(False)
 

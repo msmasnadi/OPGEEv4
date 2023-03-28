@@ -11,8 +11,8 @@ def test_unknown_analysis(opgee):
 
 def test_unknown_field(opgee):
     name = 'unknown-field'
-    with pytest.raises(CommandlineError, match=r"The model contains no fields matching command line arguments."):
-        opgee.run(None, ['run', '-f', name])
+    with pytest.raises(CommandlineError, match=r"Indicated field names .* were not found in model"):
+         opgee.run(None, ['run', '-f', name])
 
 
 def test_run_test_model(opgee):
@@ -21,7 +21,7 @@ def test_run_test_model(opgee):
         opgee.run(None, ['run', '-f', 'test', '--no-default-model', '-m', xml_path])
         good = True
     except Exception as e:
-        print(e)
+        print(f"ERROR: test_run_test_model: {e}")
         good = False
 
     assert good

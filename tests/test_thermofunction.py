@@ -386,11 +386,14 @@ def test_steam_enthalpy(water_instance):
     assert enthalpy == ureg.Quantity(pytest.approx(1.28341315e+08), "MJ/day")
 
 
-def test_check_balance():
+def test_check_balance(test_model):
     from opgee.processes.steam_generation import SteamGeneration
     from opgee.error import BalanceError
 
-    proc = SteamGeneration("test_proc")
+    field = test_model.get_field("test")
+
+    # We need access to data in Model, so pass in a convenient parent
+    proc = SteamGeneration("test_proc", parent=field)
     input = ureg.Quantity(100.0, "tonne/day")
     output1 = ureg.Quantity(100.0001, "tonne/day")
     output2 = ureg.Quantity(110, "tonne/day")

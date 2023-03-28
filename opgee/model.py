@@ -12,7 +12,7 @@ from . import ureg
 from .analysis import Analysis
 from .container import Container
 from .core import elt_name, magnitude, instantiate_subelts
-from .error import OpgeeException
+from .error import OpgeeException, CommandlineError
 from .field import Field
 from .log import getLogger
 from .table_manager import TableManager
@@ -254,9 +254,14 @@ class Model(Container):
         model = Model(elt_name(elt), attr_dict=attr_dict, table_updates=table_updates)
 
         fields = instantiate_subelts(elt, Field, parent=model, include_names=field_names)
+        if field_names and not fields:
+            raise CommandlineError(f"Indicated field names {field_names} were not found in model")
+
         model.field_dict = model.adopt(fields, asDict=True)
 
         analyses = instantiate_subelts(elt, Analysis, parent=model, include_names=analysis_names)
+        if analysis_names and not analyses:
+            raise CommandlineError(f"Specified analyses {analysis_names} not found in model")
 
         model.analysis_dict = model.adopt(analyses, asDict=True)
 
