@@ -16,10 +16,18 @@ def test_unknown_field(opgee):
 
 
 def test_run_test_model(opgee):
-    xml_path = path_to_test_file('test_model.xml')
+
+    # NOT UNUSED! Defines procs referenced by test_model2.xml
+    from .files import user_processes
+
+    xml_path = path_to_test_file('test_model2.xml')
     try:
-        opgee.run(None, ['run', '-f', 'test', '--no-default-model', '-m', xml_path])
+        args = ['run', '-f', 'Field1', '-m', xml_path, '--no-default-model']
+        cmd = ' '.join(args)
+        #print(f"Running 'opg {cmd}'")
+        opgee.run(None, args)
         good = True
+
     except Exception as e:
         print(f"ERROR: test_run_test_model: {e}")
         good = False
