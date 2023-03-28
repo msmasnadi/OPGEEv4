@@ -109,22 +109,22 @@ def test_venting_fugitive_rate(test_model):
     assert rate == pytest.approx(0.002, abs=0.0005)
 
 
-def test_set_intermediate_value(procB):
-    value = 123.456
-    unit = 'degF'
-    q = ureg.Quantity(value, unit)
-
-    iv = procB.iv
-    iv.store('temp', q)
-    row = iv.get('temp')
-
-    assert row['value'] == q.m and ureg.Unit(row['unit']) == q.u
-
-
-def test_bad_intermediate_value(procB):
-    iv = procB.iv
-    with pytest.raises(OpgeeException, match=f"An intermediate value for '.*' was not found"):
-        row = iv.get('non-existent')
+# def test_set_intermediate_value(procB):
+#     value = 123.456
+#     unit = 'degF'
+#     q = ureg.Quantity(value, unit)
+#
+#     iv = procB.iv
+#     iv.store('temp', q)
+#     row = iv.get('temp')
+#
+#     assert row['value'] == q.m and ureg.Unit(row['unit']) == q.u
+#
+#
+# def test_bad_intermediate_value(procB):
+#     iv = procB.iv
+#     with pytest.raises(OpgeeException, match=f"An intermediate value for '.*' was not found"):
+#         row = iv.get('non-existent')
 
 
 foo = 1.0

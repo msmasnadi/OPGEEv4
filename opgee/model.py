@@ -264,4 +264,5 @@ class Model(Container):
             for analysis in analyses:
                 analysis.restrict_fields(field_names)
 
+        model._after_init()     # TBD: delete once _after_init() are migrated in processes
         return model

@@ -202,7 +202,6 @@ class Process(AttributeMixin, XmlInstantiable):
         self.run_after = False  # whether to run this process after normal processing completes
 
         self.extend = False
-        self.field = None  # the Field we're part of, set on first lookup
 
         self.inputs = []  # Stream instances, set in Field.connect_processes()
         self.outputs = []  # ditto
@@ -213,7 +212,7 @@ class Process(AttributeMixin, XmlInstantiable):
 
         self.intermediate_results = None
 
-        self.iv = IntermediateValues()      # TODO: appears unused (except in test code). Deprecated?
+        # self.iv = IntermediateValues()      # Deprecated: unused (except in test code), now commented out
 
         # Support for cycles
         self.visit_count = 0        # increment when the Process has been run
@@ -223,7 +222,6 @@ class Process(AttributeMixin, XmlInstantiable):
         self.iteration_registered = False
         self.in_cycle = False
 
-        self.process_EF = None
 
     def check_enabled(self):
         return
@@ -818,6 +816,7 @@ class Process(AttributeMixin, XmlInstantiable):
 
         # Look up the process by name, but fall back to the classname if not found by name
         name = self.name
+
         if name not in process_EF_df.index:
             classname = self.__class__.__name__
             if classname != name:

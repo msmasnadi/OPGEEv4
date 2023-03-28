@@ -31,7 +31,6 @@ class Container(AttributeMixin, XmlInstantiable):
         self.energy = Energy()
         self.import_export = ImportExport()
 
-
     def add_children(self, aggs=None, procs=None, **kwargs):
         self.aggs  = self.adopt(aggs)
         self.procs = self.adopt(procs)
@@ -110,14 +109,14 @@ class Container(AttributeMixin, XmlInstantiable):
         data = self.energy.data
 
         for child in self.children():
-            child_data = child.get_energy_rates()
-            data += child_data
+                child_data = child.get_energy_rates()
+                data += child_data
 
         return data
 
     def get_emission_rates(self, analysis, procs_to_exclude=None):
         """
-        Return the emission rates (Series) including the the calculated GHG values
+        Return the emission rates (Series) including the calculated GHG values
         based on the current choice of GWP values in the enclosing Model.
 
         :return: (pandas.Series) the emissions Series.
@@ -127,8 +126,8 @@ class Container(AttributeMixin, XmlInstantiable):
 
         for child in self.children():
             if not procs_to_exclude or child not in procs_to_exclude:
-                child_data = child.get_emission_rates(analysis, procs_to_exclude=procs_to_exclude)
-                data += child_data
+                    child_data = child.get_emission_rates(analysis, procs_to_exclude=procs_to_exclude)
+                    data += child_data
 
         # compute CO2eq using chosen GWP values
         data = self.emissions.rates(analysis.gwp)

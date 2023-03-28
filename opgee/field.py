@@ -108,55 +108,6 @@ class Field(Container):
         self.horizontal_drill_df = model.horizontal_drill_df
         self.imported_gas_comp = model.imported_gas_comp
 
-    # Used by _after_init and validate to descend model hierarchy
-    def _children(self):
-        return super()._children() + self.streams()
-
-    def add_children(self, aggs=None, procs=None, streams=None, process_choice_dict=None):
-        # Note that `procs` include only Processes defined at the top-level of the field.
-        # Other Processes maybe defined within the Aggregators in `aggs`.
-        super().add_children(aggs=aggs, procs=procs)
-
-        # Each Field has one of these built-in processes
-        self.reservoir = Reservoir(parent=self)
-
-        # Additional builtin processes can be instantiated and added here if needed
-        self.builtin_procs = [self.reservoir]
-
-        self.stream_dict = dict_from_list(streams)
-
-        known_boundaries = self.known_boundaries
-
-        # Remember streams that declare themselves as system boundaries. Keys must be one of the
-        # values in the tuples in the _known_boundaries dictionary above. s
-        boundary_dict = self.boundary_dict
-
-        # Save references to boundary processes by name; fail if duplicate definitions are found.
-        for proc in procs:
-            boundary = proc.boundary
-            if boundary:
-                if boundary not in known_boundaries:
-                    raise OpgeeException(
-                        f"{self}: {proc} boundary {boundary} is not a known boundary name. Must be one of {known_boundaries}")
-
-                other = boundary_dict.get(boundary)
-                if other:
-                    raise OpgeeException(
-                        f"{self}: Duplicate declaration of boundary '{boundary}' in {proc} and {other}")
-
-                boundary_dict[boundary] = proc
-                #_logger.debug(f"{self}: {proc} defines boundary '{boundary}'")
-
-        self.process_choice_dict = process_choice_dict
-
-        all_procs = self.collect_processes()  # includes Reservoir
-        self.process_dict = self.adopt(all_procs, asDict=True)
-
-        self.agg_dict = {agg.name : agg for agg in self.descendant_aggs()}
-
-        self.check_attr_constraints(self.attr_dict)
-
-        model = self.model
         self.LNG_temp = model.const("LNG-temp")
 
         self.AGR_feedin_press = self.attr("AGR_feedin_press")
@@ -224,6 +175,54 @@ class Field(Container):
         self.wellhead_t = self.attr("wellhead_temperature")
         self.WIR = self.attr("WIR")
         self.WOR = self.attr("WOR")
+
+    # Used by _after_init and validate to descend model hierarchy
+    def _children(self):
+        return super()._children() # + self.streams() # Adding this caused several errors...
+
+    def add_children(self, aggs=None, procs=None, streams=None, process_choice_dict=None):
+        # Note that `procs` include only Processes defined at the top-level of the field.
+        # Other Processes maybe defined within the Aggregators in `aggs`.
+        super().add_children(aggs=aggs, procs=procs)
+
+        # Each Field has one of these built-in processes
+        self.reservoir = Reservoir(parent=self)
+
+        # Additional builtin processes can be instantiated and added here if needed
+        self.builtin_procs = [self.reservoir]
+
+        self.stream_dict = dict_from_list(streams)
+
+        known_boundaries = self.known_boundaries
+
+        # Remember streams that declare themselves as system boundaries. Keys must be one of the
+        # values in the tuples in the _known_boundaries dictionary above. s
+        boundary_dict = self.boundary_dict
+
+        # Save references to boundary processes by name; fail if duplicate definitions are found.
+        for proc in procs:
+            boundary = proc.boundary
+            if boundary:
+                if boundary not in known_boundaries:
+                    raise OpgeeException(
+                        f"{self}: {proc} boundary {boundary} is not a known boundary name. Must be one of {known_boundaries}")
+
+                other = boundary_dict.get(boundary)
+                if other:
+                    raise OpgeeException(
+                        f"{self}: Duplicate declaration of boundary '{boundary}' in {proc} and {other}")
+
+                boundary_dict[boundary] = proc
+                #_logger.debug(f"{self}: {proc} defines boundary '{boundary}'")
+
+        self.process_choice_dict = process_choice_dict
+
+        all_procs = self.collect_processes()  # includes Reservoir
+        self.process_dict = self.adopt(all_procs, asDict=True)
+
+        self.agg_dict = {agg.name : agg for agg in self.descendant_aggs()}
+
+        self.check_attr_constraints(self.attr_dict)
 
         self.steam_generator = SteamGenerator(self) # accesses field.SOR
 

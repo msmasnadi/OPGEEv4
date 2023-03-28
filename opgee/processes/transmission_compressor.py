@@ -22,11 +22,11 @@ class TransmissionCompressor(Process):
     """
     Transmission compressor calculate compressor emissions after the production site boundary.
     """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-    def _after_init(self):
-        super()._after_init()
-        self.field = field = self.get_field()
-        self.gas = field.gas
+        # self.field = field = self.get_field()
+        self.gas = self.field.gas
         self.press_drop_per_dist = self.attr("press_drop_per_dist")
         self.transmission_dist = self.attr("transmission_dist")
         self.transmission_freq = self.attr("transmission_freq")
@@ -34,13 +34,12 @@ class TransmissionCompressor(Process):
         self.prime_mover_type = self.attr("prime_mover_type")
         self.eta_compressor = self.attr("eta_compressor")
         self.gas_to_storage_frac = self.attr("gas_to_storage_frac")
-        self.natural_gas_to_liquefaction_frac = field.natural_gas_to_liquefaction_frac
+        self.natural_gas_to_liquefaction_frac = self.field.natural_gas_to_liquefaction_frac
         self.transmission_sys_discharge = self.attr("transmission_sys_discharge")
         self.loss_rate = self.venting_fugitive_rate()
 
     def run(self, analysis):
         self.print_running_msg()
-        field = self.field
 
         input = self.find_input_stream("gas for transmission")
 
@@ -49,8 +48,8 @@ class TransmissionCompressor(Process):
 
         gas_fugitives = self.set_gas_fugitives(input, self.loss_rate)
 
-        # TODO: this is unused
-        input_energy_flow_rate = self.field.gas.energy_flow_rate(input)
+        # TODO: this was unused
+        #input_energy_flow_rate = self.field.gas.energy_flow_rate(input)
 
         # Transmission system properties
         station_outlet_press = self.press_drop_per_dist * self.transmission_freq + self.transmission_inlet_press

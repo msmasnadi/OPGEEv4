@@ -143,8 +143,10 @@ class XmlInstantiable(OpgeeObject):
         self.parent = parent
         self.enabled = True
 
+    # Deprecated (soon)
     def _after_init(self):
-        pass
+        for child in self.children():
+            child._after_init()
 
     def set_parent(self, parent):
         self.parent = parent
