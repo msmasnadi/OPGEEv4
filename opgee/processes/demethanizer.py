@@ -49,10 +49,11 @@ class Demethanizer(Process):
 
         # mass rate
         input = self.find_input_stream("gas for demethanizer")
-        if input.is_uninitialized():
+        processing_unit_loss_rate_df = field.get_process_data("processing_unit_loss_rate_df")
+        if input.is_uninitialized() or  processing_unit_loss_rate_df is None:
             return
 
-        loss_rate = self.venting_fugitive_rate()
+        loss_rate = processing_unit_loss_rate_df.T[self.name].values[0]
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
         # Demethanizer modeling based on Aspen HYSYS
@@ -129,12 +130,12 @@ class Demethanizer(Process):
         gas_to_gather.subtract_rates_from(gas_fugitives)
         gas_to_gather.set_rates_from_series(fuel_gas_mass, PHASE_GAS, upper_bound_stream=input)
 
-        gas_to_LNG = self.find_output_stream("gas for NGL")
-        gas_to_LNG.copy_flow_rates_from(input)
-        gas_to_LNG.tp.set(T=STP.T)
-        gas_to_LNG.subtract_rates_from(gas_to_gather)
+        gas_to_LPG = self.find_output_stream("gas for NGL")
+        gas_to_LPG.copy_flow_rates_from(input)
+        gas_to_LPG.tp.set(T=STP.T)
+        gas_to_LPG.subtract_rates_from(gas_to_gather)
 
-        self.set_iteration_value(gas_to_gather.total_flow_rate() + gas_to_LNG.total_flow_rate())
+        self.set_iteration_value(gas_to_gather.total_flow_rate() + gas_to_LPG.total_flow_rate())
 
         # TODO: ethane to petrochemicals
 

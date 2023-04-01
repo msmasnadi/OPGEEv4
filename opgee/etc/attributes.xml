@@ -60,7 +60,7 @@
 
     <!-- Attributes shared by all Processes. These values can be overridden in subprocesses -->
     <ClassAttrs name="Process">
-      <AttrDef name="leak_rate" type="float" desc="Fraction of gas streams leaked to environment" unit="fraction">0.002</AttrDef>
+      <AttrDef name="leak_rate" type="float" desc="Fraction of gas streams leaked to environment" unit="fraction">0.0</AttrDef>
     </ClassAttrs>
 
     <ClassAttrs name="Field">
@@ -107,7 +107,7 @@
       <AttrDef name="offshore" type="binary" desc="Offshore?">0</AttrDef>
 
       <!-- Fluid properties -->
-      <AttrDef name="API" desc="API gravity of produced crude" unit="degAPI" type="float">32.80</AttrDef> <!-- TODO: bitumen and heavy oil need a new default value -->
+      <AttrDef name="API" desc="API gravity of produced crude" unit="degAPI" type="float">32.80</AttrDef>
       <AttrDef name="total_dissolved_solids" desc="water total dissolved solid (TDS)" unit="mg/L" type="float">5000.0</AttrDef>
 
 <!--      TODO: change it to import export csv.-->
@@ -338,6 +338,13 @@
       <AttrDef name="frac_CO2_breakthrough" desc="Fraction of CO2 breaking through to producers" unit="percent" type="float">0.59</AttrDef>
 <!--      component fugitive input-->
       <AttrDef name="GOR_cutoff" type="float" unit="kscf/bbl" desc="GOR cutoff used for define the oil field and gas field">100.0</AttrDef>
+      <AttrDef name="frac_wells_with_plunger" type="float" unit="frac" desc="Fraction of wells with plunger liquids unloadings">0.10029988</AttrDef>
+      <AttrDef name="frac_wells_with_non_plunger" type="float" unit="frac" desc="Fraction of wells with non-plunger liquids unloadings">0.068996621</AttrDef>
+      <AttrDef name="workovers_per_well" type="float" unit="frac" desc="Workovers needed over lifetime of well">4.0</AttrDef>
+      <AttrDef name="is_flaring" type="str" desc="Fracturing flowback flared?">No</AttrDef>
+      <AttrDef name="is_REC" type="str" desc="Fracturing flowback captured with reduced emissons completions?">Yes</AttrDef>
+      <AttrDef name="frac_well_fractured" type="float" unit="frac" desc="Fraction of wells fractured">0.0</AttrDef>
+
 
     </ClassAttrs>
     <ClassAttrs name="SurveyTruck">
@@ -418,7 +425,7 @@
 
       <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
       <AttrDef name="press_pump" type="float" unit="psia" desc="Water reinjection pump characteristics Suction pressure">0.0</AttrDef>
-      <AttrDef name="eta_pump" type="float" unit="percent" desc="Water reinjection pump characteristics Pump efficiency ">60.0</AttrDef>
+      <AttrDef name="eta_pump" type="float" unit="percent" desc="Water reinjection pump characteristics Pump efficiency ">65.0</AttrDef>
     </ClassAttrs>
     <ClassAttrs name="FluidProduction">
       <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
@@ -539,6 +546,13 @@
       <AttrDef name="air_cooler_press_drop" type="float" unit="inch" desc="gas dehydration air cooler pressure drop">0.6</AttrDef>
       <AttrDef name="air_cooler_fan_eff" type="float" unit="percent" desc="gas dehydration air cooler fan efficiency">70.0</AttrDef>
       <AttrDef name="air_cooler_speed_reducer_eff" type="float" unit="percent" desc="gas dehydration air cooler speed reducer efficiency">92.0</AttrDef>
+    </ClassAttrs>
+
+    <ClassAttrs name="GasGathering">
+      <AttrDef name="site_fugitive_intercept" type="float" unit="frac" desc="Deterministic coefficients used to calculate site fugitive emissions">-1.8618</AttrDef>
+      <AttrDef name="site_fugitive_slope" type="float" unit="frac" desc="Deterministic coefficients used to calculate site fugitive emissions">-0.59397</AttrDef>
+      <AttrDef name="processing_plant_average_site_throughput" type="float" unit="mmscf/day" desc="Processing plant average site throughput">126.69245647969</AttrDef>
+      <AttrDef name="gathering_site_average_site_throughput" type="float" unit="mmscf/day" desc="Gathering site average site throughput">19.3</AttrDef>
     </ClassAttrs>
 
     <ClassAttrs name="AcidGasRemoval">

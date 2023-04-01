@@ -73,6 +73,7 @@ class CrudeOilDewatering(Process):
 
         output_tp = TemperaturePressure(temp, input_P)
         output_oil.set_liquid_flow_rate("oil", oil_rate, tp=output_tp)
+        output_oil.set_API(input.API)
         self.set_iteration_value(output_oil.total_flow_rate())
 
         water_to_treatment = self.find_output_stream("water", raiseError=None)
@@ -82,7 +83,7 @@ class CrudeOilDewatering(Process):
         heat_duty = ureg.Quantity(0.0, "mmBtu/day")
         if self.heater_treater:
             average_oil_temp = (input_T.to("kelvin") + temp.to("kelvin")) / 2
-            oil_heat_capacity = self.field.oil.specific_heat(self.field.oil.API, average_oil_temp)
+            oil_heat_capacity = self.field.oil.specific_heat(input.API, average_oil_temp)
             water_heat_capacity = self.field.water.specific_heat(average_oil_temp)
             delta_temp = abs(input_T - temp)
             eff = (1 + self.heat_loss.to("frac")).to("frac")

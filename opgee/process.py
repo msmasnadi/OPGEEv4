@@ -506,7 +506,7 @@ class Process(XmlInstantiable, AttributeMixin):
         if not streams and raiseError:
             raise OpgeeException(f"{self}: no {direction} streams contain '{stream_type}'")
 
-        return combine_streams(streams, self.field.oil.API) if combine else (
+        return combine_streams(streams) if combine else (
             streams if as_list else {s.name: s for s in streams})
 
     def find_input_streams(self, stream_type, combine=False, as_list=False, raiseError=True) -> Union[
@@ -955,10 +955,10 @@ class Boundary(Process):
 
             # Hit the user choose boundary
             else:
-                combined_streams = combine_streams(self.inputs, self.field.attr("API"))
+                combined_streams = combine_streams(self.inputs)
 
-                # calculate gas energy flow rate
-                exported_gas_LHV = self.field.gas.energy_flow_rate(combined_streams)
+                # calculate gas + LPG energy flow rate
+                exported_gas_LPG_LHV = self.field.gas.energy_flow_rate(combined_streams)
 
                 # calculate oil energy flow rate (TODO: this can be replaced by composite oil)
                 exported_oil_LHV = combined_streams.liquid_flow_rate("oil") * self.field.oil.mass_energy_density()
@@ -966,10 +966,10 @@ class Boundary(Process):
                 # calculate PC energy flow rate
                 exported_PC_LHV = combined_streams.liquid_flow_rate("PC") * petrocoke_LHV
 
-                exported_prod_LHV = exported_gas_LHV + exported_oil_LHV + exported_PC_LHV
+                exported_prod_LHV = exported_gas_LPG_LHV + exported_oil_LHV + exported_PC_LHV
 
-                self.field.save_process_data(exported_oil_LHV=exported_oil_LHV)
                 self.field.save_process_data(exported_prod_LHV=exported_prod_LHV)
+                self.field.save_process_data(boundary_API=combined_streams.API)
 
                 if exported_prod_LHV.m != 0:
                     self.field.save_process_data(is_chosen_boundary_processed=True)

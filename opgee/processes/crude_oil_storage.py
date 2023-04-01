@@ -48,7 +48,6 @@ class CrudeOilStorage(Process):
 
         self.oil = field.oil
         self.oil_sands_mine = field.oil_sands_mine
-        self.API = field.API
         self.storage_gas_comp = field.imported_gas_comp["Storage Gas"]
         self.CH4_comp = self.storage_gas_comp["C1"]
         self.f_FG_CS_VRU = self.attr("f_FG_CS_VRU")
@@ -69,7 +68,7 @@ class CrudeOilStorage(Process):
         # Calculate gas exsolved upon flashing
         loss_rate = field.component_fugitive_table[self.name]
         loss_rate = ureg.Quantity(loss_rate.m, "kg/bbl_oil")
-        oil_volume_rate = oil_mass_rate / (field.oil.specific_gravity(self.API) * field.water.density())
+        oil_volume_rate = oil_mass_rate / (field.oil.specific_gravity(input_stream.API) * field.water.density())
         gas_exsolved_upon_flashing = oil_volume_rate * loss_rate / self.CH4_comp \
             if self.oil_sands_mine == "None" else ureg.Quantity(0, "tonne/day")
 
@@ -98,8 +97,8 @@ class CrudeOilStorage(Process):
                                       output_VRU.total_gas_rate() -
                                       output_flare.total_gas_rate() -
                                       gas_fugitive_stream.total_gas_rate())
-        output_transport.set_liquid_flow_rate("oil", oil_to_transport_mass_rate)
-        output_transport.set_tp(stp)
+        output_transport.set_liquid_flow_rate("oil", oil_to_transport_mass_rate, tp=stp)
+        output_transport.set_API(input_stream.API)
 
         iteration_value =\
             output_flare.total_flow_rate() +\

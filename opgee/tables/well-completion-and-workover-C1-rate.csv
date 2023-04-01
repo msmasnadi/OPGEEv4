@@ -1,0 +1,14 @@
+type,is_hydraulic_fracture,is_flaring,is_REC,value
+_,_,_,_,tonne
+Completion,No,Yes,No,7.9747272727273
+Completion,No,No,No,3.7867107191055
+Workover,No,Yes,No,0.0009523086839
+Workover,No,No,No,0.0884749106402
+Completion,Yes,Yes,No,1.9507959952498
+Completion,Yes,No,Yes,38.3841623320076
+Completion,Yes,Yes,Yes,8.0356356059689
+Completion,Yes,No,No,74.6575516001137
+Workover,Yes,Yes,No,0.0894196428571
+Workover,Yes,No,Yes,0.1953320051830
+Workover,Yes,Yes,Yes,0.3712278446816
+Workover,Yes,No,No,14.8386275510204

@@ -101,10 +101,11 @@ class AcidGasRemoval(Process):
 
         # Calculate mass rate
         gas_input_stream = self.find_input_streams("gas for AGR", combine=True)
-        if gas_input_stream.is_uninitialized():
+        processing_unit_loss_rate_df = field.get_process_data("processing_unit_loss_rate_df")
+        if gas_input_stream.is_uninitialized() or processing_unit_loss_rate_df is None:
             return
 
-        loss_rate = self.venting_fugitive_rate()
+        loss_rate = processing_unit_loss_rate_df.T[self.name].values[0]
         gas_fugitives = self.set_gas_fugitives(gas_input_stream, loss_rate)
 
         CO2_feed_mass_rate = gas_input_stream.gas_flow_rate("CO2")
@@ -124,6 +125,9 @@ class AcidGasRemoval(Process):
             gas_to_CO2_reinjection.copy_flow_rates_from(gas_input_stream)
             gas_to_CO2_reinjection.subtract_rates_from(output_gas)
             gas_to_CO2_reinjection.subtract_rates_from(gas_fugitives)
+        else:
+            CO2_fugitive_mass_rate = CO2_feed_mass_rate - CO2_to_demethanizer
+            gas_fugitives.set_gas_flow_rate("CO2", CO2_fugitive_mass_rate)
 
         feed_gas_mol_frac = self.gas.component_molar_fractions(gas_input_stream)
         mol_frac_H2S = feed_gas_mol_frac["H2S"] if "H2S" in feed_gas_mol_frac else ureg.Quantity(0, "frac")

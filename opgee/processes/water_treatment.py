@@ -103,11 +103,11 @@ class WaterTreatment(Process):
         subsurface_disp_rate = water_for_disp * self.frac_disp_subsurface
 
         water_density = field.water.density(input.tp.T, input.tp.P)
-        prod_water_vol_downstream = (prod_water_mass + prod_steam_mass) / water_density
+        input_water_volume_rate = input_water_mass_rate / water_density
         makeup_water_vol_downstream = (makeup_water_mass + makeup_steam_mass) / water_density
 
         # energy use
-        prod_water_elec = self.get_water_treatment_elec(self.water_treatment_table, prod_water_vol_downstream)
+        prod_water_elec = self.get_water_treatment_elec(self.water_treatment_table, input_water_volume_rate)
         if self.makeup_water_treatment_tbl:
             makeup_water_table = self.water_treatment_table
         else:

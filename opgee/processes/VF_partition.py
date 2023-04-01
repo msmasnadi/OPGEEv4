@@ -43,7 +43,7 @@ class VFPartition(Process):
 
         input_stream_mol_fracs = field.gas.component_molar_fractions(input)
         SCO_bitumen_ratio = field.get_process_data("SCO_bitumen_ratio")
-        temp = self.oil_volume_rate * self.FOR / self.combusted_gas_frac
+        temp = self.oil_volume_rate * self.FOR
         if SCO_bitumen_ratio:
             volume_of_gas_flared = temp / SCO_bitumen_ratio
         else:

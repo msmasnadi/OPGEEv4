@@ -20,6 +20,10 @@ class Venting(Process):
         super()._after_init()
         self.field = field = self.get_field()
         self.frac_venting = field.frac_venting
+
+        #TODO: give warning when frac_venting is not within [0, 1]
+        self.frac_venting = min(ureg.Quantity(1.0,"frac"), max(self.frac_venting, ureg.Quantity(0, "frac")))
+
         self.gas = field.gas
         self.pipe_leakage = field.pipe_leakage
         self.gas_lifting = field.gas_lifting

@@ -1,3 +1,4 @@
+import pandas as pd
 import pytest
 from opgee import ureg
 from opgee.energy import EN_NATURAL_GAS, EN_CRUDE_OIL
@@ -106,7 +107,7 @@ def test_venting_fugitive_rate(test_model):
     rate = procA.venting_fugitive_rate()
 
     # mean of 1000 random draws from uniform(0.001, .003) should be ~0.002
-    assert rate == pytest.approx(0.002, abs=0.0005)
+    assert rate == pytest.approx(0.0, abs=0.0005)
 
 
 def test_set_intermediate_value(procB):
@@ -170,7 +171,7 @@ def test_VFPartition(test_model):
     proc = field.find_process('VFPartition')
     # ensure total energy flow rates
     total = proc.find_output_stream("methane slip").gas_flow_rates().sum()
-    expected = ureg.Quantity(76.74077437660227, "tonne/day")
+    expected = ureg.Quantity(71.3689202, "tonne/day")
     assert approx_equal(total, expected)
 
 
@@ -199,17 +200,23 @@ def test_Venting(test_model):
 def test_AcidGasRemoval_Aspen(test_model):
     analysis = test_model.get_analysis('test_gas_processes')
     field = analysis.get_field('test_AcidGasRemoval_Aspen')
+    processing_unit_loss_rate_df = pd.DataFrame(data=[0.00041373], index=['AcidGasRemoval'], columns=['loss_rate'],
+                                                dtype="pint[frac]")
+    field.save_process_data(processing_unit_loss_rate_df=processing_unit_loss_rate_df)
     field.run(analysis)
     proc = field.find_process('AcidGasRemoval')
     # ensure total energy flow rates
     total = proc.energy.data.sum()
-    expected = ureg.Quantity(267.794943, "mmbtu/day")
+    expected = ureg.Quantity(161.804341, "mmbtu/day")
     assert approx_equal(total, expected)
 
 
 def test_AcidGasRemoval_testbook(test_model):
     analysis = test_model.get_analysis('test_gas_processes')
     field = analysis.get_field('test_AcidGasRemoval_testbook')
+    processing_unit_loss_rate_df = pd.DataFrame(data=[0.000259240], index=['AcidGasRemoval'], columns=['loss_rate'],
+                                                dtype="pint[frac]")
+    field.save_process_data(processing_unit_loss_rate_df=processing_unit_loss_rate_df)
     field.run(analysis)
     proc = field.find_process('AcidGasRemoval')
     # ensure total energy flow rates
@@ -221,6 +228,9 @@ def test_AcidGasRemoval_testbook(test_model):
 def test_GasDehydration(test_model):
     analysis = test_model.get_analysis('test_gas_processes')
     field = analysis.get_field('test_GasDehydration')
+    processing_unit_loss_rate_df = pd.DataFrame(data=[0.00037981], index=['GasDehydration'], columns=['loss_rate'],
+                                                dtype="pint[frac]")
+    field.save_process_data(processing_unit_loss_rate_df=processing_unit_loss_rate_df)
     field.run(analysis)
     proc = field.find_process('GasDehydration')
     # ensure total energy flow rates
@@ -232,6 +242,9 @@ def test_GasDehydration(test_model):
 def test_Demethanizer(test_model):
     analysis = test_model.get_analysis('test_gas_processes')
     field = analysis.get_field('test_Demethanizer')
+    processing_unit_loss_rate_df = pd.DataFrame(data=[0.0], index=['Demethanizer'], columns=['loss_rate'],
+                                                dtype="pint[frac]")
+    field.save_process_data(processing_unit_loss_rate_df=processing_unit_loss_rate_df)
     field.run(analysis)
     proc = field.find_process('Demethanizer')
     # ensure total energy flow rates
@@ -296,6 +309,8 @@ def test_CO2InjectionWell(test_model):
 def test_RyanHolmes(test_model):
     analysis = test_model.get_analysis('test_gas_processes')
     field = analysis.get_field('test_RyanHolmes')
+    processing_unit_loss_rate_df = pd.DataFrame(data=[0], index=['RyanHolmes'], columns=['loss_rate'], dtype="pint[frac]")
+    field.save_process_data(processing_unit_loss_rate_df=processing_unit_loss_rate_df)
     field.run(analysis)
     proc = field.find_process('RyanHolmes')
     # ensure total energy flow rates

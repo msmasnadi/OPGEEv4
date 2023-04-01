@@ -395,9 +395,7 @@
 	<Field name="test_RyanHolmes">
 
 		<Process class="Before"/>
-		<Process class="RyanHolmes">
-			<A name="leak_rate">0</A>
-		</Process>
+		<Process class="RyanHolmes"/>
 
 		<Process class="Boundary" boundary="Production"/>
 
@@ -517,7 +515,7 @@
 	<Field name="test_Venting">
 
 		<A name="gas_processing_path">CO2-EOR Membrane</A>
-		<A name="VOR">2.76016</A>
+		<A name="frac_venting">0.002</A>
 		<A name="FOR">38.92</A>
 		<A name="GOR">1419.00</A>
 
@@ -549,9 +547,7 @@
 		<A name="gas_processing_path">CO2-EOR Membrane</A>
 
 		<Process class="Before"/>
-		<Process class="GasDehydration">
-			<A name="leak_rate">0.00037981</A>
-		</Process>
+		<Process class="GasDehydration"/>
 
 		<Process class="Boundary" boundary="Production"/>
 
@@ -576,9 +572,7 @@
 	<Field name="test_AcidGasRemoval_Aspen">
 
 		<Process class="Before"/>
-		<Process class="AcidGasRemoval">
-			<A name="leak_rate">0.00041373</A>
-		</Process>
+		<Process class="AcidGasRemoval"/>
 
 		<Process class="Boundary" boundary="Production"/>
 
@@ -604,9 +598,7 @@
 	<Field name="test_AcidGasRemoval_testbook">
 
 		<Process class="Before"/>
-		<Process class="AcidGasRemoval">
-			<A name="leak_rate">0.000259240</A>
-		</Process>
+		<Process class="AcidGasRemoval"/>
 
 		<Process class="Boundary" boundary="Production"/>
 

@@ -13,6 +13,7 @@ from ..emissions import EM_COMBUSTION, EM_LAND_USE
 from ..energy import EN_DIESEL
 from ..log import getLogger
 from ..process import Process
+from ..stream import Stream
 
 _logger = getLogger(__name__)
 
@@ -49,9 +50,22 @@ class Drilling(Process):
         diesel_consumption = wellhead_LHV_rate / cumulative_export_LHV * tot_energy_consumption
 
         # calculate land use emissions
-        land_use_intensity_df = self.land_use_EF.loc["Oil sands mining"]
+
+        index_name = self.ecosystem_richness if self.oil_sands_mine == "None" else "Oil sands mining"
+        land_use_intensity_df = self.land_use_EF.loc[index_name]
         land_use_intensity = land_use_intensity_df.loc[self.field_development_intensity]
-        land_use_emission = land_use_intensity.sum() * field.get_process_data("exported_oil_LHV")
+        stream = Stream("stream_stp", tp=field.stp)
+
+        oil_SG = field.oil.oil_specific_gravity
+        if field.get_process_data("boundary_API") is not None:
+            oil_SG = field.oil.specific_gravity(field.get_process_data("boundary_API"))
+
+        land_use_emission = \
+            (land_use_intensity.sum() * field.oil_volume_rate * field.oil.volume_energy_density(
+                stream,
+                oil_SG,
+                field.oil.gas_specific_gravity,
+                field.oil.gas_oil_ratio)) if not field.offshore else ureg.Quantity(0, "tonne/day")
 
         # energy-use
         energy_use = self.energy
