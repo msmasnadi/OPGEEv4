@@ -21,6 +21,7 @@
       <!-- the zero values aren't real defaults; they just avoid having None as a default -->
       <AttrDef name="temperature" type="float" unit="degF">0</AttrDef>
       <AttrDef name="pressure" type="float" unit="psia">0</AttrDef>
+      <AttrDef name="API" type="float" unit="API_gravity">0</AttrDef>
     </ClassAttrs>
 
     <ClassAttrs name="Analysis">

@@ -123,7 +123,7 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     _units = ureg.Unit('tonne/day')
 
-    def __init__(self, name, tp,
+    def __init__(self, name, tp=None, API=None,
                  src_name=None, dst_name=None, comp_matrix=None,
                  contents=None, impute=True):
         super().__init__(name)
@@ -145,7 +145,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.src_proc = None  # set in Field.connect_processes()
         self.dst_proc = None
         self.field = None
-        self.API = None
+        self.API = API
 
         self.contents = contents or []  # generic description of what the stream carries
 
@@ -613,13 +613,15 @@ class Stream(XmlInstantiable, AttributeMixin):
 
         # There should be 2 attributes: temperature and pressure
         attr_dict = cls.instantiate_attrs(elt)
-        expected = {'temperature', 'pressure'}
+        expected = {'temperature', 'pressure', 'API'}
         if set(attr_dict.keys()) != expected:
-            raise OpgeeException(f"Stream {name}: expected 2 attributes, {expected}")
+            raise OpgeeException(f"Stream {name}: expected  attributes {sorted(expected)}")
 
         temp = attr_dict['temperature'].value
         pres = attr_dict['pressure'].value
         tp = TemperaturePressure(temp, pres)
+
+        API = attr_dict['API'].value
 
         contents = [node.text for node in elt.findall('Contains')]
 
@@ -648,7 +650,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         else:
             matrix = None  # let the stream create it
 
-        obj = Stream(name, tp, comp_matrix=matrix, src_name=src, dst_name=dst,
+        obj = Stream(name, tp=tp, API=API, comp_matrix=matrix, src_name=src, dst_name=dst,
                      contents=contents, impute=impute)
 
         return obj
