@@ -191,6 +191,9 @@
       <xs:attribute name='name'/>                      <!-- computed if not provided -->
       <xs:attribute name='src' use='required'/>
       <xs:attribute name='dst' use='required'/>
+      <xs:attribute name='temperature' type='xs:decimal'/>
+      <xs:attribute name='pressure' type='xs:decimal'/>
+      <xs:attribute name='API' type='xs:decimal'/>
       <xs:attribute name="impute" default="1"/>        <!-- if false, don't traverse during impute() processing -->
       <xs:attribute name="boundary" type='xs:string'/>
       <xs:attribute name='delete' type='xs:boolean'/>
