@@ -600,6 +600,8 @@ class Stream(AttributeMixin, XmlInstantiable):
         impute = getBooleanXML(a.get('impute', "1"))
 
         # There should be 2 attributes: temperature and pressure
+        # N.B. These are added via <ClassAttrs> in etc/attributes.xml and cannot
+        # currently be added via XML, i.e., not permitted in opgee.xsd.
         attr_dict = cls.instantiate_attrs(elt)
         expected = {'temperature', 'pressure'}
         if set(attr_dict.keys()) != expected:
