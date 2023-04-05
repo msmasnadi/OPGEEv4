@@ -182,7 +182,7 @@ def test_Flaring(test_model):
     proc = field.find_process('Flaring')
     # ensure total energy flow rates
     total = proc.emissions.rates(analysis.gwp).loc["GHG"].sum()
-    expected = ureg.Quantity(5298.998755911673, "tonne/day")
+    expected = ureg.Quantity(1406.20784, "tonne/day")
     assert approx_equal(total, expected)
 
 
@@ -504,17 +504,22 @@ def test_ReservoirWellInterface_CO2_flood(test_model):
 def test_DownholePump(test_model):
     analysis = test_model.get_analysis('test_common_processes')
     field = analysis.get_field('test_DownholePump')
-    field.run(analysis)
     proc = field.find_process('DownholePump')
+    input = proc.find_input_stream("crude oil")
+    input.set_API(32.0)
+    field.run(analysis)
     # ensure total energy flow rates
     total = proc.energy.data.sum()
-    expected = ureg.Quantity(157.26444308607068, "mmbtu/day")
+    expected = ureg.Quantity(5099.125667, "mmbtu/day")
     assert approx_equal(total, expected)
 
 
 def test_DownholePump_with_GasLifting(test_model):
     analysis = test_model.get_analysis('test_common_processes')
     field = analysis.get_field('test_DownholePump_with_GasLifting')
+    proc = field.find_process('DownholePump')
+    input = proc.find_input_stream("crude oil")
+    input.set_API(47.3)
     field.run(analysis)
     proc = field.find_process('DownholePump')
     # ensure total energy flow rates
@@ -524,18 +529,20 @@ def test_DownholePump_with_GasLifting(test_model):
 
     # ensure total GHG flow rates
     total = proc.emissions.data.loc["GHG"].sum()
-    expected = ureg.Quantity(51.56672984, "mmbtu/day")
+    expected = ureg.Quantity(36.3591555, "tonne/day")
     assert approx_equal(total, expected)
 
 
 def test_Separation(test_model):
     analysis = test_model.get_analysis('test_gas_processes')
     field = analysis.get_field('test_Separation')
-    field.run(analysis)
     proc = field.find_process('Separation')
+    input = proc.find_input_stream("crude oil")
+    input.set_API(32.0)
+    field.run(analysis)
     # ensure total energy flow rates
     total = proc.energy.data.sum()
-    expected = ureg.Quantity(0.765118605167738, "mmbtu/day")
+    expected = ureg.Quantity(39.7126212, "mmbtu/day")
     assert approx_equal(total, expected)
 
 

@@ -92,7 +92,7 @@
 		<A name="functional_unit">gas</A>
 		<A name="boundary">Production</A>
 		<A name="GWP_horizon">100</A>
-		<A name="GWP_version">AR4</A>
+		<A name="GWP_version">AR5</A>
 		<Field name="test_RyanHolmes"/>
 		<Field name="test_AcidGasRemoval_Aspen"/>
 		<Field name="test_AcidGasRemoval_testbook"/>
@@ -473,8 +473,6 @@
 
 	<Field name="test_Flaring">
 
-		<A name="gas_processing_path">CO2-EOR Membrane</A>
-
 		<Process class="Before"/>
 		
 		<Process class="Flaring"/>
@@ -483,24 +481,24 @@
 
 		<Stream src="Before" dst="Flaring" name="flaring gas">
 			<Contains>gas for flaring</Contains>
-			<Component name="N2" phase="gas">31.94705</Component>
-			<Component name="CO2" phase="gas">234.99181</Component>
-			<Component name="C1" phase="gas">983.75556</Component>
-			<Component name="C2" phase="gas">232.61217</Component>
-			<Component name="C3" phase="gas">122.40893</Component>
-			<Component name="C4" phase="gas">72.80982</Component>
+			<Component name="N2" phase="gas">14.1228</Component>
+			<Component name="CO2" phase="gas">2.5853</Component>
+			<Component name="C1" phase="gas">252.7462</Component>
+			<Component name="C2" phase="gas">28.3180</Component>
+			<Component name="C3" phase="gas">12.7173</Component>
+			<Component name="C4" phase="gas">7.3494</Component>
 			<A name="temperature">14.7</A>
 			<A name="pressure">60</A>
 		</Stream>
 
 		<Stream src="Before" dst="Flaring" name="methane slip">
 			<Contains>methane slip</Contains>
-			<Component name="N2" phase="gas">2.32162</Component>
-			<Component name="CO2" phase="gas">15.74628</Component>
-			<Component name="C1" phase="gas">42.21280</Component>
-			<Component name="C2" phase="gas">4.92692</Component>
-			<Component name="C3" phase="gas">2.24156</Component>
-			<Component name="C4" phase="gas">1.29875</Component>
+			<Component name="N2" phase="gas">1.02632</Component>
+			<Component name="CO2" phase="gas">0.18788</Component>
+			<Component name="C1" phase="gas">18.36732</Component>
+			<Component name="C2" phase="gas">2.05789</Component>
+			<Component name="C3" phase="gas">0.92418</Component>
+			<Component name="C4" phase="gas">0.53409</Component>
 			<A name="temperature">14.7</A>
 			<A name="pressure">60</A>
 		</Stream>
@@ -919,31 +917,35 @@
 
 	<Field name="test_Separation">
 
+		<A name="GOR">2429.3</A>
+		<A name="oil_prod">105000</A>
+		<A name="num_prod_wells">69</A>
+		<A name="depth">3200.0</A>
+		<A name="wellhead_temperature">127.6</A>
+		<A name="res_temp">127.6</A>
+
 		<Process class="Before"/>
 		
-		<Process class="Separation">
-			<A name="leak_rate">0.000098954</A>
-		</Process>
+		<Process class="Separation"/>
 
 		<Process class="Boundary" boundary="Production"/>
 
 		<Stream src="Before" dst="Separation">
 			<Contains>crude oil</Contains>
-			<Component name="N2" phase="gas">4.88074</Component>
-			<Component name="CO2" phase="gas">828.70885</Component>
-			<Component name="C1" phase="gas">87.15763</Component>
-			<Component name="C2" phase="gas">9.70896</Component>
-			<Component name="C3" phase="gas">4.35192</Component>
-			<Component name="C4" phase="gas">2.51406</Component>
+			<Component name="N2" phase="gas">244.25402</Component>
+			<Component name="CO2" phase="gas">44.28207</Component>
+			<Component name="C1" phase="gas">4361.75720</Component>
+			<Component name="C2" phase="gas">485.87947</Component>
+			<Component name="C3" phase="gas">217.78973</Component>
+			<Component name="C4" phase="gas">125.81476</Component>
 			<Component name="oil" phase="liquid">276.67201</Component>
 			<Component name="H2O" phase="liquid">1997.482843</Component>
-			<A name="temperature">150.0</A>
+			<A name="temperature">127.600</A>
 			<A name="pressure">500.0</A>
 		</Stream>
 
 		<Stream src="Separation" dst="ProductionBoundary">
 			<Contains>gas for partition</Contains>
-<!--			<Component name="oil" phase="liquid">276.67201</Component>-->
 		</Stream>
 
 	</Field>
@@ -953,7 +955,7 @@
 		<A name="boundary">Production</A>
 		
 		<A name="GWP_horizon">100</A>
-		<A name="GWP_version">AR4</A>
+		<A name="GWP_version">AR5</A>
 		<Field name="test_ReservoirWellInterface"/>
 		<Field name="test_ReservoirWellInterface_CO2_flood"/>
 		<Field name="test_DownholePump"/>
@@ -1026,26 +1028,32 @@
 	</Field>
 
 	<Field name="test_DownholePump">
+<!--		Takula-->
+
+		<A name="GOR">2429.3</A>
+		<A name="oil_prod">105000</A>
+		<A name="num_prod_wells">69</A>
+		<A name="depth">3200.0</A>
+		<A name="wellhead_temperature">127.6</A>
+		<A name="res_temp">127.6</A>
 
 		<Process class="Before"/>
-		<Process class="DownholePump">
-			<A name="leak_rate">0.00220888</A>
-		</Process>
+		<Process class="DownholePump"/>
 
 		<Process class="Boundary" boundary="Production"/>
 
 		<Stream src="Before" dst="DownholePump">
 			<Contains>crude oil</Contains>
-			<Component name="N2" phase="gas">4.89152</Component>
-			<Component name="CO2" phase="gas">830.53936</Component>
-			<Component name="C1" phase="gas">87.35015</Component>
-			<Component name="C2" phase="gas">9.73040</Component>
-			<Component name="C3" phase="gas">4.36154</Component>
-			<Component name="C4" phase="gas">2.51961</Component>
-			<Component name="oil" phase="liquid">276.67201</Component>
-			<Component name="H2O" phase="liquid">1997.482843</Component>
-			<A name="temperature">198.196</A>
-			<A name="pressure">1440.350</A>
+			<Component name="N2" phase="gas">244.389711</Component>
+			<Component name="CO2" phase="gas">44.306667</Component>
+			<Component name="C1" phase="gas">4364.180279</Component>
+			<Component name="C2" phase="gas">486.149387</Component>
+			<Component name="C3" phase="gas">217.910717</Component>
+			<Component name="C4" phase="gas">125.884652</Component>
+			<Component name="oil" phase="liquid">13991.41369</Component>
+			<Component name="H2O" phase="liquid">66774.6660</Component>
+			<A name="temperature">127.6000</A>
+			<A name="pressure">171.4985</A>
 		</Stream>
 
 		<Stream src="DownholePump" dst="ProductionBoundary">
@@ -1055,12 +1063,18 @@
 	</Field>
 
 	<Field name="test_DownholePump_with_GasLifting">
+<!--		Cossack-->
 
 		<A name="gas_lifting">1</A>
 		<A name="GOR">600.0</A>
 		<A name="oil_prod">25019.48</A>
-		<A name="GLIR">1800.0</A>
-		<A name="num_prod_wells">24</A>
+		<A name="GLIR">666</A>
+		<A name="num_prod_wells">12</A>
+
+		<A name="oil_prod">60000</A>
+		<A name="depth">9719</A>
+		<A name="wellhead_temperature">150</A>
+		<A name="res_temp">244.942</A>
 
 		<Process class="Before"/>
 		<Process class="DownholePump">
@@ -1071,26 +1085,26 @@
 
 		<Stream src="Before" dst="DownholePump" name="reservoir">
 			<Contains>crude oil</Contains>
-			<Component name="N2" phase="gas">14.409988</Component>
-			<Component name="CO2" phase="gas">2.608061</Component>
-			<Component name="C1" phase="gas">258.814598</Component>
-			<Component name="C2" phase="gas">28.756441</Component>
-			<Component name="C3" phase="gas">12.842098</Component>
-			<Component name="C4" phase="gas">7.410056</Component>
-			<Component name="oil" phase="liquid">3544.524012</Component>
-			<Component name="H2O" phase="liquid">8058.220047</Component>
-			<A name="temperature">198.196</A>
-			<A name="pressure">1056.5100</A>
+			<Component name="N2" phase="gas">114.9419538</Component>
+			<Component name="CO2" phase="gas">20.8378531</Component>
+			<Component name="C1" phase="gas">2052.7627982</Component>
+			<Component name="C2" phase="gas">228.6586927</Component>
+			<Component name="C3" phase="gas">102.4990194</Component>
+			<Component name="C4" phase="gas">59.2047666</Component>
+			<Component name="oil" phase="liquid">7209.81773</Component>
+			<Component name="H2O" phase="liquid">1717.06284</Component>
+			<A name="temperature">244.94200</A>
+			<A name="pressure">3842.68304</A>
 		</Stream>
 
 		<Stream src="Before" dst="DownholePump" name="lifting_gas">
 			<Contains>lifting gas</Contains>
-			<Component name="N2" phase="gas">30.44599</Component>
-			<Component name="C1" phase="gas">2411.48113</Component>
-			<Component name="C2" phase="gas">175.40988</Component>
-			<Component name="C3" phase="gas">18.86095</Component>
-			<A name="temperature">198.196</A>
-			<A name="pressure">1115.6150</A>
+			<Component name="N2" phase="gas">10.44430</Component>
+			<Component name="C1" phase="gas">827.24285</Component>
+			<Component name="C2" phase="gas">60.17321</Component>
+			<Component name="C3" phase="gas">45.29087</Component>
+			<A name="temperature">244.94200</A>
+			<A name="pressure">2350.0000</A>
 		</Stream>
 
 		<Stream src="DownholePump" dst="ProductionBoundary">
@@ -1286,7 +1300,7 @@
 		<A name="boundary">Production</A>
 		
 		<A name="GWP_horizon">100</A>
-		<A name="GWP_version">AR4</A>
+		<A name="GWP_version">AR5</A>
 		<Field name="test_HeavyOilUpgrading"/>
 		<Field name="test_HeavyOilDilution"/>
 		<Field name="test_CrudeOilStorage"/>
@@ -1409,7 +1423,7 @@
 		<A name="boundary">Production</A>
 		
 		<A name="GWP_horizon">100</A>
-		<A name="GWP_version">AR4</A>
+		<A name="GWP_version">AR5</A>
 		<Field name="test_SteamGeneration_OTSG"/>
 		<Field name="test_SteamGeneration_Cogen"/>
 		<Field name="test_SteamGeneration_Solar"/>

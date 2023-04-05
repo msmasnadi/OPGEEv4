@@ -101,7 +101,7 @@ class DownholePump(Process):
                                                             oil.gas_oil_ratio)
 
             # properties of crude oil (all at average conditions along wellbore, in production tubing)
-            average_SOR = (solution_gas_oil_ratio_input + solution_gas_oil_ratio_output) / 2
+            average_solution_GOR = (solution_gas_oil_ratio_input + solution_gas_oil_ratio_output) / 2
             average_oil_density = (oil_density_input + oil_density_output) / 2
             average_volume_oil_lifted = (volume_oil_lifted_input + volume_oil_lifted_output).to("ft**3/day") / 2
 
@@ -112,7 +112,7 @@ class DownholePump(Process):
             wellhead_T, wellhead_P = self.wellhead_tp.get()
 
             # properties of free gas (all at average conditions along wellbore, in production tubing)
-            free_gas = solution_gas_oil_ratio_input - average_SOR
+            free_gas = max(ureg.Quantity(0, "scf/bbl"), (solution_gas_oil_ratio_input - average_solution_GOR))
             wellbore_average_press = (wellhead_P + input.tp.P) / 2
             wellbore_average_temp = ureg.Quantity((wellhead_T.m + self.res_temp.m) / 2, "degF")
             stream = Stream("average", TemperaturePressure(wellbore_average_temp, wellbore_average_press))
