@@ -48,6 +48,7 @@
 		<Stream src="Reservoir" dst="Proc1" name="initialized">
 			<A name="temperature">90.0</A>
 			<A name="pressure">150.0</A>
+			<A name="API">111.0</A>
 			<Component name="oil" phase="liquid">100</Component>
 			<Contains>crude oil</Contains>
 		</Stream>
