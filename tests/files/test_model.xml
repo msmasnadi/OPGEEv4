@@ -1054,6 +1054,7 @@
 			<Component name="H2O" phase="liquid">66774.6660</Component>
 			<A name="temperature">127.6000</A>
 			<A name="pressure">171.4985</A>
+			<A name="API">32</A>
 		</Stream>
 
 		<Stream src="DownholePump" dst="ProductionBoundary">

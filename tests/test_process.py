@@ -505,8 +505,6 @@ def test_DownholePump(test_model):
     analysis = test_model.get_analysis('test_common_processes')
     field = analysis.get_field('test_DownholePump')
     proc = field.find_process('DownholePump')
-    input = proc.find_input_stream("crude oil")
-    input.set_API(32.0)
     field.run(analysis)
     # ensure total energy flow rates
     total = proc.energy.data.sum()
