@@ -35,7 +35,7 @@ class CO2InjectionWell(Process):
             return
 
         # Calculate fugitive loss rate
-        loss_rate = self.venting_fugitive_rate()
+        loss_rate = self.get_compressor_and_well_loss_rate(input)
 
         # Set up gas fugitives stream and calculate flow rates
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)

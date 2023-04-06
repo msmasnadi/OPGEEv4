@@ -34,7 +34,7 @@ class GasReinjectionWell(Process):
         if input.is_uninitialized():
             return
 
-        loss_rate = self.venting_fugitive_rate()
+        loss_rate = self.get_compressor_and_well_loss_rate(input)
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
         # gas_to_reservoir = self.find_output_stream("gas for reservoir")

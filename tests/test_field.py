@@ -66,14 +66,14 @@ def test_component_fugitive(test_field):
 
     assert approx_equal(oilfield_component_fugitive_df['Separation'], ureg.Quantity(3.053545e-05, "frac"))
     assert approx_equal(oilfield_component_fugitive_df['CrudeOilStorage'], ureg.Quantity(0.931951, "frac"))
-    assert approx_equal(oilfield_component_fugitive_df['DownholePump'], ureg.Quantity(0.000440667, "frac"))
+    assert approx_equal(oilfield_component_fugitive_df['DownholePump'], ureg.Quantity(0.000410132, "frac"))
 
     gasfield = analysis.get_field('test_component_fugitive_gasfield')
     gasfield_component_fugitive_df = gasfield.component_fugitive_table
 
     assert approx_equal(gasfield_component_fugitive_df['Separation'], ureg.Quantity(3.77813e-5, "frac"))
     assert approx_equal(gasfield_component_fugitive_df['CrudeOilStorage'], ureg.Quantity(0.4323671, "frac"))
-    assert approx_equal(gasfield_component_fugitive_df['DownholePump'], ureg.Quantity(0.00022904, "frac"))
+    assert approx_equal(gasfield_component_fugitive_df['DownholePump'], ureg.Quantity(7.220268674108583e-05, "frac"))
 
 
 def test_bad_boundary():

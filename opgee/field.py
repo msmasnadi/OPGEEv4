@@ -183,6 +183,7 @@ class Field(Container):
         self.natural_gas_to_liquefaction_frac = self.attr("natural_gas_to_liquefaction_frac")
         self.num_prod_wells = self.attr("num_prod_wells")
         self.num_water_inj_wells = self.attr("num_water_inj_wells")
+        self.num_gas_inj_wells = self.attr("num_gas_inj_wells")
         self.number_wells_dry = self.attr("number_wells_dry")
         self.number_wells_exploratory = self.attr("number_wells_exploratory")
         self.offshore = self.attr("offshore")
