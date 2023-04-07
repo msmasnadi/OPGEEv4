@@ -24,6 +24,7 @@ from .import_export import ImportExport
 from .log import getLogger
 from .stream import Stream
 from .utils import getBooleanXML
+from .import ureg
 
 _logger = getLogger(__name__)
 
@@ -432,6 +433,34 @@ class Process(AttributeMixin, XmlInstantiable):
 
         return gas_fugitives
 
+    def get_compressor_and_well_loss_rate(self, inlet_stream):
+        """
+        Get the compressor and well loss rate for a given inlet stream.
+
+        Args:
+            inlet_stream: A Stream object representing the inlet stream to the system.
+
+        Returns:
+            A Quantity object representing the compressor and well loss rate for the given inlet stream.
+
+
+        This function calculates the compressor and well loss rate for a given inlet stream based on the properties of
+        the gas field and the loss matrix average data. The compressor and well loss rate is calculated based on the
+        volume flow rate of gas at STP for each injection well, and the corresponding loss rate values from the loss matrix
+        average data. If the system contains a compressor, the compressor loss rate is returned, otherwise the well loss
+        rate is returned. The result is returned as a Quantity object with units of "frac".
+        """
+        field = self.field
+        num_gas_inj_wells = field.num_gas_inj_wells
+        loss_mat_gas_ave_df = field.loss_mat_gas_ave_df
+
+        volume_rate_per_well = field.gas.volume_flow_rate_STP(inlet_stream) / num_gas_inj_wells
+        value = volume_rate_per_well.to("kscf/day").m
+        selected_row = loss_mat_gas_ave_df.loc[loss_mat_gas_ave_df.index < value].iloc[-1]
+
+        result = selected_row["Recip Comp"] if "Compressor" in self.name else selected_row["Well"]
+        return ureg.Quantity(result, "frac")
+
     # Deprecated after removing _after_init.
     def get_field(self):
         return self.field
@@ -482,7 +511,7 @@ class Process(AttributeMixin, XmlInstantiable):
         if not streams and raiseError:
             raise OpgeeException(f"{self}: no {direction} streams contain '{stream_type}'")
 
-        return combine_streams(streams, self.field.oil.API) if combine else (
+        return combine_streams(streams) if combine else (
             streams if as_list else {s.name: s for s in streams})
 
     def find_input_streams(self, stream_type, combine=False, as_list=False, raiseError=True) -> Union[
@@ -931,10 +960,10 @@ class Boundary(Process):
 
             # Hit the user choose boundary
             else:
-                combined_streams = combine_streams(self.inputs, self.field.attr("API"))
+                combined_streams = combine_streams(self.inputs)
 
-                # calculate gas energy flow rate
-                exported_gas_LHV = self.field.gas.energy_flow_rate(combined_streams)
+                # calculate gas + LPG energy flow rate
+                exported_gas_LPG_LHV = self.field.gas.energy_flow_rate(combined_streams)
 
                 # calculate oil energy flow rate (TODO: this can be replaced by composite oil)
                 exported_oil_LHV = combined_streams.liquid_flow_rate("oil") * self.field.oil.mass_energy_density()
@@ -942,10 +971,10 @@ class Boundary(Process):
                 # calculate PC energy flow rate
                 exported_PC_LHV = combined_streams.liquid_flow_rate("PC") * petrocoke_LHV
 
-                exported_prod_LHV = exported_gas_LHV + exported_oil_LHV + exported_PC_LHV
+                exported_prod_LHV = exported_gas_LPG_LHV + exported_oil_LHV + exported_PC_LHV
 
-                self.field.save_process_data(exported_oil_LHV=exported_oil_LHV)
                 self.field.save_process_data(exported_prod_LHV=exported_prod_LHV)
+                self.field.save_process_data(boundary_API=combined_streams.API)
 
                 if exported_prod_LHV.m != 0:
                     self.field.save_process_data(is_chosen_boundary_processed=True)

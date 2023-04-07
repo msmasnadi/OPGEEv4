@@ -14,7 +14,7 @@ from ..core import TemperaturePressure
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
-from ..stream import Stream
+from ..stream import Stream, PHASE_GAS
 from ..combine_streams import combine_streams
 
 _logger = getLogger(__name__)
@@ -51,7 +51,7 @@ class DownholePump(Process):
 
         lift_gas = self.find_input_stream('lifting gas', raiseError=None)
         if lift_gas is not None and lift_gas.is_initialized():
-            input = combine_streams([input, lift_gas], API=field.API)
+            input = combine_streams([input, lift_gas])
 
         loss_rate = field.component_fugitive_table[self.name]
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
@@ -59,6 +59,12 @@ class DownholePump(Process):
         output = self.find_output_stream("crude oil")
         output.copy_flow_rates_from(input, tp=self.wellhead_tp)
         output.subtract_rates_from(gas_fugitives)
+
+        completion_workover_fugitive_stream = field.get_process_data("completion_workover_fugitive_stream")
+        if completion_workover_fugitive_stream is not None:
+            gas_fugitives.add_flow_rates_from(completion_workover_fugitive_stream)
+            output.subtract_rates_from(completion_workover_fugitive_stream)
+
         self.set_iteration_value(output.total_flow_rate())
 
         # energy use
@@ -68,33 +74,34 @@ class DownholePump(Process):
         energy_use = self.energy
         energy_carrier = get_energy_carrier(self.prime_mover_type)
         if not self.gas_lifting:
+            oil_SG = oil.specific_gravity(input.API)
             solution_gas_oil_ratio_input = oil.solution_gas_oil_ratio(input,
-                                                                      oil.oil_specific_gravity,
+                                                                      oil_SG,
                                                                       oil.gas_specific_gravity,
                                                                       oil.gas_oil_ratio)
             solution_gas_oil_ratio_output = oil.solution_gas_oil_ratio(output,
-                                                                       oil.oil_specific_gravity,
+                                                                       oil_SG,
                                                                        oil.gas_specific_gravity,
                                                                        oil.gas_oil_ratio)
             oil_density_input = oil.density(input,
-                                            oil.oil_specific_gravity,
+                                            oil_SG,
                                             oil.gas_specific_gravity,
                                             oil.gas_oil_ratio)
             oil_density_output = oil.density(output,
-                                             oil.oil_specific_gravity,
+                                             oil_SG,
                                              oil.gas_specific_gravity,
                                              oil.gas_oil_ratio)
             volume_oil_lifted_input = oil.volume_flow_rate(input,
-                                                           oil.oil_specific_gravity,
+                                                           oil_SG,
                                                            oil.gas_specific_gravity,
                                                            oil.gas_oil_ratio)
             volume_oil_lifted_output = oil.volume_flow_rate(output,
-                                                            oil.oil_specific_gravity,
+                                                            oil_SG,
                                                             oil.gas_specific_gravity,
                                                             oil.gas_oil_ratio)
 
             # properties of crude oil (all at average conditions along wellbore, in production tubing)
-            average_SOR = (solution_gas_oil_ratio_input + solution_gas_oil_ratio_output) / 2
+            average_solution_GOR = (solution_gas_oil_ratio_input + solution_gas_oil_ratio_output) / 2
             average_oil_density = (oil_density_input + oil_density_output) / 2
             average_volume_oil_lifted = (volume_oil_lifted_input + volume_oil_lifted_output).to("ft**3/day") / 2
 
@@ -105,7 +112,7 @@ class DownholePump(Process):
             wellhead_T, wellhead_P = self.wellhead_tp.get()
 
             # properties of free gas (all at average conditions along wellbore, in production tubing)
-            free_gas = solution_gas_oil_ratio_input - average_SOR
+            free_gas = max(ureg.Quantity(0, "scf/bbl"), (solution_gas_oil_ratio_input - average_solution_GOR))
             wellbore_average_press = (wellhead_P + input.tp.P) / 2
             wellbore_average_temp = ureg.Quantity((wellhead_T.m + self.res_temp.m) / 2, "degF")
             stream = Stream("average", TemperaturePressure(wellbore_average_temp, wellbore_average_press))
@@ -146,11 +153,23 @@ class DownholePump(Process):
         emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
 
     def impute(self):
+        field = self.field
         output = self.find_output_stream("crude oil")
 
-        loss_rate = self.venting_fugitive_rate()
+        loss_rate = field.component_fugitive_table[self.name]
         loss_rate = (1 / (1 - loss_rate)).to("frac")
 
+        well_completion_and_workover_C1_rate = field.get_completion_and_workover_C1_rate()
+        output_mol_fracs = field.gas.component_molar_fractions(output)
+        output_mass_fracs = field.gas.component_mass_fractions(output_mol_fracs)
+        total_mass_rate_from_completion_workover = well_completion_and_workover_C1_rate / output_mass_fracs["C1"]
+        completion_workover_fugitive_series = total_mass_rate_from_completion_workover * output_mass_fracs
+
+        completion_workover_fugitive_stream = Stream("completion_workover_fugitive", tp=output.tp)
+        completion_workover_fugitive_stream.set_rates_from_series(completion_workover_fugitive_series, phase=PHASE_GAS)
+        field.save_process_data(completion_workover_fugitive_stream=completion_workover_fugitive_stream)
+
         input = self.find_input_stream("crude oil")
-        output.multiply_flow_rates(loss_rate)
         input.copy_flow_rates_from(output)
+        input.multiply_flow_rates(loss_rate)
+        input.add_flow_rates_from(completion_workover_fugitive_stream)

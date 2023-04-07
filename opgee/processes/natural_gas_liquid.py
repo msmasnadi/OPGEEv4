@@ -15,7 +15,17 @@ _logger = getLogger(__name__)
 class NGL(Process):
     def _after_init(self):
         super()._after_init()
-        self.field = field = self.get_field()
 
     def run(self, analysis):
         self.print_running_msg()
+
+        if not self.all_streams_ready("gas for NGL"):
+            return
+
+        input = self.find_input_streams("gas for NGL", combine=True)
+        if input.is_uninitialized():
+            return
+
+        output = self.find_output_stream("LPG")
+        output.copy_flow_rates_from(input)
+

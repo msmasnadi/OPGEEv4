@@ -1867,7 +1867,7 @@
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="common_gas_process_choice">None</A>
       <A name="FOR">140.1</A>
-      <A name="VOR">1.0</A>
+      <A name="frac_venting">1.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.2</A>
       <A name="frac_transport_pipeline">0.65</A>
@@ -1918,7 +1918,7 @@
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="common_gas_process_choice">None</A>
       <A name="FOR">140.1</A>
-      <A name="VOR">1.0</A>
+      <A name="frac_venting">1.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.2</A>
       <A name="frac_transport_pipeline">0.65</A>
@@ -1969,7 +1969,7 @@
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="common_gas_process_choice">None</A>
       <A name="FOR">140.1</A>
-      <A name="VOR">1.0</A>
+      <A name="frac_venting">1.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.2</A>
       <A name="frac_transport_pipeline">0.65</A>
@@ -2020,7 +2020,7 @@
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="common_gas_process_choice">None</A>
       <A name="FOR">140.1</A>
-      <A name="VOR">1.0</A>
+      <A name="frac_venting">1.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.2</A>
       <A name="frac_transport_pipeline">0.65</A>
@@ -2304,7 +2304,7 @@
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="common_gas_process_choice">None</A>
       <A name="FOR">16.25</A>
-      <A name="VOR">0.0</A>
+      <A name="frac_venting">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2358,7 +2358,7 @@
       <A name="gas_processing_path">Sour Gas Reinjection</A>
       <A name="common_gas_process_choice">None</A>
       <A name="FOR">300.0</A>
-      <A name="VOR">0.0</A>
+      <A name="frac_venting">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2692,7 +2692,7 @@
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">None</A>
       <A name="FOR">2.0</A>
-      <A name="VOR">0.0</A>
+      <A name="frac_venting">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2723,7 +2723,7 @@
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">None</A>
       <A name="FOR">2.0</A>
-      <A name="VOR">0.0</A>
+      <A name="frac_venting">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2755,7 +2755,7 @@
       <A name="gas_processing_path">Minimal</A>
       <A name="oil_processing_path">Upgrading</A>
       <A name="FOR">2.0</A>
-      <A name="VOR">0.0</A>
+      <A name="frac_venting">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2787,7 +2787,7 @@
       <A name="gas_processing_path">Minimal</A>
       <A name="oil_processing_path">Upgrading</A>
       <A name="FOR">2.0</A>
-      <A name="VOR">0.0</A>
+      <A name="frac_venting">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2888,7 +2888,7 @@
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">None</A>
       <A name="FOR">2.0</A>
-      <A name="VOR">0.0</A>
+      <A name="frac_venting">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2921,7 +2921,7 @@
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">None</A>
       <A name="FOR">2.0</A>
-      <A name="VOR">0.0</A>
+      <A name="frac_venting">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2955,7 +2955,7 @@
       <A name="gas_processing_path">Minimal</A>
       <A name="oil_processing_path">Upgrading</A>
       <A name="FOR">2.0</A>
-      <A name="VOR">0.0</A>
+      <A name="frac_venting">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -2989,7 +2989,7 @@
       <A name="gas_processing_path">Minimal</A>
       <A name="oil_processing_path">Upgrading</A>
       <A name="FOR">2.0</A>
-      <A name="VOR">0.0</A>
+      <A name="frac_venting">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -3023,7 +3023,7 @@
       <A name="gas_processing_path">Minimal</A>
       <A name="oil_processing_path">Dilution</A>
       <A name="FOR">2.0</A>
-      <A name="VOR">0.0</A>
+      <A name="frac_venting">0.0</A>
       <Process class="HeavyOilDilution">
         <A name="fraction_diluent">0.3</A>
       </Process>
@@ -3059,7 +3059,7 @@
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">None</A>
       <A name="FOR">2.0</A>
-      <A name="VOR">0.0</A>
+      <A name="frac_venting">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -3092,7 +3092,7 @@
       <A name="stabilizer_column">0</A>
       <A name="upgrader_type">None</A>
       <A name="FOR">2.0</A>
-      <A name="VOR">0.0</A>
+      <A name="frac_venting">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -3126,7 +3126,7 @@
       <A name="gas_processing_path">Minimal</A>
       <A name="oil_processing_path">Upgrading</A>
       <A name="FOR">2.0</A>
-      <A name="VOR">0.0</A>
+      <A name="frac_venting">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>
@@ -3160,7 +3160,7 @@
       <A name="gas_processing_path">Minimal</A>
       <A name="oil_processing_path">Upgrading</A>
       <A name="FOR">2.0</A>
-      <A name="VOR">0.0</A>
+      <A name="frac_venting">0.0</A>
       <A name="frac_transport_tanker">0.0</A>
       <A name="frac_transport_barge">0.0</A>
       <A name="frac_transport_pipeline">1.0</A>

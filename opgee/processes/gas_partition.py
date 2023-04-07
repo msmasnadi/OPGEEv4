@@ -37,7 +37,6 @@ class GasPartition(Process):
 
         self.imported_NG_comp = field.imported_gas_comp["NG Flooding"]
         self.imported_NG_mass_frac = field.gas.component_mass_fractions(self.imported_NG_comp)
-        self.API = field.API
 
         self.fraction_remaining_gas_inj = field.fraction_remaining_gas_inj
         self.natural_gas_reinjection = field.natural_gas_reinjection
@@ -187,7 +186,7 @@ class GasPartition(Process):
 
                 reinjected_gas_stream = imported_NG_stream
                 if exported_gas_stream is not None:
-                    reinjected_gas_stream = combine_streams([imported_NG_stream, exported_gas_stream], API=self.API)
+                    reinjected_gas_stream = combine_streams([imported_NG_stream, exported_gas_stream])
                 exported_gas_stream.reset()
                 exported_gas_stream.set_tp(tp=STP)
                 import_product.set_import(self.name, NATURAL_GAS, imported_NG_energy_rate)

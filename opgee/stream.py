@@ -123,8 +123,8 @@ class Stream(AttributeMixin, XmlInstantiable):
 
     _units = ureg.Unit('tonne/day')
 
-    def __init__(self, name, tp, parent=None, comp_matrix=None,
-                 src_name=None, dst_name=None,  contents=None, impute=True):
+    def __init__(self, name, tp, parent=None, API=None, comp_matrix=None,
+                 src_name=None, dst_name=None, contents=None, impute=True):
         AttributeMixin.__init__(self) # no-op, but here for completeness
         XmlInstantiable.__init__(self, name, parent=parent)
 
@@ -145,6 +145,7 @@ class Stream(AttributeMixin, XmlInstantiable):
         self.src_proc = None  # set in Field.connect_processes()
         self.dst_proc = None
         self.field = None
+        self.API = API
 
         self.contents = contents or []  # generic description of what the stream carries
 
@@ -302,6 +303,11 @@ class Stream(AttributeMixin, XmlInstantiable):
         self.components.loc[name, phase] = magnitude(rate, units="tonne/day")
         self.initialized = True
 
+    def set_API(self, API):
+        if not isinstance(API, ureg.Quantity):
+            API = ureg.Quantity(API, "degAPI")
+        self.API = API
+
     #
     # Convenience functions
     #
@@ -438,12 +444,14 @@ class Stream(AttributeMixin, XmlInstantiable):
         self.tp = copy(tp)
         self.initialized = True
 
-    def copy_flow_rates_from(self, stream, phase=None, tp=None):
+    def copy_flow_rates_from(self, stream, phase=None, tp=None, API=None):
         """
         Copy all mass flow rates from ``stream`` to ``self``
 
-        :param tp: (TemperaturePressure) temperature and pressure to set
         :param phase: (str) one of {'gas', 'liquid', or 'solid'}
+        :param tp: (TemperaturePressure) temperature and pressure to set
+        :param API: (Quantity) the API to assign to this stream. If None,
+            the source stream's API is copied.
         :param stream: (Stream) to copy
 
         :return: none
@@ -456,21 +464,27 @@ class Stream(AttributeMixin, XmlInstantiable):
         else:
             self.components[self.components.columns] = stream.components
 
+        self.API = API or stream.API
         self.electricity = stream.electricity
         self.tp.copy_from(tp or stream.tp)
 
         self.initialized = True
 
-    def copy_gas_rates_from(self, stream, tp=None):
+    def copy_gas_rates_from(self, stream, tp=None, API=None):
         """
         Copy gas mass flow rates from ``stream`` to ``self``
 
         :param stream: (Stream) to copy
+        :param tp: (TemperaturePressure) temperature and pressure to set
+        :param API: (Quantity) the API to assign to this stream. If None,
+            the source stream's API is copied.
         :return: none
         """
 
         if stream.is_uninitialized():
             raise OpgeeException(f"Can't copy from uninitialized stream: {stream}")
+
+        self.API = API or stream.API
 
         self.initialized = True
         self.components[PHASE_GAS] = stream.components[PHASE_GAS]
@@ -603,13 +617,15 @@ class Stream(AttributeMixin, XmlInstantiable):
         # N.B. These are added via <ClassAttrs> in etc/attributes.xml and cannot
         # currently be added via XML, i.e., not permitted in opgee.xsd.
         attr_dict = cls.instantiate_attrs(elt)
-        expected = {'temperature', 'pressure'}
+        expected = {'temperature', 'pressure', 'API'}
         if set(attr_dict.keys()) != expected:
-            raise OpgeeException(f"Stream {name}: expected 2 attributes, {expected}")
+            raise OpgeeException(f"Stream {name}: expected attributes {sorted(expected)}")
 
         temp = attr_dict['temperature'].value
         pres = attr_dict['pressure'].value
         tp = TemperaturePressure(temp, pres)
+
+        API = attr_dict['API'].value
 
         contents = [node.text for node in elt.findall('Contains')]
 
@@ -638,8 +654,8 @@ class Stream(AttributeMixin, XmlInstantiable):
         else:
             matrix = None  # let the stream create it
 
-        obj = Stream(name, tp, parent=parent, comp_matrix=matrix, impute=impute,
-                     src_name=src, dst_name=dst, contents=contents)
+        obj = Stream(name, tp, API=API, parent=parent, comp_matrix=matrix,
+                     src_name=src, dst_name=dst, contents=contents, impute=impute)
 
         return obj
 

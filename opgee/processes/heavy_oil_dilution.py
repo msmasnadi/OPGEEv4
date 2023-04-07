@@ -19,8 +19,6 @@ class HeavyOilDilution(Process):
         super()._after_init()
         self.field = field = self.get_field()
         self.oil = self.field.oil
-        self.oil_SG = self.oil.oil_specific_gravity
-        self.oil_volume_rate = field.oil_volume_rate
 
         self.water = self.field.water
         self.water_density = self.water.density()
@@ -29,7 +27,6 @@ class HeavyOilDilution(Process):
         self.downhole_pump = field.downhole_pump
         self.oil_sands_mine = field.oil_sands_mine
 
-        self.bitumen_SG = self.oil.specific_gravity(field.API)
         self.bitumen_tp = TemperaturePressure(field.mined_bitumen_t,
                                               field.mined_bitumen_p)
 
@@ -55,30 +52,22 @@ class HeavyOilDilution(Process):
         field = self.field
 
         # mass rate
-        input_oil = self.find_input_stream("oil for dilution", raiseError=False)
-        input_bitumen = self.find_input_stream("bitumen for dilution", raiseError=False)
+        input_oil = self.find_input_streams("oil for dilution", combine=True)
 
-        if self.frac_diluent.m == 0.0:
+        # TODO: need to raise error message
+        # if self.frac_diluent.m == 0.0:
+        #     return
+
+        if input_oil.is_uninitialized():
             return
 
-        if input_oil is None and input_bitumen is None:
-            return
-
-        if (input_oil is not None and input_oil.is_uninitialized()) and \
-                (input_bitumen is not None and input_bitumen.is_uninitialized()):
-            return
-
-        if input_oil and input_oil.is_initialized():
-            input_liquid_mass_rate = input_oil.liquid_flow_rate("oil")
-            input_liquid_SG = self.oil.oil_specific_gravity
-        elif input_bitumen and input_bitumen.is_initialized():
-            input_liquid_mass_rate = input_bitumen.liquid_flow_rate("oil")
-            input_liquid_SG = self.bitumen_SG
+        input_liquid_mass_rate = input_oil.liquid_flow_rate("oil")
+        oil_SG = field.oil.specific_gravity(input_oil.API)
+        input_liquid_volume_rate = input_liquid_mass_rate / (oil_SG * self.water_density)
 
         frac_diluent = self.frac_diluent
-        input_liquid_vol_rate = input_liquid_mass_rate / input_liquid_SG / self.water_density
-        expected_volume_oil_bitumen = input_liquid_vol_rate if abs(frac_diluent - 1) <= 0.01 else \
-            input_liquid_vol_rate / (1 - frac_diluent)
+        expected_volume_oil_bitumen = input_liquid_volume_rate if abs(frac_diluent.to("frac").m - 1) <= 0.01 else \
+            input_liquid_volume_rate / (1 - frac_diluent)
         required_volume_diluent = expected_volume_oil_bitumen * frac_diluent
 
         if self.dilution_type == "Diluent":
@@ -98,7 +87,13 @@ class HeavyOilDilution(Process):
         output_oil.set_liquid_flow_rate("oil", total_mass_diluted_oil, tp=self.final_mix_tp)
         self.set_iteration_value(output_oil.total_flow_rate())
 
-        self.field.save_process_data(final_diluent_LHV_mass=diluent_LHV)
+        field.save_process_data(final_diluent_LHV_mass=diluent_LHV)
+
+        final_diluent_SG =\
+            total_mass_diluted_oil / (required_volume_diluent + input_liquid_volume_rate) / self.water_density
+        final_diluent_API = field.oil.API_from_SG(final_diluent_SG)
+        output_oil.set_API(final_diluent_API)
+
         diluent_energy_rate = required_mass_dilution * diluent_LHV
 
         # Calculate imported diluent energy consumption

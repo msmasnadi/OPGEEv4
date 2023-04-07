@@ -12,7 +12,7 @@ from pathlib import Path
 
 from .XMLFile import XMLFile
 from .attributes import AttrDefs
-from .config import getParam, unixPath
+from .config import getParam, unixPath, pathjoin
 from .core import Timer
 from .error import OpgeeException, XmlFormatError
 from .log import getLogger
@@ -20,10 +20,128 @@ from .model import Model
 from .pkg_utils import resourceStream
 from .process import reload_subclass_dict
 from .stream import Stream
-from .utils import loadModuleFromPath, splitAndStrip
+from .utils import loadModuleFromPath, splitAndStrip, mkdirs
 from .xml_utils import merge_elements, save_xml
 
 _logger = getLogger(__name__)
+
+class ModelCache(object):
+    """
+    Support for optimizing reading / running fields from large (i.e., thousands)
+    of Fields from Model files generated from XML. XMLFile instances are cached by
+    pathname to avoid rereading large files.
+    """
+    model_file_cache = {}
+
+    @classmethod
+    def decache(cls):
+        """
+        Empty the cache of XMLFile instances representing OPGEE Models.
+        """
+        cls.model_file_cache.clear()
+
+    @classmethod
+    def get_xml_file(cls, model_xml):
+        """
+        If the file ``model_xml`` is not known in the cache, load it and
+        store it in the cache. Return the cached XMLFile object.
+
+        :param model_xml: (str) pathname of an XML file
+        :return: (XMLFile) representing the model XML
+        """
+        try:
+            obj = cls.model_file_cache[model_xml]
+        except KeyError:
+            obj = XMLFile(model_xml, schemaPath='etc/opgee.xsd')
+            cls.model_file_cache[model_xml] = obj
+
+        return obj
+
+def fields_for_analysis(model_xml, analysis_name):
+    """
+    Return a list of the names of Fields in the Analysis
+    named ``analysis_name`` in the model XML file ``model_xml``.
+
+    :param model_xml: (str) the pathname of an OPGEE model XML file.
+    :param analysis_name: (str) the name of an Analysis
+    :return: (list of str) the names of all the Fields in the given
+        Analysis.
+    """
+    timer = Timer('fields_for_analysis').start()
+
+    xml_file_obj = ModelCache.get_xml_file(model_xml)
+
+    root = xml_file_obj.getRoot()
+    xpath = f'/Model/Analysis[@name="{analysis_name}"]/Field/@name'
+    fields = root.xpath(xpath)
+
+    _logger.debug(timer.stop())
+    return fields
+
+def write_tmp_xml_file(model_xml, analysis_name, field_name):
+    """
+    Save an XML model file to the temp folder identified by config variable
+    OPGEE.TempDir (in a subdirectory "extracted_xml") by extracting the Field
+    named ``field_name`` from the Analysis named ``analysis_name`` in the model
+    XML file ``model_xml``.
+
+    :param model_xml: (str) the pathname of an OPGEE model XML file
+    :param analysis_name: (str) the name of an Analysis
+    :param field_name: (str) the name of the Field to extract
+    :return: (str) the pathname of a file under {OPGEE.TempFile}/extracted_xml.
+        Note that it's the caller's responsibility to remove the temp file.
+    """
+    from lxml import etree as ET
+
+    xml_file_obj = ModelCache.get_xml_file(model_xml)
+    root = xml_file_obj.getRoot()
+
+    _logger.debug(f"Extracting field {field_name}")
+
+    found = root.xpath(f'/Model/Analysis[@name="{analysis_name}"]/Field[@name="{field_name}"]')
+    if not found:
+        raise OpgeeException(f"Field '{field_name}' was not found under Analysis '{analysis_name}'")
+
+    # xpath() returns a list
+    if len(found) > 1:
+        raise OpgeeException(f"Field '{field_name}' appears multiple times in model XML")
+
+    extracted_field = found[0]
+    tmp_dir = pathjoin(getParam('OPGEE.TempDir'), 'extracted_xml')
+    mkdirs(tmp_dir)
+
+    # Create a model with just the extracted Field and surrounding elements
+    model = ET.Element('Model')
+    analysis = ET.SubElement(model, 'Analysis', name=analysis_name)
+    analysis.append(deepcopy(extracted_field))
+    tree = ET.ElementTree(model)
+
+    # replaces spaces with underscores
+    field_name = field_name.replace(' ', '_')
+    xml_file = pathjoin(tmp_dir, field_name + '.xml')
+
+    # Write the XML to a file in tmp_dir
+    tree.write(xml_file, xml_declaration=True, pretty_print=True, encoding='utf-8')
+
+    return xml_file
+
+def extracted_model(model_xml, analysis_name, field_names=None):
+    """
+    Generator to return temp files with extracted model for each Field in
+    `field_names`` or all the Fields in ``analysis_name`` if ``field_names``
+    is None.
+
+    :param model_xml: (str) pathname to (presumably large) Model xml file.
+    :param analysis_name: (str) the name of the analysis to use
+    :param field_names: (list of str) names of Fields to extract. If None,
+        all Fields in the given Analysis are extracted.
+    :return: (str, str) a tuple of two strings: the next Field name and the
+        pathname of the extracted model XML for that Field.
+    """
+    field_names = field_names or fields_for_analysis(model_xml, analysis_name)
+
+    for field_name in field_names:
+        yield field_name, write_tmp_xml_file(model_xml, analysis_name, field_name)
 
 
 class ModelFile(XMLFile):
@@ -210,7 +328,6 @@ class ModelFile(XMLFile):
             # Show the list of paths read in the GUI
             pathnames.insert(0, opgee_xml if base_stream else base_path)
             model.set_pathnames(pathnames)
-
 
     @classmethod
     def from_xml_string(cls, xml_string):

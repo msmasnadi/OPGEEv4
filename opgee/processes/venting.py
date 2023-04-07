@@ -19,7 +19,11 @@ class Venting(Process):
     def _after_init(self):
         super()._after_init()
         self.field = field = self.get_field()
-        self.VOR = field.VOR
+        self.frac_venting = field.frac_venting
+
+        #TODO: give warning when frac_venting is not within [0, 1]
+        self.frac_venting = min(ureg.Quantity(1.0,"frac"), max(self.frac_venting, ureg.Quantity(0, "frac")))
+
         self.gas = field.gas
         self.pipe_leakage = field.pipe_leakage
         self.gas_lifting = field.gas_lifting
@@ -30,8 +34,6 @@ class Venting(Process):
         self.oil_volume_rate = field.oil_volume_rate
         self.res_press = field.res_press
         self.water_prod = self.oil_volume_rate * self.WOR
-        self.VOR_over_GOR =\
-            self.VOR / (self.GOR - self.FOR) if (self.GOR.m - self.FOR.m) > 0 else ureg.Quantity(0, "frac")
         self.imported_fuel_gas_comp = field.imported_gas_comp["Imported Fuel"]
         self.imported_fuel_gas_mass_fracs = field.gas.component_mass_fractions(self.imported_fuel_gas_comp)
 
@@ -46,7 +48,7 @@ class Venting(Process):
         if input.is_uninitialized():
             return
 
-        methane_to_venting = input.gas_flow_rate("C1") * self.VOR_over_GOR
+        methane_to_venting = input.gas_flow_rate("C1") * self.frac_venting
         venting_frac = \
             methane_to_venting / input.gas_flow_rate("C1") \
                 if input.gas_flow_rate("C1").m != 0 else ureg.Quantity(0, "frac")
