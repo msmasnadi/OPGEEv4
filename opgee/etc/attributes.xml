@@ -99,6 +99,7 @@
       <AttrDef name="oil_prod" unit="bbl_oil/d" desc="Oil production volume" type="float" GT="0">2098.0</AttrDef>
       <AttrDef name="num_prod_wells" unit="dimensionless" desc="Number of producing wells" type="int" GT="0">24</AttrDef>
       <AttrDef name="num_water_inj_wells" unit="dimensionless" desc="Number of water injecting wells" type="int" GE="0">20</AttrDef>
+      <AttrDef name="num_gas_inj_wells" unit="dimensionless" desc="Number of gas injecting wells" type="int" GE="0">2</AttrDef>
       <AttrDef name="well_diam" unit="in" desc="Well diameter" type="float" GT="0">2.78</AttrDef>
       <AttrDef name="prod_index" unit="bbl_oil/(psia*day)" type="float" desc="Productivity index">17.0</AttrDef>
       <AttrDef name="res_press" unit="psia" desc="Average reservoir pressure" type="float">1556.6</AttrDef>

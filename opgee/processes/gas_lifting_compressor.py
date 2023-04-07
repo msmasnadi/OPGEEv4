@@ -40,7 +40,7 @@ class GasLiftingCompressor(Process):
         if input is None or input.is_uninitialized():
             return
 
-        loss_rate = self.venting_fugitive_rate()
+        loss_rate = self.get_compressor_and_well_loss_rate(input)
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
         lifting_gas = self.find_output_stream("lifting gas")

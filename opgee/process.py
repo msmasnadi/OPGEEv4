@@ -24,6 +24,7 @@ from .import_export import ImportExport
 from .log import getLogger
 from .stream import Stream
 from .utils import getBooleanXML
+from .import ureg
 
 _logger = getLogger(__name__)
 
@@ -436,6 +437,34 @@ class Process(XmlInstantiable, AttributeMixin):
         gas_fugitives.multiply_flow_rates(loss_rate)
 
         return gas_fugitives
+
+    def get_compressor_and_well_loss_rate(self, inlet_stream):
+        """
+        Get the compressor and well loss rate for a given inlet stream.
+
+        Args:
+            inlet_stream: A Stream object representing the inlet stream to the system.
+
+        Returns:
+            A Quantity object representing the compressor and well loss rate for the given inlet stream.
+
+
+        This function calculates the compressor and well loss rate for a given inlet stream based on the properties of
+        the gas field and the loss matrix average data. The compressor and well loss rate is calculated based on the
+        volume flow rate of gas at STP for each injection well, and the corresponding loss rate values from the loss matrix
+        average data. If the system contains a compressor, the compressor loss rate is returned, otherwise the well loss
+        rate is returned. The result is returned as a Quantity object with units of "frac".
+        """
+        field = self.field
+        num_gas_inj_wells = field.num_gas_inj_wells
+        loss_mat_gas_ave_df = field.loss_mat_gas_ave_df
+
+        volume_rate_per_well = field.gas.volume_flow_rate_STP(inlet_stream) / num_gas_inj_wells
+        value = volume_rate_per_well.to("kscf/day").m
+        selected_row = loss_mat_gas_ave_df.loc[loss_mat_gas_ave_df.index < value].iloc[-1]
+
+        result = selected_row["Recip Comp"] if "Compressor" in self.name else selected_row["Well"]
+        return ureg.Quantity(result, "frac")
 
     @property
     def model(self):
