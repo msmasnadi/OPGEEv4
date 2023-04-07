@@ -55,8 +55,8 @@ def test_simulation():
     read_distributions(pathname=None)
     assert all([isinstance(d, Distribution) for d in Distribution.distributions()])
 
-    # new(sim_dir, model_files, analysis_name, trials,
-    #     field_names=None, overwrite=False, use_default_model=True)
+    # Simulation.new(sim_dir, model_files, analysis_name, trials,
+    #                field_names=None, overwrite=False, use_default_model=True)
     model_files = []
     sim = Simulation.new(sim_dir, model_files, analysis_name, N,
                          overwrite=True, field_names=[field_name])
