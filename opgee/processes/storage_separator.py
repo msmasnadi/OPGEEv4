@@ -18,8 +18,8 @@ class StorageSeparator(Process):
     """
     Storage well calculate fugitive emission from storage wells.
     """
-    def _after_init(self):
-        super()._after_init()
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
 
         self.water_production_frac = self.attr("water_production_frac")
         self.outlet_tp = TemperaturePressure(self.attr("outlet_temp"), self.attr("outlet_press"))

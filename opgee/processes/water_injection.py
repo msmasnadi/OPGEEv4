@@ -26,9 +26,10 @@ _logger = getLogger(__name__)
 
 
 class WaterInjection(Process):
-    def _after_init(self):
-        super()._after_init()
-        self.field = field = self.get_field()
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
+
+        field = self.field
         self.water_reinjection = field.water_reinjection
         self.water_flooding = field.water_flooding
         self.productivity_index = field.productivity_index

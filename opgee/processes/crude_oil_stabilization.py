@@ -16,7 +16,6 @@ from ..stream import Stream, PHASE_LIQUID, PHASE_GAS
 
 _logger = getLogger(__name__)
 
-
 class CrudeOilStabilization(Process):
     """
        CrudeOilStabilization is a subclass of the Process class that represents a crude oil stabilization process in an oil and gas production system.
@@ -34,9 +33,10 @@ class CrudeOilStabilization(Process):
            prime_mover_type (str): Type of prime mover used for energy consumption.
            eta_compressor (Quantity): Efficiency of the compressor.
    """
-    def _after_init(self):
-        super()._after_init()
-        self.field = field = self.get_field()
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
+
+        field = self.field
         self.stab_tp = TemperaturePressure(self.attr("stabilizer_column_temp"), self.attr("stabilizer_column_press"))
         self.mol_per_scf = field.model.const("mol-per-scf")
         self.stab_gas_press = field.stab_gas_press

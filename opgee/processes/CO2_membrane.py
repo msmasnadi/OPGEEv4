@@ -29,9 +29,9 @@ class CO2Membrane(Process):
         - gas for CO2 compressor
 
     """
-    def _after_init(self):
-        super()._after_init()
-        self.field = field = self.get_field()
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
+        field = self.field
         self.gas = field.gas
         self.membrane_comp = field.imported_gas_comp["Membrane Separation Gas"]
         self.press_drop = self.attr("press_drop_across_membrane")

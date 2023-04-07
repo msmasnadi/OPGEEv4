@@ -14,10 +14,6 @@ _logger = getLogger(__name__)
 
 
 class SourGasInjection(Process):
-    def _after_init(self):
-        super()._after_init()
-        self.field = self.get_field()
-
     def run(self, analysis):
         self.print_running_msg()
 

@@ -42,10 +42,10 @@ class CrudeOilStorage(Process):
             f_FG_CS_VRU: The fraction of exsolved gas that is sent to the vapor recovery unit.
             f_FG_CS_FL: The fraction of exsolved gas that is flared.
     """
-    def _after_init(self):
-        super()._after_init()
-        self.field = field = self.get_field()
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
 
+        field = self.field
         self.oil = field.oil
         self.oil_sands_mine = field.oil_sands_mine
         self.storage_gas_comp = field.imported_gas_comp["Storage Gas"]

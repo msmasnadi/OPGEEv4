@@ -23,9 +23,9 @@ _logger = getLogger(__name__)
 
 
 class Demethanizer(Process):
-    def _after_init(self):
-        super()._after_init()
-        self.field = field = self.get_field()
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
+        field = self.field
         self.gas = field.gas
         self.feed_press_demethanizer = self.attr("feed_press_demethanizer")
         self.column_pressure = self.attr("column_pressure")

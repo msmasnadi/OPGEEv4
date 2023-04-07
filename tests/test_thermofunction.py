@@ -387,18 +387,16 @@ def test_steam_enthalpy(water_instance):
 
 
 def test_check_balance(test_model):
-    from opgee.processes.steam_generation import SteamGeneration
     from opgee.error import BalanceError
 
     field = test_model.get_field("test")
+    proc = field.find_process('SteamGeneration')
 
-    # We need access to data in Model, so pass in a convenient parent
-    proc = SteamGeneration("test_proc", parent=field)
     input = ureg.Quantity(100.0, "tonne/day")
     output1 = ureg.Quantity(100.0001, "tonne/day")
     output2 = ureg.Quantity(110, "tonne/day")
 
     proc.check_balance(input, output1, "test1")
 
-    with pytest.raises(BalanceError, match="test2 is not balanced in test_proc"):
+    with pytest.raises(BalanceError, match="test2 is not balanced in SteamGeneration"):
         proc.check_balance(input, output2, "test2")

@@ -20,18 +20,16 @@ class StorageCompressor(Process):
     """
     Storage compressor calculate emission from compressing gas for long-term (i.e., seasonal) storage.
     """
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
 
-    def _after_init(self):
-        super()._after_init()
-        self.field = field = self.get_field()
-        self.gas = field.gas
+        self.gas = self.field.gas
         self.discharge_press = self.attr("discharge_press")
         self.eta_compressor = self.attr("eta_compressor")
         self.prime_mover_type = self.attr("prime_mover_type")
 
     def run(self, analysis):
         self.print_running_msg()
-        field = self.field
 
         input = self.find_input_stream("gas for storage")
 

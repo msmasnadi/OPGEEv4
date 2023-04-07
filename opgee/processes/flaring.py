@@ -15,8 +15,6 @@ _logger = getLogger(__name__)
 
 
 class Flaring(Process):
-    def _after_init(self):
-        super()._after_init()
 
     def run(self, analysis):
         self.print_running_msg()

@@ -215,22 +215,23 @@ class AttributeMixin():
     def __init__(self, attr_dict=None):
         self.attr_dict = attr_dict or {}
 
-    def attr(self, attr_name):
+    def _get_attr(self, attr_name):
         try:
             obj = self.attr_dict[attr_name]
         except KeyError:
             raise AttributeError(f"Attribute '{attr_name}' not found in {self}")
 
+        return obj
+
+    def attr(self, attr_name):
+        obj = self._get_attr(attr_name)
         return obj.value
 
     def set_attr(self, attr_name, value):
         """
         Set `attr_name`, which must be a known attribute, to `value`.
         """
-        obj = self.attr_dict.get(attr_name)
-        if obj is None:
-            raise AttributeError(f"Attribute '{attr_name}' not found in {self}")
-
+        obj = self._get_attr(attr_name)
         obj.set_value(value)
 
     def attrs_with_prefix(self, prefix):

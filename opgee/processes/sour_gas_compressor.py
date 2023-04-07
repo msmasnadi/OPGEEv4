@@ -17,9 +17,10 @@ _logger = getLogger(__name__)
 
 
 class SourGasCompressor(Process):
-    def _after_init(self):
-        super()._after_init()
-        self.field = field = self.get_field()
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
+
+        field = self.field
         self.gas = field.gas
         self.res_press = field.res_press
         self.eta_compressor = self.attr("eta_compressor")

@@ -23,8 +23,8 @@ class CO2InjectionWell(Process):
         output streams:
             - gas for reservoir: gas stream with CO2 injected into reservoir
     """
-    def _after_init(self):
-        super()._after_init()
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
 
     def run(self, analysis):
         self.print_running_msg()

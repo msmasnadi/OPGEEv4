@@ -96,9 +96,6 @@ class Field(Container):
         self.gas = Gas(self)
         self.water = Water(self)
 
-        # set in add_children()
-        self.steam_generator = None
-
         # TODO: Why are these copied into the Field object? Why not access them from Model?
         # TODO: It's good practice to declare all instance vars in __init__ (set to None perhaps)
         #       other programmers (and PyCharm) recognize them as proper instance variables and
@@ -177,7 +174,9 @@ class Field(Container):
         self.WIR = self.attr("WIR")
         self.WOR = self.attr("WOR")
 
-    # Used by _after_init and validate to descend model hierarchy
+        self.steam_generator = SteamGenerator(self) # N.B. accesses field.SOR
+
+    # Used by validate() to descend model hierarchy
     def _children(self):
         return super()._children() # + self.streams() # Adding this caused several errors...
 
@@ -224,8 +223,6 @@ class Field(Container):
         self.agg_dict = {agg.name : agg for agg in self.descendant_aggs()}
 
         self.check_attr_constraints(self.attr_dict)
-
-        self.steam_generator = SteamGenerator(self) # accesses field.SOR
 
         self.component_fugitive_table, self.loss_mat_gas_ave_df = self.get_component_fugitive()
 

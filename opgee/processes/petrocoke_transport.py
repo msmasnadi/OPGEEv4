@@ -20,12 +20,10 @@ class PetrocokeTransport(Process):
     """
     Petrocoke transport calculate emissions from petrocoke to the market
     """
-
-    def _after_init(self):
-        super()._after_init()
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
         model = self.model
-        self.field = field = self.get_field()
-        self.oil = field.oil
+        self.oil = self.field.oil
         self.transport_share_fuel = model.transport_share_fuel.loc["Petrocoke"]
         self.transport_parameter = model.transport_parameter[["Petrocoke", "Units"]]
         self.transport_by_mode = model.transport_by_mode.loc["Petrocoke"]

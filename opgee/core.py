@@ -143,11 +143,6 @@ class XmlInstantiable(OpgeeObject):
         self.parent = parent
         self.enabled = True
 
-    # Deprecated (soon)
-    def _after_init(self):
-        for child in self.children():
-            child._after_init()
-
     def set_parent(self, parent):
         self.parent = parent
 
@@ -166,7 +161,6 @@ class XmlInstantiable(OpgeeObject):
     def set_enabled(self, value):
         self.enabled = getBooleanXML(value)
 
-    # Deprecated once _after_init is eliminated
     def adopt(self, objs, asDict=False):
         """
         Set the `parent` of each object to self. This is used to create back pointers

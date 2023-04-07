@@ -461,10 +461,6 @@ class Process(AttributeMixin, XmlInstantiable):
         result = selected_row["Recip Comp"] if "Compressor" in self.name else selected_row["Well"]
         return ureg.Quantity(result, "frac")
 
-    # Deprecated after removing _after_init.
-    def get_field(self):
-        return self.field
-
     def visit(self):
         self.visit_count += 1
         return self.visit_count
@@ -883,6 +879,10 @@ class Process(AttributeMixin, XmlInstantiable):
         :return: (Process) instance populated from XML
         """
         name = elt_name(elt)
+
+        if name == 'test_proc':
+            pass
+
         a = elt.attrib
         desc = a.get('desc')
         impute_start = a.get('impute-start')
@@ -915,9 +915,6 @@ class Boundary(Process):
 
         name = f"{boundary}Boundary"        # e.g., "ProductionBoundary"
         super().__init__(name, **kwargs)
-
-    def _after_init(self):
-        super()._after_init()
 
     def is_chosen_boundary(self, analysis):
         proc = self.field.boundary_process(analysis)

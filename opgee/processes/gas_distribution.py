@@ -17,14 +17,13 @@ _logger = getLogger(__name__)
 class GasDistribution(Process):
     """
     Gas distribution calculates emission of gas to distribution
-
     """
-    def _after_init(self):
-        super()._after_init()
-        self.field = field = self.get_field()
-        self.gas = field.gas
-        self.frac_loss =\
-            self.attr("frac_loss_distribution") + self.attr("frac_loss_meter") + self.attr("frac_loss_enduse")
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
+        self.gas = self.field.gas
+        self.frac_loss = (self.attr("frac_loss_distribution") +
+                          self.attr("frac_loss_meter") +
+                          self.attr("frac_loss_enduse"))
 
     def run(self, analysis):
         self.print_running_msg()

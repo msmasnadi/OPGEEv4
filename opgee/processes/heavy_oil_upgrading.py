@@ -21,9 +21,9 @@ _logger = getLogger(__name__)
 
 
 class HeavyOilUpgrading(Process):
-    def _after_init(self):
-        super()._after_init()
-        self.field = field = self.get_field()
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
+        field = self.field
         self.upgrader_type = field.upgrader_type
         self.oil = self.field.oil
         self.water = self.field.water
@@ -36,7 +36,7 @@ class HeavyOilUpgrading(Process):
         self.petro_coke_heating_value = self.model.const("petrocoke-heating-value")
         self.mole_to_scf = self.model.const("mol-per-scf")
 
-        self.water = self.field.water
+        self.water = field.water
         self.water_density = self.water.density()
 
     def check_enabled(self):

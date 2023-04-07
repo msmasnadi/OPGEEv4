@@ -18,10 +18,9 @@ class LNGRegasification(Process):
     """
     LNG liquefaction calculate emission of transported gas to regasification
     """
-    def _after_init(self):
-        super()._after_init()
-        self.field = field = self.get_field()
-        self.gas = field.gas
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
+        self.gas = self.field.gas
         self.energy_intensity_regas = self.attr("energy_intensity_regas")
         self.efficiency = self.attr("efficiency")
         self.prime_mover_type = self.attr("prime_mover_type")

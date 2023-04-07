@@ -105,12 +105,6 @@ class Model(Container):
         self.maximum_change = self.attr('maximum_change')
 
         self.pathnames = None  # set by calling set_pathnames(path)
-
-    def _after_init(self):
-        for iterator in [self.fields(), self.analyses()]:
-            for obj in iterator:
-                obj._after_init()
-
         # TBD: apply table updates
 
     def set_pathnames(self, pathnames):
@@ -292,5 +286,4 @@ class Model(Container):
             for analysis in analyses:
                 analysis.restrict_fields(field_names)
 
-        model._after_init()     # TBD: delete once _after_init() are migrated in processes
         return model

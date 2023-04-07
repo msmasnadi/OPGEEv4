@@ -20,10 +20,9 @@ class CrudeOilTransport(Process):
     """
     Crude oil transport calculate emissions from crude oil to the market
     """
-
-    def _after_init(self):
-        super()._after_init()
-        self.field = field = self.get_field()
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
+        field = self.field
         self.oil = field.oil
         self.transport_share_fuel = self.model.transport_share_fuel.loc["Crude"]
         self.transport_parameter = self.model.transport_parameter[["Crude", "Units"]]

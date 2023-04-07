@@ -58,14 +58,16 @@ class AcidGasRemoval(Process):
        - calculate_energy_consumption_from_textbook(input_stream, mol_frac_CO2, mol_frac_H2S): Calculates energy consumption
          for the acid gas removal process using a textbook method.
     """
-    def _after_init(self):
-        super()._after_init()
-        self.field = field = self.get_field()
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
+
+        field = self.field
         m = field.model
 
         self.gas = field.gas
         self.type_amine = self.attr("type_amine")
         self.ratio_reflux_reboiler = self.attr("ratio_reflux_reboiler")
+
         # TODO: Add this to smart default mode
         self.gas_comp_H2S = field.attr("gas_comp_H2S")
         if self.gas_comp_H2S < ureg.Quantity(1, "percent"):
@@ -81,9 +83,8 @@ class AcidGasRemoval(Process):
         self.air_cooler_press_drop = self.attr("air_cooler_press_drop")
         self.air_elevation_const = m.const("air-elevation-corr")
         self.air_density_ratio = m.const("air-density-ratio")
-        self.water_press = field.water.density() * \
-                           self.air_cooler_press_drop * \
-                           m.const("gravitational-acceleration")
+        self.water_press = (field.water.density() * self.air_cooler_press_drop *
+                            m.const("gravitational-acceleration"))
         self.air_cooler_fan_eff = self.attr("air_cooler_fan_eff")
         self.air_cooler_speed_reducer_eff = self.attr("air_cooler_speed_reducer_eff")
         self.AGR_table = m.AGR_tbl

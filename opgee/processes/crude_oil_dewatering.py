@@ -34,9 +34,9 @@ class CrudeOilDewatering(Process):
             oil_path (str): The oil path in the process.
             oil_path_dict (dict): Dictionary mapping oil paths to their descriptions.
     """
-    def _after_init(self):
-        super()._after_init()
-        self.field = self.get_field()
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
+
         self.oil_path = self.field.oil_path
         self.oil_path_dict = {"Stabilization": "oil for stabilization",
                               "Storage": "oil for storage",

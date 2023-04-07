@@ -55,9 +55,8 @@ class Analysis(Container):
         # Create validation sets from system.cfg to avoid hard-coding these
         self.functional_units = set(getParamAsList('OPGEE.FunctionalUnits'))
 
-        # This is set in _after_init() to a pandas.Series holding the current values in use,
-        # indexed by gas name. Must be set after initialization since we reference the Model
-        # object which isn't fully instantiated until after we are.
+        # This is set in use_GWP() below to a pandas.Series holding the current values
+        # in use, indexed by gas name.
         self.gwp = None
 
         # Use the GWP years and version specified in XML

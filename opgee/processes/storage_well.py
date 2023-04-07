@@ -18,9 +18,8 @@ class StorageWell(Process):
     Storage well calculate fugitive emission from storage wells.
 
     """
-
-    def _after_init(self):
-        super()._after_init()
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
         self.loss_rate = self.venting_fugitive_rate()
 
     def run(self, analysis):

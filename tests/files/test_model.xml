@@ -56,6 +56,8 @@
 		<Process class="ProcB" desc="Test process 2"/>
 		<Process class="Boundary" boundary="Production"/>
 
+		<Process class="SteamGeneration"/>		<!-- needed by test_check_balance in test_thermofunction.py -->
+
 		<Stream src="ProcA" dst="ProcB">
 			<Contains>crude oil</Contains>
 		</Stream>
@@ -474,7 +476,7 @@
 	<Field name="test_Flaring">
 
 		<Process class="Before"/>
-		
+
 		<Process class="Flaring"/>
 
 		<Process class="Boundary" boundary="Production"/>
@@ -740,7 +742,7 @@
 		<A name="res_press">8000.0</A>
 
 		<Process class="Before"/>
-		
+
 		<Process class="CO2ReinjectionCompressor"/>
 
 		<Process class="Boundary" boundary="Production"/>
@@ -773,7 +775,7 @@
 	<Field name="test_CO2InjectionWell">
 
 		<Process class="Before"/>
-		
+
 		<Process class="CO2InjectionWell"/>
 
 		<Process class="Boundary" boundary="Production"/>
@@ -802,7 +804,7 @@
 		<A name="res_press">1531.23</A>
 
 		<Process class="Before"/>
-		
+
 		<Process class="SourGasCompressor"/>
 
 		<Process class="Boundary" boundary="Production"/>
@@ -828,7 +830,7 @@
 		<Field name="test_SourGasInjection">
 
 		<Process class="Before"/>
-		
+
 		<Process class="SourGasInjection"/>
 
 		<Process class="Boundary" boundary="Production"/>
@@ -856,7 +858,7 @@
 		<A name="res_press">5874</A>
 
 		<Process class="Before"/>
-		
+
 		<Process class="GasReinjectionCompressor"/>
 
 		<Process class="Boundary" boundary="Production"/>
@@ -884,7 +886,7 @@
 		<A name="res_press">3655</A>
 
 		<Process class="Before"/>
-		
+
 		<Process class="GasLiftingCompressor">
 			<A name="leak_rate">0.0</A>
 		</Process>
@@ -918,7 +920,7 @@
 		<A name="res_temp">127.6</A>
 
 		<Process class="Before"/>
-		
+
 		<Process class="Separation"/>
 
 		<Process class="Boundary" boundary="Production"/>
@@ -947,7 +949,7 @@
 	<Analysis name="test_common_processes">
 		<A name="functional_unit">oil</A>
 		<A name="boundary">Production</A>
-		
+
 		<A name="GWP_horizon">100</A>
 		<A name="GWP_version">AR5</A>
 		<Field name="test_ReservoirWellInterface"/>
@@ -968,7 +970,7 @@
 		<A name="num_water_inj_wells">36</A>
 
 		<Process class="Before"/>
-		
+
 		<Process class="ReservoirWellInterface"/>
 
 		<Process class="Boundary" boundary="Production"/>
@@ -1175,7 +1177,7 @@
 	<Analysis name="test_oil_processes">
 		<A name="functional_unit">oil</A>
 		<A name="boundary">Production</A>
-		
+
 		<A name="GWP_horizon">100</A>
 		<A name="GWP_version">AR5</A>
 		<Field name="test_HeavyOilUpgrading"/>
@@ -1304,7 +1306,7 @@
 	<Analysis name="test_water_processes">
 		<A name="functional_unit">oil</A>
 		<A name="boundary">Production</A>
-		
+
 		<A name="GWP_horizon">100</A>
 		<A name="GWP_version">AR5</A>
 		<Field name="test_SteamGeneration_OTSG"/>

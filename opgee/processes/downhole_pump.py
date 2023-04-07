@@ -21,9 +21,9 @@ _logger = getLogger(__name__)
 
 
 class DownholePump(Process):
-    def _after_init(self):
-        super()._after_init()
-        self.field = field = self.get_field()
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
+        field = self.field
         self.downhole_pump = field.downhole_pump
         self.gas_lifting = field.gas_lifting
         self.res_temp = field.res_temp

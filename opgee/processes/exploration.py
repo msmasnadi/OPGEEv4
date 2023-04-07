@@ -18,9 +18,9 @@ _logger = getLogger(__name__)
 
 
 class Exploration(Process):
-    def _after_init(self):
-        super()._after_init()
-        self.field = field = self.get_field()
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
+        field = self.field
         self.vertical_drill_df = field.vertical_drill_df
         self.horizontal_drill_df = field.horizontal_drill_df
 

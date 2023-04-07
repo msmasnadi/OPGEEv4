@@ -15,12 +15,11 @@ from .shared import get_energy_carrier
 
 
 class HeavyOilDilution(Process):
-    def _after_init(self):
-        super()._after_init()
-        self.field = field = self.get_field()
-        self.oil = self.field.oil
-
-        self.water = self.field.water
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
+        field = self.field
+        self.oil = field.oil
+        self.water = field.water
         self.water_density = self.water.density()
 
         self.frac_diluent = self.attr("fraction_diluent")

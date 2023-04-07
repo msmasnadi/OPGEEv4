@@ -22,9 +22,9 @@ _logger = getLogger(__name__)
 
 
 class GasDehydration(Process):
-    def _after_init(self):
-        super()._after_init()
-        self.field = field = self.get_field()
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
+        field = self.field
         model = field.model
 
         self.gas = field.gas

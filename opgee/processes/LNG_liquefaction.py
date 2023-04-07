@@ -16,11 +16,9 @@ class LNGLiquefaction(Process):
     """
     LNG liquefaction calculate emission of produced gas to liquefaction
     """
-
-    def _after_init(self):
-        super()._after_init()
-        self.field = field = self.get_field()
-        self.gas = field.gas
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
+        self.gas = self.field.gas
         self.compression_refrigeration_load = self.attr("compression_refrigeration_load")
         self.ancillary_loads = self.attr("ancillary_loads")
         self.NG_to_liq_rate = self.attr("NG_to_liq_rate")

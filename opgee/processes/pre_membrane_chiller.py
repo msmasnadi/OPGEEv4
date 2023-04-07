@@ -16,8 +16,8 @@ _logger = getLogger(__name__)
 
 
 class PreMembraneChiller(Process):
-    def _after_init(self):
-        super()._after_init()
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
         self.outlet_temp = self.attr("chiller_outlet_temp")
         self.pressure_drop = ureg.Quantity(56.0, "delta_degC")
         self.feed_stream_mass_rate = ureg.Quantity(6.111072, "tonne/day")

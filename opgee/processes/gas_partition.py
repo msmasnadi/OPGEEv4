@@ -24,10 +24,9 @@ class GasPartition(Process):
     """
     Gas partition is to check the reasonable amount of gas goes to gas lifting and gas reinjection
     """
-
-    def _after_init(self):
-        super()._after_init()
-        self.field = field = self.get_field()
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
+        field = self.field
         self.gas = field.gas
         self.gas_lifting = field.gas_lifting
 

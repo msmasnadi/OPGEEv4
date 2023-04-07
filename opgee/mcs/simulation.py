@@ -479,9 +479,6 @@ class Simulation(OpgeeObject):
             # if name == 'WOR' and value == 0:
             #     pass
 
-        self.analysis._after_init()
-        field._after_init()
-
     def run_field(self, field, trial_nums=None):
         """
         Run the Monte Carlo simulation for the given field and trial numbers.

@@ -19,9 +19,9 @@ _logger = getLogger(__name__)
 
 
 class Drilling(Process):
-    def _after_init(self):
-        super()._after_init()
-        self.field = field = self.get_field()
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
+        field = self.field
 
         self.fraction_wells_fractured = field.fraction_wells_fractured
         self.fracture_consumption_tbl = field.model.fracture_energy

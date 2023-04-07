@@ -19,10 +19,10 @@ _logger = getLogger(__name__)  # data logging
 
 
 class ReservoirWellInterface(Process):
-    def _after_init(self):
-        super()._after_init()
-        self.field = field = self.get_field()
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
 
+        field = self.field
         self.res_tp = TemperaturePressure(field.res_temp,
                                           field.res_press)
         self.num_prod_wells = field.num_prod_wells

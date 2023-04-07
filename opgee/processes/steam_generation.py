@@ -28,8 +28,6 @@ class SteamGeneration(Process):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def _after_init(self):
-        super()._after_init()
         field = self.field
         self.steam_flooding_check = field.steam_flooding
         self.SOR = field.SOR
@@ -112,24 +110,26 @@ class SteamGeneration(Process):
 
         makeup_water_to_prod_water_frac = makeup_water_mass_rate / prod_water_mass_rate
 
-        fuel_consumption_OTSG = fuel_consumption_HRSG = fuel_consumption_solar = electricity_HRSG = ureg.Quantity(0,
-                                                                                                                  "MJ/day")
+        fuel_consumption_OTSG = fuel_consumption_HRSG = fuel_consumption_solar = \
+            electricity_HRSG = ureg.Quantity(0, "MJ/day")
 
-        if self.fraction_OTSG.m != 0:
+        fraction_OTSG = self.fraction_OTSG
+        if fraction_OTSG.m != 0:
             fuel_consumption_OTSG, mass_in_OTSG, mass_out_OTSG, energy_in_OTSG, energy_out_OTSG = \
-                self.steam_generator.once_through_SG(prod_water_mass_rate * self.fraction_OTSG,
-                                                     makeup_water_mass_rate * self.fraction_OTSG,
-                                                     water_mass_rate_for_injection * self.fraction_OTSG,
-                                                     blowdown_water_mass_rate * self.fraction_OTSG)
+                self.steam_generator.once_through_SG(prod_water_mass_rate * fraction_OTSG,
+                                                     makeup_water_mass_rate * fraction_OTSG,
+                                                     water_mass_rate_for_injection * fraction_OTSG,
+                                                     blowdown_water_mass_rate * fraction_OTSG)
             self.check_balance(mass_in_OTSG, mass_out_OTSG, "OTSG_mass")
             self.check_balance(energy_in_OTSG, energy_out_OTSG, "OTSG_energy")
 
+        fraction_steam_cogen = self.fraction_steam_cogen
         if self.fraction_steam_cogen != 0:
             fuel_consumption_HRSG, electricity_HRSG, mass_in_HRSG, mass_out_HRSG, energy_in_HRSG, energy_out_HRSG = \
-                self.steam_generator.heat_recovery_SG(prod_water_mass_rate * self.fraction_steam_cogen,
-                                                      makeup_water_mass_rate * self.fraction_steam_cogen,
-                                                      water_mass_rate_for_injection * self.fraction_steam_cogen,
-                                                      blowdown_water_mass_rate * self.fraction_steam_cogen)
+                self.steam_generator.heat_recovery_SG(prod_water_mass_rate * fraction_steam_cogen,
+                                                      makeup_water_mass_rate * fraction_steam_cogen,
+                                                      water_mass_rate_for_injection * fraction_steam_cogen,
+                                                      blowdown_water_mass_rate * fraction_steam_cogen)
             self.check_balance(mass_in_HRSG, mass_out_HRSG, "HRSG_mass")
             self.check_balance(energy_in_HRSG, energy_out_HRSG, "HRSG_energy")
 

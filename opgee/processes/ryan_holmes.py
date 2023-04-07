@@ -17,9 +17,10 @@ _logger = getLogger(__name__)
 
 
 class RyanHolmes(Process):
-    def _after_init(self):
-        super()._after_init()
-        self.field = field = self.get_field()
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
+
+        field = self.field
         self.gas = field.gas
         self.RH_process_tbl = field.model.ryan_holmes_process_tbl
         self.diesel_LHV = field.model.const("diesel-LHV")

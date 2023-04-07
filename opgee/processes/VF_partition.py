@@ -19,10 +19,10 @@ class VFPartition(Process):
     """
     VF (Venting and Flaring) partition is to check the reasonable amount of gas goes to venting, flaring and further process
     """
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
 
-    def _after_init(self):
-        super()._after_init()
-        self.field = field = self.get_field()
+        field = self.field
         self.gas = field.gas
         self.FOR = field.FOR
         self.mol_per_scf = field.model.const("mol-per-scf")
