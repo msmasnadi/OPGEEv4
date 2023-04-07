@@ -74,14 +74,15 @@ class WaterInjection(Process):
 
         pumping_press = diff_press + friction_loss - self.press_pump \
             if diff_press + friction_loss >= 0 else ureg.Quantity(0.0, "psia")
-        pumping_hp = pumping_press * single_well_water_volume / self.eta_pump
+        pumping_hp_single_well = pumping_press * single_well_water_volume / self.eta_pump
 
         # energy-use
-        water_pump_power = get_energy_consumption(self.prime_mover_type, pumping_hp)
+        water_pump_power_single_well = get_energy_consumption(self.prime_mover_type, pumping_hp_single_well)
+        total_water_pump_power = water_pump_power_single_well * self.num_water_inj_wells
         energy_use = self.energy
 
         energy_carrier = get_energy_carrier(self.prime_mover_type)
-        energy_use.set_rate(energy_carrier, water_pump_power)
+        energy_use.set_rate(energy_carrier, total_water_pump_power)
 
         # emission
         emissions = self.emissions

@@ -38,7 +38,6 @@ class HeavyOilUpgrading(Process):
 
         self.water = self.field.water
         self.water_density = self.water.density()
-        self.bitumen_API = field.API
 
     def check_enabled(self):
         if self.upgrader_type == "None":
@@ -49,14 +48,9 @@ class HeavyOilUpgrading(Process):
         field = self.field
 
         # mass rate
-        input_oil = self.find_input_stream("oil for upgrading", raiseError=False)
-        input_bitumen = self.find_input_stream("bitumen for upgrading", raiseError=False)
+        input_oil = self.find_input_streams("oil for upgrading", combine=True)
 
-        if input_oil is None and input_bitumen is None:
-            return
-
-        if (input_oil is not None and input_oil.is_uninitialized()) and \
-                (input_bitumen is not None and input_bitumen.is_uninitialized()):
+        if input_oil.is_uninitialized():
             return
 
         df = self.model.heavy_oil_upgrading
@@ -81,19 +75,17 @@ class HeavyOilUpgrading(Process):
 
         SCO_API = heavy_oil_upgrading_table["API gravity of resulting upgraded product output"]
         SCO_specific_gravity = field.oil.specific_gravity(SCO_API)
-        if input_oil and input_oil.is_initialized():
-            input_liquid_mass_rate = input_oil.liquid_flow_rate("oil")
-            input_liquid_SG = self.oil.oil_specific_gravity
-        elif input_bitumen and input_bitumen.is_initialized():
-            input_liquid_mass_rate = input_bitumen.liquid_flow_rate("oil")
-            input_liquid_SG = self.oil.specific_gravity(self.bitumen_API)
+
+        input_liquid_mass_rate = input_oil.liquid_flow_rate("oil")
+        input_liquid_SG = self.oil.specific_gravity(input_oil.API)
 
         input_liquid_vol_rate = input_liquid_mass_rate / (input_liquid_SG * self.water.density())
         SCO_output = input_liquid_vol_rate * SCO_bitumen_ratio
 
         SCO_output_mass_rate = SCO_output * SCO_specific_gravity * self.water_density
         SCO_to_storage = self.find_output_stream("oil for storage")
-        SCO_to_storage.set_liquid_flow_rate("oil", SCO_output_mass_rate)
+        SCO_to_storage.set_liquid_flow_rate("oil", SCO_output_mass_rate, tp=field.stp)
+        SCO_to_storage.set_API(SCO_API)
 
         # Process gas calculation
         proc_gas_dict = d["Process gas (PG) yield per bbl SCO output"] * SCO_output

@@ -46,12 +46,11 @@ OPGEE.ShowStackTrace = True
 # since this functionality is needed here and this avoids import loops.
 def unixPath(path, abspath=False):
     """
-    Convert a path to use Unix-style slashes, optionally
-    removing the final slash, if present.
+    Convert a path to use Unix-style slashes.
 
     :param path: (str) a pathname
-    :param rmFinalSlash: (bool) True if a final slash should
-           be removed, if present.
+    :param abspath: (bool) if True, the path is converted to an absolute path
+      using the current working directory as the starting point.
     :return: (str) the modified pathname
     """
 
@@ -63,19 +62,16 @@ def unixPath(path, abspath=False):
 
     return path
 
-def pathjoin(*elements, **kwargs):
+def pathjoin(*elements, expanduser=False, abspath=False, realpath=False):
     path = os.path.join(*elements)
 
-    if kwargs.get('expanduser'):
+    if expanduser:
         path = os.path.expanduser(path)
 
-    if kwargs.get('abspath'):
+    if abspath:
         path = os.path.abspath(path)
 
-    # if kwargs.get('normpath'):
-    #     path = os.path.normpath(path)
-
-    if kwargs.get('realpath'):
+    if realpath:
         path = os.path.realpath(path)
 
     return unixPath(path)

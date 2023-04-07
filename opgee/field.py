@@ -183,6 +183,7 @@ class Field(Container):
         self.natural_gas_to_liquefaction_frac = self.attr("natural_gas_to_liquefaction_frac")
         self.num_prod_wells = self.attr("num_prod_wells")
         self.num_water_inj_wells = self.attr("num_water_inj_wells")
+        self.num_gas_inj_wells = self.attr("num_gas_inj_wells")
         self.number_wells_dry = self.attr("number_wells_dry")
         self.number_wells_exploratory = self.attr("number_wells_exploratory")
         self.offshore = self.attr("offshore")
@@ -202,14 +203,14 @@ class Field(Container):
         self.steam_flooding = self.attr("steam_flooding")
         self.upgrader_type = self.attr("upgrader_type")  # used only in smart default
         self.volume_per_well_fractured = self.attr("volume_per_well_fractured")
-        self.VOR = self.attr("VOR")
+        self.frac_venting = self.attr("frac_venting")
         self.water_flooding = self.attr("water_flooding")
         self.water_reinjection = self.attr("water_reinjection")
         self.weight_land_survey = self.attr("weight_land_survey")
         self.weight_ocean_survey = self.attr("weight_ocean_survey")
         self.well_complexity = self.attr("well_complexity")
         self.well_size = self.attr("well_size")
-        self.wellhead_t = self.attr("wellhead_temperature")
+        self.wellhead_t = min(self.res_temp, self.attr("wellhead_temperature"))
         self.WIR = self.attr("WIR")
         self.WOR = self.attr("WOR")
 
@@ -526,6 +527,8 @@ class Field(Container):
         GOR_cutoff = self.attr("GOR_cutoff")
         oil_rate = self.attr("oil_prod")
         productivity = oil_rate * (GOR + self.attr("gas_lifting") * self.attr("GLIR"))
+        frac_wells_with_plunger = self.attr("frac_wells_with_plunger").m
+        frac_wells_with_non_plunger = self.attr("frac_wells_with_non_plunger").m
 
         if self.attr("gas_flooding") and self.attr("flood_gas_type") == "CO2":
             productivity += oil_rate * self.attr("GFIR") * self.attr("frac_CO2_breakthrough")
@@ -576,8 +579,16 @@ class Field(Container):
 
         separation_loss_rate = comp_fugitive['Separator']
         tank_loss_rate = comp_fugitive['Flash factor']
-        pump_loss_rate = comp_fugitive.drop('Separator')
-        pump_loss_rate = comp_fugitive.drop('Flash factor')
+        pump_loss_rate = comp_fugitive
+        pump_loss_rate.drop('Separator', inplace=True)
+        pump_loss_rate.drop('Flash factor', inplace=True)
+
+        if GOR > GOR_cutoff:
+            pump_loss_rate['LU-plunger-norm'] =\
+                pump_loss_rate['LU-plunger'] * frac_wells_with_plunger +\
+                pump_loss_rate['LU-no plunger'] * frac_wells_with_non_plunger
+            pump_loss_rate.drop('LU-plunger', inplace=True)
+            pump_loss_rate.drop('LU-no plunger', inplace=True)
         pump_loss_rate = pump_loss_rate.sum()
 
         compressor_list = ["SourGasCompressor", "GasReinjectionCompressor"]
@@ -591,6 +602,50 @@ class Field(Container):
         process_loss_rate = pd.Series(data=process_loss_rate_dict, dtype="pint[frac]")
 
         return process_loss_rate, loss_mat_gas_ave_df
+
+    def get_completion_and_workover_C1_rate(self):
+        """
+            Calculate the total C1 rate for completion and workover events in a well system.
+
+            This function takes into account the attributes 'is_flaring', 'is_REC', and 'frac_well_fractured'
+            to determine the C1 rates for completion and workover events. The calculation uses a dataframe
+            containing C1 rates for different scenarios of hydraulic fracturing, well type, flaring, and REC.
+
+            Returns:
+                float: The total C1 rate for completion and workover events in the well system.
+        """
+        oil_sands_mine = self.oil_sands_mine
+        completion_event = self.num_prod_wells if oil_sands_mine == "None" else ureg.Quantity(0, "frac")
+        workover_event = completion_event * self.attr("workovers_per_well")
+
+
+        is_flaring = self.attr("is_flaring")
+        is_REC = self.attr("is_REC")
+        frac_well_fractured = self.attr("frac_well_fractured")
+        df = self.model.well_completion_and_workover_C1_rate
+
+        def find_value(df, is_hydraulic_fracture, well_type, is_flaring, is_REC):
+            result = df.loc[
+                (df['is_hydraulic_fracture'] == is_hydraulic_fracture) &
+                (df['type'] == well_type) &
+                (df['is_flaring'] == is_flaring) &
+                (df['is_REC'] == is_REC)
+                ]
+
+            return result["value"].values[0] if not result.empty else ureg.Quantity(0, "tonne")
+
+
+        def calculate_C1_rate(event, well_type):
+            fracture_rate = find_value(df, 'Yes', well_type, is_flaring, is_REC)
+            no_fracture_rate = find_value(df, 'No', well_type, is_flaring, "No")
+
+            C1_rate = fracture_rate * frac_well_fractured + no_fracture_rate * (1 - frac_well_fractured)
+            return C1_rate * event
+
+        completion_C1_rate = calculate_C1_rate(completion_event, "Completion")
+        workover_C1_rate = calculate_C1_rate(workover_event, "Workover")
+
+        return (completion_C1_rate + workover_C1_rate) / self.field_production_lifetime
 
     def validate(self):
         """

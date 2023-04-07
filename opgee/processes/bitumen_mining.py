@@ -61,10 +61,9 @@ class BitumenMining(Process):
         self.upgrader_type = field.upgrader_type
         self.gas_comp = field.gas_comp
         self.FOR = field.FOR
-        self.VOR = field.VOR
-        self.bitumen_path_dict = {"Integrated with upgrader": "bitumen for upgrading",
-                                  "Integrated with diluent": "bitumen for dilution",
-                                  "Integrated with both": "bitumen for dilution"}
+        self.bitumen_path_dict = {"Integrated with upgrader": "oil for upgrading",
+                                  "Integrated with diluent": "oil for dilution",
+                                  "Integrated with both": "oil for dilution"}
 
         self.water = self.field.water
         self.water_density = self.water.density()
@@ -83,7 +82,9 @@ class BitumenMining(Process):
         output_bitumen = self.find_output_stream(output)
 
         output_tp = self.mined_bitumen_tp
-        output_bitumen.set_liquid_flow_rate("oil", bitumen_mass_rate, tp=output_tp)
+        output_bitumen.\
+            set_liquid_flow_rate("oil", bitumen_mass_rate, tp=output_tp)
+        output_bitumen.set_API(field.API)
         self.set_iteration_value(output_bitumen.total_flow_rate())
 
         d = self.model.mining_energy_intensity

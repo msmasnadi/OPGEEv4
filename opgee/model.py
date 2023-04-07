@@ -91,6 +91,9 @@ class Model(Container):
         self.productivity_gas = tbl_mgr.get_table("productivity-gas")
         self.productivity_oil = tbl_mgr.get_table("productivity-oil")
 
+        self.site_fugitive_processing_unit_breakdown = tbl_mgr.get_table("site-fugitive-processing-unit-breakdown")
+        self.well_completion_and_workover_C1_rate = tbl_mgr.get_table("well-completion-and-workover-C1-rate")
+
         # TBD: should these be settable per Analysis?
         # parameters controlling process cyclic calculations
         self.maximum_iterations = self.attr('maximum_iterations')
@@ -230,19 +233,30 @@ class Model(Container):
     def save_for_comparison(self, tuples, csvpath):
         import pandas as pd
 
-        cols = []
+        energy_cols = []
+        emission_cols = []
+
         for (field, analysis) in tuples:
             procs = field.processes()
-            energy_by_proc = {proc.name : magnitude(proc.energy.rates().sum()) for proc in procs}
+            energy_by_proc = {proc.name: magnitude(proc.energy.rates().sum()) for proc in procs}
             s = pd.Series(energy_by_proc, name=field.name)
-            cols.append(s)
+            energy_cols.append(s)
 
-        df = pd.concat(cols, axis='columns')
-        df.index.name = 'process'
-        df.sort_index(axis='rows', inplace=True)
+            emissions_by_proc =\
+                {proc.name: magnitude(proc.emissions.rates(analysis.gwp).loc["GHG"].sum()) for proc in procs}
+            s = pd.Series(emissions_by_proc, name=field.name)
+            emission_cols.append(s)
 
-        _logger.info(f"Writing '{csvpath}'")
-        df.to_csv(csvpath)
+        def _save(columns, csvpath):
+            df = pd.concat(columns, axis='columns')
+            df.index.name = 'process'
+            df.sort_index(axis='rows', inplace=True)
+
+            _logger.info(f"Writing '{csvpath}'")
+            df.to_csv(csvpath)
+
+        _save(energy_cols, "energy-" + csvpath)
+        _save(emission_cols, "emissions-" + csvpath)
 
     @classmethod
     def from_xml(cls, elt, analysis_names=None, field_names=None):

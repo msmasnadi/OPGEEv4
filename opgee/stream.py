@@ -123,7 +123,7 @@ class Stream(XmlInstantiable, AttributeMixin):
 
     _units = ureg.Unit('tonne/day')
 
-    def __init__(self, name, tp,
+    def __init__(self, name, tp=None, API=None,
                  src_name=None, dst_name=None, comp_matrix=None,
                  contents=None, impute=True):
         super().__init__(name)
@@ -145,6 +145,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.src_proc = None  # set in Field.connect_processes()
         self.dst_proc = None
         self.field = None
+        self.API = API
 
         self.contents = contents or []  # generic description of what the stream carries
 
@@ -299,6 +300,11 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.components.loc[name, phase] = magnitude(rate, units="tonne/day")
         self.initialized = True
 
+    def set_API(self, API):
+        if not isinstance(API, ureg.Quantity):
+            API = ureg.Quantity(API, "degAPI")
+        self.API = API
+
     #
     # Convenience functions
     #
@@ -435,7 +441,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         self.tp = copy(tp)
         self.initialized = True
 
-    def copy_flow_rates_from(self, stream, phase=None, tp=None):
+    def copy_flow_rates_from(self, stream, phase=None, tp=None, API=None):
         """
         Copy all mass flow rates from ``stream`` to ``self``
 
@@ -453,12 +459,17 @@ class Stream(XmlInstantiable, AttributeMixin):
         else:
             self.components[self.components.columns] = stream.components
 
+        if API:
+            self.API = API
+        else:
+            self.API = stream.API
+
         self.electricity = stream.electricity
         self.tp.copy_from(tp or stream.tp)
 
         self.initialized = True
 
-    def copy_gas_rates_from(self, stream, tp=None):
+    def copy_gas_rates_from(self, stream, tp=None, API=None):
         """
         Copy gas mass flow rates from ``stream`` to ``self``
 
@@ -468,6 +479,11 @@ class Stream(XmlInstantiable, AttributeMixin):
 
         if stream.is_uninitialized():
             raise OpgeeException(f"Can't copy from uninitialized stream: {stream}")
+
+        if API:
+            self.API = stream.API
+        else:
+            self.API = API
 
         self.initialized = True
         self.components[PHASE_GAS] = stream.components[PHASE_GAS]
@@ -597,13 +613,15 @@ class Stream(XmlInstantiable, AttributeMixin):
 
         # There should be 2 attributes: temperature and pressure
         attr_dict = cls.instantiate_attrs(elt)
-        expected = {'temperature', 'pressure'}
+        expected = {'temperature', 'pressure', 'API'}
         if set(attr_dict.keys()) != expected:
-            raise OpgeeException(f"Stream {name}: expected 2 attributes, {expected}")
+            raise OpgeeException(f"Stream {name}: expected  attributes {sorted(expected)}")
 
         temp = attr_dict['temperature'].value
         pres = attr_dict['pressure'].value
         tp = TemperaturePressure(temp, pres)
+
+        API = attr_dict['API'].value
 
         contents = [node.text for node in elt.findall('Contains')]
 
@@ -632,7 +650,7 @@ class Stream(XmlInstantiable, AttributeMixin):
         else:
             matrix = None  # let the stream create it
 
-        obj = Stream(name, tp, comp_matrix=matrix, src_name=src, dst_name=dst,
+        obj = Stream(name, tp=tp, API=API, comp_matrix=matrix, src_name=src, dst_name=dst,
                      contents=contents, impute=impute)
 
         return obj

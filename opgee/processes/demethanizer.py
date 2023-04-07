@@ -29,7 +29,7 @@ class Demethanizer(Process):
         self.gas = field.gas
         self.feed_press_demethanizer = self.attr("feed_press_demethanizer")
         self.column_pressure = self.attr("column_pressure")
-        self.methane_to_NLG_ratio = self.attr("methane_to_NLG_ratio")
+        self.methane_to_LPG_ratio = self.attr("methane_to_LPG_ratio")
         self.demethanizer_tbl = field.model.demethanizer
         self.mol_per_scf = field.model.const("mol-per-scf")
         self.eta_reboiler_demethanizer = self.attr("eta_reboiler_demethanizer")
@@ -49,25 +49,26 @@ class Demethanizer(Process):
 
         # mass rate
         input = self.find_input_stream("gas for demethanizer")
-        if input.is_uninitialized():
+        processing_unit_loss_rate_df = field.get_process_data("processing_unit_loss_rate_df")
+        if input.is_uninitialized() or  processing_unit_loss_rate_df is None:
             return
 
-        loss_rate = self.venting_fugitive_rate()
+        loss_rate = processing_unit_loss_rate_df.T[self.name].values[0]
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
         # Demethanizer modeling based on Aspen HYSYS
         # Input values for variable getting from HYSYS
         variable_bound_dict = {"feed_gas_press": [600.0, 1000.0],  # unit in psia
                                "column_press": [155.0, 325.0],  # unit in psia
-                               "methane_to_NGL_ratio": [0.01, 0.05],
+                               "methane_to_LPG_ratio": [0.01, 0.05],
                                "inlet_C1_mol_frac": [0.50, 0.95],
                                "inlet_C2_mol_frac": [0.05, 0.95]}
         feed_gas_press =\
             get_bounded_value(self.feed_press_demethanizer.to("psia").m, "feed_gas_press", variable_bound_dict)
         column_press =\
             get_bounded_value(self.column_pressure.to("psia").m, "column_press", variable_bound_dict)
-        methane_to_NGL_ratio =\
-            get_bounded_value(self.methane_to_NLG_ratio.to("frac").m, "methane_to_NGL_ratio", variable_bound_dict)
+        methane_to_LPG_ratio =\
+            get_bounded_value(self.methane_to_LPG_ratio.to("frac").m, "methane_to_LPG_ratio", variable_bound_dict)
 
         feed_gas_mol_frac = self.gas.component_molar_fractions(input)
 
@@ -93,7 +94,7 @@ class Demethanizer(Process):
 
         x1 = feed_gas_press
         x2 = column_press
-        x3 = methane_to_NGL_ratio
+        x3 = methane_to_LPG_ratio
         x4 = inlet_C1_mol_frac
         x5 = inlet_C2_mol_frac
         corr_result_df = run_corr_eqns(x1, x2, x3, x4, x5, self.demethanizer_tbl)
@@ -129,12 +130,12 @@ class Demethanizer(Process):
         gas_to_gather.subtract_rates_from(gas_fugitives)
         gas_to_gather.set_rates_from_series(fuel_gas_mass, PHASE_GAS, upper_bound_stream=input)
 
-        gas_to_LNG = self.find_output_stream("gas for NGL")
-        gas_to_LNG.copy_flow_rates_from(input)
-        gas_to_LNG.tp.set(T=STP.T)
-        gas_to_LNG.subtract_rates_from(gas_to_gather)
+        gas_to_LPG = self.find_output_stream("gas for NGL")
+        gas_to_LPG.copy_flow_rates_from(input)
+        gas_to_LPG.tp.set(T=STP.T)
+        gas_to_LPG.subtract_rates_from(gas_to_gather)
 
-        self.set_iteration_value(gas_to_gather.total_flow_rate() + gas_to_LNG.total_flow_rate())
+        self.set_iteration_value(gas_to_gather.total_flow_rate() + gas_to_LPG.total_flow_rate())
 
         # TODO: ethane to petrochemicals
 

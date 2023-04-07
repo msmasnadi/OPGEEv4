@@ -184,7 +184,7 @@
   <xs:element name='Stream'>
     <xs:complexType>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
-        <xs:element minOccurs="2" maxOccurs="2" ref='A'/>
+        <xs:element minOccurs="0" maxOccurs="3" ref='A'/>
         <xs:element ref='Component'/>
         <xs:element ref="Contains"/>
       </xs:choice>

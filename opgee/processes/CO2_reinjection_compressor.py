@@ -53,7 +53,7 @@ class CO2ReinjectionCompressor(Process):
         if input.is_uninitialized():
             return
 
-        loss_rate = self.venting_fugitive_rate()
+        loss_rate = self.get_compressor_and_well_loss_rate(input)
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
         # Calculate discharge pressure and iterate over input streams
@@ -62,7 +62,7 @@ class CO2ReinjectionCompressor(Process):
         input_streams = self.find_input_streams("gas for CO2 compressor")
         for _, input_stream in input_streams.items():
             overall_compression_ratio = discharge_press / input_stream.tp.P
-            energy_consumption, out_temp, _ = Compressor.get_compressor_energy_consumption(self.field,
+            energy_consumption, out_temp, _ = Compressor.get_compressor_energy_consumption(field,
                                                                                        self.prime_mover_type,
                                                                                        self.eta_compressor,
                                                                                        overall_compression_ratio,

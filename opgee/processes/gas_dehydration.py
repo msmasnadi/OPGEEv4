@@ -56,13 +56,15 @@ class GasDehydration(Process):
 
     def run(self, analysis):
         self.print_running_msg()
+        field = self.field
 
         # mass rate
         input = self.find_input_stream("gas for gas dehydration")
-        if input.is_uninitialized():
+        processing_unit_loss_rate_df = field.get_process_data("processing_unit_loss_rate_df")
+        if input.is_uninitialized() or processing_unit_loss_rate_df is None:
             return
 
-        loss_rate = self.venting_fugitive_rate()
+        loss_rate = processing_unit_loss_rate_df.T[self.name].values[0]
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
         try:

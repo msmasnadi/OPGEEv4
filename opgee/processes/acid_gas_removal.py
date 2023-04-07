@@ -66,6 +66,14 @@ class AcidGasRemoval(Process):
         self.gas = field.gas
         self.type_amine = self.attr("type_amine")
         self.ratio_reflux_reboiler = self.attr("ratio_reflux_reboiler")
+        # TODO: Add this to smart default mode
+        self.gas_comp_H2S = field.attr("gas_comp_H2S")
+        if self.gas_comp_H2S < ureg.Quantity(1, "percent"):
+            self.type_amine = "conv DEA"
+        else:
+            self.type_amine = "MDEA"
+            self.ratio_reflux_reboiler = ureg.Quantity(7.0, "frac")
+
         self.AGR_feedin_press = field.AGR_feedin_press
         self.regeneration_temp = self.attr("regeneration_temp")
         self.eta_reboiler = self.attr("eta_reboiler")
@@ -93,10 +101,11 @@ class AcidGasRemoval(Process):
 
         # Calculate mass rate
         gas_input_stream = self.find_input_streams("gas for AGR", combine=True)
-        if gas_input_stream.is_uninitialized():
+        processing_unit_loss_rate_df = field.get_process_data("processing_unit_loss_rate_df")
+        if gas_input_stream.is_uninitialized() or processing_unit_loss_rate_df is None:
             return
 
-        loss_rate = self.venting_fugitive_rate()
+        loss_rate = processing_unit_loss_rate_df.T[self.name].values[0]
         gas_fugitives = self.set_gas_fugitives(gas_input_stream, loss_rate)
 
         CO2_feed_mass_rate = gas_input_stream.gas_flow_rate("CO2")
@@ -116,6 +125,9 @@ class AcidGasRemoval(Process):
             gas_to_CO2_reinjection.copy_flow_rates_from(gas_input_stream)
             gas_to_CO2_reinjection.subtract_rates_from(output_gas)
             gas_to_CO2_reinjection.subtract_rates_from(gas_fugitives)
+        else:
+            CO2_fugitive_mass_rate = CO2_feed_mass_rate - CO2_to_demethanizer
+            gas_fugitives.set_gas_flow_rate("CO2", CO2_fugitive_mass_rate)
 
         feed_gas_mol_frac = self.gas.component_molar_fractions(gas_input_stream)
         mol_frac_H2S = feed_gas_mol_frac["H2S"] if "H2S" in feed_gas_mol_frac else ureg.Quantity(0, "frac")
@@ -125,7 +137,7 @@ class AcidGasRemoval(Process):
             _logger.warning(f"Feed gas does not contain H2S and CO2, please consider using non-AGR gas processing path")
             return
 
-        if mol_frac_H2S.m <= 0.2 and mol_frac_CO2 <= 0.15:
+        if mol_frac_H2S.m <= 0.15 and mol_frac_CO2 <= 0.2:
             compressor_energy_consumption, reboiler_fuel_use, electricity_consump =\
                 self.calculate_energy_consumption_from_Aspen(gas_input_stream, output_gas, mol_frac_CO2, mol_frac_H2S)
         else:
@@ -138,10 +150,6 @@ class AcidGasRemoval(Process):
         energy_use.set_rate(energy_carrier, compressor_energy_consumption + reboiler_fuel_use)
         energy_use.add_rate("Electricity", electricity_consump) \
             if energy_carrier == "Electricty" else energy_use.set_rate("Electricity", electricity_consump)
-
-
-        # import/export
-        self.set_import_from_energy(energy_use)
 
         # emissions
         emissions = self.emissions
@@ -175,8 +183,7 @@ class AcidGasRemoval(Process):
         mol_frac_H2S = get_bounded_value(mol_frac_H2S.to("frac").m, "mol_frac_H2S", variable_bound_dict)
 
         # Set the type of amine based on the mol_frac_H2S value
-        if mol_frac_H2S > 0.01:
-            self.type_amine = "MDEA"
+        if self.type_amine == "MDEA":
             variable_bound_dict["reflux_ratio"] = [6.5, 8.0]
 
         # Bound the values for reflux_ratio, regen_temp, and feed_gas_press using the defined bounds

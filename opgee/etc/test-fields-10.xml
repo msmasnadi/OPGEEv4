@@ -48,7 +48,7 @@
       <A name="upgrader_type">None</A>
       <A name="gas_processing_path">Acid Wet Gas</A>
       <A name="FOR">302.7605199</A>
-      <A name="VOR">0.002</A>
+      <A name="frac_venting">0.002</A>
       <Process class="HeavyOilDilution">
         <A name="fraction_diluent">0.0</A>
       </Process>
