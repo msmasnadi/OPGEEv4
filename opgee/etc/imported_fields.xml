@@ -50,7 +50,6 @@
       <A desc="Upgrader type" name="upgrader_type">0</A>
       <A desc="Associated Gas Processing Path" name="gas_processing_path">5</A>
       <A desc="Flaring-to-oil ratio" name="FOR" unit="scf/bbl oil">143</A>
-      <A desc="Venting-to-oil ratio (purposeful)" name="VOR" unit="scf/bbl oil">5</A>
       <A desc="Volume fraction of diluent" name="fraction_diluent">0</A>
       <A desc="Low ecosystem carbon richness" name="low_carbon_richness">0</A>
       <A desc="Moderate ecosystem carbon richness" name="med_carbon_richness">1</A>
