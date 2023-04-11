@@ -8,6 +8,7 @@ from .merge_plugin import MergeCommand
 from .gensim_plugin import GensimCommand
 from .runsim_plugin import RunsimCommand
 #from .genwor_plugin import GenworCommand
+from .runmany_plugin import RunManyCommand
 
 BuiltinSubcommands = [
     CompareCommand,
@@ -22,5 +23,6 @@ BuiltinSubcommands = [
     MergeCommand,
     # RayCommand,
     RunCommand,
+    RunManyCommand,
     RunsimCommand,
 ]

@@ -89,7 +89,7 @@ class Boundary_proc_4(Process):
 
 
 def test_intermediate_boundary():
-    model_file = ModelFile.from_xml_string(xml_string)
+    model_file = ModelFile.from_xml_string(xml_string, use_default_model=False)
     model = model_file.model
     analysis = model.get_analysis('test')
     analysis.run(compute_ci=False)

@@ -57,6 +57,19 @@ class ModelCache(object):
 
         return obj
 
+def analysis_names(model_xml):
+    """
+    Return the names of all <Analysis> elements in the file ``model_xml``.
+
+    :param model_xml: (str) the pathname of an OPGEE model XML file.
+    :return: (list of str) the names of the analyses found
+    """
+    xml_file_obj = ModelCache.get_xml_file(model_xml)
+
+    root = xml_file_obj.getRoot()
+    analyses = root.xpath(f'/Model/Analysis/@name')
+    return analyses
+
 def fields_for_analysis(model_xml, analysis_name):
     """
     Return a list of the names of Fields in the Analysis
@@ -78,7 +91,8 @@ def fields_for_analysis(model_xml, analysis_name):
     _logger.debug(timer.stop())
     return fields
 
-def write_tmp_xml_file(model_xml, analysis_name, field_name):
+
+def _get_tmp_xml_file(model_xml, analysis_name, field_name, as_string=False):
     """
     Save an XML model file to the temp folder identified by config variable
     OPGEE.TempDir (in a subdirectory "extracted_xml") by extracting the Field
@@ -88,8 +102,12 @@ def write_tmp_xml_file(model_xml, analysis_name, field_name):
     :param model_xml: (str) the pathname of an OPGEE model XML file
     :param analysis_name: (str) the name of an Analysis
     :param field_name: (str) the name of the Field to extract
-    :return: (str) the pathname of a file under {OPGEE.TempFile}/extracted_xml.
-        Note that it's the caller's responsibility to remove the temp file.
+    :param as_string: (bool) whether to return a string representation of the
+       model XML or a pathname to a temporary file (the default).
+    :return: (str) if ``as_string`` is False, returns the pathname of a file
+        under {OPGEE.TempFile}/extracted_xml. Note that it's the caller's
+        responsibility to remove the temp file. If ``as_string`` is True, a
+        string representation of the model XML is returned.
     """
     from lxml import etree as ET
 
@@ -107,25 +125,30 @@ def write_tmp_xml_file(model_xml, analysis_name, field_name):
         raise OpgeeException(f"Field '{field_name}' appears multiple times in model XML")
 
     extracted_field = found[0]
-    tmp_dir = pathjoin(getParam('OPGEE.TempDir'), 'extracted_xml')
-    mkdirs(tmp_dir)
 
     # Create a model with just the extracted Field and surrounding elements
     model = ET.Element('Model')
     analysis = ET.SubElement(model, 'Analysis', name=analysis_name)
     analysis.append(deepcopy(extracted_field))
-    tree = ET.ElementTree(model)
+
+    if as_string:
+        xml_string = ET.tostring(model, pretty_print=True, encoding="unicode")
+        return xml_string
 
     # replaces spaces with underscores
     field_name = field_name.replace(' ', '_')
+    tmp_dir = pathjoin(getParam('OPGEE.TempDir'), 'extracted_xml')
+    mkdirs(tmp_dir)
     xml_file = pathjoin(tmp_dir, field_name + '.xml')
 
     # Write the XML to a file in tmp_dir
+    tree = ET.ElementTree(model)
     tree.write(xml_file, xml_declaration=True, pretty_print=True, encoding='utf-8')
 
     return xml_file
 
-def extracted_model(model_xml, analysis_name, field_names=None):
+
+def extracted_model(model_xml, analysis_name, field_names=None, as_string=False):
     """
     Generator to return temp files with extracted model for each Field in
     `field_names`` or all the Fields in ``analysis_name`` if ``field_names``
@@ -135,13 +158,18 @@ def extracted_model(model_xml, analysis_name, field_names=None):
     :param analysis_name: (str) the name of the analysis to use
     :param field_names: (list of str) names of Fields to extract. If None,
         all Fields in the given Analysis are extracted.
-    :return: (str, str) a tuple of two strings: the next Field name and the
-        pathname of the extracted model XML for that Field.
+    :param as_string: (bool) whether to return a string representation of the
+       model XML or a pathname to a temporary file (the default).
+    :return: (str, str) a tuple of two strings: the next Field name and (if
+        ``as_string`` is False) the pathname of the extracted model XML for that
+        Field, or (if ``as_string`` is True), a string representation of the
+        model XML for that Field.
     """
     field_names = field_names or fields_for_analysis(model_xml, analysis_name)
 
     for field_name in field_names:
-        yield field_name, write_tmp_xml_file(model_xml, analysis_name, field_name)
+        yield field_name, _get_tmp_xml_file(model_xml, analysis_name,
+                                            field_name, as_string=as_string)
 
 
 class ModelFile(XMLFile):
@@ -330,31 +358,34 @@ class ModelFile(XMLFile):
             model.set_pathnames(pathnames)
 
     @classmethod
-    def from_xml_string(cls, xml_string):
+    def from_xml_string(cls, xml_string, add_stream_components=True,
+                 use_class_path=True, use_default_model=True,
+                 analysis_names=None, field_names=None):
         """
         Create a ModelFile instance from an XML string representing the XML model structure.
         This provides an alternative to storing the model in a separate XML file, e.g., for
         keeping all test code in one Python file.
 
+        All keyword args are passed through to ModelFile().
+
         :param xml_string: (str) String representation of a <Model> structure and all
             nested elements.
         :return: (opgee.ModelFile) the ModelFile instance.
         """
-
-       ######## TBD: use ModelFile(xml_string=xml_string) instead of writing this file
         import os
         from tempfile import mkstemp
 
         fd, tmp_file = mkstemp(suffix='.xml', text=True)
         os.write(fd, str.encode(xml_string))
         os.close(fd)
-        #######
 
         try:
             model_file = ModelFile([tmp_file], # TBD: use xml_string=xml_string instead of tmp_file
-                                   add_stream_components=False,
-                                   use_class_path=False,
-                                   use_default_model=False,
+                                   add_stream_components=add_stream_components,
+                                   use_class_path=use_class_path,
+                                   use_default_model=use_default_model,
+                                   analysis_names=analysis_names,
+                                   field_names=field_names,
                                    instantiate_model=True,
                                    save_to_path=None)
         except Exception as e:
