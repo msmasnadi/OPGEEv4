@@ -314,7 +314,6 @@ class Field(Container):
         """
         from .core import Timer
 
-
         if self.is_enabled():
             timer = Timer('field.run').start()
 
