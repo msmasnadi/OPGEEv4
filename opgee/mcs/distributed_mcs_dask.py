@@ -2,7 +2,7 @@ import asyncio
 import dask
 from dask_jobqueue import SLURMCluster
 from dask.distributed import Client, LocalCluster, as_completed
-import traceback
+# import traceback
 
 # To debug dask, uncomment the following 2 lines
 # import logging
