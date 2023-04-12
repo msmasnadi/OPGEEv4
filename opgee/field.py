@@ -22,6 +22,7 @@ from .log import getLogger
 from .process import Process, Aggregator, Reservoir, decache_subclasses
 from .process_groups import ProcessChoice
 from .processes.steam_generator import SteamGenerator
+from .processes.transport_energy import TransportEnergy
 from .smart_defaults import SmartDefault
 from .stream import Stream
 from .thermodynamics import Oil, Gas, Water
@@ -174,7 +175,8 @@ class Field(Container):
         self.WIR = self.attr("WIR")
         self.WOR = self.attr("WOR")
 
-        self.steam_generator = SteamGenerator(self) # N.B. accesses field.SOR
+        self.steam_generator = SteamGenerator(self)
+        self.transport_energy = TransportEnergy(self)# N.B. accesses field.SOR
 
     # Used by validate() to descend model hierarchy
     def _children(self):

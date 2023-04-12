@@ -17,28 +17,37 @@ from ..energy import EN_DIESEL
 class TransportEnergy(OpgeeObject):
     def __init__(self, field):
         self.field = field
+        self.pipeline_dest_orig_energy_intensity = ureg.Quantity(0.0, "btu/tonne/mile")
+        self.rail_dest_orig_energy_intensity = ureg.Quantity(200.0, "btu/tonne/mile")
+        self.energy_intensity_truck = ureg.Quantity(969.0, "btu/(tonne*mile)")
+        self.truck_dest_orig_energy_intensity = self.energy_intensity_truck
+        self.residual_oil_LHV = field.model.const("residual-oil-LHV")
+        self.residual_oil_density = field.model.const("residual-oil-density")
 
-    # TODO: if you need to call other methods of the class, then don't make it a @staticmethod
-    #       Then you can just call self.get_water_transport_energy_consumption() rather than using the
-    #       classname. Embedding the class name prevents the class from being subclassed, since the
-    #       subclass will still refer to the hardcoded classname rather than the new subclass.
-
-    @staticmethod
-    def get_transport_energy_dict(field,
+    def get_transport_energy_dict(self,
+                                  field,
                                   parameter_table,
                                   transport_share_fuel,
                                   transport_by_mode,
                                   LHV_rate,
                                   prod_type):
+        """
+            Calculate transport energy consumption and return fuel consumption for different transport modes.
+
+            :param field: Field object containing process data
+            :param parameter_table: DataFrame with transport parameters
+            :param transport_share_fuel: DataFrame with transport fuel share
+            :param transport_by_mode: DataFrame with transport fractions and distances
+            :param LHV_rate: LHV rate for the product type
+            :param prod_type: , can be "diluent", "lng", "crude", or "petrocoke"
+            :return: Fuel consumption for different transport modes
+        """
         known_types = ["diluent", "lng", "crude", "petrocoke"]
         prod_type = prod_type.lower()
         if prod_type not in known_types:
             raise OpgeeException(f"{prod_type} is not in the known product type: {known_types}")
 
         parameter_dict = TransportEnergy.get_parameter_dict(parameter_table)
-
-        # TODO: is it necessary to say "ocean_tanker" rather than just "tanker"? Longer names
-        #       that don't add clarity are worse than clear, shorter names.
         ocean_tanker_load_factor_dest = parameter_dict["load_factor_to_dest_tanker"]
         barge_load_factor_dest = parameter_dict["load_factor_to_dest_barge"]
         ocean_tanker_load_factor_origin = parameter_dict["load_factor_to_orig_tanker"]
@@ -54,118 +63,67 @@ class TransportEnergy(OpgeeObject):
         energy_intensity_pipeline_engine_future = parameter_dict["energy_intensity_pipeline_engine_future"]
         frac_power_pipeline_engine_future = parameter_dict["frac_power_pipeline_engine_future"]
         energy_intensity_rail_transport = parameter_dict["energy_intensity_rail_to_dest"]
-        energy_intensity_truck = ureg.Quantity(969.0, "btu/(tonne*mile)")
         feed_loss = parameter_dict["feed_loss"]
         fraction_transport = transport_by_mode["Fraction"]
         transport_distance = transport_by_mode["Distance"]
-        residual_oil_LHV = field.model.const("residual-oil-LHV")
-        residual_oil_density = field.model.const("residual-oil-density")
-
-        # TODO: Avoid redundant code by distilling out the commonality and calling a local function, e.g.,
-        def transp_energy(load_factor, mode):
-            # TODO: try to find shorter meaningful names, like TransportEnergy.maritime_energy_use()
-            #       Long names are tedious to read and force strange formatting of the code, which is also harder to read.
-            return TransportEnergy.get_water_transport_energy_consumption(
-                residual_oil_LHV,
-                residual_oil_density,
-                load_factor, mode)
-
-        # TODO: then you can do this. Use same approach below for transport_energy_density()
-        # ocean_tanker_orig_dest_energy_consumption = transp_energy(ocean_tanker_load_factor_dest, "tanker")
-
-        ocean_tanker_orig_dest_energy_consumption = \
-            TransportEnergy.get_water_transport_energy_consumption(
-                residual_oil_LHV,
-                residual_oil_density,
-                ocean_tanker_load_factor_dest,
-                "tanker")
-        ocean_tanker_dest_orig_energy_consumption = \
-            TransportEnergy.get_water_transport_energy_consumption(
-                residual_oil_LHV,
-                residual_oil_density,
-                ocean_tanker_load_factor_origin,
-                "tanker")
-        barge_orig_dest_energy_consumption = \
-            TransportEnergy.get_water_transport_energy_consumption(
-                residual_oil_LHV,
-                residual_oil_density,
-                barge_load_factor_dest,
-                "barge")
-        barge_dest_orig_energy_consumption = \
-            TransportEnergy.get_water_transport_energy_consumption(
-                residual_oil_LHV,
-                residual_oil_density,
-                barge_load_factor_origin,
-                "barge")
-
-        ocean_tanker_hp = ureg.Quantity(9070 + 0.101 * ocean_tanker_size.m, "hp")
-        barge_hp = ureg.Quantity(5600 / 22500 * barge_capacity.m, "hp")
 
         ocean_tanker_orig_dest_energy_intensity = \
             TransportEnergy.transport_energy_intensity(
-                ocean_tanker_speed,
-                ocean_tanker_size,
-                barge_capacity,
-                barge_speed,
-                ocean_tanker_orig_dest_energy_consumption,
+                self.residual_oil_LHV,
+                self.residual_oil_density,
                 ocean_tanker_load_factor_dest,
-                ocean_tanker_hp,
-                "tanker")
+                "tanker",
+                ocean_tanker_speed=ocean_tanker_speed,
+                ocean_tanker_size=ocean_tanker_size,
+            )
+
+        ocean_tanker_dest_orig_energy_intensity = \
+            TransportEnergy.transport_energy_intensity(
+                self.residual_oil_LHV,
+                self.residual_oil_density,
+                ocean_tanker_load_factor_origin,
+                "tanker",
+                ocean_tanker_speed=ocean_tanker_speed,
+                ocean_tanker_size=ocean_tanker_size,
+            )
+
         barge_orig_dest_energy_intensity = \
             TransportEnergy.transport_energy_intensity(
-                ocean_tanker_speed,
-                ocean_tanker_size,
-                barge_capacity,
-                barge_speed,
-                barge_orig_dest_energy_consumption,
+                self.residual_oil_LHV,
+                self.residual_oil_density,
                 barge_load_factor_dest,
-                barge_hp,
-                "barge")
+                "barge",
+                barge_capacity=barge_capacity,
+                barge_speed=barge_speed,
+            )
+
+        barge_dest_orig_energy_intensity = \
+            TransportEnergy.transport_energy_intensity(
+                self.residual_oil_LHV,
+                self.residual_oil_density,
+                barge_load_factor_origin,
+                "barge",
+                barge_capacity=barge_capacity,
+                barge_speed=barge_speed,
+            )
+
         pipeline_orig_dest_energy_intensity = (energy_intensity_pipeline_turbine *
                                                frac_power_pipeline_turbine +
                                                energy_intensity_pipeline_engine_current *
                                                frac_power_pipeline_engine_current +
                                                energy_intensity_pipeline_engine_future *
                                                frac_power_pipeline_engine_future)
-        ocean_tanker_dest_orig_energy_intensity = \
-            TransportEnergy.transport_energy_intensity(
-                ocean_tanker_speed,
-                ocean_tanker_size,
-                barge_capacity,
-                barge_speed,
-                ocean_tanker_dest_orig_energy_consumption,
-                ocean_tanker_load_factor_origin,
-                ocean_tanker_hp,
-                "tanker")
-        barge_dest_orig_energy_intensity = \
-            TransportEnergy.transport_energy_intensity(
-                ocean_tanker_speed,
-                ocean_tanker_size,
-                barge_capacity,
-                barge_speed,
-                barge_dest_orig_energy_consumption,
-                barge_load_factor_origin,
-                barge_hp,
-                "barge")
 
-        pipeline_dest_orig_energy_intensity = ureg.Quantity(0.0, "btu/tonne/mile")
-        rail_dest_orig_energy_intensity = ureg.Quantity(200.0, "btu/tonne/mile")
-        truck_dest_orig_energy_intensity = energy_intensity_truck
 
         transport_orig_dest_energy_consumption = \
             pd.Series([ocean_tanker_orig_dest_energy_intensity, barge_orig_dest_energy_intensity,
                        pipeline_orig_dest_energy_intensity, energy_intensity_rail_transport,
-                       energy_intensity_truck], dtype="pint[btu/tonne/mile]")
-
-        # save to the field and retrieve them from exploration
-        if prod_type == "crude":
-            field.save_process_data(ocean_tanker_dest_energy_intensity=ocean_tanker_orig_dest_energy_intensity)
-            field.save_process_data(energy_intensity_truck=energy_intensity_truck)
+                       self.energy_intensity_truck], dtype="pint[btu/tonne/mile]")
 
         transport_dest_origin_energy_consumption = \
             pd.Series([ocean_tanker_dest_orig_energy_intensity, barge_dest_orig_energy_intensity,
-                       pipeline_dest_orig_energy_intensity, rail_dest_orig_energy_intensity,
-                       truck_dest_orig_energy_intensity], dtype="pint[btu/tonne/mile]")
+                       self.pipeline_dest_orig_energy_intensity, self.rail_dest_orig_energy_intensity,
+                       self.truck_dest_orig_energy_intensity], dtype="pint[btu/tonne/mile]")
 
         if prod_type == "diluent":
             denominator = field.get_process_data("final_diluent_LHV_mass")
@@ -190,6 +148,32 @@ class TransportEnergy(OpgeeObject):
 
         return fuel_consumption
 
+    def get_ocean_tanker_dest_energy_intensity(self, parameter_table):
+        """
+            Calculate the energy intensity for ocean tankers from origin to destination.
+
+            :param parameter_table: DataFrame with transport parameters
+            :return: Energy intensity for ocean tankers from origin to destination (unit: btu/tonne/mile)
+        """
+
+        parameter_dict = TransportEnergy.get_parameter_dict(parameter_table)
+        ocean_tanker_load_factor_dest = parameter_dict["load_factor_to_dest_tanker"]
+        ocean_tanker_speed = parameter_dict["speed_tanker"]
+        ocean_tanker_size = parameter_dict["ocean_tanker_size"]
+
+        ocean_tanker_orig_dest_energy_intensity = \
+            TransportEnergy.transport_energy_intensity(
+                self.residual_oil_LHV,
+                self.residual_oil_density,
+                ocean_tanker_load_factor_dest,
+                "tanker",
+                ocean_tanker_speed=ocean_tanker_speed,
+                ocean_tanker_size=ocean_tanker_size,
+            )
+
+        return ocean_tanker_orig_dest_energy_intensity
+
+
     @staticmethod
     def get_parameter_dict(parameter_table):
         """
@@ -207,50 +191,34 @@ class TransportEnergy(OpgeeObject):
         return parameter_dict
 
     @staticmethod
-    def get_water_transport_energy_consumption(residual_oil_LHV, residual_oil_density, load_factor, type):
+    def transport_energy_intensity(residual_oil_LHV, residual_oil_density, load_factor, type, ocean_tanker_speed=None,
+                                   ocean_tanker_size=None, barge_capacity=None, barge_speed=None):
         """
-        calculate the water transport energy consumption
+        Calculate transport energy intensity using load factor and water transport energy consumption.
 
-        :param residual_oil_density:
-        :param residual_oil_LHV:
-        :param type: (str) "tanker" or "barge"
-        :param load_factor:
-        :return: (float) energy consumption (unit = btu/hp/hr)
+        :param residual_oil_LHV: (pint.Quantity) Lower heating value of residual oil.
+        :param residual_oil_density: (pint.Quantity) Density of residual oil.
+        :param load_factor: (pint.Quantity) Load factor for the transport.
+        :param type: (str) Transport type: "tanker" or "barge".
+        :param ocean_tanker_speed: (pint.Quantity, optional) Speed of the ocean tanker, required if type is "tanker".
+        :param ocean_tanker_size: (pint.Quantity, optional) Size of the ocean tanker, required if type is "tanker".
+        :param barge_capacity: (pint.Quantity, optional) Capacity of the barge, required if type is "barge".
+        :param barge_speed: (pint.Quantity, optional) Speed of the barge, required if type is "barge".
+        :param hp: (pint.Quantity, optional) Horsepower of the transport, required for energy consumption calculation.
+        :return: (float) Transport energy intensity.
         """
+
         known_types = ["tanker", "barge"]
         if type not in known_types:
             raise OpgeeException(f"{type} is not in the known transport type: {known_types}")
 
+        # Calculate water transport energy consumption
         const = 150 if type == "tanker" else 350
-        result = (14.42 / load_factor.m + const) * 0.735 * residual_oil_LHV.m / residual_oil_density.m
-        return ureg.Quantity(result, "btu/hp/hr")
+        energy_consumption = (14.42 / load_factor.m + const) * 0.735 * residual_oil_LHV.m / residual_oil_density.m
+        energy_consumption = ureg.Quantity(energy_consumption, "btu/hp/hr")
 
-    @staticmethod
-    def transport_energy_intensity(ocean_tanker_speed,
-                                   ocean_tanker_size,
-                                   barge_capacity,
-                                   barge_speed,
-                                   energy_consumption,
-                                   load_factor,
-                                   hp,
-                                   type):
-        """
-        Calculate tanker energy intensity using load factor
-
-        :param barge_speed:
-        :param barge_capacity:
-        :param ocean_tanker_size:
-        :param ocean_tanker_speed:
-        :param type: (str) "tanker" or "barge"
-        :param hp:
-        :param energy_consumption:
-        :param load_factor:
-        :return: (float) tanker energy intensity
-        """
-
-        known_types = ["tanker", "barge"]
-        if type not in known_types:
-            raise OpgeeException(f"{type} is not in the known transport type: {known_types}")
+        hp =\
+            ureg.Quantity(9070 + 0.101 * ocean_tanker_size.m, "hp") if type == "tanker" else ureg.Quantity(5600 / 22500 * barge_capacity.m, "hp")
 
         common = energy_consumption * load_factor * hp
         if type == "tanker":
@@ -267,15 +235,15 @@ class TransportEnergy(OpgeeObject):
                          feed_loss,
                          LHV):
         """
-        Calculate different type of fuel consumption.
+            Calculate fuel consumption for different transport types.
 
-        :param feed_loss:
-        :param transport_share_fuel:
-        :param transport_distance:
-        :param fraction_transport:
-        :param transport_energy_consumption:
-        :param LHV:
-        :return: (float) calculate fuel consumption
+            :param fraction_transport: Series with fractions of transport types
+            :param transport_distance: Series with transport distances for each transport type
+            :param transport_share_fuel: Dictionary with fuel shares for each transport type
+            :param transport_energy_consumption: Series with transport energy consumption for each transport type
+            :param feed_loss: float, feed loss during transportation
+            :param LHV: float, lower heating value of the fuel
+            :return: Dictionary with fuel consumption for each transport type
         """
         transport_energy_consumption.index = transport_distance.index
 

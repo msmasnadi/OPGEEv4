@@ -116,9 +116,6 @@ class BitumenMining(Process):
         energy_use.set_rate(EN_DIESEL, diesel_consumption.to("mmBtu/day"))
         energy_use.set_rate(EN_ELECTRICITY, electricity_consumption.to("mmBtu/day"))
 
-        # import/export
-        self.set_import_from_energy(energy_use)
-
         # emissions
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")

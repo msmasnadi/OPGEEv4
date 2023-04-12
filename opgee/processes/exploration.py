@@ -18,6 +18,12 @@ _logger = getLogger(__name__)
 
 
 class Exploration(Process):
+    """
+        The Exploration class represents the exploration phase of an oil field project.
+
+        This class calculates the energy consumption and emissions associated with
+        drilling, surveying, and transporting crude oil during the exploration phase.
+    """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
         field = self.field
@@ -54,11 +60,7 @@ class Exploration(Process):
              self.horizontal_drill_energy_intensity * self.frac_wells_horizontal * self.length_lateral) * self.num_wells
         self.drill_energy_consumption = field.model.const("diesel-LHV") * self.drill_fuel_consumption
 
-        self.transport_share_fuel = self.model.transport_share_fuel.loc["Crude"]
         self.transport_parameter = self.model.transport_parameter[["Crude", "Units"]]
-        self.frac_transport_mode = field.attrs_with_prefix("frac_transport_").rename("Fraction")
-        self.transport_dist = field.attrs_with_prefix("transport_dist_").rename("Distance")
-        self.transport_by_mode = self.frac_transport_mode.to_frame().join(self.transport_dist)
 
     def run(self, analysis):
         self.print_running_msg()
@@ -69,15 +71,9 @@ class Exploration(Process):
         if self.field.get_process_data("crude_LHV") is None:
             self.field.save_process_data(crude_LHV=oil_mass_energy_density)
 
-        # TODO: why is this called if result is not used?
-        _ = TransportEnergy.get_transport_energy_dict(field,
-                                                      self.transport_parameter,
-                                                      self.transport_share_fuel,
-                                                      self.transport_by_mode,
-                                                      ureg.Quantity(1.0, "btu/day"),
-                                                      "Crude")
-        ocean_tank_energy_intensity = field.get_process_data("ocean_tanker_dest_energy_intensity")
-        truck_energy_intensity = field.get_process_data("energy_intensity_truck")
+        ocean_tank_energy_intensity = \
+            field.transport_energy.get_ocean_tanker_dest_energy_intensity(self.transport_parameter)
+        truck_energy_intensity = field.transport_energy.energy_intensity_truck
 
         export_LHV = field.get_process_data("exported_prod_LHV")
         cumulative_export_LHV = export_LHV * year_to_day * self.field_production_lifetime

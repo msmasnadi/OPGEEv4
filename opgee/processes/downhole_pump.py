@@ -21,6 +21,49 @@ _logger = getLogger(__name__)
 
 
 class DownholePump(Process):
+    """
+        A class to represent the DownholePump process, which is responsible for lifting
+        crude oil from a reservoir to the surface using a downhole pump.
+
+        Attributes
+        ----------
+        gas_lifting : bool
+            Whether gas lifting is enabled in the field.
+        res_temp : pint.Quantity
+            The reservoir temperature.
+        oil_volume_rate : pint.Quantity
+            The oil volume rate in the field.
+        eta_pump_well : pint.Quantity
+            The efficiency of the downhole pump in the well.
+        prod_tubing_diam : pint.Quantity
+            The diameter of the production tubing.
+        prod_tubing_xsection_area : float
+            The cross-sectional area of the production tubing.
+        depth : pint.Quantity
+            The depth of the reservoir.
+        friction_factor : float
+            The friction factor for the production tubing.
+        num_prod_wells : int
+            The number of production wells in the field.
+        gravitational_acceleration : pint.Quantity
+            The gravitational acceleration constant.
+        prime_mover_type : str
+            The type of prime mover used in the process.
+        wellhead_t : pint.Quantity
+            The wellhead temperature.
+        wellhead_tp : TemperaturePressure
+            The wellhead temperature and pressure.
+        oil_sand_mine : bool
+            Whether the field is an oil sands mine.
+
+        Methods
+        -------
+        run(analysis)
+            Simulates the DownholePump process to lift crude oil from the reservoir
+            to the surface and calculates the energy consumption and emissions.
+        impute()
+            Estimates the completion and workover fugitive stream and adjusts the input stream.
+    """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
         field = self.field

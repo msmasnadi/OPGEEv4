@@ -19,6 +19,32 @@ _logger = getLogger(__name__)
 
 
 class Drilling(Process):
+    """
+        A class representing the drilling process in a field.
+
+        Attributes
+        ----------
+        fraction_wells_fractured : float
+            The fraction of wells that are fractured.
+        fracture_consumption_tbl : pandas.DataFrame
+            The table containing fracture energy consumption data.
+        pressure_gradient_fracturing : pint.Quantity
+            The pressure gradient for fracturing.
+        volume_per_well_fractured : pint.Quantity
+            The volume per fractured well.
+        oil_sands_mine : str
+            The type of oil sands mine (if any).
+        land_use_EF : pandas.DataFrame
+            The table containing land use emission factors.
+        ecosystem_richness : str
+            The ecosystem richness category of the field.
+        field_development_intensity : str
+            The field development intensity category.
+        num_water_inj_wells : int
+            The number of water injection wells.
+        num_wells : int
+            The total number of wells (production + water injection).
+    """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
         field = self.field
@@ -84,12 +110,9 @@ class Drilling(Process):
         :return:Array list of const [a, b, c]
         """
 
-        result = []
         value = self.pressure_gradient_fracturing
         tbl = self.fracture_consumption_tbl
-        result.append(np.interp(value.m, tbl["a"].index, tbl["a"].values))
-        result.append(np.interp(value.m, tbl["b"].index, tbl["b"].values))
-        result.append(np.interp(value.m, tbl["c"].index, tbl["c"].values))
+        result = [np.interp(value.m, tbl[col].index, tbl[col].values) for col in ['a', 'b', 'c']]
 
         return result
 
@@ -101,9 +124,7 @@ class Drilling(Process):
         """
         variables = []
         volume = self.volume_per_well_fractured.m
-        variables.append(volume * volume)
-        variables.append(volume)
-        variables.append(1)
+        variables = [volume * volume, volume, 1]
 
         result = np.dot(variables, constants)
         result = ureg.Quantity(result, "gallon")

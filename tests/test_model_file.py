@@ -39,7 +39,7 @@ def test_many_field_comparison():
         return magnitude(total)
 
     # Extract and run the first 3 Fields only since we're just testing the extraction mechanism
-    for field_name, xml_pathname in extracted_model(model_xml, analysis_name, field_names=field_names[:3]):
+    for field_name, xml_pathname in extracted_model(model_xml, analysis_name, field_names=field_names):
         mf = ModelFile(xml_pathname, add_stream_components=False, use_class_path=False,
                        use_default_model=True, save_to_path=None,
                        analysis_names=[analysis_name],   # may be unnecessary

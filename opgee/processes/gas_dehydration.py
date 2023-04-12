@@ -22,6 +22,26 @@ _logger = getLogger(__name__)
 
 
 class GasDehydration(Process):
+    """
+        This class represents the gas dehydration process in an oil and gas field.
+        It calculates the energy consumption and emissions related to the gas dehydration process.
+
+        Attributes:
+            gas_dehydration_tbl (DataFrame): A table containing gas dehydration correlations.
+            mol_to_scf (float): Constant to convert moles to standard cubic feet.
+            air_elevation_const (float): Constant used for air elevation correction.
+            air_density_ratio (float): Constant used for air density ratio calculation.
+            reflux_ratio (float): Reflux ratio used in the gas dehydration process.
+            regeneration_feed_temp (float): Regeneration feed temperature used in the gas dehydration process.
+            eta_reboiler_dehydrator (float): Efficiency of the reboiler in the dehydrator.
+            air_cooler_delta_T (float): Temperature difference across the air cooler.
+            air_cooler_press_drop (float): Pressure drop across the air cooler.
+            air_cooler_fan_eff (float): Efficiency of the air cooler fan.
+            air_cooler_speed_reducer_eff (float): Efficiency of the air cooler speed reducer.
+            water_press (float): Pressure of the water in the process.
+            gas_path (str): The path of the gas in the process.
+            gas_path_dict (dict): Dictionary mapping gas path names to stream names.
+    """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
         field = self.field
@@ -119,7 +139,7 @@ class GasDehydration(Process):
         condenser_thermal_load = ureg.Quantity(max(0., corr_result_df["Condenser"] * gas_multiplier), "kW")
 
         # TODO: Add this stream to water treatment process
-        water_output = ureg.Quantity(max(0., corr_result_df["Resid water"]), "lb/mmscf")
+        water_output = ureg.Quantity(max(0., corr_result_df["Resid water"]), "lb/mmscf") * gas_volume_rate
 
         reboiler_fuel_use = reboiler_heavy_duty * self.eta_reboiler_dehydrator
         air_cooler_energy_consumption = predict_blower_energy_use(self, condenser_thermal_load)
@@ -128,9 +148,6 @@ class GasDehydration(Process):
         energy_use = self.energy
         energy_use.set_rate(EN_NATURAL_GAS, reboiler_fuel_use)
         energy_use.set_rate(EN_ELECTRICITY, air_cooler_energy_consumption + pump_duty)
-
-        # import/export
-        self.set_import_from_energy(energy_use)
 
         # emissions
         emissions = self.emissions

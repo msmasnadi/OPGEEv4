@@ -23,6 +23,47 @@ _logger = getLogger(__name__)
 
 
 class Demethanizer(Process):
+    """
+       A class to represent the Demethanizer process, which is responsible for separating
+       methane from heavier hydrocarbons (NGL) and producing a methane-rich gas stream
+       and a heavier hydrocarbon stream (LPG).
+
+       Attributes
+       ----------
+       feed_press_demethanizer : pint.Quantity
+           The pressure of the feed gas entering the demethanizer column.
+       column_pressure : pint.Quantity
+           The pressure inside the demethanizer column.
+       methane_to_LPG_ratio : pint.Quantity
+           The desired ratio of methane to LPG in the product streams.
+       demethanizer_tbl : pd.DataFrame
+           The demethanizer table containing correlation equations for the process.
+       mol_per_scf : pint.Quantity
+           The conversion factor for moles to standard cubic feet.
+       eta_reboiler_demethanizer : pint.Quantity
+           The efficiency of the reboiler in the demethanizer column.
+       air_cooler_speed_reducer_eff : pint.Quantity
+           The efficiency of the speed reducer in the air cooler.
+       air_cooler_delta_T : pint.Quantity
+           The temperature difference across the air cooler.
+       air_cooler_fan_eff : pint.Quantity
+           The efficiency of the air cooler fan.
+       air_cooler_press_drop : pint.Quantity
+           The pressure drop across the air cooler.
+       water_press : pint.Quantity
+           The water pressure associated with the air cooler pressure drop.
+       eta_compressor : pint.Quantity
+           The efficiency of the compressor in the demethanizer process.
+       prime_mover_type : str
+           The type of prime mover used in the process.
+
+       Methods
+       -------
+       run(analysis)
+           Simulates the Demethanizer process to separate the incoming gas stream
+           into a methane-rich stream and a heavier hydrocarbon stream.
+   """
+
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
         field = self.field
