@@ -67,6 +67,7 @@ class TransportEnergy(OpgeeObject):
         fraction_transport = transport_by_mode["Fraction"]
         transport_distance = transport_by_mode["Distance"]
 
+        # TBD: there's a lot of redundancy here that can be factored out
         ocean_tanker_orig_dest_energy_intensity = \
             TransportEnergy.transport_energy_intensity(
                 self.residual_oil_LHV,
@@ -184,12 +185,20 @@ class TransportEnergy(OpgeeObject):
         """
         parameter_value = parameter_table.iloc[:, 0]
         parameter_unit = parameter_table["Units"]
-        parameter_dict = {}
-        for name, value in parameter_value.items():
-            parameter_dict[name] = ureg.Quantity(float(value), parameter_unit[name])
+
+        # TODO: it's more efficient to use a dictionary comprehension
+        parameter_dict = {name : ureg.Quantity(float(value), parameter_unit[name])
+                            for name, value in parameter_value.items()}
+
+        # parameter_dict = {}
+        # for name, value in parameter_value.items():
+        #     parameter_dict[name] = ureg.Quantity(float(value), parameter_unit[name])
 
         return parameter_dict
 
+    # TODO: this shouldn't be a static method. Make it a normal method, and then access
+    #       self.residual_oil_LHV, and self.residual_oil_density so you don't have to
+    #       pass them redundantly in every call
     @staticmethod
     def transport_energy_intensity(residual_oil_LHV, residual_oil_density, load_factor, type, ocean_tanker_speed=None,
                                    ocean_tanker_size=None, barge_capacity=None, barge_speed=None):
