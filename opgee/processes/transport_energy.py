@@ -67,11 +67,9 @@ class TransportEnergy(OpgeeObject):
         fraction_transport = transport_by_mode["Fraction"]
         transport_distance = transport_by_mode["Distance"]
 
-        # TBD: there's a lot of redundancy here that can be factored out
+        # Calculate transport energy intensity
         ocean_tanker_orig_dest_energy_intensity = \
-            TransportEnergy.transport_energy_intensity(
-                self.residual_oil_LHV,
-                self.residual_oil_density,
+            self.transport_energy_intensity(
                 ocean_tanker_load_factor_dest,
                 "tanker",
                 ocean_tanker_speed=ocean_tanker_speed,
@@ -79,9 +77,7 @@ class TransportEnergy(OpgeeObject):
             )
 
         ocean_tanker_dest_orig_energy_intensity = \
-            TransportEnergy.transport_energy_intensity(
-                self.residual_oil_LHV,
-                self.residual_oil_density,
+            self.transport_energy_intensity(
                 ocean_tanker_load_factor_origin,
                 "tanker",
                 ocean_tanker_speed=ocean_tanker_speed,
@@ -89,9 +85,7 @@ class TransportEnergy(OpgeeObject):
             )
 
         barge_orig_dest_energy_intensity = \
-            TransportEnergy.transport_energy_intensity(
-                self.residual_oil_LHV,
-                self.residual_oil_density,
+            self.transport_energy_intensity(
                 barge_load_factor_dest,
                 "barge",
                 barge_capacity=barge_capacity,
@@ -99,9 +93,7 @@ class TransportEnergy(OpgeeObject):
             )
 
         barge_dest_orig_energy_intensity = \
-            TransportEnergy.transport_energy_intensity(
-                self.residual_oil_LHV,
-                self.residual_oil_density,
+            self.transport_energy_intensity(
                 barge_load_factor_origin,
                 "barge",
                 barge_capacity=barge_capacity,
@@ -163,9 +155,7 @@ class TransportEnergy(OpgeeObject):
         ocean_tanker_size = parameter_dict["ocean_tanker_size"]
 
         ocean_tanker_orig_dest_energy_intensity = \
-            TransportEnergy.transport_energy_intensity(
-                self.residual_oil_LHV,
-                self.residual_oil_density,
+            self.transport_energy_intensity(
                 ocean_tanker_load_factor_dest,
                 "tanker",
                 ocean_tanker_speed=ocean_tanker_speed,
@@ -186,27 +176,16 @@ class TransportEnergy(OpgeeObject):
         parameter_value = parameter_table.iloc[:, 0]
         parameter_unit = parameter_table["Units"]
 
-        # TODO: it's more efficient to use a dictionary comprehension
         parameter_dict = {name : ureg.Quantity(float(value), parameter_unit[name])
                             for name, value in parameter_value.items()}
 
-        # parameter_dict = {}
-        # for name, value in parameter_value.items():
-        #     parameter_dict[name] = ureg.Quantity(float(value), parameter_unit[name])
-
         return parameter_dict
 
-    # TODO: this shouldn't be a static method. Make it a normal method, and then access
-    #       self.residual_oil_LHV, and self.residual_oil_density so you don't have to
-    #       pass them redundantly in every call
-    @staticmethod
-    def transport_energy_intensity(residual_oil_LHV, residual_oil_density, load_factor, type, ocean_tanker_speed=None,
+    def transport_energy_intensity(self, load_factor, type, ocean_tanker_speed=None,
                                    ocean_tanker_size=None, barge_capacity=None, barge_speed=None):
         """
         Calculate transport energy intensity using load factor and water transport energy consumption.
 
-        :param residual_oil_LHV: (pint.Quantity) Lower heating value of residual oil.
-        :param residual_oil_density: (pint.Quantity) Density of residual oil.
         :param load_factor: (pint.Quantity) Load factor for the transport.
         :param type: (str) Transport type: "tanker" or "barge".
         :param ocean_tanker_speed: (pint.Quantity, optional) Speed of the ocean tanker, required if type is "tanker".
@@ -216,6 +195,9 @@ class TransportEnergy(OpgeeObject):
         :param hp: (pint.Quantity, optional) Horsepower of the transport, required for energy consumption calculation.
         :return: (float) Transport energy intensity.
         """
+
+        residual_oil_LHV = self.residual_oil_LHV
+        residual_oil_density = self.residual_oil_density
 
         known_types = ["tanker", "barge"]
         if type not in known_types:
@@ -256,8 +238,9 @@ class TransportEnergy(OpgeeObject):
         """
         transport_energy_consumption.index = transport_distance.index
 
-        result = {}
-        for type, frac in transport_share_fuel.items():
-            temp = (transport_energy_consumption * transport_distance * fraction_transport * frac).sum() * LHV
-            result[type] = temp if type != EN_DIESEL else temp + LHV * feed_loss
+        result = {
+            type: (transport_energy_consumption * transport_distance * fraction_transport * frac).sum() * LHV + (
+                LHV * feed_loss if type == EN_DIESEL else 0)
+            for type, frac in transport_share_fuel.items()
+        }
         return result

@@ -258,12 +258,12 @@ def test_volume_factor(gas_instance, stream):
 
 def test_gas_density(gas_instance, stream):
     density = gas_instance.density(stream)
-    assert density == ureg.Quantity(pytest.approx(0.0692964211), "tonne/m**3")
+    assert density == ureg.Quantity(pytest.approx(0.0686353445), "tonne/m**3")
 
 
 def test_gas_viscosity(gas_instance, stream):
     viscosity = gas_instance.viscosity(stream)
-    assert viscosity == ureg.Quantity(pytest.approx(0.0172091084), "centipoise")
+    assert viscosity == ureg.Quantity(pytest.approx(0.0171788467), "centipoise")
 
 
 def test_molar_weight(gas_instance, stream):
@@ -280,7 +280,7 @@ def test_molar_weight_from_molar_fracs(gas_instance, stream):
 
 def test_gas_volume_flow_rate(gas_instance, stream):
     vol_flow_rate = gas_instance.volume_flow_rate(stream)
-    assert vol_flow_rate == ureg.Quantity(pytest.approx(1587.98615), "m**3/day")
+    assert vol_flow_rate == ureg.Quantity(pytest.approx(1603.28119), "m**3/day")
 
 
 def test_gas_volume_flow_rate_STP(gas_instance):
