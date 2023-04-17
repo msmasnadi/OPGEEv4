@@ -58,18 +58,16 @@ class Drilling(Process):
         self.ecosystem_richness = field.ecosystem_richness
         self.field_development_intensity = field.field_development_intensity
 
-        num_prod_wells = field.num_prod_wells if self.oil_sands_mine == "None" else 0
-        self.num_water_inj_wells = field.num_water_inj_wells
-        self.num_wells = num_prod_wells + self.num_water_inj_wells
-
     def run(self, analysis):
         self.print_running_msg()
         field = self.field
 
         fracture_energy_constant = self.get_fracture_constant()
         fracture_diesel_use = self.get_fracture_diesel(fracture_energy_constant)
-        fracture_fuel_consumption = self.fraction_wells_fractured * self.num_wells * fracture_diesel_use
+        num_wells = field.get_process_data("num_wells")
+        fracture_fuel_consumption = self.fraction_wells_fractured * num_wells * fracture_diesel_use
         fracture_energy_consumption = fracture_fuel_consumption * field.model.const("diesel-LHV")
+
         tot_energy_consumption = fracture_energy_consumption + field.get_process_data("drill_energy_consumption")
         wellhead_LHV_rate = field.get_process_data("wellhead_LHV_rate")
         cumulative_export_LHV = field.get_process_data("cumulative_export_LHV")

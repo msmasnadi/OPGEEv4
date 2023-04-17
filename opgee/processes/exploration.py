@@ -6,6 +6,8 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
+import math
+
 from opgee import ureg
 from ..constants import year_to_day
 from ..emissions import EM_COMBUSTION
@@ -46,8 +48,9 @@ class Exploration(Process):
         self.number_wells_exploratory = field.number_wells_exploratory
 
         num_prod_wells = field.num_prod_wells if self.oil_sands_mine == "None" else 0
+        self.num_gas_inj_wells = 0.25 * num_prod_wells if field.natural_gas_reinjection or field.gas_flooding else 0
         self.num_water_inj_wells = field.num_water_inj_wells
-        self.num_wells = num_prod_wells + self.num_water_inj_wells
+        self.num_wells = math.ceil(num_prod_wells + self.num_water_inj_wells + self.num_gas_inj_wells)
 
         self.depth = field.depth
         self.frac_wells_horizontal = field.frac_wells_horizontal
@@ -87,6 +90,7 @@ class Exploration(Process):
 
         field.save_process_data(cumulative_export_LHV=cumulative_export_LHV)
         field.save_process_data(drill_energy_consumption=self.drill_energy_consumption)
+        field.save_process_data(num_wells=self.num_wells)
 
         # energy-use
         energy_use = self.energy
