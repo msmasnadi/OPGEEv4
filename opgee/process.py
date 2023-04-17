@@ -450,6 +450,10 @@ class Process(AttributeMixin, XmlInstantiable):
         average data. If the system contains a compressor, the compressor loss rate is returned, otherwise the well loss
         rate is returned. The result is returned as a Quantity object with units of "frac".
         """
+
+        if inlet_stream.total_flow_rate() == 0:
+            return ureg.Quantity(0, "frac")
+
         field = self.field
         num_gas_inj_wells = field.num_gas_inj_wells
         loss_mat_gas_ave_df = field.loss_mat_gas_ave_df

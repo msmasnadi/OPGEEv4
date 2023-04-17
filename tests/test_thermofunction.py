@@ -248,7 +248,7 @@ def test_Z_factor(gas_instance, stream):
     reduced_temp = gas_instance.reduced_temperature(stream)
     reduced_press = gas_instance.reduced_pressure(stream)
     z_factor = gas_instance.Z_factor(reduced_temp, reduced_press)
-    assert z_factor == ureg.Quantity(pytest.approx(0.913575608), "frac")
+    assert z_factor == ureg.Quantity(pytest.approx(0.922374916), "frac")
 
 
 def test_volume_factor(gas_instance, stream):

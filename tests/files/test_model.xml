@@ -220,6 +220,7 @@
 	</Field>
 
 	<Field name="test_NGFlooding_onsite_gas">
+<!--		lula-->
 
 		<A name="gas_flooding">1</A>
 		<A name="flood_gas_type">NG</A>

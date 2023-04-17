@@ -7,7 +7,6 @@
 # See LICENSE.txt for license details.
 #
 from opgee import ureg
-from .transport_energy import TransportEnergy
 from ..constants import year_to_day
 from ..emissions import EM_COMBUSTION
 from ..energy import EN_DIESEL

@@ -20,6 +20,7 @@ class CrudeOilTransport(Process):
     """
     Crude oil transport calculate emissions from crude oil to the market
     """
+
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
         field = self.field
@@ -51,12 +52,12 @@ class CrudeOilTransport(Process):
 
         # energy use
         energy_use = self.energy
-        fuel_consumption = TransportEnergy.get_transport_energy_dict(self.field,
-                                                                     self.transport_parameter,
-                                                                     self.transport_share_fuel,
-                                                                     self.transport_by_mode,
-                                                                     oil_LHV_rate,
-                                                                     "Crude")
+        fuel_consumption = field.transport_energy.get_transport_energy_dict(self.field,
+                                                                            self.transport_parameter,
+                                                                            self.transport_share_fuel,
+                                                                            self.transport_by_mode,
+                                                                            oil_LHV_rate,
+                                                                            "Crude")
 
         for name, value in fuel_consumption.items():
             energy_use.set_rate(get_energy_carrier(name), value.to("mmBtu/day"))

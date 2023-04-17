@@ -16,6 +16,7 @@ from ..import_export import N2, CO2_Flooding, NATURAL_GAS
 from ..log import getLogger
 from ..process import Process
 from ..stream import PHASE_GAS, Stream
+from ..constants import mol_per_scf
 
 _logger = getLogger(__name__)
 
@@ -161,31 +162,36 @@ class GasPartition(Process):
         else:
             input_STP = Stream("input_stream_at_STP", tp=STP)
             if exported_gas_stream is None:
-                total_gas_rate = ureg.Quantity(0, "tonne/day")
+                exported_gas_mass_rate = ureg.Quantity(0, "tonne/day")
             else:
-                total_gas_rate = exported_gas_stream.total_gas_rate()
+                exported_gas_mass_rate = exported_gas_stream.total_gas_rate()
                 input_STP.copy_flow_rates_from(exported_gas_stream, tp=STP)
 
-            NG_mass_rate = self.gas_flooding_vol_rate * field.gas.density(input_STP)
+            exported_gas_volume_rate = exported_gas_mass_rate / field.gas.density(input_STP)
+
+            NG_flooding_volume_rate = self.gas_flooding_vol_rate
 
             # The mass of produced processed NG is enough for NG flooding
-            if NG_mass_rate < total_gas_rate:
+            if NG_flooding_volume_rate < exported_gas_volume_rate:
+                NG_flooding_mass_rate = NG_flooding_volume_rate * field.gas.density(input_STP)
                 reinjected_gas_series = \
-                    NG_mass_rate * field.gas.component_mass_fractions(field.gas.component_molar_fractions(exported_gas_stream))
+                    NG_flooding_mass_rate * field.gas.component_mass_fractions(field.gas.component_molar_fractions(exported_gas_stream))
                 reinjected_gas_stream.set_rates_from_series(reinjected_gas_series, PHASE_GAS)
                 reinjected_gas_stream.set_tp(exported_gas_stream.tp)
                 exported_gas_stream.subtract_rates_from(reinjected_gas_stream, PHASE_GAS)
 
             # The imported NG is need for NG flooding
             else:
-                imported_NG_series = (NG_mass_rate - total_gas_rate) * self.imported_NG_mass_frac
-                imported_NG_stream = Stream("imported_NG_stream", tp=self.N2_flooding_tp)
+                imported_NG_series =\
+                    (NG_flooding_volume_rate - exported_gas_volume_rate) * self.imported_NG_comp * mol_per_scf
+                imported_NG_series *= field.gas.component_MW[imported_NG_series.index]
+                imported_NG_stream = Stream("imported_NG_stream", tp=self.C1_flooding_tp)
                 imported_NG_stream.set_rates_from_series(imported_NG_series, PHASE_GAS)
                 imported_NG_energy_rate = field.gas.energy_flow_rate(imported_NG_stream)
 
                 reinjected_gas_stream = imported_NG_stream
                 if exported_gas_stream is not None:
-                    reinjected_gas_stream = combine_streams([imported_NG_stream, exported_gas_stream])
+                    reinjected_gas_stream.add_flow_rates_from(exported_gas_stream)
                 exported_gas_stream.reset()
                 exported_gas_stream.set_tp(tp=STP)
                 import_product.set_import(self.name, NATURAL_GAS, imported_NG_energy_rate)

@@ -20,6 +20,7 @@ class PetrocokeTransport(Process):
     """
     Petrocoke transport calculate emissions from petrocoke to the market
     """
+
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
         model = self.model
@@ -49,16 +50,16 @@ class PetrocokeTransport(Process):
 
         petrocoke_to_export = self.find_output_stream("exported petrocoke")
         petrocoke_to_export.copy_flow_rates_from(input_coke)
-        petrocoke_to_export.multiply_flow_rates(1-self.frac_coke_exported)
+        petrocoke_to_export.multiply_flow_rates(1 - self.frac_coke_exported)
 
         # energy use
         energy_use = self.energy
-        fuel_consumption = TransportEnergy.get_transport_energy_dict(self.field,
-                                                                     self.transport_parameter,
-                                                                     self.transport_share_fuel,
-                                                                     self.transport_by_mode,
-                                                                     petrocoke_LHV_rate,
-                                                                     "Petrocoke")
+        fuel_consumption = field.transport_energy.get_transport_energy_dict(self.field,
+                                                                            self.transport_parameter,
+                                                                            self.transport_share_fuel,
+                                                                            self.transport_by_mode,
+                                                                            petrocoke_LHV_rate,
+                                                                            "Petrocoke")
 
         for name, value in fuel_consumption.items():
             energy_use.set_rate(get_energy_carrier(name), value.to("mmBtu/day"))
@@ -67,7 +68,6 @@ class PetrocokeTransport(Process):
         import_product = field.import_export
         self.set_import_from_energy(energy_use)
         import_product.set_export(self.name, NGL_LPG, petrocoke_LHV_rate)
-
 
         # emission
         emissions = self.emissions

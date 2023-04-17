@@ -249,7 +249,7 @@ def test_Demethanizer(test_model):
     proc = field.find_process('Demethanizer')
     # ensure total energy flow rates
     total = proc.energy.data.sum()
-    expected = ureg.Quantity(37.8165183, "mmbtu/day")
+    expected = ureg.Quantity(38.4014864, "mmbtu/day")
     assert approx_equal(total, expected)
 
 
@@ -439,7 +439,7 @@ def test_NGFlooding_offset(test_model):
     proc = field.find_process('GasPartition')
     # ensure total energy flow rates
     total = proc.find_output_stream("gas for gas reinjection compressor").gas_flow_rates().sum()
-    expected = ureg.Quantity(382444.9990753103, "tonne/day")
+    expected = ureg.Quantity(428923.0119818081, "tonne/day")
     assert approx_equal(total, expected)
 
     total = proc.find_output_stream("gas").gas_flow_rates().sum()

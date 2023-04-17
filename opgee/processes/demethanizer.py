@@ -11,7 +11,7 @@ import pandas as pd
 from .compressor import Compressor
 from .shared import get_energy_carrier, predict_blower_energy_use, get_bounded_value
 from .. import ureg
-from ..core import STP
+from ..core import STP, TemperaturePressure
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
@@ -166,17 +166,17 @@ class Demethanizer(Process):
 
         fuel_gas_mass = fuel_gas_prod * fuel_gas_mol_frac * ChemicalInfo.mol_weight(fuel_gas_mol_frac.index)
 
-        gas_to_gather = self.find_output_stream("gas for gas partition")
-        gas_to_gather.copy_flow_rates_from(input)
-        gas_to_gather.subtract_rates_from(gas_fugitives)
-        gas_to_gather.set_rates_from_series(fuel_gas_mass, PHASE_GAS, upper_bound_stream=input)
+        gas_to_partition = self.find_output_stream("gas for gas partition")
+        gas_to_partition.copy_flow_rates_from(input)
+        gas_to_partition.subtract_rates_from(gas_fugitives)
+        gas_to_partition.set_rates_from_series(fuel_gas_mass, PHASE_GAS, upper_bound_stream=input)
 
         gas_to_LPG = self.find_output_stream("gas for NGL")
         gas_to_LPG.copy_flow_rates_from(input)
         gas_to_LPG.tp.set(T=STP.T)
-        gas_to_LPG.subtract_rates_from(gas_to_gather)
+        gas_to_LPG.subtract_rates_from(gas_to_partition)
 
-        self.set_iteration_value(gas_to_gather.total_flow_rate() + gas_to_LPG.total_flow_rate())
+        self.set_iteration_value(gas_to_partition.total_flow_rate() + gas_to_LPG.total_flow_rate())
 
         # TODO: ethane to petrochemicals
 
@@ -188,7 +188,7 @@ class Demethanizer(Process):
                                                          self.prime_mover_type,
                                                          self.eta_compressor,
                                                          self.feed_press_demethanizer / input_tp.P,
-                                                         gas_to_gather,
+                                                         gas_to_partition,
                                                          inlet_tp=input.tp)
 
         # outlet compressor
@@ -198,8 +198,8 @@ class Demethanizer(Process):
                                                          self.prime_mover_type,
                                                          self.eta_compressor,
                                                          input_tp.P / feed_gas_exit_press,
-                                                         gas_to_gather,
-                                                         inlet_tp=input.tp)
+                                                         gas_to_partition,
+                                                         inlet_tp=TemperaturePressure(input_tp.T, feed_gas_exit_press))
 
         # energy-use
         energy_use = self.energy

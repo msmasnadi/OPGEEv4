@@ -9,6 +9,7 @@
 import math
 
 import pandas as pd
+import numpy as np
 import pint
 from pyXSteam.XSteam import XSteam
 from thermosteam import Chemical, Mixture
@@ -979,26 +980,42 @@ class Gas(AbstractSubstance):
     @staticmethod
     def Z_factor(reduced_temperature, reduced_pressure):
         """
+        Calculate the compressibility factor (Z) for a given reduced temperature and reduced pressure
+        using the Redlich-Kwong equation of state. The Redlich-Kwong equation of state is a cubic equation.
+        The function calculates the three possible roots (real or complex) and returns the highest real root as
+        the compressibility factor. The input quantities are first converted to dimensionless fractions.
 
-        :param reduced_temperature:
-        :param reduced_pressure:
+        Args:
+            reduced_temperature (pint.Quantity): Reduced temperature as a Pint Quantity object, defined as T/Tc (ratio of temperature to critical temperature).
+            reduced_pressure (pint.Quantity): Reduced pressure as a Pint Quantity object, defined as P/Pc (ratio of pressure to critical pressure).
 
-        :return:(float) gas z_factor (unit = frac)
+        Returns:
+            pint.Quantity: Compressibility factor (Z) as a Pint Quantity object (dimensionless fraction) for the given reduced temperature and reduced pressure.
+
         """
-        reduced_temp = reduced_temperature.m
-        reduced_press = reduced_pressure.m
+        tr = reduced_temperature.to("frac").m
+        pr = reduced_pressure.to("frac").m
 
-        z_factor_A = 1.39 * (max(0, reduced_temp - 0.92)) ** 0.5 - 0.36 * reduced_temp - 0.101
-        z_factor_B = (reduced_press * (0.62 - 0.23 * reduced_temp) +
-                      reduced_press ** 2 * (0.066 / (reduced_temp - 0.86) - 0.037) +
-                      0.32 * reduced_temp ** 6 / (10 ** (9 * reduced_temp - 9)))
-        z_factor_C = 0.132 - 0.32 * math.log10(reduced_temp)
-        z_factor_D = 10 ** (0.3106 - 0.49 * reduced_temp + 0.1824 * reduced_temp ** 2)
-        z_factor = max((z_factor_A + (1 - z_factor_A) * math.exp(-1 * z_factor_B)
-                        + z_factor_C * reduced_press ** z_factor_D), 0.05)
-        z_factor = ureg.Quantity(z_factor, "frac")
+        a = 0.42748 * (pr / tr ** 2.5)
+        b = 0.08664 * (pr / tr)
 
-        return z_factor
+        alpha = (1 / 3) * (3 * (a - b - b ** 2) - 1)
+        beta = (1 / 27) * (-2 + (9 * (a - b - b ** 2)) - (27 * a * b))
+        d = (beta ** 2 / 4) + (alpha ** 3 / 27)
+
+        if d < 0:
+            theta = math.acos(-np.sign(beta) * (math.sqrt((beta ** 2 / 4) / (-alpha ** 3 / 27))))
+            z_roots = [2 * math.sqrt(- alpha / 3) * math.cos((theta / 3) + (i * ((math.pi * 2) / 3))) + (1 / 3) for i in
+                       range(3)]
+        else:
+            a_star = np.cbrt((-beta / 2) + np.sqrt(d))
+            b_star = np.cbrt((-beta / 2) - np.sqrt(d))
+            z_roots = [a_star + b_star + 1 / 3] if d > 0 else [a_star + b_star + 1 / 3] + [
+                -(1 / 2) * (a_star + b_star) + (1 / 3) * i for i in [2, 3]]
+
+        z = max(z_roots)
+
+        return ureg.Quantity(z, "frac")
 
     def volume_factor(self, stream):
         """

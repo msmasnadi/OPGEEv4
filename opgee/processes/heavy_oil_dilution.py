@@ -88,7 +88,7 @@ class HeavyOilDilution(Process):
 
         field.save_process_data(final_diluent_LHV_mass=diluent_LHV)
 
-        final_diluent_SG =\
+        final_diluent_SG = \
             total_mass_diluted_oil / (required_volume_diluent + input_liquid_volume_rate) / self.water_density
         final_diluent_API = field.oil.API_from_SG(final_diluent_SG)
         output_oil.set_API(final_diluent_API)
@@ -96,12 +96,12 @@ class HeavyOilDilution(Process):
         diluent_energy_rate = required_mass_dilution * diluent_LHV
 
         # Calculate imported diluent energy consumption
-        fuel_consumption = TransportEnergy.get_transport_energy_dict(self.field,
-                                                                     self.transport_parameter,
-                                                                     self.transport_share_fuel,
-                                                                     self.transport_by_mode,
-                                                                     diluent_energy_rate,
-                                                                     "Diluent")
+        fuel_consumption = field.transport_energy.get_transport_energy_dict(self.field,
+                                                                            self.transport_parameter,
+                                                                            self.transport_share_fuel,
+                                                                            self.transport_by_mode,
+                                                                            diluent_energy_rate,
+                                                                            "Diluent")
 
         energy_use = self.energy
         for name, value in fuel_consumption.items():
