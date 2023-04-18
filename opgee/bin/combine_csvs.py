@@ -31,6 +31,8 @@ def parseArgs():
     args = parser.parse_args()
     return args
 
+import glob
+
 def main():
     args = parseArgs()
 
@@ -40,9 +42,16 @@ def main():
     index_col = False if args.axis == 'rows' else 0
     write_index = False if args.axis == 'rows' else True
 
-    dfs = [pd.read_csv(input, index_col=index_col, skiprows=args.skip) for input in args.inputs]
+    # Expand file paths using wildcard character
+    expanded_file_paths = []
+    for input_file in args.inputs:
+        expanded_file_paths.extend(glob.glob(input_file))
+
+    # Read each file using the expanded file paths
+    dfs = [pd.read_csv(input, index_col=index_col, skiprows=args.skip) for input in expanded_file_paths]
 
     combined = pd.concat(dfs, axis=args.axis)
     combined.to_csv(args.output, index=write_index)
 
 main()
+
