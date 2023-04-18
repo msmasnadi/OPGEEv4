@@ -65,7 +65,7 @@ def run_field(analysis_name, field_name, xml_string):
     return result
 
 
-def run_parallel(model_xml_file, analysis_name, field_names):
+def run_parallel(model_xml_file, analysis_name, field_names, max_results=None):
     from dask.distributed import as_completed
 
     from ..model_file import extracted_model
@@ -98,8 +98,15 @@ def run_parallel(model_xml_file, analysis_name, field_names):
     emission_cols = []
     errors = []
 
+    count = 0   # used if we're returning results in batches
+
     # Wait for and process results
     for future, result in as_completed(futures, with_results=True):
+        if max_results and count == 0:
+            energy_cols.clear()
+            emission_cols.clear()
+            errors.clear()
+
         if result.error:
             _logger.error(f"Failed: {result}")
             errors.append(result)
@@ -109,12 +116,24 @@ def run_parallel(model_xml_file, analysis_name, field_names):
             energy_cols.append(result.energy)
             emission_cols.append(result.emissions)
 
+        if max_results:
+            if count == max_results:
+                count = 0
+                # return the next batch
+                yield energy_cols, emission_cols, errors
+            else:
+                count += 1
+
     _logger.debug("Workers finished")
 
     mgr.stop_cluster()
     _logger.info(timer.stop())
 
-    return energy_cols, emission_cols, errors
+    if count:
+        yield energy_cols, emission_cols, errors
+    else:
+        return energy_cols, emission_cols, errors
+
 
 def run_serial(model_xml_file, analysis_name, field_names):
     from ..model_file import extracted_model
@@ -154,12 +173,20 @@ class RunManyCommand(SubcommandABC):
                             with the extension removed. Default is the first analyses found in the given 
                             model XML file.''')
 
+        parser.add_argument('-b', '--batch-start', default=0, type=int,
+                            help='''The value to use to start numbering batch result files.
+                            Default is zero. Ignored unless -N/--save-after is specified.''')
+
         parser.add_argument('-f', '--fields', action=ParseCommaList,
                             help=f'''A comma-delimited list of fields to run. Default is to
                             run all fields indicated in the named analysis.''')
 
         parser.add_argument('-m', '--model', required=True,
                             help=f'''[Required] The pathname of a model XML file to process.''')
+
+        parser.add_argument('-N', '--save-after', type=int,
+                            help='''Write a results to a new file after the given number of results are 
+                            returned. Implies --parallel.''')
 
         parser.add_argument('-n', '--count', type=int, default=0,
                             help='''The number of fields to run from the named analysis.
@@ -173,6 +200,10 @@ class RunManyCommand(SubcommandABC):
 
         parser.add_argument('-p', '--parallel', action='store_true',
                             help='''Run the fields in parallel locally using dask.''')
+
+        parser.add_argument('-S', '--start-with',
+                            help='''The name of a field to start with. Use this to resume a run after a failure.
+                            Can be combined with -n/--count to run a large number of fields in smaller batches.''')
 
         parser.add_argument('-s', '--skip-fields', action=ParseCommaList,
                             help='''Comma-delimited list of field names to exclude from analysis''')
@@ -201,6 +232,11 @@ class RunManyCommand(SubcommandABC):
         else:
             field_names = all_fields
 
+        if args.start_with:
+            # skip all before the named field
+            i = field_names.index(args.start_with)
+            field_names = field_names[i:]
+
         if args.count:
             field_names = field_names[:args.count]
 
@@ -208,10 +244,7 @@ class RunManyCommand(SubcommandABC):
         if skip:
             field_names = [name.strip() for name in field_names if name not in skip]
 
-        run_func = run_parallel if args.parallel else run_serial
-        energy_cols, emissions_cols, errors = run_func(model_xml_file, analysis_name, field_names)
-
-        def _save(columns, csvpath):
+        def _save_cols(columns, csvpath):
             df = pd.concat(columns, axis='columns')
             df.index.name = 'process'
             df.sort_index(axis='rows', inplace=True)
@@ -219,18 +252,40 @@ class RunManyCommand(SubcommandABC):
             print(f"Writing '{csvpath}'")
             df.to_csv(csvpath)
 
+        def _save_errors(errors, csvpath):
+            """Save a description of all field run errors"""
+            with open(csvpath, 'w') as f:
+                f.write('analysis,field,error\n')
+                for result in errors:
+                    f.write(f"{result.analysis_name},{result.field_name},{result.error}\n")
+
         temp_dir = getParam('OPGEE.TempDir')
         dir_name, filename = os.path.split(args.output)
+        subdir = pathjoin(temp_dir, dir_name)
         basename, ext = os.path.splitext(filename)
 
-        # Insert "-energy" or "-emissions" between basename and extension
-        subdir = pathjoin(temp_dir, dir_name)
-        _save(energy_cols, pathjoin(subdir, f"{basename}-energy{ext}"))
-        _save(emissions_cols, pathjoin(subdir, f"{basename}-emissions{ext}"))
+        save_after = args.save_after
+        if save_after:
+            batch = args.batch_start   # used in naming result files
 
-        # Save a description of all field run errors
-        error_file = pathjoin(subdir, f"{basename}-errors.csv")
-        with open(error_file, 'w') as f:
-            f.write('analysis,field,error\n')
-            for result in errors:
-                f.write(f"{result.analysis_name},{result.field_name},{result.error}\n")
+            for vectors in run_parallel(model_xml_file, analysis_name, field_names,
+                                        max_results=save_after):
+
+                energy_cols, emissions_cols, errors = vectors
+
+                _save_cols(energy_cols,    pathjoin(subdir, f"{basename}-energy-{batch}{ext}"))
+                _save_cols(emissions_cols, pathjoin(subdir, f"{basename}-emissions-{batch}{ext}"))
+                _save_errors(errors,       pathjoin(subdir, f"{basename}-errors-{batch}.csv"))
+
+                batch += 1
+
+        else:
+            # If not running in batches, save all results at the end
+            run_func = run_parallel if args.parallel else run_serial
+            energy_cols, emissions_cols, errors = run_func(model_xml_file, analysis_name,
+                                                           field_names)
+
+            # Insert "-energy" or "-emissions" between basename and extension
+            _save_cols(energy_cols,    pathjoin(subdir, f"{basename}-energy{ext}"))
+            _save_cols(emissions_cols, pathjoin(subdir, f"{basename}-emissions{ext}"))
+            _save_errors(errors,       pathjoin(subdir, f"{basename}-errors.csv"))
