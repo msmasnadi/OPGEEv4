@@ -108,7 +108,7 @@ class SteamGeneration(Process):
                                                    recycled_blowdown_water.to("tonne/day"),
                                                    tp=self.waste_water_reinjection_tp)
 
-        makeup_water_to_prod_water_frac = makeup_water_mass_rate / prod_water_mass_rate
+        makeup_water_to_prod_water_frac = makeup_water_mass_rate / prod_water_mass_rate if prod_water_mass_rate.m != 0 else 1
 
         fuel_consumption_OTSG = fuel_consumption_HRSG = fuel_consumption_solar = \
             electricity_HRSG = ureg.Quantity(0, "MJ/day")
