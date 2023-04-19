@@ -536,66 +536,74 @@ class Field(Container):
 
         if self.attr("gas_flooding") and self.attr("flood_gas_type") == "CO2":
             productivity += oil_rate * self.attr("GFIR") * self.attr("frac_CO2_breakthrough")
-        productivity /= self.attr("num_prod_wells")
 
-        productivity = productivity.to("kscf/day").m
+        num_prod_wells = self.attr("num_prod_wells")
+        separation_loss_rate = ureg.Quantity(0.0, "frac")
+        tank_loss_rate = ureg.Quantity(0.0, "frac")
+        pump_loss_rate = ureg.Quantity(0.0, "frac")
+        loss_mat_gas_ave_df = pd.DataFrame()
 
-        loss_mat_gas = model.loss_matrix_gas
-        loss_mat_oil = model.loss_matrix_oil
-        prod_mat_gas = model.productivity_gas
-        prod_mat_oil = model.productivity_oil
+        if num_prod_wells > 0:
+            productivity /= num_prod_wells
 
-        field_productivity = \
-            pd.DataFrame(
-                columns=['Assignment', 'col_shift', 'Mean gas rate (Mscf/well/day)', 'Frac total gas'],
-                index=prod_mat_gas.index)
+            productivity = productivity.to("kscf/day").m
 
-        field_productivity['Mean gas rate (Mscf/well/day)'] = \
-            prod_mat_gas['Normalized rate'] if GOR > GOR_cutoff else prod_mat_oil['Normalized rate']
-        field_productivity['Mean gas rate (Mscf/well/day)'] *= productivity
+            loss_mat_gas = model.loss_matrix_gas
+            loss_mat_oil = model.loss_matrix_oil
+            prod_mat_gas = model.productivity_gas
+            prod_mat_oil = model.productivity_oil
 
-        field_productivity['Frac total gas'] = \
-            prod_mat_gas['Frac total gas'] if GOR > GOR_cutoff else prod_mat_oil['Frac total gas']
+            field_productivity = \
+                pd.DataFrame(
+                    columns=['Assignment', 'col_shift', 'Mean gas rate (Mscf/well/day)', 'Frac total gas'],
+                    index=prod_mat_gas.index)
 
-        field_productivity['Assignment'] = \
-            field_productivity.apply(
-                lambda row: self.comp_fugitive_productivity(prod_mat_gas, row['Mean gas rate (Mscf/well/day)']), axis=1)
+            field_productivity['Mean gas rate (Mscf/well/day)'] = \
+                prod_mat_gas['Normalized rate'] if GOR > GOR_cutoff else prod_mat_oil['Normalized rate']
+            field_productivity['Mean gas rate (Mscf/well/day)'] *= productivity
 
-        common_cols = ['Well', 'Header', 'Heater', 'Separator', 'Meter', 'Tanks-leaks', 'Tank-thief hatch', 'Recip Comp',
-                'Dehydrator', 'Chem Inj Pump', 'Pneum Controllers', 'Flash factor']
-        cols_gas = common_cols + ['LU-plunger', 'LU-no plunger']
-        cols_oil = common_cols
-        tranch = range(10)
-        flash_factor = 0.51  # kg CH4/bbl (total flashing gas). Divide by 0.51 to correct for fraction of wells controlled in Rutherford et al. 2021
-        loss_mat_gas_ave = loss_mat_gas.mean(axis=0).values
-        loss_mat_gas_ave = loss_mat_gas_ave.reshape(len(tranch), len(cols_gas))
-        loss_mat_gas_ave_df = pd.DataFrame(data=loss_mat_gas_ave, index=prod_mat_gas["Bin low"], columns=cols_gas)
+            field_productivity['Frac total gas'] = \
+                prod_mat_gas['Frac total gas'] if GOR > GOR_cutoff else prod_mat_oil['Frac total gas']
 
-        cols = cols_gas if GOR > GOR_cutoff else cols_oil
-        loss_mat = loss_mat_gas if GOR > GOR_cutoff else loss_mat_oil
-        loss_mat_ave = loss_mat.mean(axis=0).values
-        loss_mat_ave = loss_mat_ave.reshape(len(tranch), len(cols))
-        df = pd.DataFrame(loss_mat_ave, columns=cols, index=range(len(tranch)))
+            field_productivity['Assignment'] = \
+                field_productivity.apply(
+                    lambda row: self.comp_fugitive_productivity(prod_mat_gas, row['Mean gas rate (Mscf/well/day)']), axis=1)
 
-        df = field_productivity.apply(lambda row: self.comp_fugitive_loss(df, row['Assignment']), axis=1)
-        comp_fugitive = df.T.dot(field_productivity['Frac total gas'])
-        comp_fugitive['Flash factor'] /= flash_factor
+            common_cols = ['Well', 'Header', 'Heater', 'Separator', 'Meter', 'Tanks-leaks', 'Tank-thief hatch', 'Recip Comp',
+                    'Dehydrator', 'Chem Inj Pump', 'Pneum Controllers', 'Flash factor']
+            cols_gas = common_cols + ['LU-plunger', 'LU-no plunger']
+            cols_oil = common_cols
+            tranch = range(10)
+            flash_factor = 0.51  # kg CH4/bbl (total flashing gas). Divide by 0.51 to correct for fraction of wells controlled in Rutherford et al. 2021
+            loss_mat_gas_ave = loss_mat_gas.mean(axis=0).values
+            loss_mat_gas_ave = loss_mat_gas_ave.reshape(len(tranch), len(cols_gas))
+            loss_mat_gas_ave_df = pd.DataFrame(data=loss_mat_gas_ave, index=prod_mat_gas["Bin low"], columns=cols_gas)
 
-        separation_loss_rate = comp_fugitive['Separator']
-        tank_loss_rate = comp_fugitive['Flash factor']
-        pump_loss_rate = comp_fugitive
-        pump_loss_rate.drop('Separator', inplace=True)
-        pump_loss_rate.drop('Flash factor', inplace=True)
+            cols = cols_gas if GOR > GOR_cutoff else cols_oil
+            loss_mat = loss_mat_gas if GOR > GOR_cutoff else loss_mat_oil
+            loss_mat_ave = loss_mat.mean(axis=0).values
+            loss_mat_ave = loss_mat_ave.reshape(len(tranch), len(cols))
+            df = pd.DataFrame(loss_mat_ave, columns=cols, index=range(len(tranch)))
 
-        if GOR > GOR_cutoff:
-            pump_loss_rate['LU-plunger-norm'] =\
-                pump_loss_rate['LU-plunger'] * frac_wells_with_plunger +\
-                pump_loss_rate['LU-no plunger'] * frac_wells_with_non_plunger
-            pump_loss_rate.drop('LU-plunger', inplace=True)
-            pump_loss_rate.drop('LU-no plunger', inplace=True)
-        pump_loss_rate = pump_loss_rate.sum()
+            df = field_productivity.apply(lambda row: self.comp_fugitive_loss(df, row['Assignment']), axis=1)
+            comp_fugitive = df.T.dot(field_productivity['Frac total gas'])
+            comp_fugitive['Flash factor'] /= flash_factor
 
-        compressor_list = ["SourGasCompressor", "GasReinjectionCompressor"]
+            separation_loss_rate = comp_fugitive['Separator']
+            tank_loss_rate = comp_fugitive['Flash factor']
+            pump_loss_rate = comp_fugitive
+            pump_loss_rate.drop('Separator', inplace=True)
+            pump_loss_rate.drop('Flash factor', inplace=True)
+
+            if GOR > GOR_cutoff:
+                pump_loss_rate['LU-plunger-norm'] =\
+                    pump_loss_rate['LU-plunger'] * frac_wells_with_plunger +\
+                    pump_loss_rate['LU-no plunger'] * frac_wells_with_non_plunger
+                pump_loss_rate.drop('LU-plunger', inplace=True)
+                pump_loss_rate.drop('LU-no plunger', inplace=True)
+            pump_loss_rate = pump_loss_rate.sum()
+
+            compressor_list = ["SourGasCompressor", "GasReinjectionCompressor"]
         # well_list = ["CO2InjectionWell", "GasReinjectionWell", "SourGasInjection"]
 
         process_loss_rate_dict = {
