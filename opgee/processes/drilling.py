@@ -80,9 +80,12 @@ class Drilling(Process):
         land_use_intensity = land_use_intensity_df.loc[self.field_development_intensity]
         stream = Stream("stream_stp", tp=field.stp)
 
+
         oil_SG = field.oil.oil_specific_gravity
         if field.get_process_data("boundary_API") is not None:
-            oil_SG = field.oil.specific_gravity(field.get_process_data("boundary_API"))
+            boundary_API = field.get_process_data("boundary_API")
+            oil_SG = field.oil.specific_gravity(boundary_API)
+            stream.set_API(boundary_API)
 
         land_use_emission = \
             (land_use_intensity.sum() * field.oil_volume_rate * field.oil.volume_energy_density(

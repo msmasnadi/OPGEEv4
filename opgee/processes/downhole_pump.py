@@ -158,8 +158,10 @@ class DownholePump(Process):
             free_gas = max(ureg.Quantity(0, "scf/bbl"), (solution_gas_oil_ratio_input - average_solution_GOR))
             wellbore_average_press = (wellhead_P + input.tp.P) / 2
             wellbore_average_temp = ureg.Quantity((wellhead_T.m + self.res_temp.m) / 2, "degF")
-            stream = Stream("average", TemperaturePressure(wellbore_average_temp, wellbore_average_press))
-            stream.copy_flow_rates_from(input)
+            wellbore_average_tp = TemperaturePressure(wellbore_average_temp, wellbore_average_press)
+            stream = Stream("average", wellbore_average_tp)
+            stream.copy_flow_rates_from(input, tp=wellbore_average_tp)
+            # stream.set
             gas_FVF = gas.volume_factor(stream)
             gas_density = gas.density(stream)
             volume_free_gas = free_gas * gas_FVF

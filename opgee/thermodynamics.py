@@ -275,7 +275,7 @@ class WetAir(Air):
 class DryAir(Air):
     """
     DryAir class represents the composition of dry air.
-    The composition is N2 = 0.79, O2 = 0.21
+    The composition is obtained from https://www.engineeringtoolbox.com/air-composition-d_212.html
     """
 
     def __init__(self, field):
@@ -283,8 +283,17 @@ class DryAir(Air):
 
         :param field:
         """
-        composition = [("N2", 0.79),
-                       ("O2", 0.21)]
+        composition = [("Nitrogen", 0.78084),
+                       ("Oxygen", 0.20946),
+                       ("Argon", 0.00934),
+                       ("Carbon dioxide", 0.000412),
+                       ("Neon", 0.00001818),
+                       ("Helium", 0.00000524),
+                       ("Methane", 0.00000179),
+                       ("Krypton", 0.0000010),
+                       ("Hydrogen", 0.0000005),
+                       ("Xenon", 0.00000009)]
+
         super().__init__(field, composition)
 
 
@@ -303,6 +312,7 @@ class AbstractSubstance(OpgeeObject):
         self.model = field.model
 
         self.dry_air = DryAir(field)
+
 
         # TODO: refactor this. Currently each subclass of AbstractSubstance calls this __init__
         #  method and stores redundant copies of all the variables below. Make these class vars
@@ -326,9 +336,7 @@ class AbstractSubstance(OpgeeObject):
                                       dtype="pint[kelvin]")
         self.component_Pc = pd.Series({name: Pc(name, with_units=False) for name in components},
                                       dtype="pint[Pa]")
-        temp = ureg.Quantity(60., "degF")
-        press = ureg.Quantity(14.7, "psia")
-        self.component_gas_rho_STP = pd.Series({name: rho(name, temp, press, PHASE_GAS)
+        self.component_gas_rho_STP = pd.Series({name: rho(name, field.stp.T, field.stp.P, PHASE_GAS)
                                                 for name in components}, dtype="pint[kg/m**3]")
 
 
@@ -358,6 +366,8 @@ class Oil(AbstractSubstance):
         self.oil_specific_gravity = ureg.Quantity(141.5 / (131.5 + API.m), "frac")
         self.total_molar_weight = (self.gas_comp * self.component_MW[self.gas_comp.index]).sum()
         self.gas_specific_gravity = self._gas_specific_gravity()
+
+        self.water = Water(field)
 
     # TODO: Used only once, immediately above
     def _gas_specific_gravity(self):
@@ -417,12 +427,12 @@ class Oil(AbstractSubstance):
 
         :return: (float) solution gas oil ratio at resevoir condition (unit = scf/bbl)
         """
-        oil_SG = self.oil_specific_gravity.m
+        oil_SG = self.oil_specific_gravity.to("frac").m
 
         res_T = self.res_tp.T.to("rankine").m
         res_P = self.res_tp.P.to("psia").m
 
-        gas_SG = self.gas_specific_gravity.m
+        gas_SG = self.gas_specific_gravity.to("frac").m
         gor_bubble = self.bubble_point_solution_GOR(self.gas_oil_ratio).m
 
         empirical_res = (res_P ** (1 / self.pbub_a2) *
@@ -443,7 +453,7 @@ class Oil(AbstractSubstance):
 
         :return:
         """
-        oil_SG = oil_specific_gravity.m
+        oil_SG = oil_specific_gravity.to("frac").m
         stream_T = stream.tp.T.to("rankine").m
 
         gas_SG = gas_specific_gravity.to("frac").m
@@ -461,7 +471,7 @@ class Oil(AbstractSubstance):
 
         :return: (float) solution gas oil ratio (unit = scf/bbl)
         """
-        oil_SG = oil_specific_gravity.m
+        oil_SG = oil_specific_gravity.to("frac").m
         stream_T = stream.tp.T.to("rankine").m
         stream_P = stream.tp.P.m
 
@@ -483,7 +493,7 @@ class Oil(AbstractSubstance):
 
         :return: (float) saturated formation volume factor (unit = fraction)
         """
-        oil_SG = oil_specific_gravity.m
+        oil_SG = oil_specific_gravity.to("frac").m
         stream_T = stream.tp.T.m
 
         gas_SG = gas_specific_gravity.to("frac").m
@@ -590,17 +600,15 @@ class Oil(AbstractSubstance):
 
     def density(self, stream, oil_specific_gravity, gas_specific_gravity, gas_oil_ratio):
         """
+        Calculate the density of a mixture of oil and gas in a stream.
 
-        :param stream:
-        :param oil_specific_gravity:
-        :param gas_specific_gravity:
-        :param gas_oil_ratio:
+        :param stream: The stream containing the oil and gas mixture
+        :param oil_specific_gravity: The specific gravity of the oil component
+        :param gas_specific_gravity: The specific gravity of the gas component
+        :param gas_oil_ratio: The ratio of gas to oil in the mixture
 
-        :return:
+        :return: The density of the mixture (unit = lb/ft**3)
         """
-        oil_SG = oil_specific_gravity.m
-
-        gas_SG = gas_specific_gravity.to("frac").m
         solution_gor = self.solution_gas_oil_ratio(stream,
                                                    oil_specific_gravity,
                                                    gas_specific_gravity,
@@ -610,8 +618,11 @@ class Oil(AbstractSubstance):
                                                      gas_specific_gravity,
                                                      gas_oil_ratio)
 
-        result = (62.42796 * oil_SG + 0.0136 * gas_SG * solution_gor.m) / volume_factor.m
-        return ureg.Quantity(result, "lb/ft**3")
+        water_density = self.water.density_STP
+        air_density = self.dry_air.density()
+        result =\
+            (water_density * oil_specific_gravity + air_density * gas_specific_gravity * solution_gor) / volume_factor
+        return result.to("lb/ft**3")
 
     def volume_flow_rate(self, stream, oil_specific_gravity, gas_specific_gravity, gas_oil_ratio):
         """
@@ -625,7 +636,7 @@ class Oil(AbstractSubstance):
         :return:(float) oil volume flow rate (unit = bbl/day)
         """
 
-        mass_flow_rate = stream.hydrocarbon_rate(PHASE_LIQUID)
+        mass_flow_rate = stream.liquid_flow_rate("oil")
         density = self.density(stream, oil_specific_gravity, gas_specific_gravity, gas_oil_ratio)
 
         volume_flow_rate = (mass_flow_rate / density).to("bbl_oil/day")
@@ -650,7 +661,6 @@ class Oil(AbstractSubstance):
 
         return result
 
-    # TODO: used only in tests
     def volume_energy_density(self, stream, oil_specific_gravity, gas_specific_gravity, gas_oil_ratio):
         """
         Calculate oil volume energy density
@@ -662,7 +672,7 @@ class Oil(AbstractSubstance):
 
         :return:(float) volume energy density (unit = mmBtu/bbl)
         """
-        mass_energy_density = self.oil_LHV_mass
+        mass_energy_density = self.mass_energy_density(API=stream.API)
         density = self.density(stream,
                                oil_specific_gravity,
                                gas_specific_gravity,
@@ -679,8 +689,8 @@ class Oil(AbstractSubstance):
 
         :return:(pint.Quantity) energy flow rate in "mmBtu/day"
         """
-        mass_flow_rate = stream.hydrocarbon_rate(PHASE_LIQUID)
-        mass_energy_density = self.oil_LHV_mass
+        mass_flow_rate = stream.liquid_flow_rate("oil") + stream.liquid_flow_rate("PC")
+        mass_energy_density = self.mass_energy_density(API=stream.API)
         result = (mass_energy_density * mass_flow_rate).to("mmbtu/day")
         return result
 
@@ -718,7 +728,7 @@ class Oil(AbstractSubstance):
         :return:(float) liquid fuel composition (unit = mol/kg)
         """
         low_bound = 4
-        high_bound = 70 # 45   # TODO: changed temporarily to handle exported CSV field definitions
+        high_bound = 45
 
         if API.m < low_bound or API.m > high_bound:
             raise ModelValidationError(f"{API.m} is less than {low_bound} or greater than {high_bound}")
@@ -896,10 +906,10 @@ class Gas(AbstractSubstance):
 
     def uncorrected_pseudocritical_temperature_and_pressure(self, stream):
         """
+        Calculate the uncorrected pseudocritical temperature and pressure for a given stream.
 
-        :param stream:
-
-        :return:(float) pandas.Series
+        :param stream: Stream object with gas composition and flow rates
+        :return: pandas.Series containing temperature (in Rankine) and pressure (in psia)
         """
         mass_flow_rate = stream.gas_flow_rates()  # pandas.Series
         molar_fraction = self.component_molar_fractions(stream).pint.m
@@ -920,10 +930,10 @@ class Gas(AbstractSubstance):
 
     def corrected_pseudocritical_temperature(self, stream):
         """
+        Calculate the corrected pseudocritical temperature for a given stream.
 
-        :param stream:
-
-        :return: (float) corrected pseudocritical temperature (unit = rankine)
+        :param stream: Stream object with gas composition and flow rates
+        :return: float representing the corrected pseudocritical temperature (in Rankine)
         """
         uncorr_pseudocritical_temp = self.uncorrected_pseudocritical_temperature_and_pressure(stream)["temperature"].m
         molar_frac_O2 = self.component_molar_fraction("O2", stream).m
@@ -936,10 +946,10 @@ class Gas(AbstractSubstance):
 
     def corrected_pseudocritical_pressure(self, stream):
         """
+        Calculate the corrected pseudocritical pressure for a given stream.
 
-        :param stream:
-
-        :return:
+        :param stream: Stream object with gas composition and flow rates
+        :return: float representing the corrected pseudocritical pressure (in psia)
         """
         uncorr_pseudocritical_temp = self.uncorrected_pseudocritical_temperature_and_pressure(stream)["temperature"]
         uncorr_pseudocritical_press = self.uncorrected_pseudocritical_temperature_and_pressure(stream)["pressure"]
@@ -1231,6 +1241,7 @@ class Water(AbstractSubstance):
         # TODO: this can be improved by adding ions in the H2O in the solution
         self.specific_gravity = ureg.Quantity(1 + self.TDS.m * 0.695 * 1e-6, "frac")
         self.steam_table = XSteam(XSteam.UNIT_SYSTEM_FLS)
+        self.density_STP = self.density()
 
     def density(self, temperature=None, pressure=None):
         """

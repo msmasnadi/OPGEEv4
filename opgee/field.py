@@ -27,6 +27,7 @@ from .smart_defaults import SmartDefault
 from .stream import Stream
 from .thermodynamics import Oil, Gas, Water
 from .utils import getBooleanXML, roundup
+from .combine_streams import combine_streams
 
 _logger = getLogger(__name__)
 
@@ -404,12 +405,12 @@ class Field(Container):
         :return: (pint.Quantity) the energy flow at the boundary
         """
         boundary_proc = self.boundary_process(analysis)
-        stream = boundary_proc.sum_input_streams()
+        combined_stream = combine_streams(boundary_proc.inputs)
 
         # TODO: displacement method
         obj = self.oil if analysis.fn_unit == 'oil' else self.gas
         # TODO: Add method to calculate petrocoke energy flow rate
-        energy = obj.energy_flow_rate(stream)
+        energy = self.oil.energy_flow_rate(combined_stream) + self.gas.energy_flow_rate(combined_stream)
 
         if energy.m == 0:
             if raiseError:
