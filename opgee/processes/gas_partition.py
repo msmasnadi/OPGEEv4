@@ -135,6 +135,7 @@ class GasPartition(Process):
             N2_mass_rate = self.gas_flooding_vol_rate * field.gas.component_gas_rho_STP["N2"]
             reinjected_gas_stream.set_gas_flow_rate("N2", N2_mass_rate)
             reinjected_gas_stream.set_tp(self.N2_flooding_tp)
+            field.save_process_data(N2_reinjection_volume_rate=self.gas_flooding_vol_rate)
 
             import_product.set_import(self.name, N2, N2_mass_rate)
         elif self.flood_gas_type == "CO2":

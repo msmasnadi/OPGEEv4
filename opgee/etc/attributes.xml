@@ -684,6 +684,7 @@
 
       <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
       <AttrDef name="eta_compressor" type="float" unit="percent" desc="gas reinjection compressor efficiency">75.0</AttrDef>
+      <AttrDef name="air_separation_energy_intensity" type="float" unit="kWh/scf" desc="Air separation unit electricity consumption (cryogenic N2 gas production)">0.004156716</AttrDef>
 
     </ClassAttrs>
 
