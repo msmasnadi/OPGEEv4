@@ -60,7 +60,6 @@ class PostStorageCompressor(Process):
         gas_to_distribution.subtract_rates_from(gas_fugitives)
 
         # import/export
-        # import_product = field.import_export
         self.set_import_from_energy(energy_use)
 
         # emissions

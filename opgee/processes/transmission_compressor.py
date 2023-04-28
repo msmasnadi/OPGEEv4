@@ -82,7 +82,6 @@ class TransmissionCompressor(Process):
                             energy_consumption_booster * num_compressor_stations)
 
         # import/export
-        # import_product = field.import_export
         self.set_import_from_energy(energy_use)
 
         gas_to_storage = self.find_output_stream("gas for storage")

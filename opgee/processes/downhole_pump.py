@@ -189,6 +189,8 @@ class DownholePump(Process):
             energy_consumption_sum = sum(energy_consumption_of_stages) * self.num_prod_wells
             energy_use.set_rate(energy_carrier, energy_consumption_sum)
 
+            # import and export
+            self.set_import_from_energy(energy_use)
         # emission
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")

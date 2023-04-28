@@ -149,6 +149,9 @@ class GasDehydration(Process):
         energy_use.set_rate(EN_NATURAL_GAS, reboiler_fuel_use)
         energy_use.set_rate(EN_ELECTRICITY, air_cooler_energy_consumption + pump_duty)
 
+        # import and export
+        self.set_import_from_energy(energy_use)
+
         # emissions
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")
