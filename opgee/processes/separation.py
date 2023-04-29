@@ -12,7 +12,7 @@ from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
 from ..processes.compressor import Compressor
-from ..stream import Stream, PHASE_LIQUID
+from ..stream import Stream, PHASE_LIQUID, PHASE_GAS
 from ..thermodynamics import rho
 from .shared import get_energy_carrier, get_energy_consumption_stages
 
@@ -144,10 +144,7 @@ class Separation(Process):
         gas_volume_rate = self.oil_volume_rate * self.gas_oil_ratio * self.gas_comp
         gas_density = gas.component_gas_rho_STP[self.gas_comp.index]
         gas_mass_rate = gas_volume_rate * gas_density
-
-        for component, mass_rate in gas_mass_rate.items():
-            gas_after.set_gas_flow_rate(component, mass_rate.to("tonne/day"))
-
+        gas_after.set_rates_from_series(gas_mass_rate, PHASE_GAS)
         gas_after.tp.set(T=self.outlet_tp.T, P=self.pressure_after_boosting)
 
         oil_after = self.find_output_stream("crude oil")
