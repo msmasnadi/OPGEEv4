@@ -38,7 +38,8 @@ class Separation(Process):
         self.temperature_stage1 = field.wellhead_t
         self.temperature_stage2 = (self.temperature_stage1.to("kelvin") + self.outlet_tp.T.to("kelvin")) / 2
 
-        self.pressure_stage1 = self.attr("pressure_first_stage")
+        #TODO: move it to smart default
+        self.pressure_stage1 = min(field.wellhead_p, self.attr("pressure_first_stage"))
         self.pressure_stage2 = self.attr("pressure_second_stage")
         self.pressure_stage3 = self.attr("pressure_third_stage")
 
@@ -48,6 +49,9 @@ class Separation(Process):
         self.water_oil_ratio = field.WOR
 
         self.num_of_stages = self.attr("number_stages")
+        #TODO: move it to smart default
+        if field.wellhead_p.m < 500:
+            self.num_of_stages = 1
 
         self.pressure_after_boosting = field.stab_gas_press
 

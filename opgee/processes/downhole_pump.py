@@ -79,8 +79,7 @@ class DownholePump(Process):
         self.num_prod_wells = field.num_prod_wells
         self.gravitational_acceleration = field.model.const("gravitational-acceleration")
         self.prime_mover_type = self.attr("prime_mover_type")
-        self.wellhead_t = field.wellhead_t
-        self.wellhead_tp = TemperaturePressure(self.wellhead_t, self.attr("wellhead_pressure"))
+        self.wellhead_tp = TemperaturePressure(field.wellhead_t, field.attr("wellhead_pressure"))
         self.oil_sand_mine = field.oil_sands_mine
 
     def run(self, analysis):
