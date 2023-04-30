@@ -103,7 +103,7 @@ class WaterTreatment(Process):
         surface_disp_rate = water_for_disp * self.frac_disp_surface
         subsurface_disp_rate = water_for_disp * self.frac_disp_subsurface
 
-        water_density = field.water.density(input.tp.T, input.tp.P)
+        water_density = field.water.density() # water is under the standard conditions
         input_water_volume_rate = input_water_mass_rate / water_density
         makeup_water_vol_downstream = (makeup_water_mass + makeup_steam_mass) / water_density
 

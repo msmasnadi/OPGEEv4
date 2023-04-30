@@ -155,9 +155,9 @@ class Separation(Process):
         oil_after.set_tp(self.outlet_tp)
         oil_after.set_API(field.API)
 
-        water_density_STP = rho("H2O", std_tp.T, std_tp.P, PHASE_LIQUID)
-        water_mass_rate = (self.oil_volume_rate * self.water_oil_ratio * water_density_STP.to("tonne/barrel_water") -
-                           water_in_oil_mass_rate)
+        water_density_STP = field.water.density()
+        water_mass_rate = max(0,
+                              self.oil_volume_rate * self.water_oil_ratio * water_density_STP - water_in_oil_mass_rate)
         water_after = self.find_output_stream("water")
         water_after.set_liquid_flow_rate("H2O", water_mass_rate, tp=self.outlet_tp)
 
