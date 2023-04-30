@@ -108,8 +108,6 @@ class SteamGeneration(Process):
                                                    recycled_blowdown_water.to("tonne/day"),
                                                    tp=self.waste_water_reinjection_tp)
 
-        makeup_water_to_prod_water_frac = makeup_water_mass_rate / prod_water_mass_rate if prod_water_mass_rate.m != 0 else 1
-
         fuel_consumption_OTSG = fuel_consumption_HRSG = fuel_consumption_solar = \
             electricity_HRSG = ureg.Quantity(0, "MJ/day")
 
@@ -143,7 +141,7 @@ class SteamGeneration(Process):
         NG_consumption = fuel_consumption_OTSG + fuel_consumption_HRSG
         energy_use.set_rate(EN_NATURAL_GAS, NG_consumption.to("mmBtu/day"))
 
-        water_pump_hp = self.get_feedwater_horsepower(steam_injection_volume_rate, makeup_water_to_prod_water_frac)
+        water_pump_hp = self.get_feedwater_horsepower(prod_water_mass_rate, makeup_water_mass_rate)
         water_pump_power = get_energy_consumption("Electric_motor", water_pump_hp)
         OTSG_air_blower = get_energy_consumption("Electric_motor",
                                                  fuel_consumption_OTSG * self.eta_air_blower_OTSG)
@@ -164,11 +162,12 @@ class SteamGeneration(Process):
         combustion_emission = (energy_for_combustion * self.process_EF).sum()
         emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
 
-    def get_feedwater_horsepower(self, steam_injection_volume_rate, makeup_water_to_prod_water_frac):
-        result = steam_injection_volume_rate * makeup_water_to_prod_water_frac * (
-                self.steam_generator_press_outlet - self.makeup_water_inlet_press) + \
-                 steam_injection_volume_rate * (1 - makeup_water_to_prod_water_frac) * (
-                         self.steam_generator_press_outlet - self.prod_water_inlet_press)
+    def get_feedwater_horsepower(self, prod_water_mass_rate, makeup_water_mass_rate):
+        prod_water_volume_rate = prod_water_mass_rate / self.water_density
+        makeup_water_mass_rate = makeup_water_mass_rate / self.water_density
+
+        result = makeup_water_mass_rate * (self.steam_generator_press_outlet - self.makeup_water_inlet_press) + \
+                 prod_water_volume_rate * (self.steam_generator_press_outlet - self.prod_water_inlet_press)
         result /= self.eta_displacement_pump
 
         return result
