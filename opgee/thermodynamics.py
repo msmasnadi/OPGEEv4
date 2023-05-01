@@ -1250,9 +1250,13 @@ class Water(AbstractSubstance):
         temp = temperature if temperature is not None else self.model.const("std-temperature")
         press = pressure if pressure is not None else self.model.const("std-pressure")
 
+        temp = temp.to("degF").m
+        press = press.to("psia").m
+
         specifc_gravity = self.specific_gravity
-        water_density_STP = rho("H2O", temp, press, PHASE_LIQUID)
-        density = specifc_gravity * water_density_STP
+        water_density = self.steam_table.rho_pt(round(press, self.steam_tbl_digits), round(temp, self.steam_tbl_digits))
+        water_density = ureg.Quantity(water_density, "lb/ft**3")
+        density = specifc_gravity * water_density
 
         return density.to("kg/m**3")
 
