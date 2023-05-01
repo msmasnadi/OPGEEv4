@@ -148,7 +148,7 @@ class DownholePump(Process):
             average_volume_oil_lifted = (volume_oil_lifted_input + volume_oil_lifted_output).to("ft**3/day") / 2
 
             # properties of water (all at average conditions along wellbore, in production tubing)
-            water_density = water.density()
+            water_density = water.density(temperature=input.tp.T, pressure=input.tp.P)
             volume_water_lifted = water.volume_flow_rate(output)
 
             wellhead_T, wellhead_P = self.wellhead_tp.get()
