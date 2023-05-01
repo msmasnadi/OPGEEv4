@@ -132,7 +132,6 @@ class Separation(Process):
 
         oil = field.oil
         gas = field.gas
-        std_tp = field.stp
 
         gas_after = self.find_output_stream("gas for partition")
 
