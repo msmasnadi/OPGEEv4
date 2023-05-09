@@ -1126,7 +1126,7 @@ class Field(Container):
         Instantiate an instance from an XML element
 
         :param elt: (etree.Element) representing a <Field> element
-        :param parent (opgee.Analysis) the Analysis containing the new Field
+        :param parent: (opgee.Analysis) the Analysis containing the new Field
         :return: (Field) instance populated from XML
         """
         name = elt_name(elt)

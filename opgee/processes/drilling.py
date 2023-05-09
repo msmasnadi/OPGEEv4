@@ -22,8 +22,7 @@ class Drilling(Process):
     """
         A class representing the drilling process in a field.
 
-        Attributes
-        ----------
+    Attributes
         fraction_wells_fractured : float
             The fraction of wells that are fractured.
         fracture_consumption_tbl : pandas.DataFrame

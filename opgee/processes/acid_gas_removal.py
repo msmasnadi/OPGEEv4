@@ -24,16 +24,16 @@ amine_solution_K_value_dict = { "conv DEA" : 1.45,
 
 class AcidGasRemoval(Process):
     """
-       A process class that removes acid gases (CO2 and H2S) from a natural gas stream.
+    A process class that removes acid gases (CO2 and H2S) from a natural gas stream.
 
-       Inputs:
+    Inputs:
        - gas for AGR: Gas stream containing CO2 and H2S to be removed.
 
-       Outputs:
+    Outputs:
        - gas for demethanizer: Gas stream with CO2 and H2S removed, and fed to the demethanizer.
        - gas for CO2 compressor: Gas stream containing CO2 to be compressed and injected back into the reservoir.
 
-       Attributes:
+    Attributes:
        - type_amine: The type of amine solution used for CO2 and H2S removal.
        - ratio_reflux_reboiler: The reflux-to-reboil ratio used in the process.
        - AGR_feedin_press: The feed-in pressure of the gas stream.
@@ -51,7 +51,7 @@ class AcidGasRemoval(Process):
        - prime_mover_type: The type of prime mover used in the process.
        - amine_solution_K_value: The K value of the amine solution used for CO2 and H2S removal.
 
-       Methods:
+    Methods:
        - run(analysis): Runs the acid gas removal process.
        - calculate_energy_consumption_from_Aspen(input_stream, output_stream, mol_frac_CO2, mol_frac_H2S): Calculates energy
          consumption for the acid gas removal process using Aspen HYSYS simulation.
@@ -163,13 +163,14 @@ class AcidGasRemoval(Process):
 
     def calculate_energy_consumption_from_Aspen(self, input, output_gas, mol_frac_CO2, mol_frac_H2S):
         """
-            Calculates the energy consumption in the AGR gas processing unit using Aspen simulation.
-            :param input: (Stream) Input gas stream
-            :param output_gas: (Stream) Output gas stream
-            :param mol_frac_CO2: (Quantity) Molar fraction of CO2 in the input gas stream
-            :param mol_frac_H2S: (Quantity) Molar fraction of H2S in the input gas stream
-            :return: (tuple) Compressor energy consumption (Quantity), Reboiler fuel use (Quantity), and
-                        Electricity consumption (Quantity)
+        Calculates the energy consumption in the AGR gas processing unit using Aspen simulation.
+
+        :param input: (Stream) Input gas stream
+        :param output_gas: (Stream) Output gas stream
+        :param mol_frac_CO2: (Quantity) Molar fraction of CO2 in the input gas stream
+        :param mol_frac_H2S: (Quantity) Molar fraction of H2S in the input gas stream
+        :return: (tuple) Compressor energy consumption (Quantity), Reboiler fuel use (Quantity), and
+            Electricity consumption (Quantity)
         """
 
         # Define a dictionary of the bounds for each variable used in the calculation from HYSYS

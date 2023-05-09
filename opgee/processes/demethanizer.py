@@ -24,12 +24,11 @@ _logger = getLogger(__name__)
 
 class Demethanizer(Process):
     """
-       A class to represent the Demethanizer process, which is responsible for separating
-       methane from heavier hydrocarbons (NGL) and producing a methane-rich gas stream
-       and a heavier hydrocarbon stream (LPG).
+    A class to represent the Demethanizer process, which is responsible for separating
+    methane from heavier hydrocarbons (NGL) and producing a methane-rich gas stream
+    and a heavier hydrocarbon stream (LPG).
 
-       Attributes
-       ----------
+    Attributes
        feed_press_demethanizer : pint.Quantity
            The pressure of the feed gas entering the demethanizer column.
        column_pressure : pint.Quantity
@@ -57,8 +56,7 @@ class Demethanizer(Process):
        prime_mover_type : str
            The type of prime mover used in the process.
 
-       Methods
-       -------
+    Methods
        run(analysis)
            Simulates the Demethanizer process to separate the incoming gas stream
            into a methane-rich stream and a heavier hydrocarbon stream.

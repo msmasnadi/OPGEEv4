@@ -214,10 +214,10 @@ class Analysis(Container):
     @classmethod
     def from_xml(cls, elt, parent=None):
         """
-        Instantiate an instance from an XML element
+        Instantiate an instance from an XML element.
 
         :param elt: (etree.Element) representing a <Analysis> element
-        :param parent (opgee.Model) the Model containing the new Analysis
+        :param parent: (opgee.Model) the Model containing the new Analysis
         :return: (Analysis) instance populated from XML
         """
         name = elt_name(elt)

@@ -260,7 +260,7 @@ class Model(Container):
         Instantiate an instance from an XML element
 
         :param elt: (etree.Element) representing a <Model> element
-        :param parent (None) this argument should be ``None`` for Model instances.
+        :param parent: (None) this argument should be ``None`` for Model instances.
         :param field_names: (list of str) the names of fields to include. Any other
           fields are ignored when building the model from the XML.
         :return: (Model) instance populated from XML

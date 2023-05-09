@@ -879,7 +879,7 @@ class Process(AttributeMixin, XmlInstantiable):
         Instantiate an instance from an XML element
 
         :param elt: (etree.Element) representing a <Process> element
-        :param parent (opgee.Analysis) the Analysis containing the new Process
+        :param parent: (opgee.Analysis) the Analysis containing the new Process
         :return: (Process) instance populated from XML
         """
         name = elt_name(elt)
@@ -1008,8 +1008,8 @@ class Aggregator(Container):
         Instantiate an instance from an XML element
 
         :param elt: (etree.Element) representing a <Aggregator> element
-        :param parent: (XmlInstantiable) the parent in the Model object hierarchy
-            for the object created here
+        :param parent: (XmlInstantiable) the parent in the Model object
+            hierarchy for the object created here
         :return: (Aggregator) instance populated from XML
         """
         name = elt_name(elt)

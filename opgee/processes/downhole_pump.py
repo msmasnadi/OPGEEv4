@@ -22,11 +22,10 @@ _logger = getLogger(__name__)
 
 class DownholePump(Process):
     """
-        A class to represent the DownholePump process, which is responsible for lifting
-        crude oil from a reservoir to the surface using a downhole pump.
+    A class to represent the DownholePump process, which is responsible for lifting
+    crude oil from a reservoir to the surface using a downhole pump.
 
-        Attributes
-        ----------
+    Attributes
         gas_lifting : bool
             Whether gas lifting is enabled in the field.
         res_temp : pint.Quantity
@@ -56,8 +55,7 @@ class DownholePump(Process):
         oil_sand_mine : bool
             Whether the field is an oil sands mine.
 
-        Methods
-        -------
+    Methods
         run(analysis)
             Simulates the DownholePump process to lift crude oil from the reservoir
             to the surface and calculates the energy consumption and emissions.
