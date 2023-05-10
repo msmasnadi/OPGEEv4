@@ -20,7 +20,7 @@ from .model import Model
 from .pkg_utils import resourceStream
 from .process import reload_subclass_dict
 from .stream import Stream
-from .utils import loadModuleFromPath, splitAndStrip, mkdirs
+from .utils import loadModuleFromPath, splitAndStrip, mkdirs, is_relpath
 from .xml_utils import merge_elements, save_xml
 
 _logger = getLogger(__name__)
@@ -236,12 +236,19 @@ class ModelFile(XMLFile):
         if not (pathnames or use_default_model or xml_string):
             raise OpgeeException(f"ModelFile: no model XML file or string specified")
 
-        opgee_xml = 'etc/opgee.xml'
-        attributes_xml = 'etc/attributes.xml'
+        opgee_xml = getParam('OPGEE.ModelFile')           # default is 'etc/opgee.xml'
+        attributes_xml = getParam('OPGEE.AttributesFile') # default is 'etc/attributes.xml'
+
+        base_stream = base_path = None
 
         # Assemble a list of built-in and user XML files to read and merge
-        base_stream = resourceStream(opgee_xml, stream_type='bytes', decode=None) if use_default_model else None
-        base_path   = pathnames.pop(0) if (pathnames and not use_default_model) else None
+        if use_default_model:
+            if is_relpath(opgee_xml):
+                base_stream = resourceStream(opgee_xml, stream_type='bytes', decode=None)
+            else:
+                base_path = opgee_xml
+        else:
+            base_path = pathnames.pop(0) if pathnames else None
 
         # Use superclass XMLFile to load base file we will merge into
         super().__init__(base_stream or base_path, xml_string=xml_string, schemaPath='etc/opgee.xsd')
@@ -252,8 +259,11 @@ class ModelFile(XMLFile):
 
         if not xml_string:
             # Push the XMLFile for attributes.xml onto the front of 'xml_files'
-            attr_stream = resourceStream(attributes_xml, stream_type='bytes', decode=None)
-            xml_files.insert(0, XMLFile(attr_stream, schemaPath='etc/opgee.xsd'))
+            attr_stream_or_path = (resourceStream(attributes_xml, stream_type='bytes', decode=None)
+                                   if is_relpath(attributes_xml) else attributes_xml)
+
+            xml_file = XMLFile(attr_stream_or_path, schemaPath='etc/opgee.xsd')
+            xml_files.insert(0, xml_file)
 
         # Read all XML files and merge everything below <Model> into base_root
         for xml_file in xml_files:
@@ -304,7 +314,7 @@ class ModelFile(XMLFile):
 
         # There must be exactly one <AttrDefs> as child of <Model>
         found = base_root.findall('AttrDefs')
-        if found is None:
+        if found is None or len(found) == 0:
             raise XmlFormatError(f"Missing <AttrDefs> as child of <Model> in '{pathnames}'")
 
         elif len(found) > 1:

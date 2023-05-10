@@ -43,6 +43,9 @@ def splitAndStrip(s, delim):
     items = [item.strip() for item in s.split(delim)]
     return items
 
+def is_relpath(p):
+    drive, path = os.path.splitdrive(p)
+    return not (drive or path.startswith('/'))
 
 def mkdirs(newdir, mode=0o770):
     """
