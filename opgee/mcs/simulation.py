@@ -399,6 +399,9 @@ class Simulation(OpgeeObject):
                 rv_list.append(dist.rv)
                 cols.append(dist.attr_name if dist.class_name == 'Field' else dist.full_name)
 
+            if not cols:
+                raise McsUserError(f"Can't run MCS: all parameters with distributions have explicit values in {field}.")
+
             self.trial_data_df = df = lhs(rv_list, trials, columns=cols, corrMat=corr_mat)
             df.index.name = 'trial_num'
             self.save_trial_data(field)
@@ -504,6 +507,14 @@ class Simulation(OpgeeObject):
                 field = self.analysis.get_field(field.name)
 
                 self.set_trial_data(field, trial_num)
+
+                # TBD: test re-running
+                #    SmartDefault.apply_defaults(field, analysis=self.analysis)
+                #  however, changes to structure are not applied unless we call
+                #  the function field.finalize_process_graph(), which also calls
+                #  SmartDefault.apply_defaults() and resolve_process_choices(),
+                #  and resets the field's network graph.
+
                 field.run(self.analysis, compute_ci=True, trial_num=trial_num)
                 # field.report()
                 completed += 1

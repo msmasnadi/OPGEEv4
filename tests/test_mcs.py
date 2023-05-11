@@ -4,12 +4,15 @@ from io import StringIO
 
 from opgee.error import McsUserError
 from opgee.mcs.simulation import read_distributions, Simulation, Distribution
-from .utils_for_tests import tmpdir
+from opgee.tool import opg
 
-analysis_name = 'example'
-field_name = 'gas_lifting_field'
+from .utils_for_tests import tmpdir, path_to_test_file
+
+analysis_name = 'test-mcs'
+field_name = 'test-mcs'
+model_file = path_to_test_file('test_mcs.xml')
 sim_dir = tmpdir('test-mcs')
-N = 100
+trials = 100
 
 header = "variable_name,distribution_type,mean,SD,low_bound,high_bound,prob_of_yes,default_value,pathname,notes\n"
 
@@ -40,25 +43,30 @@ def test_bad_distros():
         "boo,lognormal,100,0,,,,,,",    # stdev is zero
         "buz,unknown-distro,,,,,,,,",   # unknown distro
      )
-    for item in data:
-        read_string_distros(item)
+    read_string_distros(data)
 
     assert len(Distribution.instances) == 0 # all should be ignored
 
 
 def test_missing_analysis():
     with pytest.raises(McsUserError, match="Analysis '.*' was not found"):
-        Simulation.new(sim_dir, [], analysis_name + "_Not_A_Valid_Name_", N,
+        Simulation.new(sim_dir, [], analysis_name + "_Not_A_Valid_Name_", trials,
                        overwrite=True, field_names=[field_name])
+
+def test_gensim():
+    cmdline = f'gensim -t {trials} -s {sim_dir} -a test-mcs -f {field_name} -m {model_file} --overwrite'
+    opg(cmdline)
+
+    sim = Simulation(sim_dir)
+    df = sim.field_trial_data(field_name)
+    assert len(df) == trials
+
 
 def test_simulation():
     read_distributions(pathname=None)
     assert all([isinstance(d, Distribution) for d in Distribution.distributions()])
 
-    # Simulation.new(sim_dir, model_files, analysis_name, trials,
-    #                field_names=None, overwrite=False, use_default_model=True)
-    model_files = []
-    sim = Simulation.new(sim_dir, model_files, analysis_name, N,
+    sim = Simulation.new(sim_dir, model_file, analysis_name, trials,
                          overwrite=True, field_names=[field_name])
 
     top_dir = Path(sim_dir)
@@ -74,12 +82,12 @@ def test_simulation():
 
 def test_no_overwrite():
     with pytest.raises(McsUserError, match="Directory '.*' already exists"):
-        Simulation.new(sim_dir, [], analysis_name, N,
+        Simulation.new(sim_dir, [], analysis_name, trials,
                        overwrite=False, field_names=[field_name])
 
 def test_load_simulation():
     sim = Simulation(sim_dir)
-    assert sim.trials == N
+    assert sim.trials == trials
     assert sim.field_names == [field_name]
 
     with pytest.raises(McsUserError, match="Simulation directory '.*' does not exist."):
