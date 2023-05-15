@@ -228,6 +228,18 @@ class Field(Container):
 
         self.component_fugitive_table, self.loss_mat_gas_ave_df = self.get_component_fugitive()
 
+        self.finalize_process_graph()
+
+
+    def finalize_process_graph(self):
+        """
+        Apply Smart Defaults and resolve process choices, which may depend on values
+        of Smart Defaults. This can modify the process structure by including or
+        excluding process groups, so we do this before computing the process network
+        graph.
+
+        :return: nothing
+        """
         # The analysis arg now defaults to None, which means we've lost the ability to
         # have defaults that depend on Analysis attributes, e.g., "Analysis.gwp_horizon".
         # TODO: decide whether to give up that feature and drop analysis keyword
