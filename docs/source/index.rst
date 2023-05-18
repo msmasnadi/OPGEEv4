@@ -44,6 +44,15 @@ Application Programming Interface (API)
    api
    guidelines
 
+Software Architecture
+-----------------------
+
+  .. toctree::
+   :maxdepth: 1
+
+   architecture
+
+
 Indices and tables
 ==================
 

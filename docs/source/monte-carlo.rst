@@ -2,7 +2,7 @@ Monte Carlo Simulation
 ========================
 
 .. note::
-   This page is under development.
+   This page is under development. Needs a section on how it works internally.
 
 Overview
 ---------
