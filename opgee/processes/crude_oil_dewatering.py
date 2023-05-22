@@ -6,15 +6,14 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-from .shared import get_energy_carrier
 from .. import ureg
 from ..core import TemperaturePressure
 from ..emissions import EM_COMBUSTION
-from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY
 from ..error import OpgeeException
 from ..log import getLogger
 from ..process import Process
 from ..stream import PHASE_LIQUID
+from .shared import get_energy_carrier
 
 _logger = getLogger(__name__)
 

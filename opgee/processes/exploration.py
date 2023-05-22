@@ -8,7 +8,7 @@
 #
 import math
 
-from opgee import ureg
+from .. import ureg
 from ..constants import year_to_day
 from ..emissions import EM_COMBUSTION
 from ..energy import EN_DIESEL

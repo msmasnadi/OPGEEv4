@@ -6,9 +6,7 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-from .shared import get_init_lifting_stream
 from .. import ureg
-from ..combine_streams import combine_streams
 from ..core import STP
 from ..core import TemperaturePressure
 from ..error import OpgeeException
@@ -17,6 +15,7 @@ from ..log import getLogger
 from ..process import Process
 from ..stream import PHASE_GAS, Stream
 from ..constants import mol_per_scf
+from .shared import get_init_lifting_stream
 
 _logger = getLogger(__name__)
 

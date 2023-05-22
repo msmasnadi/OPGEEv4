@@ -11,12 +11,13 @@ from typing import Union, Optional
 import pandas as pd
 import pint
 
+from . import ureg
 from .attributes import AttrDefs, AttributeMixin
 from .combine_streams import combine_streams
 from .config import getParamAsBoolean
 from .constants import petrocoke_LHV
 from .container import Container
-from .core import OpgeeObject, XmlInstantiable, elt_name, instantiate_subelts, instantiate_subelts, magnitude
+from .core import OpgeeObject, XmlInstantiable, elt_name, instantiate_subelts, magnitude
 from .emissions import Emissions
 from .energy import Energy
 from .error import OpgeeException, AbstractMethodError, OpgeeIterationConverged, ModelValidationError
@@ -24,7 +25,6 @@ from .import_export import ImportExport
 from .log import getLogger
 from .stream import Stream
 from .utils import getBooleanXML
-from .import ureg
 
 _logger = getLogger(__name__)
 

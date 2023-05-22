@@ -16,6 +16,15 @@ _logger = getLogger(__name__)
 
 
 class VRUCompressor(Process):
+    """
+        TBD
+
+        input streams:
+            -
+
+        output streams:
+            -
+    """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 

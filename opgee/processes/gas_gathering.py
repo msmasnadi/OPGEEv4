@@ -6,11 +6,11 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
+import math
+from .. import ureg
 from ..emissions import EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
-import math
-from .. import ureg
 from ..stream import Stream
 
 _logger = getLogger(__name__)

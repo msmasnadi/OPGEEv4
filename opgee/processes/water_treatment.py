@@ -18,6 +18,15 @@ _logger = getLogger(__name__)
 
 
 class WaterTreatment(Process):
+    """
+        The water treatment process ...
+
+        Inputs:
+            - A
+
+        Outputs:
+            - B
+    """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
@@ -51,6 +60,12 @@ class WaterTreatment(Process):
         self.init_intermediate_results(["Produced Water", "Makeup Water"])
 
     def run(self, analysis):
+        """
+        Run the WaterTreatment process.
+
+        :param analysis: (opgee.Analysis)
+        :return: nothing
+        """
         self.print_running_msg()
         field = self.field
 

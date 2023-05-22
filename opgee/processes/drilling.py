@@ -8,7 +8,7 @@
 #
 import numpy as np
 
-from opgee import ureg
+from .. import ureg
 from ..emissions import EM_COMBUSTION, EM_LAND_USE
 from ..energy import EN_DIESEL
 from ..log import getLogger

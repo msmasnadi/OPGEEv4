@@ -16,7 +16,6 @@
 import numpy as np
 
 from .shared import get_energy_carrier, get_energy_consumption
-from .. import ureg
 from ..emissions import EM_COMBUSTION
 from ..error import OpgeeException
 from ..log import getLogger
@@ -26,6 +25,15 @@ _logger = getLogger(__name__)
 
 
 class WaterInjection(Process):
+    """
+        TBD
+
+        input streams:
+            -
+
+        output streams:
+            -
+    """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 

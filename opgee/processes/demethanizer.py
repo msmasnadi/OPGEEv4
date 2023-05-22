@@ -8,8 +8,6 @@
 #
 import pandas as pd
 
-from .compressor import Compressor
-from .shared import get_energy_carrier, predict_blower_energy_use, get_bounded_value
 from .. import ureg
 from ..core import STP, TemperaturePressure
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
@@ -18,6 +16,8 @@ from ..process import Process
 from ..process import run_corr_eqns
 from ..stream import PHASE_GAS
 from ..thermodynamics import ChemicalInfo
+from .compressor import Compressor
+from .shared import get_energy_carrier, predict_blower_energy_use, get_bounded_value
 
 _logger = getLogger(__name__)
 

@@ -6,11 +6,11 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-from ..processes.compressor import Compressor
 from .. import ureg
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process, run_corr_eqns
+from .compressor import Compressor
 from .shared import get_energy_carrier, predict_blower_energy_use, get_bounded_value, get_energy_consumption
 
 _logger = getLogger(__name__)
@@ -69,12 +69,12 @@ class AcidGasRemoval(Process):
         self.ratio_reflux_reboiler = self.attr("ratio_reflux_reboiler")
 
         # TODO: Add this to smart default mode
-        self.gas_comp_H2S = field.attr("gas_comp_H2S")
         if self.gas_comp_H2S < ureg.Quantity(1, "percent"):
             self.type_amine = "conv DEA"
         else:
             self.type_amine = "MDEA"
             self.ratio_reflux_reboiler = ureg.Quantity(7.0, "frac")
+        self.gas_comp_H2S = field.attr("gas_comp_H2S")
 
         self.AGR_feedin_press = field.AGR_feedin_press
         self.regeneration_temp = self.attr("regeneration_temp")

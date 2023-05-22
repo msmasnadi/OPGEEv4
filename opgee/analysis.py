@@ -56,7 +56,7 @@ class Analysis(Container):
         self.functional_units = set(getParamAsList('OPGEE.FunctionalUnits'))
 
         # This is set in use_GWP() below to a pandas.Series holding the current values
-        # in use, indexed by gas name.
+    # in use, indexed by gas name.
         self.gwp = None
 
         # Use the GWP years and version specified in XML

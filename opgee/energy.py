@@ -8,7 +8,8 @@
 #
 import pandas as pd
 
-from .core import ureg, OpgeeObject
+from . import ureg
+from .core import OpgeeObject
 from .error import OpgeeException
 from .log import getLogger
 

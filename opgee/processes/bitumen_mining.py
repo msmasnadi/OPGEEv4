@@ -12,7 +12,7 @@ from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
 from ..log import getLogger
 from ..process import Process
-from ..stream import PHASE_GAS, Stream
+from ..stream import Stream
 from ..error import OpgeeException
 
 _logger = getLogger(__name__)
