@@ -33,7 +33,7 @@ from .post_storage_compressor import PostStorageCompressor
 from .pre_membrane_chiller import PreMembraneChiller
 from .pre_membrane_compressor import PreMembraneCompressor
 from .process_for_test import *
-from .reservoir_well_interface import *
+from .reservoir_well_interface import ReservoirWellInterface
 from .ryan_holmes import RyanHolmes
 from .separation import Separation
 from .sour_gas_compressor import SourGasCompressor
@@ -46,4 +46,3 @@ from .transmission_compressor import TransmissionCompressor
 from .venting import Venting
 from .water_injection import WaterInjection
 from .water_treatment import WaterTreatment
-

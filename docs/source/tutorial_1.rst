@@ -12,16 +12,7 @@ and the flow of the functional target (oil or gas) is tracked to one or more use
 system boundaries, allowing the calculation of a "carbon intensity" in units of
 g CO\ :sub:`2`-eq MJ\ :sup:`-1`.
 
-This page describes:
-
-  * Python classes of the OPGEE model
-
-  * Handling of process cycles
-
 See also: :doc:`config`
-
-
-
 
 OPGEE's Python classes
 ----------------------------
@@ -68,14 +59,3 @@ Class attributes
 ^^^^^^^^^^^^^^^^^^^^^^
 
 See also: :obj:`opgee.attributes.ClassAttrs`
-
-
-
-
------------------------------------------------------
-
-Process cycles
-----------------
-
-TBD
-
