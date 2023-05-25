@@ -794,7 +794,7 @@
 		</Stream>
 
 		<Stream src="CO2InjectionWell" dst="ProductionBoundary">
-			<Contains>gas for reservoir</Contains>
+			<Contains>gas for gas partition</Contains>
 		</Stream>
 
 	</Field>
@@ -849,7 +849,7 @@
 		</Stream>
 
 		<Stream src="SourGasInjection" dst="ProductionBoundary">
-			<Contains>gas for reservoir</Contains>
+			<Contains>gas for gas partition</Contains>
 		</Stream>
 
 	</Field>
@@ -1209,7 +1209,7 @@
 		</Stream>
 
 		<Stream src="HeavyOilUpgrading" dst="ProductionBoundary" name="gas">
-			<Contains>gas for partition</Contains>
+			<Contains>gas for flaring</Contains>
 		</Stream>
 
 		<Stream src="HeavyOilUpgrading" dst="ProductionBoundary" name="process gas">

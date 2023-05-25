@@ -32,7 +32,6 @@ from .petrocoke_transport import PetrocokeTransport
 from .post_storage_compressor import PostStorageCompressor
 from .pre_membrane_chiller import PreMembraneChiller
 from .pre_membrane_compressor import PreMembraneCompressor
-from .process_for_test import *
 from .reservoir_well_interface import *
 from .ryan_holmes import RyanHolmes
 from .separation import Separation

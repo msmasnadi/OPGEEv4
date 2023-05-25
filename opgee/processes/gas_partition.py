@@ -59,6 +59,7 @@ class GasPartition(Process):
         self.gas_flooding_vol_rate = self.oil_volume_rate * self.GFIR
         self.gas_lifting_vol_rate = self.oil_volume_rate * (1 + self.WOR) * self.GLIR
         self.is_first_loop = True
+        self.is_gas_flooding_visited = False
         self.reset_flag = False
 
     def run(self, analysis):
@@ -66,77 +67,77 @@ class GasPartition(Process):
         field = self.field
         import_product = field.import_export
 
-        reinjected_gas_stream = Stream("reinjected_gas_stream", tp=field.stp)
         exported_gas_stream = Stream("exported_gas_stream", tp=field.stp)
 
-        input = self.find_input_stream("gas for gas partition", raiseError=False)
+        if not self.all_streams_ready("gas for gas partition"):
+            return
 
-        if input is None:
-            if self.gas_flooding:
-                self.gas_flooding_setup(import_product, reinjected_gas_stream, exported_gas_stream)
-                self.set_iteration_value(reinjected_gas_stream.total_flow_rate())
+        input = self.find_input_streams("gas for gas partition", combine=True)
+        if input.is_uninitialized():
+            return
+        exported_gas_stream.copy_flow_rates_from(input)
 
-            exported_gas_stream.set_tp(STP)
-        else:
-            if not self.all_streams_ready("gas for gas partition"):
+        if self.gas_lifting:
+            lifting_gas_to_compressor = self.find_output_stream("lifting gas")
+            if self.is_first_loop:
+                init_stream = get_init_lifting_stream(self.field.gas,
+                                                      input,
+                                                      self.gas_lifting_vol_rate)
+                lifting_gas_to_compressor.copy_flow_rates_from(init_stream)
+                self.is_first_loop = False
+
+
+            iteration_series = (lifting_gas_to_compressor.components.gas - input.components.gas).astype(float)
+            iteration_series[iteration_series < 0] = 0
+
+            if sum(iteration_series) >= self.iteration_tolerance:
+                self.set_iteration_value(iteration_series)
+                lifting_gas_to_compressor.copy_flow_rates_from(input)
                 return
 
-            input = self.find_input_streams("gas for gas partition", combine=True)
-            if input.is_uninitialized():
-                return
-            exported_gas_stream.copy_flow_rates_from(input)
+            exported_gas_stream.subtract_rates_from(lifting_gas_to_compressor, PHASE_GAS)
 
-            if self.gas_lifting:
-                lifting_gas_to_compressor = self.find_output_stream("lifting gas")
-                if self.is_first_loop:
-                    init_stream = get_init_lifting_stream(self.field.gas,
-                                                          input,
-                                                          self.gas_lifting_vol_rate)
-                    lifting_gas_to_compressor.copy_flow_rates_from(init_stream)
-                    self.is_first_loop = False
+        if self.gas_flooding and not self.is_gas_flooding_visited:
+            reinjected_gas_stream = Stream("reinjected_gas_stream", tp=field.stp)
+            self.gas_flooding_setup(import_product, reinjected_gas_stream, exported_gas_stream)
+            field.save_process_data(gas_flooding_stream=reinjected_gas_stream)
+            self.is_gas_flooding_visited = True
 
+        if self.natural_gas_reinjection:
+            reinjected_HC_stream = Stream("reinjected_HC_stream", tp=field.stp)
+            NG_energy_flow_rate_needed = field.import_export.import_df[EN_NATURAL_GAS].sum()
+            reinjected_gas_energy_flow_rate = field.gas.energy_flow_rate(exported_gas_stream)
+            if reinjected_gas_energy_flow_rate <= NG_energy_flow_rate_needed:
+                reinjected_HC_stream.set_tp(exported_gas_stream.tp)
+                exported_gas_stream.reset()
+                exported_gas_stream.set_tp(reinjected_HC_stream.tp)
+            else:
+                fuel_stream = Stream("fuel_stream", tp=exported_gas_stream.tp)
+                fuel_stream.copy_flow_rates_from(exported_gas_stream)
+                fuel_fraction = NG_energy_flow_rate_needed / reinjected_gas_energy_flow_rate
+                fuel_stream.multiply_flow_rates(fuel_fraction)
 
-                iteration_series = (lifting_gas_to_compressor.components.gas - input.components.gas).astype(float)
-                iteration_series[iteration_series < 0] = 0
+                reinjected_HC_stream.copy_flow_rates_from(exported_gas_stream)
+                reinjected_HC_stream.multiply_flow_rates(self.fraction_remaining_gas_inj)
+                reinjected_HC_stream.subtract_rates_from(fuel_stream)
 
-                if sum(iteration_series) >= self.iteration_tolerance:
-                    self.set_iteration_value(iteration_series)
-                    lifting_gas_to_compressor.copy_flow_rates_from(input)
-                    return
+                exported_gas_stream.subtract_rates_from(reinjected_HC_stream)
+                exported_gas_stream.subtract_rates_from(fuel_stream)
 
-                exported_gas_stream.subtract_rates_from(lifting_gas_to_compressor, PHASE_GAS)
+            gas_to_reinjection = self.find_output_stream("gas for gas reinjection compressor")
+            combined_gas_stream = reinjected_HC_stream
+            if field.get_process_data("gas_flooding_stream") is not None:
+                gas_flooding_stream = field.get_process_data("gas_flooding_stream")
+                combined_gas_stream = combine_streams([gas_flooding_stream, reinjected_HC_stream])
 
-            if self.gas_flooding:
-                self.gas_flooding_setup(import_product, reinjected_gas_stream, exported_gas_stream)
-
-            elif self.natural_gas_reinjection:
-                NG_energy_flow_rate_needed = field.import_export.import_df[EN_NATURAL_GAS].sum()
-                reinjected_gas_energy_flow_rate = field.gas.energy_flow_rate(exported_gas_stream)
-                if reinjected_gas_energy_flow_rate <= NG_energy_flow_rate_needed:
-                    reinjected_gas_stream.reset()
-                    reinjected_gas_stream.set_tp(exported_gas_stream.tp)
-                    exported_gas_stream.reset()
-                    exported_gas_stream.set_tp(reinjected_gas_stream.tp)
-                else:
-                    fuel_stream = Stream("fuel_stream", tp=exported_gas_stream.tp)
-                    fuel_stream.copy_flow_rates_from(exported_gas_stream)
-                    fuel_fraction = NG_energy_flow_rate_needed / reinjected_gas_energy_flow_rate
-                    fuel_stream.multiply_flow_rates(fuel_fraction)
-
-                    reinjected_gas_stream.copy_flow_rates_from(exported_gas_stream)
-                    reinjected_gas_stream.multiply_flow_rates(self.fraction_remaining_gas_inj)
-                    reinjected_gas_stream.subtract_rates_from(fuel_stream)
-
-                    exported_gas_stream.subtract_rates_from(reinjected_gas_stream)
-                    exported_gas_stream.subtract_rates_from(fuel_stream)
-
-                gas_to_reinjection = self.find_output_stream("gas for gas reinjection compressor")
-                gas_to_reinjection.copy_flow_rates_from(reinjected_gas_stream)
-                field.save_process_data(NG_energy_rate_consumption=min(NG_energy_flow_rate_needed,
-                                                                       reinjected_gas_energy_flow_rate))
+            gas_to_reinjection.copy_flow_rates_from(combined_gas_stream)
+            field.save_process_data(NG_energy_rate_consumption=min(NG_energy_flow_rate_needed,
+                                                                   reinjected_gas_energy_flow_rate))
 
         exported_gas = self.find_output_stream("gas")
-        exported_gas.copy_flow_rates_from(exported_gas_stream)
+        if field.get_process_data("is_input_from_well") is None:
+            exported_gas.copy_flow_rates_from(exported_gas_stream)
+
         field.save_process_data(exported_gas=exported_gas)
         if self.gas_lifting and not self.reset_flag:
             self.reset_iteration()
@@ -144,6 +145,25 @@ class GasPartition(Process):
         self.set_iteration_value(exported_gas.total_flow_rate())
 
     def gas_flooding_setup(self, import_product, reinjected_gas_stream, exported_gas_stream):
+        """
+        Set up the gas flooding system for this field.
+
+        The method first checks the type of flooding gas used (either "N2", "NG", or "CO2").
+        If the type is not recognized, an exception is raised.
+
+        For each type of gas, the method calculates the mass flow rate, adjusts the reinjected gas stream, and updates
+        process data for the field. It also takes care of different scenarios for each type of gas flooding (like source of CO2,
+        required imported natural gas etc.).
+
+        If the reinjected gas stream has a non-zero total flow rate, the flow rates are copied to the gas for gas reinjection compressor.
+
+        :param import_product: (ImportProduct) import product object
+        :param reinjected_gas_stream: (Stream) gas stream being reinjected into the reservoir
+        :param exported_gas_stream: (Stream) gas stream being exported from the field
+        :raises: OpgeeException if flood_gas_type is not in known gas types ("N2", "NG", "CO2")
+        :return: None
+        """
+
         field = self.field
 
         known_types = ["N2", "NG", "CO2"]
@@ -161,19 +181,14 @@ class GasPartition(Process):
             CO2_mass_rate = self.gas_flooding_vol_rate * field.gas.component_gas_rho_STP["CO2"]
             if field.get_process_data("CO2_flooding_rate_init") is None:
                 field.save_process_data(CO2_flooding_rate_init=CO2_mass_rate)
-            CO2_reinjection_mass_rate = field.get_process_data("CO2_reinjection_mass_rate")
-            sour_gas_reinjection_mass_rate = field.get_process_data("sour_gas_reinjection_mass_rate")
-            if CO2_reinjection_mass_rate:
-                CO2_mass_rate = max(ureg.Quantity(0, "tonne/day"), CO2_mass_rate - CO2_reinjection_mass_rate)
-            if sour_gas_reinjection_mass_rate:
-                CO2_mass_rate = max(ureg.Quantity(0, "tonne/day"), CO2_mass_rate - sour_gas_reinjection_mass_rate)
+            prod_CO2_mass_rate = exported_gas_stream.gas_flow_rate("CO2")
+            CO2_mass_rate = max(ureg.Quantity(0, "tonne/day"), CO2_mass_rate - prod_CO2_mass_rate)
 
-            if self.CO2_source == "Natural subsurface reservoir":
-                impurity_mass_rate = CO2_mass_rate * self.impurity_CH4_in_CO2
-                reinjected_gas_stream.set_gas_flow_rate("C1", impurity_mass_rate)
-            else:
-                impurity_mass_rate = CO2_mass_rate * self.impurity_N2_in_CO2
-                reinjected_gas_stream.set_gas_flow_rate("N2", impurity_mass_rate)
+            impurity_type = "C1" if self.CO2_source == "Natural subsurface reservoir" else "N2"
+            impurity_rate = self.impurity_CH4_in_CO2 if impurity_type == "C1" else self.impurity_N2_in_CO2
+            impurity_mass_rate = CO2_mass_rate * impurity_rate
+            reinjected_gas_stream.set_gas_flow_rate(impurity_type, impurity_mass_rate)
+
             reinjected_gas_stream.set_gas_flow_rate("CO2", CO2_mass_rate)
             reinjected_gas_stream.set_tp(self.CO2_flooding_tp)
 

@@ -28,6 +28,7 @@ class CO2InjectionWell(Process):
 
     def run(self, analysis):
         self.print_running_msg()
+        field = self.field
 
         # Get input stream and check if it's initialized
         input = self.find_input_stream("gas for CO2 injection well")
@@ -40,14 +41,18 @@ class CO2InjectionWell(Process):
         # Set up gas fugitives stream and calculate flow rates
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
-        # Set up output gas stream for reservoir injection
-        gas_to_reservoir = self.find_output_stream("gas for reservoir")
+        # Set up output gas stream for gas partition
+        gas_to_partition = self.find_output_stream("gas for gas partition")
 
         # Copy flow rates from input gas stream to output gas stream
-        gas_to_reservoir.copy_flow_rates_from(input)
+        gas_to_partition.copy_flow_rates_from(input)
 
         # Subtract fugitive flow rates from input gas stream
-        gas_to_reservoir.subtract_rates_from(gas_fugitives)
+        gas_to_partition.subtract_rates_from(gas_fugitives)
+
+        self.set_iteration_value(gas_to_partition.total_flow_rate())
+
+        field.save_process_data(is_input_from_well=True)
 
         # Set fugitive emissions rates
         emissions = self.emissions
