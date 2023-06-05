@@ -154,6 +154,7 @@
 		<A name="flood_gas_type">N2</A>
 		<A name="GFIR">1000.00</A>
 		<A name="oil_prod">750000</A>
+		<A name="natural_gas_reinjection">0</A>
 
 		<Process class="Before"/>
 		<Process class="GasPartition">
@@ -190,6 +191,7 @@
 		<A name="flood_gas_type">CO2</A>
 		<A name="GFIR">175.00</A>
 		<A name="oil_prod">1050000</A>
+		<A name="natural_gas_reinjection">0</A>
 
 		<Process class="Before"/>
 		<Process class="GasPartition">
@@ -226,6 +228,7 @@
 		<A name="flood_gas_type">NG</A>
 		<A name="GFIR">175.00</A>
 		<A name="oil_prod">1050000</A>
+		<A name="natural_gas_reinjection">0</A>
 
 		<Process class="Before"/>
 		<Process class="GasPartition">
@@ -260,6 +263,7 @@
 		<A name="flood_gas_type">NG</A>
 		<A name="GFIR">17500</A>
 		<A name="oil_prod">1050000</A>
+		<A name="natural_gas_reinjection">0</A>
 
 		<Process class="Before"/>
 		<Process class="GasPartition">
@@ -293,6 +297,7 @@
 	<Field name="test_NGReinjection">
 		<A name="natural_gas_reinjection">1</A>
 		<A name="fraction_remaining_gas_inj">0.34</A>
+		<A name="natural_gas_reinjection">0</A>
 
 		<Process class="Before"/>
 		<Process class="GasPartition">
