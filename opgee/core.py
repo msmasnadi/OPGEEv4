@@ -293,6 +293,9 @@ class A(OpgeeObject):
 
 
 class TemperaturePressure(OpgeeObject):
+    """
+    Stores temperature and pressure together for convenience.
+    """
     __slots__ = ('T', 'P')      # keeps instances small and fast
 
     def __init__(self, T, P):

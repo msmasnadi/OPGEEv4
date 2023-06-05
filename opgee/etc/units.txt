@@ -12,6 +12,15 @@
 # degree_Celsius = kelvin; offset: 273.15 = °C = celsius = degC = degreeC
 # pound_force_per_square_inch = force_pound / inch ** 2 = psi
 
+# percent & fraction & dimensionless
+fraction = [] = frac = dimensionless
+
+# These are now defined in pint
+# ppm = 1e-6 fraction
+# percent = 1e-2 frac = pct
+# percent = dimensionless = pct = mol_pct
+mol_pct = percent = _
+
 psi_absolute = pound_force_per_square_inch; offset: 0 = psia = psi_abs
 psi_gauge = pound_force_per_square_inch; offset: -14.7 = psig
 
@@ -20,16 +29,10 @@ standard_cubic_feet = 1 * ft ** 3 = scf
 million_standard_cubic_feet = 1E6 * ft **3 = mmscf
 
 barrel_oil = 0.1589873 * m**3 = bbl_oil = bbl
-barrel_water = 0.1589873 * m**3 = bbl_water = bbl_steam = bbl_H2O = bbl_liquid = bbl
+barrel_water = bbl = bbl_water = bbl_steam = bbl_H2O = bbl_liquid
 
 # ratio of density of oil to density of water
 API_gravity = dimensionless = °API = degAPI = degreeAPI
-
-percent = dimensionless = pct = mol_pct
-
-# Not sure this is at all helpful
-CO2eq = []
-gCO2eq = grams * CO2eq
 
 million_gallons = 1E6 * gal = Mgal
 billion_gallons = 1E9 * gal = Bgal
@@ -43,11 +46,6 @@ moles_per_scf = scf / 1.2023 = _
 btu = Btu = 1055.06 * joule
 mmBtu = 1E6 * btu = mmbtu
 MJ = 1E6 * joule
-
-# percent & fraction & dimensionless
-fraction = [] = frac = dimensionless
-percent = 1e-2 frac = pct
-ppm = 1e-6 fraction
 
 # permeability
 Darcy = 9.869233E-13 * meter**2

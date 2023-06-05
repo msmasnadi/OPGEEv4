@@ -11,8 +11,6 @@ import argparse
 import os
 import sys
 from glob import glob
-import pint
-import pint_pandas
 
 from .config import (pathjoin, getParam, getConfig, getParamAsBoolean, setParam, getSection, setSection)
 from .error import OpgeeException, CommandlineError
@@ -324,17 +322,18 @@ def opg(cmdline):
     argv = shlex.split(cmdline)
     main(argv)
 
-def load_pint_registry():
-    from . import ureg
-    from .pkg_utils import resourceStream
-
-    stream = resourceStream('etc/units.txt')
-    lines = [line.strip() for line in stream.readlines()]
-    ureg.load_definitions(lines)
-    pint.set_application_registry(ureg)
+# Code in function moved to constants.py
+# def load_pint_registry():
+#     from . import ureg
+#     from .pkg_utils import resourceStream
+#
+#     stream = resourceStream('etc/units.txt')
+#     lines = [line.strip() for line in stream.readlines()]
+#     ureg.load_definitions(lines)
+#     pint.set_application_registry(ureg)
 
 def main(argv=None, raiseError=False):
-    load_pint_registry()
+    # load_pint_registry()
 
     try:
         _main(argv)

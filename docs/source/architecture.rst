@@ -8,26 +8,46 @@ Overview
 
 .. The following text appears in tutorial_1 as well. Probably better placed here.
 
-OPGEE is designed as a generalized LCA / simulation model of processes linked by streams of substances,
-where each process manipulates some input streams based on thermodynamic principles and/or regression
+OPGEE is designed as a generalized LCA / simulation framework to model the energy use by, and greenhouse
+gas (GHG) emissions from, a set of processes linked by streams of substances, where each process
+manipulates its input streams based on thermodynamic principles and/or regression
 equations to produce one or more output streams. Groups of processes and streams are organized into
-fields, representing physical oil or gas fields and their flow of materials and energy through the
-various processing units to the field boundary.
+Fields, representing physical oil or gas fields and their materials and energy flows.
 
-The model analyses a functional unit of 1 MJ of either gas or oil produced at a user-designated system
+The model analyses a `functional unit` of 1 MJ of either gas or oil produced at a user-designated system
 boundary of an oil or gas field. System boundaries are discussed further below. After a fields is run,
 the carbon intensity (CI) of the functional unit is calculated and reported in units of
-g CO\ :sub:`2`-eq MJ\ :sup:`-1`. (See :doc:`calculation` for more information.)
+g CO\ :sub:`2`-eq MJ\ :sup:`-1`. See also: :doc:`calculation`.
+
+OPGEE models are defined in :doc:`XML format <opgee-xml>`. OPGEE includes an XML input
+file ``opgee.xml`` that provides a range of useful field configurations in a field template that
+can be modified without re-stating entire field definition. Users can also specify in their
+OPGEE configuration file (``opgee.cfg``) the locations of custom Python modules that implementing
+a subclass of ``Process`` which can then be referenced from a user's XML files.
+See also: :doc:`config`.
+
+The field named "template" in ``opgee.xml`` contains:
+
+    * Definitions for a range of oil and gas production fields
+    * Sets of related processes are defined in "process groups" which can be enabled or
+      disabled together based on user-specified values of pre-defined "attributes" in XML
+
+    * Fields can be defined by reference to a template, specifying:
+
+      * additions and deletions to Field definitions
+      * attributes which control Field structure
 
 System boundaries
 ~~~~~~~~~~~~~~~~~~
+
+.. note:: Create a network graph showing different system boundaries
 
 In OPGEE, the system boundary is defined by a subclass of ``Process`` which can have multiple input
 and streams but performs no actual processing: it merely copies its inputs to its outputs based on
 stream contents. A boundary process cannot be within a process cycle.
 
-Three system boundaries are provided in the default model: "Production", "Transportation", and
-"Distribution". These differ only in whether the boundary is the point of storage of the product,
+Three system boundaries are provided in the default model: `Production`, `Transportation`, and
+`Distribution`. These differ only in whether the boundary is the point of storage of the product,
 or whether it includes processes required for the transport or distribution of the product.
 Boundaries are defined in the XML input files, allowing users to
 define alternative boundaries if needed.
@@ -35,8 +55,7 @@ define alternative boundaries if needed.
 To compute CI, the total GWP-weighted greenhouse gas emissions from all processes is summed and
 divided by the total flow of the designated product (oil or gas) through the chosen boundary
 process.
-
-.. note:: Create a network graph showing different system boundaries
+See also: :doc:`opgee-xml` and :doc:`calculation`
 
 Process cycles
 ~~~~~~~~~~~~~~~~~
@@ -54,79 +73,43 @@ The energy consumed and greenhouse gas emissions produced by each process are tr
 of the functional target (oil or gas) is tracked to one or more user-defined system boundaries,
 allowing the calculation of a carbon intensity in units of g CO\ :sub:`2`-eq MJ\ :sup:`-1`.
 
-.. seealso:: Class documentation for :py:class:`~opgee.emissions` and :py:class:`~opgee.energy`
+See also: Class documentation for :py:class:`~opgee.emissions.Emissions` and
+:py:class:`~opgee.energy.Energy`
 
-To Do
-~~~~~~~
 
-  * Modeling framework that builds a specific model specified in XML files
+Management of tabular data
+---------------------------
+OPGEE provides a system for accessing tabular data stored in CSV files. Data is loaded into
+a pandas ``DataFrame`` on demand. CSV header format supports files with/without indices and
+specification of data types. Built-in tabular data can be modified through XML statements.
 
-  * Designed to provide as much as possible built-in, while allowing user-defined customizations
-
-  * XML template named "template" is defined in opgee.xml
-
-    * Contains typical structure of a range of oil and gas production fields
-    * Sets of related processes are defined in "process groups" which can be enabled or disabled together
-    * Structure is determined by user-specified values of pre-defined "attributes" in XML
-
-    * Fields can be defined by reference to a template
-      * User can specify additions and deletions to Field definitions
-      * User can specify values of attributes which control Field structure
-
-  * Configuration file
-
-    * Controls logging, inclusion of custom classes, stream components, and more
+See also: :doc:`opgee-xml` for documentation of the XML, and class documentation for
+:py:class:`~opgee.table_manager.TableManager` and :py:class:`~opgee.table_update.TableUpdate`
 
 XML processing
 ----------------
 
-  * ``AttrDef``
+AttrDef
+~~~~~~~~~~
+The XML element ``<AttrDef>`` defines metadata for an attribute of an OPGEE XML element.
+The information is stored in the class :py:class:`~opgee.attributes.AttrDef` when the
+model is constructed.
 
-    * Support for constraints on attribute values
+Options
+~~~~~~~~
+The XML element ``<Options>`` defines a set of possible values for an attribute. This
+is used for both validation and to generate the interactive user interface.
 
-  * ``Options, Option``
-  * ``ClassAttrs``
-  * ``ProcessGroup``
-  * Analysis groups
+ProcessChoice and ProcessGroup
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+A ``<ProcessGroup>`` describes a set of ``<ProcessRef>`` and ``<StreamRef>`` elements that
+can be enabled or disabled as a set. The ``<ProcessChoice>`` element encloses multiple
+``<ProcessGroup>`` elements and selects among them based on the value of an attribute
+named in the ``<ProcessChoice>``, whose value must match the name of one of the enclosed
+``<ProcessGroup>`` elements.
 
-.. Maybe this should exist only in the API section. Here, focus on structure.
+All XML elements are described further in :doc:`opgee-xml`.
 
-Classes
-----------
-  * Major structural classes
-
-    * ``Model, Analysis, Field, Process, Stream, Boundary, Energy, Emissions``
-    * Petroleum and gas processing (subclasses of ``Process``)
-
-  * Thermodynamics support:
-
-    * ``Oil, Gas, Water, Dry Air, Wet Air, TemperaturePressure``
-
-  * Monte Carlo simulation
-
-    * :doc:`monte-carlo`
-    * ``Distribution, Simulation, SmartDefault``
-
-  * SmartDefault support
-
-    * :doc:`opgee.smart_defaults`
-
-  * Tabular data support
-
-    * ``TableManager, Cell, TableUpdate``
-
-  * Error classes
-
-Management of tabular data
----------------------------
-
-  * Caching of tabular data from CSVs
-
-    * Support for different indices, column specifications, data type
-
-    * TBD: support for user-provided tables
-
-  * XML support for user-specified modifications to built-in tabular data
 
 Assorted features
 -------------------

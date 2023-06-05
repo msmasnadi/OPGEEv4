@@ -45,6 +45,8 @@ matching process proceeds recursively to the next lower level of the XML structu
 XML element (i.e., one with no children) matches, its text is copied in place of any that appeared
 in the currently merged XML. **Give example.**
 
+---------------------------------------------------------------------------------------------------------
+
 opgee.xml
 ------------
 
@@ -213,8 +215,7 @@ The ``<Process>`` element defines the characteristics of a physical process.
 It must include a `class` attribute which identifies the Python class that
 implements the process. The identified class must be a subclass of `Process`.
 
-``<Process>>`` elements may contain one or more ``<A>``, ``<Produces>``, or
-``<Consusmes>`` elements.
+``<Process>>`` elements may contain one or more ``<A>`` elements.
 
 .. list-table:: <Process> Attributes
    :widths: 10 10 10 10
@@ -224,30 +225,73 @@ implements the process. The identified class must be a subclass of `Process`.
      - Required
      - Default
      - Values
+
    * - class
      - yes
      - (none)
      - text
+
    * - name
      - no
      - (class name)
      - text
+
    * - desc
      - no
      - (none)
      - str
+
    * - enabled
      - no
      - "1"
      - boolean
+
    * - extend
      - no
      - "0"
      - boolean
 
+   * - impute-start
+     - no
+     - "0"
+     - boolean
+   * - cycle-start
+     - no
+     - "0"
+     - boolean
+
+   * - boundary
+     - no
+     - (none)
+     - text
+
+   * - delete
+     - no
+     - "0"
+     - boolean
+
+   * - after
+     - no
+     - "0"
+     - boolean
+
+
+The ``<Process>`` element is also used to define boundary processes. In this case,
+the ``class`` attribute must have the value "Boundary", and the ``boundary`` attribute
+must have the name of a defined system boundary. By default, these include `Production`,
+`Transportation`, and `Distribution`, but boundaries can be added or removed by setting
+the configuration variable ``OPGEE.Boundaries``. See :doc:`config` for more information.
+
+Example:
+
+.. code-block:: xml
+
+    <Process class="Boundary" name="Production">
+
+
 <Stream>
 ^^^^^^^^^^^^^^^
-This element contains one or more ``<Component>`` or ``<A>`` elements.
+This element contains one or more ``<Component>``, ``<Contains>`` or ``<A>`` elements.
 
 .. list-table:: <Stream> Attributes
    :widths: 10 10 10 10
@@ -287,6 +331,7 @@ which works backwards (upstream) from the `Streams` with exogenously-defined flo
 
 <Component>
 ^^^^^^^^^^^^^^^^
+This element must occur within a ``<Stream>`` definition.
 Component encloses a numerical value defining an exogenous component flow rate,
 expressed in mmbtu/day for all components other than electricity, expressed in kWh/day.
 (See :obj:`opgee.stream.Stream` for a list of component names.)
@@ -308,16 +353,140 @@ expressed in mmbtu/day for all components other than electricity, expressed in k
      - "solid", "liquid" or "gas"
      - str
 
-<Produces>
+<Contains>
 ^^^^^^^^^^^^^^^^
-Contains a string indicating the generic name for a substance produced by the ``<Process>``.
-This is used in bypassing Processes.
+This element must occur within a ``<Stream>`` definition.
+The ``<Contains>`` element holds a string indicating a generic name for the substance found in
+the stream. This allows processes to find different input streams without reference to any
+specific process name. The ``<Contains>`` element takes no XML attributes.
 
-<Consumes>
-^^^^^^^^^^^^^^^^
-Contains a string indicating the generic name for a substance consumed by the ``<Process>``.
-This is used in bypassing Processes.
 
+<ProcessChoice>
+^^^^^^^^^^^^^^^^^^^
+This element can contain multiple ``<ProcessGroup>`` elements.
+
+.. list-table:: <ProcessChoice> Attributes
+   :widths: 10 10 10 10
+   :header-rows: 1
+
+   * - Attribute
+     - Required
+     - Default
+     - Values
+   * - name
+     - yes
+     - (none)
+     - text
+   * - default
+     - no
+     - (none)
+     - text
+
+<ProcessGroup>
+^^^^^^^^^^^^^^^^^^^
+This element can contain multiple ``<ProcessRef>``, ``<StreamRef>``, and ``<ProcessChoice>`` elements.
+That is, ``<ProcessChoice>`` elements can nest recursively, so there can be choices within choices.
+
+.. list-table:: <ProcessChoice> Attributes
+   :widths: 10 10 10 10
+   :header-rows: 1
+
+   * - Attribute
+     - Required
+     - Default
+     - Values
+   * - name
+     - yes
+     - (none)
+     - text
+
+<ProcessRef>
+^^^^^^^^^^^^^^^^^^^
+This element identifies a ``Process`` by name for inclusion in a ``<ProcessGroup>``.
+
+.. list-table:: <ProcessRef> Attributes
+   :widths: 10 10 10 10
+   :header-rows: 1
+
+   * - Attribute
+     - Required
+     - Default
+     - Values
+   * - name
+     - yes
+     - (none)
+     - text
+
+<StreamRef>
+^^^^^^^^^^^^^^^^^^^
+This element identifies a ``Stream`` by name for inclusion in a ``<ProcessGroup>``.
+
+.. list-table:: <StreamRef> Attributes
+   :widths: 10 10 10 10
+   :header-rows: 1
+
+   * - Attribute
+     - Required
+     - Default
+     - Values
+   * - name
+     - yes
+     - (none)
+     - text
+
+
+<TableUpdate>
+^^^^^^^^^^^^^^^^^^^
+This element defines one or more updates to a built-in CSV data file.
+The ``name`` attribute must be the basename of a built-in table.
+A ``TableUpdate`` element must contain one or more ``<Cell>`` elements.
+
+.. list-table:: <TableUpdate> Attributes
+   :widths: 10 10 10 10
+   :header-rows: 1
+
+   * - Attribute
+     - Required
+     - Default
+     - Values
+   * - name
+     - yes
+     - (none)
+     - text
+
+<Cell>
+^^^^^^^^^^^^^^^^^^^
+This element defines a single replacement value for a value in a built-in CSV data
+file. The ``row`` and ``col`` attributes (both required) define the cell whose
+value is replaced by the content
+
+.. list-table:: <TableUpdate> Attributes
+   :widths: 10 10 10 10
+   :header-rows: 1
+
+   * - Attribute
+     - Required
+     - Default
+     - Values
+   * - row
+     - yes
+     - (none)
+     - text
+   * - col
+     - yes
+     - (none)
+     - text
+
+Example:
+
+.. code-block:: xml
+
+  <TableUpdate name="upstream-CI">
+    <Cell row="NGL" col="EF">1234.5</Cell>
+    <Cell row="Natural gas" col="EF">12345.67</Cell>
+  </TableUpdate>
+
+---------------------------------------------------------------------------------------------------------
 
 attributes.xml
 ----------------
@@ -386,13 +555,13 @@ Describes a single option with an ``<Options>`` element. An optional
 option. The ``<Option>`` element contains the value for this alternative,
 e.g.,
 
-.. code-block:: xml
+.. code-block:: XML
 
-    <Options name="ecosystem_C_richness" default="Moderate">
-      <Option desc="Low carbon richness (semi-arid grasslands)">Low</Option>
-      <Option desc="Moderate carbon richness (mixed)">Moderate</Option>
-      <Option desc="High carbon richness (forested)">High</Option>
-    </Options>
+  <Options name="ecosystem_C_richness" default="Moderate">
+    <Option desc="Low carbon richness (semi-arid grasslands)">Low</Option>
+    <Option desc="Moderate carbon richness (mixed)">Moderate</Option>
+    <Option desc="High carbon richness (forested)">High</Option>
+  </Options>
 
 .. list-table:: <Option> Attributes
    :widths: 10 10 10 10
@@ -422,11 +591,11 @@ The ``<AttrDef>`` element supports several types of optional, declarative constr
 in the form of attributes:
 
 * **synchronized** : the value of the ``synchronized`` attribute is the name of
-  a "synchronization group"', which can be any string. All the attributes declared to be
+  a "synchronization group"', which can be any text string. All the attributes declared to be
   in this group name must have the same value.
 
 * **exclusive** : the value of the ``exclusive`` attribute is the name of a "exclusive group"',
-  which can be any string. All the attributes declared to be in this group must be
+  which can be any text string. All the attributes declared to be in this group must be
   binary attributes and only one of them may have a value of 1 (true).
 
 * **GT, GE, LT, LE** : these are numerical constraints requiring that the value of the

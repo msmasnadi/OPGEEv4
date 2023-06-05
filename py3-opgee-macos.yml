@@ -15,8 +15,11 @@ dependencies:
   - numba
   - numpy
   - pandas
+  #- pint>=0.20        # installed 0.21
+  # - pint=0.20.1
   - pint
   - pint-pandas
+  # - pint-pandas=0.3
   - pip
   - pydot
   - pytest
@@ -28,8 +31,16 @@ dependencies:
   - sphinx_rtd_theme>=0.5.1
   - sphinxcontrib-serializinghtml
   - pip:
+#    - chemicals<=1.1.2    # after this can't import horner from chemicals.utils
     - dash-cytoscape>=0.3.0
-    - nuitka            # moved here because conda version is very outdated
-    - pyXSteam>=0.4.8
-    - thermo==0.2.10    # several tests fail when using v0.2.21
-    - thermosteam>=0.28.12
+    # - nuitka            # moved here because conda version is very outdated
+    # - pyXSteam>=0.4.8     # latest as of 6/1/23 is 0.4.9 on pypi
+    - pyXSteam
+    #- thermo==0.2.24    # First version that doesn't import horner from chemicals.utils (it's no longer there)
+    #- thermosteam>=0.28.12    # latest as of 6/1/23 is 0.34.0.
+    # - thermosteam==0.30.1
+    - thermosteam
+    # Caleb Bell (thermo pkg guy) suggested the following versions:
+    - fluids==1.0.24
+    - chemicals==1.1.4
+    - thermo==0.2.25

@@ -68,13 +68,14 @@ class AcidGasRemoval(Process):
         self.type_amine = self.attr("type_amine")
         self.ratio_reflux_reboiler = self.attr("ratio_reflux_reboiler")
 
+        self.gas_comp_H2S = field.attr("gas_comp_H2S")
+
         # TODO: Add this to smart default mode
         if self.gas_comp_H2S < ureg.Quantity(1, "percent"):
             self.type_amine = "conv DEA"
         else:
             self.type_amine = "MDEA"
             self.ratio_reflux_reboiler = ureg.Quantity(7.0, "frac")
-        self.gas_comp_H2S = field.attr("gas_comp_H2S")
 
         self.AGR_feedin_press = field.AGR_feedin_press
         self.regeneration_temp = self.attr("regeneration_temp")

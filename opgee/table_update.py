@@ -10,7 +10,9 @@ from .core import elt_name, XmlInstantiable, OpgeeObject
 
 
 class Cell(OpgeeObject):
-
+    """
+    Defines a replacement for a value provided in a built-in CSV file.
+    """
     def __init__(self, row, col, value):
         super().__init__()
 
@@ -20,6 +22,9 @@ class Cell(OpgeeObject):
 
 
 class TableUpdate(XmlInstantiable):
+    """
+    Supports user-defined updates to built-in CSV data.
+    """
 
     def __init__(self, name, cells):
         super().__init__(name)

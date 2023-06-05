@@ -81,3 +81,9 @@ This module contains core classes of the opgee package.
 
 .. automodule:: opgee.table_manager
    :members:
+
+``opgee.table_update``
+-------------------------
+
+.. automodule:: opgee.table_update
+   :members:

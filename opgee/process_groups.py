@@ -23,7 +23,7 @@ class ProcessChoice(XmlInstantiable):
     def __init__(self, name, groups, extend, default):
         super().__init__(name)
 
-        self.extend = extend
+        self.extend = extend    # TBD: unclear if this is used
         self.default = default
 
         # store the groups in a dict for fast lookup, but maintain order for display

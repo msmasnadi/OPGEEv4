@@ -11,6 +11,7 @@ from copy import copy
 
 import pandas as pd
 import pint
+import pint_pandas
 
 from . import ureg
 from .attributes import AttributeMixin
