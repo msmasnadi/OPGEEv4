@@ -77,8 +77,7 @@ class DownholePump(Process):
         self.num_prod_wells = field.num_prod_wells
         self.gravitational_acceleration = field.model.const("gravitational-acceleration")
         self.prime_mover_type = self.attr("prime_mover_type")
-        self.wellhead_t = field.wellhead_t
-        self.wellhead_tp = TemperaturePressure(self.wellhead_t, self.attr("wellhead_pressure"))
+        self.wellhead_tp = TemperaturePressure(field.wellhead_t, field.attr("wellhead_pressure"))
         self.oil_sand_mine = field.oil_sands_mine
 
     def run(self, analysis):
@@ -156,8 +155,10 @@ class DownholePump(Process):
             free_gas = max(ureg.Quantity(0, "scf/bbl"), (solution_gas_oil_ratio_input - average_solution_GOR))
             wellbore_average_press = (wellhead_P + input.tp.P) / 2
             wellbore_average_temp = ureg.Quantity((wellhead_T.m + self.res_temp.m) / 2, "degF")
-            stream = Stream("average", TemperaturePressure(wellbore_average_temp, wellbore_average_press))
-            stream.copy_flow_rates_from(input)
+            wellbore_average_tp = TemperaturePressure(wellbore_average_temp, wellbore_average_press)
+            stream = Stream("average", wellbore_average_tp)
+            stream.copy_flow_rates_from(input, tp=wellbore_average_tp)
+            # stream.set
             gas_FVF = gas.volume_factor(stream)
             gas_density = gas.density(stream)
             volume_free_gas = free_gas * gas_FVF
@@ -185,6 +186,8 @@ class DownholePump(Process):
             energy_consumption_sum = sum(energy_consumption_of_stages) * self.num_prod_wells
             energy_use.set_rate(energy_carrier, energy_consumption_sum)
 
+            # import and export
+            self.set_import_from_energy(energy_use)
         # emission
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")

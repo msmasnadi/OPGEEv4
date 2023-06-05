@@ -89,7 +89,7 @@ class HeavyOilDilution(Process):
         field.save_process_data(final_diluent_LHV_mass=diluent_LHV)
 
         final_diluent_SG = \
-            total_mass_diluted_oil / (required_volume_diluent + input_liquid_volume_rate) / self.water_density
+            total_mass_diluted_oil / expected_volume_oil_bitumen / self.water_density
         final_diluent_API = field.oil.API_from_SG(final_diluent_SG)
         output_oil.set_API(final_diluent_API)
 

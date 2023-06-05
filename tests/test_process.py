@@ -564,7 +564,7 @@ def test_CrudeOilStabilization(test_model):
     proc = field.find_process('CrudeOilStabilization')
     # ensure total energy flow rates
     total = proc.energy.data.sum()
-    expected = ureg.Quantity(16387.8389629, "mmbtu/day")
+    expected = ureg.Quantity(16387.9012045, "mmbtu/day")
     assert approx_equal(total, expected)
 
 

@@ -8,6 +8,7 @@
 #
 from .. import ureg
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
+from ..energy import EN_ELECTRICITY
 from ..log import getLogger
 from ..process import Process
 from .compressor import Compressor
@@ -26,6 +27,8 @@ class GasReinjectionCompressor(Process):
         self.eta_compressor = self.attr("eta_compressor")
         self.natural_gas_reinjection = field.natural_gas_reinjection
         self.gas_flooding = field.gas_flooding
+        self.flood_gas_type = field.flood_gas_type
+        self.air_separation_energy_intensity = self.attr("air_separation_energy_intensity")
 
     def check_enabled(self):
         if not self.natural_gas_reinjection and not self.gas_flooding:
@@ -33,6 +36,7 @@ class GasReinjectionCompressor(Process):
 
     def run(self, analysis):
         self.print_running_msg()
+        field = self.field
 
         input = self.find_input_stream("gas for gas reinjection compressor", raiseError=False)
 
@@ -63,6 +67,12 @@ class GasReinjectionCompressor(Process):
         energy_use = self.energy
         energy_carrier = get_energy_carrier(self.prime_mover_type)
         energy_use.set_rate(energy_carrier, energy_consumption)
+
+        if field.get_process_data("N2_reinjection_volume_rate"):
+            N2_volume_rate = field.get_process_data("N2_reinjection_volume_rate")
+            energy_consump_air_separation = N2_volume_rate * self.air_separation_energy_intensity
+            energy_use.set_rate(EN_ELECTRICITY, energy_consump_air_separation)
+
 
         # import/export
         self.set_import_from_energy(energy_use)

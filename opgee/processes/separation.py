@@ -12,7 +12,7 @@ from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
 from ..processes.compressor import Compressor
-from ..stream import Stream, PHASE_LIQUID
+from ..stream import Stream, PHASE_LIQUID, PHASE_GAS
 from ..thermodynamics import rho
 from .shared import get_energy_carrier, get_energy_consumption_stages
 
@@ -38,7 +38,8 @@ class Separation(Process):
         self.temperature_stage1 = field.wellhead_t
         self.temperature_stage2 = (self.temperature_stage1.to("kelvin") + self.outlet_tp.T.to("kelvin")) / 2
 
-        self.pressure_stage1 = self.attr("pressure_first_stage")
+        #TODO: move it to smart default
+        self.pressure_stage1 = min(field.wellhead_p, self.attr("pressure_first_stage"))
         self.pressure_stage2 = self.attr("pressure_second_stage")
         self.pressure_stage3 = self.attr("pressure_third_stage")
 
@@ -48,6 +49,9 @@ class Separation(Process):
         self.water_oil_ratio = field.WOR
 
         self.num_of_stages = self.attr("number_stages")
+        #TODO: move it to smart default
+        if field.wellhead_p.m < 500:
+            self.num_of_stages = 1
 
         self.pressure_after_boosting = field.stab_gas_press
 
@@ -144,10 +148,7 @@ class Separation(Process):
         gas_volume_rate = self.oil_volume_rate * self.gas_oil_ratio * self.gas_comp
         gas_density = gas.component_gas_rho_STP[self.gas_comp.index]
         gas_mass_rate = gas_volume_rate * gas_density
-
-        for component, mass_rate in gas_mass_rate.items():
-            gas_after.set_gas_flow_rate(component, mass_rate.to("tonne/day"))
-
+        gas_after.set_rates_from_series(gas_mass_rate, PHASE_GAS)
         gas_after.tp.set(T=self.outlet_tp.T, P=self.pressure_after_boosting)
 
         oil_after = self.find_output_stream("crude oil")
@@ -158,9 +159,9 @@ class Separation(Process):
         oil_after.set_tp(self.outlet_tp)
         oil_after.set_API(field.API)
 
-        water_density_STP = rho("H2O", std_tp.T, std_tp.P, PHASE_LIQUID)
-        water_mass_rate = (self.oil_volume_rate * self.water_oil_ratio * water_density_STP.to("tonne/barrel_water") -
-                           water_in_oil_mass_rate)
+        water_density_STP = field.water.density()
+        water_mass_rate = max(0,
+                              self.oil_volume_rate * self.water_oil_ratio * water_density_STP - water_in_oil_mass_rate)
         water_after = self.find_output_stream("water")
         water_after.set_liquid_flow_rate("H2O", water_mass_rate, tp=self.outlet_tp)
 

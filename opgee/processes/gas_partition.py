@@ -10,6 +10,7 @@ from .. import ureg
 from ..core import STP
 from ..core import TemperaturePressure
 from ..error import OpgeeException
+from ..energy import EN_NATURAL_GAS
 from ..import_export import N2, CO2_Flooding, NATURAL_GAS
 from ..log import getLogger
 from ..process import Process
@@ -108,12 +109,30 @@ class GasPartition(Process):
                 self.gas_flooding_setup(import_product, reinjected_gas_stream, exported_gas_stream)
 
             elif self.natural_gas_reinjection:
-                reinjected_gas_stream.copy_flow_rates_from(exported_gas_stream)
-                reinjected_gas_stream.multiply_flow_rates(self.fraction_remaining_gas_inj)
-                exported_gas_stream.subtract_rates_from(reinjected_gas_stream, PHASE_GAS)
+                NG_energy_flow_rate_needed = field.import_export.import_df[EN_NATURAL_GAS].sum()
+                reinjected_gas_energy_flow_rate = field.gas.energy_flow_rate(exported_gas_stream)
+                if reinjected_gas_energy_flow_rate <= NG_energy_flow_rate_needed:
+                    reinjected_gas_stream.reset()
+                    reinjected_gas_stream.set_tp(exported_gas_stream.tp)
+                    exported_gas_stream.reset()
+                    exported_gas_stream.set_tp(reinjected_gas_stream.tp)
+                else:
+                    fuel_stream = Stream("fuel_stream", tp=exported_gas_stream.tp)
+                    fuel_stream.copy_flow_rates_from(exported_gas_stream)
+                    fuel_fraction = NG_energy_flow_rate_needed / reinjected_gas_energy_flow_rate
+                    fuel_stream.multiply_flow_rates(fuel_fraction)
+
+                    reinjected_gas_stream.copy_flow_rates_from(exported_gas_stream)
+                    reinjected_gas_stream.multiply_flow_rates(self.fraction_remaining_gas_inj)
+                    reinjected_gas_stream.subtract_rates_from(fuel_stream)
+
+                    exported_gas_stream.subtract_rates_from(reinjected_gas_stream)
+                    exported_gas_stream.subtract_rates_from(fuel_stream)
 
                 gas_to_reinjection = self.find_output_stream("gas for gas reinjection compressor")
                 gas_to_reinjection.copy_flow_rates_from(reinjected_gas_stream)
+                field.save_process_data(NG_energy_rate_consumption=min(NG_energy_flow_rate_needed,
+                                                                       reinjected_gas_energy_flow_rate))
 
         exported_gas = self.find_output_stream("gas")
         exported_gas.copy_flow_rates_from(exported_gas_stream)
@@ -134,6 +153,7 @@ class GasPartition(Process):
             N2_mass_rate = self.gas_flooding_vol_rate * field.gas.component_gas_rho_STP["N2"]
             reinjected_gas_stream.set_gas_flow_rate("N2", N2_mass_rate)
             reinjected_gas_stream.set_tp(self.N2_flooding_tp)
+            field.save_process_data(N2_reinjection_volume_rate=self.gas_flooding_vol_rate)
 
             import_product.set_import(self.name, N2, N2_mass_rate)
         elif self.flood_gas_type == "CO2":

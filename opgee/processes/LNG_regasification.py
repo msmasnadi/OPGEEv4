@@ -49,7 +49,6 @@ class LNGRegasification(Process):
         energy_use.set_rate(energy_carrier, energy_consumption)
 
         # import/export
-        # import_product = field.import_export
         self.set_import_from_energy(energy_use)
 
         # emissions

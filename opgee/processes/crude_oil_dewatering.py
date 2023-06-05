@@ -96,6 +96,9 @@ class CrudeOilDewatering(Process):
         energy_carrier = get_energy_carrier(self.prime_mover_type)
         energy_use.set_rate(energy_carrier, energy_consumption)
 
+        # import and export
+        self.set_import_from_energy(energy_use)
+
         # emissions
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")

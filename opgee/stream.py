@@ -104,7 +104,7 @@ class Stream(AttributeMixin, XmlInstantiable):
     _liquids = ['oil']
 
     # _hc_molecules = ['CH4', 'C2H6', 'C3H8', 'C4H10']
-    non_hydrocarbon_gases = _gases = ['N2', 'O2', 'CO2', 'H2O', 'H2', 'H2S', 'SO2', "CO"]
+    non_hydrocarbon_gases = _gases = ['N2', 'O2', 'CO2', 'H2O', 'H2', 'H2S', 'SO2', "CO", "Argon", "Neon", "Helium", "Krypton", "Xenon"]
     _other = ['Na+', 'Cl-', 'Si-']
 
     combustible_components = _hydrocarbons + _gases

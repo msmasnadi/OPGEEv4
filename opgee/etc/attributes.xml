@@ -105,6 +105,7 @@
       <AttrDef name="res_press" unit="psia" desc="Average reservoir pressure" type="float">1556.6</AttrDef>
       <AttrDef name="res_temp" unit="degF" desc="Average reservoir temperature" type="float">200.0</AttrDef>
       <AttrDef name="wellhead_temperature" type="float" unit="degF" >150</AttrDef>
+      <AttrDef name="wellhead_pressure" type="float" unit="psia" >500</AttrDef>
 
       <AttrDef name="offshore" type="binary" desc="Offshore?">0</AttrDef>
 
@@ -409,7 +410,7 @@
 
       <AttrDef name="eta_pump_well" type="float" unit="percent" desc="pump efficiency">65</AttrDef>
       <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
-      <AttrDef name="wellhead_pressure" type="float" unit="psia" >500</AttrDef>
+
     </ClassAttrs>
 
     <ClassAttrs name="ReservoirWellInterface">
@@ -684,6 +685,7 @@
 
       <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">NG_engine</AttrDef>
       <AttrDef name="eta_compressor" type="float" unit="percent" desc="gas reinjection compressor efficiency">75.0</AttrDef>
+      <AttrDef name="air_separation_energy_intensity" type="float" unit="kWh/scf" desc="Air separation unit electricity consumption (cryogenic N2 gas production)">0.004156716</AttrDef>
 
     </ClassAttrs>
 

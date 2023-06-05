@@ -592,22 +592,6 @@ class Process(AttributeMixin, XmlInstantiable):
     def add_input_stream(self, stream):
         self.inputs.append(stream)
 
-    def sum_input_streams(self):
-        """
-        Create a stream from the sum the components of all input streams. This is intended for
-        use at the process boundary to simplify allocation, displacment, and carbon intensity.
-        If you need to combine streams thermodynamically, use ``combine_streams()``.
-
-        :return: (Stream) a stream with the sum of all input components
-        """
-        from .core import STP
-        if not self.inputs:
-            raise OpgeeException(f"Can't sum input streams -- {self} has none.")
-
-        comp_matrix = sum([stream.components for stream in self.inputs])
-        stream = Stream('boundary-stream', STP, comp_matrix=comp_matrix)
-        return stream
-
     def set_extend(self, extend):
         self.extend = extend
 

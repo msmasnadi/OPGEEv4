@@ -153,6 +153,9 @@ class AcidGasRemoval(Process):
         energy_use.add_rate("Electricity", electricity_consump) \
             if energy_carrier == "Electricty" else energy_use.set_rate("Electricity", electricity_consump)
 
+        # import and export
+        self.set_import_from_energy(energy_use)
+
         # emissions
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")

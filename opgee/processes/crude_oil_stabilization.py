@@ -114,6 +114,9 @@ class CrudeOilStabilization(Process):
         energy_consumption += compressor_energy
         energy_use.set_rate(energy_carrier, energy_consumption.to("mmBtu/day"))
 
+        # import and export
+        self.set_import_from_energy(energy_use)
+
         # emission rate
         emissions = self.emissions
         energy_for_combustion = energy_use.data.drop("Electricity")

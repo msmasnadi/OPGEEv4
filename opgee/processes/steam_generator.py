@@ -82,11 +82,11 @@ class SteamGenerator(OpgeeObject):
         self.prod_combustion_coeff = model.prod_combustion_coeff
         self.reaction_combustion_coeff = model.reaction_combustion_coeff
         self.gas_turbine_tlb = model.gas_turbine_tbl
-        self.liquid_fuel_comp = self.oil.liquid_fuel_composition(self.API)
 
         self.steam_generator_press_outlet = \
             (self.res_press + self.steam_injection_delta_press) * \
             self.friction_loss_steam_distr * self.pressure_loss_choke_wellhead
+        self.steam_generator_press_outlet = min(self.steam_generator_press_outlet, ureg.Quantity(220, "bar"))
 
         self.O2_excess_HRSG = self.gas_turbine_tlb["Turbine excess air"][self.gas_turbine_type]
 
@@ -106,6 +106,17 @@ class SteamGenerator(OpgeeObject):
                         makeup_water_mass_rate,
                         water_mass_rate_for_injection,
                         blowdown_water_mass_rate):
+
+        """
+            Calculate fuel consumption and mass and energy balance for a once-through steam generator (OTSG).
+
+            :param prod_water_mass_rate: float, produced water mass flow rate (kg/day)
+            :param makeup_water_mass_rate: float, makeup water mass flow rate (kg/day)
+            :param water_mass_rate_for_injection: float, water mass flow rate for injection (kg/day)
+            :param blowdown_water_mass_rate: float, blowdown water mass flow rate (kg/day)
+            :return: Tuple with fuel consumption for steam generation (MJ/day), mass flow rate in (kg/day),
+                     mass flow rate out (kg/day), energy flow rate in (MJ/day), and energy flow rate out (MJ/day)
+        """
 
         prod_water_enthalpy_rate, makeup_water_enthalpy_rate, blowdown_water_recoverable_enthalpy_rate, steam_out_enthalpy_rate = \
             self.get_water_steam_enthalpy_rate(prod_water_mass_rate,
@@ -330,14 +341,14 @@ class SteamGenerator(OpgeeObject):
 
     def get_LHV_fuel_and_steam_series(self, comp_series, temp_series, fuel_MW, comp_series_sum, comp_series_MW):
         """
-        calculate exhaust LHV fuel and steam using exhaust composition, temperature series and fuel mol_weight
+        Calculate exhaust LHV fuel and steam series using exhaust composition, temperature series, and fuel molar weight.
 
-        :param comp_series_MW:
-        :param comp_series_sum:
-        :param fuel_MW:
-        :param comp_series:
-        :param temp_series:
-        :return: (float) LHV fuel series and LHV steam series
+        :param comp_series: DataFrame, exhaust composition
+        :param temp_series: DataFrame, temperature series
+        :param fuel_MW: float, fuel molar weight
+        :param comp_series_sum: DataFrame, exhaust composition sum
+        :param comp_series_MW: DataFrame, exhaust composition molar weight
+        :return: Tuple with LHV fuel series and LHV steam series
         """
 
         LHV_fuel = pd.Series(dtype="pint[joule/gram]")
@@ -359,6 +370,8 @@ class SteamGenerator(OpgeeObject):
         :return: (float, Pandas.Series) air_requirement_fuel; (float) air_requirement_LHV_fuel (unit = MJ/kg)
         """
 
+        liquid_fuel_comp = self.oil.liquid_fuel_composition(self.API)
+
         if SG_type == "OTSG":
             if self.OTSG_fuel_type == "Gas":
                 air_requirement_fuel = \
@@ -366,7 +379,7 @@ class SteamGenerator(OpgeeObject):
                      self.OTSG_frac_prod_gas * self.prod_gas_reactants_comp) * self.O2_excess_OTSG
             else:
                 air_requirement_fuel = \
-                    (self.liquid_fuel_comp["C"] + 0.25 * self.liquid_fuel_comp["H"] + self.liquid_fuel_comp["S"]) * \
+                    (liquid_fuel_comp["C"] + 0.25 * liquid_fuel_comp["H"] + liquid_fuel_comp["S"]) * \
                     self.O2_excess_OTSG / self.inlet_air_comp["O2"] * self.inlet_air_comp
         else:
             air_requirement_fuel = \
@@ -390,16 +403,18 @@ class SteamGenerator(OpgeeObject):
 
     def get_exhaust_parameters(self, air_requirement_fuel, SG_type):
 
+        liquid_fuel_comp = self.oil.liquid_fuel_composition(self.API)
+
         if SG_type == "OTSG":
             if self.OTSG_fuel_type == "Gas":
                 exhaust_consump = (self.OTSG_frac_import_gas * self.import_gas_products_comp +
                                    self.OTSG_frac_prod_gas * self.prod_gas_products_comp) + (
                                           self.O2_excess_OTSG - 1) / self.O2_excess_OTSG * air_requirement_fuel
             else:
-                exhaust_consump = air_requirement_fuel + 0.5 * self.liquid_fuel_comp
-                exhaust_consump["O2"] = air_requirement_fuel["O2"] - self.liquid_fuel_comp["C"] - 0.25 * \
-                                        self.liquid_fuel_comp["H"] - self.liquid_fuel_comp["S"]
-                exhaust_consump["CO2"] = air_requirement_fuel["CO2"] + self.liquid_fuel_comp["C"]
+                exhaust_consump = air_requirement_fuel + 0.5 * liquid_fuel_comp
+                exhaust_consump["O2"] = air_requirement_fuel["O2"] - liquid_fuel_comp["C"] - 0.25 * \
+                                        liquid_fuel_comp["H"] - liquid_fuel_comp["S"]
+                exhaust_consump["CO2"] = air_requirement_fuel["CO2"] + liquid_fuel_comp["C"]
         else:
             exhaust_consump = \
                 (self.HRSG_frac_import_gas * self.import_gas_products_comp +
@@ -419,8 +434,10 @@ class SteamGenerator(OpgeeObject):
         tolerance = 1E-6
         duct_additional_fuel = 0.4
         delta_error = duct_additional_fuel
+        max_iter = 1000
+        counter = 0
 
-        while delta_error > tolerance:
+        while (delta_error > tolerance and counter < max_iter) or counter == 0:
             O2_excess_duct = (self.O2_excess_HRSG.m - 1) / duct_additional_fuel
             HRSG_inlet = \
                 (self.HRSG_frac_import_gas * self.import_gas_products_comp +
@@ -441,10 +458,14 @@ class SteamGenerator(OpgeeObject):
             delta_error = (duct_additional_fuel_new - duct_additional_fuel) ** 2
             duct_additional_fuel = duct_additional_fuel_new
 
-        # TODO: these next lines will fail if delta_error is initially <= tolerance since these vars won't be set
-        HRSG_inlet = HRSG_inlet.drop(labels=["C1"])
+            counter += 1
 
-        return HRSG_inlet, HRSG_inlet_sum, HRSG_inlet_MW, HRSG_inlet_LHV_fuel, HRSG_inlet_LHV_stream, duct_additional_fuel
+        if counter >= max_iter:
+            raise ValueError("Maximum number of iterations reached in HRSG inlet combustion calculation")
+        else:
+            HRSG_inlet = HRSG_inlet.drop(labels=["C1"])
+
+            return HRSG_inlet, HRSG_inlet_sum, HRSG_inlet_MW, HRSG_inlet_LHV_fuel, HRSG_inlet_LHV_stream, duct_additional_fuel
 
     def get_water_steam_enthalpy_rate(self,
                                       prod_water_mass_rate,

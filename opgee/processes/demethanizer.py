@@ -14,7 +14,7 @@ from ..emissions import EM_COMBUSTION, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
 from ..process import run_corr_eqns
-from ..stream import PHASE_GAS
+from ..stream import PHASE_GAS, Stream
 from ..thermodynamics import ChemicalInfo
 from .compressor import Compressor
 from .shared import get_energy_carrier, predict_blower_energy_use, get_bounded_value
@@ -149,20 +149,21 @@ class Demethanizer(Process):
                                        zip(hydrocarbon_label, fuel_gas_label)},
                                       dtype="pint[frac]")
 
-        hydrocarbon_mol_rate = pd.Series({name: self.gas.molar_flow_rate(input, name) for name in hydrocarbon_label})
+        gas_volume_rates = field.gas.volume_flow_rates_STP(input)
 
         if NGL_mol_frac["C2"].m == 0 or (
                 fuel_gas_mol_frac["C1"] - NGL_mol_frac["C1"] * fuel_gas_mol_frac["C2"] / NGL_mol_frac["C2"]).m == 0:
             fuel_gas_prod = ureg.Quantity(0, "mole/day")
         else:
             fuel_gas_prod = \
-                (hydrocarbon_mol_rate["C1"] - NGL_mol_frac["C1"] / NGL_mol_frac["C2"] * hydrocarbon_mol_rate["C2"]) / \
+                (gas_volume_rates["C1"] - NGL_mol_frac["C1"] / NGL_mol_frac["C2"] * gas_volume_rates["C2"]) / \
                 (fuel_gas_mol_frac["C1"] - NGL_mol_frac["C1"] * fuel_gas_mol_frac["C2"] / NGL_mol_frac["C2"])
 
         reboiler_fuel_use = reboiler_heavy_duty * self.eta_reboiler_demethanizer
         cooler_energy_consumption = predict_blower_energy_use(self, cooler_thermal_load)
 
-        fuel_gas_mass = fuel_gas_prod * fuel_gas_mol_frac * ChemicalInfo.mol_weight(fuel_gas_mol_frac.index)
+        fuel_gas_volume_rate = fuel_gas_prod * field.gas.component_mass_fractions(fuel_gas_mol_frac)
+        fuel_gas_mass = fuel_gas_volume_rate * field.gas.component_gas_rho_STP[fuel_gas_volume_rate.index]
 
         gas_to_partition = self.find_output_stream("gas for gas partition")
         gas_to_partition.copy_flow_rates_from(input)
@@ -186,18 +187,20 @@ class Demethanizer(Process):
                                                          self.prime_mover_type,
                                                          self.eta_compressor,
                                                          self.feed_press_demethanizer / input_tp.P,
-                                                         gas_to_partition,
+                                                         input,
                                                          inlet_tp=input.tp)
 
         # outlet compressor
-        feed_gas_exit_press = ureg.Quantity(corr_result_df.loc["fuel gas pressure", :].sum(), "psia")
+        fuel_gas_exit_press = ureg.Quantity(corr_result_df.loc["fuel gas pressure", :].sum(), "psia")
+        fuel_gas_stream = Stream("fuel_gas", tp=TemperaturePressure(input_tp.T, fuel_gas_exit_press))
+        fuel_gas_stream.set_rates_from_series(fuel_gas_mass, PHASE_GAS, upper_bound_stream=input)
+
         outlet_compressor_energy_consump, _, _ = \
             Compressor.get_compressor_energy_consumption(field,
                                                          self.prime_mover_type,
                                                          self.eta_compressor,
-                                                         input_tp.P / feed_gas_exit_press,
-                                                         gas_to_partition,
-                                                         inlet_tp=TemperaturePressure(input_tp.T, feed_gas_exit_press))
+                                                         input_tp.P / fuel_gas_exit_press,
+                                                         fuel_gas_stream)
 
         # energy-use
         energy_use = self.energy
