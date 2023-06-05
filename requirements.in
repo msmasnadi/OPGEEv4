@@ -1,3 +1,4 @@
+chemicals
 dash
 dash-core-components
 dash-cytoscape
@@ -5,6 +6,7 @@ dash-html-components
 dash-table
 dask
 dask-jobqueue
+fluids
 future
 lxml
 matplotlib
@@ -23,4 +25,5 @@ setuptools
 sphinx
 sphinx-argparse
 sphinx_rtd_theme
+thermo
 thermosteam

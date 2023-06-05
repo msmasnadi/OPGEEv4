@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 from opgee.core import TemperaturePressure
-from opgee.stream import Stream, PHASE_GAS
+from opgee.stream import Stream, PHASE_GAS, PHASE_LIQUID
 from opgee import ureg
 
 
@@ -117,7 +117,7 @@ def test_oil_mass_energy_density(oil_instance):
 
 def test_oil_volume_flow_rate(oil_instance):
     stream = Stream("test_stream", test_tp)
-    stream.set_flow_rate("oil", "liquid", 276.534764)
+    stream.set_flow_rate("oil", PHASE_LIQUID, 276.534764)
     oil_SG = oil_instance.oil_specific_gravity
     gas_SG = oil_instance.gas_specific_gravity
     GOR = oil_instance.gas_oil_ratio
@@ -137,7 +137,7 @@ def test_oil_volume_energy_density(oil_instance):
 def test_oil_energy_flow_rate(oil_instance):
     stream = Stream("test_stream", test_tp)
     stream.set_API(ureg.Quantity(32.8, "degAPI"))
-    stream.set_flow_rate("oil", "liquid", 273.831958)
+    stream.set_flow_rate("oil", PHASE_LIQUID, 273.831958)
     energy_flow_rate = oil_instance.energy_flow_rate(stream)
     assert energy_flow_rate == ureg.Quantity(pytest.approx(11035.4544), "mmbtu/day")
 
@@ -164,12 +164,12 @@ def gas_instance(test_model):
 @pytest.fixture
 def stream():
     s = Stream("test_stream", test_tp)
-    s.set_flow_rate("N2", "gas", 4.90497)
-    s.set_flow_rate("CO2", "gas", 0.889247)
-    s.set_flow_rate("C1", "gas", 87.59032)
-    s.set_flow_rate("C2", "gas", 9.75715)
-    s.set_flow_rate("C3", "gas", 4.37353)
-    s.set_flow_rate("C4", "gas", 2.52654)
+    s.set_flow_rate("N2", PHASE_GAS, 4.90497)
+    s.set_flow_rate("CO2", PHASE_GAS, 0.889247)
+    s.set_flow_rate("C1", PHASE_GAS, 87.59032)
+    s.set_flow_rate("C2", PHASE_GAS, 9.75715)
+    s.set_flow_rate("C3", PHASE_GAS, 4.37353)
+    s.set_flow_rate("C4", PHASE_GAS, 2.52654)
     s.set_API(32.8)
     return s
 
@@ -287,20 +287,20 @@ def test_gas_volume_flow_rate(gas_instance, stream):
 
 def test_gas_volume_flow_rate_STP(gas_instance):
     s = Stream("test_stream", test_tp)
-    s.set_flow_rate("N2", "gas", 1.0638)
-    s.set_flow_rate("C1", "gas", 147.1241)
-    s.set_flow_rate("C2", "gas", 5.7095)
-    s.set_flow_rate("C3", "gas", 4.1863)
+    s.set_flow_rate("N2", PHASE_GAS, 1.0638)
+    s.set_flow_rate("C1", PHASE_GAS, 147.1241)
+    s.set_flow_rate("C2", PHASE_GAS, 5.7095)
+    s.set_flow_rate("C3", PHASE_GAS, 4.1863)
     vol_flow_rate_STP = gas_instance.volume_flow_rate_STP(s)
     assert vol_flow_rate_STP == ureg.Quantity(pytest.approx(7.94253339), "mmscf/day")
 
 
 def test_gas_volume_flow_rate_STP(gas_instance):
     s = Stream("test_stream", test_tp)
-    s.set_flow_rate("N2", "gas", 1.0638)
-    s.set_flow_rate("C1", "gas", 147.1241)
-    s.set_flow_rate("C2", "gas", 5.7095)
-    s.set_flow_rate("C3", "gas", 4.1863)
+    s.set_flow_rate("N2", PHASE_GAS, 1.0638)
+    s.set_flow_rate("C1", PHASE_GAS, 147.1241)
+    s.set_flow_rate("C2", PHASE_GAS, 5.7095)
+    s.set_flow_rate("C3", PHASE_GAS, 4.1863)
     vol_flow_rates_STP = gas_instance.volume_flow_rates_STP(s)
     assert vol_flow_rates_STP["C1"].to("mmscf/day") == ureg.Quantity(pytest.approx(7.66776813), "mmscf/day")
 
@@ -348,7 +348,7 @@ def test_water_density(water_instance):
 
 def test_water_volume_rate(water_instance):
     stream = Stream("water stream", test_tp)
-    stream.set_flow_rate("H2O", "liquid", 1962.61672)
+    stream.set_flow_rate("H2O", PHASE_LIQUID, 1962.61672)
     volume_flow_rate = water_instance.volume_flow_rate(stream)
     assert volume_flow_rate == ureg.Quantity(pytest.approx(12293.734, rel=1e-5), "bbl_water/day")
 
@@ -361,7 +361,7 @@ def test_water_specific_heat(water_instance):
 
 def test_water_heat_capacity(water_instance):
     stream = Stream("water stream", test_tp)
-    stream.set_flow_rate("H2O", "liquid", 1962.61672)
+    stream.set_flow_rate("H2O", PHASE_LIQUID, 1962.61672)
     heat_capacity = water_instance.heat_capacity(stream)
     assert heat_capacity == ureg.Quantity(pytest.approx(1949220.72), "btu/degF/day")
 

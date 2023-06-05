@@ -15,7 +15,7 @@ dependencies:
   - numba
   - numpy
   - pandas
-  #- pint>=0.20        # installed 0.21
+  # - pint>=0.20        # installed 0.21
   # - pint=0.20.1
   - pint
   - pint-pandas
