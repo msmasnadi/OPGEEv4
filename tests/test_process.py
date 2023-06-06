@@ -147,9 +147,9 @@ def test_bad_process_data(procB):
         procB.field.get_process_data("nonexistent-data-key", raiseError=True)
 
 
-def approx_equal(a, b, abs=10E-6):
+def approx_equal(a, b, abs=10E-6, rel=None):
     "Check that two Quantities are approximately equal"
-    return a.m == pytest.approx(b.m, abs=abs)
+    return a.m == pytest.approx(b.m, abs=abs, rel=rel)
 
 
 # Test gas processing units
