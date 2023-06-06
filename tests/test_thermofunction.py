@@ -13,7 +13,7 @@ def oil_instance(test_model):
 
 def test_gas_specific_gravity(oil_instance):
     gas_SG = oil_instance.gas_specific_gravity
-    assert gas_SG == ureg.Quantity(pytest.approx(0.622999935), "frac")
+    assert gas_SG == ureg.Quantity(pytest.approx(0.620513719), "frac")
 
 
 def test_bubble_point_solution_GOR(oil_instance):
@@ -35,19 +35,18 @@ def test_oil_API_from_SG(oil_instance):
 
 def test_reservoir_solution_GOR(oil_instance):
     res_GOR = oil_instance.reservoir_solution_GOR()
-    assert res_GOR == ureg.Quantity(pytest.approx(291.334541), "scf/bbl_oil")
+    assert res_GOR == ureg.Quantity(pytest.approx(291.03397), "scf/bbl_oil")
 
 
 test_tp = TemperaturePressure(ureg.Quantity(200.0, "degF"), ureg.Quantity(1556.0, "psia"))
 
 
 def test_bubble_point_pressure(oil_instance):
-    stream = Stream("test_stream", test_tp)
     oil_SG = oil_instance.oil_specific_gravity
     gas_SG = oil_instance.gas_specific_gravity
     GOR = oil_instance.gas_oil_ratio
-    p_bubblepoint = oil_instance.bubble_point_pressure(stream, oil_SG, gas_SG, GOR)
-    assert p_bubblepoint == ureg.Quantity(pytest.approx(9227.70805), "psia")
+    p_bubblepoint = oil_instance.bubble_point_pressure(oil_SG, gas_SG, GOR)
+    assert p_bubblepoint == ureg.Quantity(pytest.approx(9235.176121), "psia")
 
 
 def test_solution_gas_oil_ratio(oil_instance):
@@ -56,7 +55,7 @@ def test_solution_gas_oil_ratio(oil_instance):
     gas_SG = oil_instance.gas_specific_gravity
     GOR = oil_instance.gas_oil_ratio
     solution_gor = oil_instance.solution_gas_oil_ratio(stream, oil_SG, gas_SG, GOR)
-    assert solution_gor == ureg.Quantity(pytest.approx(291.191262), "scf/bbl_oil")
+    assert solution_gor == ureg.Quantity(pytest.approx(290.890838), "scf/bbl_oil")
 
 
 def test_saturated_formation_volume_factor(oil_instance):
@@ -65,7 +64,7 @@ def test_saturated_formation_volume_factor(oil_instance):
     gas_SG = oil_instance.gas_specific_gravity
     GOR = oil_instance.gas_oil_ratio
     sat_fvf = oil_instance.saturated_formation_volume_factor(stream, oil_SG, gas_SG, GOR)
-    assert sat_fvf == ureg.Quantity(pytest.approx(1.19898185), "frac")
+    assert sat_fvf == ureg.Quantity(pytest.approx(1.19867887), "frac")
 
 
 def test_unsat_formation_volume_factor(oil_instance):
@@ -74,7 +73,7 @@ def test_unsat_formation_volume_factor(oil_instance):
     gas_SG = oil_instance.gas_specific_gravity
     GOR = oil_instance.gas_oil_ratio
     unsat_fvf = oil_instance.unsat_formation_volume_factor(stream, oil_SG, gas_SG, GOR)
-    assert unsat_fvf == ureg.Quantity(pytest.approx(1.22745738), "frac")
+    assert unsat_fvf == ureg.Quantity(pytest.approx(1.22717505), "frac")
 
 
 def test_isothermal_compressibility_X(oil_instance):
@@ -98,7 +97,7 @@ def test_formation_volume_factor(oil_instance):
     gas_SG = oil_instance.gas_specific_gravity
     GOR = oil_instance.gas_oil_ratio
     fvf = oil_instance.formation_volume_factor(stream, oil_SG, gas_SG, GOR)
-    assert fvf == ureg.Quantity(pytest.approx(1.19898185), "frac")
+    assert fvf == ureg.Quantity(pytest.approx(1.19867887), "frac")
 
 
 def test_oil_density(oil_instance):
@@ -107,7 +106,7 @@ def test_oil_density(oil_instance):
     gas_SG = oil_instance.gas_specific_gravity
     GOR = oil_instance.gas_oil_ratio
     density = oil_instance.density(stream, oil_SG, gas_SG, GOR)
-    assert density == ureg.Quantity(pytest.approx(47.0840533), "lb/ft**3")
+    assert density == ureg.Quantity(pytest.approx(47.0100087), "lb/ft**3")
 
 
 def test_oil_mass_energy_density(oil_instance):
@@ -122,7 +121,7 @@ def test_oil_volume_flow_rate(oil_instance):
     gas_SG = oil_instance.gas_specific_gravity
     GOR = oil_instance.gas_oil_ratio
     volume_flow_rate = oil_instance.volume_flow_rate(stream, oil_SG, gas_SG, GOR)
-    assert volume_flow_rate == ureg.Quantity(pytest.approx(2315.23726), "bbl_oil/day")
+    assert volume_flow_rate == ureg.Quantity(pytest.approx(2309.80926), "bbl_oil/day")
 
 
 def test_oil_volume_energy_density(oil_instance):
@@ -131,7 +130,7 @@ def test_oil_volume_energy_density(oil_instance):
     gas_SG = oil_instance.gas_specific_gravity
     GOR = oil_instance.gas_oil_ratio
     volume_energy_density = oil_instance.volume_energy_density(stream, oil_SG, gas_SG, GOR)
-    assert volume_energy_density == ureg.Quantity(pytest.approx(4.81349274), "mmBtu/bbl_oil")
+    assert volume_energy_density == ureg.Quantity(pytest.approx(4.82480434), "mmBtu/bbl_oil")
 
 
 def test_oil_energy_flow_rate(oil_instance):
@@ -203,7 +202,7 @@ def test_component_mass_fraction(gas_instance, stream):
 
 def test_specific_gravity(gas_instance, stream):
     specific_gravity = gas_instance.specific_gravity(stream)
-    assert specific_gravity == ureg.Quantity(pytest.approx(0.62300076), "frac")
+    assert specific_gravity == ureg.Quantity(pytest.approx(0.620514541), "frac")
 
 
 def test_ratio_of_specific_heat(gas_instance, stream):
@@ -260,12 +259,12 @@ def test_volume_factor(gas_instance, stream):
 
 def test_gas_density(gas_instance, stream):
     density = gas_instance.density(stream)
-    assert density == ureg.Quantity(pytest.approx(0.0686353445), "tonne/m**3")
+    assert density == ureg.Quantity(pytest.approx(0.0686303423), "tonne/m**3")
 
 
 def test_gas_viscosity(gas_instance, stream):
     viscosity = gas_instance.viscosity(stream)
-    assert viscosity == ureg.Quantity(pytest.approx(0.0171788467), "centipoise")
+    assert viscosity == ureg.Quantity(pytest.approx(0.0171786183), "centipoise")
 
 
 def test_molar_weight(gas_instance, stream):
@@ -282,7 +281,7 @@ def test_molar_weight_from_molar_fracs(gas_instance, stream):
 
 def test_gas_volume_flow_rate(gas_instance, stream):
     vol_flow_rate = gas_instance.volume_flow_rate(stream)
-    assert vol_flow_rate == ureg.Quantity(pytest.approx(1603.28119), "m**3/day")
+    assert vol_flow_rate == ureg.Quantity(pytest.approx(1603.39805), "m**3/day")
 
 
 def test_gas_volume_flow_rate_STP(gas_instance):
@@ -327,7 +326,7 @@ def test_combustion_enthalpy(gas_instance, stream):
 
 def test_volume_energy_density(gas_instance, stream):
     volume_energy_density = gas_instance.volume_energy_density(stream)
-    assert volume_energy_density == ureg.Quantity(pytest.approx(959.532995), "btu/ft**3")
+    assert volume_energy_density == ureg.Quantity(pytest.approx(957.960214), "btu/ft**3")
 
 
 def test_energy_flow_rate(gas_instance, stream):
@@ -343,14 +342,14 @@ def water_instance(test_model):
 
 def test_water_density(water_instance):
     density = water_instance.density()
-    assert density == ureg.Quantity(pytest.approx(1004.12839, rel=1e-5), "kg/m**3")
+    assert density == ureg.Quantity(pytest.approx(1002.4871, rel=1e-5), "kg/m**3")
 
 
 def test_water_volume_rate(water_instance):
     stream = Stream("water stream", test_tp)
     stream.set_flow_rate("H2O", PHASE_LIQUID, 1962.61672)
     volume_flow_rate = water_instance.volume_flow_rate(stream)
-    assert volume_flow_rate == ureg.Quantity(pytest.approx(12293.734, rel=1e-5), "bbl_water/day")
+    assert volume_flow_rate == ureg.Quantity(pytest.approx(12313.8616, rel=1e-5), "bbl_water/day")
 
 
 def test_water_specific_heat(water_instance):

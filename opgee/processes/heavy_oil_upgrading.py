@@ -123,7 +123,7 @@ class HeavyOilUpgrading(Process):
             NG_dict["Fraction NG - Heating (W/O cogen)"] - heat_from_cogen / upgrader_process_gas_heating_value, 0)
 
         proc_gas_flaring_mass_rate = calculate_mass_rate_from_volume_rate(proc_gas_flared, self.upgrader_gas_comp)
-        flaring_gas = self.find_output_stream("gas for partition")
+        flaring_gas = self.find_output_stream("gas for flaring")
         flaring_gas.set_rates_from_series(proc_gas_flaring_mass_rate, PHASE_GAS)
         flaring_gas.set_tp(STP)
 

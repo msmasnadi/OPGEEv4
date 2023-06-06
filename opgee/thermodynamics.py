@@ -443,10 +443,9 @@ class Oil(AbstractSubstance):
         result = ureg.Quantity(result, "scf/bbl_oil")
         return result
 
-    def bubble_point_pressure(self, stream, oil_specific_gravity, gas_specific_gravity, gas_oil_ratio):
+    def bubble_point_pressure(self, oil_specific_gravity, gas_specific_gravity, gas_oil_ratio):
         """
 
-        :param stream:
         :param oil_specific_gravity:
         :param gas_specific_gravity:
         :param gas_oil_ratio:
@@ -454,13 +453,13 @@ class Oil(AbstractSubstance):
         :return:
         """
         oil_SG = oil_specific_gravity.to("frac").m
-        stream_T = stream.tp.T.to("rankine").m
+        res_temp = self.res_tp.T.to("rankine").m
 
         gas_SG = gas_specific_gravity.to("frac").m
         gor_bubble = self.bubble_point_solution_GOR(gas_oil_ratio).m
 
         result = (oil_SG ** self.pbub_a1 *
-                  (gas_SG * gor_bubble * stream_T) ** self.pbub_a2 *
+                  (gas_SG * gor_bubble * res_temp) ** self.pbub_a2 *
                   math.exp(-self.pbub_a3 * gas_SG * oil_SG))
         result = ureg.Quantity(result, "psia")
         return result
@@ -522,8 +521,7 @@ class Oil(AbstractSubstance):
                                                                 self.gas_specific_gravity,
                                                                 self.gas_oil_ratio).m
 
-        p_bubblepoint = self.bubble_point_pressure(stream,
-                                                   oil_specific_gravity,
+        p_bubblepoint = self.bubble_point_pressure(oil_specific_gravity,
                                                    gas_specific_gravity,
                                                    gas_oil_ratio).m
         isothermal_compressibility = self.isothermal_compressibility(oil_specific_gravity).m
@@ -582,8 +580,7 @@ class Oil(AbstractSubstance):
 
         :return:(float) final formation volume factor (unit = fraction)
         """
-        p_bubblepoint = self.bubble_point_pressure(stream,
-                                                   oil_specific_gravity,
+        p_bubblepoint = self.bubble_point_pressure(oil_specific_gravity,
                                                    gas_specific_gravity,
                                                    gas_oil_ratio)
 
@@ -1253,9 +1250,13 @@ class Water(AbstractSubstance):
         temp = temperature if temperature is not None else self.model.const("std-temperature")
         press = pressure if pressure is not None else self.model.const("std-pressure")
 
+        temp = temp.to("degF").m
+        press = press.to("psia").m
+
         specifc_gravity = self.specific_gravity
-        water_density_STP = rho("H2O", temp, press, PHASE_LIQUID)
-        density = specifc_gravity * water_density_STP
+        water_density = self.steam_table.rho_pt(round(press, self.steam_tbl_digits), round(temp, self.steam_tbl_digits))
+        water_density = ureg.Quantity(water_density, "lb/ft**3")
+        density = specifc_gravity * water_density
 
         return density.to("kg/m**3")
 

@@ -3,8 +3,8 @@
 
 	<Analysis name="test_boundary">
 		<A name="functional_unit">gas</A>
-	  <A name="GWP_horizon">100</A>
-	  <A name="GWP_version">AR5</A>
+		<A name="GWP_horizon">100</A>
+		<A name="GWP_version">AR5</A>
 		<A name="boundary">Distribution</A>
 		<Field name="test_gas_transmission_boundary"/>
 	</Analysis>
