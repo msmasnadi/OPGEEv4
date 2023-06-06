@@ -17,6 +17,7 @@ from ..process import Process
 from ..stream import PHASE_GAS, Stream
 from ..constants import mol_per_scf
 from .shared import get_init_lifting_stream
+from ..combine_streams import combine_streams
 
 _logger = getLogger(__name__)
 
