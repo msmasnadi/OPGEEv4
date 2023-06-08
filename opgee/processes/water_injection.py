@@ -20,6 +20,7 @@ from ..emissions import EM_COMBUSTION
 from ..error import OpgeeException
 from ..log import getLogger
 from ..process import Process
+from .. import ureg
 
 _logger = getLogger(__name__)
 

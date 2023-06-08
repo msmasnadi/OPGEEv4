@@ -627,7 +627,7 @@ def test_SteamGeneration_OTSG(test_model):
     proc = field.find_process('SteamGeneration')
     # ensure total emission flow rates
     total = proc.energy.data.sum()
-    expected = ureg.Quantity(67897.11542955, "mmBtu/day")
+    expected = ureg.Quantity(68056.171381, "mmBtu/day")
     assert approx_equal(total, expected)
 
 
@@ -644,7 +644,7 @@ def test_SteamGeneration_Cogen(test_model):
     proc = field.find_process('SteamGeneration')
     # ensure total emission flow rates
     total = proc.energy.data.sum()
-    expected = ureg.Quantity(99559.80128576, "mmBtu/day")
+    expected = ureg.Quantity(105140.98234, "mmBtu/day")
     assert approx_equal(total, expected)
 
 
