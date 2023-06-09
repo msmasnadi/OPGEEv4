@@ -339,6 +339,8 @@ class AbstractSubstance(OpgeeObject):
         self.component_gas_rho_STP = pd.Series({name: rho(name, field.stp.T, field.stp.P, PHASE_GAS)
                                                 for name in components}, dtype="pint[kg/m**3]")
 
+        self.steam_table = XSteam(XSteam.UNIT_SYSTEM_FLS)
+
 
 class Oil(AbstractSubstance):
     """
@@ -1183,11 +1185,16 @@ class Gas(AbstractSubstance):
             dtype="pint[joule/mole]")
 
         if "H2O" in molar_fracs and phase == PHASE_GAS:
-            water = Chemical("water")
-            water_T_ref = water.T_ref
-            latent_heat_water = water.Hvap(T=water_T_ref)
-            latent_heat_water = ureg.Quantity(latent_heat_water, "joule/mole")
-            enthalpy["H2O"] = max(enthalpy["H2O"] - latent_heat_water, ureg.Quantity(0.0, "joule/mole"))
+            steam_table = XSteam(XSteam.UNIT_SYSTEM_FLS)
+            temp = temperature.m
+            water_vapor_enthalpy = ureg.Quantity(steam_table.hV_t(temp), "btu/lb") * ChemicalInfo.mol_weights()["H2O"]
+
+            water_T_ref = ureg.Quantity(30, "degC")
+            water_T_ref = water_T_ref.to("degF").m
+            latent_heat_water = \
+                ureg.Quantity(
+                    steam_table.hV_t(water_T_ref) - steam_table.hL_t(water_T_ref), "btu/lb") * ChemicalInfo.mol_weights()["H2O"]
+            enthalpy["H2O"] = max(water_vapor_enthalpy - latent_heat_water, ureg.Quantity(0.0, "joule/mole"))
 
         return enthalpy
 
@@ -1237,7 +1244,6 @@ class Water(AbstractSubstance):
         self.TDS = field.attr("total_dissolved_solids")  # mg/L
         # TODO: this can be improved by adding ions in the H2O in the solution
         self.specific_gravity = ureg.Quantity(1 + self.TDS.m * 0.695 * 1e-6, "frac")
-        self.steam_table = XSteam(XSteam.UNIT_SYSTEM_FLS)
         self.density_STP = self.density()
 
     def density(self, temperature=None, pressure=None):

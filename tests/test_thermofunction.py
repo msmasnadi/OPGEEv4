@@ -321,7 +321,7 @@ def test_combustion_enthalpy(gas_instance, stream):
                             index=["N2", "O2", "CO2", "H2O"], dtype="pint[mol/mol]")
     temperature = ureg.Quantity(80.33, "degF")
     enthalpy = gas_instance.combustion_enthalpy(molar_fracs, temperature, PHASE_GAS)
-    assert enthalpy["H2O"] == ureg.Quantity(pytest.approx(120.4288942, rel=10e-3), "joule/mole")
+    assert enthalpy["H2O"] == ureg.Quantity(pytest.approx(2162.8143928135105), "joule/mole")
 
 
 def test_volume_energy_density(gas_instance, stream):
