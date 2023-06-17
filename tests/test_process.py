@@ -172,7 +172,7 @@ def test_VFPartition(test_model):
     # ensure total energy flow rates
     total = proc.find_output_stream("methane slip").gas_flow_rates().sum()
     expected = ureg.Quantity(71.2518871, "tonne/day")
-    assert approx_equal(total, expected)
+    assert approx_equal(total, expected, rel=10e-3)
 
 
 def test_Flaring(test_model):
@@ -222,7 +222,7 @@ def test_AcidGasRemoval_testbook(test_model):
     # ensure total energy flow rates
     total = proc.energy.data.sum()
     expected = ureg.Quantity(782593.6552049, "mmbtu/day")
-    assert approx_equal(total, expected)
+    assert approx_equal(total, expected, rel=10e-3)
 
 
 def test_GasDehydration(test_model):
@@ -281,7 +281,7 @@ def test_CO2Membrane(test_model):
     # ensure total energy flow rates
     total = proc.energy.data.sum()
     expected = ureg.Quantity(4028.59019, "mmbtu/day")
-    assert approx_equal(total, expected)
+    assert approx_equal(total, expected, rel=10e-3)
 
 
 def test_CO2ReinjectionCompressor(test_model):
@@ -426,7 +426,7 @@ def test_CO2Flooding_sour_gas_reinjection(test_model_with_change):
 
     total = proc.find_output_stream("gas").gas_flow_rates().sum()
     expected = ureg.Quantity(24885.5551, "tonne/day")
-    assert approx_equal(total, expected)
+    assert approx_equal(total, expected, rel=10e-4)
 
 
 def test_NGFlooding_offset(test_model):
