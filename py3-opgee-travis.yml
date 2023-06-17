@@ -6,15 +6,15 @@ channels:
   - defaults
 dependencies:
   - colour
-  - cython=0.29.30
+  - cython
   - dash=2.10.0
-  - dask=2022.7.0
+  - dask=2022.5.0
   - dask-jobqueue=0.8.1
   - graphviz
   - jinja2=3.0.3
   - llvm-openmp=15.0.6
   - lxml=4.9.2
-  - networkx
+  - networkx=2.7.1
   - numba
   - numpy=1.24.3
   - pandas=1.4.2
