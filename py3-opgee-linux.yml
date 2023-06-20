@@ -27,15 +27,14 @@ dependencies:
   - python>=3.9.0,<3.10.0
   - semver
   - setuptools
-  - sphinx
+  - sphinx>=4.3.0
   - sphinx-argparse
-  - sphinx_rtd_theme
+  - sphinx_rtd_theme>=0.5.1
   - sphinxcontrib-serializinghtml
   - pip:
-    - dash-cytoscape
-    - pyXSteam
-    - thermosteam
+    - dash-cytoscape==0.3.0
+    - pyXSteam==0.4.9
+    - thermosteam==0.34.0
     - fluids==1.0.24
     - chemicals==1.1.4
     - thermo==0.2.25
-
