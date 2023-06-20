@@ -225,6 +225,15 @@ def userConfigPath():
     path = pathjoin(getHomeDir(), USR_CONFIG_FILE)
     return path
 
+def readConfigFile(path_or_stream):
+    # N.B. doesn't handle Path-like objs but we aren't using them here
+    if isinstance(path_or_stream, (str, bytes)):
+        with open(path_or_stream) as f:
+            _ConfigParser.read_file(f)
+    else:
+        # test code passes a StringIO instance to set up test environment
+        _ConfigParser.read_file(path_or_stream)
+
 def readConfigFiles(allowMissing=False, systemConfigOnly=False):
     """
     Read the OPGEE configuration files, starting with ``opgee/etc/system.cfg``,
@@ -266,25 +275,24 @@ def readConfigFiles(allowMissing=False, systemConfigOnly=False):
         siteConfig = os.getenv('OPGEE_SITE_CONFIG')
         if siteConfig:
             try:
-                with open(siteConfig) as f:
-                   _ConfigParser.read_file(f)
+                readConfigFile(siteConfig)
+
             except Exception as e:
-                print("WARNING: Failed to read site config file: %s" % e)
+                print(f"WARNING: Failed to read site config file '{siteConfig}': {e}")
 
         # Customizations are stored in ~/opgee.cfg
         usrConfigPath = userConfigPath()
 
         # os.path.exists doesn't always work on Windows, so just try opening it.
         try:
-            with open(usrConfigPath) as f:
-               _ConfigParser.read_file(f)
+            readConfigFile(usrConfigPath)
 
         except IOError:
             if not allowMissing:
                 if not os.path.lexists(usrConfigPath):
-                    raise ConfigFileError("Missing configuration file %s" % usrConfigPath)
+                    raise ConfigFileError(f"Missing user config file '{usrConfigPath}'")
                 else:
-                    raise ConfigFileError("Can't read configuration file %s" % usrConfigPath)
+                    raise ConfigFileError(f"Can't read user config file '{usrConfigPath}'")
 
         # Dynamically set (if not defined) OPGEE.ProjectName in each section, holding the
         # section (i.e., project) name. If user has set this, the value is unchanged.

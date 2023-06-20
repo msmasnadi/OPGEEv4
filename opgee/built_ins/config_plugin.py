@@ -50,7 +50,7 @@ class ConfigCommand(SubcommandABC):
                 raise OpgeeException(f"TextEditor command '{cmd}' exited with status {exitStatus}\n")
             return
 
-        section = 'DEFAULT' if args.useDefault else args.projectName
+        section = 'DEFAULT' if args.useDefault else getParam('OPGEE.DefaultProject')
 
         if not section:
             raise CommandlineError("Project was not specified and OPGEE.DefaultProject is not set")

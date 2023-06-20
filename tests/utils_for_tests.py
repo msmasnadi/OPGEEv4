@@ -1,4 +1,5 @@
-from opgee.config import pathjoin, getParam
+from io import StringIO
+from opgee.config import pathjoin, getParam, readConfigFile
 from opgee.model_file import ModelFile
 from opgee.process import Process
 
@@ -42,3 +43,8 @@ def load_model_from_str(xml_str, use_default_model=False):
 def tmpdir(*args):
     d = pathjoin(getParam('OPGEE.TempDir'), *args)
     return d
+
+def load_config_from_string(text):
+    stream = StringIO(text)
+    readConfigFile(stream)
+
