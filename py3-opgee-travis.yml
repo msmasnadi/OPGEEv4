@@ -29,7 +29,7 @@ dependencies:
   - setuptools=61.2.0
   - sphinx
   - sphinx-argparse
-  - sphinx-rtd-theme
+  - sphinx_rtd_theme
   - sphinxcontrib-serializinghtml
   - pip:
     - dash-cytoscape==0.3.0

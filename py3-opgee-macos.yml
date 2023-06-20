@@ -25,7 +25,7 @@ dependencies:
   - setuptools
   - sphinx
   - sphinx-argparse
-  - sphinx-rtd-theme
+  - sphinx_rtd_theme
   - sphinxcontrib-serializinghtml
   - pip:
     # - nuitka            # experimental; moved here because conda version is very outdated
