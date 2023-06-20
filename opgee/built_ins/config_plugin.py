@@ -47,16 +47,16 @@ class ConfigCommand(SubcommandABC):
             print(cmd)
             exitStatus = subprocess.call(cmd, shell=True)
             if exitStatus != 0:
-                raise OpgeeException("TextEditor command '%s' exited with status %s\n" % (cmd, exitStatus))
+                raise OpgeeException(f"TextEditor command '{cmd}' exited with status {exitStatus}\n")
             return
 
         section = 'DEFAULT' if args.useDefault else args.projectName
 
         if not section:
-            raise CommandlineError("Project was not specifed and OPGEE.DefaultProject is not set")
+            raise CommandlineError("Project was not specified and OPGEE.DefaultProject is not set")
 
         if section != 'DEFAULT' and not _ConfigParser.has_section(section):
-            raise CommandlineError("Unknown configuration file section '%s'" % section)
+            raise CommandlineError(f"Unknown configuration file section '{section}'")
 
         if args.name and args.exact:
             value = getParam(args.name, section=section, raiseError=False)
@@ -67,12 +67,12 @@ class ConfigCommand(SubcommandABC):
         # if no name is given, the pattern matches all variables
         pattern = re.compile('.*' + args.name + '.*', re.IGNORECASE)
 
-        print("[%s]" % section)
+        print(f"[{section}]")
         for name, value in sorted(_ConfigParser.items(section)):
             if pattern.match(name):
                 # getParam does path translation for docker, if required
                 value = getParam(name, section=section, raiseError=False)
-                print("%25s = %s" % (name, value))
+                print(f"{name:>25s} = {value}")
 
 
 PluginClass = ConfigCommand
