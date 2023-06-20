@@ -25,6 +25,6 @@ semver==2.13.0
 setuptools==61.2.0
 sphinx==4.4.0
 sphinx-argparse==0.4.0
-sphinx_rtd_theme
+sphinx_rtd_theme>=0.5.1
 thermo==0.2.25
 thermosteam==0.34.0
