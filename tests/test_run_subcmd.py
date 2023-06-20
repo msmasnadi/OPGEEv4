@@ -1,4 +1,5 @@
 import pytest
+from opgee.config import setParam
 from opgee.error import CommandlineError
 from .utils_for_tests import path_to_test_file
 
@@ -18,9 +19,11 @@ def test_unknown_field(opgee):
 def test_run_test_model(opgee):
 
     # NOT UNUSED! Defines procs referenced by test_model2.xml
-    from .files import user_processes
+    # from .files import user_processes
 
     xml_path = path_to_test_file('test_model2.xml')
+    setParam('OPGEE.ClassPath', path_to_test_file('user_processes.py'))
+
     try:
         args = ['run', '-f', 'Field1', '-m', xml_path, '--no-default-model']
         cmd = ' '.join(args)
@@ -32,6 +35,7 @@ def test_run_test_model(opgee):
         print(f"ERROR: test_run_test_model: {e}")
         good = False
 
+    setParam('OPGEE.ClassPath', '')  # avoid reloading user_processes.py
     assert good
 
 
