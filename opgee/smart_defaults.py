@@ -145,7 +145,7 @@ class SmartDefault(OpgeeObject):
             try:
                 obj, attr_obj = dep.find_attr(attr_name, analysis, field)
             except ProcessNotFoundError as e:
-                _logger.warn(f"{e} (ignoring)")
+                _logger.warning(f"{e} (ignoring)")
                 continue    # skip this smart default
 
             # Don't set smart defaults on explicitly set values
@@ -157,7 +157,7 @@ class SmartDefault(OpgeeObject):
             try:
                 tups = [dep.find_attr(name, analysis, field) for name in dep.dependencies]
             except ProcessNotFoundError as e:
-                _logger.warn(f"{e} (ignoring)")
+                _logger.warning(f"{e} (ignoring)")
                 continue    # skip this smart default
 
             values = [attr_obj.value for _, attr_obj in tups]

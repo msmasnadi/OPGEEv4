@@ -32,9 +32,9 @@ class GensimCommand(SubcommandABC):
                             for all fields defined in the analysis.''')
 
         parser.add_argument('-m', '--model-file', action='append',
-                            help='''XML model definition files to load. If --no_default_model is *not* specified,
+                            help='''XML model definition files to load. If --no-default-model is *not* specified,
                             the built-in files etc/opgee.xml and etc/attributes.xml are loaded first, and the XML 
-                            files specified here will be merged with these. If --no_default_model is specified, 
+                            files specified here will be merged with these. If --no-default-model is specified, 
                             only the given files are loaded; they are merged in the order stated.''')
 
         parser.add_argument('-n', '--no-default-model', action='store_true',
