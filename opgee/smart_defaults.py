@@ -122,7 +122,7 @@ class SmartDefault(OpgeeObject):
             if cycles:
                 raise OpgeeException(f"Smart default dependencies contain cycles: {cycles}")
 
-            cls._run_order = nx.topological_sort(g)
+            cls._run_order = list(nx.topological_sort(g))   # expand generator so we can iterate more than once
 
         return cls._run_order
 
