@@ -1384,5 +1384,7 @@ class Field(Container):
     @SmartDefault.register('prod_water_inlet_temp', ['country'])
     def prod_water_inlet_temp_default(self, country):
 
-        return ureg.Quantity(340, 'degF') if country == 'Canada' else ureg.Quantity(140, 'degF')
+        temperature = 340 if country == 'Canada' else 140
+        return ureg.Quantity(temperature, 'degF')
+
     # TODO: decide how to handle "associated gas defaults", which is just global vs CA-LCFS values currently

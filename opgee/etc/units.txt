@@ -17,7 +17,7 @@ fraction = [] = frac = dimensionless
 
 # These are now defined in pint
 # ppm = 1e-6 fraction
-percent = 1e-2 frac = pct
+# percent = 1e-2 frac = pct
 # percent = dimensionless = pct = mol_pct
 mol_pct = percent = _
 
