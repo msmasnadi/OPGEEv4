@@ -1381,5 +1381,8 @@ class Field(Container):
         # Otherwise enable all of those processes.
         return 'None' if oil_sands_mine != 'None' else 'All'
 
+    @SmartDefault.register('prod_water_inlet_temp', ['country'])
+    def prod_water_inlet_temp_default(self, country):
 
+        return ureg.Quantity(340, 'degF') if country == 'Canada' else ureg.Quantity(140, 'degF')
     # TODO: decide how to handle "associated gas defaults", which is just global vs CA-LCFS values currently

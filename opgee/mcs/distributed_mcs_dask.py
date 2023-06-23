@@ -11,10 +11,11 @@ from dask.distributed import Client, LocalCluster, as_completed
 from ..core import OpgeeObject, Timer
 from ..config import getParam, getParamAsInt, getParamAsBoolean
 from ..error import RemoteError, McsSystemError, TrialErrorWrapper
-from ..log  import getLogger, setLogFile
+from ..log import getLogger, setLogFile
 from .simulation import Simulation
 
 _logger = getLogger(__name__)
+
 
 def _walltime(minutes: int) -> str:
     """
@@ -25,8 +26,10 @@ def _walltime(minutes: int) -> str:
     """
     return f"{minutes // 60 :02d}:{minutes % 60 :02d}:00"
 
+
 # Global to track how many tasks each worker is running
 _task_count = 0
+
 
 class FieldResult(OpgeeObject):
     __slots__ = ['ok', 'field_name', 'duration', 'completed', 'task_count', 'error']
@@ -41,6 +44,7 @@ class FieldResult(OpgeeObject):
 
     def __str__(self):
         return f"<FieldResult {self.completed} trials of {self.field_name} in {self.duration}; task_count:{self.task_count} error:{self.error}>"
+
 
 def run_field(sim_dir, field_name, trial_nums=None):
     """
@@ -115,7 +119,7 @@ class Manager(OpgeeObject):
 
         _logger.info(f"Creating {cluster_type} cluster")
 
-        cores = getParamAsInt('SLURM.CoresPerNode') # "Total number of cores per job"
+        cores = getParamAsInt('SLURM.CoresPerNode')  # "Total number of cores per job"
 
         if cluster_type == 'slurm':
             # "Cut the job up into this many processes. Good for GIL workloads or for nodes with
@@ -128,7 +132,7 @@ class Manager(OpgeeObject):
             # N.B. "Failed to launch worker. You cannot use the --no-nanny argument when n_workers > 1."
             nanny = getParamAsBoolean('SLURM.UseNanny')  # "Whether to start a nanny process"
 
-            job_script_prologue = None # ['conda activate opgee'] failed
+            job_script_prologue = None  # ['conda activate opgee'] failed
             minutes_per_task = minutes_per_task or getParamAsInt("SLURM.MinutesPerTask")
 
             arg_dict = dict(
@@ -166,18 +170,18 @@ class Manager(OpgeeObject):
         else:
             raise McsSystemError(f"Unknown cluster type '{cluster_type}'. Valid options are 'slurm' and 'local'.")
 
-        _logger.info(f"Starting {cluster_type } cluster")
+        _logger.info(f"Starting {cluster_type} cluster")
         self.client = client = Client(cluster)
 
         _logger.info("Waiting for workers")
         while True:
             try:
                 # print('.', sep='', end='')
-                client.wait_for_workers(1, 15) # wait for 1 worker with 15 sec timeout
+                client.wait_for_workers(1, 15)  # wait for 1 worker with 15 sec timeout
                 break
             except (dask.distributed.TimeoutError, asyncio.exceptions.TimeoutError) as e:
                 pass
-                #print(e) # prints "Only 0/1 workers arrived after 15"
+                # print(e) # prints "Only 0/1 workers arrived after 15"
 
         _logger.info("Workers are running")
         return client
@@ -191,9 +195,9 @@ class Manager(OpgeeObject):
         self.client.shutdown()
         sleep(5)
 
-        #self.client.retire_workers()
-        #sleep(1)
-        #self.client.scheduler.shutdown()
+        # self.client.retire_workers()
+        # sleep(1)
+        # self.client.scheduler.shutdown()
 
         self.client = self.cluster = None
 
@@ -229,7 +233,7 @@ class Manager(OpgeeObject):
         for future, result in as_completed(futures, with_results=True):
             if result.error:
                 _logger.error(f"Failed: {result}")
-                #traceback.print_exc()
+                # traceback.print_exc()
             else:
                 _logger.debug(f"Succeeded: {result}")
 
@@ -237,4 +241,3 @@ class Manager(OpgeeObject):
 
         self.stop_cluster()
         _logger.info(timer.stop())
-
