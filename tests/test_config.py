@@ -50,23 +50,23 @@ def dummy_config():
 
     return project_name
 
-def test_config_exact(opgee, dummy_config, capsys):
+def test_config_exact(opgee_main, dummy_config, capsys):
     # capsys is a file like object that captures output to stdout / stderr
 
     project_name = dummy_config
 
-    opgee.run(None, argList=['config', '--exact', 'OPGEE.ProjectName'])
+    opgee_main.run(None, argList=['config', '--exact', 'OPGEE.ProjectName'])
     captured = capsys.readouterr()
     assert captured.out == f"{project_name}\n"
 
-def test_config_cmd(opgee, dummy_config, capsys):
-    opgee.run(None, argList=['config', 'X\\.'])
+def test_config_cmd(opgee_main, dummy_config, capsys):
+    opgee_main.run(None, argList=['config', 'X\\.'])
     captured = capsys.readouterr()
     lines = [line.strip() for line in captured.out.split('\n') if line]
     assert lines == ['[dummy]', 'X.bar = two', 'X.baz = three', 'X.foo = one']
 
-def test_config_edit(opgee, dummy_config, capsys):
-    opgee.run(None, argList=['config', '--edit'])
+def test_config_edit(opgee_main, dummy_config, capsys):
+    opgee_main.run(None, argList=['config', '--edit'])
     captured = capsys.readouterr()
     home = getHomeDir()
     assert captured.out == f"echo {home}/{USR_CONFIG_FILE}\n"

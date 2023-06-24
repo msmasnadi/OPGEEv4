@@ -349,7 +349,8 @@ class ModelFile(XMLFile):
                     print(f"Loading module from '{path}'")
                     _load_from_path(path)
 
-            reload_subclass_dict()
+            if paths:
+                reload_subclass_dict()
 
         _logger.debug(load_timer.stop())
 
