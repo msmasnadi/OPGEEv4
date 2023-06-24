@@ -3,7 +3,6 @@ from opgee.config import setParam
 from opgee.error import CommandlineError
 from .utils_for_tests import path_to_test_file
 
-
 def test_unknown_analysis(opgee_main):
     name = 'unknown-analysis'
     with pytest.raises(CommandlineError, match=r"Specified analyses .* not found in model"):
@@ -17,20 +16,18 @@ def test_unknown_field(opgee_main):
 
 
 def test_run_test_model(opgee_main):
-    # NOT UNUSED! Defines procs referenced by test_model2.xml
-    # from .files import user_processes
     from opgee.process import decache_subclasses
+    from opgee.tool import opg
 
     decache_subclasses()
     setParam('OPGEE.ClassPath', path_to_test_file('user_processes.py'))
 
     xml_path = path_to_test_file('test_model2.xml')
-    args = ['run', '-f', 'Field1', '-m', xml_path, '--no-default-model']
-    cmd = ' '.join(args)
+    cmd = f"run -f Field1 -m {xml_path} --no-default-model"
     print(f"Running 'opg {cmd}'")
 
     try:
-        opgee_main.run(None, args)
+        opg(cmd)
         good = True
 
     except Exception as e:
