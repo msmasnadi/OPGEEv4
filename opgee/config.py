@@ -270,7 +270,7 @@ def readConfigFiles(allowMissing=False, systemConfigOnly=False):
 
     if not systemConfigOnly:
         # Read platform-specific defaults, if defined. No error if file is missing.
-        _readConfigResourceFile('etc/%s.cfg' % PlatformName, raiseError=False)
+        _readConfigResourceFile(f'etc/{PlatformName}.cfg', raiseError=False)
 
         siteConfig = os.getenv('OPGEE_SITE_CONFIG')
         if siteConfig:
@@ -376,13 +376,13 @@ def getParam(name, section=None, raw=False, raiseError=True):
 
     except configparser.NoSectionError:
         if raiseError:
-            raise OpgeeException('getParam: unknown section "%s"' % section)
+            raise OpgeeException(f'getParam: unknown section "{section}"')
         else:
             return None
 
     except configparser.NoOptionError:
         if raiseError:
-            raise OpgeeException('getParam: unknown variable "%s"' % name)
+            raise OpgeeException(f'getParam: unknown variable "{name}"')
         else:
             return None
 
