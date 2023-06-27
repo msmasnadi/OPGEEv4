@@ -14,9 +14,9 @@ is_sherlock = os.environ.get('LMOD_SYSHOST') == 'sherlock'
         ['graph', '--hierarchy-output', DEVNULL],
     ]
 )
-def test_graphing(opgee, args):
+def test_graphing(opgee_main, args):
     try:
-        opgee.run(None, args)
+        opgee_main.run(None, args)
         good = True
     except Exception as e:
         # print(e)
@@ -25,6 +25,6 @@ def test_graphing(opgee, args):
     assert good
 
 @pytest.mark.skipif(is_sherlock, reason="requires the graphviz/dot which isn't working on sherlock")
-def test_unknown_field(opgee):
+def test_unknown_field(opgee_main):
     with pytest.raises(CommandlineError, match=r"Field name .* was not found in model"):
-        opgee.run(None, ['graph', '--field', 'unknown-field'])
+        opgee_main.run(None, ['graph', '--field', 'unknown-field'])

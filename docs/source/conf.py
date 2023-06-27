@@ -20,9 +20,6 @@ sys.path.insert(0, os.path.abspath('../..'))
 
 from opgee.version import VERSION
 
-from opgee.tool import load_pint_registry
-load_pint_registry()    # needed to build docs
-
 # -- Project information -----------------------------------------------------
 
 project = 'OPGEE'

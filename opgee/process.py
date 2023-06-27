@@ -82,8 +82,6 @@ def _get_subclass(cls, subclass_name, reload=False):
     :return: (type) the class object
     :raises: OpgeeException if `cls` is not Process or Aggregator or if the subclass is not known.
     """
-    global _Subclass_dict
-
     if reload or _Subclass_dict is None:
         reload_subclass_dict()
 
@@ -94,6 +92,7 @@ def _get_subclass(cls, subclass_name, reload=False):
     d = _Subclass_dict[cls]
     try:
         return d[subclass_name]
+
     except KeyError:
         raise OpgeeException(f"Class {subclass_name} is not a known subclass of {cls}")
 

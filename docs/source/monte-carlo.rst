@@ -25,7 +25,7 @@ OPGEE support for Monte Carlo Simulation includes:
     to the XML representation required for running in OPGEE. The primary source file (``opgee/etc/test-fields.csv``)
     is based on data extracted from the OPGEEv3 Excel workbook.
 
-  * The ``gensim`` :doc:`subcommand <opgee.subcommand>`, which reads ``opgee/mcs/etc/parameter_distributions.csv``,
+  * The ``gensim`` subcommand which reads ``opgee/mcs/etc/parameter_distributions.csv``,
     a file describing probability distributions for model attributes. ``Gensim`` then generates a file containing
     data values drawn from these distributions for a defined number of trials, with one file generated per
     field explicitly or implicitly identified in the call to ``gensim``.
@@ -54,7 +54,7 @@ the simulation directory.
 The ``gensim`` subcommand
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  * Gensim currently supports the following distributions, though it is fairly easy to add new ones:
+  * The `gensim subcommand <opg.html#gensim>`__ currently supports the following distributions, though it is fairly easy to add new ones:
 
     * Uniform
     * Normal
@@ -121,7 +121,7 @@ Running a simulation
 
 Before running a simulation, the simulation directory must be created using the ``gensim``
 sub-command, described above. The simulation directory must be specified using the ``-s/--simulation-dir``
-argument to the ``runsim`` sub-command. This directory holds a fully expanded version of the model,
+argument to the `runsim subcommand <opg.html#runsim>`__. This directory holds a fully expanded version of the model,
 the input data generated from parameter distributions, and after running the simulation, the results
 for each field.
 
@@ -152,3 +152,4 @@ The ``runsim`` command can run simulations in any of three modes:
    field to completion before starting on any remaining fields. Note that there are several
    :doc:`configuration file <config>` options controlling behavior on SLURM systems.
 
+A full description of all options is available `here <opg.html#runsim>`__.

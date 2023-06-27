@@ -31,13 +31,24 @@
 		<A name="API">32.8</A>
 
 		<Process class="UserProcess1" desc="Test process 1"/>
+		<Process class="CrudeOilTransport"/>
+
 		<Process class="Boundary" boundary="Production" desc="Test process 2"/>
+		<Process class="Boundary" boundary="Transportation" desc="Transport boundary"/>
 
 		<Stream src="UserProcess1" dst="ProductionBoundary">
 			<A name="temperature">90.0</A>
 			<A name="pressure">150.0</A>
 			<Component name="oil" phase="liquid">100</Component>
-			<Contains>crude oil</Contains>
+			<Contains>oil</Contains>
+		</Stream>
+
+		<Stream src="ProductionBoundary" dst="CrudeOilTransport">
+			<Contains>oil</Contains>
+		</Stream>
+
+		<Stream src="CrudeOilTransport" dst="TransportationBoundary">
+			<Contains>oil</Contains>
 		</Stream>
 
 	</Field>

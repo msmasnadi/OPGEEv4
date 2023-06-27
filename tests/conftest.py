@@ -37,5 +37,5 @@ def test_model_with_change(configure_logging_for_tests):
 
 
 @pytest.fixture(scope='function')
-def opgee():
+def opgee_main():
     return Opgee()

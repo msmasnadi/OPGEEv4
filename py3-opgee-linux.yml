@@ -5,16 +5,15 @@ channels:
   - defaults
 dependencies:
   - colour
-  # - cython=0.29.30
   - cython
-  - dash>=2.5.1
+  - dash
   - dask
-  - dask-jobqueue>=0.7.3
+  - dask-jobqueue
   - graphviz
   - python-graphviz
   - jinja2
   - llvm-openmp
-  - lxml>=4.9.0
+  - lxml
   - networkx
   - nuitka
   - numba
@@ -29,12 +28,13 @@ dependencies:
   - semver
   - setuptools
   - sphinx>=4.3.0
-  - sphinx-argparse>=0.2.5
+  - sphinx-argparse
   - sphinx_rtd_theme>=0.5.1
   - sphinxcontrib-serializinghtml
   - pip:
-    - dash-cytoscape>=0.3.0
-    - pyXSteam>=0.4.8
-    - thermo==0.2.10    # several tests fail when using v0.2.21
-    - thermosteam>=0.28.12
-
+    - dash-cytoscape==0.3.0
+    - pyXSteam==0.4.9
+    - thermosteam==0.34.0
+    - fluids==1.0.24
+    - chemicals==1.1.4
+    - thermo==0.2.25
