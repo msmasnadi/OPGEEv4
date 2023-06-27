@@ -491,6 +491,7 @@ class Simulation(OpgeeObject):
            ``None`` to run all trials.
         :return: (int) the number of successfully run trials
         """
+        from ..smart_defaults import SmartDefault
 
         trial_nums = range(self.trials) if trial_nums is None else trial_nums
 
@@ -508,12 +509,8 @@ class Simulation(OpgeeObject):
 
                 self.set_trial_data(field, trial_num)
 
-                # TBD: test re-running
-                #    SmartDefault.apply_defaults(field, analysis=self.analysis)
-                #  however, changes to structure are not applied unless we call
-                #  the function field.finalize_process_graph(), which also calls
-                #  SmartDefault.apply_defaults() and resolve_process_choices(),
-                #  and resets the field's network graph.
+                # TBD: test this
+                SmartDefault.apply_defaults(field, analysis=self.analysis)
 
                 field.run(self.analysis, compute_ci=True, trial_num=trial_num)
                 # field.report()
