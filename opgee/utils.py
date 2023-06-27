@@ -269,14 +269,20 @@ def loadModuleFromPath(module_path, raiseError=True):
     base = os.path.basename(module_path)
     module_name = base.split('.')[0]
 
+    try:
+        module = sys.modules[module_name]
+        _logger.warning(f"{module} is already in sys.modules")
+        return module
+    except KeyError:
+        module = None
+
     _logger.debug(f"Loading module {module_path}")
 
     # Load the compiled code if it's a '.pyc', otherwise load the source code
-    module = None
-
     try:
         spec = importlib.util.spec_from_file_location(module_name, module_path)
-        module = importlib.util.module_from_spec(spec)
+        module = importlib.util.module_from_spec(spec)  # creates a new module
+        sys.modules[module_name] = module               # record it to sys.module
         spec.loader.exec_module(module)
 
     except Exception as e:
