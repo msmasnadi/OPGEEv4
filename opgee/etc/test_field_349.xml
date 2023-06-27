@@ -67,6 +67,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 2" modifies="template">
       <A name="downhole_pump">0</A>
@@ -134,6 +135,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 3" modifies="template">
       <A name="downhole_pump">0</A>
@@ -201,6 +203,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 4" modifies="template">
       <A name="downhole_pump">1</A>
@@ -268,6 +271,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 5" modifies="template">
       <A name="downhole_pump">0</A>
@@ -335,6 +339,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 6" modifies="template">
       <A name="downhole_pump">1</A>
@@ -402,6 +407,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 7" modifies="template">
       <A name="downhole_pump">0</A>
@@ -469,6 +475,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 8" modifies="template">
       <A name="downhole_pump">1</A>
@@ -536,6 +543,7 @@
       <A name="frac_CO2_breakthrough">0</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 9" modifies="template">
       <A name="downhole_pump">0</A>
@@ -603,6 +611,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 10" modifies="template">
       <A name="downhole_pump">0</A>
@@ -670,6 +679,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 11" modifies="template">
       <A name="downhole_pump">1</A>
@@ -737,6 +747,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 12" modifies="template">
       <A name="downhole_pump">0</A>
@@ -804,6 +815,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 13" modifies="template">
       <A name="downhole_pump">1</A>
@@ -871,6 +883,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 14" modifies="template">
       <A name="downhole_pump">1</A>
@@ -938,6 +951,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 15" modifies="template">
       <A name="downhole_pump">1</A>
@@ -1005,6 +1019,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 16" modifies="template">
       <A name="downhole_pump">0</A>
@@ -1072,6 +1087,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 17" modifies="template">
       <A name="downhole_pump">0</A>
@@ -1139,6 +1155,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 18" modifies="template">
       <A name="downhole_pump">1</A>
@@ -1206,6 +1223,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">High carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 19" modifies="template">
       <A name="downhole_pump">0</A>
@@ -1273,6 +1291,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 20" modifies="template">
       <A name="downhole_pump">1</A>
@@ -1340,6 +1359,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">High carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 21" modifies="template">
       <A name="downhole_pump">1</A>
@@ -1407,6 +1427,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 22" modifies="template">
       <A name="downhole_pump">1</A>
@@ -1474,6 +1495,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 23" modifies="template">
       <A name="downhole_pump">1</A>
@@ -1541,6 +1563,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 24" modifies="template">
       <A name="downhole_pump">1</A>
@@ -1608,6 +1631,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 25" modifies="template">
       <A name="downhole_pump">1</A>
@@ -1675,6 +1699,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 26" modifies="template">
       <A name="downhole_pump">1</A>
@@ -1742,6 +1767,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 27" modifies="template">
       <A name="downhole_pump">0</A>
@@ -1809,6 +1835,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 28" modifies="template">
       <A name="downhole_pump">0</A>
@@ -1876,6 +1903,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 29" modifies="template">
       <A name="downhole_pump">1</A>
@@ -1943,6 +1971,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 30" modifies="template">
       <A name="downhole_pump">0</A>
@@ -2010,6 +2039,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 31" modifies="template">
       <A name="downhole_pump">1</A>
@@ -2077,6 +2107,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 32" modifies="template">
       <A name="downhole_pump">1</A>
@@ -2144,6 +2175,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 33" modifies="template">
       <A name="downhole_pump">1</A>
@@ -2211,6 +2243,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 34" modifies="template">
       <A name="downhole_pump">0</A>
@@ -2278,6 +2311,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 35" modifies="template">
       <A name="downhole_pump">0</A>
@@ -2345,6 +2379,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 36" modifies="template">
       <A name="downhole_pump">0</A>
@@ -2412,6 +2447,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">High carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 37" modifies="template">
       <A name="downhole_pump">1</A>
@@ -2479,6 +2515,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 38" modifies="template">
       <A name="downhole_pump">0</A>
@@ -2546,6 +2583,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">High carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 39" modifies="template">
       <A name="downhole_pump">1</A>
@@ -2613,6 +2651,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 40" modifies="template">
       <A name="downhole_pump">0</A>
@@ -2680,6 +2719,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 41" modifies="template">
       <A name="downhole_pump">1</A>
@@ -2747,6 +2787,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 42" modifies="template">
       <A name="downhole_pump">0</A>
@@ -2814,6 +2855,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 43" modifies="template">
       <A name="downhole_pump">1</A>
@@ -2881,6 +2923,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 44" modifies="template">
       <A name="downhole_pump">1</A>
@@ -2948,6 +2991,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 45" modifies="template">
       <A name="downhole_pump">1</A>
@@ -3015,6 +3059,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 46" modifies="template">
       <A name="downhole_pump">1</A>
@@ -3082,6 +3127,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 47" modifies="template">
       <A name="downhole_pump">1</A>
@@ -3149,6 +3195,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 48" modifies="template">
       <A name="downhole_pump">0</A>
@@ -3216,6 +3263,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 49" modifies="template">
       <A name="downhole_pump">1</A>
@@ -3283,6 +3331,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 50" modifies="template">
       <A name="downhole_pump">1</A>
@@ -3350,6 +3399,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 51" modifies="template">
       <A name="downhole_pump">0</A>
@@ -3417,6 +3467,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 52" modifies="template">
       <A name="downhole_pump">0</A>
@@ -3484,6 +3535,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 53" modifies="template">
       <A name="downhole_pump">1</A>
@@ -3551,6 +3603,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 54" modifies="template">
       <A name="downhole_pump">0</A>
@@ -3618,6 +3671,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 55" modifies="template">
       <A name="downhole_pump">1</A>
@@ -3685,6 +3739,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 56" modifies="template">
       <A name="downhole_pump">0</A>
@@ -3752,6 +3807,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 57" modifies="template">
       <A name="downhole_pump">1</A>
@@ -3819,6 +3875,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 58" modifies="template">
       <A name="downhole_pump">1</A>
@@ -3886,6 +3943,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 59" modifies="template">
       <A name="downhole_pump">1</A>
@@ -3953,6 +4011,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 60" modifies="template">
       <A name="downhole_pump">1</A>
@@ -4020,6 +4079,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 61" modifies="template">
       <A name="downhole_pump">1</A>
@@ -4087,6 +4147,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 62" modifies="template">
       <A name="downhole_pump">1</A>
@@ -4154,6 +4215,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 63" modifies="template">
       <A name="downhole_pump">1</A>
@@ -4221,6 +4283,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 64" modifies="template">
       <A name="downhole_pump">1</A>
@@ -4288,6 +4351,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 65" modifies="template">
       <A name="downhole_pump">1</A>
@@ -4355,6 +4419,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 66" modifies="template">
       <A name="downhole_pump">0</A>
@@ -4422,6 +4487,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 67" modifies="template">
       <A name="downhole_pump">1</A>
@@ -4489,6 +4555,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 68" modifies="template">
       <A name="downhole_pump">1</A>
@@ -4556,6 +4623,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 69" modifies="template">
       <A name="downhole_pump">1</A>
@@ -4623,6 +4691,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 70" modifies="template">
       <A name="downhole_pump">1</A>
@@ -4690,6 +4759,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 71" modifies="template">
       <A name="downhole_pump">1</A>
@@ -4757,6 +4827,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 72" modifies="template">
       <A name="downhole_pump">1</A>
@@ -4824,6 +4895,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 73" modifies="template">
       <A name="downhole_pump">1</A>
@@ -4891,6 +4963,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 74" modifies="template">
       <A name="downhole_pump">1</A>
@@ -4958,6 +5031,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 75" modifies="template">
       <A name="downhole_pump">0</A>
@@ -5025,6 +5099,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 76" modifies="template">
       <A name="downhole_pump">1</A>
@@ -5092,6 +5167,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 77" modifies="template">
       <A name="downhole_pump">1</A>
@@ -5159,6 +5235,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 78" modifies="template">
       <A name="downhole_pump">1</A>
@@ -5226,6 +5303,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">High carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 79" modifies="template">
       <A name="downhole_pump">1</A>
@@ -5293,6 +5371,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 80" modifies="template">
       <A name="downhole_pump">1</A>
@@ -5360,6 +5439,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">High carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 81" modifies="template">
       <A name="downhole_pump">1</A>
@@ -5427,6 +5507,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">High carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 82" modifies="template">
       <A name="downhole_pump">1</A>
@@ -5494,6 +5575,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 83" modifies="template">
       <A name="downhole_pump">1</A>
@@ -5561,6 +5643,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 84" modifies="template">
       <A name="downhole_pump">1</A>
@@ -5628,6 +5711,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 85" modifies="template">
       <A name="downhole_pump">0</A>
@@ -5696,6 +5780,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 86" modifies="template">
       <A name="downhole_pump">0</A>
@@ -5764,6 +5849,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 87" modifies="template">
       <A name="downhole_pump">0</A>
@@ -5832,6 +5918,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 88" modifies="template">
       <A name="downhole_pump">0</A>
@@ -5900,6 +5987,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 89" modifies="template">
       <A name="downhole_pump">1</A>
@@ -5967,6 +6055,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 90" modifies="template">
       <A name="downhole_pump">1</A>
@@ -6034,6 +6123,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 91" modifies="template">
       <A name="downhole_pump">0</A>
@@ -6102,6 +6192,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 92" modifies="template">
       <A name="downhole_pump">0</A>
@@ -6170,6 +6261,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 93" modifies="template">
       <A name="downhole_pump">0</A>
@@ -6238,6 +6330,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 94" modifies="template">
       <A name="downhole_pump">1</A>
@@ -6305,6 +6398,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 95" modifies="template">
       <A name="downhole_pump">1</A>
@@ -6372,6 +6466,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 96" modifies="template">
       <A name="downhole_pump">0</A>
@@ -6440,6 +6535,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 97" modifies="template">
       <A name="downhole_pump">0</A>
@@ -6508,6 +6604,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 98" modifies="template">
       <A name="downhole_pump">0</A>
@@ -6576,6 +6673,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 99" modifies="template">
       <A name="downhole_pump">1</A>
@@ -6643,6 +6741,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 100" modifies="template">
       <A name="downhole_pump">1</A>
@@ -6710,6 +6809,7 @@
       <A name="frac_CO2_breakthrough">75</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 101" modifies="template">
       <A name="downhole_pump">1</A>
@@ -6777,6 +6877,7 @@
       <A name="frac_CO2_breakthrough">45</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 102" modifies="template">
       <A name="downhole_pump">1</A>
@@ -6844,6 +6945,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 103" modifies="template">
       <A name="downhole_pump">1</A>
@@ -6911,6 +7013,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 104" modifies="template">
       <A name="downhole_pump">1</A>
@@ -6978,6 +7081,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 105" modifies="template">
       <A name="downhole_pump">1</A>
@@ -7045,6 +7149,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 106" modifies="template">
       <A name="downhole_pump">1</A>
@@ -7112,6 +7217,7 @@
       <A name="frac_CO2_breakthrough">75</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 107" modifies="template">
       <A name="downhole_pump">1</A>
@@ -7179,6 +7285,7 @@
       <A name="frac_CO2_breakthrough">45</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 108" modifies="template">
       <A name="downhole_pump">1</A>
@@ -7246,6 +7353,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 109" modifies="template">
       <A name="downhole_pump">1</A>
@@ -7313,6 +7421,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 110" modifies="template">
       <A name="downhole_pump">1</A>
@@ -7380,6 +7489,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 111" modifies="template">
       <A name="downhole_pump">1</A>
@@ -7447,6 +7557,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 112" modifies="template">
       <A name="downhole_pump">1</A>
@@ -7514,6 +7625,7 @@
       <A name="frac_CO2_breakthrough">75</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 113" modifies="template">
       <A name="downhole_pump">1</A>
@@ -7581,6 +7693,7 @@
       <A name="frac_CO2_breakthrough">45</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 114" modifies="template">
       <A name="downhole_pump">1</A>
@@ -7648,6 +7761,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 115" modifies="template">
       <A name="downhole_pump">1</A>
@@ -7715,6 +7829,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 116" modifies="template">
       <A name="downhole_pump">1</A>
@@ -7782,6 +7897,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 117" modifies="template">
       <A name="downhole_pump">0</A>
@@ -7850,6 +7966,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 118" modifies="template">
       <A name="downhole_pump">0</A>
@@ -7918,6 +8035,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 119" modifies="template">
       <A name="downhole_pump">0</A>
@@ -7986,6 +8104,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 120" modifies="template">
       <A name="downhole_pump">0</A>
@@ -8054,6 +8173,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 121" modifies="template">
       <A name="downhole_pump">0</A>
@@ -8122,6 +8242,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 122" modifies="template">
       <A name="downhole_pump">0</A>
@@ -8190,6 +8311,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 123" modifies="template">
       <A name="downhole_pump">0</A>
@@ -8258,6 +8380,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 124" modifies="template">
       <A name="downhole_pump">0</A>
@@ -8326,6 +8449,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 125" modifies="template">
       <A name="downhole_pump">0</A>
@@ -8394,6 +8518,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 126" modifies="template">
       <A name="downhole_pump">0</A>
@@ -8462,6 +8587,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 127" modifies="template">
       <A name="downhole_pump">0</A>
@@ -8530,6 +8656,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 128" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8597,6 +8724,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 129" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8664,6 +8792,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 130" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8731,6 +8860,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 131" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8798,6 +8928,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 132" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8865,6 +8996,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 133" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8932,6 +9064,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 134" modifies="template">
       <A name="downhole_pump">1</A>
@@ -8999,6 +9132,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 135" modifies="template">
       <A name="downhole_pump">1</A>
@@ -9066,6 +9200,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 136" modifies="template">
       <A name="downhole_pump">1</A>
@@ -9133,6 +9268,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 137" modifies="template">
       <A name="downhole_pump">1</A>
@@ -9200,6 +9336,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 138" modifies="template">
       <A name="downhole_pump">1</A>
@@ -9267,6 +9404,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 139" modifies="template">
       <A name="downhole_pump">1</A>
@@ -9334,6 +9472,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 140" modifies="template">
       <A name="downhole_pump">1</A>
@@ -9401,6 +9540,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 141" modifies="template">
       <A name="downhole_pump">1</A>
@@ -9468,6 +9608,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 142" modifies="template">
       <A name="downhole_pump">1</A>
@@ -9535,6 +9676,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 143" modifies="template">
       <A name="downhole_pump">1</A>
@@ -9602,6 +9744,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 144" modifies="template">
       <A name="downhole_pump">1</A>
@@ -9669,6 +9812,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 145" modifies="template">
       <A name="downhole_pump">1</A>
@@ -9736,6 +9880,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 146" modifies="template">
       <A name="downhole_pump">1</A>
@@ -9803,6 +9948,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 147" modifies="template">
       <A name="downhole_pump">1</A>
@@ -9870,6 +10016,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 148" modifies="template">
       <A name="downhole_pump">1</A>
@@ -9937,6 +10084,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 149" modifies="template">
       <A name="downhole_pump">1</A>
@@ -10004,6 +10152,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 150" modifies="template">
       <A name="downhole_pump">1</A>
@@ -10071,6 +10220,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 151" modifies="template">
       <A name="downhole_pump">1</A>
@@ -10138,6 +10288,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 152" modifies="template">
       <A name="downhole_pump">1</A>
@@ -10205,6 +10356,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 153" modifies="template">
       <A name="downhole_pump">1</A>
@@ -10272,6 +10424,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 154" modifies="template">
       <A name="downhole_pump">1</A>
@@ -10339,6 +10492,7 @@
       <A name="frac_CO2_breakthrough">0</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 155" modifies="template">
       <A name="downhole_pump">0</A>
@@ -10406,6 +10560,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 156" modifies="template">
       <A name="downhole_pump">1</A>
@@ -10473,6 +10628,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 157" modifies="template">
       <A name="downhole_pump">1</A>
@@ -10540,6 +10696,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 158" modifies="template">
       <A name="downhole_pump">1</A>
@@ -10607,6 +10764,7 @@
       <A name="frac_CO2_breakthrough">0</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 159" modifies="template">
       <A name="downhole_pump">1</A>
@@ -10674,6 +10832,7 @@
       <A name="frac_CO2_breakthrough">0</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 160" modifies="template">
       <A name="downhole_pump">1</A>
@@ -10741,6 +10900,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 161" modifies="template">
       <A name="downhole_pump">1</A>
@@ -10808,6 +10968,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 162" modifies="template">
       <A name="downhole_pump">1</A>
@@ -10875,6 +11036,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 163" modifies="template">
       <A name="downhole_pump">1</A>
@@ -10942,6 +11104,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 164" modifies="template">
       <A name="downhole_pump">1</A>
@@ -11009,6 +11172,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 165" modifies="template">
       <A name="downhole_pump">1</A>
@@ -11076,6 +11240,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 166" modifies="template">
       <A name="downhole_pump">1</A>
@@ -11143,6 +11308,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 167" modifies="template">
       <A name="downhole_pump">1</A>
@@ -11210,6 +11376,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 168" modifies="template">
       <A name="downhole_pump">0</A>
@@ -11225,6 +11392,7 @@
       <A name="oil_sands_mine">Integrated with upgrader</A>
       <A name="oil_processing_path">Upgrading</A>
       <A name="common_gas_process_choice">None</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 169" modifies="template">
       <A name="downhole_pump">1</A>
@@ -11292,6 +11460,7 @@
       <A name="frac_CO2_breakthrough">66</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 170" modifies="template">
       <A name="downhole_pump">1</A>
@@ -11359,6 +11528,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 171" modifies="template">
       <A name="downhole_pump">1</A>
@@ -11426,6 +11596,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 172" modifies="template">
       <A name="downhole_pump">1</A>
@@ -11493,6 +11664,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 173" modifies="template">
       <A name="downhole_pump">1</A>
@@ -11560,6 +11732,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 174" modifies="template">
       <A name="downhole_pump">1</A>
@@ -11627,6 +11800,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 175" modifies="template">
       <A name="downhole_pump">1</A>
@@ -11694,6 +11868,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 176" modifies="template">
       <A name="downhole_pump">1</A>
@@ -11761,6 +11936,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 177" modifies="template">
       <A name="downhole_pump">1</A>
@@ -11828,6 +12004,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 178" modifies="template">
       <A name="downhole_pump">1</A>
@@ -11895,6 +12072,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 179" modifies="template">
       <A name="downhole_pump">1</A>
@@ -11962,6 +12140,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 180" modifies="template">
       <A name="downhole_pump">1</A>
@@ -12029,6 +12208,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 181" modifies="template">
       <A name="downhole_pump">1</A>
@@ -12096,6 +12276,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 182" modifies="template">
       <A name="downhole_pump">1</A>
@@ -12163,6 +12344,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 183" modifies="template">
       <A name="downhole_pump">1</A>
@@ -12230,6 +12412,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 184" modifies="template">
       <A name="downhole_pump">1</A>
@@ -12297,6 +12480,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 185" modifies="template">
       <A name="downhole_pump">1</A>
@@ -12364,6 +12548,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 186" modifies="template">
       <A name="downhole_pump">1</A>
@@ -12431,6 +12616,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 187" modifies="template">
       <A name="downhole_pump">1</A>
@@ -12498,6 +12684,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 188" modifies="template">
       <A name="downhole_pump">1</A>
@@ -12565,6 +12752,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 189" modifies="template">
       <A name="downhole_pump">1</A>
@@ -12632,6 +12820,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 190" modifies="template">
       <A name="downhole_pump">1</A>
@@ -12699,6 +12888,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 191" modifies="template">
       <A name="downhole_pump">1</A>
@@ -12766,6 +12956,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 192" modifies="template">
       <A name="downhole_pump">1</A>
@@ -12833,6 +13024,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 193" modifies="template">
       <A name="downhole_pump">1</A>
@@ -12900,6 +13092,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 194" modifies="template">
       <A name="downhole_pump">1</A>
@@ -12967,6 +13160,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 195" modifies="template">
       <A name="downhole_pump">1</A>
@@ -13034,6 +13228,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 196" modifies="template">
       <A name="downhole_pump">1</A>
@@ -13101,6 +13296,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 197" modifies="template">
       <A name="downhole_pump">1</A>
@@ -13168,6 +13364,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 198" modifies="template">
       <A name="downhole_pump">1</A>
@@ -13235,6 +13432,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 199" modifies="template">
       <A name="downhole_pump">1</A>
@@ -13302,6 +13500,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 200" modifies="template">
       <A name="downhole_pump">1</A>
@@ -13369,6 +13568,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 201" modifies="template">
       <A name="downhole_pump">1</A>
@@ -13436,6 +13636,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 202" modifies="template">
       <A name="downhole_pump">1</A>
@@ -13503,6 +13704,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 203" modifies="template">
       <A name="downhole_pump">1</A>
@@ -13570,6 +13772,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 204" modifies="template">
       <A name="downhole_pump">1</A>
@@ -13637,6 +13840,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 205" modifies="template">
       <A name="downhole_pump">1</A>
@@ -13704,6 +13908,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 206" modifies="template">
       <A name="downhole_pump">1</A>
@@ -13771,6 +13976,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 207" modifies="template">
       <A name="downhole_pump">1</A>
@@ -13838,6 +14044,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 208" modifies="template">
       <A name="downhole_pump">1</A>
@@ -13905,6 +14112,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 209" modifies="template">
       <A name="downhole_pump">1</A>
@@ -13972,6 +14180,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 210" modifies="template">
       <A name="downhole_pump">1</A>
@@ -14039,6 +14248,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 211" modifies="template">
       <A name="downhole_pump">1</A>
@@ -14106,6 +14316,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 212" modifies="template">
       <A name="downhole_pump">1</A>
@@ -14173,6 +14384,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 213" modifies="template">
       <A name="downhole_pump">1</A>
@@ -14240,6 +14452,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 214" modifies="template">
       <A name="downhole_pump">1</A>
@@ -14307,6 +14520,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 215" modifies="template">
       <A name="downhole_pump">1</A>
@@ -14374,6 +14588,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 216" modifies="template">
       <A name="downhole_pump">1</A>
@@ -14441,6 +14656,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 217" modifies="template">
       <A name="downhole_pump">1</A>
@@ -14508,6 +14724,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 218" modifies="template">
       <A name="downhole_pump">1</A>
@@ -14575,6 +14792,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 219" modifies="template">
       <A name="downhole_pump">1</A>
@@ -14642,6 +14860,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 220" modifies="template">
       <A name="downhole_pump">1</A>
@@ -14709,6 +14928,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 221" modifies="template">
       <A name="downhole_pump">1</A>
@@ -14776,6 +14996,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 222" modifies="template">
       <A name="downhole_pump">1</A>
@@ -14843,6 +15064,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 223" modifies="template">
       <A name="downhole_pump">1</A>
@@ -14910,6 +15132,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 224" modifies="template">
       <A name="downhole_pump">1</A>
@@ -14977,6 +15200,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 225" modifies="template">
       <A name="downhole_pump">1</A>
@@ -15044,6 +15268,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 226" modifies="template">
       <A name="downhole_pump">1</A>
@@ -15111,6 +15336,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 227" modifies="template">
       <A name="downhole_pump">1</A>
@@ -15178,6 +15404,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 228" modifies="template">
       <A name="downhole_pump">1</A>
@@ -15245,6 +15472,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 229" modifies="template">
       <A name="downhole_pump">1</A>
@@ -15312,6 +15540,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 230" modifies="template">
       <A name="downhole_pump">1</A>
@@ -15379,6 +15608,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 231" modifies="template">
       <A name="downhole_pump">1</A>
@@ -15446,6 +15676,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 232" modifies="template">
       <A name="downhole_pump">1</A>
@@ -15513,6 +15744,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 233" modifies="template">
       <A name="downhole_pump">1</A>
@@ -15580,6 +15812,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 234" modifies="template">
       <A name="downhole_pump">1</A>
@@ -15647,6 +15880,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 235" modifies="template">
       <A name="downhole_pump">1</A>
@@ -15714,6 +15948,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 236" modifies="template">
       <A name="downhole_pump">1</A>
@@ -15781,6 +16016,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 237" modifies="template">
       <A name="downhole_pump">1</A>
@@ -15848,6 +16084,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 238" modifies="template">
       <A name="downhole_pump">1</A>
@@ -15915,6 +16152,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 239" modifies="template">
       <A name="downhole_pump">1</A>
@@ -15982,6 +16220,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 240" modifies="template">
       <A name="downhole_pump">1</A>
@@ -16049,6 +16288,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 241" modifies="template">
       <A name="downhole_pump">1</A>
@@ -16116,6 +16356,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 242" modifies="template">
       <A name="downhole_pump">1</A>
@@ -16183,6 +16424,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 243" modifies="template">
       <A name="downhole_pump">1</A>
@@ -16250,6 +16492,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 244" modifies="template">
       <A name="downhole_pump">1</A>
@@ -16317,6 +16560,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 245" modifies="template">
       <A name="downhole_pump">1</A>
@@ -16384,6 +16628,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 246" modifies="template">
       <A name="downhole_pump">1</A>
@@ -16451,6 +16696,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 247" modifies="template">
       <A name="downhole_pump">1</A>
@@ -16518,6 +16764,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 248" modifies="template">
       <A name="downhole_pump">1</A>
@@ -16585,6 +16832,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 249" modifies="template">
       <A name="downhole_pump">1</A>
@@ -16652,6 +16900,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 250" modifies="template">
       <A name="downhole_pump">1</A>
@@ -16719,6 +16968,7 @@
       <A name="frac_CO2_breakthrough">41</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 251" modifies="template">
       <A name="downhole_pump">1</A>
@@ -16786,6 +17036,7 @@
       <A name="frac_CO2_breakthrough">41</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 252" modifies="template">
       <A name="downhole_pump">1</A>
@@ -16853,6 +17104,7 @@
       <A name="frac_CO2_breakthrough">41</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 253" modifies="template">
       <A name="downhole_pump">1</A>
@@ -16920,6 +17172,7 @@
       <A name="frac_CO2_breakthrough">41</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 254" modifies="template">
       <A name="downhole_pump">1</A>
@@ -16987,6 +17240,7 @@
       <A name="frac_CO2_breakthrough">41</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 255" modifies="template">
       <A name="downhole_pump">1</A>
@@ -17054,6 +17308,7 @@
       <A name="frac_CO2_breakthrough">41</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 256" modifies="template">
       <A name="downhole_pump">1</A>
@@ -17121,6 +17376,7 @@
       <A name="frac_CO2_breakthrough">41</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 257" modifies="template">
       <A name="downhole_pump">1</A>
@@ -17188,6 +17444,7 @@
       <A name="frac_CO2_breakthrough">41</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 258" modifies="template">
       <A name="downhole_pump">1</A>
@@ -17255,6 +17512,7 @@
       <A name="frac_CO2_breakthrough">41</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 259" modifies="template">
       <A name="downhole_pump">1</A>
@@ -17322,6 +17580,7 @@
       <A name="frac_CO2_breakthrough">41</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 260" modifies="template">
       <A name="downhole_pump">1</A>
@@ -17389,6 +17648,7 @@
       <A name="frac_CO2_breakthrough">41</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 261" modifies="template">
       <A name="downhole_pump">1</A>
@@ -17456,6 +17716,7 @@
       <A name="frac_CO2_breakthrough">41</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 262" modifies="template">
       <A name="downhole_pump">1</A>
@@ -17523,6 +17784,7 @@
       <A name="frac_CO2_breakthrough">41</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 263" modifies="template">
       <A name="downhole_pump">0</A>
@@ -17590,6 +17852,7 @@
       <A name="frac_CO2_breakthrough">41</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 264" modifies="template">
       <A name="downhole_pump">0</A>
@@ -17657,6 +17920,7 @@
       <A name="frac_CO2_breakthrough">41</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 265" modifies="template">
       <A name="downhole_pump">0</A>
@@ -17724,6 +17988,7 @@
       <A name="frac_CO2_breakthrough">41</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 266" modifies="template">
       <A name="downhole_pump">0</A>
@@ -17791,6 +18056,7 @@
       <A name="frac_CO2_breakthrough">41</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 267" modifies="template">
       <A name="downhole_pump">1</A>
@@ -17858,6 +18124,7 @@
       <A name="frac_CO2_breakthrough">41</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 268" modifies="template">
       <A name="downhole_pump">1</A>
@@ -17925,6 +18192,7 @@
       <A name="frac_CO2_breakthrough">41</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 269" modifies="template">
       <A name="downhole_pump">1</A>
@@ -17992,6 +18260,7 @@
       <A name="frac_CO2_breakthrough">41</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 270" modifies="template">
       <A name="downhole_pump">1</A>
@@ -18059,6 +18328,7 @@
       <A name="frac_CO2_breakthrough">41</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 271" modifies="template">
       <A name="downhole_pump">1</A>
@@ -18126,6 +18396,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 272" modifies="template">
       <A name="downhole_pump">1</A>
@@ -18193,6 +18464,7 @@
       <A name="frac_CO2_breakthrough">25</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 273" modifies="template">
       <A name="downhole_pump">1</A>
@@ -18260,6 +18532,7 @@
       <A name="frac_CO2_breakthrough">55</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 274" modifies="template">
       <A name="downhole_pump">1</A>
@@ -18327,6 +18600,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 275" modifies="template">
       <A name="downhole_pump">1</A>
@@ -18394,6 +18668,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 276" modifies="template">
       <A name="downhole_pump">1</A>
@@ -18461,6 +18736,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 277" modifies="template">
       <A name="downhole_pump">1</A>
@@ -18528,6 +18804,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 278" modifies="template">
       <A name="downhole_pump">1</A>
@@ -18595,6 +18872,7 @@
       <A name="frac_CO2_breakthrough">25</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 279" modifies="template">
       <A name="downhole_pump">1</A>
@@ -18662,6 +18940,7 @@
       <A name="frac_CO2_breakthrough">55</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 280" modifies="template">
       <A name="downhole_pump">1</A>
@@ -18729,6 +19008,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 281" modifies="template">
       <A name="downhole_pump">1</A>
@@ -18796,6 +19076,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 282" modifies="template">
       <A name="downhole_pump">1</A>
@@ -18863,6 +19144,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 283" modifies="template">
       <A name="downhole_pump">1</A>
@@ -18930,6 +19212,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 284" modifies="template">
       <A name="downhole_pump">1</A>
@@ -18997,6 +19280,7 @@
       <A name="frac_CO2_breakthrough">25</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 285" modifies="template">
       <A name="downhole_pump">1</A>
@@ -19064,6 +19348,7 @@
       <A name="frac_CO2_breakthrough">55</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 286" modifies="template">
       <A name="downhole_pump">1</A>
@@ -19131,6 +19416,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 287" modifies="template">
       <A name="downhole_pump">1</A>
@@ -19198,6 +19484,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 288" modifies="template">
       <A name="downhole_pump">1</A>
@@ -19265,6 +19552,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 289" modifies="template">
       <A name="downhole_pump">1</A>
@@ -19332,6 +19620,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 290" modifies="template">
       <A name="downhole_pump">1</A>
@@ -19399,6 +19688,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 291" modifies="template">
       <A name="downhole_pump">1</A>
@@ -19466,6 +19756,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 292" modifies="template">
       <A name="downhole_pump">1</A>
@@ -19533,6 +19824,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 293" modifies="template">
       <A name="downhole_pump">1</A>
@@ -19600,6 +19892,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 294" modifies="template">
       <A name="downhole_pump">0</A>
@@ -19668,6 +19961,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 295" modifies="template">
       <A name="downhole_pump">0</A>
@@ -19736,6 +20030,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 296" modifies="template">
       <A name="downhole_pump">0</A>
@@ -19804,6 +20099,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 297" modifies="template">
       <A name="downhole_pump">0</A>
@@ -19872,6 +20168,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 298" modifies="template">
       <A name="downhole_pump">0</A>
@@ -19940,6 +20237,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 299" modifies="template">
       <A name="downhole_pump">0</A>
@@ -20008,6 +20306,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">340.0</A>
     </Field>
     <Field name="Field 300" modifies="template">
       <A name="downhole_pump">1</A>
@@ -20075,6 +20374,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 301" modifies="template">
       <A name="downhole_pump">1</A>
@@ -20142,6 +20442,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 302" modifies="template">
       <A name="downhole_pump">1</A>
@@ -20209,6 +20510,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 303" modifies="template">
       <A name="downhole_pump">1</A>
@@ -20276,6 +20578,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 304" modifies="template">
       <A name="downhole_pump">1</A>
@@ -20343,6 +20646,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 305" modifies="template">
       <A name="downhole_pump">1</A>
@@ -20410,6 +20714,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 306" modifies="template">
       <A name="downhole_pump">1</A>
@@ -20477,6 +20782,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 307" modifies="template">
       <A name="downhole_pump">1</A>
@@ -20544,6 +20850,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 308" modifies="template">
       <A name="downhole_pump">1</A>
@@ -20611,6 +20918,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 309" modifies="template">
       <A name="downhole_pump">1</A>
@@ -20678,6 +20986,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 310" modifies="template">
       <A name="downhole_pump">1</A>
@@ -20745,6 +21054,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 311" modifies="template">
       <A name="downhole_pump">1</A>
@@ -20812,6 +21122,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 312" modifies="template">
       <A name="downhole_pump">1</A>
@@ -20879,6 +21190,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 313" modifies="template">
       <A name="downhole_pump">1</A>
@@ -20946,6 +21258,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 314" modifies="template">
       <A name="downhole_pump">1</A>
@@ -21013,6 +21326,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 315" modifies="template">
       <A name="downhole_pump">1</A>
@@ -21080,6 +21394,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 316" modifies="template">
       <A name="downhole_pump">1</A>
@@ -21147,6 +21462,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 317" modifies="template">
       <A name="downhole_pump">1</A>
@@ -21214,6 +21530,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 318" modifies="template">
       <A name="downhole_pump">1</A>
@@ -21281,6 +21598,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 319" modifies="template">
       <A name="downhole_pump">1</A>
@@ -21348,6 +21666,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 320" modifies="template">
       <A name="downhole_pump">1</A>
@@ -21415,6 +21734,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 321" modifies="template">
       <A name="downhole_pump">1</A>
@@ -21482,6 +21802,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 322" modifies="template">
       <A name="downhole_pump">1</A>
@@ -21549,6 +21870,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 323" modifies="template">
       <A name="downhole_pump">1</A>
@@ -21616,6 +21938,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 324" modifies="template">
       <A name="downhole_pump">1</A>
@@ -21683,6 +22006,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 325" modifies="template">
       <A name="downhole_pump">1</A>
@@ -21750,6 +22074,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 326" modifies="template">
       <A name="downhole_pump">1</A>
@@ -21817,6 +22142,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 327" modifies="template">
       <A name="downhole_pump">1</A>
@@ -21884,6 +22210,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 328" modifies="template">
       <A name="downhole_pump">1</A>
@@ -21951,6 +22278,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 329" modifies="template">
       <A name="downhole_pump">1</A>
@@ -22018,6 +22346,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 330" modifies="template">
       <A name="downhole_pump">1</A>
@@ -22085,6 +22414,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 331" modifies="template">
       <A name="downhole_pump">1</A>
@@ -22152,6 +22482,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 332" modifies="template">
       <A name="downhole_pump">1</A>
@@ -22219,6 +22550,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 333" modifies="template">
       <A name="downhole_pump">1</A>
@@ -22286,6 +22618,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 334" modifies="template">
       <A name="downhole_pump">1</A>
@@ -22353,6 +22686,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 335" modifies="template">
       <A name="downhole_pump">1</A>
@@ -22420,6 +22754,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 336" modifies="template">
       <A name="downhole_pump">1</A>
@@ -22487,6 +22822,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 337" modifies="template">
       <A name="downhole_pump">1</A>
@@ -22554,6 +22890,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 338" modifies="template">
       <A name="downhole_pump">1</A>
@@ -22621,6 +22958,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 339" modifies="template">
       <A name="downhole_pump">1</A>
@@ -22688,6 +23026,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 340" modifies="template">
       <A name="downhole_pump">1</A>
@@ -22755,6 +23094,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 341" modifies="template">
       <A name="downhole_pump">1</A>
@@ -22822,6 +23162,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 342" modifies="template">
       <A name="downhole_pump">1</A>
@@ -22889,6 +23230,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 343" modifies="template">
       <A name="downhole_pump">1</A>
@@ -22956,6 +23298,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 344" modifies="template">
       <A name="downhole_pump">1</A>
@@ -23023,6 +23366,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Low carbon</A>
       <A name="field_development_intensity">Low</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 345" modifies="template">
       <A name="downhole_pump">1</A>
@@ -23090,6 +23434,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">High carbon</A>
       <A name="field_development_intensity">High</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 346" modifies="template">
       <A name="downhole_pump">1</A>
@@ -23157,6 +23502,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 347" modifies="template">
       <A name="downhole_pump">1</A>
@@ -23224,6 +23570,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 348" modifies="template">
       <A name="downhole_pump">1</A>
@@ -23291,6 +23638,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
     <Field name="Field 349" modifies="template">
       <A name="downhole_pump">1</A>
@@ -23358,6 +23706,7 @@
       <A name="frac_CO2_breakthrough">59</A>
       <A name="ecosystem_richness">Med carbon</A>
       <A name="field_development_intensity">Med</A>
+      <A name="prod_water_inlet_temp">140.0</A>
     </Field>
   </Analysis>
 </Model>
