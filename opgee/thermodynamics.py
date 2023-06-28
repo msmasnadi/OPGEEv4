@@ -727,7 +727,7 @@ class Oil(AbstractSubstance):
         :return:(float) liquid fuel composition (unit = mol/kg)
         """
         low_bound = 4
-        high_bound = 45
+        high_bound = 50
 
         if API.m < low_bound or API.m > high_bound:
             raise ModelValidationError(f"{API.m} is less than {low_bound} or greater than {high_bound}")

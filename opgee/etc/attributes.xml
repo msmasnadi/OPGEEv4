@@ -92,10 +92,7 @@
       <AttrDef name="country" desc="Field location (country)" type="str">Generic</AttrDef>
       <AttrDef name="name" desc="Field name" type="str">Generic</AttrDef>
       <AttrDef name="age" unit="yr" desc="Field age" type="float" GT="0" LE="200">38</AttrDef>
-
-      <!-- TODO: one of the fields exported from Excel has depth=36000. Originally our limit here was LT="25000". -->
-      <AttrDef name="depth" unit="ft" desc="Field depth" type="float" GT="0" LE="36000">7240.0</AttrDef>
-
+      <AttrDef name="depth" unit="ft" desc="Field depth" type="float" GT="0" LE="200000">7240.0</AttrDef>
       <AttrDef name="oil_prod" unit="bbl_oil/d" desc="Oil production volume" type="float" GT="0">2098.0</AttrDef>
       <AttrDef name="num_prod_wells" unit="dimensionless" desc="Number of producing wells" type="int" GE="0">24</AttrDef>
       <AttrDef name="num_water_inj_wells" unit="dimensionless" desc="Number of water injecting wells" type="int" GE="0">20</AttrDef>
@@ -106,7 +103,6 @@
       <AttrDef name="res_temp" unit="degF" desc="Average reservoir temperature" type="float">200.0</AttrDef>
       <AttrDef name="wellhead_temperature" type="float" unit="degF" >150</AttrDef>
       <AttrDef name="wellhead_pressure" type="float" unit="psia" >500</AttrDef>
-
       <AttrDef name="offshore" type="binary" desc="Offshore?">0</AttrDef>
 
       <!-- Fluid properties -->
@@ -120,7 +116,7 @@
       <AttrDef name="gas_comp_C2" unit="mol_pct" type="float">5.30</AttrDef>
       <AttrDef name="gas_comp_C3" unit="mol_pct" type="float">1.62</AttrDef>
       <AttrDef name="gas_comp_C4" unit="mol_pct" type="float">0.71</AttrDef>
-      <AttrDef name="gas_comp_H2S" unit="mol_pct" type="float">0.0</AttrDef>    <!-- TODO: needs a default value -->
+      <AttrDef name="gas_comp_H2S" unit="mol_pct" type="float">0.0</AttrDef>
 
       <!-- Production practices -->
 

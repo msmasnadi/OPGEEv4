@@ -108,15 +108,13 @@ class ReservoirWellInterface(Process):
             delta_P_square = (gas_viscosity * z_factor * std_P * stream_temp *
                               np.log(1000 / 0.5) * gas_rate_per_well /
                               (np.pi * self.permeability * self.res_thickness * std_T)).to("psia**2")
-            prod_gas_flowing_BHP = np.sqrt(res_press ** 2 - delta_P_square)
+            delta = res_press ** 2 - delta_P_square
+            prod_gas_flowing_BHP = np.sqrt(delta) if delta > 0.0 else STP.P
         else:
             delta_P_high = (gas_viscosity * gas_formation_volume_factor * np.log(1000 / 0.5) * gas_rate_per_well /
                             (2 * np.pi * self.permeability * self.res_thickness)).to("psia")
             prod_gas_flowing_BHP = res_press - delta_P_high
 
-        prod_flowing_BHP = min(prod_liquid_flowing_BHP, prod_gas_flowing_BHP)
-
-        if prod_flowing_BHP.m < 0.0:
-            raise ModelValidationError(f"ReservoirWellInterface: prod_flowing_BHP.m < 0.0")
+        prod_flowing_BHP = max(min(prod_liquid_flowing_BHP, prod_gas_flowing_BHP), STP.P)
 
         return prod_flowing_BHP
