@@ -44,7 +44,9 @@ class GensimCommand(SubcommandABC):
                             help='''DELETE and recreate the simulation directory.''')
 
         parser.add_argument('-s', '--simulation-dir',
-                            help='''The top-level directory to create for this simulation "package"''')
+                            help='''The top-level directory to create for this simulation "package". 
+                            If the simulation directory already exists and you must specify –-overwrite,
+                            or gensim will refuse to overwrite the directory.''')
 
         parser.add_argument('-t', '--trials', type=int, default=0,
                             help='''The number of trials to create for this simulation (REQUIRED).''')

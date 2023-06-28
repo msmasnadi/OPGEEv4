@@ -71,6 +71,18 @@ The ``gensim`` subcommand
     ``integers``, which returns an integer value between given min and max values; and
     ``constant``, which always returns the same user-defined value.
 
+In the following example invocation of ``gensim``,
+  * the model XML file is set to "/users/joe/models/model1.xml"
+  * the simulation directory is set to "/users/joe/sims/test1"
+  * trial data is generated for 1000 trials
+
+  .. code-block:: bash
+
+     gensim -m /users/joe/models/model1.xml -t 1000 -s /users/joe/sims/test1
+
+A full description of all options is available `here <opg.html#gensim>`__.
+
+
 Distributions file format
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -115,7 +127,6 @@ The parameters distributions file is a CSV file with the following columns:
     * ``notes`` -- for documentation only.
 
 
-
 Running a simulation
 -----------------------
 
@@ -131,7 +142,13 @@ and "failures.csv" will be written when all trials for the field have been run.
 The ``runsim`` sub-command
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ``runsim`` command can run simulations in any of three modes:
+.. note::
+
+   On some cluster computing systems (e.g., Stanford's "sherlock") the ``runsim`` subcommand
+   must be run on a compute node to be able to communicate with worker tasks. Be sure to allocate
+   enough walltime for ``runsim`` to be able to monitor all results.
+
+The `runsim <opg.html#runsim>`__ subcommand can run simulations in any of three modes:
 
 1. *Serially*, in which one model run is executed at a time. This is the slowest method, but often
    the most convenient to use for debugging. To select serial mode, use the ``-S/--serial`` command-line
@@ -151,5 +168,16 @@ The ``runsim`` command can run simulations in any of three modes:
    are allocated to available compute nodes. Again, each process runs the required trials for one
    field to completion before starting on any remaining fields. Note that there are several
    :doc:`configuration file <config>` options controlling behavior on SLURM systems.
+
+In the example below,
+
+  * we use the same simulation directory ("/users/joe/sims/test1") created in the
+    ``gensim`` example above
+  * we run only the first 100 trials
+  * we run only field "test_field" (there may be multiple fields defined in the analysis)
+
+  .. code-block:: bash
+
+     runsim -f test_field -t 0-99 -s /users/joe/sims/test1
 
 A full description of all options is available `here <opg.html#runsim>`__.
