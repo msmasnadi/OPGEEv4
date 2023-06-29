@@ -1,3 +1,4 @@
+from .collect_plugin import CollectCommand
 from .compare_plugin import CompareCommand
 from .config_plugin import ConfigCommand
 from .graph_plugin import GraphCommand
@@ -11,6 +12,7 @@ from .runsim_plugin import RunsimCommand
 from .runmany_plugin import RunManyCommand
 
 BuiltinSubcommands = [
+    CollectCommand,
     CompareCommand,
     ConfigCommand,
     Csv2XmlCommand,
@@ -18,10 +20,7 @@ BuiltinSubcommands = [
     # GenworCommand
     GraphCommand,
     GUICommand,
-    # IppSetupCommand,
-    # LaunchCommand,
     MergeCommand,
-    # RayCommand,
     RunCommand,
     RunManyCommand,
     RunsimCommand,

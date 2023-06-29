@@ -1,10 +1,13 @@
-'''
-.. Created 2016 as part of pygcam.
-   Imported into, and simplified for opgee on 06/06/22
-
-.. Copyright (c) 2016-2022 Richard Plevin
-   See the https://opensource.org/licenses/MIT for license details.
-'''
+#
+# gensim subcommand -- generate a Monte carlo simulation
+#
+# Author: Richard Plevin
+#
+# Created 2016 as part of pygcam. Imported into and simplified for opgee on 06/06/22
+#
+# Copyright (c) 2022-2023 the author and The Board of Trustees of the Leland Stanford Junior University.
+# See LICENSE.txt for license details.
+#
 from ..log import getLogger
 from ..subcommand import SubcommandABC
 
@@ -14,7 +17,7 @@ class GensimCommand(SubcommandABC):
 
     def __init__(self, subparsers):
         kwargs = {'help' : 'Generate the simulation directory and trial data for a Monte Carlo simulation.'}
-        super(GensimCommand, self).__init__('gensim', subparsers, kwargs)
+        super().__init__('gensim', subparsers, kwargs)
 
     def addArgs(self, parser):
         from ..utils import ParseCommaList

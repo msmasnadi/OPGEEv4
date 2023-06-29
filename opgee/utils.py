@@ -8,6 +8,7 @@
    See the https://opensource.org/licenses/MIT for license details.
 '''
 import argparse
+from contextlib import contextmanager
 import os
 import sys
 
@@ -24,6 +25,22 @@ def ipython_info():  # pragma: no cover
     elif 'IPython' in sys.modules:
         ip = 'terminal'
     return ip
+
+@contextmanager
+def pushd(directory):
+    """
+    Context manager that changes to the given directory and then
+    returns to the original directory. Usage is ``with pushd('/foo/bar'): ...``
+
+    :param directory: (str) a directory to chdir to temporarily
+    :return: none
+    """
+    old_wd = os.getcwd()
+    try:
+        os.chdir(directory)
+        yield directory
+    finally:
+        os.chdir(old_wd)
 
 #
 # Custom argparse "action" to parse comma-delimited strings to lists
