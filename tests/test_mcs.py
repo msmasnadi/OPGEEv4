@@ -76,10 +76,6 @@ def test_simulation():
     assert (top_dir / 'merged_model.xml').exists()
     assert (field_dir / 'trial_data.csv').exists()
 
-    field = sim.analysis.fields()[0]
-    attr = sim.lookup("Analysis.GWP_horizon", field)
-    assert attr.name == 'GWP_horizon' and attr.value.m == 100
-
 def test_no_overwrite():
     with pytest.raises(McsUserError, match="Directory '.*' already exists"):
         Simulation.new(sim_dir, [], analysis_name, trials,
@@ -89,6 +85,10 @@ def test_load_simulation():
     sim = Simulation(sim_dir)
     assert sim.trials == trials
     assert sim.field_names == [field_name]
+
+    field = sim.analysis.fields()[0]
+    attr = sim.lookup("Analysis.GWP_horizon", field)
+    assert attr.name == 'GWP_horizon' and attr.value.m == 100
 
     with pytest.raises(McsUserError, match="Simulation directory '.*' does not exist."):
         Simulation("/no/such/directory")
