@@ -9,6 +9,7 @@ Project-specific features can be added via :ref:`plugins <plugins-label>`.
 
    Quick links to sub-commands:
    :ref:`config <config>`,
+   :ref:`collect <collect>`,
    :ref:`csv2xml <csv2xml>`
    :ref:`gensim <gensim>`,
    :ref:`genwor <genwor>`,
@@ -87,6 +88,9 @@ Usage
    runsim : @before
       .. _runsim:
 
+
+   collect : @before
+      .. _collect:
 
    csv2xml : @before
       .. _csv2xml:
