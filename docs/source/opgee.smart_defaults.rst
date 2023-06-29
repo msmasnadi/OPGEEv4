@@ -8,11 +8,11 @@ required to run a "smart default" function.
 Since smart defaults depend on attributes which may themselves have smart defaults, the
 functions must be evaluated in the correct order. A directed graph is created representing
 the set of smart defaults and their dependencies. The graph is sorted topologically to
-produce the proper run order. The functions are then invoked in sequence when a
-``Field`` is run, after calling the ``field.reset()``, and just before running the field's
-processes.
+produce the proper run order. The functions are then invoked twice: first when the ``Field``
+is instantiated from XML, since some attributes control the structure of the model, and
+then again (only in Monte Carlo settings) after applying values from parameter distributions.
 
-Smart default functions are defined using a decorator:
+Smart default functions are defined using the ``@SmartDefault.register`` decorator:
 
 .. code-block:: python
 
