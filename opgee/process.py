@@ -454,7 +454,7 @@ class Process(AttributeMixin, XmlInstantiable):
             return ureg.Quantity(0, "frac")
 
         field = self.field
-        num_gas_inj_wells = field.num_gas_inj_wells
+        num_gas_inj_wells = field.attr("num_gas_inj_wells")
         loss_mat_gas_ave_df = field.loss_mat_gas_ave_df
 
         volume_rate_per_well = field.gas.volume_flow_rate_STP(inlet_stream) / num_gas_inj_wells

@@ -118,8 +118,8 @@ class GasPartition(Process):
                 fuel_stream.multiply_flow_rates(fuel_fraction)
 
                 reinjected_HC_stream.copy_flow_rates_from(exported_gas_stream)
-                reinjected_HC_stream.multiply_flow_rates(self.fraction_remaining_gas_inj)
                 reinjected_HC_stream.subtract_rates_from(fuel_stream)
+                reinjected_HC_stream.multiply_flow_rates(self.fraction_remaining_gas_inj)
 
                 exported_gas_stream.subtract_rates_from(reinjected_HC_stream)
                 exported_gas_stream.subtract_rates_from(fuel_stream)
