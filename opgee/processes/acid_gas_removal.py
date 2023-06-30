@@ -112,13 +112,18 @@ class AcidGasRemoval(Process):
 
         CO2_feed_mass_rate = gas_input_stream.gas_flow_rate("CO2")
         CH4_feed_mass_rate = gas_input_stream.gas_flow_rate("C1")
+        H2S_feed_mass_rate = gas_input_stream.gas_flow_rate("H2S")
         CO2_to_demethanizer = min(0.05 * CO2_feed_mass_rate, 0.001 * CH4_feed_mass_rate)
+        H2S_to_demethanizer = ureg.Quantity(0.0, "tonne/day")
 
         # Calculate output stream for demethanizer
         output_gas = self.find_output_stream("gas for demethanizer", raiseError=False) or \
                      self.find_output_stream("gas for gas partition")
         output_gas.copy_flow_rates_from(gas_input_stream)
         output_gas.set_gas_flow_rate("CO2", CO2_to_demethanizer)
+        if field.gas_path != "CO2-EOR Membrane":
+            H2S_to_demethanizer = 0.05 * gas_input_stream.gas_flow_rate("H2S")
+            output_gas.set_gas_flow_rate("H2S", H2S_to_demethanizer)
         output_gas.subtract_rates_from(gas_fugitives)
         self.set_iteration_value(output_gas.total_flow_rate())
 
@@ -129,7 +134,9 @@ class AcidGasRemoval(Process):
             gas_to_CO2_reinjection.subtract_rates_from(gas_fugitives)
         else:
             CO2_fugitive_mass_rate = CO2_feed_mass_rate - CO2_to_demethanizer
+            H2S_fugitve_mass_rate = H2S_feed_mass_rate - H2S_to_demethanizer
             gas_fugitives.set_gas_flow_rate("CO2", CO2_fugitive_mass_rate)
+            gas_fugitives.set_gas_flow_rate("H2S", H2S_fugitve_mass_rate)
 
         feed_gas_mol_frac = self.gas.component_molar_fractions(gas_input_stream)
         mol_frac_H2S = feed_gas_mol_frac["H2S"] if "H2S" in feed_gas_mol_frac else ureg.Quantity(0, "frac")
