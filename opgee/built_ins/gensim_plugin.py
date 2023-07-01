@@ -46,7 +46,7 @@ class GensimCommand(SubcommandABC):
         parser.add_argument('--overwrite', action='store_true',
                             help='''DELETE and recreate the simulation directory.''')
 
-        parser.add_argument('-s', '--simulation-dir',
+        parser.add_argument('-s', '--simulation-dir', required=True,
                             help='''The top-level directory to create for this simulation "package". 
                             If the simulation directory already exists and you must specify –-overwrite,
                             or gensim will refuse to overwrite the directory.''')
@@ -72,8 +72,8 @@ class GensimCommand(SubcommandABC):
 
         read_distributions(pathname=args.distributions)
 
-        sim_dir = args.simulation_dir
         analysis_name = args.analysis
+        sim_dir = args.simulation_dir
 
         Simulation.new(sim_dir, model_files, analysis_name, args.trials,
                        field_names=args.fields,
