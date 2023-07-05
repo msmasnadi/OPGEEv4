@@ -31,7 +31,6 @@ class SteamGenerator(OpgeeObject):
         self.res_press = field.res_press
         self.steam_injection_delta_press = field.attr("steam_injection_delta_press")
 
-        self.prod_water_inlet_temp = field.attr("prod_water_inlet_temp")
         self.prod_water_inlet_press = field.attr("prod_water_inlet_press")
         self.makeup_water_inlet_temp = field.attr("makeup_water_inlet_temp")
         self.makeup_water_inlet_press = field.attr("makeup_water_inlet_press")
@@ -312,7 +311,7 @@ class SteamGenerator(OpgeeObject):
                  makeup_water_mass_rate):
 
         prod_water_enthalpy_rate = self.water.enthalpy_PT(self.prod_water_inlet_press,
-                                                          self.prod_water_inlet_temp,
+                                                          self.field.attr("prod_water_inlet_temp"),
                                                           prod_water_mass_rate)
         makeup_water_enthalpy_rate = self.water.enthalpy_PT(self.makeup_water_inlet_press,
                                                             self.makeup_water_inlet_temp,
@@ -483,7 +482,7 @@ class SteamGenerator(OpgeeObject):
         """
 
         prod_water_enthalpy_rate = self.water.enthalpy_PT(self.prod_water_inlet_press,
-                                                          self.prod_water_inlet_temp,
+                                                          self.field.attr("prod_water_inlet_temp"),
                                                           prod_water_mass_rate)
         makeup_water_enthalpy_rate = self.water.enthalpy_PT(self.makeup_water_inlet_press,
                                                             self.makeup_water_inlet_temp,
