@@ -48,7 +48,7 @@ def _walltime(minutes: int) -> str:
 # Global to track how many tasks each worker is running
 _task_count = 0
 
-class FieldResult(OpgeeObject):
+class FieldStatus(OpgeeObject):
     __slots__ = ['ok', 'field_name', 'packet_num', 'duration', 'completed', 'task_count', 'error']
 
     def __init__(self, field_name, duration, completed, packet_num=None, error=None):
@@ -62,7 +62,7 @@ class FieldResult(OpgeeObject):
 
     def __str__(self):
         packet_info = "" if self.packet_num is None else f"[{self.packet_num}]"
-        return f"<FieldResult {self.completed} trials of {self.field_name}{packet_info} in {self.duration}; task_count:{self.task_count} error:{self.error}>"
+        return f"<FieldStatus {self.completed} trials of {self.field_name}{packet_info} in {self.duration}; task_count:{self.task_count} error:{self.error}>"
 
 def run_field(sim_dir, field_name, trial_nums=None, packet_num=None):
     """
@@ -74,7 +74,7 @@ def run_field(sim_dir, field_name, trial_nums=None, packet_num=None):
     :param trial_nums: (list of int) trial numbers to run. If ``None``, run all trials.
     :param packet_num: (int) if not None, the sequential number for this packet
       in ``field``. This is used to name files holding results for this packet.
-    :return: (FieldResult)
+    :return: (FieldStatus)
     """
     timer = Timer('run_field').start()
 
@@ -118,7 +118,7 @@ def run_field(sim_dir, field_name, trial_nums=None, packet_num=None):
 
     timer.stop()
 
-    result = FieldResult(field_name, timer.duration(), completed, error=error)
+    result = FieldStatus(field_name, timer.duration(), completed, error=error)
     _logger.debug(f"run_field('{field_name}') returning {result}")
     return result
 

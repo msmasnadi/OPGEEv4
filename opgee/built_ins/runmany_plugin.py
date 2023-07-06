@@ -8,36 +8,9 @@
 """
 from ..core import magnitude, Timer
 from ..subcommand import SubcommandABC
-from ..log import getLogger, setLogFile
-
+from ..log import getLogger
+from ..mcs.simulation import DetailedResult, energy_and_emissions
 _logger = getLogger(__name__)
-
-class Result():
-    def __init__(self, analysis_name, field_name, energy_data, emissions_data, error=None):
-        self.analysis_name = analysis_name
-        self.field_name = field_name
-        self.energy = energy_data
-        self.emissions = emissions_data
-        self.error = error
-
-    def __str__(self):
-        return f"<Result analysis:{self.analysis_name} field:{self.field_name} error:{self.error}>"
-
-def total_emissions(proc, gwp):
-    rates = proc.emissions.rates(gwp)
-    total = rates.loc["GHG"].sum()
-    return magnitude(total)
-
-def energy_and_emissions(field, gwp):
-    import pandas as pd
-
-    procs = field.processes()
-    energy_by_proc = {proc.name: magnitude(proc.energy.rates().sum()) for proc in procs}
-    energy_data = pd.Series(energy_by_proc, name=field.name)
-
-    emissions_by_proc = {proc.name: total_emissions(proc, gwp) for proc in procs}
-    emissions_data = pd.Series(emissions_by_proc, name=field.name)
-    return energy_data, emissions_data
 
 def run_field(analysis_name, field_name, xml_string):
     from ..config import setParam
@@ -57,10 +30,10 @@ def run_field(analysis_name, field_name, xml_string):
 
         field.run(analysis)
         energy_data, emissions_data = energy_and_emissions(field, analysis.gwp)
-        result = Result(analysis_name, field_name, energy_data, emissions_data)
+        result = DetailedResult(analysis_name, field_name, energy_data, emissions_data)
 
     except Exception as e:
-        result = Result(analysis_name, field_name, None, None, error=str(e))
+        result = DetailedResult(analysis_name, field_name, None, None, error=str(e))
 
     return result
 

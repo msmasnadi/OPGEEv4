@@ -18,7 +18,7 @@ from ..error import OpgeeException, McsSystemError, McsUserError, CommandlineErr
 from ..log import getLogger
 from ..model_file import ModelFile
 from ..pkg_utils import resourceStream
-from ..utils import mkdirs, removeTree, pushd, getBooleanXML
+from ..utils import mkdirs, removeTree, pushd
 
 from .LHS import lhs
 from .distro import get_frozen_rv
@@ -35,6 +35,39 @@ META_DATA_FILE = 'metadata.json'
 DISTROS_CSV = 'mcs/etc/parameter_distributions.csv'
 
 DEFAULT_DIGITS = 3
+
+SIMPLE_RESULT = 'simple'
+DETAILED_RESULT = 'detailed'
+DEFAULT_RESULT_TYPE = SIMPLE_RESULT
+RESULT_TYPES = (SIMPLE_RESULT, DETAILED_RESULT)
+
+class DetailedResult():
+    def __init__(self, analysis_name, field_name, energy_data, emissions_data, error=None):
+        self.analysis_name = analysis_name
+        self.field_name = field_name
+        self.energy = energy_data
+        self.emissions = emissions_data
+        self.error = error
+
+    def __str__(self):
+        return f"<DetailedResult analysis:{self.analysis_name} field:{self.field_name} error:{self.error}>"
+
+def total_emissions(proc, gwp):
+    rates = proc.emissions.rates(gwp)
+    total = rates.loc["GHG"].sum()
+    return magnitude(total)
+
+def energy_and_emissions(field, gwp):
+    import pandas as pd
+
+    procs = field.processes()
+    energy_by_proc = {proc.name: magnitude(proc.energy.rates().sum()) for proc in procs}
+    energy_data = pd.Series(energy_by_proc, name=field.name)
+
+    emissions_by_proc = {proc.name: total_emissions(proc, gwp) for proc in procs}
+    emissions_data = pd.Series(emissions_by_proc, name=field.name)
+    return energy_data, emissions_data
+
 
 def magnitude(quantity, digits=DEFAULT_DIGITS):          # pragma: no cover
     return round(quantity.m, digits)

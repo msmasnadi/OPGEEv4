@@ -32,6 +32,7 @@ class RunsimCommand(SubcommandABC):
     def addArgs(self, parser):
         from ..config import getParam, getParamAsInt
         from ..utils import ParseCommaList
+        from ..mcs.simulation import RESULT_TYPES, DEFAULT_RESULT_TYPE, SIMPLE_RESULT, DETAILED_RESULT
 
         # log_file  = getParam('OPGEE.LogFile')
         # job_name  = getParam('SLURM.JobName')
@@ -94,6 +95,13 @@ class RunsimCommand(SubcommandABC):
                             help=f'''Divide trials for a single field in to packets of this number of trials
                             to run serially on a single worker. Default is the value of configuration file
                             parameter "OPGEE.TrialPacketSize", currently {packet_size}.'''),
+
+        parser.add_argument('-r', '-result-type', type=str, choices=RESULT_TYPES,
+                            help=f'''The type of result to return from each field. Default is "{DEFAULT_RESULT_TYPE}".
+                            For "{SIMPLE_RESULT}" results, the following values are saved per trial in a separate 
+                            file for each field: trial_num, CI, total GHGs, and emissions from combustion, land use,
+                            venting/flaring, other. For "{DETAILED_RESULT}" results, per-process emissions and energy
+                            use are stored.''')
 
         parser.add_argument('-s', '--simulation-dir',
                             help='''The top-level directory to use for this simulation "package"''')
