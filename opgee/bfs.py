@@ -1,4 +1,10 @@
 # Perform a Breadth-First Search (BFS) traversal on a graph-like structure starting from the given node.
+#
+# Author: Wennan Long
+#
+# Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
+# See LICENSE.txt for license details.
+#
 from collections import deque
 from .error import OpgeeException
 
