@@ -364,6 +364,8 @@ class ModelFile(XMLFile):
             # Show the list of paths read in the GUI
             pathnames.insert(0, opgee_xml if base_stream else base_path)
             model.set_pathnames(pathnames)
+        else:
+            self.model = None
 
     @classmethod
     def from_xml_string(cls, xml_string, add_stream_components=True,

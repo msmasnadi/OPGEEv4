@@ -18,7 +18,8 @@ from ..error import OpgeeException, McsSystemError, McsUserError, CommandlineErr
 from ..log import getLogger
 from ..model_file import ModelFile
 from ..pkg_utils import resourceStream
-from ..utils import mkdirs, removeTree, pushd
+from ..utils import mkdirs, removeTree, pushd, getBooleanXML
+
 from .LHS import lhs
 from .distro import get_frozen_rv
 
@@ -237,10 +238,16 @@ class Simulation(OpgeeObject):
         self.field_names = field_names
         self.metadata = None
 
-        if not analysis_name:
+        if analysis_name:
+            self._save_meta_data()
+        else:
             self._load_meta_data(field_names)
-            if meta_data_only:
-                return
+
+        if trials > 0:
+            self.generate()
+
+        if meta_data_only:  # a slight misnomer since we may generate trial_data.csv, too
+            return
 
         try:
             _logger.debug(f"Caching file '{model_file}' as xml_string")
@@ -252,15 +259,7 @@ class Simulation(OpgeeObject):
         # TBD: to allow the same trial_num to be run across fields, cache field
         #      trial_data in a dict by field name rather than a single DF
 
-        if analysis_name:
-            self._save_meta_data()
-            if meta_data_only:
-                return
-
         self.load_model(save_to_path=save_to_path)
-
-        if trials > 0:
-            self.generate()
 
     def load_model(self, save_to_path=None):
         """
@@ -349,18 +348,43 @@ class Simulation(OpgeeObject):
         # thus avoids different models being used if underlying files change while
         # the simulation is running.
         merged_model_file = model_file_path(sim_dir)
-        mf = ModelFile(model_files, use_default_model=use_default_model, save_to_path=merged_model_file)
 
-        analysis = mf.model.get_analysis(analysis_name, raiseError=False)
-        if not analysis:
+        mf = ModelFile(model_files, use_default_model=use_default_model,
+                       save_to_path=merged_model_file,
+                       instantiate_model=False) # avoid building potentially huge model
+
+        # Find needed info in the parsed XML so we can avoid instantiating potentially
+        # huge models. (E.g., the 9000 field test case produced a 200+ MB XML file.)
+
+        analysis_node = mf.root.find(f"./Analysis[@name='{analysis_name}']")
+        if analysis_node is None:
             raise McsUserError(f"Analysis '{analysis_name}' was not found in model")
 
-        field_names = field_names or analysis.field_names(enabled_only=True)
-        sim = cls(sim_dir, analysis_name=analysis_name, trials=trials, field_names=field_names)
+        groups = analysis_node.xpath("Group")
+        if groups:
+            raise McsUserError("Simulation does not yet support use of <Group>")
+            # TODO:
+            #   if group.attrib.get('regex', False)
+            #     prog = re.compile(group.text)
+            #     matches = [field for field in field_names for name in field.group_names if prog.match(group_name)]
+
+        field_names = field_names or analysis_node.xpath("Field/@name")
+
+        # analysis = mf.model.get_analysis(analysis_name, raiseError=False)
+        # if not analysis:
+        #     raise McsUserError(f"Analysis '{analysis_name}' was not found in model")
+        #
+        # field_names = field_names or analysis.field_names(enabled_only=True)
+
+        sim = cls(sim_dir, analysis_name=analysis_name, field_names=field_names,
+                  trials=trials, meta_data_only=True)
         return sim
 
     def field_dir(self, field):
-        d = pathjoin(self.pathname, field.name)
+        from opgee.field import Field
+
+        field_name = field.name if isinstance(field, Field) else field
+        d = pathjoin(self.pathname, field_name)
         return d
 
     def trial_data_path(self, field, mkdir=False):
@@ -382,7 +406,7 @@ class Simulation(OpgeeObject):
     def failures_path(self, field, packet_num):
         d = self.field_dir(field)
         filename = FAILURES_CSV if packet_num is None else f"failures-{packet_num}.csv"
-        path = pathjoin(d, FAILURES_CSV)
+        path = pathjoin(d, filename)
         return path
 
     def metadata_path(self):
@@ -427,33 +451,55 @@ class Simulation(OpgeeObject):
         """
         trials = self.trials
 
-        for field in self.chosen_fields():
+        for field_name in self.field_names:
             cols = []
             rv_list = []
             distributions = Distribution.distributions()
 
             for dist in distributions:
-                target_attr = self.lookup(dist.full_name, field)
-
-                # If the object has an explicit value for an attribute, we ignore the distribution
-                if target_attr.explicit:
-                    _logger.debug(f"{field} has an explicit value for '{dist.attr_name}'; ignoring distribution")
-                    continue
-
                 rv_list.append(dist.rv)
                 cols.append(dist.attr_name if dist.class_name == 'Field' else dist.full_name)
 
-            if not cols:
-                raise McsUserError(f"Can't run MCS: all parameters with distributions have explicit values in {field}.")
-
             self.trial_data_df = df = lhs(rv_list, trials, columns=cols, corrMat=corr_mat)
             df.index.name = 'trial_num'
-            self.save_trial_data(field)
+            self.save_trial_data(field_name)
 
-    def save_trial_data(self, field):
-        filename = self.trial_data_path(field, mkdir=True)
+        # Old approach required instantiating the model just to check attributes
+        #
+        # for field in self.chosen_fields():
+        #     cols = []
+        #     rv_list = []
+        #     distributions = Distribution.distributions()
+        #
+        #     for dist in distributions:
+        #         target_attr = self.lookup(dist.full_name, field)
+        #
+        #         # If the object has an explicit value for an attribute, we ignore the distribution
+        #         if target_attr.explicit:
+        #             _logger.debug(f"{field} has an explicit value for '{dist.attr_name}'; ignoring distribution")
+        #             continue
+        #
+        #         rv_list.append(dist.rv)
+        #         cols.append(dist.attr_name if dist.class_name == 'Field' else dist.full_name)
+        #
+        #     if not cols:
+        #         raise McsUserError(f"Can't run MCS: all parameters with distributions have explicit values in {field}.")
+        #
+        #     self.trial_data_df = df = lhs(rv_list, trials, columns=cols, corrMat=corr_mat)
+        #     df.index.name = 'trial_num'
+        #     self.save_trial_data(field)
+
+
+    def save_trial_data(self, field_name):
+        filename = self.trial_data_path(field_name, mkdir=True)
         _logger.info(f"Writing '{filename}'")
         self.trial_data_df.to_csv(filename)
+
+    # Old approach
+    # def save_trial_data(self, field):
+    #     filename = self.trial_data_path(field, mkdir=True)
+    #     _logger.info(f"Writing '{filename}'")
+    #     self.trial_data_df.to_csv(filename)
 
     def save_trial_results(self, field, df, packet_num, failures):
         """
@@ -532,12 +578,9 @@ class Simulation(OpgeeObject):
 
         for name, value in data.items():
             attr = self.lookup(name, field)
-            attr.explicit = True
-            attr.set_value(value)
-
-            # Debugging only
-            # if name == 'WOR' and value == 0:
-            #     pass
+            if not attr.explicit:               # don't set values of explicit attributes
+                attr.explicit = True
+                attr.set_value(value)
 
     def run_field(self, field, trial_nums, packet_num=None):
         """
