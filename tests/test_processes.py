@@ -683,21 +683,21 @@ def test_WaterTreatment(test_model):
 
 
 # TODO: RP created this test. Wennan should improve it!
-# def test_CrudeOilTransport():
-#     from .utils_for_tests import path_to_test_file, load_test_model
-#
-#     model2 = load_test_model('test_model2.xml', class_path=path_to_test_file('user_processes.py'))
-#
-#     analysis = model2.get_analysis('Analysis1')
-#     analysis.boundary = 'Transportation'
-#
-#     field = analysis.get_field('Field1')
-#     field.run(analysis)
-#
-#     proc = field.find_process('CrudeOilTransport')
-#     total = proc.find_output_stream("oil").liquid_flow_rate("oil")
-#     expected = ureg.Quantity(100.0, "tonne/day")
-#     assert approx_equal(total, expected)
-#
-#
+def test_CrudeOilTransport():
+    from .utils_for_tests import path_to_test_file, load_test_model
+
+    model2 = load_test_model('test_model2.xml', class_path=path_to_test_file('user_processes.py'))
+
+    analysis = model2.get_analysis('Analysis1')
+    analysis.boundary = 'Transportation'
+
+    field = analysis.get_field('Field1')
+    field.run(analysis)
+
+    proc = field.find_process('CrudeOilTransport')
+    total = proc.find_output_stream("oil").liquid_flow_rate("oil")
+    expected = ureg.Quantity(100.0, "tonne/day")
+    assert approx_equal(total, expected)
+
+
 

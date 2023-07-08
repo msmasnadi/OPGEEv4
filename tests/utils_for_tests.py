@@ -28,25 +28,28 @@ def path_to_test_file(filename):
     path = pathjoin(__file__, '..', f'files/{filename}', abspath=True)
     return path
 
-def load_test_model(xml_file, add_stream_components=False, use_default_model=False,
-                    use_class_path=False, class_path=None):
-    project = None
+def load_test_model(xml_file, use_default_model=False, stream_components=None, class_path=None):
+    old_class_path = getParam('OPGEE.ClassPath')
+    old_stream_comps = getParam('OPGEE.StreamComponents')
+    project = getParam('OPGEE.DefaultProject')
 
     if class_path:
-        use_class_path = True
-
-        project = getParam('OPGEE.DefaultProject')
         setParam('OPGEE.ClassPath', path_to_test_file('user_processes.py'), section=project)
+
+    if stream_components:
+        setParam('OPGEE.StreamComponents', stream_components, section=project)
 
     xml_path = path_to_test_file(xml_file)
 
-    mf = ModelFile(xml_path,
-                   add_stream_components=add_stream_components,
-                   use_class_path=use_class_path,
-                   use_default_model=use_default_model)
+    mf = ModelFile(xml_path, use_default_model=use_default_model,
+                   add_stream_components=bool(stream_components),
+                   use_class_path=bool(class_path))
 
     if class_path:
-        setParam('OPGEE.ClassPath', '', section=project)  # avoid reloading user_processes.py
+        setParam('OPGEE.ClassPath', old_class_path, section=project)
+
+    if stream_components:
+        setParam('OPGEE.StreamComponents', old_stream_comps, section=project)
 
     return mf.model
 

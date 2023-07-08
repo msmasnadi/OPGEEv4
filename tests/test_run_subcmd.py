@@ -16,10 +16,8 @@ def test_unknown_field(opgee_main):
 
 
 def test_run_test_model(opgee_main):
-    from opgee.process import decache_subclasses
     from opgee.tool import opg
 
-    decache_subclasses()
     setParam('OPGEE.ClassPath', path_to_test_file('user_processes.py'))
 
     xml_path = path_to_test_file('test_model2.xml')

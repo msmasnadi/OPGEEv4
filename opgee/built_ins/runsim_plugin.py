@@ -27,10 +27,10 @@ def positive_int(value):
 class RunsimCommand(SubcommandABC):
     def __init__(self, subparsers):
         kwargs = {'help' : 'Run a Monte Carlo simulation using the model file stored in the simulation folder.'}
-        super(RunsimCommand, self).__init__('runsim', subparsers, kwargs)
+        super().__init__('runsim', subparsers, kwargs)
 
     def addArgs(self, parser):
-        from ..config import getParam
+        from ..config import getParam, getParamAsInt
         from ..utils import ParseCommaList
 
         # log_file  = getParam('OPGEE.LogFile')
@@ -38,6 +38,7 @@ class RunsimCommand(SubcommandABC):
         # load_env  = getParam('SLURM.LoadEnvironment')
         partition = getParam('SLURM.Partition')
         min_per_task = getParam('SLURM.MinutesPerTask')
+        packet_size = getParamAsInt('OPGEE.MaxTrialsPerPacket')
 
         # parser.add_argument('-a', '--analysis',
         #                     help='''The name of the analysis to run''')
@@ -70,6 +71,10 @@ class RunsimCommand(SubcommandABC):
                            help='''Run MCS simulations on the first "num-fields" only.
                             (Mutually exclusive with -f/--fields.)''')
 
+        parser.add_argument('-C', '--collect', action='store_true',
+                            help='''Whether to combine per-packet files into a single CSV when
+                            simulation is complete. Note that the "collect" subcommand can do
+                            this later if needed.''')
 
         parser.add_argument('-m', '--minutes', default=min_per_task, type=positive_int,
                             help=f'''The amount of wall time to allocate for each task. Default is 
@@ -84,6 +89,11 @@ class RunsimCommand(SubcommandABC):
         parser.add_argument('-p', "--partition", default=None,
                             help=f'''The name of the partition to use for job submissions. Default is the
                                  value of config variable "SLURM.Partition", currently '{partition}'.''')
+
+        parser.add_argument('-P', '--packet-size', type=positive_int, default=packet_size,
+                            help=f'''Divide trials for a single field in to packets of this number of trials
+                            to run serially on a single worker. Default is the value of configuration file
+                            parameter "OPGEE.TrialPacketSize", currently {packet_size}.'''),
 
         parser.add_argument('-s', '--simulation-dir',
                             help='''The top-level directory to use for this simulation "package"''')
@@ -130,5 +140,7 @@ class RunsimCommand(SubcommandABC):
                 run_field(sim_dir, field_name, trial_nums=trial_nums)
         else:
             mgr = Manager(cluster_type=args.cluster_type)
-            mgr.run_mcs(sim_dir, field_names=field_names, num_engines=ntasks,
-                        trial_nums=args.trials, minutes_per_task=args.minutes)
+            mgr.run_mcs(sim_dir, args.packet_size, field_names=field_names,
+                        num_engines=ntasks, trial_nums=args.trials,
+                        minutes_per_task=args.minutes,
+                        collect=args.collect)

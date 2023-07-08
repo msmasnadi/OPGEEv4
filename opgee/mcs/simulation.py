@@ -9,6 +9,7 @@
 import json
 import os
 import pandas as pd
+import re
 import traceback
 
 from ..config import pathjoin
@@ -17,7 +18,7 @@ from ..error import OpgeeException, McsSystemError, McsUserError, CommandlineErr
 from ..log import getLogger
 from ..model_file import ModelFile
 from ..pkg_utils import resourceStream
-from ..utils import mkdirs, removeTree
+from ..utils import mkdirs, removeTree, pushd
 from .LHS import lhs
 from .distro import get_frozen_rv
 
@@ -36,6 +37,46 @@ DEFAULT_DIGITS = 3
 
 def magnitude(quantity, digits=DEFAULT_DIGITS):          # pragma: no cover
     return round(quantity.m, digits)
+
+def _combine(filenames, output_name):
+    if not filenames:
+        return
+
+    dfs = [pd.read_csv(name, index_col=False) for name in filenames]
+    combined = pd.concat(dfs, axis='rows').sort_values('trial_num')
+
+    _logger.debug(f"Writing '{output_name}'")
+    combined.to_csv(output_name, index=False)
+
+
+results_pat  = re.compile(r'results-\d+\.csv$')
+failures_pat = re.compile(r'failures-\d+\.csv$')
+
+def combine_results(sim_dir, field_names, delete=False):
+    """
+    Combine CSV files containing partial results/failures from an MCS into two files,
+    results.csv and failures.csv.
+
+    :param sim_dir: (str) the simulation directory
+    :param field_names: (list of str) names of fields to combine results for
+    :param delete: (bool) whether to delete partial files after combining them
+    :return: nothing
+    """
+    from glob import glob
+
+    with pushd(sim_dir):
+        for field_name in field_names:
+            with pushd(field_name):
+                # use glob with its limited wildcard capability, then filter for the real pattern
+                result_files = [name for name in glob(r'results-*.csv') if re.match(results_pat, name)]
+                _combine(result_files, RESULTS_CSV)
+
+                failure_files = [name for name in glob(r'failures-*.csv') if re.match(failures_pat, name)]
+                _combine(failure_files, FAILURES_CSV)
+
+                if delete:
+                    for name in result_files + failure_files:
+                        os.remove(name)
 
 def model_file_path(sim_dir):     # pragma: no cover
     model_file = pathjoin(sim_dir, MODEL_FILE)
@@ -329,15 +370,18 @@ class Simulation(OpgeeObject):
         path = pathjoin(d, TRIAL_DATA_CSV)
         return path
 
-    def results_path(self, field, mkdir=False):
+    def results_path(self, field, packet_num, mkdir=False):
         d = self.field_dir(field)
         if mkdir:
             mkdirs(d)
-        path = pathjoin(d, RESULTS_CSV)
+
+        filename = RESULTS_CSV if packet_num is None else f"results-{packet_num}.csv"
+        path = pathjoin(d, filename)
         return path
 
-    def failures_path(self, field):
+    def failures_path(self, field, packet_num):
         d = self.field_dir(field)
+        filename = FAILURES_CSV if packet_num is None else f"failures-{packet_num}.csv"
         path = pathjoin(d, FAILURES_CSV)
         return path
 
@@ -411,13 +455,26 @@ class Simulation(OpgeeObject):
         _logger.info(f"Writing '{filename}'")
         self.trial_data_df.to_csv(filename)
 
-    def save_trial_results(self, field, df, failures):
-        filename = self.results_path(field, mkdir=True)
+    def save_trial_results(self, field, df, packet_num, failures):
+        """
+        Save the results of an MCS "trial packet" (which may be all trials
+        for ``field`` or just a subset of trials) to a CSV file in the simulation
+        directory.
+
+        :param field: (opgee.Field) the Field to evaluate in MCS
+        :param df: (pandas.DataFrame) the results to save
+        :param packet_num: (int) The sequential number for this packet in
+            ``field``. If not None, this is used to name the result files.
+        :param failures: (list of tuples) tuples of form (trial_num, message)
+            for each failed trial.
+        :return: nothing
+        """
+        filename = self.results_path(field, packet_num, mkdir=True)
         _logger.info(f"Writing '{filename}'")
         df.to_csv(filename, index=False)
 
         # Save info on failed trials, too
-        failures_csv = self.failures_path(field)
+        failures_csv = self.failures_path(field, packet_num)
         _logger.info(f"Writing {len(failures)} failures to '{failures_csv}'")
         with open(failures_csv, 'w') as f:
             f.write("trial_num,message\n")
@@ -482,13 +539,18 @@ class Simulation(OpgeeObject):
             # if name == 'WOR' and value == 0:
             #     pass
 
-    def run_field(self, field, trial_nums=None):
+    def run_field(self, field, trial_nums, packet_num=None):
         """
-        Run the Monte Carlo simulation for the given field and trial numbers.
+        Run the Monte Carlo trials ``trial_nums` for ``field``, serially.
+        Save the (full or partial) results for this field to a CSV file in
+        the simulation directory.
 
         :param field: (opgee.Field) the Field to evaluate in MCS
         :param trial_nums: (iterator of ints) the trial numbers to run, or
            ``None`` to run all trials.
+        :param packet_num: (int) the sequence number of the current packet
+            within ``field``. If not None, used for naming files containing
+            partial results.
         :return: (int) the number of successfully run trials
         """
         from ..smart_defaults import SmartDefault
@@ -554,7 +616,7 @@ class Simulation(OpgeeObject):
                 'other']
 
         df = pd.DataFrame.from_records(results, columns=cols)
-        self.save_trial_results(field, df, failures)
+        self.save_trial_results(field, df, packet_num, failures)
 
         return completed
 

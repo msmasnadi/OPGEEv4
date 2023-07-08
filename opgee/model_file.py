@@ -331,11 +331,8 @@ class ModelFile(XMLFile):
 
         def _load_from_path(module_path):
             module_path = unixPath(module_path, abspath=True)
-            if module_path in self._loaded_module_paths:
-                _logger.warning(f"ModelFile: refusing to reload previously loaded module path {module_path}")
-            else:
-                loadModuleFromPath(module_path)
-                self._loaded_module_paths[module_path] = True
+            module = loadModuleFromPath(module_path)
+            self._loaded_module_paths[module_path] = module
 
         # Load user classes, if indicated in config file, prior to parsing the XML structure
         if use_class_path:

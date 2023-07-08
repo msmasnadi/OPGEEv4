@@ -85,14 +85,14 @@ def _get_subclass(cls, subclass_name, reload=False):
     if reload or _Subclass_dict is None:
         reload_subclass_dict()
 
-    subclasses = _Subclass_dict.keys()
-    if cls not in subclasses:
-        raise OpgeeException(f"_get_subclass: cls {cls} must be one of {list(subclasses)}")
+    try:
+        d = _Subclass_dict[cls]
+    except KeyError:
+        classes = list(_Subclass_dict.keys())
+        raise OpgeeException(f"_get_subclass: cls {cls} must be one of {classes}")
 
-    d = _Subclass_dict[cls]
     try:
         return d[subclass_name]
-
     except KeyError:
         raise OpgeeException(f"Class {subclass_name} is not a known subclass of {cls}")
 

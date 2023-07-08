@@ -1,10 +1,13 @@
-'''
-.. Created 2016 as part of pygcam.
-   Imported into, and simplified for opgee on 06/06/22
-
-.. Copyright (c) 2016-2022 Richard Plevin
-   See the https://opensource.org/licenses/MIT for license details.
-'''
+#
+# gensim subcommand -- generate a Monte carlo simulation
+#
+# Author: Richard Plevin
+#
+# Created 2016 as part of pygcam. Imported into and simplified for opgee on 06/06/22
+#
+# Copyright (c) 2022-2023 the author and The Board of Trustees of the Leland Stanford Junior University.
+# See LICENSE.txt for license details.
+#
 from ..log import getLogger
 from ..subcommand import SubcommandABC
 
@@ -14,7 +17,7 @@ class GensimCommand(SubcommandABC):
 
     def __init__(self, subparsers):
         kwargs = {'help' : 'Generate the simulation directory and trial data for a Monte Carlo simulation.'}
-        super(GensimCommand, self).__init__('gensim', subparsers, kwargs)
+        super().__init__('gensim', subparsers, kwargs)
 
     def addArgs(self, parser):
         from ..utils import ParseCommaList
@@ -44,7 +47,9 @@ class GensimCommand(SubcommandABC):
                             help='''DELETE and recreate the simulation directory.''')
 
         parser.add_argument('-s', '--simulation-dir',
-                            help='''The top-level directory to create for this simulation "package"''')
+                            help='''The top-level directory to create for this simulation "package". 
+                            If the simulation directory already exists and you must specify –-overwrite,
+                            or gensim will refuse to overwrite the directory.''')
 
         parser.add_argument('-t', '--trials', type=int, default=0,
                             help='''The number of trials to create for this simulation (REQUIRED).''')
