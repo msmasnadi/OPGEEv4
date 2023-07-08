@@ -397,7 +397,7 @@ class ModelFile(XMLFile):
                                    analysis_names=analysis_names,
                                    field_names=field_names,
                                    instantiate_model=True,
-                                   save_to_path=None)
+                                   save_to_path="")     # ensures no saving. Passing None falls back to config var
         except Exception as e:
             raise XmlFormatError(f"Failed to create ModelFile from string: {e}")
 

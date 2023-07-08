@@ -13,7 +13,7 @@ import re
 import traceback
 
 from ..config import pathjoin
-from ..core import OpgeeObject, split_attr_name, Timer
+from ..core import OpgeeObject, split_attr_name, Timer, magnitude
 from ..error import OpgeeException, McsSystemError, McsUserError, CommandlineError
 from ..log import getLogger
 from ..model_file import ModelFile
@@ -24,7 +24,6 @@ from .LHS import lhs
 from .distro import get_frozen_rv
 
 _logger = getLogger(__name__)
-
 
 TRIAL_DATA_CSV = 'trial_data.csv'
 RESULTS_CSV = 'results.csv'
@@ -52,6 +51,9 @@ class DetailedResult():
     def __str__(self):
         return f"<DetailedResult analysis:{self.analysis_name} field:{self.field_name} error:{self.error}>"
 
+def roundmag(quantity, digits=DEFAULT_DIGITS):          # pragma: no cover
+    return round(quantity.m, digits)
+
 def total_emissions(proc, gwp):
     rates = proc.emissions.rates(gwp)
     total = rates.loc["GHG"].sum()
@@ -67,10 +69,6 @@ def energy_and_emissions(field, gwp):
     emissions_by_proc = {proc.name: total_emissions(proc, gwp) for proc in procs}
     emissions_data = pd.Series(emissions_by_proc, name=field.name)
     return energy_data, emissions_data
-
-
-def magnitude(quantity, digits=DEFAULT_DIGITS):          # pragma: no cover
-    return round(quantity.m, digits)
 
 def _combine(filenames, output_name):
     if not filenames:
@@ -227,6 +225,199 @@ class Distribution(OpgeeObject):
     def __str__(self):
         return f"<Distribution '{self.full_name}' = {self.rv}>"
 
+# TBD: needs to be integrated as an option to runsim
+def run_many(model_xml_file, analysis_name, field_names, output, count=0, start_with=0,
+        save_after=None, skip_fields=None, batch_start=0, parallel=True):
+    import os
+    import pandas as pd
+    from ..config import getParam, setParam, pathjoin
+    from ..error import CommandlineError
+    from ..model_file import analysis_names, fields_for_analysis
+
+    # TBD: unclear if this is necessary
+    setParam('OPGEE.XmlSavePathname', '')   # avoid writing /tmp/final.xml since no need
+
+    analysis_name = analysis_name or analysis_names(model_xml_file)[0]
+    all_fields = fields_for_analysis(model_xml_file, analysis_name)
+
+    field_names = [name.strip() for name in field_names] if field_names else None
+    if field_names:
+        unknown = set(field_names) - set(all_fields)
+        if unknown:
+            raise CommandlineError(f"Fields not found in {model_xml_file}: {unknown}")
+    else:
+        field_names = all_fields
+
+    if start_with:
+        # skip all before the named field
+        i = field_names.index(start_with)
+        field_names = field_names[i:]
+
+    if count:
+        field_names = field_names[:count]
+
+    if skip_fields:
+        field_names = [name.strip() for name in field_names if name not in skip_fields]
+
+    def _save_cols(columns, csvpath):
+        df = pd.concat(columns, axis='columns')
+        df.index.name = 'process'
+        df.sort_index(axis='rows', inplace=True)
+
+        print(f"Writing '{csvpath}'")
+        df.to_csv(csvpath)
+
+    def _save_errors(errors, csvpath):
+        """Save a description of all field run errors"""
+        with open(csvpath, 'w') as f:
+            f.write('analysis,field,error\n')
+            for result in errors:
+                f.write(f"{result.analysis_name},{result.field_name},{result.error}\n")
+
+    temp_dir = getParam('OPGEE.TempDir')
+    dir_name, filename = os.path.split(output)
+    subdir = pathjoin(temp_dir, dir_name)
+    basename, ext = os.path.splitext(filename)
+
+    if save_after:
+        batch = batch_start   # used in naming result files
+
+        for vectors in run_parallel(model_xml_file, analysis_name, field_names,
+                                    max_results=save_after):
+
+            energy_cols, emissions_cols, errors = vectors
+
+            _save_cols(energy_cols,    pathjoin(subdir, f"{basename}-energy-{batch}{ext}"))
+            _save_cols(emissions_cols, pathjoin(subdir, f"{basename}-emissions-{batch}{ext}"))
+            _save_errors(errors,       pathjoin(subdir, f"{basename}-errors-{batch}.csv"))
+
+            batch += 1
+
+    else:
+        # If not running in batches, save all results at the end
+        run_func = run_parallel if parallel else run_serial
+        energy_cols, emissions_cols, errors = run_func(model_xml_file, analysis_name,
+                                                       field_names)
+
+        # Insert "-energy" or "-emissions" between basename and extension
+        _save_cols(energy_cols,    pathjoin(subdir, f"{basename}-energy{ext}"))
+        _save_cols(emissions_cols, pathjoin(subdir, f"{basename}-emissions{ext}"))
+        _save_errors(errors,       pathjoin(subdir, f"{basename}-errors.csv"))
+
+def _run_field(analysis_name, field_name, xml_string):
+    from ..model_file import ModelFile
+
+    try:
+        mf = ModelFile.from_xml_string(xml_string, add_stream_components=False,
+                                       use_class_path=False,
+                                       use_default_model=True,
+                                       analysis_names=[analysis_name],
+                                       field_names=[field_name])
+
+        analysis = mf.model.get_analysis(analysis_name)
+        field = analysis.get_field(field_name)
+
+        field.run(analysis)
+        energy_data, emissions_data = energy_and_emissions(field, analysis.gwp)
+        result = DetailedResult(analysis_name, field_name, energy_data, emissions_data)
+
+    except Exception as e:
+        result = DetailedResult(analysis_name, field_name, None, None, error=str(e))
+
+    return result
+
+
+def run_parallel(model_xml_file, analysis_name, field_names, max_results=None):
+    from dask.distributed import as_completed
+
+    from ..model_file import extracted_model
+    from ..mcs.distributed_mcs_dask import Manager
+
+    mgr = Manager(cluster_type='local')
+
+    timer = Timer('run_parallel').start()
+
+    # Put the log for the monitor process in the simulation directory.
+    # Workers will set the log file to within the directory for the
+    # field it's currently running.
+    # log_file = f"{sim_dir}/opgee-mcs.log"
+    # setLogFile(log_file, remove_old_file=True)
+
+    # N.B. start_cluster saves client in self.client and returns it as well
+    client = mgr.start_cluster()
+
+    futures = []
+
+    # Submit all the fields to run on worker tasks
+    for field_name, xml_string in extracted_model(model_xml_file, analysis_name,
+                                                  field_names=field_names,
+                                                  as_string=True):
+
+        future = client.submit(_run_field, analysis_name, field_name, xml_string)
+        futures.append(future)
+
+    energy_cols = []
+    emission_cols = []
+    errors = []
+
+    count = 0   # used if we're returning results in batches
+
+    # Wait for and process results
+    for future, result in as_completed(futures, with_results=True):
+        if max_results and count == 0:
+            energy_cols.clear()
+            emission_cols.clear()
+            errors.clear()
+
+        if result.error:
+            _logger.error(f"Failed: {result}")
+            errors.append(result)
+        else:
+            _logger.debug(f"Succeeded: {result}")
+
+            energy_cols.append(result.energy)
+            emission_cols.append(result.emissions)
+
+        if max_results:
+            if count == max_results:
+                count = 0
+                # return the next batch
+                yield energy_cols, emission_cols, errors
+            else:
+                count += 1
+
+    _logger.debug("Workers finished")
+
+    mgr.stop_cluster()
+    _logger.info(timer.stop())
+
+    if count:
+        yield energy_cols, emission_cols, errors
+    else:
+        return energy_cols, emission_cols, errors
+
+def run_serial(model_xml_file, analysis_name, field_names):
+    from ..model_file import extracted_model
+
+    timer = Timer('run_serial').start()
+
+    energy_cols = []
+    emission_cols = []
+    errors = []
+
+    for field_name, xml_string in extracted_model(model_xml_file, analysis_name,
+                                                  field_names=field_names,
+                                                  as_string=True):
+        result = _run_field(analysis_name, field_name, xml_string)
+        if result.error:
+            _logger.error(f"Failed: {result}")
+            errors.append(result)
+        else:
+            energy_cols.append(result.energy)
+            emission_cols.append(result.emissions)
+
+    _logger.info(timer.stop())
+    return energy_cols, emission_cols, errors
 
 class Simulation(OpgeeObject):
     # TBD: update this document string
@@ -674,12 +865,12 @@ class Simulation(OpgeeObject):
             vff = ghg['Venting'] + ghg['Flaring'] + ghg['Fugitives']
 
             tup = (trial_num,
-                   magnitude(ci),
-                   magnitude(total_ghg),
-                   magnitude(ghg['Combustion']),
-                   magnitude(ghg['Land-use']),
-                   magnitude(vff),
-                   magnitude(ghg['Other']))
+                   roundmag(ci),
+                   roundmag(total_ghg),
+                   roundmag(ghg['Combustion']),
+                   roundmag(ghg['Land-use']),
+                   roundmag(vff),
+                   roundmag(ghg['Other']))
 
             results.append(tup)
 
