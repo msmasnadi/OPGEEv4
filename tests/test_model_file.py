@@ -21,7 +21,7 @@ def test_many_fields():
 
 
 def test_many_field_comparison():
-    from opgee.built_ins.runmany_plugin import run_serial
+    from opgee.mcs.simulation import run_serial
 
     analysis_name = 'test-fields'
     model_xml_file = path_to_test_file('test-fields-9000.xml')
@@ -33,5 +33,3 @@ def test_many_field_comparison():
     energy_cols, emissions_cols, errors = run_serial(model_xml_file, analysis_name, field_names[:N])
 
     assert len(energy_cols) + len(errors) == N
-
-
