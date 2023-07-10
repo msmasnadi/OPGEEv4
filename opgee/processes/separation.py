@@ -61,7 +61,7 @@ class Separation(Process):
         field = self.field
 
         #TODO: Fix this after data pipeline is done
-        self.water_oil_ratio = field.attr("WOR")
+        water_oil_ratio = field.attr("WOR")
 
         # mass rate
         input = self.find_input_stream("crude oil")
@@ -160,8 +160,7 @@ class Separation(Process):
         oil_after.set_API(field.attr("API"))
 
         water_density_STP = field.water.density()
-        water_mass_rate = max(0,
-                              self.oil_volume_rate * self.water_oil_ratio * water_density_STP - water_in_oil_mass_rate)
+        water_mass_rate = max(0, self.oil_volume_rate * field.attr("WOR") * water_density_STP - water_in_oil_mass_rate)
         water_after = self.find_output_stream("water")
         water_after.set_liquid_flow_rate("H2O", water_mass_rate, tp=self.outlet_tp)
 
