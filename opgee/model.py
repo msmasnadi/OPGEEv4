@@ -276,7 +276,7 @@ class Model(Container):
 
         model.field_dict = model.adopt(fields, asDict=True)
 
-        analyses = instantiate_subelts(elt, Analysis, parent=model, include_names=analysis_names)
+        analyses = instantiate_subelts(elt, Analysis, parent=model, include_names=analysis_names, field_names=field_names)
         if analysis_names and not analyses:
             raise CommandlineError(f"Specified analyses {analysis_names} not found in model")
 

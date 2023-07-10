@@ -50,7 +50,7 @@ def elt_name(elt):
     return elt.attrib.get('name')
 
 
-def instantiate_subelts(elt, cls, parent=None, as_dict=False, include_names=None):
+def instantiate_subelts(elt, cls, parent=None, as_dict=False, include_names=None, field_names=None):
     """
     Return a list of instances of ``cls`` (or of its indicated subclass of ``Process``).
 
@@ -63,12 +63,21 @@ def instantiate_subelts(elt, cls, parent=None, as_dict=False, include_names=None
        attrib dict must have a "name" item, whose value is compared to the list). If
        ``include_names`` is not None, then elements with names not in the list are
        ignored.
+    :param field_names: (list of str) Names of Fields to include when instantiating an Analysis.
+       This is a special case to avoid loading more than the one Field being run in a worker.
     :return: (list) instantiated objects
     """
     tag = cls.__name__  # class name matches element name
 
     include = None if include_names is None else set(include_names)
-    objs = [cls.from_xml(e, parent=parent) for e in elt.findall(tag) if include is None or e.attrib.get('name') in include]
+
+    def _from_xml(e):
+        if tag == 'Analysis':
+            return cls.from_xml(e, parent=parent, field_names=field_names)
+        else:
+            return cls.from_xml(e, parent=parent)
+
+    objs = [_from_xml(e) for e in elt.findall(tag) if include is None or e.attrib.get('name') in include]
 
     if as_dict:
         d = {obj.name: obj for obj in objs}

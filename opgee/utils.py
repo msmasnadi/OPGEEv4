@@ -53,7 +53,7 @@ class ParseCommaList(argparse.Action):
         super(ParseCommaList, self).__init__(option_strings, dest, **kwargs)
 
     def __call__(self, parser, namespace, values, option_string=None):
-        setattr(namespace, self.dest, values.split(','))
+        setattr(namespace, self.dest, splitAndStrip(values, ','))
 
 
 def splitAndStrip(s, delim):
