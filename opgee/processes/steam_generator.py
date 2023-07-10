@@ -26,7 +26,6 @@ class SteamGenerator(OpgeeObject):
         self.waste_water_reinjection_press = field.attr("waste_water_reinjection_press")
         self.friction_loss_steam_distr = field.attr("friction_loss_steam_distr")
         self.pressure_loss_choke_wellhead = field.attr("pressure_loss_choke_wellhead")
-        self.API = field.API
 
         self.res_press = field.res_press
         self.steam_injection_delta_press = field.attr("steam_injection_delta_press")
@@ -171,7 +170,7 @@ class SteamGenerator(OpgeeObject):
             delta_H - recoverable_heat_before_economizer - recoverable_heat_before_preheater
         fuel_consumption_for_steam_generation_mass = fuel_demand_for_steam_enthalpy_change / available_enthalpy
         fuel_LHV = \
-            gas_LHV if self.OTSG_fuel_type == "Gas" else self.oil.mass_energy_density(API=self.oil.API,
+            gas_LHV if self.OTSG_fuel_type == "Gas" else self.oil.mass_energy_density(API=self.field.attr("API"),
                                                                                       with_unit=True)
         fuel_consumption_for_steam_generation_energy = fuel_consumption_for_steam_generation_mass * fuel_LHV
 
@@ -369,7 +368,7 @@ class SteamGenerator(OpgeeObject):
         :return: (float, Pandas.Series) air_requirement_fuel; (float) air_requirement_LHV_fuel (unit = MJ/kg)
         """
 
-        liquid_fuel_comp = self.oil.liquid_fuel_composition(self.API)
+        liquid_fuel_comp = self.oil.liquid_fuel_composition(self.field.attr("API"))
 
         if SG_type == "OTSG":
             if self.OTSG_fuel_type == "Gas":
@@ -402,7 +401,7 @@ class SteamGenerator(OpgeeObject):
 
     def get_exhaust_parameters(self, air_requirement_fuel, SG_type):
 
-        liquid_fuel_comp = self.oil.liquid_fuel_composition(self.API)
+        liquid_fuel_comp = self.oil.liquid_fuel_composition(self.field.attr("API"))
 
         if SG_type == "OTSG":
             if self.OTSG_fuel_type == "Gas":

@@ -32,7 +32,6 @@ class WaterTreatment(Process):
 
         field = self.field
         self.oil_volume_rate = field.oil_volume_rate
-        self.WOR = field.WOR
         self.WIR = field.WIR
 
         self.water_reinjection = field.water_reinjection
@@ -68,6 +67,8 @@ class WaterTreatment(Process):
         """
         self.print_running_msg()
         field = self.field
+
+        self.WOR = field.attr("WOR")
 
         # mass rate
         input = self.find_input_streams("water", combine=True)

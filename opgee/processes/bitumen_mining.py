@@ -50,7 +50,7 @@ class BitumenMining(Process):
 
         self.oil_sands_mine = field.oil_sands_mine
         self.oil = field.oil
-        self.bitumen_SG = self.oil.specific_gravity(field.API)
+        self.bitumen_SG = self.oil.specific_gravity(field.attr("API"))
 
         self.mined_bitumen_t = field.mined_bitumen_t
         self.mined_bitumen_p = field.mined_bitumen_p
@@ -84,7 +84,7 @@ class BitumenMining(Process):
         output_tp = self.mined_bitumen_tp
         output_bitumen.\
             set_liquid_flow_rate("oil", bitumen_mass_rate, tp=output_tp)
-        output_bitumen.set_API(field.API)
+        output_bitumen.set_API(field.attr("API"))
         self.set_iteration_value(output_bitumen.total_flow_rate())
 
         d = self.model.mining_energy_intensity

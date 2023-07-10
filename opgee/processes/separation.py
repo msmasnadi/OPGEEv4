@@ -46,8 +46,6 @@ class Separation(Process):
         self.gas_oil_ratio = field.gas_oil_ratio
         self.gas_comp = field.gas_comp
 
-        self.water_oil_ratio = field.WOR
-
         self.num_of_stages = self.attr("number_stages")
         #TODO: move it to smart default
         if field.wellhead_p.m < 500:
@@ -61,6 +59,9 @@ class Separation(Process):
     def run(self, analysis):
         self.print_running_msg()
         field = self.field
+
+        #TODO: Fix this after data pipeline is done
+        self.water_oil_ratio = field.attr("WOR")
 
         # mass rate
         input = self.find_input_stream("crude oil")
@@ -156,7 +157,7 @@ class Separation(Process):
         oil_after.set_liquid_flow_rate("oil", oil_mass_rate)
         oil_after.set_liquid_flow_rate("H2O", water_in_oil_mass_rate)
         oil_after.set_tp(self.outlet_tp)
-        oil_after.set_API(field.API)
+        oil_after.set_API(field.attr("API"))
 
         water_density_STP = field.water.density()
         water_mass_rate = max(0,

@@ -250,7 +250,7 @@
       <AttrDef name="well_productivity_crude_oil" options="field_productivity_category" type="str"/>
       <AttrDef name="well_productivity_natural_gas" options="field_productivity_category" type="str"/>
       <AttrDef name="fraction_wells_fractured" desc="Fraction of wells fractured" type="float" GE="0" LE="1">0</AttrDef>
-      <AttrDef name="volume_per_well_fractured" desc="Fracturing fluid injection volume" type="float" unit="Mgal’’">3</AttrDef>
+      <AttrDef name="volume_per_well_fractured" desc="Fracturing fluid injection volume" type="float" unit="Mgal">3</AttrDef>
       <AttrDef name="pressure_gradient_fracturing" desc="Fracturing pressure gradient (rock strength)" unit="psi/ft">0.7</AttrDef>
       <AttrDef name="timeframe_land_use" desc="Timeframe of land use analysis" unit="years" options="timeframe_land_use">1</AttrDef>
       <AttrDef name="flaring_fracturing_flowback" desc="Fracturing flowback flared?" type="binary">0</AttrDef>
@@ -354,46 +354,7 @@
       <AttrDef name="distance" type="float" desc="Distance of travel for survey" unit="mi">10000</AttrDef>
       <AttrDef name="weight" type="float" desc="Weight of ocean survey vehicle" unit="tons">100</AttrDef>
     </ClassAttrs>
-    <ClassAttrs name="DrillingAndDevelopment">
-      <Options name="rig_efficiency" default="Medium">
-        <Option desc="Mud pump 60%, Rotary Table 40%">Low</Option>
-        <Option desc="Mud pump 65%, Rotary Table 45%">Medium</Option>
-        <Option desc="Mud pump 70%, Rotary Table 50%">High</Option>
-      </Options>
-      <Options name="well_complexity" default="Moderate">
-        <Option desc="Surface casing plus production casing">Simple</Option>
-        <Option desc="Surface, intermediate, production">Moderate</Option>
-        <Option desc="Surface, Intermediate 1, Intermediate 2, Production">Complex</Option>
-      </Options>
-      <Options name="well_size" default="Medium">
-        <Option>Small</Option>
-        <Option>Medium</Option>
-        <Option>Large</Option>
-      </Options>
-      <Options name="field_productivity_category" default="Medium">
-        <Option desc="USA">Low</Option>
-        <Option desc="Global average">Medium</Option>
-        <Option desc="OPEC">High</Option>
-      </Options>
-      <Options name="timeframe_land_use" default="30">
-        <Option>30</Option>
-        <Option>150</Option>
-      </Options>
-      <AttrDef name="eta_rig" type="str" options="rig_efficiency" desc="Rig efficiency"/>
-      <AttrDef name="well_complexity" options="well_complexity" desc="Well complexity" type="str"/>
-      <AttrDef name="well_size" desc="Hole size" type="str" options="well_size"/>
-      <AttrDef name="fraction_wells_horizontal" type="float" desc="Horizontal well?" GE="0" LE="1">0</AttrDef>
-      <AttrDef name="length_lateral" unit="ft" type="float" desc="Length of lateral">5000</AttrDef>
-      <AttrDef name="well_productivity_crude_oil" options="field_productivity_category" type="str"/>
-      <AttrDef name="well_productivity_natural_gas" options="field_productivity_category" type="str"/>
-      <AttrDef name="fraction_wells_fractured" desc="Fraction of wells fractured" type="float" GE="0" LE="1">0</AttrDef>
-      <AttrDef name="volume_per_well_fractured" desc="Fracturing fluid injection volume" type="float" unit="Mgal’’">3</AttrDef>
-      <AttrDef name="pressure_gradient_fracturing" desc="Fracturing pressure gradient (rock strength)" unit="psi/ft">0.7</AttrDef>
-      <AttrDef name="timeframe_land_use" desc="Timeframe of land use analysis" unit="years" options="timeframe_land_use">1</AttrDef>
-      <AttrDef name="flaring_fracturing_flowback" desc="Fracturing flowback flared?" type="binary">0</AttrDef>
-      <AttrDef name="REC_fracturing_flowback" desc="Fracturing flowback captured with reduced emissons completions?" type="binary">1</AttrDef>
-      <AttrDef name="number_well_workovers" desc="Workovers needed over lifetime of well" type="float">4.0</AttrDef>
-    </ClassAttrs>
+
 
     <ClassAttrs name="DownholePump">
       <Options name="prime_mover_type" default="NG_engine">

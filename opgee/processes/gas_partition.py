@@ -45,7 +45,6 @@ class GasPartition(Process):
         self.flood_gas_type = field.flood_gas_type
         self.GLIR = field.GLIR
         self.oil_volume_rate = field.oil_volume_rate
-        self.WOR = field.WOR
         self.iteration_tolerance = field.model.attr("iteration_tolerance")
         self.flood_gas_type = field.flood_gas_type
         self.N2_flooding_tp = TemperaturePressure(self.attr("N2_flooding_temp"),
@@ -57,7 +56,6 @@ class GasPartition(Process):
 
         self.GFIR = field.GFIR
         self.gas_flooding_vol_rate = self.oil_volume_rate * self.GFIR
-        self.gas_lifting_vol_rate = self.oil_volume_rate * (1 + self.WOR) * self.GLIR
         self.is_first_loop = True
         self.is_gas_flooding_visited = False
         self.reset_flag = False
@@ -66,6 +64,8 @@ class GasPartition(Process):
         self.print_running_msg()
         field = self.field
         import_product = field.import_export
+        WOR = field.attr("WOR")
+        gas_lifting_vol_rate = self.oil_volume_rate * (1 + WOR) * self.GLIR
 
         exported_gas_stream = Stream("exported_gas_stream", tp=field.stp)
 
@@ -82,7 +82,7 @@ class GasPartition(Process):
             if self.is_first_loop:
                 init_stream = get_init_lifting_stream(self.field.gas,
                                                       input,
-                                                      self.gas_lifting_vol_rate)
+                                                      gas_lifting_vol_rate)
                 lifting_gas_to_compressor.copy_flow_rates_from(init_stream)
                 self.is_first_loop = False
 

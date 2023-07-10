@@ -30,11 +30,9 @@ class Venting(Process):
         self.gas_lifting = field.gas_lifting
         self.GOR = field.GOR
         self.FOR = field.FOR
-        self.WOR = field.WOR
         self.GLIR = field.GLIR
         self.oil_volume_rate = field.oil_volume_rate
         self.res_press = field.res_press
-        self.water_prod = self.oil_volume_rate * self.WOR
         self.imported_fuel_gas_comp = field.imported_gas_comp["Imported Fuel"]
         self.imported_fuel_gas_mass_fracs = field.gas.component_mass_fractions(self.imported_fuel_gas_comp)
 
@@ -44,6 +42,10 @@ class Venting(Process):
         self.print_running_msg()
         field = self.field
         # mass rate
+
+        # # TODO: fix this after data pipeline is done
+        # WOR = field.attr("WOR")
+        # water_prod = self.oil_volume_rate * WOR
 
         input = self.find_input_stream("gas for venting")  # type: Stream
         if input.is_uninitialized():
