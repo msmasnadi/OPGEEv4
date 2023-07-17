@@ -86,7 +86,7 @@ def run_field(sim_dir, field_name, trial_nums=None, packet_num=None):
         _task_count += 1
 
         field_dir = sim.field_dir(field)
-        log_file = f"{field_dir}/opgee-field.log"
+        log_file = f"{field_dir}/field-packet-{packet_num}.log"
         setLogFile(log_file, remove_old_file=True)
 
         _logger.info(f"Running MCS for field '{field_name}'")
