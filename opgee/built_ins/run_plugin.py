@@ -9,22 +9,14 @@ from ..log import getLogger
 
 _logger = getLogger(__name__)
 
-PARALLEL = 'parallel'
-SERIES   = 'series'
-RUN_MODES = (PARALLEL, SERIES)
+RUN_PARALLEL = 'parallel'
+RUN_SERIAL   = 'serial'
+RUN_MODES = (RUN_PARALLEL, RUN_SERIAL)
 
-def positive_int(value):
-    import argparse
+CLUSTER_LOCAL = 'local'
+CLUSTER_SLURM = 'slurm'
+CLUSTER_TYPES = (CLUSTER_SLURM, CLUSTER_LOCAL)
 
-    try:
-        i = int(value)
-    except:
-        i = 0   # the effect is to convert a ValueError into an ArgumentTypeError
-
-    if i <= 0:
-        raise argparse.ArgumentTypeError(f"{value} is not a positive integer")
-
-    return i
 
 class RunCommand(SubcommandABC):
     def __init__(self, subparsers, name='run', help='Run the specified portion of an OPGEE LCA model'):
@@ -33,7 +25,7 @@ class RunCommand(SubcommandABC):
 
     def addArgs(self, parser):
         from ..config import getParam, getParamAsInt
-        from ..utils import ParseCommaList
+        from ..utils import ParseCommaList, positive_int
         from ..mcs.simulation import RESULT_TYPES, DEFAULT_RESULT_TYPE, SIMPLE_RESULT, DETAILED_RESULT
 
         partition = getParam('SLURM.Partition')
@@ -59,9 +51,8 @@ class RunCommand(SubcommandABC):
                             help='''Write CI output to specified CSV file for all processes, for all fields 
                                 run, rather than by top-level processes and aggregators (as with --output)''')
 
-        cluster_types = ('local', 'slurm')
         cluster_type = getParam('OPGEE.ClusterType')
-        parser.add_argument('-c', '--cluster-type', choices=cluster_types,
+        parser.add_argument('-c', '--cluster-type', choices=CLUSTER_TYPES,
                             help=f'''The type of cluster to use. Defaults to value of config
                             variable 'OPGEE.ClusterType', currently "{cluster_type}".''')
 
@@ -77,11 +68,11 @@ class RunCommand(SubcommandABC):
                             will be run for each Analysis the field name occurs within (respecting the
                             --analyses flag).''')
 
+        parser.add_argument('-F', '--skip-fields', action=ParseCommaList,
+                            help='''Comma-delimited list of field names to exclude from analysis''')
+
         parser.add_argument('-i', '--ignore-errors', action='store_true',
                             help='''Keep running even if some fields raise errors when run''')
-
-        parser.add_argument('-k', '--skip-fields', action=ParseCommaList,
-                            help='''Comma-delimited list of field names to exclude from analysis''')
 
         parser.add_argument('-m', '--model-file', action='append',
                             help='''XML model definition files to load. If --no_default_model is *not* 
@@ -91,10 +82,10 @@ class RunCommand(SubcommandABC):
                                 they are merged in the order stated.''')
 
         parser.add_argument('-M', '--minutes', default=min_per_task, type=positive_int,
-                            help=f'''The amount of wall time to allocate for each task. Default is 
-                                {min_per_task} minutes. Acceptable time formats include "minutes", 
-                                "minutes:seconds", "hours:minutes:seconds", and formats involving days, 
-                                which we shouldn't require.''')
+                            help=f'''The amount of wall time to allocate for each task.
+                             Default is {min_per_task} minutes. Acceptable time formats include "minutes", 
+                             "minutes:seconds", "hours:minutes:seconds", and formats involving days, 
+                             which we shouldn't require. Ignored if --cluster-type=slurm is not specified.''')
 
         parser.add_argument('-n', '--no-default-model', action='store_true',
                             help='''Don't load the built-in opgee.xml model definition.''')
@@ -115,10 +106,8 @@ class RunCommand(SubcommandABC):
 
         parser.add_argument('-p', "--partition", default=None,
                             help=f'''The name of the partition to use for job submissions. Default is the
-                                 value of config variable "SLURM.Partition", currently '{partition}'.''')
-
-        parser.add_argument('-P', '--parallel', action='store_true',
-                            help='''Run the fields in parallel locally using dask.''')
+                                value of config variable "SLURM.Partition", currently '{partition}'.
+                                Ignored if --cluster-type=slurm is not specified.''')
 
         parser.add_argument('-P', '--packet-size', type=positive_int, default=packet_size,
                             help=f'''Divide trials for a single field in to packets of this number of trials
@@ -132,15 +121,12 @@ class RunCommand(SubcommandABC):
                             venting/flaring, other. For "{DETAILED_RESULT}" results, per-process emissions and energy
                             use are stored.''')
 
-        parser.add_argument('-R', '--run-mode', choices=RUN_MODES, default=PARALLEL,
+        parser.add_argument('-R', '--run-mode', choices=RUN_MODES, default=RUN_PARALLEL,
                             help=f'''Whether to run serially or in parallel by creating a dask cluster. 
-                            Default is "{PARALLEL}" when running more than one field or trial.''')
+                            Default is "{RUN_PARALLEL}" when running more than one field or trial.''')
 
         parser.add_argument('-s', '--simulation-dir',
                             help='''The top-level directory to use for this simulation "package"''')
-
-        parser.add_argument('-S', '--serial', action='store_true',
-                            help="Run the simulation serially in the currently running process.")
 
         parser.add_argument('-t', '--trials', default='all',
                             help='''The trials to run. Can be expressed as a string containing
@@ -201,14 +187,22 @@ class RunCommand(SubcommandABC):
 
     def run(self, args, tool):
         from ..error import OpgeeException, CommandlineError
-
         from ..model_file import ModelFile
 
-        # from ..mcs.simulation import run_many
+        # TBD: integrate args not previously used by runsim
+        # TBD: modify runsim to process different result modes?
+        if args.simulation_dir:
+            self.runsim(args)
+            return
+
+        # if what conditions?
+        # if running more than 1 field...
         #
-        # run_many(args.model_file, args.analysis, args.fields, args.output, count=args.num_fields,
-        #     start_with=args.start_with, save_after=args.save_after, skip_fields=args.skip_fields,
-        #     batch_start=args.batch_start, parallel=args.parallel)
+        #     from ..mcs.simulation import run_many
+        #
+        #     run_many(args.model_file, args.analysis, args.fields, args.output, count=args.num_fields,
+        #         start_with=args.start_with, save_after=args.save_after, skip_fields=args.skip_fields,
+        #         batch_start=args.batch_start, parallel=(args.run_mode == RUN_PARALLEL)
 
         use_default_model = not args.no_default_model
         model_files = args.model_file

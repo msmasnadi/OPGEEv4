@@ -275,7 +275,7 @@ def run_many(model_xml_file, analysis_name, field_names, output, count=0, start_
                 f.write(f"{result.analysis_name},{result.field_name},{result.error}\n")
 
     temp_dir = getParam('OPGEE.TempDir')
-    dir_name, filename = os.path.split(output)
+    dir_name, filename = os.path.split(output)      # TBD: output should be a directory since ext must be CSV.
     subdir = pathjoin(temp_dir, dir_name)
     basename, ext = os.path.splitext(filename)
 
@@ -329,7 +329,6 @@ def _run_field(analysis_name, field_name, xml_string):
 
 def run_parallel(model_xml_file, analysis_name, field_names, max_results=None):
     from dask.distributed import as_completed
-
     from ..model_file import extracted_model
     from ..mcs.distributed_mcs_dask import Manager
 
@@ -688,42 +687,10 @@ class Simulation(OpgeeObject):
             df.index.name = 'trial_num'
             self.save_trial_data(field_name)
 
-        # Old approach required instantiating the model just to check attributes
-        #
-        # for field in self.chosen_fields():
-        #     cols = []
-        #     rv_list = []
-        #     distributions = Distribution.distributions()
-        #
-        #     for dist in distributions:
-        #         target_attr = self.lookup(dist.full_name, field)
-        #
-        #         # If the object has an explicit value for an attribute, we ignore the distribution
-        #         if target_attr.explicit:
-        #             _logger.debug(f"{field} has an explicit value for '{dist.attr_name}'; ignoring distribution")
-        #             continue
-        #
-        #         rv_list.append(dist.rv)
-        #         cols.append(dist.attr_name if dist.class_name == 'Field' else dist.full_name)
-        #
-        #     if not cols:
-        #         raise McsUserError(f"Can't run MCS: all parameters with distributions have explicit values in {field}.")
-        #
-        #     self.trial_data_df = df = lhs(rv_list, trials, columns=cols, corrMat=corr_mat)
-        #     df.index.name = 'trial_num'
-        #     self.save_trial_data(field)
-
-
     def save_trial_data(self, field_name):
         filename = self.trial_data_path(field_name, mkdir=True)
         _logger.info(f"Writing '{filename}'")
         self.trial_data_df.to_csv(filename)
-
-    # Old approach
-    # def save_trial_data(self, field):
-    #     filename = self.trial_data_path(field, mkdir=True)
-    #     _logger.info(f"Writing '{filename}'")
-    #     self.trial_data_df.to_csv(filename)
 
     def save_trial_results(self, field, df, packet_num, failures):
         """
@@ -887,9 +854,10 @@ class Simulation(OpgeeObject):
 
         return completed
 
+    # Deprecated?
     def run(self, trial_nums, field_names=None):
         """
-        Run the given Monte Carlo trials for ``analysis``. If ``fields`` is
+        Run the Monte Carlo trials in ``trial_nums``. If ``fields_names`` is
         ``None``, all fields are run, otherwise, only the indicated fields are
         run.
 

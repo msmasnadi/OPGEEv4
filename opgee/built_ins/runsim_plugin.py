@@ -6,23 +6,7 @@
 # Copyright (c) 2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-from ..log import getLogger
 from ..subcommand import SubcommandABC
-
-_logger = getLogger(__name__)
-
-def positive_int(value):
-    import argparse
-
-    try:
-        i = int(value)
-    except:
-        i = 0   # the effect is to convert a ValueError into an ArgumentTypeError
-
-    if i <= 0:
-        raise argparse.ArgumentTypeError(f"{value} is not a positive integer")
-
-    return i
 
 class RunsimCommand(SubcommandABC):
     def __init__(self, subparsers):
@@ -31,33 +15,18 @@ class RunsimCommand(SubcommandABC):
 
     def addArgs(self, parser):
         from ..config import getParam, getParamAsInt
-        from ..utils import ParseCommaList
+        from ..utils import ParseCommaList, positive_int
         from ..mcs.simulation import RESULT_TYPES, DEFAULT_RESULT_TYPE, SIMPLE_RESULT, DETAILED_RESULT
 
-        # log_file  = getParam('OPGEE.LogFile')
-        # job_name  = getParam('SLURM.JobName')
-        # load_env  = getParam('SLURM.LoadEnvironment')
         partition = getParam('SLURM.Partition')
         min_per_task = getParam('SLURM.MinutesPerTask')
         packet_size = getParamAsInt('OPGEE.MaxTrialsPerPacket')
-
-        # parser.add_argument('-a', '--analysis',
-        #                     help='''The name of the analysis to run''')
-        #
-        # parser.add_argument('--overwrite', action='store_true',
-        #                     help='''OVERWRITE prior results, if any.''')
 
         cluster_types = ('local', 'slurm')
         cluster_type = getParam('OPGEE.ClusterType')
         parser.add_argument('-c', '--cluster-type', choices=cluster_types,
                             help=f'''The type of cluster to use. Defaults to value of config
                             variable 'OPGEE.ClusterType', currently "{cluster_type}".''')
-
-        # parser.add_argument('-E', "--load-env", default="",
-        #                     help=f'''A command to load your python and/or module environment. Default
-        #                         is the value of config variable "SLURM.LoadEnvironment, currently
-        #                         '{load_env}'".''')
-
         #
         # User can specify fields by name, or the number of fields to run MCS for, but not both.
         #
