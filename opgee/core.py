@@ -327,10 +327,13 @@ class TemperaturePressure(OpgeeObject):
 STP = TemperaturePressure(std_temperature, std_pressure)
 
 class Timer:
-    def __init__(self, feature_name):
+    def __init__(self, feature_name, start=True):
         self.feature_name = feature_name
         self.start_time = None
         self.stop_time  = None
+
+        if start:
+            self.start()
 
     def start(self):
         self.start_time = time.time()

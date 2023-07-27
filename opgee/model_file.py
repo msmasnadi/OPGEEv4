@@ -80,7 +80,7 @@ def fields_for_analysis(model_xml, analysis_name):
     :return: (list of str) the names of all the Fields in the given
         Analysis.
     """
-    timer = Timer('fields_for_analysis').start()
+    timer = Timer('fields_for_analysis')
 
     xml_file_obj = ModelCache.get_xml_file(model_xml)
 
@@ -225,7 +225,7 @@ class ModelFile(XMLFile):
             ignored when building the model from the XML. (Avoids long model build times for
             Monte Carlo simulations on a large number of fields.)
         """
-        load_timer = Timer('ModelFile load XML').start()
+        load_timer = Timer('ModelFile load XML')
 
         source = "XML string" if xml_string else pathnames
         _logger.debug(f"Loading model from: {source}")
@@ -353,7 +353,7 @@ class ModelFile(XMLFile):
 
         # the merge subcommand specifies instantiate_model=False, but normally the model is loaded.
         if instantiate_model:
-            build_timer = Timer('ModelFile build model').start()
+            build_timer = Timer('ModelFile build model')
             _logger.debug(build_timer)
             self.model = model = Model.from_xml(base_root, analysis_names=analysis_names,
                                                 field_names=field_names)
