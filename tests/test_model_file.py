@@ -30,6 +30,6 @@ def test_many_field_comparison():
 
     N = 4
     # run the first 4 only
-    energy_cols, emissions_cols, errors = run_serial(model_xml_file, analysis_name, field_names[:N])
+    results = run_serial(model_xml_file, analysis_name, field_names[:N])
 
-    assert len(energy_cols) + len(errors) == N
+    assert len(results) == N

@@ -13,7 +13,7 @@ import pandas as pd
 from . import ureg
 from .config import getParamAsList
 from .container import Container
-from .core import elt_name, instantiate_subelts, dict_from_list, STP
+from .core import elt_name, instantiate_subelts, dict_from_list, STP, magnitude
 from .energy import Energy
 from .error import (OpgeeException, OpgeeStopIteration, OpgeeMaxIterationsReached,
                     OpgeeIterationConverged, ModelValidationError, ZeroEnergyFlowError)
@@ -31,6 +31,31 @@ from .combine_streams import combine_streams
 from .bfs import bfs
 
 _logger = getLogger(__name__)
+
+SIMPLE_RESULT = 'simple'
+DETAILED_RESULT = 'detailed'
+ERROR_RESULT = 'error'
+DEFAULT_RESULT_TYPE = SIMPLE_RESULT
+RESULT_TYPES = (SIMPLE_RESULT, DETAILED_RESULT) # used by argument parser
+
+class FieldResult():
+    def __init__(self, analysis_name, field_name, result_type,
+                 energy_data=None, emissions_data=None, ci_results=None, error=None):
+        self.analysis_name = analysis_name
+        self.field_name = field_name
+        self.result_type = result_type
+        self.ci_results = ci_results    # list of tuples of (node_name, CI)
+        self.energy = energy_data
+        self.emissions = emissions_data
+        self.error = error
+
+    def __str__(self):
+        return f"<{self.__class__.__name__} analysis:{self.analysis_name} field:{self.field_name} error:{self.error}>"
+
+def total_emissions(proc, gwp):
+    rates = proc.emissions.rates(gwp)
+    total = rates.loc["GHG"].sum()
+    return magnitude(total)
 
 
 class Field(Container):
@@ -329,12 +354,14 @@ class Field(Container):
 
         :param analysis: (Analysis) the `Analysis` to use for analysis-specific settings.
         :param compute_ci: (bool) if False, CI calculation is not performed (used by some tests)
+        :param trial_num: (int) the trial number, if running in MCS mode. This is used only for
+            logging purposes.
         :return: None
         """
         from .core import Timer
 
         if self.is_enabled():
-            timer = Timer('field.run').start()
+            timer = Timer('field.run')
 
             trial_str = f"trial {trial_num} of " if trial_num is not None else ""
             _logger.info(f"Running {trial_str}'{self.name}'")
@@ -359,6 +386,8 @@ class Field(Container):
             self.get_emission_rates(analysis, procs_to_exclude=self.procs_beyond_boundary)
             self.carbon_intensity = self.compute_carbon_intensity(analysis) if compute_ci else None
             _logger.info(timer.stop())
+
+            # TBD: should this return a populated FieldResult?
 
 
     def reset(self):
@@ -423,8 +452,6 @@ class Field(Container):
         boundary_proc = self.boundary_process(analysis)
         combined_stream = combine_streams(boundary_proc.inputs)
 
-        # TODO: displacement method
-        obj = self.oil if analysis.fn_unit == 'oil' else self.gas
         # TODO: Add method to calculate petrocoke energy flow rate
         energy = self.oil.energy_flow_rate(combined_stream) + self.gas.energy_flow_rate(combined_stream)
 
@@ -467,6 +494,80 @@ class Field(Container):
             self.carbon_intensity = ci = (total_emissions / boundary_energy_flow_rate).to('grams/MJ')
 
         return ci
+
+    def partial_ci_values(self, analysis, nodes):
+        """
+        Compute partial CI for each node in ``nodes``, skipping boundary nodes, since
+        these have no emissions and serve only to identify the endpoint for CI
+        calculation.
+
+        :param analysis: (opgee.Analysis)
+        :param nodes: (list of Processes and/or Containers)
+        :return: A list of tuples of (item_name, partial_CI)
+        """
+        from .error import ZeroEnergyFlowError
+        from .process import Boundary
+
+        try:
+            energy = self.boundary_energy_flow_rate(analysis)
+
+        except ZeroEnergyFlowError:
+            _logger.error(f"Can't save results: zero energy flow at system boundary for {self}")
+            return None
+
+        def partial_ci(obj):
+            ghgs = obj.emissions.data.sum(axis='columns')['GHG']
+            if not isinstance(ghgs, pint.Quantity):
+                ghgs = ureg.Quantity(ghgs, "tonne/day")
+
+            ci = ghgs / energy
+            # convert to g/MJ, but we don't need units in CSV file
+            return ci.to("grams/MJ").m
+
+        results = [(obj.name, partial_ci(obj)) for obj in nodes if not isinstance(obj, Boundary)]
+        return results
+
+    def energy_and_emissions(self, analysis):
+        import pandas as pd
+
+        gwp = analysis.gwp
+        procs = self.processes()
+        energy_by_proc = {proc.name: magnitude(proc.energy.rates().sum()) for proc in procs}
+        energy_data = pd.Series(energy_by_proc, name=self.name)
+
+        emissions_by_proc = {proc.name: total_emissions(proc, gwp) for proc in procs}
+        emissions_data = pd.Series(emissions_by_proc, name=self.name)
+        return energy_data, emissions_data
+
+    def get_result(self, analysis, result_type) -> FieldResult:
+        """
+        Collect results according to ``result_type``
+
+        :param analysis: (Analysis) the analysis this field is part of
+        :param result_type: (str) whether to return detailed or simple results. Legal values
+            are DETAILED_RESULT or SIMPLE_RESULT.
+        :return: (FieldResult) results
+        """
+        energy_data, emissions_data = (self.energy_and_emissions(analysis)
+                                       if result_type == DETAILED_RESULT
+                                       else (None, None))
+
+        nodes = self.processes() if DETAILED_RESULT else self.children()
+        ci_tuples = self.partial_ci_values(analysis, nodes)
+
+        ci_results = []     # list of tuples of (node_name, CI)
+
+        if ci_tuples is not None:
+            ci_results.append(('TOTAL', self.carbon_intensity.m))
+
+            for name, ci in ci_tuples:
+                    ci_results.append((name, ci))
+
+        result = FieldResult(analysis.name, self.name, result_type,
+                             ci_results=ci_results or None,
+                             energy_data=energy_data,
+                             emissions_data=emissions_data)
+        return result
 
     def get_imported_emissions(self, net_import):
         """

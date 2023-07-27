@@ -16,7 +16,7 @@ class RunsimCommand(SubcommandABC):
     def addArgs(self, parser):
         from ..config import getParam, getParamAsInt
         from ..utils import ParseCommaList, positive_int
-        from ..mcs.simulation import RESULT_TYPES, DEFAULT_RESULT_TYPE, SIMPLE_RESULT, DETAILED_RESULT
+        from ..field import RESULT_TYPES, DEFAULT_RESULT_TYPE, SIMPLE_RESULT, DETAILED_RESULT
 
         partition = getParam('SLURM.Partition')
         min_per_task = getParam('SLURM.MinutesPerTask')

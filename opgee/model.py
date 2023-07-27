@@ -149,39 +149,6 @@ class Model(Container):
         """
         return self.analyses()  # N.B. returns an iterator
 
-
-    def partial_ci_values(self, analysis, field, nodes):
-        """
-        Compute partial CI for each node in ``nodes``, skipping boundary nodes, since
-        these have no emissions and serve only to identify the endpoint for CI calculation.
-
-        :param analysis: (opgee.Analysis)
-        :param field: (opgee.Field)
-        :param nodes: (list of Processes and/or Containers)
-        :return: A list of tuples of (item_name, partial_CI)
-        """
-        from .error import ZeroEnergyFlowError
-        from .process import Boundary
-
-        try:
-            energy = field.boundary_energy_flow_rate(analysis)
-
-        except ZeroEnergyFlowError:
-            _logger.error(f"Can't save results: zero energy flow at system boundary for {field}")
-            return None
-
-        def partial_ci(obj):
-            ghgs = obj.emissions.data.sum(axis='columns')['GHG']
-            if not isinstance(ghgs, pint.Quantity):
-                ghgs = ureg.Quantity(ghgs, "tonne/day")
-
-            ci = ghgs / energy
-            # convert to g/MJ, but we don't need units in CSV file
-            return ci.to("grams/MJ").m
-
-        results = [(obj.name, partial_ci(obj)) for obj in nodes if not isinstance(obj, Boundary)]
-        return results
-
     def save_results(self, tuples, csvpath, by_process=False):
         """
         Save the carbon intensity (CI) results for the indicated (field, analysis)
@@ -199,8 +166,9 @@ class Model(Container):
         rows = []
 
         for (field, analysis) in tuples:
+            # TBD: modify to use field.get_result()
             nodes = field.processes() if by_process else field.children()
-            ci_tuples = self.partial_ci_values(analysis, field, nodes)
+            ci_tuples = field.partial_ci_values(analysis, nodes)
 
             fld_name = field.name
             ana_name = analysis.name

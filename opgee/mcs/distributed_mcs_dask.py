@@ -64,19 +64,22 @@ class FieldStatus(OpgeeObject):
         packet_info = "" if self.packet_num is None else f"[{self.packet_num}]"
         return f"<FieldStatus {self.completed} trials of {self.field_name}{packet_info} in {self.duration}; task_count:{self.task_count} error:{self.error}>"
 
-def run_field(sim_dir, field_name, trial_nums=None, packet_num=None):
+# TBD: revise this to take Packet instance and iterate as needed over pkt.trial_nums or pkt.field_names
+#  And to return a FieldResult
+def run_field(sim_dir,
+              field_name, trial_nums=None, packet_num=None):   # TBD: modify to take Packet instance rather than these 3 args
     """
     Run the trials ``trial_nums`` for ``field``, serially. In distributed mode,
     this is run in each worker process.
 
     :param sim_dir: (str) the directory containing the simulation information
     :param field_name: (str) the name of the field to run
-    :param trial_nums: (list of int) trial numbers to run. If ``None``, run all trials.
+    :param trial_nums: (list of int) trial numbers to run
     :param packet_num: (int) if not None, the sequential number for this packet
       in ``field``. This is used to name files holding results for this packet.
     :return: (FieldStatus)
     """
-    timer = Timer('run_field').start()
+    timer = Timer('run_field')
 
     sim = Simulation(sim_dir, field_names=[field_name], save_to_path='')
     field = sim.analysis.get_field(field_name)
@@ -93,7 +96,8 @@ def run_field(sim_dir, field_name, trial_nums=None, packet_num=None):
 
         error = None
         try:
-            completed = sim.run_field(field, trial_nums, packet_num=packet_num)
+            # TBD: handle special case of None => "all trials" with Packet?
+            completed = sim.run_field(field_name, trial_nums, packet_num=packet_num)
 
         except TrialErrorWrapper as e:
             trial = e.trial
@@ -242,7 +246,7 @@ class Manager(OpgeeObject):
         """
         from ..utils import parseTrialString
 
-        timer = Timer('Manager.run_mcs').start()
+        timer = Timer('Manager.run_mcs')
 
         sim = Simulation(sim_dir, field_names=field_names, save_to_path='')
 
@@ -262,12 +266,13 @@ class Manager(OpgeeObject):
         client = self.start_cluster(num_engines=num_engines, minutes_per_task=minutes_per_task)
 
         # Split trial_nums into packets of max 'packet_size'
-        packets = batched(trial_nums, packet_size)
+        packets = batched(trial_nums, packet_size)      # TBD: generate Packet instances instead
 
+        # TBD: modify to take Packet instance
         def _run_field(tup):
             field_name, (packet_num, trial_nums) = tup
 
-            return run_field(sim_dir, field_name,
+            return run_field(sim_dir, field_name,   # TBD: pass Packet instance instead
                              trial_nums=trial_nums,
                              packet_num=packet_num)
 

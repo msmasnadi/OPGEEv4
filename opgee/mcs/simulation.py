@@ -13,8 +13,9 @@ import re
 import traceback
 
 from ..config import pathjoin
-from ..core import OpgeeObject, split_attr_name, Timer, magnitude
+from ..core import OpgeeObject, split_attr_name, Timer
 from ..error import OpgeeException, McsSystemError, McsUserError, CommandlineError
+from ..field import FieldResult, DETAILED_RESULT, SIMPLE_RESULT, ERROR_RESULT
 from ..log import getLogger
 from ..model_file import ModelFile
 from ..pkg_utils import resourceStream
@@ -35,40 +36,8 @@ DISTROS_CSV = 'mcs/etc/parameter_distributions.csv'
 
 DEFAULT_DIGITS = 3
 
-SIMPLE_RESULT = 'simple'
-DETAILED_RESULT = 'detailed'
-DEFAULT_RESULT_TYPE = SIMPLE_RESULT
-RESULT_TYPES = (SIMPLE_RESULT, DETAILED_RESULT)
-
-class DetailedResult():
-    def __init__(self, analysis_name, field_name, energy_data, emissions_data, error=None):
-        self.analysis_name = analysis_name
-        self.field_name = field_name
-        self.energy = energy_data
-        self.emissions = emissions_data
-        self.error = error
-
-    def __str__(self):
-        return f"<DetailedResult analysis:{self.analysis_name} field:{self.field_name} error:{self.error}>"
-
 def roundmag(quantity, digits=DEFAULT_DIGITS):          # pragma: no cover
     return round(quantity.m, digits)
-
-def total_emissions(proc, gwp):
-    rates = proc.emissions.rates(gwp)
-    total = rates.loc["GHG"].sum()
-    return magnitude(total)
-
-def energy_and_emissions(field, gwp):
-    import pandas as pd
-
-    procs = field.processes()
-    energy_by_proc = {proc.name: magnitude(proc.energy.rates().sum()) for proc in procs}
-    energy_data = pd.Series(energy_by_proc, name=field.name)
-
-    emissions_by_proc = {proc.name: total_emissions(proc, gwp) for proc in procs}
-    emissions_data = pd.Series(emissions_by_proc, name=field.name)
-    return energy_data, emissions_data
 
 def _combine(filenames, output_name):
     if not filenames:
@@ -282,10 +251,15 @@ def run_many(model_xml_file, analysis_name, field_names, output, count=0, start_
     if save_after:
         batch = batch_start   # used in naming result files
 
-        for vectors in run_parallel(model_xml_file, analysis_name, field_names,
+        for results in run_parallel(model_xml_file, analysis_name, field_names,
                                     max_results=save_after):
 
-            energy_cols, emissions_cols, errors = vectors
+            energy_cols = [r.energy for r in results if r.error is None]
+            emissions_cols = [r.emissions for r in results if r.error is None]
+            errors = [r.error for r in results if r.error is not None]
+
+            # TBD: save CI results
+            # _save_cols(energy_cols, pathjoin(subdir, f"{basename}-CI{ext}"))
 
             _save_cols(energy_cols,    pathjoin(subdir, f"{basename}-energy-{batch}{ext}"))
             _save_cols(emissions_cols, pathjoin(subdir, f"{basename}-emissions-{batch}{ext}"))
@@ -296,15 +270,22 @@ def run_many(model_xml_file, analysis_name, field_names, output, count=0, start_
     else:
         # If not running in batches, save all results at the end
         run_func = run_parallel if parallel else run_serial
-        energy_cols, emissions_cols, errors = run_func(model_xml_file, analysis_name,
-                                                       field_names)
+        results = run_func(model_xml_file, analysis_name, field_names,
+                           max_results=save_after)
+
+        energy_cols = [r.energy for r in results if r.error is None]
+        emissions_cols = [r.emissions for r in results if r.error is None]
+        errors = [r.error for r in results if r.error is not None]
+
+        # TBD: save CI results
+        #_save_cols(energy_cols, pathjoin(subdir, f"{basename}-CI{ext}"))
 
         # Insert "-energy" or "-emissions" between basename and extension
         _save_cols(energy_cols,    pathjoin(subdir, f"{basename}-energy{ext}"))
         _save_cols(emissions_cols, pathjoin(subdir, f"{basename}-emissions{ext}"))
         _save_errors(errors,       pathjoin(subdir, f"{basename}-errors.csv"))
 
-def _run_field(analysis_name, field_name, xml_string):
+def _run_field(analysis_name, field_name, xml_string, result_type=DETAILED_RESULT):
     from ..model_file import ModelFile
 
     try:
@@ -316,25 +297,24 @@ def _run_field(analysis_name, field_name, xml_string):
 
         analysis = mf.model.get_analysis(analysis_name)
         field = analysis.get_field(field_name)
-
         field.run(analysis)
-        energy_data, emissions_data = energy_and_emissions(field, analysis.gwp)
-        result = DetailedResult(analysis_name, field_name, energy_data, emissions_data)
+        result = field.get_result(result_type)
 
     except Exception as e:
-        result = DetailedResult(analysis_name, field_name, None, None, error=str(e))
+        result = FieldResult(analysis_name, field_name, ERROR_RESULT, error=str(e))
 
     return result
 
 
-def run_parallel(model_xml_file, analysis_name, field_names, max_results=None):
+def run_parallel(model_xml_file, analysis_name, field_names,
+                 max_results=None, result_type=DETAILED_RESULT):
     from dask.distributed import as_completed
     from ..model_file import extracted_model
     from ..mcs.distributed_mcs_dask import Manager
 
     mgr = Manager(cluster_type='local')
 
-    timer = Timer('run_parallel').start()
+    timer = Timer('run_parallel')
 
     # Put the log for the monitor process in the simulation directory.
     # Workers will set the log file to within the directory for the
@@ -352,36 +332,30 @@ def run_parallel(model_xml_file, analysis_name, field_names, max_results=None):
                                                   field_names=field_names,
                                                   as_string=True):
 
-        future = client.submit(_run_field, analysis_name, field_name, xml_string)
+        future = client.submit(_run_field, analysis_name, field_name, xml_string,
+                               result_type=result_type)
         futures.append(future)
 
-    energy_cols = []
-    emission_cols = []
-    errors = []
-
+    results = []
     count = 0   # used if we're returning results in batches
 
     # Wait for and process results
     for future, result in as_completed(futures, with_results=True):
         if max_results and count == 0:
-            energy_cols.clear()
-            emission_cols.clear()
-            errors.clear()
+            results.clear()
 
         if result.error:
             _logger.error(f"Failed: {result}")
-            errors.append(result)
         else:
             _logger.debug(f"Succeeded: {result}")
 
-            energy_cols.append(result.energy)
-            emission_cols.append(result.emissions)
+        results.append(result)
 
         if max_results:
             if count == max_results:
                 count = 0
                 # return the next batch
-                yield energy_cols, emission_cols, errors
+                yield results
             else:
                 count += 1
 
@@ -391,32 +365,30 @@ def run_parallel(model_xml_file, analysis_name, field_names, max_results=None):
     _logger.info(timer.stop())
 
     if count:
-        yield energy_cols, emission_cols, errors
+        yield results
     else:
-        return energy_cols, emission_cols, errors
+        return results
 
-def run_serial(model_xml_file, analysis_name, field_names):
+def run_serial(model_xml_file, analysis_name, field_names, result_type=DETAILED_RESULT):
     from ..model_file import extracted_model
 
-    timer = Timer('run_serial').start()
+    timer = Timer('run_serial')
 
-    energy_cols = []
-    emission_cols = []
+    results = []
     errors = []
 
     for field_name, xml_string in extracted_model(model_xml_file, analysis_name,
                                                   field_names=field_names,
                                                   as_string=True):
-        result = _run_field(analysis_name, field_name, xml_string)
+        result = _run_field(analysis_name, field_name, xml_string, result_type=result_type)
         if result.error:
             _logger.error(f"Failed: {result}")
             errors.append(result)
         else:
-            energy_cols.append(result.energy)
-            emission_cols.append(result.emissions)
+            results.append(result)
 
     _logger.info(timer.stop())
-    return energy_cols, emission_cols, errors
+    return results
 
 class Simulation(OpgeeObject):
     # TBD: update this document string
@@ -437,7 +409,7 @@ class Simulation(OpgeeObject):
 
     - `trials`: a directory holding subdirectories for each trial, allowing each to be run
       independently (e.g., on a multi-core or cluster computer). The directory structure under
-      ``trials`` comprises two levels of 3-digit values, which, when concatenated form the
+      ``trials`` comprises two levels of 3-digit values, which, when concatenated, form the
       trial number. That is, trial 1,423 would be found in ``trials/001/423``. This allows
       up to 1 million trials while ensuring that no directory contains more than 1000 items.
       Limiting directory size improves performance.
@@ -773,7 +745,7 @@ class Simulation(OpgeeObject):
                 attr.explicit = True
                 attr.set_value(value)
 
-    def run_field(self, field, trial_nums, packet_num=None):
+    def run_field(self, field_name, trial_nums, packet_num=None, result_type=SIMPLE_RESULT):
         """
         Run the Monte Carlo trials ``trial_nums` for ``field``, serially.
         Save the (full or partial) results for this field to a CSV file in
@@ -801,7 +773,7 @@ class Simulation(OpgeeObject):
                 self.load_model()
 
                 # Use the new instance of field from the reloaded model
-                field = self.analysis.get_field(field.name)
+                field = self.analysis.get_field(field_name)
 
                 self.set_trial_data(field, trial_num)
 
@@ -865,14 +837,14 @@ class Simulation(OpgeeObject):
         :param field_names: (list of str) names of fields to run
         :return: none
         """
-        timer = Timer('Simulation.run').start()
+        timer = Timer('Simulation.run')
 
         ana = self.analysis
         fields = [ana.get_field(name) for name in field_names] if field_names else self.chosen_fields()
 
         for field in fields:
             if field.is_enabled():
-                self.run_field(field, trial_nums)
+                self.run_field(field.name, trial_nums)
             else:
                 _logger.info(f"Ignoring disabled {field}")
 
