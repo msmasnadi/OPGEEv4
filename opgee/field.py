@@ -364,6 +364,7 @@ class Field(Container):
     def reset(self):
         self.reset_streams()
         self.reset_processes()
+        # TODO: self.process_data.clear()
 
         SmartDefault.decache()
         decache_subclasses()
