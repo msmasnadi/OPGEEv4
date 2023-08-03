@@ -10,31 +10,20 @@ import asyncio
 import dask
 from dask_jobqueue import SLURMCluster
 from dask.distributed import Client, LocalCluster, as_completed
-from itertools import islice, product
+
+from ..core import OpgeeObject, Timer
+from ..config import getParam, getParamAsInt, getParamAsBoolean
+from ..error import RemoteError, McsSystemError
+from ..field import SIMPLE_RESULT
+from ..log  import getLogger, setLogFile
+from .packet import AbsPacket, TrialPacket
+from .simulation import Simulation, combine_results
 
 # To debug dask, uncomment the following 2 lines
 # import logging
 # logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
-from ..core import OpgeeObject, Timer
-from ..config import getParam, getParamAsInt, getParamAsBoolean
-from ..error import RemoteError, McsSystemError, TrialErrorWrapper
-from ..log  import getLogger, setLogFile
-from .simulation import Simulation, combine_results
-
 _logger = getLogger(__name__)
-
-# From recipes at https://docs.python.org/3/library/itertools.html
-def batched(iterable, n):
-    "Batch data into tuples of length n. The last batch may be shorter."
-    # batched('ABCDEFG', 3) --> ABC DEF G
-    if n < 1:
-        raise ValueError('batched: n must be at least one')
-
-    it = iter(iterable)
-    while batch := tuple(islice(it, n)):
-        yield batch
-
 
 def _walltime(minutes: int) -> str:
     """
@@ -64,23 +53,21 @@ class FieldStatus(OpgeeObject):
         packet_info = "" if self.packet_num is None else f"[{self.packet_num}]"
         return f"<FieldStatus {self.completed} trials of {self.field_name}{packet_info} in {self.duration}; task_count:{self.task_count} error:{self.error}>"
 
-# TBD: revise this to take Packet instance and iterate as needed over pkt.trial_nums or pkt.field_names
-#  And to return a FieldResult
-def run_field(sim_dir,
-              field_name, trial_nums=None, packet_num=None):   # TBD: modify to take Packet instance rather than these 3 args
+# TBD: revise this to iterate over pkt.trial_nums or pkt.field_names and
+#   return a FieldResult. Should be no need for a RemoteError result.
+def run_field(packet: TrialPacket, result_type=SIMPLE_RESULT):
     """
     Run the trials ``trial_nums`` for ``field``, serially. In distributed mode,
     this is run in each worker process.
 
-    :param sim_dir: (str) the directory containing the simulation information
-    :param field_name: (str) the name of the field to run
-    :param trial_nums: (list of int) trial numbers to run
-    :param packet_num: (int) if not None, the sequential number for this packet
-      in ``field``. This is used to name files holding results for this packet.
-    :return: (FieldStatus)
+    :param packet: (TrialPacket) description of model runs to execute.
+    :return: (list of FieldResult)
     """
     timer = Timer('run_field')
 
+    field_name = packet.field_name
+
+    sim_dir = packet.sim_dir
     sim = Simulation(sim_dir, field_names=[field_name], save_to_path='')
     field = sim.analysis.get_field(field_name)
 
@@ -96,8 +83,7 @@ def run_field(sim_dir,
 
         error = None
         try:
-            # TBD: handle special case of None => "all trials" with Packet?
-            completed = sim.run_field(field_name, trial_nums, packet_num=packet_num)
+            completed = sim.run_field(packet, result_type=result_type)
 
         except TrialErrorWrapper as e:
             trial = e.trial
@@ -226,17 +212,66 @@ class Manager(OpgeeObject):
 
         self.client = self.cluster = None
 
-    def run_mcs(self, sim_dir, packet_size : int, field_names=None, num_engines=0,
-                trial_nums=None, minutes_per_task=None, collect=False,
-                delete_partials=False):
+    # TBD: Model this after (or merge with) simulation.run_parallel using yield
+    def run_packets(self,
+                    packets: list[AbsPacket],
+                    result_type: str = SIMPLE_RESULT,
+                    num_engines: int = 0,
+                    minutes_per_task: int = 10):
+        """
+        Run a set of packets (i.e., FieldPackets or TrialPackets) on a dask cluster.
+
+        :param packets: (list of AbsPacket) the packets describing model runs to execute
+        :param result_type: (str) either SIMPLE_RESULT or DETAILED_RESULT.
+        :param num_engines: (int) the number of worker tasks to start
+        :param minutes_per_task: (int) how many minutes of walltime to allocate for each worker.
+        :return: (list of FieldResult) results for individual runs.
+        """
+        timer = Timer('Manager.run_packets')
+
+        # N.B. start_cluster saves client in self.client and returns it as well
+        client = self.start_cluster(num_engines=num_engines, minutes_per_task=minutes_per_task)
+
+        # Start the worker processes on all available CPUs.
+        futures = client.map(lambda pkt: run_field(pkt, result_type=result_type),
+                             packets)
+        results_list = []
+
+        # TBD: modify to write CSV files here rather than in workers
+        for future, results in as_completed(futures, with_results=True):
+            # if result.error:
+            #     _logger.error(f"Failed: {result}")
+            #     #traceback.print_exc()
+            # else:
+            #     _logger.debug(f"Succeeded: {result}")
+
+            # TBD: or do
+            # yield results
+            results_list.append(results)
+
+        _logger.debug("Workers finished")
+
+        # if collect:
+        #     combine_results(sim_dir, field_names, delete=delete_partials)
+
+        self.stop_cluster()
+        _logger.info(timer.stop())
+
+        return results_list
+
+    def run_mcs(self,
+                packets: list[TrialPacket],
+                result_type: str = SIMPLE_RESULT,
+                num_engines: int = 0,
+                minutes_per_task: int = None,
+                # collect=False, delete_partials=False
+                ):
         """
         Run a Monte Carlo simulation on a dask cluster.
 
-        :param sim_dir: (str) the directory containing the simulation information
-        :param packet_size: (int) the target number of trials to run serially on a worker task.
-        :param field_names: (list of str) the names of the fields to run
+        :param field_names: (list of str) the names of the fields to run; empty list or ``None``
+            implies use all fields found in the ``Simulation`` metadata.
         :param num_engines: (int) the number of worker tasks to start
-        :param trial_nums: (list of int) trial numbers to run. If ``None``, run all trials.
         :param minutes_per_task: (int) how many minutes of walltime to allocate for each worker.
         :param collect: (bool) whether to combine all partial (packet) results and failures
             into a single results and single failures file.
@@ -244,11 +279,7 @@ class Manager(OpgeeObject):
             combining them. Ignored if collect is False.
         :return: nothing
         """
-        from ..utils import parseTrialString
-
-        timer = Timer('Manager.run_mcs')
-
-        sim = Simulation(sim_dir, field_names=field_names, save_to_path='')
+        sim_dir = packets[0].sim_dir    # should be same for all packets
 
         # Put the log for the monitor process in the simulation directory.
         # Workers will set the log file to within the directory for the
@@ -256,42 +287,9 @@ class Manager(OpgeeObject):
         log_file = f"{sim_dir}/opgee-mcs.log"
         setLogFile(log_file, remove_old_file=True)
 
-        trial_nums = range(sim.trials) if trial_nums == 'all' else parseTrialString(trial_nums)
-
-        # TBD: check for unknown field names
-        # Caller can specify a subset of possible fields to run. Default is to run all.
-        field_names = field_names or sim.field_names
-
-        # N.B. start_cluster saves client in self.client and returns it as well
-        client = self.start_cluster(num_engines=num_engines, minutes_per_task=minutes_per_task)
-
-        # Split trial_nums into packets of max 'packet_size'
-        packets = batched(trial_nums, packet_size)      # TBD: generate Packet instances instead
-
-        # TBD: modify to take Packet instance
-        def _run_field(tup):
-            field_name, (packet_num, trial_nums) = tup
-
-            return run_field(sim_dir, field_name,   # TBD: pass Packet instance instead
-                             trial_nums=trial_nums,
-                             packet_num=packet_num)
-
-        # Start the worker processes on all available CPUs.
-        # Note that "list(product())" is required since map doesn't support iterators.
-        futures = client.map(_run_field, list(product(field_names, enumerate(packets))))
-
-        for future, result in as_completed(futures, with_results=True):
-            if result.error:
-                _logger.error(f"Failed: {result}")
-                #traceback.print_exc()
-            else:
-                _logger.debug(f"Succeeded: {result}")
-
-        _logger.debug("Workers finished")
-
-        if collect:
-            combine_results(sim_dir, field_names, delete=delete_partials)
-
-        self.stop_cluster()
-        _logger.info(timer.stop())
+        results_list = self.run_packets(packets,
+                                        result_type=result_type,
+                                        num_engines=num_engines,
+                                        minutes_per_task=minutes_per_task)
+        return results_list
 

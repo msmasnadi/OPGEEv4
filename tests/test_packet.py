@@ -1,35 +1,26 @@
 import pytest
-from opgee.error import OpgeeException
-from opgee.mcs.packet import Packet
+from opgee.mcs.packet import FieldPacket, TrialPacket, _batched
 
-def test_exceptions():
-    analysis = "a1"
+def test_batched():
+    with pytest.raises(ValueError, match="_batched: length must be > 0"):
+        list(_batched([1, 2, 3], 0))
 
-    with pytest.raises(OpgeeException, match="Packet must be initialized with trial_nums and field_name, or field_names"):
-        Packet(analysis, trial_nums=[1, 2, 3])
-
-    with pytest.raises(OpgeeException, match="Packet must be initialized with either trial_nums or field_names, not both"):
-        Packet(analysis, trial_nums=[1, 2, 3], field_name="foo", field_names=['a', 'b'])
-
-def test_mcs_case():
+def test_trial_packet():
     trial_nums = [1, 2, 4, 5, 10]
     field_name = 'field-1'
-    analysis_name = 'a2'
-    pkt = Packet(analysis_name, trial_nums=trial_nums, field_name=field_name)
+    sim_dir = '/foo/bar/baz'
+    pkt = TrialPacket(sim_dir, field_name, trial_nums)
 
-    assert pkt.analysis_name == analysis_name
-    assert pkt.is_mcs
-    assert pkt.field_names is None
+    assert pkt.sim_dir == sim_dir
+    assert pkt.items == trial_nums
     assert pkt.field_name == field_name
     assert list(n for n in pkt) == trial_nums
 
-def test_non_mcs_case():
+def test_field_packet():
     field_names = ['a', 'b', 'c', 'd']
     analysis_name = 'a3'
-    pkt = Packet(analysis_name, field_names=field_names)
+    pkt = FieldPacket(analysis_name, field_names)
 
     assert pkt.analysis_name == analysis_name
-    assert not pkt.is_mcs
-    assert pkt.field_names == field_names
-    assert pkt.field_name is None
+    assert pkt.items == field_names
     assert list(n for n in pkt) == field_names

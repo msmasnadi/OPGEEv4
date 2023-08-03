@@ -7,9 +7,9 @@ from .run_plugin import RunCommand
 from .csv2xml_plugin import Csv2XmlCommand
 from .merge_plugin import MergeCommand
 from .gensim_plugin import GensimCommand
-from .runsim_plugin import RunsimCommand
+#from .runsim_plugin import RunsimCommand
 #from .genwor_plugin import GenworCommand
-from .runmany_plugin import RunManyCommand
+#from .runmany_plugin import RunManyCommand
 
 BuiltinSubcommands = [
     CollectCommand,
@@ -22,6 +22,6 @@ BuiltinSubcommands = [
     GUICommand,
     MergeCommand,
     RunCommand,
-    RunManyCommand,
-    RunsimCommand,
+    # RunManyCommand,
+    # RunsimCommand,
 ]

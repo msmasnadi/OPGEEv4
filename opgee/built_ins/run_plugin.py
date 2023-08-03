@@ -153,6 +153,7 @@ class RunCommand(SubcommandABC):
         from ..utils import parseTrialString
         from ..mcs.simulation import Simulation
         from ..mcs.distributed_mcs_dask import Manager, run_field
+        from ..mcs.packet import TrialPacket
 
         sim_dir = args.simulation_dir
         field_names = args.fields or []
@@ -163,26 +164,41 @@ class RunCommand(SubcommandABC):
             raise OpgeeException(f"Must specify field names (-f/--fields), number of fields "
                                  f"(-N/--num-fields) or number of tasks (-n/--ntasks)")
 
+        metadata = Simulation.read_metadata(sim_dir)
+
         if not field_names:
-            metadata = Simulation.read_metadata(sim_dir)
             field_names = metadata['field_names']
 
         if num_fields:
             field_names = field_names[:num_fields]
 
+        trial_nums = metadata['trials'] if args.trials == 'all' else parseTrialString(args.trials)
+
         if ntasks is None:
             ntasks = len(field_names)
 
+        packets = TrialPacket.packetize(sim_dir, field_names, trial_nums, args.packet_size)
+
         if args.serial:
-            trial_nums = (None if args.trials == 'all' else parseTrialString(args.trials))
-            for field_name in field_names:
-                run_field(sim_dir, field_name, trial_nums=trial_nums)
+            for packet in packets:
+                run_field(packet)
         else:
+            from ..log import setLogFile
+
+            # Put the log for the monitor process in the simulation directory.
+            # Workers will set the log file to within the directory for the
+            # field it's currently running.
+            log_file = f"{sim_dir}/opgee-mcs.log"
+            setLogFile(log_file, remove_old_file=True)
+
             mgr = Manager(cluster_type=args.cluster_type)
-            mgr.run_mcs(sim_dir, args.packet_size, field_names=field_names,
-                        num_engines=ntasks, trial_nums=args.trials,
-                        minutes_per_task=args.minutes,
-                        collect=args.collect)
+            results = mgr.run_packets(packets,
+                                      result_type=args.result_type,
+                                      num_engines=ntasks,
+                                      minutes_per_task=args.minutes)
+                                      # , collect=args.collect)
+
+            # TBD: save results!!
 
 
     def run(self, args, tool):

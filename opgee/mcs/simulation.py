@@ -21,8 +21,9 @@ from ..model_file import ModelFile
 from ..pkg_utils import resourceStream
 from ..utils import mkdirs, removeTree, pushd
 
-from .LHS import lhs
 from .distro import get_frozen_rv
+from .LHS import lhs
+from .packet import TrialPacket
 
 _logger = getLogger(__name__)
 
@@ -375,7 +376,6 @@ def run_serial(model_xml_file, analysis_name, field_names, result_type=DETAILED_
     timer = Timer('run_serial')
 
     results = []
-    errors = []
 
     for field_name, xml_string in extracted_model(model_xml_file, analysis_name,
                                                   field_names=field_names,
@@ -383,9 +383,8 @@ def run_serial(model_xml_file, analysis_name, field_names, result_type=DETAILED_
         result = _run_field(analysis_name, field_name, xml_string, result_type=result_type)
         if result.error:
             _logger.error(f"Failed: {result}")
-            errors.append(result)
-        else:
-            results.append(result)
+
+        results.append(result)
 
     _logger.info(timer.stop())
     return results
@@ -516,7 +515,7 @@ class Simulation(OpgeeObject):
     def new(cls, sim_dir, model_files, analysis_name, trials,
             field_names=None, overwrite=False, use_default_model=True):
         """
-        Create the simulation directory and the ``sandboxes`` sub-directory.
+        Create the simulation directory and the ``sandboxes`` subdirectory.
 
         :param sim_dir: (str) the top-level simulation directory
         :param model_files: (list of XML filenames) the XML files to load, in order to be merged
@@ -735,8 +734,10 @@ class Simulation(OpgeeObject):
         s = df.loc[trial_num]
         return s
 
-    def set_trial_data(self, field, trial_num):
-        _logger.debug(f"set_trial_data for trial {trial_num})")
+    def set_trial_data(self, analysis, field, trial_num):
+        from ..smart_defaults import SmartDefault
+
+        _logger.debug(f"set_trial_data for field {field.name}, trial {trial_num}")
         data = self.trial_data(field, trial_num)
 
         for name, value in data.items():
@@ -745,113 +746,118 @@ class Simulation(OpgeeObject):
                 attr.explicit = True
                 attr.set_value(value)
 
-    def run_field(self, field_name, trial_nums, packet_num=None, result_type=SIMPLE_RESULT):
+        # TBD: test this
+        SmartDefault.apply_defaults(field, analysis=analysis)
+
+
+    # TBD: the only difference between run_many (fields) and runsim (trials) should
+    #  be that MCS requires that we call set_trial_data.
+    def run_field(self, packet: TrialPacket, result_type=SIMPLE_RESULT):
         """
         Run the Monte Carlo trials ``trial_nums` for ``field``, serially.
         Save the (full or partial) results for this field to a CSV file in
         the simulation directory.
 
-        :param field: (opgee.Field) the Field to evaluate in MCS
-        :param trial_nums: (iterator of ints) the trial numbers to run, or
-           ``None`` to run all trials.
-        :param packet_num: (int) the sequence number of the current packet
-            within ``field``. If not None, used for naming files containing
-            partial results.
-        :return: (int) the number of successfully run trials
+        :param packet: (TrialPacket) info describing a set of model runs to execute.
+        :param result_type: (str) either SIMPLE_RESULT or DETAILED_RESULT.
+        :return: (list of FieldResult) describing results for trials indicated
+            by ``packet``.
         """
-        from ..smart_defaults import SmartDefault
+        field_name = packet.field_name
 
-        trial_nums = range(self.trials) if trial_nums is None else trial_nums
-
-        completed = 0
         results = []
-        failures = []
 
-        for trial_num in trial_nums:
+        for trial_num in packet:
             try:
                 # Reload from cached XML string to avoid stale state
                 self.load_model()
+                analysis = self.analysis
 
                 # Use the new instance of field from the reloaded model
-                field = self.analysis.get_field(field_name)
+                field = analysis.get_field(field_name)
 
-                self.set_trial_data(field, trial_num)
+                self.set_trial_data(analysis, field, trial_num)
 
-                # TBD: test this
-                SmartDefault.apply_defaults(field, analysis=self.analysis)
-
-                field.run(self.analysis, compute_ci=True, trial_num=trial_num)
-                # field.report()
-                completed += 1
+                field.run(analysis, compute_ci=True, trial_num=trial_num)
+                result = field.get_result(analysis, result_type=result_type)
+                results.append(result)
 
             except Exception as e:
-                failures.append((trial_num, e))
-                _logger.warning(f"Exception raised in trial {trial_num} in {field}: {e}")
+                errmsg = f"Trial {trial_num}: {e}"
+                result = FieldResult(self.analysis.name, field_name, ERROR_RESULT, error=errmsg)
+                results.append(result)
+
+                _logger.warning(f"Exception raised in trial {trial_num} in {field_name}: {e}")
                 _logger.debug(traceback.format_exc())
                 continue
 
-            # The following would exit the trial loop, so probably better to skip & continue
-            # except OpgeeException as e:
-            #     raise TrialErrorWrapper(e, trial_num)
+        return results
 
-            ci = field.carbon_intensity     # computed and saved in field.run()
-
-            # energy = field.energy.data
-            emissions = field.emissions.data
-
-            ghg = emissions.loc['GHG']
-            total_ghg = ghg.sum()
-            vff = ghg['Venting'] + ghg['Flaring'] + ghg['Fugitives']
-
-            tup = (trial_num,
-                   roundmag(ci),
-                   roundmag(total_ghg),
-                   roundmag(ghg['Combustion']),
-                   roundmag(ghg['Land-use']),
-                   roundmag(vff),
-                   roundmag(ghg['Other']))
-
-            results.append(tup)
-
-        cols = ['trial_num',
-                'CI',
-                'total_GHG',
-                'combustion',
-                'land_use',
-                'VFF',
-                'other']
-
-        df = pd.DataFrame.from_records(results, columns=cols)
-        self.save_trial_results(field, df, packet_num, failures)
-
-        return completed
+    # def saved_code_fragments(self): # from old run_field() method
+    #     # The following would exit the trial loop, so probably better to skip & continue
+    #     # except OpgeeException as e:
+    #     #     raise TrialErrorWrapper(e, trial_num)
+    #
+    #     # TBD: just return results list. Caller can decide how to save.
+    #
+    #     ci = field.carbon_intensity     # computed and saved in field.run()
+    #
+    #     # energy = field.energy.data
+    #     emissions = field.emissions.data
+    #
+    #     ghg = emissions.loc['GHG']
+    #     total_ghg = ghg.sum()
+    #     vff = ghg['Venting'] + ghg['Flaring'] + ghg['Fugitives']
+    #
+    #     tup = (trial_num,
+    #            roundmag(ci),
+    #            roundmag(total_ghg),
+    #            roundmag(ghg['Combustion']),
+    #            roundmag(ghg['Land-use']),
+    #            roundmag(vff),
+    #            roundmag(ghg['Other']))
+    #
+    #     results.append(tup)
+    #
+    # cols = ['trial_num',
+    #         'CI',
+    #         'total_GHG',
+    #         'combustion',
+    #         'land_use',
+    #         'VFF',
+    #         'other']
+    #
+    # df = pd.DataFrame.from_records(results, columns=cols)
+    # self.save_trial_results(field, df, packet_num, failures)
+    #
+    # return completed
 
     # Deprecated?
-    def run(self, trial_nums, field_names=None):
-        """
-        Run the Monte Carlo trials in ``trial_nums``. If ``fields_names`` is
-        ``None``, all fields are run, otherwise, only the indicated fields are
-        run.
-
-        :param trial_nums: (list of int) trials to run. ``None`` implies all trials.
-        :param field_names: (list of str) names of fields to run
-        :return: none
-        """
-        timer = Timer('Simulation.run')
-
-        ana = self.analysis
-        fields = [ana.get_field(name) for name in field_names] if field_names else self.chosen_fields()
-
-        for field in fields:
-            if field.is_enabled():
-                self.run_field(field.name, trial_nums)
-            else:
-                _logger.info(f"Ignoring disabled {field}")
-
-        _logger.info(timer.stop())
-
-        # results for a field in `analysis`. Each column represents the results
-        # of a single output variable. Each row represents the value of all output
-        # variables for one trial of a single field. The field name is thus
-        # included in each row, allowing results for all fields in a single
-        # analysis to be stored in one file.
+    # def run(self, trial_nums, field_names=None):
+    #     """
+    #     Run the Monte Carlo trials in ``trial_nums``. If ``fields_names`` is
+    #     ``None``, all fields are run, otherwise, only the indicated fields are
+    #     run.
+    #
+    #     :param trial_nums: (list of int) trials to run. ``None`` implies all trials.
+    #     :param field_names: (list of str) names of fields to run
+    #     :return: none
+    #     """
+    #     timer = Timer('Simulation.run')
+    #
+    #     ana = self.analysis
+    #     fields = [ana.get_field(name) for name in field_names] if field_names else self.chosen_fields()
+    #
+    #     for field in fields:
+    #         if field.is_enabled():
+    #             self.run_field(field.name, trial_nums)
+    #         else:
+    #             _logger.info(f"Ignoring disabled {field}")
+    #
+    #     _logger.info(timer.stop())
+    #
+    #     # results for a field in `analysis`. Each column represents the results
+    #     # of a single output variable. Each row represents the value of all output
+    #     # variables for one trial of a single field. The field name is thus
+    #     # included in each row, allowing results for all fields in a single
+    #     # analysis to be stored in one file.
