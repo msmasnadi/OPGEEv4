@@ -4,9 +4,102 @@ from io import StringIO
 
 from opgee.error import McsUserError
 from opgee.mcs.simulation import read_distributions, Simulation, Distribution
+from opgee.mcs.parameter_list import ParameterList
 from opgee.tool import opg
 
 from .utils_for_tests import tmpdir, path_to_test_file
+
+
+def test_distro_xml():
+    param_list = ParameterList.load()
+    assert param_list
+
+def test_good_distros_xml():
+    xml_string = """
+<ParameterList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:noNamespaceSchemaLocation="parameter-schema.xsd">
+
+  <Parameter name="binary">
+    <Distribution>
+      <Binary prob_of_yes="0.95"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="uniform">
+    <Distribution>
+      <Uniform min="10" max="50"/>
+    </Distribution>
+  </Parameter>
+  
+  <Parameter name="lognormal">
+    <Distribution>
+      <Lognormal log_mean="38" log_stdev="22"/>
+    </Distribution>
+  </Parameter>
+  
+  <Parameter name="triangle" active="1">
+    <Distribution>
+      <Triangle min="1" mode="2.8" max="5"/>
+    </Distribution>
+  </Parameter>  
+  
+  <Parameter name="inactive" active="0">
+    <Distribution>
+      <Triangle min="1" mode="2.8" max="5"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="normal" active="1">
+    <Distribution>
+      <Normal mean="0" stdev="1"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="choice_1">
+    <Distribution>
+      <Choice>
+        <!-- NOTE: probabilities were added here just to show the feature -->
+        <Value prob="0.2">Low</Value>
+        <Value prob="0.4">Med</Value>
+        <Value prob="0.2">High</Value>
+      </Choice>
+    </Distribution>
+  </Parameter>
+  
+  <Parameter name="choice_2">
+    <Distribution>
+      <Choice>
+        <Value>Low carbon</Value>
+        <Value>Med carbon</Value>
+        <Value>High carbon</Value>
+      </Choice>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="WOR">
+    <Distribution>
+      <DataFile>mcs/etc/all_wor.csv</DataFile>
+    </Distribution>
+  </Parameter>  
+</ParameterList>
+    """
+    params = ParameterList.load(xml_string=xml_string)
+
+    assert len(params.parameters()) == 8
+    assert params.parameter("inactive") is None
+
+    p = params.parameter("triangle")
+    assert p.rv.dist.name == 'triang'
+
+    p = params.parameter("normal")
+    assert p.rv.dist.name == 'norm'
+
+    p = params.parameter("lognormal")
+    assert p.rv.dist.name == 'lognorm'
+
+    p = params.parameter("uniform")
+    assert p.rv.dist.name == 'uniform'
+
 
 analysis_name = 'test-mcs'
 field_name = 'test-mcs'

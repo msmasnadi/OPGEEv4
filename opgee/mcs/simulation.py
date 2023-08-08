@@ -195,7 +195,7 @@ class Distribution(OpgeeObject):
     def __str__(self):
         return f"<Distribution '{self.full_name}' = {self.rv}>"
 
-# TBD: needs to be integrated as an option to runsim
+# TBD: needs to be integrated as an option to run
 def run_many(model_xml_file, analysis_name, field_names, output, count=0, start_with=0,
         save_after=None, skip_fields=None, batch_start=0, parallel=True):
     import os

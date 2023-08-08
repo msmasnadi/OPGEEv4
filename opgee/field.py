@@ -109,6 +109,7 @@ class Field(Container):
         self.graph = None
         self.cycles = None
 
+        # A "bulletin-board" to share data among processes, cleared in reset() method.
         self.process_data = {}
 
         self.wellhead_tp = None
@@ -393,6 +394,14 @@ class Field(Container):
     def reset(self):
         self.reset_streams()
         self.reset_processes()
+
+        # TODO: figure out why this breaks all tests for processes that
+        #  look for process data named "processing_unit_loss_rate_df".
+        #  That data is stored only in gas_gathering.py (run method).
+        #  It appears that maintaining this data between Field runs is
+        #  required for some reason. Seems like a stale cache bug.
+        #
+        # self.process_data.clear()
 
         SmartDefault.decache()
         decache_subclasses()
