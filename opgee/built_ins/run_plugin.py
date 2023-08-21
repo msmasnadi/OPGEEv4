@@ -26,7 +26,7 @@ class RunCommand(SubcommandABC):
     def addArgs(self, parser):
         from ..config import getParam, getParamAsInt
         from ..utils import ParseCommaList, positive_int
-        from ..field import RESULT_TYPES, DEFAULT_RESULT_TYPE, SIMPLE_RESULT, DETAILED_RESULT
+        from ..field import DEFAULT_RESULT_TYPE, SIMPLE_RESULT, DETAILED_RESULT, USER_RESULT_TYPES
 
         partition = getParam('SLURM.Partition')
         min_per_task = getParam('SLURM.MinutesPerTask')
@@ -39,13 +39,9 @@ class RunCommand(SubcommandABC):
                             help='''Run only the specified analysis or analyses. Argument may be a 
                             comma-delimited list of Analysis names.''')
 
-        parser.add_argument('-A', '--save-after', type=int,
-                            help='''Write a results to a new file after the given number of results are 
-                            returned. Implies --parallel.''')
-
         parser.add_argument('-b', '--batch-start', default=0, type=int,
                             help='''The value to use to start numbering batch result files.
-                            Default is zero. Ignored unless -N/--save-after is specified.''')
+                            Default is zero. Ignored unless -S/--save-after is also specified.''')
 
         parser.add_argument('-B', '--by-process',
                             help='''Write CI output to specified CSV file for all processes, for all fields 
@@ -75,7 +71,7 @@ class RunCommand(SubcommandABC):
                             help='''Keep running even if some fields raise errors when run''')
 
         parser.add_argument('-m', '--model-file', action='append',
-                            help='''XML model definition files to load. If --no_default_model is *not* 
+                            help='''XML model definition files to load. If --no_default_model is not 
                                 specified, the built-in files etc/opgee.xml and etc/attributes.xml are 
                                 loaded first, and the XML files specified here will be merged with these.
                                 If --no_default_model is specified, only the given files are loaded;
@@ -94,9 +90,8 @@ class RunCommand(SubcommandABC):
                            help='''Run MCS simulations on the first "num-fields" only.
                             (Mutually exclusive with -f/--fields.)''')
 
-        parser.add_argument('-o', '--output',
-                            help='''Write CI output to specified CSV file for all top-level processes 
-                            and aggregators, for all fields run''')
+        parser.add_argument('-o', '--output-dir',
+                            help='''Write output to the specified directory''')
 
         # parser.add_argument('-o', '--output', required=True,
         #                     help='''[Required] The pathname of the CSV files to create containing energy and
@@ -110,11 +105,11 @@ class RunCommand(SubcommandABC):
                                 Ignored if --cluster-type=slurm is not specified.''')
 
         parser.add_argument('-P', '--packet-size', type=positive_int, default=packet_size,
-                            help=f'''Divide trials for a single field in to packets of this number of trials
-                            to run serially on a single worker. Default is the value of configuration file
-                            parameter "OPGEE.TrialPacketSize", currently {packet_size}.'''),
+                            help=f'''Divide runs for a single field into groups of this size
+                            to run serially on a single worker. Default is the value of configuration 
+                            file parameter "OPGEE.MaxTrialsPerPacket", currently {packet_size}.'''),
 
-        parser.add_argument('-r', '-result-type', type=str, choices=RESULT_TYPES,
+        parser.add_argument('-r', '--result-type', type=str, choices=USER_RESULT_TYPES,
                             help=f'''The type of result to return from each field. Default is "{DEFAULT_RESULT_TYPE}".
                             For "{SIMPLE_RESULT}" results, the following values are saved per trial in a separate 
                             file for each field: trial_num, CI, total GHGs, and emissions from combustion, land use,
@@ -128,10 +123,16 @@ class RunCommand(SubcommandABC):
         parser.add_argument('-s', '--simulation-dir',
                             help='''The top-level directory to use for this simulation "package"''')
 
+        parser.add_argument('-S', '--save-after', type=int,
+                            help='''Write a results to a new file after the given number of results are 
+                            returned. Implies --parallel. If not specified, results are written out only
+                            after all trials have completed.''')
+
         parser.add_argument('-t', '--trials', default='all',
                             help='''The trials to run. Can be expressed as a string containing
                             comma-delimited ranges and individual trail numbers, e.g. "1-20,22, 35, 42, 44-50").
-                            The special string "all" (the default) runs all defined trials.''')
+                            The special string "all" (the default) runs all defined trials. Ignored 
+                            unless -s/--simulation-dir is specified.''')
 
         parser.add_argument('-T', "--ntasks", type=positive_int, default=None,
                             help='''Number of worker tasks to create. Default is the number of fields, if
@@ -151,14 +152,17 @@ class RunCommand(SubcommandABC):
     def runsim(self, args):
         from ..error import OpgeeException
         from ..utils import parseTrialString
+        from ..manager import Manager, save_results
+        from ..packet import TrialPacket
         from ..mcs.simulation import Simulation
-        from ..mcs.distributed_mcs_dask import Manager, run_field
-        from ..mcs.packet import TrialPacket
 
         sim_dir = args.simulation_dir
         field_names = args.fields or []
         num_fields = args.num_fields
         ntasks = args.ntasks
+        result_type = args.result_type
+        trials = args.trials
+        collect = args.collect
 
         if not (ntasks or num_fields or field_names):
             raise OpgeeException(f"Must specify field names (-f/--fields), number of fields "
@@ -172,38 +176,56 @@ class RunCommand(SubcommandABC):
         if num_fields:
             field_names = field_names[:num_fields]
 
-        trial_nums = metadata['trials'] if args.trials == 'all' else parseTrialString(args.trials)
+        trial_nums = metadata['trials'] if trials == 'all' else parseTrialString(trials)
 
         if ntasks is None:
             ntasks = len(field_names)
 
+        # TBD: could generate FieldPackets or TrialPackets based on args to packetize()
+        #  then this method could be used for either type of parallelism.
+        #  Need to compare with run_many.
         packets = TrialPacket.packetize(sim_dir, field_names, trial_nums, args.packet_size)
 
-        if args.serial:
-            for packet in packets:
-                run_field(packet)
+        # TBD: once packets are generated, MCS should share cluster / results saving
+        #  logic with run_many.
+
+        if args.run_mode == RUN_SERIAL:
+            results = [packet.run(result_type) for packet in packets]
+            # TBD: respect batch arguments
+            save_results(results, result_type)
+
         else:
             from ..log import setLogFile
 
-            # Put the log for the monitor process in the simulation directory.
-            # Workers will set the log file to within the directory for the
-            # field it's currently running.
-            log_file = f"{sim_dir}/opgee-mcs.log"
-            setLogFile(log_file, remove_old_file=True)
+            # Put the log for the Manager process in the simulation directory.
+            # Each Worker will set the log file to within the directory for
+            # the field it's currently running.
+            setLogFile(f"{sim_dir}/opgee-mcs.log", remove_old_file=True)
 
             mgr = Manager(cluster_type=args.cluster_type)
+
+            # TBD: convert run_packets() to yield packet results one at a time
+            #  Then save each here, respecting batch saving arguments.
             results = mgr.run_packets(packets,
-                                      result_type=args.result_type,
+                                      result_type=result_type,
                                       num_engines=ntasks,
                                       minutes_per_task=args.minutes)
-                                      # , collect=args.collect)
 
-            # TBD: save results!!
+            save_results(results, result_type)
+
+        if collect:
+            # collect partial result files
+            pass
+
 
 
     def run(self, args, tool):
         from ..error import OpgeeException, CommandlineError
         from ..model_file import ModelFile
+        from ..manager import save_results
+
+        result_type = args.result_type
+        collect = args.collect
 
         # TBD: integrate args not previously used by runsim
         # TBD: modify runsim to process different result modes?
@@ -231,6 +253,10 @@ class RunCommand(SubcommandABC):
         if not (use_default_model or model_files):
             raise CommandlineError("No model to run: the --model-file option was not used and --no-default-model was specified.")
 
+        # TBD: read analysis names without instantiating entire model
+        #  by calling (model_file.py) analysis_names(model_xml_pathname)
+        #  Then get field name with fields_for_analysis(model_xml, analysis_name)
+        #  Avoid reading model here; push this into run_serial / run_parallel
         mf = ModelFile(model_files, use_default_model=use_default_model,
                        analysis_names=analysis_names, field_names=field_names)
         model = mf.model
@@ -253,6 +279,7 @@ class RunCommand(SubcommandABC):
                 found = [(field, analysis) for field in analysis.fields() if field.name in nonspecific_field_names]
                 selected_fields.extend(found)
 
+            # TBD: convert this to use run_parallel or run_serial
             for analysis_name, field_name in specific_field_tuples:
                 analysis = model.get_analysis(analysis_name)
                 field = analysis.get_field(field_name)
@@ -268,11 +295,15 @@ class RunCommand(SubcommandABC):
             selected_fields = [(field, analysis) for analysis in selected_analyses for field in analysis.fields()]
 
         errors = []  # accumulate these to print again at the end
+        results = []
 
+        # TBD: turn these into a packet for consistency and to share
+        #  result processing / saving logic
         for field, analysis in selected_fields:
             try:
-                field.run(analysis)     # TBD: return FieldResult and pass to field.report()?
-                field.report()
+                field.run(analysis)
+                result = field.get_result(analysis, result_type, collect)
+                results.append(result)
             except OpgeeException as e:
                 if args.ignore_errors:
                     _logger.error(f"Error in {field}: {e}")
@@ -280,18 +311,4 @@ class RunCommand(SubcommandABC):
                 else:
                     raise
 
-        # TBD: save errors to a file
-        if errors:
-            print("\nErrors:")
-
-            for field, e in errors:
-                print(f"{field}: {e}")
-
-        if args.output:
-            model.save_results(selected_fields, args.output)
-
-        if args.by_process:
-            model.save_results(selected_fields, args.by_process, by_process=True)
-
-        if args.save_comparison:
-            model.save_for_comparison(selected_fields, args.save_comparison)
+        save_results(results, result_type)

@@ -20,9 +20,6 @@ class ParameterList(XMLFile):
                          removeComments=True,
                          conditionalXML=False)
 
-        if xml_string:
-            self.read()     # TBD: try moving this to XMLFile.__init__()
-
         root = self.getRoot()
         params = [Parameter(elt) for elt in root.findall('Parameter')]
         self.parameter_dict = {p.name : p for p in params if p.active}

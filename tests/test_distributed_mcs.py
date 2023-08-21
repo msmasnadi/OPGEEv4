@@ -1,5 +1,5 @@
 import re
-from opgee.mcs.distributed_mcs_dask import RemoteError, FieldStatus
+from manager import RemoteError
 
 def test_remote_error():
     field_name = 'field_1'

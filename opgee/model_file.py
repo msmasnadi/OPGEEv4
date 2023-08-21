@@ -91,19 +91,16 @@ def fields_for_analysis(model_xml, analysis_name):
     _logger.debug(timer.stop())
     return fields
 
-
-def _get_tmp_xml_file(model_xml, analysis_name, field_name, as_string=False):
+# TBD: this is used only by extract_model(..., as_string=True) so perhaps
+#   this can be simplified or split into two functions
+def _get_xml_str(model_xml, analysis_name, field_name, with_model_elt=False):
     """
-    Save an XML model file to the temp folder identified by config variable
-    OPGEE.TempDir (in a subdirectory "extracted_xml") by extracting the Field
-    named ``field_name`` from the Analysis named ``analysis_name`` in the model
-    XML file ``model_xml``.
+    Extract an XML model file as a string, for the Field ``field_name`` from
+    the Analysis ``analysis_name`` in the model XML file ``model_xml``.
 
     :param model_xml: (str) the pathname of an OPGEE model XML file
     :param analysis_name: (str) the name of an Analysis
     :param field_name: (str) the name of the Field to extract
-    :param as_string: (bool) whether to return a string representation of the
-       model XML or a pathname to a temporary file (the default).
     :return: (str) if ``as_string`` is False, returns the pathname of a file
         under {OPGEE.TempFile}/extracted_xml. Note that it's the caller's
         responsibility to remove the temp file. If ``as_string`` is True, a
@@ -131,9 +128,27 @@ def _get_tmp_xml_file(model_xml, analysis_name, field_name, as_string=False):
     analysis = ET.SubElement(model, 'Analysis', name=analysis_name)
     analysis.append(deepcopy(extracted_field))
 
-    if as_string:
-        xml_string = ET.tostring(model, pretty_print=True, encoding="unicode")
-        return xml_string
+    xml_string = ET.tostring(model, pretty_print=True, encoding="unicode")
+    return xml_string, model if with_model_elt else xml_string
+
+def _get_tmp_xml_file(model_xml, analysis_name, field_name):
+    """
+    Save an XML model file to the temp folder identified by config variable
+    OPGEE.TempDir (in a subdirectory "extracted_xml") by extracting the Field
+    named ``field_name`` from the Analysis named ``analysis_name`` in the model
+    XML file ``model_xml``.
+
+    :param model_xml: (str) the pathname of an OPGEE model XML file
+    :param analysis_name: (str) the name of an Analysis
+    :param field_name: (str) the name of the Field to extract
+    :return: (str) returns the pathname of a file under
+        {OPGEE.TempFile}/extracted_xml. Note that it's the caller's
+        responsibility to remove the temp file.
+    """
+    from lxml import etree as ET
+
+    xml_string, model = _get_xml_str(model_xml, analysis_name, field_name,
+                                     with_model_elt=True)
 
     # replaces spaces with underscores
     field_name = field_name.replace(' ', '_')
@@ -148,7 +163,7 @@ def _get_tmp_xml_file(model_xml, analysis_name, field_name, as_string=False):
     return xml_file
 
 
-def extracted_model(model_xml, analysis_name, field_names=None, as_string=False):
+def extract_model(model_xml, analysis_name, field_names):
     """
     Generator to return temp files with extracted model for each Field in
     `field_names`` or all the Fields in ``analysis_name`` if ``field_names``
@@ -160,16 +175,13 @@ def extracted_model(model_xml, analysis_name, field_names=None, as_string=False)
         all Fields in the given Analysis are extracted.
     :param as_string: (bool) whether to return a string representation of the
        model XML or a pathname to a temporary file (the default).
-    :return: (str, str) a tuple of two strings: the next Field name and (if
-        ``as_string`` is False) the pathname of the extracted model XML for that
-        Field, or (if ``as_string`` is True), a string representation of the
-        model XML for that Field.
+    :return: (str, str) a tuple of two strings: the next Field name a string
+        representation of the model XML for that Field.
     """
     field_names = field_names or fields_for_analysis(model_xml, analysis_name)
 
     for field_name in field_names:
-        yield field_name, _get_tmp_xml_file(model_xml, analysis_name,
-                                            field_name, as_string=as_string)
+        yield field_name, _get_xml_str(model_xml, analysis_name, field_name)
 
 
 class ModelFile(XMLFile):

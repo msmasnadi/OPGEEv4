@@ -50,7 +50,8 @@ def elt_name(elt):
     return elt.attrib.get('name')
 
 
-def instantiate_subelts(elt, cls, parent=None, as_dict=False, include_names=None):
+def instantiate_subelts(elt, cls, parent=None, as_dict=False, include_names=None,
+                        **cls_args):
     """
     Return a list of instances of ``cls`` (or of its indicated subclass of ``Process``).
 
@@ -68,7 +69,8 @@ def instantiate_subelts(elt, cls, parent=None, as_dict=False, include_names=None
     tag = cls.__name__  # class name matches element name
 
     include = None if include_names is None else set(include_names)
-    objs = [cls.from_xml(e, parent=parent) for e in elt.findall(tag) if include is None or e.attrib.get('name') in include]
+    objs = [cls.from_xml(e, parent=parent, **cls_args)
+            for e in elt.findall(tag) if include is None or e.attrib.get('name') in include]
 
     if as_dict:
         d = {obj.name: obj for obj in objs}
@@ -147,7 +149,7 @@ class XmlInstantiable(OpgeeObject):
         self.parent = parent
 
     @classmethod
-    def from_xml(cls, elt, parent=None):
+    def from_xml(cls, elt, parent=None, **cls_args):
         raise AbstractMethodError(cls, 'XmlInstantiable.from_xml')
 
     def __str__(self):

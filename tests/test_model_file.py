@@ -1,6 +1,6 @@
 import pytest
 from opgee.error import OpgeeException
-from opgee.model_file import (ModelFile, fields_for_analysis, extracted_model)
+from opgee.model_file import (ModelFile, fields_for_analysis, extract_model)
 from .utils_for_tests import path_to_test_file
 
 def test_no_file():

@@ -1,23 +1,24 @@
 #
-# distributed_mcs_dask -- implements running a distributed Monte Carlo simulation using dask.
+# manager.py -- implements running a distributed computation using dask.
 #
 # Author: Richard Plevin
 #
-# Copyright (c) 2023 the author and The Board of Trustees of the Leland Stanford Junior University.
-# See LICENSE.txt for license details.
+# Copyright (c) 2023 the author and The Board of Trustees of the Leland Stanford
+# Junior University. See LICENSE.txt for license details.
 #
 import asyncio
 import dask
 from dask_jobqueue import SLURMCluster
 from dask.distributed import Client, LocalCluster, as_completed
+import pandas as pd
 
-from ..core import OpgeeObject, Timer
-from ..config import getParam, getParamAsInt, getParamAsBoolean
-from ..error import RemoteError, McsSystemError
-from ..field import SIMPLE_RESULT
-from ..log  import getLogger, setLogFile
-from .packet import AbsPacket, TrialPacket
-from .simulation import Simulation, combine_results
+from .core import OpgeeObject, Timer, magnitude
+from .config import getParam, getParamAsInt, getParamAsBoolean, pathjoin
+from .error import OpgeeException, McsSystemError
+from .field import SIMPLE_RESULT, DETAILED_RESULT, ERROR_RESULT, ALL_RESULT_TYPES
+from .log import getLogger #, setLogFile
+from .packet import AbsPacket
+
 
 # To debug dask, uncomment the following 2 lines
 # import logging
@@ -33,84 +34,6 @@ def _walltime(minutes: int) -> str:
     :return: (str) a string of the form "HH:MM:00"
     """
     return f"{minutes // 60 :02d}:{minutes % 60 :02d}:00"
-
-# Global to track how many tasks each worker is running
-_task_count = 0
-
-class FieldStatus(OpgeeObject):
-    __slots__ = ['ok', 'field_name', 'packet_num', 'duration', 'completed', 'task_count', 'error']
-
-    def __init__(self, field_name, duration, completed, packet_num=None, error=None):
-        self.ok = error is None
-        self.field_name = field_name
-        self.packet_num = packet_num
-        self.duration = duration
-        self.completed = completed
-        self.task_count = _task_count
-        self.error = error
-
-    def __str__(self):
-        packet_info = "" if self.packet_num is None else f"[{self.packet_num}]"
-        return f"<FieldStatus {self.completed} trials of {self.field_name}{packet_info} in {self.duration}; task_count:{self.task_count} error:{self.error}>"
-
-# TBD: revise this to iterate over pkt.trial_nums or pkt.field_names and
-#   return a FieldResult. Should be no need for a RemoteError result.
-def run_field(packet: TrialPacket, result_type=SIMPLE_RESULT):
-    """
-    Run the trials ``trial_nums`` for ``field``, serially. In distributed mode,
-    this is run in each worker process.
-
-    :param packet: (TrialPacket) description of model runs to execute.
-    :return: (list of FieldResult)
-    """
-    timer = Timer('run_field')
-
-    field_name = packet.field_name
-
-    sim_dir = packet.sim_dir
-    sim = Simulation(sim_dir, field_names=[field_name], save_to_path='')
-    field = sim.analysis.get_field(field_name)
-
-    if field.is_enabled():
-        global _task_count
-        _task_count += 1
-
-        field_dir = sim.field_dir(field)
-        log_file = f"{field_dir}/opgee-field.log"
-        setLogFile(log_file, remove_old_file=True)
-
-        _logger.info(f"Running MCS for field '{field_name}'")
-
-        error = None
-        try:
-            completed = sim.run_field(packet, result_type=result_type)
-
-        except TrialErrorWrapper as e:
-            trial = e.trial
-            e = e.error
-            e_name = e.__class__.__name__
-            _logger.error(f"In run_field('{field_name}'): trial={trial} {e_name}: {e}")
-            error = RemoteError(f"{e_name}: {e}", field_name, trial=trial)
-
-        except Exception as e:
-            # Convert any exceptions to a RemoteError instance and return it to Manager
-            e_name = e.__class__.__name__
-
-            # show_trace = False  # turns out not to be very informative
-            # trace =  '\n' + ''.join(traceback.format_stack()) if show_trace else ''
-            # _logger.error(f"In run_field('{field_name}'): {e_name}: {e}{trace}")
-
-            _logger.error(f"In run_field('{field_name}'): {e_name}: {e}")
-            error = RemoteError(f"{e_name}: {e}", field_name)
-
-    else:
-        error = RemoteError(f"Ignoring disabled field {field}", field_name)
-
-    timer.stop()
-
-    result = FieldStatus(field_name, timer.duration(), completed, error=error)
-    _logger.debug(f"run_field('{field_name}') returning {result}")
-    return result
 
 
 class Manager(OpgeeObject):
@@ -213,9 +136,10 @@ class Manager(OpgeeObject):
         self.client = self.cluster = None
 
     # TBD: Model this after (or merge with) simulation.run_parallel using yield
+    #   Convert to yielding results to caller can save in batches
     def run_packets(self,
                     packets: list[AbsPacket],
-                    result_type: str = SIMPLE_RESULT,
+                    result_type: str = None,
                     num_engines: int = 0,
                     minutes_per_task: int = 10):
         """
@@ -229,12 +153,13 @@ class Manager(OpgeeObject):
         """
         timer = Timer('Manager.run_packets')
 
+        result_type = result_type or SIMPLE_RESULT
+
         # N.B. start_cluster saves client in self.client and returns it as well
         client = self.start_cluster(num_engines=num_engines, minutes_per_task=minutes_per_task)
 
         # Start the worker processes on all available CPUs.
-        futures = client.map(lambda pkt: run_field(pkt, result_type=result_type),
-                             packets)
+        futures = client.map(lambda pkt: pkt.run(result_type),packets)
         results_list = []
 
         # TBD: modify to write CSV files here rather than in workers
@@ -245,7 +170,7 @@ class Manager(OpgeeObject):
             # else:
             #     _logger.debug(f"Succeeded: {result}")
 
-            # TBD: or do
+            # TBD: yield
             # yield results
             results_list.append(results)
 
@@ -257,39 +182,110 @@ class Manager(OpgeeObject):
         self.stop_cluster()
         _logger.info(timer.stop())
 
+        # TBD: if yielding, return None here
+        # return None
         return results_list
 
-    def run_mcs(self,
-                packets: list[TrialPacket],
-                result_type: str = SIMPLE_RESULT,
-                num_engines: int = 0,
-                minutes_per_task: int = None,
-                # collect=False, delete_partials=False
-                ):
-        """
-        Run a Monte Carlo simulation on a dask cluster.
+    # Deprecated
+    # def run_mcs(self,
+    #             packets: list[TrialPacket],
+    #             result_type: str = SIMPLE_RESULT,
+    #             num_engines: int = 0,
+    #             minutes_per_task: int = None,
+    #             # collect=False, delete_partials=False
+    #             ):
+    #     """
+    #     Run a Monte Carlo simulation on a dask cluster.
+    #
+    #     :param field_names: (list of str) the names of the fields to run; empty list or ``None``
+    #         implies use all fields found in the ``Simulation`` metadata.
+    #     :param num_engines: (int) the number of worker tasks to start
+    #     :param minutes_per_task: (int) how many minutes of walltime to allocate for each worker.
+    #     :param collect: (bool) whether to combine all partial (packet) results and failures
+    #         into a single results and single failures file.
+    #     :param delete_partials: (bool) whether to delete partial result and failure files after
+    #         combining them. Ignored if collect is False.
+    #     :return: nothing
+    #     """
+    #     sim_dir = packets[0].sim_dir    # should be same for all packets
+    #
+    #     # Put the log for the monitor process in the simulation directory.
+    #     # Workers will set the log file to within the directory for the
+    #     # field it's currently running.
+    #     log_file = f"{sim_dir}/opgee-mcs.log"
+    #     setLogFile(log_file, remove_old_file=True)
+    #
+    #     results_list = self.run_packets(packets,
+    #                                     result_type=result_type,
+    #                                     num_engines=num_engines,
+    #                                     minutes_per_task=minutes_per_task)
+    #     return results_list
+    #
 
-        :param field_names: (list of str) the names of the fields to run; empty list or ``None``
-            implies use all fields found in the ``Simulation`` metadata.
-        :param num_engines: (int) the number of worker tasks to start
-        :param minutes_per_task: (int) how many minutes of walltime to allocate for each worker.
-        :param collect: (bool) whether to combine all partial (packet) results and failures
-            into a single results and single failures file.
-        :param delete_partials: (bool) whether to delete partial result and failure files after
-            combining them. Ignored if collect is False.
-        :return: nothing
-        """
-        sim_dir = packets[0].sim_dir    # should be same for all packets
+def save_results(results, output_dir, batch_num=None):
+    """
+    Save "detailed" results, comprising top-level carbon intensity (CI) from
+    ``results``, and per-process energy and emissions details. Results are
+     written to CSV files under the directory ``output_dir``.
 
-        # Put the log for the monitor process in the simulation directory.
-        # Workers will set the log file to within the directory for the
-        # field it's currently running.
-        log_file = f"{sim_dir}/opgee-mcs.log"
-        setLogFile(log_file, remove_old_file=True)
+    :param results: (list[FieldResult]) results from running a ``Field``
+    :param output_dir: (str) where to write the CSV files
+    :param collect: (bool) whether to collect batched results into a
+        single file
+    :param batch_num: (int) if not None, a number to use in the CSV file
+        name to distinguish partial result files.
+    :return: none
+    """
+    energy_cols = []
+    emission_cols = []
+    ci_rows = []
+    error_rows = []
 
-        results_list = self.run_packets(packets,
-                                        result_type=result_type,
-                                        num_engines=num_engines,
-                                        minutes_per_task=minutes_per_task)
-        return results_list
+    # TBD: might be lists of lists?
+    # from .utils import flatten
+    # for result in flatten(results):
+    for result in results:
 
+        trial = '' if result.trial_num is None else result.trial_num
+
+        if result.result_type == ERROR_RESULT:
+            d = {"analysis": result.analysis_name,
+                 "field": result.field_name,
+                 "trial" : trial,
+                 "error": result.error}
+            error_rows.append(d)
+            continue
+
+        energy_cols.append(result.energy)
+        emission_cols.append(result.emissions)
+
+        for name, ci in result.ci_results:
+            d = {"analysis": result.analysis_name,
+                 "field": result.field_name,
+                 "trial" : trial,
+                 "node": name,
+                 "CI": ci}
+            ci_rows.append(d)
+
+    # Append batch number to filename if not None
+    batch = '' if batch_num is None else f"_{batch_num}"
+
+    def _to_csv(df, file_prefix, **kwargs):
+        pathname = pathjoin(output_dir, f"{file_prefix}{batch}.csv")
+        _logger.info(f"Writing '{pathname}'")
+        df.to_csv(pathname, **kwargs)
+
+    df = pd.DataFrame(data=ci_rows)
+    _to_csv(df, 'carbon_intensity', index=False)
+
+    df = pd.DataFrame(data=error_rows)
+    _to_csv(df, 'errors', index=False)
+
+    def _save_cols(columns, file_prefix):
+        df = pd.concat(columns, axis="columns")
+        df.index.name = "process"
+        df.sort_index(axis="rows", inplace=True)
+        _to_csv(df, file_prefix)
+
+    _save_cols(energy_cols, "energy")
+    _save_cols(emission_cols, "emissions")

@@ -36,21 +36,26 @@ SIMPLE_RESULT = 'simple'
 DETAILED_RESULT = 'detailed'
 ERROR_RESULT = 'error'
 DEFAULT_RESULT_TYPE = SIMPLE_RESULT
-RESULT_TYPES = (SIMPLE_RESULT, DETAILED_RESULT) # used by argument parser
+USER_RESULT_TYPES = (SIMPLE_RESULT, DETAILED_RESULT) # used by argument parser
+ALL_RESULT_TYPES  = (SIMPLE_RESULT, DETAILED_RESULT, ERROR_RESULT)
+RESULT_TYPES = None
 
 class FieldResult():
     def __init__(self, analysis_name, field_name, result_type,
-                 energy_data=None, emissions_data=None, ci_results=None, error=None):
+                 energy_data=None, emissions_data=None, ci_results=None,
+                 trial_num=None, error=None):
         self.analysis_name = analysis_name
         self.field_name = field_name
         self.result_type = result_type
         self.ci_results = ci_results    # list of tuples of (node_name, CI)
         self.energy = energy_data
         self.emissions = emissions_data
+        self.trial_num = trial_num
         self.error = error
 
     def __str__(self):
-        return f"<{self.__class__.__name__} analysis:{self.analysis_name} field:{self.field_name} error:{self.error}>"
+        trl = "" if self.trial_num is None else f"trl:{self.trial_num} "
+        return f"<{self.__class__.__name__} ana:{self.analysis_name} fld:{self.field_name} {trl}err:{self.error} res:{self.result_type}>"
 
 def total_emissions(proc, gwp):
     rates = proc.emissions.rates(gwp)
@@ -548,13 +553,14 @@ class Field(Container):
         emissions_data = pd.Series(emissions_by_proc, name=self.name)
         return energy_data, emissions_data
 
-    def get_result(self, analysis, result_type) -> FieldResult:
+    def get_result(self, analysis, result_type, trial_num=None) -> FieldResult:
         """
         Collect results according to ``result_type``
 
         :param analysis: (Analysis) the analysis this field is part of
         :param result_type: (str) whether to return detailed or simple results. Legal values
             are DETAILED_RESULT or SIMPLE_RESULT.
+        :param trial_num: (int) trial number, if running in MCS mode
         :return: (FieldResult) results
         """
         energy_data, emissions_data = (self.energy_and_emissions(analysis)
@@ -564,16 +570,12 @@ class Field(Container):
         nodes = self.processes() if DETAILED_RESULT else self.children()
         ci_tuples = self.partial_ci_values(analysis, nodes)
 
-        ci_results = []     # list of tuples of (node_name, CI)
-
-        if ci_tuples is not None:
-            ci_results.append(('TOTAL', self.carbon_intensity.m))
-
-            for name, ci in ci_tuples:
-                    ci_results.append((name, ci))
+        ci_results = (None if ci_tuples is None
+                      else ('TOTAL', self.carbon_intensity.m) + ci_tuples)
 
         result = FieldResult(analysis.name, self.name, result_type,
-                             ci_results=ci_results or None,
+                             trial_num=trial_num,
+                             ci_results=ci_results,
                              energy_data=energy_data,
                              emissions_data=emissions_data)
         return result

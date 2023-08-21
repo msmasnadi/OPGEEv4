@@ -23,7 +23,6 @@ from ..utils import mkdirs, removeTree, pushd
 
 from .distro import get_frozen_rv
 from .LHS import lhs
-from .packet import TrialPacket
 
 _logger = getLogger(__name__)
 
@@ -84,6 +83,7 @@ def model_file_path(sim_dir):     # pragma: no cover
     model_file = pathjoin(sim_dir, MODEL_FILE)
     return model_file
 
+# Deprecated in favor of XML
 def read_distributions(pathname=None):
     """
     Read distributions from the designated CSV file. These are combined with those defined
@@ -195,7 +195,8 @@ class Distribution(OpgeeObject):
     def __str__(self):
         return f"<Distribution '{self.full_name}' = {self.rv}>"
 
-# TBD: needs to be integrated as an option to run
+# TBD: needs to be modified to use packets and be called from run command
+#  Or perhaps to replace most of the code in the run command
 def run_many(model_xml_file, analysis_name, field_names, output, count=0, start_with=0,
         save_after=None, skip_fields=None, batch_start=0, parallel=True):
     import os
@@ -229,6 +230,7 @@ def run_many(model_xml_file, analysis_name, field_names, output, count=0, start_
     if skip_fields:
         field_names = [name.strip() for name in field_names if name not in skip_fields]
 
+    # TBD: replace these with a save function that takes a list of FieldResults
     def _save_cols(columns, csvpath):
         df = pd.concat(columns, axis='columns')
         df.index.name = 'process'
@@ -252,6 +254,7 @@ def run_many(model_xml_file, analysis_name, field_names, output, count=0, start_
     if save_after:
         batch = batch_start   # used in naming result files
 
+        # TBD: instead of max_results, use packets which should collapse these two main branches
         for results in run_parallel(model_xml_file, analysis_name, field_names,
                                     max_results=save_after):
 
@@ -286,7 +289,19 @@ def run_many(model_xml_file, analysis_name, field_names, output, count=0, start_
         _save_cols(emissions_cols, pathjoin(subdir, f"{basename}-emissions{ext}"))
         _save_errors(errors,       pathjoin(subdir, f"{basename}-errors.csv"))
 
-def _run_field(analysis_name, field_name, xml_string, result_type=DETAILED_RESULT):
+def _run_field(analysis_name, field_name, xml_string, result_type):
+    """
+    Run a single field, once, using the model in ``xml_string`` and return a
+    ``FieldResult`` instance with results of ``result_type``.
+
+    :param analysis_name: (str) the name of the ``Analysis`` to use to run the ``Field``
+    :param field_name: (str) the name of the ``Field`` to run
+    :param xml_string: (str) XML description of the model to run
+    :param result_type: (str) the type of results to return, i.e., "detailed"
+        or "simple"
+    :return: (FieldResult) results of ``result_type`` or ERROR_RESULT, if an error
+        occurred.
+    """
     from ..model_file import ModelFile
 
     try:
@@ -299,7 +314,7 @@ def _run_field(analysis_name, field_name, xml_string, result_type=DETAILED_RESUL
         analysis = mf.model.get_analysis(analysis_name)
         field = analysis.get_field(field_name)
         field.run(analysis)
-        result = field.get_result(result_type)
+        result = field.get_result(analysis, result_type)
 
     except Exception as e:
         result = FieldResult(analysis_name, field_name, ERROR_RESULT, error=str(e))
@@ -310,15 +325,15 @@ def _run_field(analysis_name, field_name, xml_string, result_type=DETAILED_RESUL
 def run_parallel(model_xml_file, analysis_name, field_names,
                  max_results=None, result_type=DETAILED_RESULT):
     from dask.distributed import as_completed
-    from ..model_file import extracted_model
-    from ..mcs.distributed_mcs_dask import Manager
+    from ..manager import Manager
+    from ..model_file import extract_model
 
     mgr = Manager(cluster_type='local')
 
     timer = Timer('run_parallel')
 
     # Put the log for the monitor process in the simulation directory.
-    # Workers will set the log file to within the directory for the
+    # Each Worker will set the log file to within the directory for the
     # field it's currently running.
     # log_file = f"{sim_dir}/opgee-mcs.log"
     # setLogFile(log_file, remove_old_file=True)
@@ -329,12 +344,11 @@ def run_parallel(model_xml_file, analysis_name, field_names,
     futures = []
 
     # Submit all the fields to run on worker tasks
-    for field_name, xml_string in extracted_model(model_xml_file, analysis_name,
-                                                  field_names=field_names,
-                                                  as_string=True):
-
-        future = client.submit(_run_field, analysis_name, field_name, xml_string,
-                               result_type=result_type)
+    # TBD: should these be packetized? Should worker extract xml_string?
+    for field_name, xml_string in extract_model(model_xml_file, analysis_name,
+                                                field_names):
+        future = client.submit(_run_field, analysis_name, field_name,
+                               xml_string, result_type)
         futures.append(future)
 
     results = []
@@ -371,16 +385,15 @@ def run_parallel(model_xml_file, analysis_name, field_names,
         return results
 
 def run_serial(model_xml_file, analysis_name, field_names, result_type=DETAILED_RESULT):
-    from ..model_file import extracted_model
+    from ..model_file import extract_model
 
     timer = Timer('run_serial')
 
     results = []
 
-    for field_name, xml_string in extracted_model(model_xml_file, analysis_name,
-                                                  field_names=field_names,
-                                                  as_string=True):
-        result = _run_field(analysis_name, field_name, xml_string, result_type=result_type)
+    for field_name, xml_string in extract_model(model_xml_file, analysis_name,
+                                                field_names):
+        result = _run_field(analysis_name, field_name, xml_string, result_type)
         if result.error:
             _logger.error(f"Failed: {result}")
 
@@ -574,11 +587,17 @@ class Simulation(OpgeeObject):
                   trials=trials, meta_data_only=True)
         return sim
 
+    # Class method to be callable from distributed_mcs_dask.py's run_field
+    @classmethod
+    def field_dir_path(cls, sim_dir, field_name):
+        d = pathjoin(sim_dir, field_name)
+        return d
+
     def field_dir(self, field):
         from opgee.field import Field
 
         field_name = field.name if isinstance(field, Field) else field
-        d = pathjoin(self.pathname, field_name)
+        d = self.field_dir_path(self.pathname, field_name)
         return d
 
     def trial_data_path(self, field, mkdir=False):
@@ -752,7 +771,7 @@ class Simulation(OpgeeObject):
 
     # TBD: the only difference between run_many (fields) and runsim (trials) should
     #  be that MCS requires that we call set_trial_data.
-    def run_field(self, packet: TrialPacket, result_type=SIMPLE_RESULT):
+    def run_packet(self, packet, result_type=SIMPLE_RESULT):
         """
         Run the Monte Carlo trials ``trial_nums` for ``field``, serially.
         Save the (full or partial) results for this field to a CSV file in
@@ -779,12 +798,13 @@ class Simulation(OpgeeObject):
                 self.set_trial_data(analysis, field, trial_num)
 
                 field.run(analysis, compute_ci=True, trial_num=trial_num)
-                result = field.get_result(analysis, result_type=result_type)
+                result = field.get_result(analysis, result_type, trial_num=trial_num)
                 results.append(result)
 
             except Exception as e:
                 errmsg = f"Trial {trial_num}: {e}"
-                result = FieldResult(self.analysis.name, field_name, ERROR_RESULT, error=errmsg)
+                result = FieldResult(self.analysis.name, field_name, ERROR_RESULT,
+                                     trial_num=trial_num, error=errmsg)
                 results.append(result)
 
                 _logger.warning(f"Exception raised in trial {trial_num} in {field_name}: {e}")
@@ -792,72 +812,3 @@ class Simulation(OpgeeObject):
                 continue
 
         return results
-
-    # def saved_code_fragments(self): # from old run_field() method
-    #     # The following would exit the trial loop, so probably better to skip & continue
-    #     # except OpgeeException as e:
-    #     #     raise TrialErrorWrapper(e, trial_num)
-    #
-    #     # TBD: just return results list. Caller can decide how to save.
-    #
-    #     ci = field.carbon_intensity     # computed and saved in field.run()
-    #
-    #     # energy = field.energy.data
-    #     emissions = field.emissions.data
-    #
-    #     ghg = emissions.loc['GHG']
-    #     total_ghg = ghg.sum()
-    #     vff = ghg['Venting'] + ghg['Flaring'] + ghg['Fugitives']
-    #
-    #     tup = (trial_num,
-    #            roundmag(ci),
-    #            roundmag(total_ghg),
-    #            roundmag(ghg['Combustion']),
-    #            roundmag(ghg['Land-use']),
-    #            roundmag(vff),
-    #            roundmag(ghg['Other']))
-    #
-    #     results.append(tup)
-    #
-    # cols = ['trial_num',
-    #         'CI',
-    #         'total_GHG',
-    #         'combustion',
-    #         'land_use',
-    #         'VFF',
-    #         'other']
-    #
-    # df = pd.DataFrame.from_records(results, columns=cols)
-    # self.save_trial_results(field, df, packet_num, failures)
-    #
-    # return completed
-
-    # Deprecated?
-    # def run(self, trial_nums, field_names=None):
-    #     """
-    #     Run the Monte Carlo trials in ``trial_nums``. If ``fields_names`` is
-    #     ``None``, all fields are run, otherwise, only the indicated fields are
-    #     run.
-    #
-    #     :param trial_nums: (list of int) trials to run. ``None`` implies all trials.
-    #     :param field_names: (list of str) names of fields to run
-    #     :return: none
-    #     """
-    #     timer = Timer('Simulation.run')
-    #
-    #     ana = self.analysis
-    #     fields = [ana.get_field(name) for name in field_names] if field_names else self.chosen_fields()
-    #
-    #     for field in fields:
-    #         if field.is_enabled():
-    #             self.run_field(field.name, trial_nums)
-    #         else:
-    #             _logger.info(f"Ignoring disabled {field}")
-    #
-    #     _logger.info(timer.stop())
-    #
-    #     # results for a field in `analysis`. Each column represents the results
-    #     # of a single output variable. Each row represents the value of all output
-    #     # variables for one trial of a single field. The field name is thus
-    #     # included in each row, allowing results for all fields in a single
-    #     # analysis to be stored in one file.

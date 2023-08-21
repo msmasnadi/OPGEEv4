@@ -11,7 +11,7 @@ import pint
 from . import ureg
 from .analysis import Analysis
 from .container import Container
-from .core import elt_name, magnitude, instantiate_subelts
+from .core import elt_name, instantiate_subelts
 from .error import OpgeeException, CommandlineError
 from .field import Field
 from .log import getLogger
@@ -126,7 +126,7 @@ class Model(Container):
     def get_field(self, name, raiseError=True) -> Field:
         field = self.field_dict.get(name)
         if field is None and raiseError:
-            raise OpgeeException(f"Field named '{name}' is not defined in Model")
+            raise OpgeeException(f"Field '{name}' is not defined in Model")
 
         return field
 
@@ -148,79 +148,6 @@ class Model(Container):
         instead, as it respects the self.is_enabled() setting.
         """
         return self.analyses()  # N.B. returns an iterator
-
-    def save_results(self, tuples, csvpath, by_process=False):
-        """
-        Save the carbon intensity (CI) results for the indicated (field, analysis)
-        tuples to the indicated CSV pathname, ``csvpath``. By default, results are
-        written for top-level processes and aggregators. If ``by_process`` is True,
-        the results are written out for all processes, ignoring aggregators.
-
-        :param tuples: (sequence of tuples of (analysis, field) instances)
-        :param by_process: (bool) if True, write results by process. If False,
-            write results for top-level processes and aggregators only.
-        :return: none
-        """
-        import pandas as pd
-
-        rows = []
-
-        for (field, analysis) in tuples:
-            # TBD: modify to use field.get_result()
-            nodes = field.processes() if by_process else field.children()
-            ci_tuples = field.partial_ci_values(analysis, nodes)
-
-            fld_name = field.name
-            ana_name = analysis.name
-
-            rows.append({'analysis': ana_name,
-                         'field': fld_name,
-                         'node': 'TOTAL',
-                         'CI': field.carbon_intensity.m})
-
-            # ignore failed fields
-            if ci_tuples is not None:
-                for name, ci in ci_tuples:
-                    rows.append({'analysis' : ana_name,
-                                 'field' : fld_name,
-                                 'node' : name,
-                                 'CI' : ci})
-
-        df = pd.DataFrame(data=rows)
-        _logger.info(f"Writing '{csvpath}'")
-        df.to_csv(csvpath, index=False)
-
-    def save_for_comparison(self, tuples, csvpath):
-        import pandas as pd
-
-        energy_cols = []
-        emission_cols = []
-
-        def total_emissions(proc, gwp):
-            rates = proc.emissions.rates(gwp)
-            total = rates.loc["GHG"].sum()
-            return magnitude(total)
-
-        for (field, analysis) in tuples:
-            procs = field.processes()
-            energy_by_proc = {proc.name: magnitude(proc.energy.rates().sum()) for proc in procs}
-            s = pd.Series(energy_by_proc, name=field.name)
-            energy_cols.append(s)
-
-            emissions_by_proc = {proc.name: total_emissions(proc, analysis.gwp) for proc in procs}
-            s = pd.Series(emissions_by_proc, name=field.name)
-            emission_cols.append(s)
-
-        def _save(columns, csvpath):
-            df = pd.concat(columns, axis='columns')
-            df.index.name = 'process'
-            df.sort_index(axis='rows', inplace=True)
-
-            _logger.info(f"Writing '{csvpath}'")
-            df.to_csv(csvpath)
-
-        _save(energy_cols, "energy-" + csvpath)
-        _save(emission_cols, "emissions-" + csvpath)
 
     @classmethod
     def from_xml(cls, elt, parent=None, analysis_names=None, field_names=None):
@@ -244,7 +171,8 @@ class Model(Container):
 
         model.field_dict = model.adopt(fields, asDict=True)
 
-        analyses = instantiate_subelts(elt, Analysis, parent=model, include_names=analysis_names)
+        analyses = instantiate_subelts(elt, Analysis, parent=model, include_names=analysis_names,
+                                       field_names=field_names)
         if analysis_names and not analyses:
             raise CommandlineError(f"Specified analyses {analysis_names} not found in model")
 

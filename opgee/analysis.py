@@ -43,7 +43,10 @@ class Analysis(Container):
         super().__init__(name, attr_dict=attr_dict, parent=parent)
         self.check_attr_constraints(self.attr_dict)
 
-        self.model = model = self.find_container('Model')
+        if not parent:
+            raise OpgeeException("Tried to create Analysis without specifying parent (Model)")
+
+        self.model = model = parent
 
         # self.field_dict = None
         self._field_names = field_names     # may be extended in add_children()
@@ -55,8 +58,8 @@ class Analysis(Container):
         # Create validation sets from system.cfg to avoid hard-coding these
         self.functional_units = set(getParamAsList('OPGEE.FunctionalUnits'))
 
-        # This is set in use_GWP() below to a pandas.Series holding the current values
-    # in use, indexed by gas name.
+        # This is set in use_GWP() below to a pandas Series holding the current
+        # values in use, indexed by gas name.
         self.gwp = None
 
         # Use the GWP years and version specified in XML
@@ -65,15 +68,14 @@ class Analysis(Container):
 
         self.use_GWP(gwp_horizon, gwp_version)
 
-    # def add_children(self):
-    #     model = self.model
         fields = [model.get_field(name) for name in self._field_names]
 
         for group in self.groups:
             text = group.text
             if group.is_regex:
                 prog = re.compile(text)
-                matches = [field for field in model.fields() for name in field.group_names if prog.match(name)]
+                matches = [field for field in model.fields() for
+                           name in field.group_names if prog.match(name)]
             else:
                 matches = [field for field in model.fields() if field.name == text]
 
@@ -212,17 +214,19 @@ class Analysis(Container):
             return self.field_dict.values()
 
     @classmethod
-    def from_xml(cls, elt, parent=None):
+    def from_xml(cls, elt, parent=None, field_names=None):
         """
         Instantiate an instance from an XML element.
 
         :param elt: (etree.Element) representing a <Analysis> element
         :param parent: (opgee.Model) the Model containing the new Analysis
+        :param field_names: (list[str] or None) field names to restrict to,
+            otherwise all fields declared in the Analysis are used.
         :return: (Analysis) instance populated from XML
         """
         name = elt_name(elt)
         attr_dict = cls.instantiate_attrs(elt)
-        field_names = [elt_name(node) for node in elt.findall('Field')]
+        field_names = field_names or [elt_name(node) for node in elt.findall('Field')]
         groups = [Group(node) for node in elt.findall('Group')]
 
         obj = Analysis(name, attr_dict=attr_dict, parent=parent, field_names=field_names, groups=groups)
