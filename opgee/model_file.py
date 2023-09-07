@@ -57,7 +57,7 @@ class ModelCache(object):
 
         return obj
 
-def analysis_names(model_xml):
+def model_analysis_names(model_xml):
     """
     Return the names of all <Analysis> elements in the file ``model_xml``.
 

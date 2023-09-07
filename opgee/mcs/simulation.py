@@ -6,6 +6,7 @@
 # Copyright (c) 2022 the author and The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
+from glob import glob
 import json
 import os
 import pandas as pd
@@ -13,9 +14,9 @@ import re
 import traceback
 
 from ..config import pathjoin
-from ..core import OpgeeObject, split_attr_name, Timer
+from ..core import OpgeeObject, split_attr_name
 from ..error import OpgeeException, McsSystemError, McsUserError, CommandlineError
-from ..field import FieldResult, DETAILED_RESULT, SIMPLE_RESULT, ERROR_RESULT
+from ..field import FieldResult, SIMPLE_RESULT, ERROR_RESULT
 from ..log import getLogger
 from ..model_file import ModelFile
 from ..pkg_utils import resourceStream
@@ -63,8 +64,6 @@ def combine_results(sim_dir, field_names, delete=False):
     :param delete: (bool) whether to delete partial files after combining them
     :return: nothing
     """
-    from glob import glob
-
     with pushd(sim_dir):
         for field_name in field_names:
             with pushd(field_name):
@@ -195,212 +194,6 @@ class Distribution(OpgeeObject):
     def __str__(self):
         return f"<Distribution '{self.full_name}' = {self.rv}>"
 
-# TBD: needs to be modified to use packets and be called from run command
-#  Or perhaps to replace most of the code in the run command
-def run_many(model_xml_file, analysis_name, field_names, output, count=0, start_with=0,
-        save_after=None, skip_fields=None, batch_start=0, parallel=True):
-    import os
-    import pandas as pd
-    from ..config import getParam, setParam, pathjoin
-    from ..error import CommandlineError
-    from ..model_file import analysis_names, fields_for_analysis
-
-    # TBD: unclear if this is necessary
-    setParam('OPGEE.XmlSavePathname', '')   # avoid writing /tmp/final.xml since no need
-
-    analysis_name = analysis_name or analysis_names(model_xml_file)[0]
-    all_fields = fields_for_analysis(model_xml_file, analysis_name)
-
-    field_names = [name.strip() for name in field_names] if field_names else None
-    if field_names:
-        unknown = set(field_names) - set(all_fields)
-        if unknown:
-            raise CommandlineError(f"Fields not found in {model_xml_file}: {unknown}")
-    else:
-        field_names = all_fields
-
-    if start_with:
-        # skip all before the named field
-        i = field_names.index(start_with)
-        field_names = field_names[i:]
-
-    if count:
-        field_names = field_names[:count]
-
-    if skip_fields:
-        field_names = [name.strip() for name in field_names if name not in skip_fields]
-
-    # TBD: replace these with a save function that takes a list of FieldResults
-    def _save_cols(columns, csvpath):
-        df = pd.concat(columns, axis='columns')
-        df.index.name = 'process'
-        df.sort_index(axis='rows', inplace=True)
-
-        print(f"Writing '{csvpath}'")
-        df.to_csv(csvpath)
-
-    def _save_errors(errors, csvpath):
-        """Save a description of all field run errors"""
-        with open(csvpath, 'w') as f:
-            f.write('analysis,field,error\n')
-            for result in errors:
-                f.write(f"{result.analysis_name},{result.field_name},{result.error}\n")
-
-    temp_dir = getParam('OPGEE.TempDir')
-    dir_name, filename = os.path.split(output)      # TBD: output should be a directory since ext must be CSV.
-    subdir = pathjoin(temp_dir, dir_name)
-    basename, ext = os.path.splitext(filename)
-
-    if save_after:
-        batch = batch_start   # used in naming result files
-
-        # TBD: instead of max_results, use packets which should collapse these two main branches
-        for results in run_parallel(model_xml_file, analysis_name, field_names,
-                                    max_results=save_after):
-
-            energy_cols = [r.energy for r in results if r.error is None]
-            emissions_cols = [r.emissions for r in results if r.error is None]
-            errors = [r.error for r in results if r.error is not None]
-
-            # TBD: save CI results
-            # _save_cols(energy_cols, pathjoin(subdir, f"{basename}-CI{ext}"))
-
-            _save_cols(energy_cols,    pathjoin(subdir, f"{basename}-energy-{batch}{ext}"))
-            _save_cols(emissions_cols, pathjoin(subdir, f"{basename}-emissions-{batch}{ext}"))
-            _save_errors(errors,       pathjoin(subdir, f"{basename}-errors-{batch}.csv"))
-
-            batch += 1
-
-    else:
-        # If not running in batches, save all results at the end
-        run_func = run_parallel if parallel else run_serial
-        results = run_func(model_xml_file, analysis_name, field_names,
-                           max_results=save_after)
-
-        energy_cols = [r.energy for r in results if r.error is None]
-        emissions_cols = [r.emissions for r in results if r.error is None]
-        errors = [r.error for r in results if r.error is not None]
-
-        # TBD: save CI results
-        #_save_cols(energy_cols, pathjoin(subdir, f"{basename}-CI{ext}"))
-
-        # Insert "-energy" or "-emissions" between basename and extension
-        _save_cols(energy_cols,    pathjoin(subdir, f"{basename}-energy{ext}"))
-        _save_cols(emissions_cols, pathjoin(subdir, f"{basename}-emissions{ext}"))
-        _save_errors(errors,       pathjoin(subdir, f"{basename}-errors.csv"))
-
-def _run_field(analysis_name, field_name, xml_string, result_type):
-    """
-    Run a single field, once, using the model in ``xml_string`` and return a
-    ``FieldResult`` instance with results of ``result_type``.
-
-    :param analysis_name: (str) the name of the ``Analysis`` to use to run the ``Field``
-    :param field_name: (str) the name of the ``Field`` to run
-    :param xml_string: (str) XML description of the model to run
-    :param result_type: (str) the type of results to return, i.e., "detailed"
-        or "simple"
-    :return: (FieldResult) results of ``result_type`` or ERROR_RESULT, if an error
-        occurred.
-    """
-    from ..model_file import ModelFile
-
-    try:
-        mf = ModelFile.from_xml_string(xml_string, add_stream_components=False,
-                                       use_class_path=False,
-                                       use_default_model=True,
-                                       analysis_names=[analysis_name],
-                                       field_names=[field_name])
-
-        analysis = mf.model.get_analysis(analysis_name)
-        field = analysis.get_field(field_name)
-        field.run(analysis)
-        result = field.get_result(analysis, result_type)
-
-    except Exception as e:
-        result = FieldResult(analysis_name, field_name, ERROR_RESULT, error=str(e))
-
-    return result
-
-
-def run_parallel(model_xml_file, analysis_name, field_names,
-                 max_results=None, result_type=DETAILED_RESULT):
-    from dask.distributed import as_completed
-    from ..manager import Manager
-    from ..model_file import extract_model
-
-    mgr = Manager(cluster_type='local')
-
-    timer = Timer('run_parallel')
-
-    # Put the log for the monitor process in the simulation directory.
-    # Each Worker will set the log file to within the directory for the
-    # field it's currently running.
-    # log_file = f"{sim_dir}/opgee-mcs.log"
-    # setLogFile(log_file, remove_old_file=True)
-
-    # N.B. start_cluster saves client in self.client and returns it as well
-    client = mgr.start_cluster()
-
-    futures = []
-
-    # Submit all the fields to run on worker tasks
-    # TBD: should these be packetized? Should worker extract xml_string?
-    for field_name, xml_string in extract_model(model_xml_file, analysis_name,
-                                                field_names):
-        future = client.submit(_run_field, analysis_name, field_name,
-                               xml_string, result_type)
-        futures.append(future)
-
-    results = []
-    count = 0   # used if we're returning results in batches
-
-    # Wait for and process results
-    for future, result in as_completed(futures, with_results=True):
-        if max_results and count == 0:
-            results.clear()
-
-        if result.error:
-            _logger.error(f"Failed: {result}")
-        else:
-            _logger.debug(f"Succeeded: {result}")
-
-        results.append(result)
-
-        if max_results:
-            if count == max_results:
-                count = 0
-                # return the next batch
-                yield results
-            else:
-                count += 1
-
-    _logger.debug("Workers finished")
-
-    mgr.stop_cluster()
-    _logger.info(timer.stop())
-
-    if count:
-        yield results
-    else:
-        return results
-
-def run_serial(model_xml_file, analysis_name, field_names, result_type=DETAILED_RESULT):
-    from ..model_file import extract_model
-
-    timer = Timer('run_serial')
-
-    results = []
-
-    for field_name, xml_string in extract_model(model_xml_file, analysis_name,
-                                                field_names):
-        result = _run_field(analysis_name, field_name, xml_string, result_type)
-        if result.error:
-            _logger.error(f"Failed: {result}")
-
-        results.append(result)
-
-    _logger.info(timer.stop())
-    return results
 
 class Simulation(OpgeeObject):
     # TBD: update this document string

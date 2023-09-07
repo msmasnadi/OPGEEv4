@@ -977,9 +977,9 @@ class Field(Container):
             unvisited = procs_in_cycles.copy()
             start_proc = start_procs[0]
             import opgee
-            if any(isinstance(obj, opgee.process.Reservoir) for obj in unvisited):
+            if any(isinstance(obj, Reservoir) for obj in unvisited):
                 for obj in unvisited:
-                    if isinstance(obj, opgee.process.Reservoir):
+                    if isinstance(obj, Reservoir):
                         start_proc = obj
                         break
 
