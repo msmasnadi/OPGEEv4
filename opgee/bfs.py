@@ -102,16 +102,16 @@ def get_successor_pairs(successors):
 
 def bfs(start_node, unvisited, ordered_cycle):
     """
-        Perform a Breadth-First Search (BFS) traversal on a graph-like structure starting from the given node.
+        Perform a Breadth-First Search (BFS) traversal on a graph structure starting
+        from ``start_node``.
 
         Args:
             start_node: The starting node for the BFS traversal.
+            unvisited: The notes yet to be visited (N.B. caller's list is modified)
+            ordered_cycle: the BFS ordered nodes (N.B. caller's list is modified)
 
         Returns:
-            ordered_cycle (list): A list containing the nodes visited in the order they were visited during the BFS traversal.
-            :param start_node:
-            :param ordered_cycle:
-            :param unvisited:
+            none
     """
     deck = deque([start_node])
 

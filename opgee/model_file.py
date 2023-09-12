@@ -113,23 +113,28 @@ def _get_xml_str(model_xml, analysis_name, field_name, with_model_elt=False):
 
     _logger.debug(f"Extracting field {field_name}")
 
-    found = root.xpath(f'/Model/Analysis[@name="{analysis_name}"]/Field[@name="{field_name}"]')
-    if not found:
+    # this is the declaration of the field inside the <Analysis>
+    field_decl = root.find(f'./Analysis[@name="{analysis_name}"]/Field[@name="{field_name}"]')
+    if field_decl is None:
         raise OpgeeException(f"Field '{field_name}' was not found under Analysis '{analysis_name}'")
 
+    # This is the actual <Field> definition
+    field_defs = root.xpath(f'/Model/Field[@name="{field_name}"]')
+
     # xpath() returns a list
-    if len(found) > 1:
+    if len(field_defs) > 1:
         raise OpgeeException(f"Field '{field_name}' appears multiple times in model XML")
 
-    extracted_field = found[0]
+    field_def = field_defs[0]
 
     # Create a model with just the extracted Field and surrounding elements
     model = ET.Element('Model')
     analysis = ET.SubElement(model, 'Analysis', name=analysis_name)
-    analysis.append(deepcopy(extracted_field))
+    analysis.append(field_decl)
+    model.append(deepcopy(field_def))
 
     xml_string = ET.tostring(model, pretty_print=True, encoding="unicode")
-    return xml_string, model if with_model_elt else xml_string
+    return (xml_string, model) if with_model_elt else xml_string
 
 def _get_tmp_xml_file(model_xml, analysis_name, field_name):
     """

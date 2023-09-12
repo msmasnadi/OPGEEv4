@@ -9,15 +9,6 @@ from ..log import getLogger, setLogFile
 
 _logger = getLogger(__name__)
 
-RUN_PARALLEL = 'parallel'
-RUN_SERIAL   = 'serial'
-RUN_MODES = (RUN_PARALLEL, RUN_SERIAL)
-
-CLUSTER_NONE  = 'none'      # i.e., run mode is RUN_SERIAL
-CLUSTER_LOCAL = 'local'
-CLUSTER_SLURM = 'slurm'
-CLUSTER_TYPES = (CLUSTER_NONE, CLUSTER_SLURM, CLUSTER_LOCAL)
-
 
 class RunCommand(SubcommandABC):
     def __init__(self, subparsers, name='run', help='Run the specified portion of an OPGEE LCA model'):
@@ -26,8 +17,9 @@ class RunCommand(SubcommandABC):
 
     def addArgs(self, parser):
         from ..config import getParam, getParamAsInt
-        from ..utils import ParseCommaList, positive_int
+        from ..constants import CLUSTER_NONE, CLUSTER_TYPES
         from ..field import DEFAULT_RESULT_TYPE, SIMPLE_RESULT, DETAILED_RESULT, USER_RESULT_TYPES
+        from ..utils import ParseCommaList, positive_int
 
         partition = getParam('SLURM.Partition')
         min_per_task = getParam('SLURM.MinutesPerTask')
@@ -49,7 +41,7 @@ class RunCommand(SubcommandABC):
                                 run, rather than by top-level processes and aggregators (as with --output)''')
 
         cluster_type = getParam('OPGEE.ClusterType') or CLUSTER_NONE
-        parser.add_argument('-c', '--cluster-type', choices=CLUSTER_TYPES, default=CLUSTER_NONE,
+        parser.add_argument('-c', '--cluster-type', choices=CLUSTER_TYPES,
                             help=f'''The type of cluster to use. Defaults to value of config
                             variable 'OPGEE.ClusterType', currently "{cluster_type}".''')
 
@@ -92,7 +84,7 @@ class RunCommand(SubcommandABC):
                             (Mutually exclusive with -f/--fields.)''')
 
         parser.add_argument('-o', '--output-dir',
-                            help='''Write output to the specified directory''')
+                            help='''Write output to the specified directory.''')
 
         # parser.add_argument('-o', '--output', required=True,
         #                     help='''[Required] The pathname of the CSV files to create containing energy and
@@ -117,17 +109,12 @@ class RunCommand(SubcommandABC):
                             venting/flaring, other. For "{DETAILED_RESULT}" results, per-process emissions and energy
                             use are stored.''')
 
-        # Deprecated -- cluster_type 'none' => serial mode
-        # parser.add_argument('-R', '--run-mode', choices=RUN_MODES, default=RUN_PARALLEL,
-        #                     help=f'''Whether to run serially or in parallel by creating a dask cluster.
-        #                     Default is "{RUN_PARALLEL}" when running more than one field or trial.''')
-
         parser.add_argument('-s', '--simulation-dir',
                             help='''The top-level directory to use for this simulation "package"''')
 
         parser.add_argument('-S', '--save-after', type=int,
                             help='''Write a results to a new file after the given number of results are 
-                            returned. Implies --parallel. If not specified, results are written out only
+                            returned. If not specified, results are written out only
                             after all trials have completed.''')
 
         parser.add_argument('-t', '--trials', default='all',
@@ -150,7 +137,185 @@ class RunCommand(SubcommandABC):
 
         return parser
 
-    # TBD: this was the run() method from the runsim plugin.
+    def run(self, args, tool):
+        from ..config import setParam
+        from ..error import CommandlineError
+        from ..model_file import model_analysis_names, fields_for_analysis
+        from ..manager import Manager, save_results, TrialPacket, FieldPacket
+        from ..utils import parseTrialString, mkdirs
+        from ..mcs.simulation import Simulation, model_file_path
+
+        analysis_names = args.analyses or []
+        batch_size = args.save_after
+        batch_start = args.batch_start
+        collect = args.collect
+        field_names = args.fields or []
+        minutes_per_task = args.minutes
+        model_files = args.model_file       # all specified model files
+        model_xml_file = model_files[0] if model_files else None    # TBD: currently using only the first model file specified
+        num_fields = args.num_fields
+        ntasks = args.ntasks
+        output_dir = args.output_dir
+        packet_size = args.packet_size
+        result_type = args.result_type
+        sim_dir = args.simulation_dir
+        skip_fields = args.skip_fields
+        start_with = args.start_with
+        trial_nums = None
+        trials = args.trials
+        use_default_model = not args.no_default_model
+
+        if sim_dir:
+            metadata = Simulation.read_metadata(sim_dir)
+            field_names = field_names or metadata['field_names']
+            trial_nums = metadata["trials"] if trials == "all" else parseTrialString(trials)
+            model_xml_file = model_xml_file or model_file_path(sim_dir)
+
+            output_dir = f"{sim_dir}/results"
+            mkdirs(output_dir)
+
+            # if not (ntasks or num_fields or field_names):
+            #     raise OpgeeException(
+            #         f"Must specify field names (-f/--fields), number of fields "
+            #         f"(-N/--num-fields) or number of tasks (-n/--ntasks)"
+            #     )
+
+        if not output_dir:
+            raise CommandlineError("Non-MCS runs must specify -o/--output-dir")
+
+        if not (field_names or analysis_names):
+            raise CommandlineError("Must indicate one or more fields or analyses to run")
+
+        if not (use_default_model or model_files):
+            raise CommandlineError("No model to run: the --model-file option was not used and --no-default-model was specified.")
+
+        # TBD: unclear if this is necessary
+        setParam("OPGEE.XmlSavePathname", "")  # avoid writing /tmp/final.xml since no need
+
+        # TBD: decide if we need to support multiple analysis names (only 1st is used currently)
+        analysis_name = analysis_names[0] if analysis_names else model_analysis_names(model_xml_file)[0]
+        all_fields = fields_for_analysis(model_xml_file, analysis_name)
+
+        field_names = [name.strip() for name in field_names] if field_names else None
+        if field_names:
+            unknown = set(field_names) - set(all_fields)
+            if unknown:
+                raise CommandlineError(f"Fields not found in {model_xml_file}: {unknown}")
+        else:
+            field_names = all_fields
+
+        if start_with:
+            # skip all before the named field
+            i = field_names.index(start_with)
+            field_names = field_names[i:]
+
+        if num_fields:
+            field_names = field_names[:num_fields]
+
+        if skip_fields:
+            field_names = [name.strip() for name in field_names if name not in skip_fields]
+
+        mgr = Manager(cluster_type=args.cluster_type)
+
+        if sim_dir:
+            if ntasks is None:
+                ntasks = len(field_names)
+
+            packets = TrialPacket.packetize(sim_dir, trial_nums, field_names, packet_size)
+        else:
+            packets = FieldPacket.packetize(model_xml_file, analysis_name, field_names, packet_size)
+
+        results_list = []
+        save_batches = batch_size is not None
+        batch_num = batch_start
+
+        for results in mgr.run_packets(packets,
+                                      result_type=result_type,
+                                      num_engines=ntasks,
+                                      minutes_per_task=minutes_per_task):
+            # Save to disk, optionally in batches.
+            if save_batches:
+                if len(results_list) < batch_size:
+                    results_list.append(results)
+                else:
+                    save_results(results_list, output_dir, batch_num=batch_num)
+                    results_list.clear()
+                    batch_num += 1
+            else:
+                results_list.append(results)
+
+        save_results(results_list, output_dir, batch_num=batch_num if batch_size else None)
+
+        if collect and save_batches:
+            # Combine partial result files into one
+            pass
+
+
+
+    # TBD: This was part of the old run() method, kept here for reference for now
+    # def remainder_of_run(self):
+    #
+    #     # TBD: read analysis names without instantiating entire model
+    #     #  by calling (model_file.py) model_analysis_names(model_xml_pathname)
+    #     #  Then get field name with fields_for_analysis(model_xml, analysis_name)
+    #     #  Avoid reading model here; push this into run_serial / run_parallel
+    #     mf = ModelFile(model_files, use_default_model=use_default_model,
+    #                    analysis_names=analysis_names, field_names=field_names)
+    #     model = mf.model
+    #
+    #     all_analyses = model.analyses()
+    #     if analysis_names:
+    #         selected_analyses = [ana for ana in all_analyses if ana.name in analysis_names]
+    #         if not selected_analyses:
+    #             raise CommandlineError(f"Specified analyses {analysis_names} were not found in model")
+    #     else:
+    #         selected_analyses = list(all_analyses)
+    #
+    #     if field_names:
+    #         specific_field_tuples = [name.split('.') for name in field_names if '.' in name] # tuples of (analysis, field)
+    #         nonspecific_field_names = [name for name in field_names if '.' not in name]
+    #
+    #         selected_fields = []    # list of tuples of (analysis_name, field_name)
+    #
+    #         for analysis in selected_analyses:
+    #             found = [(field, analysis) for field in analysis.fields() if field.name in nonspecific_field_names]
+    #             selected_fields.extend(found)
+    #
+    #         # TBD: convert this to use run_parallel or run_serial
+    #         for analysis_name, field_name in specific_field_tuples:
+    #             analysis = model.get_analysis(analysis_name)
+    #             field = analysis.get_field(field_name)
+    #             if field is None:
+    #                 raise CommandlineError(f"Field '{field_name}' was not found in analysis '{analysis_name}'")
+    #
+    #             selected_fields.append((field, analysis))
+    #
+    #         if not selected_fields:
+    #             raise CommandlineError("The model contains no fields matching command line arguments.")
+    #     else:
+    #         # run all fields for selected analyses
+    #         selected_fields = [(field, analysis) for analysis in selected_analyses for field in analysis.fields()]
+    #
+    #     errors = []  # accumulate these to print again at the end
+    #     results = []
+    #
+    #     # TBD: turn these into a packet for consistency and to share
+    #     #  result processing / saving logic
+    #     for field, analysis in selected_fields:
+    #         try:
+    #             field.run(analysis)
+    #             result = field.get_result(analysis, result_type, collect)
+    #             results.append(result)
+    #         except OpgeeException as e:
+    #             if args.ignore_errors:
+    #                 _logger.error(f"Error in {field}: {e}")
+    #                 errors.append((field, e))
+    #             else:
+    #                 raise
+    #
+    #     save_results(results, result_type)
+
+    # Deprecated. This was the run() method from the runsim plugin.
     def runsim(self, args):
         from ..error import OpgeeException
         from ..utils import parseTrialString
@@ -320,155 +485,3 @@ class RunCommand(SubcommandABC):
             _save_cols(energy_cols, pathjoin(subdir, f"{basename}-energy{ext}"))
             _save_cols(emissions_cols, pathjoin(subdir, f"{basename}-emissions{ext}"))
             _save_errors(errors, pathjoin(subdir, f"{basename}-errors.csv"))
-
-    def run(self, args, tool):
-        import os
-        import pandas as pd
-
-        from ..config import setParam
-        from ..error import OpgeeException, CommandlineError
-        from ..model_file import ModelFile, model_analysis_names, fields_for_analysis
-        from ..manager import Manager, save_results
-        from ..utils import parseTrialString
-        from ..mcs.simulation import Simulation
-
-        # from ..config import getParam, setParam, pathjoin
-        # from ..manager import run_serial, run_parallel
-
-        analysis_names = args.analyses
-        collect = args.collect
-        field_names = args.fields or []
-        model_files = args.model_file       # all specified model files
-        model_xml_file = model_files[0]     # TBD: currently using only the first model file specified
-        num_fields = args.num_fields
-        ntasks = args.ntasks
-        result_type = args.result_type
-        sim_dir = args.simulation_dir
-        skip_fields = args.skip_fields
-        start_with = args.start_with
-        trial_nums = None
-        trials = args.trials
-        use_default_model = not args.no_default_model
-
-        if sim_dir:
-            metadata = Simulation.read_metadata(sim_dir)
-            field_names = field_names or metadata['field_names']
-            trial_nums = metadata["trials"] if trials == "all" else parseTrialString(trials)
-
-            # if not (ntasks or num_fields or field_names):
-            #     raise OpgeeException(
-            #         f"Must specify field names (-f/--fields), number of fields "
-            #         f"(-N/--num-fields) or number of tasks (-n/--ntasks)"
-            #     )
-
-        if not (field_names or analysis_names):
-            raise CommandlineError("Must indicate one or more fields or analyses to run")
-
-        if not (use_default_model or model_files):
-            raise CommandlineError("No model to run: the --model-file option was not used and --no-default-model was specified.")
-
-        # TBD: unclear if this is necessary
-        setParam("OPGEE.XmlSavePathname", "")  # avoid writing /tmp/final.xml since no need
-
-        # TBD
-        #  1. Determine which analyses, fields, and/or trials to run
-        #  2. If args.simulation_dir, generate TrialPackets, otherwise FieldPackets
-        #  3. mgr = Manager(cluster_type=x)
-        #  4. mgr.run_packets(packets, result_type=result_type,
-        #                     num_engines=ntasks, minutes_per_task=args.minutes)
-        #     (but convert this to yield results as they arrive so caller can save batches)
-
-        # From run_many:
-        # TBD: decide if we need to support multiple analysis names (only 1st is used currently)
-        analysis_name = args.analysis_name[0] or model_analysis_names(model_xml_file)[0]
-        all_fields = fields_for_analysis(model_xml_file, analysis_name)
-
-        field_names = [name.strip() for name in field_names] if field_names else None
-        if field_names:
-            unknown = set(field_names) - set(all_fields)
-            if unknown:
-                raise CommandlineError(f"Fields not found in {model_xml_file}: {unknown}")
-        else:
-            field_names = all_fields
-
-        if start_with:
-            # skip all before the named field
-            i = field_names.index(start_with)
-            field_names = field_names[i:]
-
-        if num_fields:
-            field_names = field_names[:num_fields]
-
-        if skip_fields:
-            field_names = [name.strip() for name in field_names if name not in skip_fields]
-
-        mgr = Manager(cluster_type=args.cluster_type)
-
-        if sim_dir:
-            packets = mgr.packetize_trials(field_names, sim_dir, trial_nums,
-                                           num_fields=num_fields, ntasks=ntasks)
-        else:
-            packets = mgr.packetize_fields(field_names)
-
-        for result in mgr.run_packets(packets):
-            pass
-
-        # TBD: read analysis names without instantiating entire model
-        #  by calling (model_file.py) model_analysis_names(model_xml_pathname)
-        #  Then get field name with fields_for_analysis(model_xml, analysis_name)
-        #  Avoid reading model here; push this into run_serial / run_parallel
-        mf = ModelFile(model_files, use_default_model=use_default_model,
-                       analysis_names=analysis_names, field_names=field_names)
-        model = mf.model
-
-        all_analyses = model.analyses()
-        if analysis_names:
-            selected_analyses = [ana for ana in all_analyses if ana.name in analysis_names]
-            if not selected_analyses:
-                raise CommandlineError(f"Specified analyses {analysis_names} were not found in model")
-        else:
-            selected_analyses = list(all_analyses)
-
-        if field_names:
-            specific_field_tuples = [name.split('.') for name in field_names if '.' in name] # tuples of (analysis, field)
-            nonspecific_field_names = [name for name in field_names if '.' not in name]
-
-            selected_fields = []    # list of tuples of (analysis_name, field_name)
-
-            for analysis in selected_analyses:
-                found = [(field, analysis) for field in analysis.fields() if field.name in nonspecific_field_names]
-                selected_fields.extend(found)
-
-            # TBD: convert this to use run_parallel or run_serial
-            for analysis_name, field_name in specific_field_tuples:
-                analysis = model.get_analysis(analysis_name)
-                field = analysis.get_field(field_name)
-                if field is None:
-                    raise CommandlineError(f"Field '{field_name}' was not found in analysis '{analysis_name}'")
-
-                selected_fields.append((field, analysis))
-
-            if not selected_fields:
-                raise CommandlineError("The model contains no fields matching command line arguments.")
-        else:
-            # run all fields for selected analyses
-            selected_fields = [(field, analysis) for analysis in selected_analyses for field in analysis.fields()]
-
-        errors = []  # accumulate these to print again at the end
-        results = []
-
-        # TBD: turn these into a packet for consistency and to share
-        #  result processing / saving logic
-        for field, analysis in selected_fields:
-            try:
-                field.run(analysis)
-                result = field.get_result(analysis, result_type, collect)
-                results.append(result)
-            except OpgeeException as e:
-                if args.ignore_errors:
-                    _logger.error(f"Error in {field}: {e}")
-                    errors.append((field, e))
-                else:
-                    raise
-
-        save_results(results, result_type)

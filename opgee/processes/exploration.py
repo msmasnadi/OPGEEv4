@@ -9,7 +9,6 @@
 import math
 
 from .. import ureg
-from ..constants import year_to_day
 from ..emissions import EM_COMBUSTION
 from ..energy import EN_DIESEL
 from ..log import getLogger
@@ -68,6 +67,7 @@ class Exploration(Process):
         self.print_running_msg()
 
         field = self.field
+        m = self.model
 
         oil_mass_energy_density = field.oil.mass_energy_density()
         if self.field.get_process_data("crude_LHV") is None:
@@ -78,12 +78,16 @@ class Exploration(Process):
         truck_energy_intensity = field.transport_energy.energy_intensity_truck
 
         export_LHV = field.get_process_data("exported_prod_LHV")
-        cumulative_export_LHV = export_LHV * year_to_day * self.field_production_lifetime
-        survey_vehicle_energy_consumption = \
-            truck_energy_intensity * self.weight_land_survey * self.distance_survey if not self.offshore else \
-                ocean_tank_energy_intensity * self.weight_ocean_survey * self.distance_survey
-        drill_consumption_per_well = self.drill_energy_consumption / self.num_wells \
-            if self.oil_sands_mine == "None" else ureg.Quantity(0.0, "mmbtu")
+        cumulative_export_LHV = export_LHV * self.field_production_lifetime * m.const("days-per-year")
+
+        survey_vehicle_energy_consumption = (truck_energy_intensity * self.weight_land_survey *
+                                             self.distance_survey if not self.offshore else
+                                             ocean_tank_energy_intensity * self.weight_ocean_survey *
+                                             self.distance_survey)
+
+        drill_consumption_per_well = (self.drill_energy_consumption / self.num_wells
+                                      if self.oil_sands_mine == "None" else ureg.Quantity(0.0, "mmbtu"))
+
         drill_energy_consumption = drill_consumption_per_well * (self.number_wells_dry + self.number_wells_exploratory)
         frac_energy_consumption = (survey_vehicle_energy_consumption + drill_energy_consumption) / cumulative_export_LHV
         diesel_consumption = frac_energy_consumption * export_LHV

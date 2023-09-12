@@ -6,11 +6,9 @@
 # Copyright (c) 2022 the author and The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-from glob import glob
 import json
 import os
 import pandas as pd
-import re
 import traceback
 
 from ..config import pathjoin
@@ -20,7 +18,7 @@ from ..field import FieldResult, SIMPLE_RESULT, ERROR_RESULT
 from ..log import getLogger
 from ..model_file import ModelFile
 from ..pkg_utils import resourceStream
-from ..utils import mkdirs, removeTree, pushd
+from ..utils import mkdirs, removeTree
 
 from .distro import get_frozen_rv
 from .LHS import lhs
@@ -39,44 +37,6 @@ DEFAULT_DIGITS = 3
 
 def roundmag(quantity, digits=DEFAULT_DIGITS):          # pragma: no cover
     return round(quantity.m, digits)
-
-def _combine(filenames, output_name):
-    if not filenames:
-        return
-
-    dfs = [pd.read_csv(name, index_col=False) for name in filenames]
-    combined = pd.concat(dfs, axis='rows').sort_values('trial_num')
-
-    _logger.debug(f"Writing '{output_name}'")
-    combined.to_csv(output_name, index=False)
-
-
-results_pat  = re.compile(r'results-\d+\.csv$')
-failures_pat = re.compile(r'failures-\d+\.csv$')
-
-def combine_results(sim_dir, field_names, delete=False):
-    """
-    Combine CSV files containing partial results/failures from an MCS into two files,
-    results.csv and failures.csv.
-
-    :param sim_dir: (str) the simulation directory
-    :param field_names: (list of str) names of fields to combine results for
-    :param delete: (bool) whether to delete partial files after combining them
-    :return: nothing
-    """
-    with pushd(sim_dir):
-        for field_name in field_names:
-            with pushd(field_name):
-                # use glob with its limited wildcard capability, then filter for the real pattern
-                result_files = [name for name in glob(r'results-*.csv') if re.match(results_pat, name)]
-                _combine(result_files, RESULTS_CSV)
-
-                failure_files = [name for name in glob(r'failures-*.csv') if re.match(failures_pat, name)]
-                _combine(failure_files, FAILURES_CSV)
-
-                if delete:
-                    for name in result_files + failure_files:
-                        os.remove(name)
 
 def model_file_path(sim_dir):     # pragma: no cover
     model_file = pathjoin(sim_dir, MODEL_FILE)
@@ -475,6 +435,7 @@ class Simulation(OpgeeObject):
         _logger.info(f"Writing '{filename}'")
         self.trial_data_df.to_csv(filename)
 
+    # Deprecated
     def save_trial_results(self, field, df, packet_num, failures):
         """
         Save the results of an MCS "trial packet" (which may be all trials
@@ -561,9 +522,6 @@ class Simulation(OpgeeObject):
         # TBD: test this
         SmartDefault.apply_defaults(field, analysis=analysis)
 
-
-    # TBD: the only difference between run_many (fields) and runsim (trials) should
-    #  be that MCS requires that we call set_trial_data.
     def run_packet(self, packet, result_type=SIMPLE_RESULT):
         """
         Run the Monte Carlo trials ``trial_nums` for ``field``, serially.

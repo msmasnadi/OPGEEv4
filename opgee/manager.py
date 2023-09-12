@@ -10,17 +10,21 @@ import asyncio
 import dask
 from dask_jobqueue import SLURMCluster
 from dask.distributed import Client, LocalCluster, as_completed
+from glob import glob
+import os
 import pandas as pd
+import re
 from typing import Sequence
 
 from .core import OpgeeObject, Timer
 from .config import getParam, getParamAsInt, getParamAsBoolean, pathjoin
+from .constants import CLUSTER_NONE
 from .error import McsSystemError, AbstractMethodError
 from .field import FieldResult, SIMPLE_RESULT, DETAILED_RESULT, ERROR_RESULT
 from .log import getLogger, setLogFile
 from .model_file import extract_model
-
-from .mcs.simulation import Simulation
+from .utils import flatten, pushd
+from .mcs.simulation import Simulation, RESULTS_CSV, FAILURES_CSV
 
 # To debug dask, uncomment the following 2 lines
 # import logging
@@ -93,6 +97,7 @@ class AbsPacket(OpgeeObject):
 
 class FieldPacket(AbsPacket):
     def __init__(self,
+                 model_xml_file: str,
                  analysis_name: str,             # TBD: might not be needed here
                  field_names: Sequence[str]):
         """
@@ -104,54 +109,28 @@ class FieldPacket(AbsPacket):
         :param field_names: (list of str) names of fields to iterate over for non-MCS
         """
         super().__init__(field_names)
+        self.model_xml_file = model_xml_file
         self.analysis_name = analysis_name
 
     @classmethod
-    def packetize(cls, analysis_name: str, field_names: Sequence[str], packet_size: int):
+    def packetize(cls,
+                  model_xml_file: str,
+                  analysis_name: str,
+                  field_names: Sequence[str],
+                  packet_size: int):
         """
         Packetizes over ``field_names``. Each packet contains a set of
         field names to iterate over.
         """
-        packets = [FieldPacket(analysis_name, field_names)
+        packets = [FieldPacket(model_xml_file, analysis_name, field_names)
                    for field_names in _batched(field_names, packet_size)]
         return packets
 
     def run(self, result_type):
         timer = Timer(f"FieldPacket.run({self})")
-
-        field_name = self.field_name
-
-        log_file = f"{field_dir}/packet-{self.packet_num}.log"
-        setLogFile(log_file, remove_old_file=True)
-
-        for field_name in packet:
-            try:
-                # Reload from cached XML string to avoid stale state
-                self.load_model()
-                analysis = self.analysis
-
-                # Use the new instance of field from the reloaded model
-                field = analysis.get_field(field_name)
-
-                self.set_trial_data(analysis, field, trial_num)
-
-                field.run(analysis, compute_ci=True, trial_num=trial_num)
-                result = field.get_result(analysis, result_type, trial_num=trial_num)
-                results.append(result)
-
-            except Exception as e:
-                errmsg = f"Trial {trial_num}: {e}"
-                result = FieldResult(self.analysis.name, field_name, ERROR_RESULT,
-                                     trial_num=trial_num, error=errmsg)
-                results.append(result)
-
-                _logger.warning(f"Exception raised in trial {trial_num} in {field_name}: {e}")
-                _logger.debug(traceback.format_exc())
-                continue
-
-        return results
-
-        results = sim.run_packet(self, result_type)
+        field_names = self.items
+        results = run_serial(self.model_xml_file, self.analysis_name, field_names,
+                             result_type=result_type)
         timer.stop()
 
         _logger.debug(f"FieldPacket.run({self}) returning {len(results)} results")
@@ -165,7 +144,10 @@ class TrialPacket(AbsPacket):
         self.field_name = field_name
 
     @classmethod
-    def packetize(cls, sim_dir: str, field_names: Sequence[str], trial_nums: Sequence[int],
+    def packetize(cls,
+                  sim_dir: str,
+                  trial_nums: Sequence[int],
+                  field_names: Sequence[str],
                   packet_size: int):
         """
         Packetizes over ``trial_nums`` for each name in ``field_names``.
@@ -176,8 +158,6 @@ class TrialPacket(AbsPacket):
                    for trial_batch in _batched(trial_nums, packet_size)]
         return packets
 
-    # TBD: revise this to iterate over pkt.trial_nums or pkt.field_names and
-    #   return a FieldResult. Should be no need for a RemoteError result.
     def run(self, result_type):
         """
         Run the trials in ``packet``, serially. In distributed mode,
@@ -209,15 +189,20 @@ class TrialPacket(AbsPacket):
 
 class Manager(OpgeeObject):
     def __init__(self, cluster_type=None):
+        from .constants import CLUSTER_TYPES
         cluster_type = (cluster_type or getParam('OPGEE.ClusterType')).lower()
 
-        valid = ('serial', 'local', 'slurm')
-        if cluster_type not in valid:
-            raise McsSystemError(f"Unknown cluster type '{cluster_type}'. Valid options are {valid}.")
+        if cluster_type not in CLUSTER_TYPES:
+            raise McsSystemError(f"Unknown cluster type '{cluster_type}'. "
+                                 f"Valid options are {CLUSTER_TYPES}.")
 
         self.cluster_type = cluster_type
         self.cluster = None
         self.client = None
+
+    def __str__(self):
+        cls = self.__class__.__name__
+        return f"<{cls} cluster:{self.cluster_type}>"
 
     def start_cluster(self, num_engines=None, minutes_per_task=None):
         cluster_type = self.cluster_type
@@ -306,17 +291,6 @@ class Manager(OpgeeObject):
 
         self.client = self.cluster = None
 
-    def packetize_trials(self, field_names, sim_dir, trial_nums,
-                         num_fields=None, ntasks=None):
-        if ntasks is None:
-            ntasks = len(field_names)
-
-        packets = TrialPacket.packetize(sim_dir, field_names, trial_nums, args.packet_size)
-        return packets
-
-    def packetize_fields(self, field_names):
-        pass  
-
     # TBD: Model this after (or merge with) simulation.run_parallel using yield
     #   Convert to yielding results to caller can save in batches
     def run_packets(self,
@@ -326,6 +300,7 @@ class Manager(OpgeeObject):
                     minutes_per_task: int = 10):
         """
         Run a set of packets (i.e., FieldPackets or TrialPackets) on a dask cluster.
+        Yields each packet's results as they are available.
 
         :param packets: (list of AbsPacket) the packets describing model runs to execute
         :param result_type: (str) either SIMPLE_RESULT or DETAILED_RESULT.
@@ -337,36 +312,36 @@ class Manager(OpgeeObject):
 
         result_type = result_type or SIMPLE_RESULT
 
-        # N.B. start_cluster saves client in self.client and returns it as well
-        client = self.start_cluster(num_engines=num_engines, minutes_per_task=minutes_per_task)
+        # This is useful mainly for testing. Any real MCS will use a proper cluster.
+        if self.cluster_type == CLUSTER_NONE:
+            for pkt in packets:
+                results = pkt.run(result_type)
+                yield results
 
-        # Start the worker processes on all available CPUs.
-        futures = client.map(lambda pkt: pkt.run(result_type),packets)
-        results_list = []
+            _logger.debug("Finished running packets (no cluster)")
 
-        # TBD: modify to write CSV files here rather than in workers
-        for future, results in as_completed(futures, with_results=True):
-            # if result.error:
-            #     _logger.error(f"Failed: {result}")
-            #     #traceback.print_exc()
-            # else:
-            #     _logger.debug(f"Succeeded: {result}")
+        else:
+            # N.B. start_cluster saves client in self.client and returns it as well
+            client = self.start_cluster(num_engines=num_engines, minutes_per_task=minutes_per_task)
 
-            # TBD: yield
-            # yield results
-            results_list.append(results)
+            # Start the worker processes on all available CPUs.
+            futures = client.map(lambda pkt: pkt.run(result_type),packets)
 
-        _logger.debug("Workers finished")
+            # TBD: modify to write CSV files here rather than in workers
+            for future, results in as_completed(futures, with_results=True):
+                # if result.error:
+                #     _logger.error(f"Failed: {result}")
+                #     #traceback.print_exc()
+                # else:
+                #     _logger.debug(f"Succeeded: {result}")
 
-        # if collect:
-        #     combine_results(sim_dir, field_names, delete=delete_partials)
+                yield results
 
-        self.stop_cluster()
+            _logger.debug("Workers finished")
+            self.stop_cluster()
+
         _logger.info(timer.stop())
-
-        # TBD: if yielding, return None here
-        # return None
-        return results_list
+        return None
 
     # Deprecated
     # def run_mcs(self,
@@ -529,16 +504,16 @@ def save_results(results, output_dir, batch_num=None):
         name to distinguish partial result files.
     :return: none
     """
+    if not results:
+        _logger.debug("save_results received empty results list; nothing to do")
+        return
+
     energy_cols = []
     emission_cols = []
     ci_rows = []
     error_rows = []
 
-    # TBD: might be lists of lists?
-    # from .utils import flatten
-    # for result in flatten(results):
-    for result in results:
-
+    for result in flatten(results):
         trial = '' if result.trial_num is None else result.trial_num
 
         if result.result_type == ERROR_RESULT:
@@ -549,8 +524,9 @@ def save_results(results, output_dir, batch_num=None):
             error_rows.append(d)
             continue
 
-        energy_cols.append(result.energy)
-        emission_cols.append(result.emissions)
+        if result.result_type != SIMPLE_RESULT:
+            energy_cols.append(result.energy)
+            emission_cols.append(result.emissions)
 
         for name, ci in result.ci_results:
             d = {"analysis": result.analysis_name,
@@ -571,8 +547,9 @@ def save_results(results, output_dir, batch_num=None):
     df = pd.DataFrame(data=ci_rows)
     _to_csv(df, 'carbon_intensity', index=False)
 
-    df = pd.DataFrame(data=error_rows)
-    _to_csv(df, 'errors', index=False)
+    if error_rows:
+        df = pd.DataFrame(data=error_rows)
+        _to_csv(df, 'errors', index=False)
 
     def _save_cols(columns, file_prefix):
         df = pd.concat(columns, axis="columns")
@@ -580,5 +557,76 @@ def save_results(results, output_dir, batch_num=None):
         df.sort_index(axis="rows", inplace=True)
         _to_csv(df, file_prefix)
 
-    _save_cols(energy_cols, "energy")
-    _save_cols(emission_cols, "emissions")
+    # These aren't saved for SIMPLE_RESULTS
+    if energy_cols:
+        _save_cols(energy_cols, "energy")
+
+    if emission_cols:
+        _save_cols(emission_cols, "emissions")
+
+
+def _combine_results(filenames, output_name, sort_by=None):
+    if not filenames:
+        return
+
+    dfs = [pd.read_csv(name, index_col=False) for name in filenames]
+    combined = pd.concat(dfs, axis='rows')
+
+    if sort_by:
+        combined.sort_values(sort_by, inplace=True)
+
+    _logger.debug(f"Writing '{output_name}'")
+    combined.to_csv(output_name, index=False)
+
+
+results_pat  = re.compile(r'results-\d+\.csv$')
+failures_pat = re.compile(r'failures-\d+\.csv$')
+
+def combine_mcs_results(sim_dir, field_names, delete=False):
+    """
+    Combine CSV files containing partial results/failures from an MCS into two files,
+    results.csv and failures.csv.
+
+    :param sim_dir: (str) the simulation directory
+    :param field_names: (list of str) names of fields to combine results for
+    :param delete: (bool) whether to delete partial files after combining them
+    :return: nothing
+    """
+    with pushd(sim_dir):
+        for field_name in field_names:
+            # TBD: handle case that field directory isn't present
+            with pushd(field_name):
+                # use glob with its limited wildcard capability, then filter for the real pattern
+                result_files = [name for name in glob(r'results-*.csv') if re.match(results_pat, name)]
+                _combine_results(result_files, RESULTS_CSV, sort_by='trial_num')
+
+                failure_files = [name for name in glob(r'failures-*.csv') if re.match(failures_pat, name)]
+                _combine_results(failure_files, FAILURES_CSV, sort_by='trial_num')
+
+                if delete:
+                    for name in result_files + failure_files:
+                        os.remove(name)
+
+def combine_field_results(output_dir, field_names, delete=False):
+    """
+    Combine CSV files containing partial results/failures from an MCS into two files,
+    results.csv and failures.csv.
+
+    :param sim_dir: (str) the simulation directory
+    :param field_names: (list of str) names of fields to combine results for
+    :param delete: (bool) whether to delete partial files after combining them
+    :return: nothing
+    """
+    with pushd(output_dir):
+        for field_name in field_names:
+            with pushd(field_name):
+                # use glob with its limited wildcard capability, then filter for the real pattern
+                result_files = [name for name in glob(r'results-*.csv') if re.match(results_pat, name)]
+                _combine_results(result_files, RESULTS_CSV)
+
+                failure_files = [name for name in glob(r'failures-*.csv') if re.match(failures_pat, name)]
+                _combine_results(failure_files, FAILURES_CSV)
+
+                if delete:
+                    for name in result_files + failure_files:
+                        os.remove(name)

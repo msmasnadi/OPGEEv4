@@ -7,6 +7,7 @@
 # See LICENSE.txt for license details.
 #
 from .. import ureg
+from ..combine_streams import combine_streams
 from ..core import STP
 from ..core import TemperaturePressure
 from ..error import OpgeeException
@@ -15,9 +16,8 @@ from ..import_export import N2, CO2_Flooding, NATURAL_GAS
 from ..log import getLogger
 from ..process import Process
 from ..stream import PHASE_GAS, Stream
-from ..constants import mol_per_scf
+
 from .shared import get_init_lifting_stream
-from ..combine_streams import combine_streams
 
 _logger = getLogger(__name__)
 
@@ -46,7 +46,7 @@ class GasPartition(Process):
         self.GLIR = field.GLIR
         self.oil_volume_rate = field.oil_volume_rate
         self.WOR = field.WOR
-        self.iteration_tolerance = field.model.attr("iteration_tolerance")
+        self.iteration_tolerance = self.model.attr("iteration_tolerance")
         self.flood_gas_type = field.flood_gas_type
         self.N2_flooding_tp = TemperaturePressure(self.attr("N2_flooding_temp"),
                                                   self.attr("N2_flooding_press"))
@@ -217,8 +217,8 @@ class GasPartition(Process):
 
             # The imported NG is need for NG flooding
             else:
-                imported_NG_series =\
-                    (NG_flooding_volume_rate - exported_gas_volume_rate) * self.imported_NG_comp * mol_per_scf
+                imported_NG_series = ((NG_flooding_volume_rate - exported_gas_volume_rate) *
+                                      self.imported_NG_comp * self.model.const(mol_per_scf))
                 imported_NG_series *= field.gas.component_MW[imported_NG_series.index]
                 imported_NG_stream = Stream("imported_NG_stream", tp=self.C1_flooding_tp)
                 imported_NG_stream.set_rates_from_series(imported_NG_series, PHASE_GAS)

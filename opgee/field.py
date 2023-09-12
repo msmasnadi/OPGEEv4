@@ -571,7 +571,7 @@ class Field(Container):
         ci_tuples = self.partial_ci_values(analysis, nodes)
 
         ci_results = (None if ci_tuples is None
-                      else ('TOTAL', self.carbon_intensity.m) + ci_tuples)
+                      else [('TOTAL', self.carbon_intensity.m)] + ci_tuples)
 
         result = FieldResult(analysis.name, self.name, result_type,
                              trial_num=trial_num,
@@ -976,7 +976,7 @@ class Field(Container):
             # Walk the cycle, starting at the indicated start process to generate an ordered list
             unvisited = procs_in_cycles.copy()
             start_proc = start_procs[0]
-            import opgee
+            import opgee  # TBD: what is this doing here?
             if any(isinstance(obj, Reservoir) for obj in unvisited):
                 for obj in unvisited:
                     if isinstance(obj, Reservoir):

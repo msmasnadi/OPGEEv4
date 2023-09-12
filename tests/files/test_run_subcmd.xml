@@ -1,0 +1,29 @@
+<Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
+
+	<Analysis name="test">
+		<A name="functional_unit">oil</A>
+		<A name="boundary">Production</A>
+		<A name="GWP_horizon">100</A>
+		<A name="GWP_version">AR5</A>
+		<Field name="test"/>
+	</Analysis>
+
+	<Field name="test">
+		<Process class="ProcA" desc="Test process 1"/>
+		<Process class="ProcB" desc="Test process 2"/>
+
+		<Process class="Boundary" boundary="Production"/>
+
+		<Stream src="ProcA" dst="ProcB">
+			<Contains>crude oil</Contains>
+		</Stream>
+
+		<Stream	src="ProcB" dst="ProductionBoundary">
+			<A name="temperature">90.0</A>
+			<A name="pressure">150.0</A>
+			<Component name="oil" phase="liquid">100</Component>
+			<Contains>crude oil</Contains>
+		</Stream>
+	</Field>
+
+</Model>
