@@ -17,10 +17,12 @@ def test_trial_packet():
     assert list(n for n in pkt) == trial_nums
 
 def test_field_packet():
+    model_xml_file = '/foo/bar/baz.xml'
     field_names = ['a', 'b', 'c', 'd']
     analysis_name = 'a3'
-    pkt = FieldPacket(analysis_name, field_names)
+    pkt = FieldPacket(model_xml_file, analysis_name, field_names)
 
+    assert pkt.model_xml_file == model_xml_file
     assert pkt.analysis_name == analysis_name
     assert pkt.items == field_names
     assert list(n for n in pkt) == field_names

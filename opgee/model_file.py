@@ -92,10 +92,11 @@ def fields_for_analysis(model_xml, analysis_name):
     # Also find matching groups (replicates logic in analysis.py at the etree level)
     xpath = f'/Model/Analysis[@name="{analysis_name}"]/Group'
     groups_elts = root.xpath(xpath)
+    group_fields = []
 
     if len(groups_elts) > 0:
         model_fields = root.xpath('/Model/Field/@name')
-        group_fields = []
+        field_groups = root.xpath('/Model/Field/Group')
 
         for group_elt in groups_elts:
             text = group_elt.text
@@ -105,7 +106,8 @@ def fields_for_analysis(model_xml, analysis_name):
                 prog = re.compile(text)
                 matches = [name for name in model_fields if prog.match(name)]
             else:
-                matches = [name for name in model_fields if name == text]
+                # find matching group declarations in <Field> elements
+                matches = [g.getparent().attrib['name'] for g in field_groups if g.text == text]
 
             group_fields.extend(matches)
 
@@ -277,7 +279,7 @@ class ModelFile(XMLFile):
         """
         load_timer = Timer('ModelFile load XML')
 
-        source = "XML string" if xml_string else pathnames
+        source = "XML string" if xml_string else (pathnames or "default model")
         _logger.debug(f"Loading model from: {source}")
 
         if not isinstance(pathnames, (list, tuple)):
@@ -323,11 +325,11 @@ class ModelFile(XMLFile):
         # Find Fields with modifies="..." attribute, copy the indicated Field, merge in the
         # elements under the Field with modifies=, and replace elt. This is useful for
         # debugging and storing the expanded "final" XML facilitates publication and replication.
-        found = base_root.xpath('//Analysis/Field[@modifies]')
+        found = base_root.xpath('//Field[@modifies]')
         for elt in found:
             attrib = elt.attrib
             modifies = attrib['modifies']
-            new_name = attrib['name']
+            new_name = attrib['name'] + '__TMP__'
 
             if base_root.find(f"Field[@name='{new_name}']") is not None:
                 raise XmlFormatError(f"Can't copy field '{modifies}' to '{new_name}': a field named '{new_name}' already exists.")
@@ -335,7 +337,7 @@ class ModelFile(XMLFile):
             to_copy = base_root.find(f"Field[@name='{modifies}']")
 
             if to_copy is None:
-                raise XmlFormatError(f"Can't create field '{new_name}': modified field '{modifies}' not found.")
+                raise XmlFormatError(f"Can't create field '{new_name}': source field '{modifies}' not found.")
 
             # Change attribute from "modifies" to "modified" to record action and avoid redoing it
             del attrib['modifies']
@@ -348,10 +350,9 @@ class ModelFile(XMLFile):
             merge_elements(copied, elt[:])      # merge elt's children into `copied`
             base_root.append(copied)            # add the copy to the Model
 
-            # The <Field> elements under analysis just need to refer to the field by name
-            # We can remove all the other items after merging them above.
-            for child in elt:
-                elt.remove(child)
+            # Remove old <Field modifies="{name}"> after inserting the expanded copy
+            parent = elt.getparent()
+            parent.remove(elt)
 
         # TBD: currently each worker overwrites the same file. Maybe just skip this next line? Skip if running MCS?
         if not xml_string:

@@ -22,19 +22,27 @@ class CollectCommand(SubcommandABC):
                             help='''Delete the partial result files after combining them into a single file.''')
 
         parser.add_argument('-f', '--fields', action=ParseCommaList,
-                            help='''Generate trial data for the specified field or fields only. Argument 
-                            may be a comma-delimited list of Field names. Otherwise trial data is generated
-                            for all fields defined in the analysis.''')
+                            help='''The names of the field to operate on. If not provided, all partial
+                            result files found will be combined.''')
 
-        parser.add_argument('-s', '--simulation-dir',
-                            help='''The top-level directory to create for this simulation "package". 
-                            If the simulation directory already exists and you must specify –-overwrite,
-                            or gensim will refuse to overwrite the directory.''')
+        parser.add_argument('-o', '--output-dir',
+                            help='''The directory containing partial result files. Use only for non-MCS results.
+                            For MCS, use the -s/--sim-dir option.''')
+
+        parser.add_argument('-s', '--sim-dir',
+                            help='''The simulation directory. Use for Monte Carlo Simulations only. For
+                            non-MCS results, use the -o/--output-dir option.''')
+
+
 
         return parser   # for auto-doc generation
 
 
     def run(self, args, tool):
-        from opgee.mcs.simulation import combine_results
+        from ..manager import combine_mcs_results, combine_field_results
 
-        combine_results(args.simulation_dir, args.fields, args.delete)
+        if args.sim_dir:
+            combine_mcs_results(args.sim_dir, args.fields, args.delete)
+        else:
+            combine_field_results(args.output_dir, args.fields, args.delete)
+

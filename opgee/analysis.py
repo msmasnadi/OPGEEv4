@@ -50,7 +50,7 @@ class Analysis(Container):
 
         # self.field_dict = None
         self._field_names = field_names     # may be extended in add_children()
-        self.groups = groups
+        self.groups = [] if groups is None else groups
 
         self.fn_unit = self.attr("functional_unit")
         self.boundary = self.attr("boundary")
@@ -77,7 +77,7 @@ class Analysis(Container):
                 matches = [field for field in model.fields() for
                            name in field.group_names if prog.match(name)]
             else:
-                matches = [field for field in model.fields() if field.name == text]
+                matches = [field for field in model.fields() if text in field.group_names]
 
             fields.extend(matches)
             self._field_names.extend([field.name for field in matches])

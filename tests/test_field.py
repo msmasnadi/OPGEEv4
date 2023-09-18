@@ -12,7 +12,7 @@ model_xml_1 = """
 	  <A name="functional_unit">oil</A>
 	  <A name="GWP_horizon">100</A>
 	  <A name="GWP_version">AR5</A>
-      <Field name="test1"/>
+      <FieldRef name="test1"/>
 	</Analysis>
 
 	<Field name="test1">
@@ -35,7 +35,7 @@ model_xml_2 = """
 	  <A name="functional_unit">oil</A>
 	  <A name="GWP_horizon">100</A>
 	  <A name="GWP_version">AR5</A>
-      <Field name="test1"/>
+      <FieldRef name="test1"/>
 	</Analysis>
 
 	<Field name="test1">

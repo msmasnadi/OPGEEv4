@@ -230,18 +230,17 @@ class RunCommand(SubcommandABC):
                                       result_type=result_type,
                                       num_engines=num_tasks,
                                       minutes_per_task=minutes_per_task):
+
             # Save to disk, optionally in batches.
+            results_list.append(results)
             if save_batches:
-                if len(results_list) < batch_size:
-                    results_list.append(results)
-                else:
+                if len(results_list) >= batch_size:
                     save_results(results_list, output_dir, batch_num=batch_num)
                     results_list.clear()
                     batch_num += 1
-            else:
-                results_list.append(results)
 
-        save_results(results_list, output_dir, batch_num=batch_num if batch_size else None)
+        if results_list:
+            save_results(results_list, output_dir, batch_num=batch_num if batch_size else None)
 
         if collect and save_batches:
             # Combine partial result files into one

@@ -115,8 +115,8 @@ def test_packetization(opgee_main):
                 '-a', 'test-fields',
                 '--no-default-model',
                 '--cluster-type', cluster_type,
-                '--ntasks=2',
-                '--save-after=1',       # save each packet in a separate CSV
+                '--num-tasks=2',
+                '--batch-size=1',       # save each packet in a separate CSV
                 f'--num-fields={fields}',
                 f'--packet-size={packet_size}',
                 f'--batch-start={batch_start}',
@@ -136,12 +136,12 @@ def test_packetization(opgee_main):
     assert set(expected) == set(d.keys())
 
     last_batch = batch_start + num_files - 1
-    last_csv = f'carbon_intensity_{last_batch}'
+    last_csv = f'carbon_intensity_{last_batch}.csv'
     last_df = d[last_csv]
-    assert len(last_df) == 1
+    assert len(last_df.field.unique()) == 1
     del d[last_csv]
     for name, df in d.items():
-        assert len(df) == packet_size
+        assert len(df.field.unique()) == packet_size
 
 def test_run_test_model(opgee_main):
     setParam('OPGEE.ClassPath', path_to_test_file('user_processes.py'))

@@ -21,8 +21,9 @@
       <Contains>crude oil</Contains>
     </Stream>
   </Field>
-  <Field name="Field-2">
 
+  <Field name="Field-2">
+    <Group>all</Group>
     <Process class="ProcA" desc="Test process 1"/>
     <Process class="ProcB" desc="Test process 2"/>
     <Process class="Boundary" boundary="Production"/>

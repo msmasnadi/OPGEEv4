@@ -21,7 +21,7 @@ def test_unknown_analysis(test_model2):
 
 
 def test_unknown_field(test_model2):
-    with pytest.raises(OpgeeException, match=r"Field named '.*' is not defined"):
+    with pytest.raises(OpgeeException, match=r"Field '.*' is not defined in Model"):
         test_model2.get_field('non-existent-field')
 
 

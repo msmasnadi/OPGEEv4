@@ -1,6 +1,6 @@
 import pytest
 from opgee.error import OpgeeException
-from opgee.model_file import (ModelFile, fields_for_analysis, extract_model)
+from opgee.model_file import ModelFile, fields_for_analysis
 from .utils_for_tests import path_to_test_file
 
 def test_no_file():
@@ -21,7 +21,7 @@ def test_many_fields():
 
 
 def test_many_field_comparison():
-    from opgee.mcs.simulation import run_serial
+    from opgee.manager import run_serial
 
     analysis_name = 'test-fields'
     model_xml_file = path_to_test_file('test-fields-9000.xml')

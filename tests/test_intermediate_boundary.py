@@ -7,7 +7,7 @@ from opgee.combine_streams import combine_streams
 xml_string = """
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
   <Analysis name="test">
-    <Field name="test"/>
+    <FieldRef name="test"/>
     <A name="boundary">Transportation</A>
   </Analysis>
   

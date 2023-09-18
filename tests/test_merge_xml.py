@@ -48,7 +48,7 @@ def test_merge_siblings():
 merged_1 = str_to_xml("""
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
   <Analysis name="test">
-    <Field name="test"/>
+    <FieldRef name="test"/>
   </Analysis>
   <Field name="test">
     <Group>First test</Group>
@@ -67,7 +67,7 @@ merged_1 = str_to_xml("""
     </Stream>
   </Field>
   <Analysis name="other">
-    <Field name="other"/>
+    <FieldRef name="other"/>
   </Analysis>
   <Field name="other">
     <A name="country">USA</A>
@@ -86,7 +86,7 @@ merged_1 = str_to_xml("""
 merged_2 = str_to_xml("""
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
   <Analysis name="test">
-    <Field name="test"/>
+    <FieldRef name="test"/>
   </Analysis>
   <Field name="test">
     <Group>First test</Group>
@@ -105,7 +105,7 @@ merged_2 = str_to_xml("""
     </Stream>
   </Field>
   <Analysis name="other">
-    <Field name="other"/>
+    <FieldRef name="other"/>
   </Analysis>
   <Field name="other">
     <A name="country">USA</A>

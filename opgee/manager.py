@@ -18,9 +18,9 @@ from typing import Sequence
 
 from .core import OpgeeObject, Timer
 from .config import getParam, getParamAsInt, getParamAsBoolean, pathjoin
-from .constants import CLUSTER_NONE
+from .constants import CLUSTER_NONE, SIMPLE_RESULT, DETAILED_RESULT, ERROR_RESULT
 from .error import McsSystemError, AbstractMethodError
-from .field import FieldResult, SIMPLE_RESULT, DETAILED_RESULT, ERROR_RESULT
+from .field import FieldResult
 from .log import getLogger, setLogFile
 from .model_file import extract_model
 from .utils import flatten, pushd
@@ -380,7 +380,8 @@ class Manager(OpgeeObject):
     #
 
 
-def _run_field(analysis_name, field_name, xml_string, result_type):
+def _run_field(analysis_name, field_name, xml_string, result_type,
+               use_default_model=True):
     """
     Run a single field, once, using the model in ``xml_string`` and return a
     ``FieldResult`` instance with results of ``result_type``.
@@ -390,6 +391,7 @@ def _run_field(analysis_name, field_name, xml_string, result_type):
     :param xml_string: (str) XML description of the model to run
     :param result_type: (str) the type of results to return, i.e., "detailed"
         or "simple"
+    :param use_default_model: (bool) whether to use the built-in model files.
     :return: (FieldResult) results of ``result_type`` or ERROR_RESULT, if an error
         occurred.
     """
@@ -398,7 +400,7 @@ def _run_field(analysis_name, field_name, xml_string, result_type):
     try:
         mf = ModelFile.from_xml_string(xml_string, add_stream_components=False,
                                        use_class_path=False,
-                                       use_default_model=True,
+                                       use_default_model=use_default_model,
                                        analysis_names=[analysis_name],
                                        field_names=[field_name])
 
@@ -413,65 +415,65 @@ def _run_field(analysis_name, field_name, xml_string, result_type):
     return result
 
 # TODO: could be method of Manager
-def run_parallel(model_xml_file, analysis_name, field_names,
-                 max_results=None, result_type=DETAILED_RESULT):
-    from dask.distributed import as_completed
-
-    mgr = Manager(cluster_type='local')
-
-    timer = Timer('run_parallel')
-
-    # Put the log for the monitor process in the simulation directory.
-    # Each Worker will set the log file to within the directory for the
-    # field it's currently running.
-    # log_file = f"{sim_dir}/opgee-mcs.log"
-    # setLogFile(log_file, remove_old_file=True)
-
-    # N.B. start_cluster saves client in self.client and returns it as well
-    client = mgr.start_cluster()
-
-    futures = []
-
-    # Submit all the fields to run on worker tasks
-    # TBD: should these be packetized? Should worker extract xml_string?
-    for field_name, xml_string in extract_model(model_xml_file, analysis_name,
-                                                field_names):
-        future = client.submit(_run_field, analysis_name, field_name,
-                               xml_string, result_type)
-        futures.append(future)
-
-    results = []
-    count = 0   # used if we're returning results in batches
-
-    # Wait for and process results
-    for future, result in as_completed(futures, with_results=True):
-        if max_results and count == 0:
-            results.clear()
-
-        if result.error:
-            _logger.error(f"Failed: {result}")
-        else:
-            _logger.debug(f"Succeeded: {result}")
-
-        results.append(result)
-
-        if max_results:
-            if count == max_results:
-                count = 0
-                # return the next batch
-                yield results
-            else:
-                count += 1
-
-    _logger.debug("Workers finished")
-
-    mgr.stop_cluster()
-    _logger.info(timer.stop())
-
-    if count:
-        yield results
-    else:
-        return results
+# def run_parallel(model_xml_file, analysis_name, field_names,
+#                  max_results=None, result_type=DETAILED_RESULT):
+#     from dask.distributed import as_completed
+#
+#     mgr = Manager(cluster_type='local')
+#
+#     timer = Timer('run_parallel')
+#
+#     # Put the log for the monitor process in the simulation directory.
+#     # Each Worker will set the log file to within the directory for the
+#     # field it's currently running.
+#     # log_file = f"{sim_dir}/opgee-mcs.log"
+#     # setLogFile(log_file, remove_old_file=True)
+#
+#     # N.B. start_cluster saves client in self.client and returns it as well
+#     client = mgr.start_cluster()
+#
+#     futures = []
+#
+#     # Submit all the fields to run on worker tasks
+#     # TBD: should these be packetized? Should worker extract xml_string?
+#     for field_name, xml_string in extract_model(model_xml_file, analysis_name,
+#                                                 field_names):
+#         future = client.submit(_run_field, analysis_name, field_name,
+#                                xml_string, result_type)
+#         futures.append(future)
+#
+#     results = []
+#     count = 0   # used if we're returning results in batches
+#
+#     # Wait for and process results
+#     for future, result in as_completed(futures, with_results=True):
+#         if max_results and count == 0:
+#             results.clear()
+#
+#         if result.error:
+#             _logger.error(f"Failed: {result}")
+#         else:
+#             _logger.debug(f"Succeeded: {result}")
+#
+#         results.append(result)
+#
+#         if max_results:
+#             if count == max_results:
+#                 count = 0
+#                 # return the next batch
+#                 yield results
+#             else:
+#                 count += 1
+#
+#     _logger.debug("Workers finished")
+#
+#     mgr.stop_cluster()
+#     _logger.info(timer.stop())
+#
+#     if count:
+#         yield results
+#     else:
+#         return results
 
 # TODO: could be method of Manager
 def run_serial(model_xml_file, analysis_name, field_names, result_type=DETAILED_RESULT):
@@ -514,13 +516,14 @@ def save_results(results, output_dir, batch_num=None):
     error_rows = []
 
     for result in flatten(results):
-        trial = '' if result.trial_num is None else result.trial_num
+        trial = result.trial_num
 
         if result.result_type == ERROR_RESULT:
             d = {"analysis": result.analysis_name,
                  "field": result.field_name,
-                 "trial" : trial,
                  "error": result.error}
+            if trial is not None:
+                d['trial'] = trial
             error_rows.append(d)
             continue
 
@@ -531,9 +534,10 @@ def save_results(results, output_dir, batch_num=None):
         for name, ci in result.ci_results:
             d = {"analysis": result.analysis_name,
                  "field": result.field_name,
-                 "trial" : trial,
                  "node": name,
                  "CI": ci}
+            if trial is not None:
+                d['trial'] = trial
             ci_rows.append(d)
 
     # Append batch number to filename if not None

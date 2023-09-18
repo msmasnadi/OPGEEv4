@@ -218,7 +218,7 @@ class GasPartition(Process):
             # The imported NG is need for NG flooding
             else:
                 imported_NG_series = ((NG_flooding_volume_rate - exported_gas_volume_rate) *
-                                      self.imported_NG_comp * self.model.const(mol_per_scf))
+                                      self.imported_NG_comp * self.model.const('mol-per-scf'))
                 imported_NG_series *= field.gas.component_MW[imported_NG_series.index]
                 imported_NG_stream = Stream("imported_NG_stream", tp=self.C1_flooding_tp)
                 imported_NG_stream.set_rates_from_series(imported_NG_series, PHASE_GAS)

@@ -1,23 +1,23 @@
 import re
-from manager import RemoteError
-
-def test_remote_error():
-    field_name = 'field_1'
-    err_msg = "Short message"
-    e = RemoteError(err_msg, field_name)
-    s = str(e)
-    assert s ==  f"<RemoteError field='{field_name}' msg='{err_msg}'>"
+from opgee.field import FieldResult
 
 def test_field_status():
+    analysis_name = 'test'
     field_name = 'field_10'
-    duration = 10.6
+    result_type = 'simple'
+    trial_num = 6
     err_msg = 'no message'
-    completed = 10
-    e = RemoteError(err_msg, field_name)
-    res = FieldStatus(field_name, duration, completed, error=e)
 
+    res = FieldResult(analysis_name, field_name, result_type, trial_num=trial_num, error=err_msg)
     s = str(res)
-    pat = f'<FieldStatus {completed} trials of {field_name} in .*; task_count:0 error:.*>'
+
+    pat = f'<FieldResult ana:{analysis_name} fld:{field_name} trl:{trial_num} err:{err_msg} res:{result_type}>'
     assert re.match(pat, s) is not None
 
-    assert res.duration == duration and res.field_name == field_name and res.error == e
+    assert res.energy is None and res.emissions is None
+
+    energy = "energy proxy"
+    emiss = "emiss proxy"
+    res = FieldResult(analysis_name, field_name, result_type, energy_data=energy, emissions_data=emiss)
+
+    assert res.energy == energy and res.emissions == emiss
