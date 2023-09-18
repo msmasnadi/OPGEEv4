@@ -17,8 +17,8 @@ class RunCommand(SubcommandABC):
 
     def addArgs(self, parser):
         from ..config import getParam, getParamAsInt
-        from ..constants import CLUSTER_NONE, CLUSTER_TYPES
-        from ..field import DEFAULT_RESULT_TYPE, SIMPLE_RESULT, DETAILED_RESULT, USER_RESULT_TYPES
+        from ..constants import (CLUSTER_NONE, CLUSTER_TYPES, DEFAULT_RESULT_TYPE,
+                                 SIMPLE_RESULT, DETAILED_RESULT, USER_RESULT_TYPES)
         from ..utils import ParseCommaList, positive_int
 
         partition = getParam('SLURM.Partition')
@@ -32,13 +32,14 @@ class RunCommand(SubcommandABC):
                             help='''Run only the specified analysis or analyses. Argument may be a 
                             comma-delimited list of Analysis names.''')
 
-        parser.add_argument('-b', '--batch-start', default=0, type=int,
+        parser.add_argument('-b', '--batch-size', type=int,
+                            help='''Write a results to a new file after the results for the given 
+                            number of packets are returned. If not specified, results are written 
+                            out only after all trials have completed.''')
+
+        parser.add_argument('-B', '--batch-start', default=0, type=int,
                             help='''The value to use to start numbering batch result files.
                             Default is zero. Ignored unless -S/--save-after is also specified.''')
-
-        parser.add_argument('-B', '--by-process',
-                            help='''Write CI output to specified CSV file for all processes, for all fields 
-                                run, rather than by top-level processes and aggregators (as with --output)''')
 
         cluster_type = getParam('OPGEE.ClusterType') or CLUSTER_NONE
         parser.add_argument('-c', '--cluster-type', choices=CLUSTER_TYPES,
@@ -86,12 +87,6 @@ class RunCommand(SubcommandABC):
         parser.add_argument('-o', '--output-dir',
                             help='''Write output to the specified directory.''')
 
-        # parser.add_argument('-o', '--output', required=True,
-        #                     help='''[Required] The pathname of the CSV files to create containing energy and
-        #                     emissions results for each field. This argument is used as a basename,
-        #                     with the suffix '.csv' replaced by '-energy.csv' and '-emissions.csv' to
-        #                     store the results. Each file has fields in columns and processes in rows.''')
-
         parser.add_argument('-p', "--partition", default=None,
                             help=f'''The name of the partition to use for job submissions. Default is the
                                 value of config variable "SLURM.Partition", currently '{partition}'.
@@ -112,10 +107,9 @@ class RunCommand(SubcommandABC):
         parser.add_argument('-s', '--simulation-dir',
                             help='''The top-level directory to use for this simulation "package"''')
 
-        parser.add_argument('-S', '--save-after', type=int,
-                            help='''Write a results to a new file after the given number of results are 
-                            returned. If not specified, results are written out only
-                            after all trials have completed.''')
+        parser.add_argument('-S', '--start-with',
+                            help='''The name of a field to start with. Use this to resume a run after a failure.
+                            Can be combined with -n/--num-fields to run a large number of fields in smaller batches.''')
 
         parser.add_argument('-t', '--trials', default='all',
                             help='''The trials to run. Can be expressed as a string containing
@@ -123,17 +117,13 @@ class RunCommand(SubcommandABC):
                             The special string "all" (the default) runs all defined trials. Ignored 
                             unless -s/--simulation-dir is specified.''')
 
-        parser.add_argument('-T', "--ntasks", type=positive_int, default=None,
+        parser.add_argument('-T', "--num-tasks", type=positive_int, default=None,
                             help='''Number of worker tasks to create. Default is the number of fields, if
-                                specified using -f/--fields, otherwise -n/--ntasks is required.''')
+                                specified using -f/--fields, otherwise -n/--num_tasks is required.''')
 
         parser.add_argument('-v', '--save-comparison',
                             help='''The name of a CSV file to which to save results suitable for 
                                 use with the "compare" subcommand.''')
-
-        parser.add_argument('-w', '--start-with',
-                            help='''The name of a field to start with. Use this to resume a run after a failure.
-                            Can be combined with -n/--num-fields to run a large number of fields in smaller batches.''')
 
         return parser
 
@@ -146,7 +136,7 @@ class RunCommand(SubcommandABC):
         from ..mcs.simulation import Simulation, model_file_path
 
         analysis_names = args.analyses or []
-        batch_size = args.save_after
+        batch_size = args.batch_size
         batch_start = args.batch_start
         collect = args.collect
         field_names = args.fields or []
@@ -154,7 +144,7 @@ class RunCommand(SubcommandABC):
         model_files = args.model_file       # all specified model files
         model_xml_file = model_files[0] if model_files else None    # TBD: currently using only the first model file specified
         num_fields = args.num_fields
-        ntasks = args.ntasks
+        num_tasks = args.num_tasks
         output_dir = args.output_dir
         packet_size = args.packet_size
         result_type = args.result_type
@@ -165,6 +155,12 @@ class RunCommand(SubcommandABC):
         trials = args.trials
         use_default_model = not args.no_default_model
 
+        # TBD: conceptual problem: XML model merging doesn't happen until after we look for
+        #  analyses and fields in the model XML. Might want to do XML-level merging before
+        #  constructing internal model structure and before expanding templates. That is,
+        #  just merge the XML files first, then expand only when about to run the model?
+        #  Or when caching it.
+
         if sim_dir:
             metadata = Simulation.read_metadata(sim_dir)
             field_names = field_names or metadata['field_names']
@@ -174,10 +170,10 @@ class RunCommand(SubcommandABC):
             output_dir = f"{sim_dir}/results"
             mkdirs(output_dir)
 
-            # if not (ntasks or num_fields or field_names):
+            # if not (num_tasks or num_fields or field_names):
             #     raise OpgeeException(
             #         f"Must specify field names (-f/--fields), number of fields "
-            #         f"(-N/--num-fields) or number of tasks (-n/--ntasks)"
+            #         f"(-N/--num-fields) or number of tasks (-n/--num_tasks)"
             #     )
 
         if not output_dir:
@@ -218,12 +214,13 @@ class RunCommand(SubcommandABC):
         mgr = Manager(cluster_type=args.cluster_type)
 
         if sim_dir:
-            if ntasks is None:
-                ntasks = len(field_names)
+            if num_tasks is None:
+                num_tasks = len(field_names)
 
             packets = TrialPacket.packetize(sim_dir, trial_nums, field_names, packet_size)
         else:
-            packets = FieldPacket.packetize(model_xml_file, analysis_name, field_names, packet_size)
+            packets = FieldPacket.packetize(model_xml_file, analysis_name,
+                                            field_names, packet_size)
 
         results_list = []
         save_batches = batch_size is not None
@@ -231,7 +228,7 @@ class RunCommand(SubcommandABC):
 
         for results in mgr.run_packets(packets,
                                       result_type=result_type,
-                                      num_engines=ntasks,
+                                      num_engines=num_tasks,
                                       minutes_per_task=minutes_per_task):
             # Save to disk, optionally in batches.
             if save_batches:
@@ -251,12 +248,13 @@ class RunCommand(SubcommandABC):
             pass
 
 
-
+    #
     # TBD: This was part of the old run() method, kept here for reference for now
+    #
     # def remainder_of_run(self):
     #
     #     # TBD: read analysis names without instantiating entire model
-    #     #  by calling (model_file.py) model_analysis_names(model_xml_pathname)
+    #     #  by calling model_file.model_analysis_names(model_xml_pathname)
     #     #  Then get field name with fields_for_analysis(model_xml, analysis_name)
     #     #  Avoid reading model here; push this into run_serial / run_parallel
     #     mf = ModelFile(model_files, use_default_model=use_default_model,
@@ -316,172 +314,172 @@ class RunCommand(SubcommandABC):
     #     save_results(results, result_type)
 
     # Deprecated. This was the run() method from the runsim plugin.
-    def runsim(self, args):
-        from ..error import OpgeeException
-        from ..utils import parseTrialString
-        from ..manager import Manager, save_results, TrialPacket
-        from ..mcs.simulation import Simulation
-
-        sim_dir = args.simulation_dir
-        field_names = args.fields or []
-        num_fields = args.num_fields
-        ntasks = args.ntasks
-        result_type = args.result_type
-        trials = args.trials
-        collect = args.collect
-
-        if sim_dir and not field_names:
-            metadata = Simulation.read_metadata(sim_dir)
-            field_names = metadata['field_names']
-
-        if not (ntasks or num_fields or field_names):
-            raise OpgeeException(f"Must specify field names (-f/--fields), number of fields "
-                                 f"(-N/--num-fields) or number of tasks (-n/--ntasks)")
-
-        if num_fields:
-            field_names = field_names[:num_fields]
-
-        trial_nums = metadata['trials'] if trials == 'all' else parseTrialString(trials)
-
-        if ntasks is None:
-            ntasks = len(field_names)
-
-        # TBD: could generate FieldPackets or TrialPackets based on args to packetize()
-        #  then this method could be used for either type of parallelism.
-        #  Need to compare with run_many.
-        packets = TrialPacket.packetize(sim_dir, field_names, trial_nums, args.packet_size)
-
-        # TBD: once packets are generated, MCS should share cluster / results saving
-        #  logic with run_many.
-
-        mgr = Manager(cluster_type=args.cluster_type)
-
-        # Put the log for the Manager process in the simulation directory.
-        # Each Worker will set the log file to within the directory for
-        # the field it's currently running.
-        setLogFile(f"{sim_dir}/opgee-mcs.log", remove_old_file=True)
-
-        # TBD: convert run_packets() to yield packet results one at a time
-        #  Then save each here, respecting batch saving arguments.
-        results = mgr.run_packets(packets,
-                                  result_type=result_type,
-                                  num_engines=ntasks,
-                                  minutes_per_task=args.minutes)
-
-        save_results(results, result_type)
-
-        if collect:
-            # collect partial result files
-            pass
-
-    # Deprecated; kept here for reference
-    # TBD: needs to be modified to use packets and be called from run command
-    #  Or perhaps to replace most of the code in the run command
-    def run_many(self,
-        model_xml_file,
-        analysis_name,
-        field_names,
-        output,
-        count=0,
-        start_with=0,
-        save_after=None,
-        skip_fields=None,
-        batch_start=0,
-        parallel=True,
-    ):
-        import os
-        import pandas as pd
-        from ..config import getParam, setParam, pathjoin
-        from ..error import CommandlineError
-        from ..manager import run_serial, run_parallel
-        from ..model_file import model_analysis_names, fields_for_analysis
-
-        # TBD: unclear if this is necessary
-        setParam("OPGEE.XmlSavePathname", "")  # avoid writing /tmp/final.xml since no need
-
-        analysis_name = analysis_name or model_analysis_names(model_xml_file)[0]
-        all_fields = fields_for_analysis(model_xml_file, analysis_name)
-
-        field_names = [name.strip() for name in field_names] if field_names else None
-        if field_names:
-            unknown = set(field_names) - set(all_fields)
-            if unknown:
-                raise CommandlineError(f"Fields not found in {model_xml_file}: {unknown}")
-        else:
-            field_names = all_fields
-
-        if start_with:
-            # skip all before the named field
-            i = field_names.index(start_with)
-            field_names = field_names[i:]
-
-        if count:
-            field_names = field_names[:count]
-
-        if skip_fields:
-            field_names = [name.strip() for name in field_names if name not in skip_fields]
-
-        # TBD: replace these with a save function that takes a list of FieldResults
-        def _save_cols(columns, csvpath):
-            df = pd.concat(columns, axis="columns")
-            df.index.name = "process"
-            df.sort_index(axis="rows", inplace=True)
-
-            print(f"Writing '{csvpath}'")
-            df.to_csv(csvpath)
-
-        def _save_errors(errors, csvpath):
-            """Save a description of all field run errors"""
-            with open(csvpath, "w") as f:
-                f.write("analysis,field,error\n")
-                for result in errors:
-                    f.write(f"{result.analysis_name},{result.field_name},{result.error}\n")
-
-        temp_dir = getParam("OPGEE.TempDir")
-        dir_name, filename = os.path.split(
-            output
-        )  # TBD: output should be a directory since ext must be CSV.
-        subdir = pathjoin(temp_dir, dir_name)
-        basename, ext = os.path.splitext(filename)
-
-        if save_after:
-            batch = batch_start  # used in naming result files
-
-            # TBD: instead of max_results, use packets which should collapse these two main branches
-            for results in run_parallel(
-                model_xml_file, analysis_name, field_names, max_results=save_after
-            ):
-
-                energy_cols = [r.energy for r in results if r.error is None]
-                emissions_cols = [r.emissions for r in results if r.error is None]
-                errors = [r.error for r in results if r.error is not None]
-
-                # TBD: save CI results
-                # _save_cols(energy_cols, pathjoin(subdir, f"{basename}-CI{ext}"))
-
-                _save_cols(energy_cols, pathjoin(subdir, f"{basename}-energy-{batch}{ext}"))
-                _save_cols(
-                    emissions_cols, pathjoin(subdir, f"{basename}-emissions-{batch}{ext}")
-                )
-                _save_errors(errors, pathjoin(subdir, f"{basename}-errors-{batch}.csv"))
-
-                batch += 1
-
-        else:
-            # If not running in batches, save all results at the end
-            run_func = run_parallel if parallel else run_serial
-            results = run_func(
-                model_xml_file, analysis_name, field_names, max_results=save_after
-            )
-
-            energy_cols = [r.energy for r in results if r.error is None]
-            emissions_cols = [r.emissions for r in results if r.error is None]
-            errors = [r.error for r in results if r.error is not None]
-
-            # TBD: save CI results
-            # _save_cols(energy_cols, pathjoin(subdir, f"{basename}-CI{ext}"))
-
-            # Insert "-energy" or "-emissions" between basename and extension
-            _save_cols(energy_cols, pathjoin(subdir, f"{basename}-energy{ext}"))
-            _save_cols(emissions_cols, pathjoin(subdir, f"{basename}-emissions{ext}"))
-            _save_errors(errors, pathjoin(subdir, f"{basename}-errors.csv"))
+    # def runsim(self, args):
+    #     from ..error import OpgeeException
+    #     from ..utils import parseTrialString
+    #     from ..manager import Manager, save_results, TrialPacket
+    #     from ..mcs.simulation import Simulation
+    #
+    #     sim_dir = args.simulation_dir
+    #     field_names = args.fields or []
+    #     num_fields = args.num_fields
+    #     num_tasks = args.num_tasks
+    #     result_type = args.result_type
+    #     trials = args.trials
+    #     collect = args.collect
+    #
+    #     if sim_dir and not field_names:
+    #         metadata = Simulation.read_metadata(sim_dir)
+    #         field_names = metadata['field_names']
+    #
+    #     if not (num_tasks or num_fields or field_names):
+    #         raise OpgeeException(f"Must specify field names (-f/--fields), number of fields "
+    #                              f"(-N/--num-fields) or number of tasks (-n/--num_tasks)")
+    #
+    #     if num_fields:
+    #         field_names = field_names[:num_fields]
+    #
+    #     trial_nums = metadata['trials'] if trials == 'all' else parseTrialString(trials)
+    #
+    #     if num_tasks is None:
+    #         num_tasks = len(field_names)
+    #
+    #     # TBD: could generate FieldPackets or TrialPackets based on args to packetize()
+    #     #  then this method could be used for either type of parallelism.
+    #     #  Need to compare with run_many.
+    #     packets = TrialPacket.packetize(sim_dir, field_names, trial_nums, args.packet_size)
+    #
+    #     # TBD: once packets are generated, MCS should share cluster / results saving
+    #     #  logic with run_many.
+    #
+    #     mgr = Manager(cluster_type=args.cluster_type)
+    #
+    #     # Put the log for the Manager process in the simulation directory.
+    #     # Each Worker will set the log file to within the directory for
+    #     # the field it's currently running.
+    #     setLogFile(f"{sim_dir}/opgee-mcs.log", remove_old_file=True)
+    #
+    #     # TBD: convert run_packets() to yield packet results one at a time
+    #     #  Then save each here, respecting batch saving arguments.
+    #     results = mgr.run_packets(packets,
+    #                               result_type=result_type,
+    #                               num_engines=num_tasks,
+    #                               minutes_per_task=args.minutes)
+    #
+    #     save_results(results, result_type)
+    #
+    #     if collect:
+    #         # collect partial result files
+    #         pass
+    #
+    # # Deprecated; kept here for reference
+    # # TBD: needs to be modified to use packets and be called from run command
+    # #  Or perhaps to replace most of the code in the run command
+    # def run_many(self,
+    #     model_xml_file,
+    #     analysis_name,
+    #     field_names,
+    #     output,
+    #     count=0,
+    #     start_with=0,
+    #     save_after=None,
+    #     skip_fields=None,
+    #     batch_start=0,
+    #     parallel=True,
+    # ):
+    #     import os
+    #     import pandas as pd
+    #     from ..config import getParam, setParam, pathjoin
+    #     from ..error import CommandlineError
+    #     from ..manager import run_serial, run_parallel
+    #     from ..model_file import model_analysis_names, fields_for_analysis
+    #
+    #     # TBD: unclear if this is necessary
+    #     setParam("OPGEE.XmlSavePathname", "")  # avoid writing /tmp/final.xml since no need
+    #
+    #     analysis_name = analysis_name or model_analysis_names(model_xml_file)[0]
+    #     all_fields = fields_for_analysis(model_xml_file, analysis_name)
+    #
+    #     field_names = [name.strip() for name in field_names] if field_names else None
+    #     if field_names:
+    #         unknown = set(field_names) - set(all_fields)
+    #         if unknown:
+    #             raise CommandlineError(f"Fields not found in {model_xml_file}: {unknown}")
+    #     else:
+    #         field_names = all_fields
+    #
+    #     if start_with:
+    #         # skip all before the named field
+    #         i = field_names.index(start_with)
+    #         field_names = field_names[i:]
+    #
+    #     if count:
+    #         field_names = field_names[:count]
+    #
+    #     if skip_fields:
+    #         field_names = [name.strip() for name in field_names if name not in skip_fields]
+    #
+    #     # TBD: replace these with a save function that takes a list of FieldResults
+    #     def _save_cols(columns, csvpath):
+    #         df = pd.concat(columns, axis="columns")
+    #         df.index.name = "process"
+    #         df.sort_index(axis="rows", inplace=True)
+    #
+    #         print(f"Writing '{csvpath}'")
+    #         df.to_csv(csvpath)
+    #
+    #     def _save_errors(errors, csvpath):
+    #         """Save a description of all field run errors"""
+    #         with open(csvpath, "w") as f:
+    #             f.write("analysis,field,error\n")
+    #             for result in errors:
+    #                 f.write(f"{result.analysis_name},{result.field_name},{result.error}\n")
+    #
+    #     temp_dir = getParam("OPGEE.TempDir")
+    #     dir_name, filename = os.path.split(
+    #         output
+    #     )  # TBD: output should be a directory since ext must be CSV.
+    #     subdir = pathjoin(temp_dir, dir_name)
+    #     basename, ext = os.path.splitext(filename)
+    #
+    #     if save_after:
+    #         batch = batch_start  # used in naming result files
+    #
+    #         # TBD: instead of max_results, use packets which should collapse these two main branches
+    #         for results in run_parallel(
+    #             model_xml_file, analysis_name, field_names, max_results=save_after
+    #         ):
+    #
+    #             energy_cols = [r.energy for r in results if r.error is None]
+    #             emissions_cols = [r.emissions for r in results if r.error is None]
+    #             errors = [r.error for r in results if r.error is not None]
+    #
+    #             # TBD: save CI results
+    #             # _save_cols(energy_cols, pathjoin(subdir, f"{basename}-CI{ext}"))
+    #
+    #             _save_cols(energy_cols, pathjoin(subdir, f"{basename}-energy-{batch}{ext}"))
+    #             _save_cols(
+    #                 emissions_cols, pathjoin(subdir, f"{basename}-emissions-{batch}{ext}")
+    #             )
+    #             _save_errors(errors, pathjoin(subdir, f"{basename}-errors-{batch}.csv"))
+    #
+    #             batch += 1
+    #
+    #     else:
+    #         # If not running in batches, save all results at the end
+    #         run_func = run_parallel if parallel else run_serial
+    #         results = run_func(
+    #             model_xml_file, analysis_name, field_names, max_results=save_after
+    #         )
+    #
+    #         energy_cols = [r.energy for r in results if r.error is None]
+    #         emissions_cols = [r.emissions for r in results if r.error is None]
+    #         errors = [r.error for r in results if r.error is not None]
+    #
+    #         # TBD: save CI results
+    #         # _save_cols(energy_cols, pathjoin(subdir, f"{basename}-CI{ext}"))
+    #
+    #         # Insert "-energy" or "-emissions" between basename and extension
+    #         _save_cols(energy_cols, pathjoin(subdir, f"{basename}-energy{ext}"))
+    #         _save_cols(emissions_cols, pathjoin(subdir, f"{basename}-emissions{ext}"))
+    #         _save_errors(errors, pathjoin(subdir, f"{basename}-errors.csv"))

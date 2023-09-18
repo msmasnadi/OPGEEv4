@@ -86,7 +86,7 @@
     <xs:complexType>
 			<xs:choice maxOccurs='unbounded'>
         <xs:element ref='A'/>
-        <xs:element minOccurs='0' ref='Field'/>
+        <xs:element minOccurs='0' ref='FieldRef'/>
         <xs:element minOccurs='0' ref='Group'/>   <!-- field groups to include in this analysis -->
       </xs:choice>
       <xs:attribute name='name' use='required' type='xs:NCName'/>
@@ -249,6 +249,17 @@
       </xs:choice>
 			<xs:attribute name='name' use='required' type='xs:string'/>
       <xs:attribute name='delete' type='xs:boolean'/>
+    </xs:complexType>
+  </xs:element>
+
+	<xs:element name='FieldRef'>
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base='xs:string'>
+          <xs:attribute name='name' use='required' type='xs:string'/>
+          <xs:attribute name='delete' type='xs:boolean'/>
+        </xs:extension>
+      </xs:simpleContent>
     </xs:complexType>
   </xs:element>
 

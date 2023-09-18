@@ -20,7 +20,7 @@ from .model import Model
 from .pkg_utils import resourceStream
 from .process import reload_subclass_dict
 from .stream import Stream
-from .utils import loadModuleFromPath, splitAndStrip, mkdirs, is_relpath
+from .utils import loadModuleFromPath, splitAndStrip, mkdirs, is_relpath, getBooleanXML
 from .xml_utils import merge_elements, save_xml
 
 _logger = getLogger(__name__)
@@ -80,16 +80,39 @@ def fields_for_analysis(model_xml, analysis_name):
     :return: (list of str) the names of all the Fields in the given
         Analysis.
     """
+    import re
     timer = Timer('fields_for_analysis')
 
     xml_file_obj = ModelCache.get_xml_file(model_xml)
 
     root = xml_file_obj.getRoot()
-    xpath = f'/Model/Analysis[@name="{analysis_name}"]/Field/@name'
-    fields = root.xpath(xpath)
+    xpath = f'/Model/Analysis[@name="{analysis_name}"]/FieldRef/@name'
+    analysis_fields = root.xpath(xpath)
+
+    # Also find matching groups (replicates logic in analysis.py at the etree level)
+    xpath = f'/Model/Analysis[@name="{analysis_name}"]/Group'
+    groups_elts = root.xpath(xpath)
+
+    if len(groups_elts) > 0:
+        model_fields = root.xpath('/Model/Field/@name')
+        group_fields = []
+
+        for group_elt in groups_elts:
+            text = group_elt.text
+            is_regex = getBooleanXML(group_elt.attrib.get('regex', '0'))
+
+            if is_regex:
+                prog = re.compile(text)
+                matches = [name for name in model_fields if prog.match(name)]
+            else:
+                matches = [name for name in model_fields if name == text]
+
+            group_fields.extend(matches)
+
+    field_names = analysis_fields + group_fields
 
     _logger.debug(timer.stop())
-    return fields
+    return field_names
 
 # TBD: this is used only by extract_model(..., as_string=True) so perhaps
 #   this can be simplified or split into two functions
@@ -113,24 +136,31 @@ def _get_xml_str(model_xml, analysis_name, field_name, with_model_elt=False):
 
     _logger.debug(f"Extracting field {field_name}")
 
-    # this is the declaration of the field inside the <Analysis>
+    analysis_fields = fields_for_analysis(model_xml, analysis_name)
+    if field_name not in analysis_fields:
+        raise OpgeeException(f"Field '{field_name}' was not referenced in Analysis '{analysis_name}'")
+
+    # might be the declaration of the field inside the <Analysis>, or the full field definition
     field_decl = root.find(f'./Analysis[@name="{analysis_name}"]/Field[@name="{field_name}"]')
-    if field_decl is None:
-        raise OpgeeException(f"Field '{field_name}' was not found under Analysis '{analysis_name}'")
 
+    # <Field> under <Analysis> can be just a declaration, or an entire <Field> definition
+    # The difference is that <Field> definitions have sub-elements.
     # This is the actual <Field> definition
-    field_defs = root.xpath(f'/Model/Field[@name="{field_name}"]')
+    if field_decl is not None and len(field_decl) > 0: # has children => a Field definition
+        field_def = field_decl
+    else:
+        field_defs = root.xpath(f'/Model/Field[@name="{field_name}"]')
 
-    # xpath() returns a list
-    if len(field_defs) > 1:
-        raise OpgeeException(f"Field '{field_name}' appears multiple times in model XML")
+        # xpath() returns a list
+        if len(field_defs) > 1:
+            raise OpgeeException(f"Field '{field_name}' appears multiple times in model XML")
 
-    field_def = field_defs[0]
+        field_def = field_defs[0]
 
     # Create a model with just the extracted Field and surrounding elements
     model = ET.Element('Model')
     analysis = ET.SubElement(model, 'Analysis', name=analysis_name)
-    analysis.append(field_decl)
+    ET.SubElement(analysis, 'FieldRef', name=field_name)
     model.append(deepcopy(field_def))
 
     xml_string = ET.tostring(model, pretty_print=True, encoding="unicode")
@@ -188,6 +218,9 @@ def extract_model(model_xml, analysis_name, field_names):
     for field_name in field_names:
         yield field_name, _get_xml_str(model_xml, analysis_name, field_name)
 
+# TBD: extract the XML file merging logic to a function or @classmethod so it can
+#  be used prior to instantiating the ModelFile instance. Or, is it adequate to
+#  pass the xml_string in lieu of the .xml file(s) to be merged?
 
 class ModelFile(XMLFile):
     """

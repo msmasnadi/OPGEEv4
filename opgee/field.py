@@ -12,6 +12,9 @@ import pandas as pd
 
 from . import ureg
 from .config import getParamAsList
+from .constants import (SIMPLE_RESULT, DETAILED_RESULT, ERROR_RESULT,
+                        DEFAULT_RESULT_TYPE, USER_RESULT_TYPES,
+                        ALL_RESULT_TYPES)
 from .container import Container
 from .core import elt_name, instantiate_subelts, dict_from_list, STP, magnitude
 from .energy import Energy
@@ -31,14 +34,6 @@ from .combine_streams import combine_streams
 from .bfs import bfs
 
 _logger = getLogger(__name__)
-
-SIMPLE_RESULT = 'simple'
-DETAILED_RESULT = 'detailed'
-ERROR_RESULT = 'error'
-DEFAULT_RESULT_TYPE = SIMPLE_RESULT
-USER_RESULT_TYPES = (SIMPLE_RESULT, DETAILED_RESULT) # used by argument parser
-ALL_RESULT_TYPES  = (SIMPLE_RESULT, DETAILED_RESULT, ERROR_RESULT)
-RESULT_TYPES = None
 
 class FieldResult():
     def __init__(self, analysis_name, field_name, result_type,

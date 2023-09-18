@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Model schema_version="4.0.0.a" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
+
+  <Analysis name="test-fields">
+    <Group regex="true">.*</Group>
+  </Analysis>
+
+  <Field name="Field-1">
+    <Group>all</Group>
+    <Process class="ProcA" desc="Test process 1"/>
+    <Process class="ProcB" desc="Test process 2"/>
+    <Process class="Boundary" boundary="Production"/>
+    <Stream src="ProcA" dst="ProcB">
+      <Contains>crude oil</Contains>
+    </Stream>
+    <Stream src="ProcB" dst="ProductionBoundary">
+      <A name="temperature">90.0</A>
+      <A name="pressure">150.0</A>
+      <Component name="oil" phase="liquid">100</Component>
+      <Contains>crude oil</Contains>
+    </Stream>
+  </Field>
+  <Field name="Field-2">
+
+    <Process class="ProcA" desc="Test process 1"/>
+    <Process class="ProcB" desc="Test process 2"/>
+    <Process class="Boundary" boundary="Production"/>
+    <Stream src="ProcA" dst="ProcB">
+      <Contains>crude oil</Contains>
+    </Stream>
+    <Stream src="ProcB" dst="ProductionBoundary">
+      <A name="temperature">90.0</A>
+      <A name="pressure">150.0</A>
+      <Component name="oil" phase="liquid">100</Component>
+      <Contains>crude oil</Contains>
+    </Stream>
+  </Field>
+  <Field name="Field-3">
+    <Group>all</Group>
+    <Process class="ProcA" desc="Test process 1"/>
+    <Process class="ProcB" desc="Test process 2"/>
+    <Process class="Boundary" boundary="Production"/>
+    <Stream src="ProcA" dst="ProcB">
+      <Contains>crude oil</Contains>
+    </Stream>
+    <Stream src="ProcB" dst="ProductionBoundary">
+      <A name="temperature">90.0</A>
+      <A name="pressure">150.0</A>
+      <Component name="oil" phase="liquid">100</Component>
+      <Contains>crude oil</Contains>
+    </Stream>
+  </Field>
+  <Field name="Field-4">
+    <Group>all</Group>
+    <Process class="ProcA" desc="Test process 1"/>
+    <Process class="ProcB" desc="Test process 2"/>
+    <Process class="Boundary" boundary="Production"/>
+    <Stream src="ProcA" dst="ProcB">
+      <Contains>crude oil</Contains>
+    </Stream>
+    <Stream src="ProcB" dst="ProductionBoundary">
+      <A name="temperature">90.0</A>
+      <A name="pressure">150.0</A>
+      <Component name="oil" phase="liquid">100</Component>
+      <Contains>crude oil</Contains>
+    </Stream>
+  </Field>
+  <Field name="Field-5">
+    <Group>all</Group>
+    <Process class="ProcA" desc="Test process 1"/>
+    <Process class="ProcB" desc="Test process 2"/>
+    <Process class="Boundary" boundary="Production"/>
+    <Stream src="ProcA" dst="ProcB">
+      <Contains>crude oil</Contains>
+    </Stream>
+    <Stream src="ProcB" dst="ProductionBoundary">
+      <A name="temperature">90.0</A>
+      <A name="pressure">150.0</A>
+      <Component name="oil" phase="liquid">100</Component>
+      <Contains>crude oil</Contains>
+    </Stream>
+  </Field>
+  <Field name="Field-6">
+    <Group>all</Group>
+    <Process class="ProcA" desc="Test process 1"/>
+    <Process class="ProcB" desc="Test process 2"/>
+    <Process class="Boundary" boundary="Production"/>
+    <Stream src="ProcA" dst="ProcB">
+      <Contains>crude oil</Contains>
+    </Stream>
+    <Stream src="ProcB" dst="ProductionBoundary">
+      <A name="temperature">90.0</A>
+      <A name="pressure">150.0</A>
+      <Component name="oil" phase="liquid">100</Component>
+      <Contains>crude oil</Contains>
+    </Stream>
+  </Field>
+  <Field name="Field-7">
+    <Group>all</Group>
+    <Process class="ProcA" desc="Test process 1"/>
+    <Process class="ProcB" desc="Test process 2"/>
+    <Process class="Boundary" boundary="Production"/>
+    <Stream src="ProcA" dst="ProcB">
+      <Contains>crude oil</Contains>
+    </Stream>
+    <Stream src="ProcB" dst="ProductionBoundary">
+      <A name="temperature">90.0</A>
+      <A name="pressure">150.0</A>
+      <Component name="oil" phase="liquid">100</Component>
+      <Contains>crude oil</Contains>
+    </Stream>
+  </Field>
+  <Field name="Field-8">
+    <Group>all</Group>
+    <Process class="ProcA" desc="Test process 1"/>
+    <Process class="ProcB" desc="Test process 2"/>
+    <Process class="Boundary" boundary="Production"/>
+    <Stream src="ProcA" dst="ProcB">
+      <Contains>crude oil</Contains>
+    </Stream>
+    <Stream src="ProcB" dst="ProductionBoundary">
+      <A name="temperature">90.0</A>
+      <A name="pressure">150.0</A>
+      <Component name="oil" phase="liquid">100</Component>
+      <Contains>crude oil</Contains>
+    </Stream>
+  </Field>
+  <Field name="Field-9">
+    <Group>all</Group>
+    <Process class="ProcA" desc="Test process 1"/>
+    <Process class="ProcB" desc="Test process 2"/>
+    <Process class="Boundary" boundary="Production"/>
+    <Stream src="ProcA" dst="ProcB">
+      <Contains>crude oil</Contains>
+    </Stream>
+    <Stream src="ProcB" dst="ProductionBoundary">
+      <A name="temperature">90.0</A>
+      <A name="pressure">150.0</A>
+      <Component name="oil" phase="liquid">100</Component>
+      <Contains>crude oil</Contains>
+    </Stream>
+  </Field>
+  <Field name="Field-10">
+    <Group>all</Group>
+    <Process class="ProcA" desc="Test process 1"/>
+    <Process class="ProcB" desc="Test process 2"/>
+    <Process class="Boundary" boundary="Production"/>
+    <Stream src="ProcA" dst="ProcB">
+      <Contains>crude oil</Contains>
+    </Stream>
+    <Stream src="ProcB" dst="ProductionBoundary">
+      <A name="temperature">90.0</A>
+      <A name="pressure">150.0</A>
+      <Component name="oil" phase="liquid">100</Component>
+      <Contains>crude oil</Contains>
+    </Stream>
+  </Field>
+</Model>

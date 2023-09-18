@@ -8,13 +8,15 @@
      -->
 <Model schema_version="4.0.0.a" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="opgee.xsd">
 	<Analysis name="template">
-		<Field name="template"/>
+		<FieldRef name="template"/>
 	</Analysis>
 
 	<Analysis name="example">
 		<A name="functional_unit">oil</A>
 		<A name="GWP_horizon">100</A>
 		<A name="GWP_version">AR5</A>
+		<FieldRef name="gas_lifting_field"/>
+	</Analysis>
 
 		<Field name="gas_lifting_field" modifies="template">
 			<A name="downhole_pump">0</A>
@@ -117,8 +119,6 @@
 <!--      <A name="ecosystem_richness">Med carbon</A>-->
 <!--      <A name="field_development_intensity">Med</A>-->
 		</Field>
-
-	</Analysis>
 
 	<Field name="template">
 		<Process class="Boundary" boundary="Production"/>

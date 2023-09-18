@@ -226,7 +226,7 @@ class Analysis(Container):
         """
         name = elt_name(elt)
         attr_dict = cls.instantiate_attrs(elt)
-        field_names = field_names or [elt_name(node) for node in elt.findall('Field')]
+        field_names = field_names or [elt_name(node) for node in elt.findall('FieldRef')]
         groups = [Group(node) for node in elt.findall('Group')]
 
         obj = Analysis(name, attr_dict=attr_dict, parent=parent, field_names=field_names, groups=groups)
