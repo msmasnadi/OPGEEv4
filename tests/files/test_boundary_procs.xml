@@ -5,7 +5,7 @@
 		<A name="functional_unit">gas</A>
 		<A name="GWP_horizon">100</A>
 		<A name="GWP_version">AR5</A>
-		<Field name="field1"/>
+		<FieldRef name="field1"/>
 	</Analysis>
 
 	<Field name="field1">

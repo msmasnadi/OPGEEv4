@@ -3,7 +3,7 @@
        xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
 
   <Analysis name="test-fields">
-    <Group regex="true">.*</Group>
+    <Group>all</Group>
   </Analysis>
 
   <Field name="Field-1">
