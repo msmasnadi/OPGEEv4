@@ -106,16 +106,6 @@ def attr_to_xml(fields, dtypes, xml_path, analysis_name, modifies='default'):
 
     save_xml(xml_path, model, overwrite=True)
 
-# Deprecated (currently unused)
-# Oddly, we must re-parse the XML to get the formatting right.
-# def write_xml(tree, filename):
-#     parser = ET.XMLParser(remove_blank_text=True)
-#     xml = ET.tostring(tree.getroot())
-#     file_obj = StringIO(xml.decode('utf-8'))
-#     tree = ET.parse(file_obj, parser)
-#
-#     tree.write(filename, pretty_print=True, xml_declaration=True)
-
 #
 # TBD: Elements don't match unless *all* attribs are identical. Maybe match only on tag and name attribute??
 #

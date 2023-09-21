@@ -99,7 +99,6 @@ class Model(Container):
         self.site_fugitive_processing_unit_breakdown = tbl_mgr.get_table("site-fugitive-processing-unit-breakdown")
         self.well_completion_and_workover_C1_rate = tbl_mgr.get_table("well-completion-and-workover-C1-rate")
 
-        # TBD: should these be settable per Analysis?
         # parameters controlling process cyclic calculations
         self.maximum_iterations = self.attr('maximum_iterations')
         self.maximum_change = self.attr('maximum_change')

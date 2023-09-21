@@ -11,19 +11,22 @@ import pint
 
 from .core import OpgeeObject
 from .error import OpgeeException
+from .energy import (EN_CRUDE_OIL, EN_DIESEL, EN_ELECTRICITY, EN_NATURAL_GAS,
+                     EN_NGL, EN_PETCOKE, EN_RESID, EN_UPG_PROC_GAS)
 from .log import getLogger
 
 _logger = getLogger(__name__)
 
-NATURAL_GAS = "Natural gas"
-UPG_PROC_GAS = "Upgrader proc. gas"
-NGL_LPG = "NGL"
+NATURAL_GAS = EN_NATURAL_GAS
+UPG_PROC_GAS = EN_UPG_PROC_GAS
+NGL_LPG = EN_NGL
+CRUDE_OIL = EN_CRUDE_OIL  # does not contain diluent
+DIESEL = EN_DIESEL
+RESID = EN_RESID
+PETCOKE = EN_PETCOKE
+ELECTRICITY = EN_ELECTRICITY
+
 DILUENT = "Diluent"
-CRUDE_OIL = "Crude oil"  # does not contain diluent
-DIESEL = "Diesel"
-RESID = "Residual fuel"
-PETCOKE = "Pet. coke"
-ELECTRICITY = "Electricity"
 WATER = "Water"
 N2 = "N2"
 H2 = "H2"

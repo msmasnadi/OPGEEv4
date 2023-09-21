@@ -43,7 +43,7 @@ def model_file_path(sim_dir):     # pragma: no cover
     model_file = pathjoin(sim_dir, MODEL_FILE)
     return model_file
 
-# Deprecated in favor of XML
+# Deprecated in favor of XML (see mcs/parameter_list.py)
 def read_distributions(pathname=None):
     """
     Read distributions from the designated CSV file. These are combined with those defined
@@ -437,31 +437,31 @@ class Simulation(OpgeeObject):
         self.trial_data_df.to_csv(filename)
 
     # Deprecated
-    def save_trial_results(self, field, df, packet_num, failures):
-        """
-        Save the results of an MCS "trial packet" (which may be all trials
-        for ``field`` or just a subset of trials) to a CSV file in the simulation
-        directory.
-
-        :param field: (opgee.Field) the Field to evaluate in MCS
-        :param df: (pandas.DataFrame) the results to save
-        :param packet_num: (int) The sequential number for this packet in
-            ``field``. If not None, this is used to name the result files.
-        :param failures: (list of tuples) tuples of form (trial_num, message)
-            for each failed trial.
-        :return: nothing
-        """
-        filename = self.results_path(field, packet_num, mkdir=True)
-        _logger.info(f"Writing '{filename}'")
-        df.to_csv(filename, index=False)
-
-        # Save info on failed trials, too
-        failures_csv = self.failures_path(field, packet_num)
-        _logger.info(f"Writing {len(failures)} failures to '{failures_csv}'")
-        with open(failures_csv, 'w') as f:
-            f.write("trial_num,message\n")
-            for trial_num, msg in failures:
-                f.write(f'{trial_num},"{msg}"\n')
+    # def save_trial_results(self, field, df, packet_num, failures):
+    #     """
+    #     Save the results of an MCS "trial packet" (which may be all trials
+    #     for ``field`` or just a subset of trials) to a CSV file in the simulation
+    #     directory.
+    #
+    #     :param field: (opgee.Field) the Field to evaluate in MCS
+    #     :param df: (pandas.DataFrame) the results to save
+    #     :param packet_num: (int) The sequential number for this packet in
+    #         ``field``. If not None, this is used to name the result files.
+    #     :param failures: (list of tuples) tuples of form (trial_num, message)
+    #         for each failed trial.
+    #     :return: nothing
+    #     """
+    #     filename = self.results_path(field, packet_num, mkdir=True)
+    #     _logger.info(f"Writing '{filename}'")
+    #     df.to_csv(filename, index=False)
+    #
+    #     # Save info on failed trials, too
+    #     failures_csv = self.failures_path(field, packet_num)
+    #     _logger.info(f"Writing {len(failures)} failures to '{failures_csv}'")
+    #     with open(failures_csv, 'w') as f:
+    #         f.write("trial_num,message\n")
+    #         for trial_num, msg in failures:
+    #             f.write(f'{trial_num},"{msg}"\n')
 
     def field_trial_data(self, field):
         """

@@ -34,7 +34,7 @@ def read_fields(csv_path, from_package=False, skip_fields=None):
     stream = resourceStream(csv_path) if from_package else csv_path
     df = pd.read_csv(stream, index_col=0)
 
-    # TODO: If we decide to translate attribute names here, add mappings to this dict
+    # If we decide to translate attribute names here, add mappings to this dict
     v3_to_v4 = {
         'old name': 'new name',
         'old name2': 'new name2',

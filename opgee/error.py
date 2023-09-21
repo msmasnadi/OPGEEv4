@@ -128,15 +128,3 @@ class RemoteError(OpgeeException):
     def __str__(self):
         trial_str = f" trial={self.trial}" if self.trial is not None else ""
         return f"<RemoteError field='{self.field_name}'{trial_str} msg='{self.msg}'>"
-
-# Deprecated
-# class TrialErrorWrapper(OpgeeException):
-#     """
-#     Wraps an exception to add the trial number for debugging
-#     """
-#     def __init__(self, error, trial):
-#         self.trial = trial
-#         self.error = error
-#
-#     def __str__(self):
-#         return f"trial:{self.trial} {self.error}"

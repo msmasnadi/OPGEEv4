@@ -26,8 +26,9 @@ class VFPartition(Process):
         self.FOR = field.FOR
         self.mol_per_scf = field.model.const("mol-per-scf")
         self.oil_volume_rate = field.oil_volume_rate
-        self.combusted_gas_frac = field.attr(
-            "combusted_gas_frac")  # TODO: add smart default to this parameter from lookup table
+
+        # TODO: add smart default to this parameter from lookup table
+        self.combusted_gas_frac = field.attr("combusted_gas_frac")
 
     def run(self, analysis):
         self.print_running_msg()

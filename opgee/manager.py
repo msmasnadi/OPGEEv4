@@ -291,8 +291,6 @@ class Manager(OpgeeObject):
 
         self.client = self.cluster = None
 
-    # TBD: Model this after (or merge with) simulation.run_parallel using yield
-    #   Convert to yielding results to caller can save in batches
     def run_packets(self,
                     packets: list[AbsPacket],
                     result_type: str = None,
@@ -327,14 +325,7 @@ class Manager(OpgeeObject):
             # Start the worker processes on all available CPUs.
             futures = client.map(lambda pkt: pkt.run(result_type),packets)
 
-            # TBD: modify to write CSV files here rather than in workers
             for future, results in as_completed(futures, with_results=True):
-                # if result.error:
-                #     _logger.error(f"Failed: {result}")
-                #     #traceback.print_exc()
-                # else:
-                #     _logger.debug(f"Succeeded: {result}")
-
                 yield results
 
             _logger.debug("Workers finished")
@@ -342,43 +333,6 @@ class Manager(OpgeeObject):
 
         _logger.info(timer.stop())
         return None
-
-    # Deprecated
-    # def run_mcs(self,
-    #             packets: list[TrialPacket],
-    #             result_type: str = SIMPLE_RESULT,
-    #             num_engines: int = 0,
-    #             minutes_per_task: int = None,
-    #             # collect=False, delete_partials=False
-    #             ):
-    #     """
-    #     Run a Monte Carlo simulation on a dask cluster.
-    #
-    #     :param field_names: (list of str) the names of the fields to run; empty list or ``None``
-    #         implies use all fields found in the ``Simulation`` metadata.
-    #     :param num_engines: (int) the number of worker tasks to start
-    #     :param minutes_per_task: (int) how many minutes of walltime to allocate for each worker.
-    #     :param collect: (bool) whether to combine all partial (packet) results and failures
-    #         into a single results and single failures file.
-    #     :param delete_partials: (bool) whether to delete partial result and failure files after
-    #         combining them. Ignored if collect is False.
-    #     :return: nothing
-    #     """
-    #     sim_dir = packets[0].sim_dir    # should be same for all packets
-    #
-    #     # Put the log for the monitor process in the simulation directory.
-    #     # Workers will set the log file to within the directory for the
-    #     # field it's currently running.
-    #     log_file = f"{sim_dir}/opgee-mcs.log"
-    #     setLogFile(log_file, remove_old_file=True)
-    #
-    #     results_list = self.run_packets(packets,
-    #                                     result_type=result_type,
-    #                                     num_engines=num_engines,
-    #                                     minutes_per_task=minutes_per_task)
-    #     return results_list
-    #
-
 
 def _run_field(analysis_name, field_name, xml_string, result_type,
                use_default_model=True):
@@ -413,67 +367,6 @@ def _run_field(analysis_name, field_name, xml_string, result_type,
         result = FieldResult(analysis_name, field_name, ERROR_RESULT, error=str(e))
 
     return result
-
-# TODO: could be method of Manager
-# def run_parallel(model_xml_file, analysis_name, field_names,
-#                  max_results=None, result_type=DETAILED_RESULT):
-#     from dask.distributed import as_completed
-#
-#     mgr = Manager(cluster_type='local')
-#
-#     timer = Timer('run_parallel')
-#
-#     # Put the log for the monitor process in the simulation directory.
-#     # Each Worker will set the log file to within the directory for the
-#     # field it's currently running.
-#     # log_file = f"{sim_dir}/opgee-mcs.log"
-#     # setLogFile(log_file, remove_old_file=True)
-#
-#     # N.B. start_cluster saves client in self.client and returns it as well
-#     client = mgr.start_cluster()
-#
-#     futures = []
-#
-#     # Submit all the fields to run on worker tasks
-#     # TBD: should these be packetized? Should worker extract xml_string?
-#     for field_name, xml_string in extract_model(model_xml_file, analysis_name,
-#                                                 field_names):
-#         future = client.submit(_run_field, analysis_name, field_name,
-#                                xml_string, result_type)
-#         futures.append(future)
-#
-#     results = []
-#     count = 0   # used if we're returning results in batches
-#
-#     # Wait for and process results
-#     for future, result in as_completed(futures, with_results=True):
-#         if max_results and count == 0:
-#             results.clear()
-#
-#         if result.error:
-#             _logger.error(f"Failed: {result}")
-#         else:
-#             _logger.debug(f"Succeeded: {result}")
-#
-#         results.append(result)
-#
-#         if max_results:
-#             if count == max_results:
-#                 count = 0
-#                 # return the next batch
-#                 yield results
-#             else:
-#                 count += 1
-#
-#     _logger.debug("Workers finished")
-#
-#     mgr.stop_cluster()
-#     _logger.info(timer.stop())
-#
-#     if count:
-#         yield results
-#     else:
-#         return results
 
 # TODO: could be method of Manager
 def run_serial(model_xml_file, analysis_name, field_names, result_type=DETAILED_RESULT):

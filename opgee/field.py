@@ -345,7 +345,7 @@ class Field(Container):
         try:
             _impute_upstream(start_proc)
         except OpgeeStopIteration:
-            # TODO: shouldn't be possible
+            # Shouldn't be possible
             raise OpgeeException("Impute failed due to a process loop. Use Stream attribute impute='0' to break cycle.")
 
     def run(self, analysis, compute_ci=True, trial_num=None):
@@ -387,9 +387,6 @@ class Field(Container):
             self.get_emission_rates(analysis, procs_to_exclude=self.procs_beyond_boundary)
             self.carbon_intensity = self.compute_carbon_intensity(analysis) if compute_ci else None
             _logger.info(timer.stop())
-
-            # TBD: should this return a populated FieldResult?
-
 
     def reset(self):
         self.reset_streams()
@@ -461,7 +458,7 @@ class Field(Container):
         boundary_proc = self.boundary_process(analysis)
         combined_stream = combine_streams(boundary_proc.inputs)
 
-        # TODO: Add method to calculate petrocoke energy flow rate
+        # TODO: Add method to calculate petcoke energy flow rate
         energy = self.oil.energy_flow_rate(combined_stream) + self.gas.energy_flow_rate(combined_stream)
 
         if energy.m == 0:
@@ -487,7 +484,7 @@ class Field(Container):
         imported_emissions = self.get_imported_emissions(net_import)
         total_emissions = onsite_emissions + imported_emissions
 
-        #TODO: add option for displacement method
+        # TODO: add option for displacement method
         # fn_unit = NATURAL_GAS if analysis.fn_unit == 'gas' else CRUDE_OIL
         # byproduct_names = self.product_names.drop(fn_unit)
         # byproduct_carbon_credit = self.get_carbon_credit(byproduct_names, analysis)
@@ -1344,7 +1341,7 @@ class Field(Container):
     def GOR_default(self, API):
         # =IF(API_grav<20,1122.4,IF(AND(API_grav>=20,API_grav<=30),1205.4,2429.3))
         if API.m < 20:
-            return 1122.4           # TODO: explain these constants
+            return 1122.4
         elif 20 <= API.m <= 30:
             return 1205.4
         else:
