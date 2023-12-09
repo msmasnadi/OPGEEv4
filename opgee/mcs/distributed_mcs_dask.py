@@ -8,7 +8,7 @@
 #
 import asyncio
 import dask
-from dask_jobqueue import SLURMCluster
+# from dask_jobqueue import SLURMCluster
 from dask.distributed import Client, LocalCluster, as_completed
 from itertools import islice, product
 

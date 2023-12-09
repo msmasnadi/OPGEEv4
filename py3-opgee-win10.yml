@@ -5,15 +5,13 @@ channels:
   - defaults
 dependencies:
   - colour
-  - dash>=2.5.1
+  - dash
   - dask
-  - dask-jobqueue>=0.7.3
-  - decorator
+  - dask-jobqueue
   - jinja2
-  - libpng
-  - libtiff
-  - llvmlite=0.39.1
-  - lxml>=4.9.0
+  - llvm-openmp
+  - lxml
+  - llvmlite
   - networkx
   - numba
   - numpy
@@ -22,18 +20,18 @@ dependencies:
   - pint-pandas
   - pip
   - pydot
-  - pyparsing
   - pytest
   - python>=3.9.0,<3.10.0
   - semver
   - setuptools
-  - sphinx>=4.3.0
-  - sphinx-argparse>=0.2.5
-  - sphinx_rtd_theme>=0.5.1
+  - sphinx
+  - sphinx-argparse
+  - sphinx_rtd_theme
   - sphinxcontrib-serializinghtml
-  - urllib3
+  - thermo
+  - fluids
+  - chemicals
   - pip:
-    - thermo==0.2.10
-    - thermosteam>=0.28.12
-    - pyXSteam>=0.4.8
-    - dash-cytoscape>=0.3.0
+    - thermosteam
+    - pyXSteam
+    - dash-cytoscape
