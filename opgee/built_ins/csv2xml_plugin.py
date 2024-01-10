@@ -1,6 +1,4 @@
 """
-.. Import edited_fields.csv (derived from OPGEEv3 workbook's "Input" sheet) to XML
-
 .. codeauthor:: <rich@plevin.com>
 
 .. Copyright (c) 2021  Richard Plevin

@@ -37,7 +37,8 @@ _logger = getLogger(__name__)
 
 class FieldResult():
     def __init__(self, analysis_name, field_name, result_type,
-                 energy_data=None, emissions_data=None, ci_results=None,
+                 energy_data=None, emissions_data=None,
+                 streams_data=None, ci_results=None,
                  trial_num=None, error=None):
         self.analysis_name = analysis_name
         self.field_name = field_name
@@ -45,6 +46,7 @@ class FieldResult():
         self.ci_results = ci_results    # list of tuples of (node_name, CI)
         self.energy = energy_data
         self.emissions = emissions_data
+        self.streams = streams_data
         self.trial_num = trial_num
         self.error = error
 
@@ -565,11 +567,19 @@ class Field(Container):
         ci_results = (None if ci_tuples is None
                       else [('TOTAL', self.carbon_intensity.m)] + ci_tuples)
 
+        streams = self.streams()
+
+        streams_data = pd.concat([s.to_dataframe() for s in streams])
+
+        # TBD: need to save the streams data to CSV
+        #  =========================================
+
         result = FieldResult(analysis.name, self.name, result_type,
                              trial_num=trial_num,
                              ci_results=ci_results,
                              energy_data=energy_data,
-                             emissions_data=emissions_data)
+                             emissions_data=emissions_data,
+                             streams_data=streams_data)
         return result
 
     def get_imported_emissions(self, net_import):
