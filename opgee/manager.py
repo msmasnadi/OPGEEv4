@@ -405,6 +405,7 @@ def save_results(results, output_dir, batch_num=None):
 
     energy_cols = []
     emission_cols = []
+    gas_dfs = []
     ci_rows = []
     error_rows = []
     stream_dfs = []
@@ -425,6 +426,7 @@ def save_results(results, output_dir, batch_num=None):
             energy_cols.append(result.energy)
             emission_cols.append(result.emissions)
             stream_dfs.append(result.streams)
+            gas_dfs.append(result.gases)
 
         for name, ci in result.ci_results:
             d = {"analysis": result.analysis_name,
@@ -463,9 +465,13 @@ def save_results(results, output_dir, batch_num=None):
     if emission_cols:
         _save_cols(emission_cols, "emissions")
 
+    if gas_dfs:
+        df = pd.concat(gas_dfs, axis="rows")
+        _to_csv(df, "gases", index=False)
+
     if stream_dfs:
         df = pd.concat(stream_dfs, axis="rows")
-        _to_csv(df, "stream", index=False)
+        _to_csv(df, "streams", index=False)
 
 
 def _combine_results(filenames, output_name, sort_by=None):
