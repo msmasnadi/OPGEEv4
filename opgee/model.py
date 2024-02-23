@@ -177,6 +177,7 @@ class Model(Container):
 
         model.analysis_dict = model.adopt(analyses, asDict=True)
 
+        # TBD: is this still required?
         if field_names:
             for analysis in analyses:
                 analysis.restrict_fields(field_names)
