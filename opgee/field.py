@@ -648,7 +648,7 @@ class Field(Container):
         energy_data, ghg_data, gas_data = (
             self.energy_and_emissions(analysis)
             if result_type == DETAILED_RESULT
-            else (None, None)
+            else (None, None, None)
         )
 
         nodes = self.processes() if DETAILED_RESULT else self.children()
