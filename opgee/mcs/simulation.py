@@ -329,7 +329,7 @@ class Simulation(OpgeeObject):
             #     prog = re.compile(group.text)
             #     matches = [field for field in field_names for name in field.group_names if prog.match(group_name)]
 
-        field_names = field_names or analysis_node.xpath("Field/@name")
+        field_names = field_names or analysis_node.xpath("FieldRef/@name")
 
         # analysis = mf.model.get_analysis(analysis_name, raiseError=False)
         # if not analysis:

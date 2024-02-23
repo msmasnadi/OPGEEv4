@@ -29,7 +29,7 @@ class GensimCommand(SubcommandABC):
                             help='''The path to a CSV file with distribution definitions. If omitted, the 
                             built-in file etc/parameter_distributions.csv is used.''')
 
-        parser.add_argument('-f', '--fields', action=ParseCommaList,
+        parser.add_argument('-f', '--fields', action=ParseCommaList, default=None,
                             help='''Generate trial data for the specified field or fields only. Argument 
                             may be a comma-delimited list of Field names. Otherwise trial data is generated
                             for all fields defined in the analysis.''')

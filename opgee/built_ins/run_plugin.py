@@ -210,7 +210,7 @@ class RunCommand(SubcommandABC):
             type=positive_int,
             default=None,
             help="""Number of worker tasks to create. Default is the number of fields, if
-                                specified using -f/--fields, otherwise -n/--num_tasks is required.""",
+                                specified using -f/--fields, otherwise -T/--num_tasks is required.""",
         )
 
         parser.add_argument(
@@ -262,7 +262,7 @@ class RunCommand(SubcommandABC):
             metadata = Simulation.read_metadata(sim_dir)
             field_names = field_names or metadata["field_names"]
             trial_nums = (
-                metadata["trials"] if trials == "all" else parseTrialString(trials)
+                range(metadata["trials"]) if trials == "all" else parseTrialString(trials)
             )
             model_xml_file = model_xml_file or model_file_path(sim_dir)
 
