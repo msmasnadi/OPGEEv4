@@ -1072,18 +1072,19 @@ class Field(Container):
         # TODO: Wennan, I think the better fix here is to ensure that there are
         #   no disabled process in cycles.
 
-        enabled_procs_cycles = []
+        procs_in_cycles = set()
+        reported = set()
         for cycle in self.cycles:
             for proc in cycle:
                 if proc.is_enabled():
-                    enabled_procs_cycles.append(proc)
-                else:
-                    _logger.debug(f"Disabled proc {proc} is in a cycle {cycle}")
+                    procs_in_cycles.add(proc)
+                elif proc not in reported:
+                    _logger.debug(f"Disabled proc {proc} is in one or more cycles")
+                    reported.add(proc)  # so we report it only once
 
-        procs_in_cycles = set(enabled_procs_cycles)
         cycle_dependent = set()
 
-        if enabled_procs_cycles:
+        if procs_in_cycles:
             for process in processes:
                 if process not in procs_in_cycles and self._depends_on_cycle(process):
                     cycle_dependent.add(process)

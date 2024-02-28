@@ -23,7 +23,7 @@ from .error import McsSystemError, AbstractMethodError
 from .field import FieldResult
 from .log import getLogger, setLogFile
 from .model_file import extract_model
-from .utils import flatten, pushd
+from .utils import flatten, pushd, mkdirs
 from .mcs.simulation import Simulation, RESULTS_CSV, FAILURES_CSV
 
 # To debug dask, uncomment the following 2 lines
@@ -225,6 +225,9 @@ class Manager(OpgeeObject):
             job_script_prologue = None # ['conda activate opgee'] failed
             minutes_per_task = minutes_per_task or getParamAsInt("SLURM.MinutesPerTask")
 
+            local_dir = getParam('SLURM.TempDir')
+            mkdirs(local_dir)
+
             arg_dict = dict(
                 account = getParam('SLURM.Account') or None,
                 job_name = getParam('SLURM.JobName'),
@@ -233,7 +236,7 @@ class Manager(OpgeeObject):
                 cores=cores,
                 processes=processes,
                 memory = getParam('SLURM.MemPerJob'),
-                local_directory = getParam('SLURM.TempDir'),
+                local_directory = local_dir,
                 interface = getParam('SLURM.Interface') or None,
                 shebang = '#!' + shell if shell else None,
                 nanny = nanny,  # can't seem to get nanny = False to work...
