@@ -211,6 +211,9 @@ class Manager(OpgeeObject):
 
         cores = getParamAsInt('SLURM.CoresPerNode') # "Total number of cores per job"
 
+        local_dir = getParam('SLURM.TempDir')
+        mkdirs(local_dir)
+
         if cluster_type == 'slurm':
             # "Cut the job up into this many processes. Good for GIL workloads or for nodes with
             #  many cores. By default, process ~= sqrt(cores) so that the number of processes and
@@ -224,9 +227,6 @@ class Manager(OpgeeObject):
 
             job_script_prologue = None # ['conda activate opgee'] failed
             minutes_per_task = minutes_per_task or getParamAsInt("SLURM.MinutesPerTask")
-
-            local_dir = getParam('SLURM.TempDir')
-            mkdirs(local_dir)
 
             arg_dict = dict(
                 account = getParam('SLURM.Account') or None,
@@ -258,7 +258,8 @@ class Manager(OpgeeObject):
             # Running with n_workers=1, threads_per_worker=2 resulted in weird runtime errors in Chemical.
             # self.cluster = cluster = LocalCluster(n_workers=1, threads_per_worker=num_engines, processes=False)
 
-            self.cluster = cluster = LocalCluster(n_workers=num_engines, threads_per_worker=1, processes=True)
+            self.cluster = cluster = LocalCluster(n_workers=num_engines, threads_per_worker=1, processes=True,
+                                                  local_directory=local_dir)
 
         else:
             raise McsSystemError(f"Unknown cluster type '{cluster_type}'. Valid options are 'slurm' and 'local'.")
