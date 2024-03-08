@@ -161,6 +161,11 @@ class Field(Container):
 
         self.LNG_temp = model.const("LNG-temp")
 
+        self.cache_attributes()
+        self.steam_generator = SteamGenerator(self)
+        self.transport_energy = TransportEnergy(self)  # N.B. accesses field.SOR
+
+    def cache_attributes(self):
         self.AGR_feedin_press = self.attr("AGR_feedin_press")
         self.API = self.attr("API")
         self.depth = self.attr("depth")
@@ -194,9 +199,7 @@ class Field(Container):
         self.mined_bitumen_p = self.attr("pressure_mined_bitumen")
         self.mined_bitumen_t = self.attr("temperature_mined_bitumen")
         self.natural_gas_reinjection = self.attr("natural_gas_reinjection")
-        self.natural_gas_to_liquefaction_frac = self.attr(
-            "natural_gas_to_liquefaction_frac"
-        )
+        self.natural_gas_to_liquefaction_frac = self.attr("natural_gas_to_liquefaction_frac")
         self.num_prod_wells = self.attr("num_prod_wells")
         self.num_water_inj_wells = self.attr("num_water_inj_wells")
         self.num_gas_inj_wells = self.attr("num_gas_inj_wells")
@@ -232,9 +235,6 @@ class Field(Container):
         self.wellhead_p = min(self.res_press, self.attr("wellhead_pressure"))
         self.WIR = self.attr("WIR")
         self.WOR = self.attr("WOR")
-
-        self.steam_generator = SteamGenerator(self)
-        self.transport_energy = TransportEnergy(self)  # N.B. accesses field.SOR
 
     # Used by validate() to descend model hierarchy
     def _children(self):

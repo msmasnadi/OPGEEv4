@@ -26,22 +26,25 @@ from .LHS import lhs
 
 _logger = getLogger(__name__)
 
-TRIAL_DATA_CSV = 'trial_data.csv'
-RESULTS_CSV = 'results.csv'
-FAILURES_CSV = 'failures.csv'
-MODEL_FILE = 'merged_model.xml'
-META_DATA_FILE = 'metadata.json'
+TRIAL_DATA_CSV = "trial_data.csv"
+RESULTS_CSV = "results.csv"
+FAILURES_CSV = "failures.csv"
+MODEL_FILE = "merged_model.xml"
+META_DATA_FILE = "metadata.json"
 
-DISTROS_CSV = 'mcs/etc/parameter_distributions.csv'
+DISTROS_CSV = "mcs/etc/parameter_distributions.csv"
 
 DEFAULT_DIGITS = 3
 
-def roundmag(quantity, digits=DEFAULT_DIGITS):          # pragma: no cover
+
+def roundmag(quantity, digits=DEFAULT_DIGITS):  # pragma: no cover
     return round(quantity.m, digits)
 
-def model_file_path(sim_dir):     # pragma: no cover
+
+def model_file_path(sim_dir):  # pragma: no cover
     model_file = pathjoin(sim_dir, MODEL_FILE)
     return model_file
+
 
 # Deprecated in favor of XML (see mcs/parameter_list.py)
 def read_distributions(pathname=None):
@@ -52,11 +55,13 @@ def read_distributions(pathname=None):
     :param pathname: (str) the pathname of the CSV file describing parameter distributions
     :return: (none)
     """
-    distros_csv = pathname or resourceStream(DISTROS_CSV, stream_type='bytes', decode=None)
+    distros_csv = pathname or resourceStream(
+        DISTROS_CSV, stream_type="bytes", decode=None
+    )
 
-    df = pd.read_csv(distros_csv, skip_blank_lines=True, comment='#').fillna('')
+    df = pd.read_csv(distros_csv, skip_blank_lines=True, comment="#").fillna("")
 
-    for row in df.itertuples(index=False, name='row'):
+    for row in df.itertuples(index=False, name="row"):
         shape = row.distribution_type.lower()
         name = row.variable_name
         low = row.low_bound
@@ -67,56 +72,82 @@ def read_distributions(pathname=None):
         prob_of_yes = row.prob_of_yes
         pathname = row.pathname
 
-        if name == '':
+        if name == "":
             continue
 
-        if low == '' and high == '' and mean == '' and prob_of_yes == '' and shape != 'empirical':
-            _logger.info(f"* {name} depends on other distributions / smart defaults")        # TODO add in lookup of attribute value
+        if (
+            low == ""
+            and high == ""
+            and mean == ""
+            and prob_of_yes == ""
+            and shape != "empirical"
+        ):
+            _logger.info(
+                f"* {name} depends on other distributions / smart defaults"
+            )  # TODO add in lookup of attribute value
             continue
 
-        if shape == 'binary':
+        if shape == "binary":
             if prob_of_yes == 0 or prob_of_yes == 1:
-                _logger.info(f"* Ignoring distribution on {name}, Binary distribution has prob_of_yes = {prob_of_yes}")
+                _logger.info(
+                    f"* Ignoring distribution on {name}, Binary distribution has prob_of_yes = {prob_of_yes}"
+                )
                 continue
 
-            rv = get_frozen_rv('weighted_binary', prob_of_one=0.5 if prob_of_yes == '' else prob_of_yes)
+            rv = get_frozen_rv(
+                "weighted_binary", prob_of_one=0.5 if prob_of_yes == "" else prob_of_yes
+            )
 
-        elif shape == 'uniform':
+        elif shape == "uniform":
             if low == high:
-                _logger.info(f"* Ignoring distribution on {name}, Uniform high and low bounds are both {low}")
+                _logger.info(
+                    f"* Ignoring distribution on {name}, Uniform high and low bounds are both {low}"
+                )
                 continue
 
-            rv = get_frozen_rv('uniform', min=low, max=high)
+            rv = get_frozen_rv("uniform", min=low, max=high)
 
-        elif shape == 'triangular':
+        elif shape == "triangular":
             if low == high:
-                _logger.info(f"* Ignoring distribution on {name}, Triangle high and low bounds are both {low}")
+                _logger.info(
+                    f"* Ignoring distribution on {name}, Triangle high and low bounds are both {low}"
+                )
                 continue
 
-            rv = get_frozen_rv('triangle', min=low, mode=default, max=high)
+            rv = get_frozen_rv("triangle", min=low, mode=default, max=high)
 
-        elif shape == 'normal':
+        elif shape == "normal":
             if stdev == 0.0:
                 _logger.info(f"* Ignoring distribution on {name}, Normal has stdev = 0")
                 continue
 
-            if low == '' or high == '':
-                rv = get_frozen_rv('normal', mean=mean, stdev=stdev)
+            if low == "" or high == "":
+                rv = get_frozen_rv("normal", mean=mean, stdev=stdev)
             else:
-                rv = get_frozen_rv('truncated_normal', mean=mean, stdev=stdev, low=low, high=high)
+                rv = get_frozen_rv(
+                    "truncated_normal", mean=mean, stdev=stdev, low=low, high=high
+                )
 
-        elif shape == 'lognormal':
+        elif shape == "lognormal":
             if stdev == 0.0:
-                _logger.info(f"* Ignoring distribution on {name}, Lognormal has stdev = 0")
+                _logger.info(
+                    f"* Ignoring distribution on {name}, Lognormal has stdev = 0"
+                )
                 continue
 
-            if low == '' or high == '':     # must specify both low and high
-                rv = get_frozen_rv('lognormal', logmean=mean, logstdev=stdev)
+            if low == "" or high == "":  # must specify both low and high
+                rv = get_frozen_rv("lognormal", logmean=mean, logstdev=stdev)
             else:
-                rv = get_frozen_rv('truncated_lognormal', logmean=mean, logstdev=stdev, low=low, high=high)
+                rv = get_frozen_rv(
+                    "truncated_lognormal",
+                    logmean=mean,
+                    logstdev=stdev,
+                    low=low,
+                    high=high,
+                )
 
-        elif shape == 'empirical':
-            rv = get_frozen_rv('empirical', pathname=pathname, colname=name)
+        elif shape == "empirical":
+            rv = get_frozen_rv("empirical", pathname=pathname, colname=name)
 
         else:
             raise McsSystemError(f"Unknown distribution shape: '{shape}'")
@@ -134,7 +165,9 @@ class Distribution(OpgeeObject):
         try:
             self.class_name, self.attr_name = split_attr_name(full_name)
         except OpgeeException as e:
-            raise McsUserError(f"attribute name format is 'ATTR' (same as 'Field.ATTR) or 'CLASS.ATTR'; got '{full_name}'")
+            raise McsUserError(
+                f"attribute name format is 'ATTR' (same as 'Field.ATTR) or 'CLASS.ATTR'; got '{full_name}'"
+            )
 
         self.rv = rv
         self.instances[full_name] = self
@@ -180,8 +213,16 @@ class Simulation(OpgeeObject):
       up to 1 million trials while ensuring that no directory contains more than 1000 items.
       Limiting directory size improves performance.
     """
-    def __init__(self, sim_dir, analysis_name=None, trials=0, field_names=None,
-                 save_to_path=None, meta_data_only=False):
+
+    def __init__(
+        self,
+        sim_dir,
+        analysis_name=None,
+        trials=0,
+        field_names=None,
+        save_to_path=None,
+        meta_data_only=False,
+    ):
 
         if not os.path.isdir(sim_dir):
             raise McsUserError(f"Simulation directory '{sim_dir}' does not exist.")
@@ -191,7 +232,7 @@ class Simulation(OpgeeObject):
         self.model = None
         self.model_xml_string = None
 
-        self.trial_data_df = None # loaded on demand by ``trial_data`` method.
+        self.trial_data_df = None  # loaded on demand by ``trial_data`` method.
         self.trials = trials
 
         self.analysis_name = analysis_name
@@ -207,7 +248,9 @@ class Simulation(OpgeeObject):
         if trials > 0:
             self.generate()
 
-        if meta_data_only:  # a slight misnomer since we may generate trial_data.csv, too
+        if (
+            meta_data_only
+        ):  # a slight misnomer since we may generate trial_data.csv, too
             return
 
         try:
@@ -215,7 +258,9 @@ class Simulation(OpgeeObject):
             with open(model_file) as f:
                 self.model_xml_string = f.read()
         except Exception as e:
-            raise McsSystemError(f"Failed to read model file '{model_file}' to XML string: {e}")
+            raise McsSystemError(
+                f"Failed to read model file '{model_file}' to XML string: {e}"
+            )
 
         # TBD: to allow the same trial_num to be run across fields, cache field
         #      trial_data in a dict by field name rather than a single DF
@@ -229,18 +274,21 @@ class Simulation(OpgeeObject):
 
         :return: none
         """
-        mf = ModelFile(self.model_file,
-                       xml_string=self.model_xml_string,
-                       use_default_model=False,
-                       analysis_names=[self.analysis_name],
-                       field_names=self.field_names,
-                       save_to_path=save_to_path)
+        mf = ModelFile(
+            self.model_file,
+            xml_string=self.model_xml_string,
+            use_default_model=False,
+            analysis_names=[self.analysis_name],
+            field_names=self.field_names,
+            save_to_path=save_to_path,
+        )
         self.model = mf.model
 
         self.analysis = self.model.get_analysis(self.analysis_name, raiseError=False)
         if not self.analysis:
-            raise CommandlineError(f"Analysis '{self.analysis_name}' was not found in model")
-
+            raise CommandlineError(
+                f"Analysis '{self.analysis_name}' was not found in model"
+            )
 
     @classmethod
     def read_metadata(cls, sim_dir):
@@ -252,18 +300,18 @@ class Simulation(OpgeeObject):
 
     def _save_meta_data(self):
         self.metadata = {
-            'analysis_name': self.analysis_name,
-            'trials'       : self.trials,
-            'field_names'  : self.field_names,  # None => process all Fields in the Analysis
+            "analysis_name": self.analysis_name,
+            "trials": self.trials,
+            "field_names": self.field_names,  # None => process all Fields in the Analysis
         }
 
-        with open(self.metadata_path(), 'w') as fp:
+        with open(self.metadata_path(), "w") as fp:
             json.dump(self.metadata, fp, indent=2)
 
     def _load_meta_data(self, field_names):
         metadata_path = self.metadata_path()
         try:
-            with open(metadata_path, 'r') as fp:
+            with open(metadata_path, "r") as fp:
                 self.metadata = metadata = json.load(fp)
         except Exception as e:
             raise McsUserError(f"Failed to load simulation '{metadata_path}' : {e}")
@@ -271,16 +319,26 @@ class Simulation(OpgeeObject):
         if field_names:
             names = set(field_names)
             # Use list comprehension rather than set.intersection to maintain original order
-            self.field_names = [name for name in metadata['field_names'] if name in names]
+            self.field_names = [
+                name for name in metadata["field_names"] if name in names
+            ]
         else:
-            self.field_names = metadata['field_names']
+            self.field_names = metadata["field_names"]
 
-        self.analysis_name = metadata['analysis_name']
-        self.trials        = metadata['trials']
+        self.analysis_name = metadata["analysis_name"]
+        self.trials = metadata["trials"]
 
     @classmethod
-    def new(cls, sim_dir, model_files, analysis_name, trials,
-            field_names=None, overwrite=False, use_default_model=True):
+    def new(
+        cls,
+        sim_dir,
+        model_files,
+        analysis_name,
+        trials,
+        field_names=None,
+        overwrite=False,
+        use_default_model=True,
+    ):
         """
         Create the simulation directory and the ``sandboxes`` subdirectory.
 
@@ -298,8 +356,10 @@ class Simulation(OpgeeObject):
         """
         if os.path.lexists(sim_dir):
             if not overwrite:
-                raise McsUserError(f"Directory '{sim_dir}' already exists. Use "
-                                    "Simulation.new(sim_dir, overwrite=True) to replace it.")
+                raise McsUserError(
+                    f"Directory '{sim_dir}' already exists. Use "
+                    "Simulation.new(sim_dir, overwrite=True) to replace it."
+                )
             removeTree(sim_dir, ignore_errors=False)
 
         mkdirs(sim_dir)
@@ -310,9 +370,12 @@ class Simulation(OpgeeObject):
         # the simulation is running.
         merged_model_file = model_file_path(sim_dir)
 
-        mf = ModelFile(model_files, use_default_model=use_default_model,
-                       save_to_path=merged_model_file,
-                       instantiate_model=False) # avoid building potentially huge model
+        mf = ModelFile(
+            model_files,
+            use_default_model=use_default_model,
+            save_to_path=merged_model_file,
+            instantiate_model=False,
+        )  # avoid building potentially huge model
 
         # Find needed info in the parsed XML so we can avoid instantiating potentially
         # huge models. (E.g., the 9000 field test case produced a 200+ MB XML file.)
@@ -337,8 +400,13 @@ class Simulation(OpgeeObject):
         #
         # field_names = field_names or analysis.field_names(enabled_only=True)
 
-        sim = cls(sim_dir, analysis_name=analysis_name, field_names=field_names,
-                  trials=trials, meta_data_only=True)
+        sim = cls(
+            sim_dir,
+            analysis_name=analysis_name,
+            field_names=field_names,
+            trials=trials,
+            meta_data_only=True,
+        )
         return sim
 
     # Class method to be callable from distributed_mcs_dask.py's run_field
@@ -388,16 +456,18 @@ class Simulation(OpgeeObject):
     def lookup(self, full_name, field):
         class_name, attr_name = split_attr_name(full_name)
 
-        if class_name is None or class_name == 'Field':
+        if class_name is None or class_name == "Field":
             obj = field
 
-        elif class_name == 'Analysis':
+        elif class_name == "Analysis":
             obj = self.analysis
 
         else:
             obj = field.find_process(class_name)
             if obj is None:
-                raise McsUserError(f"A process of class '{class_name}' was not found in {field}")
+                raise McsUserError(
+                    f"A process of class '{class_name}' was not found in {field}"
+                )
 
         attr_obj = obj.attr_dict.get(attr_name)
         if attr_obj is None:
@@ -425,10 +495,14 @@ class Simulation(OpgeeObject):
 
             for dist in distributions:
                 rv_list.append(dist.rv)
-                cols.append(dist.attr_name if dist.class_name == 'Field' else dist.full_name)
+                cols.append(
+                    dist.attr_name if dist.class_name == "Field" else dist.full_name
+                )
 
-            self.trial_data_df = df = lhs(rv_list, trials, columns=cols, corrMat=corr_mat)
-            df.index.name = 'trial_num'
+            self.trial_data_df = df = lhs(
+                rv_list, trials, columns=cols, corrMat=corr_mat
+            )
+            df.index.name = "trial_num"
             self.save_trial_data(field_name)
 
     def save_trial_data(self, field_name):
@@ -484,7 +558,7 @@ class Simulation(OpgeeObject):
             raise McsSystemError(f"Can't read trial data: '{path}' doesn't exist.")
 
         try:
-            df = pd.read_csv(path, index_col='trial_num')
+            df = pd.read_csv(path, index_col="trial_num")
 
         except Exception as e:
             raise McsSystemError(f"Can't read trial data from '{path}': {e}")
@@ -516,12 +590,15 @@ class Simulation(OpgeeObject):
 
         for name, value in data.items():
             attr = self.lookup(name, field)
-            if not attr.explicit:               # don't set values of explicit attributes
+            if not attr.explicit:  # don't set values of explicit attributes
                 attr.explicit = True
                 attr.set_value(value)
 
         # TBD: test this
         SmartDefault.apply_defaults(field, analysis=analysis)
+
+        # Update values cached in Field instance
+        field.cache_attributes()
 
     def run_packet(self, packet, result_type=SIMPLE_RESULT):
         """
@@ -555,11 +632,18 @@ class Simulation(OpgeeObject):
 
             except Exception as e:
                 errmsg = f"Trial {trial_num}: {e}"
-                result = FieldResult(self.analysis.name, field_name, ERROR_RESULT,
-                                     trial_num=trial_num, error=errmsg)
+                result = FieldResult(
+                    self.analysis.name,
+                    field_name,
+                    ERROR_RESULT,
+                    trial_num=trial_num,
+                    error=errmsg,
+                )
                 results.append(result)
 
-                _logger.warning(f"Exception raised in trial {trial_num} in {field_name}: {e}")
+                _logger.warning(
+                    f"Exception raised in trial {trial_num} in {field_name}: {e}"
+                )
                 _logger.debug(traceback.format_exc())
                 continue
 
