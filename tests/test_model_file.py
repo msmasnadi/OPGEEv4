@@ -1,6 +1,6 @@
 import pytest
 from opgee.error import OpgeeException
-from opgee.model_file import (ModelFile, fields_for_analysis, extracted_model)
+from opgee.model_file import ModelFile, fields_for_analysis
 from .utils_for_tests import path_to_test_file
 
 def test_no_file():
@@ -21,7 +21,7 @@ def test_many_fields():
 
 
 def test_many_field_comparison():
-    from opgee.built_ins.runmany_plugin import run_serial
+    from opgee.manager import run_serial
 
     analysis_name = 'test-fields'
     model_xml_file = path_to_test_file('test-fields-9000.xml')
@@ -30,8 +30,6 @@ def test_many_field_comparison():
 
     N = 4
     # run the first 4 only
-    energy_cols, emissions_cols, errors = run_serial(model_xml_file, analysis_name, field_names[:N])
+    results = run_serial(model_xml_file, analysis_name, field_names[:N])
 
-    assert len(energy_cols) + len(errors) == N
-
-
+    assert len(results) == N

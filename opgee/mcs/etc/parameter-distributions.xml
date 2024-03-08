@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ISSUES
+1. Distributions lacking real parameters
+2. Distributions returning constant values (min == max, or stdev=0, ...)
+3. Categorical values (e.g., ecosystem C richness)
+4. Jointly-determined values that must sum to 1 (fraction of transport modes)
+-->
+
+<ParameterList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:noNamespaceSchemaLocation="parameter-schema.xsd">
+
+  <Parameter name="downhole_pump">
+    <Distribution>
+      <Binary prob_of_yes="0.95"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="water_reinjection">
+    <Distribution>
+      <Binary prob_of_yes="0.25"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="natural_gas_reinjection">
+    <Distribution>
+      <Binary prob_of_yes="0.95"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="water_flooding">
+    <Distribution>
+      <Binary prob_of_yes="0.75"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="gas_lifting">
+    <Distribution>
+      <Binary prob_of_yes="0"/>   <!-- NOTE: always returns 0 -->
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="gas_flooding">
+    <Distribution>
+      <Binary prob_of_yes="0.05"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="steam_flooding">
+    <Distribution>
+      <Binary prob_of_yes="0"/>   <!-- NOTE: always returns 0 -->
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="age">
+    <Distribution>
+      <Lognormal log_mean="38" log_stdev="22" min="0" max="150"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="depth">
+    <Distribution>
+      <Lognormal log_mean="7122" log_stdev="3851" min="0" max="36000"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="oil_prod">
+    <Distribution>
+      <Lognormal log_mean="2098" log_stdev="2445"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="num_prod_wells" active="0">
+    <Distribution>
+      <Lognormal log_mean="0" log_stdev="0"/> <!-- no data -->
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="num_water_inj_wells" active="0">
+    <Distribution>
+      <Lognormal log_mean="0" log_stdev="0"/> <!-- no data -->
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="well_diam" active="0">
+    <Distribution>
+      <!-- NOTE: CSV file also had mean=3 stdev=1 -->
+      <Triangle min="1" mode="2.8" max="5"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="prod_index">
+    <Distribution>
+      <Lognormal log_mean="17" log_stdev="18"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="res_press" active="0">
+    <Distribution>
+      <Lognormal log_mean="0" log_stdev="0"/> <!-- no data -->
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="res_temp" active="0">
+    <Distribution>
+      <Normal mean="0" stdev="0"/> <!-- no data -->
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="offshore">
+    <Distribution>
+      <Binary prob_of_yes="0.2"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="API">
+    <Distribution>
+      <Normal mean="33" stdev="8" min="4" max="88"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="gas_comp_N2">
+    <Distribution>
+      <Triangle min="1" mode="2.9" max="8"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="gas_comp_CO2">
+    <Distribution>
+      <Triangle min="0" mode="0.3" max="2"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="gas_comp_C1">
+    <Distribution>
+      <Triangle min="79" mode="89.2" max="96"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="gas_comp_C2">
+    <Distribution>
+      <Triangle min="2" mode="5.3" max="11"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="gas_comp_C3">
+    <Distribution>
+      <Triangle min="0" mode="1.6" max="4"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="gas_comp_C4">
+    <Distribution>
+      <Triangle min="0" mode="0.7" max="2"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="gas_comp_H2S" active="0">
+    <Distribution>
+      <Triangle min="0" mode="0" max="0"/> <!-- NOTE: returns constant value of 0 -->
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="GLIR">
+    <Distribution>
+      <Lognormal log_mean="363" log_stdev="507"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="GFIR">
+    <Distribution>
+      <Uniform min="375" max="375"/> <!-- NOTE: returns constant value of 375 -->
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="Flood_gas_type"> <!-- NOTE: no such attribute. "flood_gas_type" is a string value -->
+    <Distribution>
+      <Uniform min="1" max="1"/> <!-- NOTE: returns constant value of 1 -->
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="frac_CO2_breakthrough">
+    <Distribution>
+      <Normal mean="59" stdev="20" min="0" max="100"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="SOR">
+    <Distribution>
+      <Lognormal log_mean="4" log_stdev="2"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="fraction_elec_onsite">
+    <Distribution>
+      <Normal mean="0.5" stdev="0.25" min="0" max="1"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="fraction_remaining_gas_inj">
+    <Distribution>
+      <Normal mean="0.5" stdev="0.25" min="0" max="1"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="fraction_water_reinjected">
+    <Distribution>
+      <Normal mean="1" stdev="0" min="0" max="1"/> <!-- NOTE: returns constant value of 1 -->
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="fraction_steam_cogen">
+    <Distribution>
+      <Normal mean="0" stdev="0" min="0" max="1"/> <!-- NOTE: returns constant value of 0 -->
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="heater_treater">
+    <Distribution>
+      <Binary prob_of_yes="1"/> <!-- NOTE: returns constant value of 1 -->
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="stabilizer_column">
+    <Distribution>
+      <Binary prob_of_yes="1"/> <!-- NOTE: returns constant value of 1 -->
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="upgrader_type">
+    <Distribution>
+      <Uniform min="0" max="0"/> <!-- NOTE: returns constant value of 0 -->
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="gas_processing_path">
+    <Distribution>
+      <!-- NOTE: also defines mean=5 stdev=0 -->
+      <Uniform min="5" max="5"/> <!-- NOTE: returns constant value of 5 -->
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="frac_venting">
+    <Distribution>
+      <Lognormal log_mean="0.002" log_stdev="0.001"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="fraction_diluent">
+    <Distribution>
+      <Uniform min="0" max="0"/> <!-- NOTE: returns constant value of 0 -->
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="ecosystem_C_richness" active="0">
+    <Distribution>
+      <Choice>
+        <Value>Low carbon</Value>
+        <Value>Med carbon</Value>
+        <Value>High carbon</Value>
+      </Choice>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="field_development_intensity" active="0">
+    <Distribution>
+      <Choice>
+        <!-- NOTE: probabilities were added here just to show the feature -->
+        <Value prob="0.2">Low</Value>
+        <Value prob="0.4">Med</Value>
+        <Value prob="0.2">High</Value>
+      </Choice>
+    </Distribution>
+  </Parameter>
+
+  <!--
+  Could represent transport as Choice instead, assuming these are mutually exclusive
+  (since all are defined as Binary). Or does this represent the fraction of transport
+  in each mode, meaning they must sum to 1?
+  -->
+  <Parameter name="frac_transport_tanker">
+    <Distribution>
+      <Binary prob_of_yes="1"/> <!-- NOTE: returns constant value of 1 -->
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="frac_transport_barge">
+    <Distribution>
+      <Binary prob_of_yes="0"/> <!-- NOTE: returns constant value of 0 -->
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="frac_transport_pipeline">
+    <Distribution>
+      <Binary prob_of_yes="1"/> <!-- NOTE: returns constant value of 1 -->
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="frac_transport_rail">
+    <Distribution>
+      <Binary prob_of_yes="0"/> <!-- NOTE: returns constant value of 0 -->
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="frac_transport_truck">
+    <Distribution>
+      <Binary prob_of_yes="0"/> <!-- NOTE: returns constant value of 0 -->
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="transport_dist_tanker">
+    <Distribution>
+      <Normal mean="8000" stdev="2000" min="1000" max="12000"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="transport_dist_barge">
+    <Distribution>
+      <Normal mean="500" stdev="150" min="0" max="1000"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="transport_dist_pipeline">
+    <Distribution>
+      <Normal mean="1000" stdev="700" min="100" max="5000"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="transport_dist_rail">
+    <Distribution>
+      <Normal mean="800" stdev="100" min="0" max="1500"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="transport_dist_truck">
+    <Distribution>
+      <Normal mean="100" stdev="20" min="0" max="400"/>
+    </Distribution>
+  </Parameter>
+
+  <Parameter name="WOR">
+    <Distribution>
+      <DataFile>mcs/etc/all_wor.csv</DataFile>
+    </Distribution>
+  </Parameter>
+
+</ParameterList>

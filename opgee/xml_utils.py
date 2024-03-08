@@ -52,13 +52,21 @@ def attr_to_xml(fields, dtypes, xml_path, analysis_name, modifies='default'):
 
     known_types = {'int' : int, 'float' : float, 'str' : str}
 
-    root = ET.Element('Model')
-    analysis = ET.SubElement(root, 'Analysis', attrib={'name' : analysis_name})
+    model = ET.Element('Model')
+    analysis = ET.SubElement(model, 'Analysis', attrib={'name' : analysis_name})
+
+    # add <Group>all</Group> under <Analysis>
+    group = ET.SubElement(analysis, "Group")
+    group.text = "all"
 
     # Convert fields to xml
     for field_name, col in fields.items():
-        field = ET.SubElement(analysis, 'Field',
+        field = ET.SubElement(model, 'Field',
                               attrib={'name' : field_name, 'modifies' : modifies})
+
+        # Add Group declaration to <Field> as well
+        group = ET.SubElement(field, 'Group')
+        group.text = 'all'
 
         proc_dict = {}  # remember process elements created for attributes within each field
 
@@ -96,17 +104,7 @@ def attr_to_xml(fields, dtypes, xml_path, analysis_name, modifies='default'):
             except Exception:
                 _logger.error(f"Failed to coerce '{value}' to {dtype} for attribute '{attr}'")
 
-    save_xml(xml_path, root, overwrite=True)
-
-# Deprecated (currently unused)
-# Oddly, we must re-parse the XML to get the formatting right.
-# def write_xml(tree, filename):
-#     parser = ET.XMLParser(remove_blank_text=True)
-#     xml = ET.tostring(tree.getroot())
-#     file_obj = StringIO(xml.decode('utf-8'))
-#     tree = ET.parse(file_obj, parser)
-#
-#     tree.write(filename, pretty_print=True, xml_declaration=True)
+    save_xml(xml_path, model, overwrite=True)
 
 #
 # TBD: Elements don't match unless *all* attribs are identical. Maybe match only on tag and name attribute??

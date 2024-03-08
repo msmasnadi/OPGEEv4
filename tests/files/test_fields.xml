@@ -5,8 +5,8 @@
         <A name="GWP_horizon">100</A>
         <A name="GWP_version">AR5</A>
 
-        <Field name="test_component_fugitive_oilfield"/>
-        <Field name="test_component_fugitive_gasfield"/>
+        <FieldRef name="test_component_fugitive_oilfield"/>
+        <FieldRef name="test_component_fugitive_gasfield"/>
   </Analysis>
 
   <Field name="test_component_fugitive_oilfield">

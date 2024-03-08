@@ -1,0 +1,26 @@
+<Model schema_version="4.0.0.a" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../etc/opgee.xsd">
+	<Analysis name="test">
+		<A name="functional_unit">oil</A>
+		<A name="GWP_horizon">100</A>
+		<A name="GWP_version">AR5</A>
+		<FieldRef name="test-field"/>
+	</Analysis>
+
+	<Field name="test-field" modifies="template">
+		<A name="gas_flooding">0</A>
+		<A name="steam_flooding">0</A>
+		<A name="oil_sands_mine">None</A>
+		<A name="country">CountryX</A>
+		<A name="name">FieldX</A>
+		<A name="fraction_elec_onsite">1.0</A>
+		<A name="fraction_water_reinjected">1.0</A>
+		<A name="frac_transport_tanker">1.0</A>
+		<A name="frac_transport_barge">0.0</A>
+		<A name="frac_transport_pipeline">0.0</A>
+		<A name="frac_transport_rail">0.0</A>
+		<A name="transport_dist_tanker">7984.0</A>
+		<A name="transport_dist_barge">0.0</A>
+		<A name="transport_dist_pipeline">0.0</A>
+		<A name="transport_dist_rail">0.0</A>
+  </Field>
+</Model>

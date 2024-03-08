@@ -255,6 +255,17 @@ class AttributeMixin():
         s = pd.Series(d, dtype=dtype)
         return s
 
+    def cache_attributes(self):
+        """
+        Cache any attributes that are stored in model class instances. We break
+        this out as a separate method to allow values set in the Monte Carlo
+        simulation process to overwrite previously cached values. This method
+        should be defined in all Process subclasses that cached attribute values.
+
+        :return: None
+        """
+        pass
+
     @classmethod
     def instantiate_attrs(cls, elt, is_process=False):
         """

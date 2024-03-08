@@ -89,7 +89,7 @@ class ResultsPane(OpgeePane):
             analysis, field = get_analysis_and_field(model, analysis_and_field)
 
             # Show results for top-level aggregators and procs for the selected field
-            top_level = model.partial_ci_values(analysis, field, field.children())
+            top_level = field.partial_ci_values(analysis, field.children())
 
             if top_level is None:
                 return _zero_flow_at_boundary_msg

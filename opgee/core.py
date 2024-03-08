@@ -11,7 +11,6 @@ import time
 import datetime
 
 from . import ureg
-from .constants import std_temperature, std_pressure
 from .error import OpgeeException, AbstractMethodError
 from .log import getLogger
 from .utils import coercible, getBooleanXML
@@ -49,8 +48,8 @@ def name_of(obj):
 def elt_name(elt):
     return elt.attrib.get('name')
 
-
-def instantiate_subelts(elt, cls, parent=None, as_dict=False, include_names=None, field_names=None):
+def instantiate_subelts(elt, cls, parent=None, as_dict=False, include_names=None,
+                        **cls_args):
     """
     Return a list of instances of ``cls`` (or of its indicated subclass of ``Process``).
 
@@ -70,14 +69,8 @@ def instantiate_subelts(elt, cls, parent=None, as_dict=False, include_names=None
     tag = cls.__name__  # class name matches element name
 
     include = None if include_names is None else set(include_names)
-
-    def _from_xml(e):
-        if tag == 'Analysis':
-            return cls.from_xml(e, parent=parent, field_names=field_names)
-        else:
-            return cls.from_xml(e, parent=parent)
-
-    objs = [_from_xml(e) for e in elt.findall(tag) if include is None or e.attrib.get('name') in include]
+    objs = [cls.from_xml(e, parent=parent, **cls_args)
+            for e in elt.findall(tag) if include is None or e.attrib.get('name') in include]
 
     if as_dict:
         d = {obj.name: obj for obj in objs}
@@ -156,7 +149,7 @@ class XmlInstantiable(OpgeeObject):
         self.parent = parent
 
     @classmethod
-    def from_xml(cls, elt, parent=None):
+    def from_xml(cls, elt, parent=None, **cls_args):
         raise AbstractMethodError(cls, 'XmlInstantiable.from_xml')
 
     def __str__(self):
@@ -333,13 +326,18 @@ class TemperaturePressure(OpgeeObject):
         self.set(T=tp.T, P=tp.P)
 
 # Standard temperature and pressure
+std_temperature = ureg.Quantity(60.0, "degF")
+std_pressure    = ureg.Quantity(14.676, "psia")
 STP = TemperaturePressure(std_temperature, std_pressure)
 
 class Timer:
-    def __init__(self, feature_name):
+    def __init__(self, feature_name, start=True):
         self.feature_name = feature_name
         self.start_time = None
         self.stop_time  = None
+
+        if start:
+            self.start()
 
     def start(self):
         self.start_time = time.time()

@@ -42,6 +42,21 @@ def pushd(directory):
     finally:
         os.chdir(old_wd)
 
+
+# A 'type' to use with argparse to require value be a positive integer.
+def positive_int(value):
+    import argparse
+
+    try:
+        i = int(value)
+    except:
+        i = 0   # the effect is to convert a ValueError into an ArgumentTypeError
+
+    if i <= 0:
+        raise argparse.ArgumentTypeError(f"{value} is not a positive integer")
+
+    return i
+
 #
 # Custom argparse "action" to parse comma-delimited strings to lists
 #

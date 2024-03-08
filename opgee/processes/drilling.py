@@ -81,8 +81,8 @@ class Drilling(Process):
 
 
         oil_SG = field.oil.oil_specific_gravity
-        if field.get_process_data("boundary_API") is not None:
-            boundary_API = field.get_process_data("boundary_API")
+        boundary_API = field.get_process_data("boundary_API")
+        if boundary_API is not None:
             oil_SG = field.oil.specific_gravity(boundary_API)
             stream.set_API(boundary_API)
 

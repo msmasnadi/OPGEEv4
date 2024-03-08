@@ -12,7 +12,7 @@
 		<A name="boundary">Production</A>
 		<A name="GWP_horizon">100</A>
 		<A name="GWP_version">AR5</A>
-		<Field name="test"/>
+		<FieldRef name="test"/>
 	</Analysis>
 
 	<Analysis name="test2">
@@ -95,32 +95,32 @@
 		<A name="boundary">Production</A>
 		<A name="GWP_horizon">100</A>
 		<A name="GWP_version">AR5</A>
-		<Field name="test_RyanHolmes"/>
-		<Field name="test_AcidGasRemoval_Aspen"/>
-		<Field name="test_AcidGasRemoval_testbook"/>
-		<Field name="test_Demethanizer"/>
-		<Field name="test_PreMembraneChiller"/>
-		<Field name="test_PreMembraneCompressor"/>
-		<Field name="test_CO2Membrane"/>
-		<Field name="test_CO2ReinjectionCompressor"/>
-		<Field name="test_CO2InjectionWell"/>
-		<Field name="test_GasDehydration"/>
-		<Field name="test_VFPartition"/>
-		<Field name="test_Flaring"/>
-		<Field name="test_Venting"/>
-		<Field name="test_SourGasCompressor"/>
-		<Field name="test_SourGasInjection"/>
-		<Field name="test_VRUCompressor"/>
-		<Field name="test_GasReinjectionCompressor"/>
-		<Field name="test_N2Flooding"/>
-		<Field name="test_CO2Flooding"/>
-		<Field name="test_NGFlooding_onsite_gas"/>
-		<Field name="test_NGFlooding_offset_gas"/>
-		<Field name="test_GasLifting_low_GLIR"/>
-		<Field name="test_GasLifting_high_GLIR"/>
-		<Field name="test_GasLiftingCompressor"/>
-		<Field name="test_NGReinjection"/>
-		<Field name="test_Separation"/>
+		<FieldRef name="test_RyanHolmes"/>
+		<FieldRef name="test_AcidGasRemoval_Aspen"/>
+		<FieldRef name="test_AcidGasRemoval_testbook"/>
+		<FieldRef name="test_Demethanizer"/>
+		<FieldRef name="test_PreMembraneChiller"/>
+		<FieldRef name="test_PreMembraneCompressor"/>
+		<FieldRef name="test_CO2Membrane"/>
+		<FieldRef name="test_CO2ReinjectionCompressor"/>
+		<FieldRef name="test_CO2InjectionWell"/>
+		<FieldRef name="test_GasDehydration"/>
+		<FieldRef name="test_VFPartition"/>
+		<FieldRef name="test_Flaring"/>
+		<FieldRef name="test_Venting"/>
+		<FieldRef name="test_SourGasCompressor"/>
+		<FieldRef name="test_SourGasInjection"/>
+		<FieldRef name="test_VRUCompressor"/>
+		<FieldRef name="test_GasReinjectionCompressor"/>
+		<FieldRef name="test_N2Flooding"/>
+		<FieldRef name="test_CO2Flooding"/>
+		<FieldRef name="test_NGFlooding_onsite_gas"/>
+		<FieldRef name="test_NGFlooding_offset_gas"/>
+		<FieldRef name="test_GasLifting_low_GLIR"/>
+		<FieldRef name="test_GasLifting_high_GLIR"/>
+		<FieldRef name="test_GasLiftingCompressor"/>
+		<FieldRef name="test_NGReinjection"/>
+		<FieldRef name="test_Separation"/>
 	</Analysis>
 
 	<Field name="test_VRUCompressor">
@@ -958,12 +958,12 @@
 
 		<A name="GWP_horizon">100</A>
 		<A name="GWP_version">AR5</A>
-		<Field name="test_ReservoirWellInterface"/>
-		<Field name="test_ReservoirWellInterface_CO2_flood"/>
-		<Field name="test_DownholePump"/>
-		<Field name="test_CrudeOilDewatering_Storage"/>
-		<Field name="test_CrudeOilStabilization"/>
-		<Field name="test_DownholePump_with_GasLifting"/>
+		<FieldRef name="test_ReservoirWellInterface"/>
+		<FieldRef name="test_ReservoirWellInterface_CO2_flood"/>
+		<FieldRef name="test_DownholePump"/>
+		<FieldRef name="test_CrudeOilDewatering_Storage"/>
+		<FieldRef name="test_CrudeOilStabilization"/>
+		<FieldRef name="test_DownholePump_with_GasLifting"/>
 	</Analysis>
 
 	<Field name="test_ReservoirWellInterface">
@@ -1186,10 +1186,10 @@
 
 		<A name="GWP_horizon">100</A>
 		<A name="GWP_version">AR5</A>
-		<Field name="test_HeavyOilUpgrading"/>
-		<Field name="test_HeavyOilDilution"/>
-		<Field name="test_CrudeOilStorage"/>
-		<Field name="test_BitumenMining"/>
+		<FieldRef name="test_HeavyOilUpgrading"/>
+		<FieldRef name="test_HeavyOilDilution"/>
+		<FieldRef name="test_CrudeOilStorage"/>
+		<FieldRef name="test_BitumenMining"/>
 	</Analysis>
 
 
@@ -1315,10 +1315,10 @@
 
 		<A name="GWP_horizon">100</A>
 		<A name="GWP_version">AR5</A>
-		<Field name="test_SteamGeneration_OTSG"/>
-		<Field name="test_SteamGeneration_Cogen"/>
-		<Field name="test_SteamGeneration_Solar"/>
-		<Field name="test_WaterTreatment"/>
+		<FieldRef name="test_SteamGeneration_OTSG"/>
+		<FieldRef name="test_SteamGeneration_Cogen"/>
+		<FieldRef name="test_SteamGeneration_Solar"/>
+		<FieldRef name="test_WaterTreatment"/>
 	</Analysis>
 
 	<Field name="test_SteamGeneration_OTSG">

@@ -29,7 +29,7 @@ class GensimCommand(SubcommandABC):
                             help='''The path to a CSV file with distribution definitions. If omitted, the 
                             built-in file etc/parameter_distributions.csv is used.''')
 
-        parser.add_argument('-f', '--fields', action=ParseCommaList,
+        parser.add_argument('-f', '--fields', action=ParseCommaList, default=None,
                             help='''Generate trial data for the specified field or fields only. Argument 
                             may be a comma-delimited list of Field names. Otherwise trial data is generated
                             for all fields defined in the analysis.''')
@@ -60,6 +60,7 @@ class GensimCommand(SubcommandABC):
     def run(self, args, tool):
         from ..error import McsUserError, CommandlineError
         from ..mcs.simulation import Simulation, read_distributions
+        from ..mcs.parameter_list import ParameterList
 
         use_default_model = not args.no_default_model
         model_files = args.model_file
@@ -70,7 +71,11 @@ class GensimCommand(SubcommandABC):
         if not (use_default_model or model_files):
             raise CommandlineError("No model to run: the --model-file option was not used and --no-default-model was specified.")
 
+        # Deprecated (soon) in favor of XML parameter list
         read_distributions(pathname=args.distributions)
+
+        # TBD: do this instead
+        # param_list = ParameterList.load()
 
         analysis_name = args.analysis
         sim_dir = args.simulation_dir

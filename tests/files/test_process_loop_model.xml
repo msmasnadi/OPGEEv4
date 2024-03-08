@@ -2,8 +2,8 @@
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
 	<Analysis name="test">
 		<A name="functional_unit">oil</A>
-		<Field name="test_single_loop"/>
-		<Field name="test_double_loops"/>
+		<FieldRef name="test_single_loop"/>
+		<FieldRef name="test_double_loops"/>
 	</Analysis>
 
 	<Field name="test_single_loop">

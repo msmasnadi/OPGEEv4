@@ -1,12 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<Model>
+<Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
 
   <Analysis name="test-mcs">
     <A name="functional_unit">oil</A>
     <A name="GWP_horizon">100</A>
     <A name="GWP_version">AR5</A>
 
-    <Field name="test-mcs"/>
+    <FieldRef name="test-mcs"/>
   </Analysis>
 
   <Field name="test-mcs">

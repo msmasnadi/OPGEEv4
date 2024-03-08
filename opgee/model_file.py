@@ -20,7 +20,7 @@ from .model import Model
 from .pkg_utils import resourceStream
 from .process import reload_subclass_dict
 from .stream import Stream
-from .utils import loadModuleFromPath, splitAndStrip, mkdirs, is_relpath
+from .utils import loadModuleFromPath, splitAndStrip, mkdirs, is_relpath, getBooleanXML
 from .xml_utils import merge_elements, save_xml
 
 _logger = getLogger(__name__)
@@ -57,7 +57,7 @@ class ModelCache(object):
 
         return obj
 
-def analysis_names(model_xml):
+def model_analysis_names(model_xml):
     """
     Return the names of all <Analysis> elements in the file ``model_xml``.
 
@@ -80,30 +80,52 @@ def fields_for_analysis(model_xml, analysis_name):
     :return: (list of str) the names of all the Fields in the given
         Analysis.
     """
-    timer = Timer('fields_for_analysis').start()
+    import re
+    timer = Timer('fields_for_analysis')
 
     xml_file_obj = ModelCache.get_xml_file(model_xml)
 
     root = xml_file_obj.getRoot()
-    xpath = f'/Model/Analysis[@name="{analysis_name}"]/Field/@name'
-    fields = root.xpath(xpath)
+    xpath = f'/Model/Analysis[@name="{analysis_name}"]/FieldRef/@name'
+    analysis_fields = root.xpath(xpath)
+
+    # Also find matching groups (replicates logic in analysis.py at the etree level)
+    xpath = f'/Model/Analysis[@name="{analysis_name}"]/Group'
+    groups_elts = root.xpath(xpath)
+    group_fields = []
+
+    if len(groups_elts) > 0:
+        model_fields = root.xpath('/Model/Field/@name')
+        field_groups = root.xpath('/Model/Field/Group')
+
+        for group_elt in groups_elts:
+            text = group_elt.text
+            is_regex = getBooleanXML(group_elt.attrib.get('regex', '0'))
+
+            if is_regex:
+                prog = re.compile(text)
+                matches = [name for name in model_fields if prog.match(name)]
+            else:
+                # find matching group declarations in <Field> elements
+                matches = [g.getparent().attrib['name'] for g in field_groups if g.text == text]
+
+            group_fields.extend(matches)
+
+    field_names = analysis_fields + group_fields
 
     _logger.debug(timer.stop())
-    return fields
+    return field_names
 
-
-def _get_tmp_xml_file(model_xml, analysis_name, field_name, as_string=False):
+# TBD: this is used only by extract_model(..., as_string=True) so perhaps
+#   this can be simplified or split into two functions
+def _get_xml_str(model_xml, analysis_name, field_name, with_model_elt=False):
     """
-    Save an XML model file to the temp folder identified by config variable
-    OPGEE.TempDir (in a subdirectory "extracted_xml") by extracting the Field
-    named ``field_name`` from the Analysis named ``analysis_name`` in the model
-    XML file ``model_xml``.
+    Extract an XML model file as a string, for the Field ``field_name`` from
+    the Analysis ``analysis_name`` in the model XML file ``model_xml``.
 
     :param model_xml: (str) the pathname of an OPGEE model XML file
     :param analysis_name: (str) the name of an Analysis
     :param field_name: (str) the name of the Field to extract
-    :param as_string: (bool) whether to return a string representation of the
-       model XML or a pathname to a temporary file (the default).
     :return: (str) if ``as_string`` is False, returns the pathname of a file
         under {OPGEE.TempFile}/extracted_xml. Note that it's the caller's
         responsibility to remove the temp file. If ``as_string`` is True, a
@@ -116,24 +138,54 @@ def _get_tmp_xml_file(model_xml, analysis_name, field_name, as_string=False):
 
     _logger.debug(f"Extracting field {field_name}")
 
-    found = root.xpath(f'/Model/Analysis[@name="{analysis_name}"]/Field[@name="{field_name}"]')
-    if not found:
-        raise OpgeeException(f"Field '{field_name}' was not found under Analysis '{analysis_name}'")
+    analysis_fields = fields_for_analysis(model_xml, analysis_name)
+    if field_name not in analysis_fields:
+        raise OpgeeException(f"Field '{field_name}' was not referenced in Analysis '{analysis_name}'")
 
-    # xpath() returns a list
-    if len(found) > 1:
-        raise OpgeeException(f"Field '{field_name}' appears multiple times in model XML")
+    # might be the declaration of the field inside the <Analysis>, or the full field definition
+    field_decl = root.find(f'./Analysis[@name="{analysis_name}"]/Field[@name="{field_name}"]')
 
-    extracted_field = found[0]
+    # <Field> under <Analysis> can be just a declaration, or an entire <Field> definition
+    # The difference is that <Field> definitions have sub-elements.
+    # This is the actual <Field> definition
+    if field_decl is not None and len(field_decl) > 0: # has children => a Field definition
+        field_def = field_decl
+    else:
+        field_defs = root.xpath(f'/Model/Field[@name="{field_name}"]')
+
+        # xpath() returns a list
+        if len(field_defs) > 1:
+            raise OpgeeException(f"Field '{field_name}' appears multiple times in model XML")
+
+        field_def = field_defs[0]
 
     # Create a model with just the extracted Field and surrounding elements
     model = ET.Element('Model')
     analysis = ET.SubElement(model, 'Analysis', name=analysis_name)
-    analysis.append(deepcopy(extracted_field))
+    ET.SubElement(analysis, 'FieldRef', name=field_name)
+    model.append(deepcopy(field_def))
 
-    if as_string:
-        xml_string = ET.tostring(model, pretty_print=True, encoding="unicode")
-        return xml_string
+    xml_string = ET.tostring(model, pretty_print=True, encoding="unicode")
+    return (xml_string, model) if with_model_elt else xml_string
+
+def _get_tmp_xml_file(model_xml, analysis_name, field_name):
+    """
+    Save an XML model file to the temp folder identified by config variable
+    OPGEE.TempDir (in a subdirectory "extracted_xml") by extracting the Field
+    named ``field_name`` from the Analysis named ``analysis_name`` in the model
+    XML file ``model_xml``.
+
+    :param model_xml: (str) the pathname of an OPGEE model XML file
+    :param analysis_name: (str) the name of an Analysis
+    :param field_name: (str) the name of the Field to extract
+    :return: (str) returns the pathname of a file under
+        {OPGEE.TempFile}/extracted_xml. Note that it's the caller's
+        responsibility to remove the temp file.
+    """
+    from lxml import etree as ET
+
+    xml_string, model = _get_xml_str(model_xml, analysis_name, field_name,
+                                     with_model_elt=True)
 
     # replaces spaces with underscores
     field_name = field_name.replace(' ', '_')
@@ -148,7 +200,7 @@ def _get_tmp_xml_file(model_xml, analysis_name, field_name, as_string=False):
     return xml_file
 
 
-def extracted_model(model_xml, analysis_name, field_names=None, as_string=False):
+def extract_model(model_xml, analysis_name, field_names):
     """
     Generator to return temp files with extracted model for each Field in
     `field_names`` or all the Fields in ``analysis_name`` if ``field_names``
@@ -160,17 +212,17 @@ def extracted_model(model_xml, analysis_name, field_names=None, as_string=False)
         all Fields in the given Analysis are extracted.
     :param as_string: (bool) whether to return a string representation of the
        model XML or a pathname to a temporary file (the default).
-    :return: (str, str) a tuple of two strings: the next Field name and (if
-        ``as_string`` is False) the pathname of the extracted model XML for that
-        Field, or (if ``as_string`` is True), a string representation of the
-        model XML for that Field.
+    :return: (str, str) a tuple of two strings: the next Field name a string
+        representation of the model XML for that Field.
     """
     field_names = field_names or fields_for_analysis(model_xml, analysis_name)
 
     for field_name in field_names:
-        yield field_name, _get_tmp_xml_file(model_xml, analysis_name,
-                                            field_name, as_string=as_string)
+        yield field_name, _get_xml_str(model_xml, analysis_name, field_name)
 
+# TBD: extract the XML file merging logic to a function or @classmethod so it can
+#  be used prior to instantiating the ModelFile instance. Or, is it adequate to
+#  pass the xml_string in lieu of the .xml file(s) to be merged?
 
 class ModelFile(XMLFile):
     """
@@ -225,9 +277,9 @@ class ModelFile(XMLFile):
             ignored when building the model from the XML. (Avoids long model build times for
             Monte Carlo simulations on a large number of fields.)
         """
-        load_timer = Timer('ModelFile load XML').start()
+        load_timer = Timer('ModelFile load XML')
 
-        source = "XML string" if xml_string else pathnames
+        source = "XML string" if xml_string else (pathnames or "default model")
         _logger.debug(f"Loading model from: {source}")
 
         if not isinstance(pathnames, (list, tuple)):
@@ -273,11 +325,11 @@ class ModelFile(XMLFile):
         # Find Fields with modifies="..." attribute, copy the indicated Field, merge in the
         # elements under the Field with modifies=, and replace elt. This is useful for
         # debugging and storing the expanded "final" XML facilitates publication and replication.
-        found = base_root.xpath('//Analysis/Field[@modifies]')
+        found = base_root.xpath('//Field[@modifies]')
         for elt in found:
             attrib = elt.attrib
             modifies = attrib['modifies']
-            new_name = attrib['name']
+            new_name = attrib['name'] + '__TMP__'
 
             if base_root.find(f"Field[@name='{new_name}']") is not None:
                 raise XmlFormatError(f"Can't copy field '{modifies}' to '{new_name}': a field named '{new_name}' already exists.")
@@ -285,7 +337,7 @@ class ModelFile(XMLFile):
             to_copy = base_root.find(f"Field[@name='{modifies}']")
 
             if to_copy is None:
-                raise XmlFormatError(f"Can't create field '{new_name}': modified field '{modifies}' not found.")
+                raise XmlFormatError(f"Can't create field '{new_name}': source field '{modifies}' not found.")
 
             # Change attribute from "modifies" to "modified" to record action and avoid redoing it
             del attrib['modifies']
@@ -298,10 +350,9 @@ class ModelFile(XMLFile):
             merge_elements(copied, elt[:])      # merge elt's children into `copied`
             base_root.append(copied)            # add the copy to the Model
 
-            # The <Field> elements under analysis just need to refer to the field by name
-            # We can remove all the other items after merging them above.
-            for child in elt:
-                elt.remove(child)
+            # Remove old <Field modifies="{name}"> after inserting the expanded copy
+            parent = elt.getparent()
+            parent.remove(elt)
 
         # TBD: currently each worker overwrites the same file. Maybe just skip this next line? Skip if running MCS?
         if not xml_string:
@@ -353,7 +404,7 @@ class ModelFile(XMLFile):
 
         # the merge subcommand specifies instantiate_model=False, but normally the model is loaded.
         if instantiate_model:
-            build_timer = Timer('ModelFile build model').start()
+            build_timer = Timer('ModelFile build model')
             _logger.debug(build_timer)
             self.model = model = Model.from_xml(base_root, analysis_names=analysis_names,
                                                 field_names=field_names)
@@ -397,7 +448,7 @@ class ModelFile(XMLFile):
                                    analysis_names=analysis_names,
                                    field_names=field_names,
                                    instantiate_model=True,
-                                   save_to_path=None)
+                                   save_to_path="")     # ensures no saving. Passing None falls back to config var
         except Exception as e:
             raise XmlFormatError(f"Failed to create ModelFile from string: {e}")
 

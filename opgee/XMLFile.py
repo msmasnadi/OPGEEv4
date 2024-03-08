@@ -30,8 +30,8 @@ class XMLFile(object):
            set up, but the file is not read.
         :param schemaPath: (str) If not None, the path relative to the root of the
            package to the .xsd (schema definition) file to use to validate the XML file.
-        :param removeComments: (bool) If True, comments are discarded upon reading the file.
-        :param conditionalXML: (bool) If True, the XML is processed using Conditional XML
+        :param removeComments: (bool) If True, discard comments upon reading the file.
+        :param conditionalXML: (bool) If True, process the XML using Conditional XML
            prior to validation.
         :param varDict: (dict) A dictionary to use in place of the configuration dictionary
            when processing Conditional XML.
@@ -46,7 +46,8 @@ class XMLFile(object):
         self.schemaPath   = schemaPath
         self.schemaStream = None
 
-        if filename and load:
+        # if filename and load:
+        if load:
             self.read()
 
     def getRoot(self):

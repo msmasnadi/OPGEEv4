@@ -24,21 +24,22 @@ from .utils import getBooleanXML, coercible
 _logger = getLogger(__name__)
 
 # constants to use instead of strings
-PHASE_SOLID = 'solid'
-PHASE_LIQUID = 'liquid'
-PHASE_GAS = 'gas'
+PHASE_SOLID = "solid"
+PHASE_LIQUID = "liquid"
+PHASE_GAS = "gas"
 
 # Compile the patterns at load time for better performance
-_carbon_number_prog = re.compile(r'^C(\d+)$')
-_hydrocarbon_prog = re.compile(r'^(C\d+)H(\d+)$')
+_carbon_number_prog = re.compile(r"^C(\d+)$")
+_hydrocarbon_prog = re.compile(r"^(C\d+)H(\d+)$")
 
 
 def is_carbon_number(name):
-    return (_carbon_number_prog.match(name) is not None)
+    return _carbon_number_prog.match(name) is not None
 
 
 def is_hydrocarbon(name):
-    return (name == 'CH4' or _hydrocarbon_prog.match(name) is not None)
+    return name == "CH4" or _hydrocarbon_prog.match(name) is not None
+
 
 def molecule_to_carbon(molecule):
     if molecule == "CH4":
@@ -46,10 +47,13 @@ def molecule_to_carbon(molecule):
 
     m = _hydrocarbon_prog.match(molecule)
     if m is None:
-        raise OpgeeException(f"Expected hydrocarbon molecule name like CxHy, got {molecule}")
+        raise OpgeeException(
+            f"Expected hydrocarbon molecule name like CxHy, got {molecule}"
+        )
 
     c_name = m.group(1)
     return c_name
+
 
 def carbon_to_molecule(c_name):
     if c_name == "C1":
@@ -81,6 +85,7 @@ class Stream(AttributeMixin, XmlInstantiable):
 
     See also :doc:`OPGEE XML documentation <opgee-xml>`
     """
+
     _phases = [PHASE_SOLID, PHASE_LIQUID, PHASE_GAS]
 
     # HCs with 1-60 carbon atoms, i.e., C1, C2, ..., C50
@@ -91,21 +96,37 @@ class Stream(AttributeMixin, XmlInstantiable):
     idx = pubchem_cid_df.index
     _hydrocarbons = list(idx)
     max_carbon_number = len(_hydrocarbons)
-    _carbon_number_dict = {f'C{n}': float(n) for n in range(1, max_carbon_number + 1)}
+    _carbon_number_dict = {f"C{n}": float(n) for n in range(1, max_carbon_number + 1)}
 
     # Verify that the pubchem-cid index includes 1..N where N is the max_carbon number
     if set(_carbon_number_dict.keys()) != set(idx):
-        raise ModelValidationError(f"{table_name} must contain carbon numbers 1..{max_carbon_number}.")
+        raise ModelValidationError(
+            f"{table_name} must contain carbon numbers 1..{max_carbon_number}."
+        )
 
     # All hydrocarbon gases other than methane (C1) are considered VOCs.
     VOCs = _hydrocarbons[1:]
 
-    _solids = ['PC']  # petcoke
-    _liquids = ['oil']
+    _solids = ["PC"]  # petcoke
+    _liquids = ["oil"]
 
     # _hc_molecules = ['CH4', 'C2H6', 'C3H8', 'C4H10']
-    non_hydrocarbon_gases = _gases = ['N2', 'O2', 'CO2', 'H2O', 'H2', 'H2S', 'SO2', "CO", "Argon", "Neon", "Helium", "Krypton", "Xenon"]
-    _other = ['Na+', 'Cl-', 'Si-']
+    non_hydrocarbon_gases = _gases = [
+        "N2",
+        "O2",
+        "CO2",
+        "H2O",
+        "H2",
+        "H2S",
+        "SO2",
+        "CO",
+        "Argon",
+        "Neon",
+        "Helium",
+        "Krypton",
+        "Xenon",
+    ]
+    _other = ["Na+", "Cl-", "Si-"]
 
     combustible_components = _hydrocarbons + _gases
 
@@ -122,15 +143,27 @@ class Stream(AttributeMixin, XmlInstantiable):
     # Value is a dict keyed by set(added_component_names).
     _extensions = {}
 
-    _units = ureg.Unit('tonne/day')
+    _units = ureg.Unit("tonne/day")
 
-    def __init__(self, name, tp, parent=None, API=None, comp_matrix=None,
-                 src_name=None, dst_name=None, contents=None, impute=True):
-        AttributeMixin.__init__(self) # no-op, but here for completeness
+    def __init__(
+        self,
+        name,
+        tp,
+        parent=None,
+        API=None,
+        comp_matrix=None,
+        src_name=None,
+        dst_name=None,
+        contents=None,
+        impute=True,
+    ):
+        AttributeMixin.__init__(self)  # no-op, but here for completeness
         XmlInstantiable.__init__(self, name, parent=parent)
 
         # TBD: rename this self.comp_matrix for clarity
-        self.components = self.create_component_matrix() if comp_matrix is None else comp_matrix
+        self.components = (
+            self.create_component_matrix() if comp_matrix is None else comp_matrix
+        )
 
         self.electricity = ureg.Quantity(0.0, "kWh/day")
 
@@ -159,6 +192,48 @@ class Stream(AttributeMixin, XmlInstantiable):
     def __str__(self):
         return f"<Stream '{self.name}'>"
 
+    def to_dataframe(self):
+        """
+        Converts the data for the stream, including stream name, electricity flows,
+        temperature, pressure, and API to a long-format DataFrame for writing CSV files.
+
+        :return: (pd.DataFrame) data series
+        """
+        df = self.components.reset_index().melt(
+            id_vars=["index"], var_name="phase", value_name="value"
+        )
+        df.rename(columns={"index": "component"}, inplace=True)
+
+        df["units"] = "metric_ton / day"
+        df.value = df.value.apply(lambda v: v.m)  # strip off units
+
+        df = df[df.value != 0]  # eliminate *many* zero rows
+
+        # TBD: Drop non-solid petcoke, non-liquid oil, non-gaseous O2, N2, CO2, CO? Or just leave it.
+
+        # Add extra bits that don't fit the original matrix format
+        no_phase = ""
+        columns = ["phase", "component", "value", "units"]
+
+        items = [('electricity', self.electricity),
+                 ('T', self.tp.T),
+                 ('P', self.tp.P),
+                 ('API', self.API)]
+
+        tuples = [(no_phase, name, value.m, str(value.units))
+                   # '' if value is None else value.m,
+                   # '' if value is None else str(value.units))
+                    for name, value in items if value is not None and value.m != 0]
+
+        extras = pd.DataFrame(data=tuples, columns=columns)
+        result = pd.concat([df, extras], axis='rows')
+
+        result['field'] = self.parent.name
+        result['stream'] = self.name
+
+        col_order = ["field", "stream"] + columns
+        return result[col_order]
+
     def children(self):
         return []
 
@@ -174,7 +249,9 @@ class Stream(AttributeMixin, XmlInstantiable):
         :return: none
         """
         self.initialized = has_xml_data = self.xml_data is not None
-        self.components = self.xml_data if has_xml_data else self.create_component_matrix()
+        self.components = (
+            self.xml_data if has_xml_data else self.create_component_matrix()
+        )
 
         self.tp.copy_from(self.initial_tp)
 
@@ -204,7 +281,9 @@ class Stream(AttributeMixin, XmlInstantiable):
         # ensure no duplicate names
         bad = name_set.intersection(set(cls._extensions))
         if bad:
-            raise OpgeeException(f"extend_components: these proposed extensions are already defined: {bad}")
+            raise OpgeeException(
+                f"extend_components: these proposed extensions are already defined: {bad}"
+            )
 
         _logger.info(f"Extended stream components to include {names}")
 
@@ -217,7 +296,12 @@ class Stream(AttributeMixin, XmlInstantiable):
 
         :return: (pandas.DataFrame) Zero-filled stream DataFrame
         """
-        return pd.DataFrame(data=0.0, index=cls.component_names, columns=cls._phases, dtype='pint[tonne/day]')
+        return pd.DataFrame(
+            data=0.0,
+            index=cls.component_names,
+            columns=cls._phases,
+            dtype="pint[tonne/day]",
+        )
 
     def is_initialized(self):
         return self.initialized
@@ -254,7 +338,7 @@ class Stream(AttributeMixin, XmlInstantiable):
 
         :return:
         """
-        return self.components.sum(axis='columns').sum()
+        return self.components.sum(axis="columns").sum()
 
     def hydrocarbons_rates(self, phase):
         """
@@ -354,7 +438,7 @@ class Stream(AttributeMixin, XmlInstantiable):
         return self.components.gas[Stream.VOCs]
 
     def non_zero_flow_rates(self):
-        zero = ureg.Quantity(0.0, 'tonne/day')
+        zero = ureg.Quantity(0.0, "tonne/day")
         c = self.components
         return c[(c.solid > zero) | (c.liquid > zero) | (c.gas > zero)]
 
@@ -396,8 +480,9 @@ class Stream(AttributeMixin, XmlInstantiable):
         self.initialized = True
         self.components.loc[series.index, phase] = series.clip(lower=0)
         if upper_bound_stream is not None:
-            self.components.loc[series.index, phase] = \
-                self.components.loc[series.index, phase].clip(upper=upper_bound_stream.components.loc[series.index, phase])
+            self.components.loc[series.index, phase] = self.components.loc[
+                series.index, phase
+            ].clip(upper=upper_bound_stream.components.loc[series.index, phase])
 
     def multiply_factor_from_series(self, series, phase):
         """
@@ -408,7 +493,9 @@ class Stream(AttributeMixin, XmlInstantiable):
         :return:
         """
         self.initialized = True
-        self.components.loc[series.index, phase] = series * self.components.loc[series.index, phase]
+        self.components.loc[series.index, phase] = (
+            series * self.components.loc[series.index, phase]
+        )
 
     def set_electricity_flow_rate(self, rate):
         """
@@ -525,7 +612,7 @@ class Stream(AttributeMixin, XmlInstantiable):
         factor = factor.to("fraction") if isinstance(factor, pint.Quantity) else factor
         self.initialized = True
 
-        multiplier = magnitude(factor, 'fraction')
+        multiplier = magnitude(factor, "fraction")
         self.components *= multiplier
         self.electricity *= multiplier
 
@@ -554,7 +641,6 @@ class Stream(AttributeMixin, XmlInstantiable):
         self.components += stream.components
         self.electricity += stream.electricity
 
-
     def subtract_rates_from(self, stream, phase=PHASE_GAS):
         """
         Subtract the gas mass flow rates of ``stream`` from our own.
@@ -578,16 +664,22 @@ class Stream(AttributeMixin, XmlInstantiable):
         :param stream: (Stream) a Stream with combustible components
         :return: (pint.Quantity(unit="tonne/day")) the mass rate of CO2 from combustion.
         """
-        from .thermodynamics import ChemicalInfo    # avoids circular imports (stream <-> thermodynamics)
+        from .thermodynamics import (
+            ChemicalInfo,
+        )  # avoids circular imports (stream <-> thermodynamics)
 
         component_MW = ChemicalInfo.mol_weights()
 
         combustibles = stream.combustible_components
 
-        rate = (stream.components.loc[combustibles, PHASE_GAS] / component_MW[combustibles] *
-                Stream.carbon_number * component_MW["CO2"]).sum()
+        rate = (
+            stream.components.loc[combustibles, PHASE_GAS]
+            / component_MW[combustibles]
+            * Stream.carbon_number
+            * component_MW["CO2"]
+        ).sum()
 
-        self.set_flow_rate("CO2", PHASE_GAS, rate)      # sets initialized flag
+        self.set_flow_rate("CO2", PHASE_GAS, rate)  # sets initialized flag
         return rate
 
     def contains(self, stream_type):
@@ -609,29 +701,31 @@ class Stream(AttributeMixin, XmlInstantiable):
         :return: (Stream) instance of class Stream
         """
         a = elt.attrib
-        src = a['src']
-        dst = a['dst']
-        name = a.get('name') or f"{src} => {dst}"
-        impute = getBooleanXML(a.get('impute', "1"))
+        src = a["src"]
+        dst = a["dst"]
+        name = a.get("name") or f"{src} => {dst}"
+        impute = getBooleanXML(a.get("impute", "1"))
 
         # There should be 2 attributes: temperature and pressure
         # N.B. These are added via <ClassAttrs> in etc/attributes.xml and cannot
         # currently be added via XML, i.e., not permitted in opgee.xsd.
         attr_dict = cls.instantiate_attrs(elt)
-        expected = {'temperature', 'pressure', 'API'}
+        expected = {"temperature", "pressure", "API"}
         if set(attr_dict.keys()) != expected:
-            raise OpgeeException(f"Stream {name}: expected attributes {sorted(expected)}")
+            raise OpgeeException(
+                f"Stream {name}: expected attributes {sorted(expected)}"
+            )
 
-        temp = attr_dict['temperature'].value
-        pres = attr_dict['pressure'].value
+        temp = attr_dict["temperature"].value
+        pres = attr_dict["pressure"].value
         tp = TemperaturePressure(temp, pres)
 
-        API = attr_dict['API'].value
+        API = attr_dict["API"].value
 
-        contents = [node.text for node in elt.findall('Contains')]
+        contents = [node.text for node in elt.findall("Contains")]
 
         # Set up the stream component info, if provided
-        comp_elts = elt.findall('Component')
+        comp_elts = elt.findall("Component")
         has_exogenous_data = len(comp_elts) > 0
 
         if has_exogenous_data:
@@ -641,22 +735,35 @@ class Stream(AttributeMixin, XmlInstantiable):
                 a = comp_elt.attrib
                 comp_name = elt_name(comp_elt)
                 rate = coercible(comp_elt.text, float)
-                phase = a['phase']  # required by XML schema to be one of the 3 legal values
+                phase = a[
+                    "phase"
+                ]  # required by XML schema to be one of the 3 legal values
 
                 # convert hydrocarbon molecule name to carbon number format
                 if is_hydrocarbon(comp_name):
                     comp_name = molecule_to_carbon(comp_name)
 
                 if comp_name not in matrix.index:
-                    raise OpgeeException(f"Unrecognized stream component name '{comp_name}'.")
+                    raise OpgeeException(
+                        f"Unrecognized stream component name '{comp_name}'."
+                    )
 
                 matrix.loc[comp_name, phase] = rate
 
         else:
             matrix = None  # let the stream create it
 
-        obj = Stream(name, tp, API=API, parent=parent, comp_matrix=matrix,
-                     src_name=src, dst_name=dst, contents=contents, impute=impute)
+        obj = Stream(
+            name,
+            tp,
+            API=API,
+            parent=parent,
+            comp_matrix=matrix,
+            src_name=src,
+            dst_name=dst,
+            contents=contents,
+            impute=impute,
+        )
 
         return obj
 

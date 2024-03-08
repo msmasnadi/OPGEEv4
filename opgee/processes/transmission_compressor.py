@@ -48,9 +48,6 @@ class TransmissionCompressor(Process):
 
         gas_fugitives = self.set_gas_fugitives(input, self.loss_rate)
 
-        # TODO: this was unused
-        #input_energy_flow_rate = self.field.gas.energy_flow_rate(input)
-
         # Transmission system properties
         station_outlet_press = self.press_drop_per_dist * self.transmission_freq + self.transmission_inlet_press
         num_compressor_stations = math.ceil(self.transmission_dist / self.transmission_freq)

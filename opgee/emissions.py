@@ -80,7 +80,7 @@ class Emissions(OpgeeObject):
         # Note: neither self.data[:] = 0.0 nor self.data.loc[:, :] = 0.0 work properly: these
         # reset the dtype to float, losing the pint units. The expression below works as we'd like.
         # self.data.loc[self.data.index, :] = 0.0
-        self.data[self.data.index] = 0.0
+        self.data.loc[self.data.index] = 0.0
 
     def rates(self, gwp=None):
         """

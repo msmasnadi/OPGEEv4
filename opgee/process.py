@@ -15,7 +15,6 @@ from . import ureg
 from .attributes import AttrDefs, AttributeMixin
 from .combine_streams import combine_streams
 from .config import getParamAsBoolean
-from .constants import petrocoke_LHV
 from .container import Container
 from .core import OpgeeObject, XmlInstantiable, elt_name, instantiate_subelts, magnitude
 from .emissions import Emissions
@@ -953,7 +952,7 @@ class Boundary(Process):
                 exported_oil_LHV = combined_streams.liquid_flow_rate("oil") * self.field.oil.mass_energy_density()
 
                 # calculate PC energy flow rate
-                exported_PC_LHV = combined_streams.liquid_flow_rate("PC") * petrocoke_LHV
+                exported_PC_LHV = combined_streams.liquid_flow_rate("PC") * self.model.const('petrocoke-heating-value')
 
                 exported_prod_LHV = exported_gas_LPG_LHV + exported_oil_LHV + exported_PC_LHV
 
