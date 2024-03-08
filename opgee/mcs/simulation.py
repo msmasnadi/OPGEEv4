@@ -46,114 +46,114 @@ def model_file_path(sim_dir):  # pragma: no cover
     return model_file
 
 
-# Deprecated in favor of XML (see mcs/parameter_list.py)
-# def read_distributions(pathname=None):
-#     """
-#     Read distributions from the designated CSV file. These are combined with those defined
-#     using the @Distribution.register() decorator, used to define distributions with dependencies.
-#
-#     :param pathname: (str) the pathname of the CSV file describing parameter distributions
-#     :return: (none)
-#     """
-#     distros_csv = pathname or resourceStream(
-#         DISTROS_CSV, stream_type="bytes", decode=None
-#     )
-#
-#     df = pd.read_csv(distros_csv, skip_blank_lines=True, comment="#").fillna("")
-#
-#     for row in df.itertuples(index=False, name="row"):
-#         shape = row.distribution_type.lower()
-#         name = row.variable_name
-#         low = row.low_bound
-#         high = row.high_bound
-#         mean = row.mean
-#         stdev = row.SD
-#         default = row.default_value
-#         prob_of_yes = row.prob_of_yes
-#         pathname = row.pathname
-#
-#         if name == "":
-#             continue
-#
-#         if (
-#             low == ""
-#             and high == ""
-#             and mean == ""
-#             and prob_of_yes == ""
-#             and shape != "empirical"
-#         ):
-#             _logger.info(
-#                 f"* {name} depends on other distributions / smart defaults"
-#             )  # TODO add in lookup of attribute value
-#             continue
-#
-#         if shape == "binary":
-#             if prob_of_yes == 0 or prob_of_yes == 1:
-#                 _logger.info(
-#                     f"* Ignoring distribution on {name}, Binary distribution has prob_of_yes = {prob_of_yes}"
-#                 )
-#                 continue
-#
-#             rv = get_frozen_rv(
-#                 "weighted_binary", prob_of_one=0.5 if prob_of_yes == "" else prob_of_yes
-#             )
-#
-#         elif shape == "uniform":
-#             if low == high:
-#                 _logger.info(
-#                     f"* Ignoring distribution on {name}, Uniform high and low bounds are both {low}"
-#                 )
-#                 continue
-#
-#             rv = get_frozen_rv("uniform", min=low, max=high)
-#
-#         elif shape == "triangular":
-#             if low == high:
-#                 _logger.info(
-#                     f"* Ignoring distribution on {name}, Triangle high and low bounds are both {low}"
-#                 )
-#                 continue
-#
-#             rv = get_frozen_rv("triangle", min=low, mode=default, max=high)
-#
-#         elif shape == "normal":
-#             if stdev == 0.0:
-#                 _logger.info(f"* Ignoring distribution on {name}, Normal has stdev = 0")
-#                 continue
-#
-#             if low == "" or high == "":
-#                 rv = get_frozen_rv("normal", mean=mean, stdev=stdev)
-#             else:
-#                 rv = get_frozen_rv(
-#                     "truncated_normal", mean=mean, stdev=stdev, low=low, high=high
-#                 )
-#
-#         elif shape == "lognormal":
-#             if stdev == 0.0:
-#                 _logger.info(
-#                     f"* Ignoring distribution on {name}, Lognormal has stdev = 0"
-#                 )
-#                 continue
-#
-#             if low == "" or high == "":  # must specify both low and high
-#                 rv = get_frozen_rv("lognormal", logmean=mean, logstdev=stdev)
-#             else:
-#                 rv = get_frozen_rv(
-#                     "truncated_lognormal",
-#                     logmean=mean,
-#                     logstdev=stdev,
-#                     low=low,
-#                     high=high,
-#                 )
-#
-#         elif shape == "empirical":
-#             rv = get_frozen_rv("empirical", pathname=pathname, colname=name)
-#
-#         else:
-#             raise McsSystemError(f"Unknown distribution shape: '{shape}'")
-#
-#         # merge CSV-based distros with decorator-based ones
-#         Distribution(name, rv)
+# Deprecated (soon) in favor of XML (see mcs/parameter_list.py)
+def read_distributions(pathname=None):
+    """
+    Read distributions from the designated CSV file. These are combined with those defined
+    using the @Distribution.register() decorator, used to define distributions with dependencies.
+
+    :param pathname: (str) the pathname of the CSV file describing parameter distributions
+    :return: (none)
+    """
+    distros_csv = pathname or resourceStream(
+        DISTROS_CSV, stream_type="bytes", decode=None
+    )
+
+    df = pd.read_csv(distros_csv, skip_blank_lines=True, comment="#").fillna("")
+
+    for row in df.itertuples(index=False, name="row"):
+        shape = row.distribution_type.lower()
+        name = row.variable_name
+        low = row.low_bound
+        high = row.high_bound
+        mean = row.mean
+        stdev = row.SD
+        default = row.default_value
+        prob_of_yes = row.prob_of_yes
+        pathname = row.pathname
+
+        if name == "":
+            continue
+
+        if (
+            low == ""
+            and high == ""
+            and mean == ""
+            and prob_of_yes == ""
+            and shape != "empirical"
+        ):
+            _logger.info(
+                f"* {name} depends on other distributions / smart defaults"
+            )  # TODO add in lookup of attribute value
+            continue
+
+        if shape == "binary":
+            if prob_of_yes == 0 or prob_of_yes == 1:
+                _logger.info(
+                    f"* Ignoring distribution on {name}, Binary distribution has prob_of_yes = {prob_of_yes}"
+                )
+                continue
+
+            rv = get_frozen_rv(
+                "weighted_binary", prob_of_one=0.5 if prob_of_yes == "" else prob_of_yes
+            )
+
+        elif shape == "uniform":
+            if low == high:
+                _logger.info(
+                    f"* Ignoring distribution on {name}, Uniform high and low bounds are both {low}"
+                )
+                continue
+
+            rv = get_frozen_rv("uniform", min=low, max=high)
+
+        elif shape == "triangular":
+            if low == high:
+                _logger.info(
+                    f"* Ignoring distribution on {name}, Triangle high and low bounds are both {low}"
+                )
+                continue
+
+            rv = get_frozen_rv("triangle", min=low, mode=default, max=high)
+
+        elif shape == "normal":
+            if stdev == 0.0:
+                _logger.info(f"* Ignoring distribution on {name}, Normal has stdev = 0")
+                continue
+
+            if low == "" or high == "":
+                rv = get_frozen_rv("normal", mean=mean, stdev=stdev)
+            else:
+                rv = get_frozen_rv(
+                    "truncated_normal", mean=mean, stdev=stdev, low=low, high=high
+                )
+
+        elif shape == "lognormal":
+            if stdev == 0.0:
+                _logger.info(
+                    f"* Ignoring distribution on {name}, Lognormal has stdev = 0"
+                )
+                continue
+
+            if low == "" or high == "":  # must specify both low and high
+                rv = get_frozen_rv("lognormal", logmean=mean, logstdev=stdev)
+            else:
+                rv = get_frozen_rv(
+                    "truncated_lognormal",
+                    logmean=mean,
+                    logstdev=stdev,
+                    low=low,
+                    high=high,
+                )
+
+        elif shape == "empirical":
+            rv = get_frozen_rv("empirical", pathname=pathname, colname=name)
+
+        else:
+            raise McsSystemError(f"Unknown distribution shape: '{shape}'")
+
+        # merge CSV-based distros with decorator-based ones
+        Distribution(name, rv)
 
 
 class Distribution(OpgeeObject):
