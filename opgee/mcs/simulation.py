@@ -600,7 +600,7 @@ class Simulation(OpgeeObject):
         # Update values cached in Field instance
         field.cache_attributes()
 
-        for process in field.processes(analysis):
+        for process in field.processes():
             process.cache_attributes()
 
     def run_packet(self, packet, result_type=SIMPLE_RESULT):

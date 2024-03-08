@@ -17,7 +17,7 @@
 		<A name="GWP_version">AR5</A>
 		<FieldRef name="gas_lifting_field"/>
 	</Analysis>
-	
+
 	<Field name="gas_lifting_field" modifies="template">
 		<A name="API">32.0</A>
 		<A name="GLIR">30.26</A>
