@@ -20,7 +20,11 @@ class StorageSeparator(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+        self.water_production_frac = None
+        self.outlet_tp = None
+        self.cache_attributes()
 
+    def cache_attributes(self):
         self.water_production_frac = self.attr("water_production_frac")
         self.outlet_tp = TemperaturePressure(self.attr("outlet_temp"), self.attr("outlet_press"))
 

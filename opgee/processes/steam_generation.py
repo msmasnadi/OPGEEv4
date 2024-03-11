@@ -28,6 +28,33 @@ class SteamGeneration(Process):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.SOR = None
+        self.eta_air_blower_HRSG = None
+        self.eta_air_blower_OTSG = None
+        self.eta_air_blower_solar = None
+        self.eta_displacement_pump = None
+        self.fraction_OTSG = None
+        self.fraction_blowdown_recycled = None
+        self.fraction_steam_cogen = None
+        self.fraction_steam_solar = None
+        self.friction_loss_steam_distr = None
+        self.makeup_water_inlet_press = None
+        self.oil_volume_rate = None
+        self.pressure_loss_choke_wellhead = None
+        self.prod_water_inlet_press = None
+        self.res_press = None
+        self.steam_flooding_check = None
+        self.steam_generator = None
+        self.steam_generator_press_outlet = None
+        self.steam_injection_delta_press = None
+        self.steam_quality_after_blowdown = None
+        self.steam_quality_outlet = None
+        self.waste_water_reinjection_tp = None
+        self.water_density = None
+
+        self.cache_attributes()
+
+    def cache_attributes(self):
         field = self.field
         self.steam_flooding_check = field.steam_flooding
         self.SOR = field.SOR
@@ -41,13 +68,12 @@ class SteamGeneration(Process):
 
         self.pressure_loss_choke_wellhead = self.attr("pressure_loss_choke_wellhead")
         self.friction_loss_steam_distr = field.friction_loss_steam_distr
-        self.water = field.water
         self.water_density = self.water.density()
         self.res_press = field.res_press
         self.steam_injection_delta_press = self.attr("steam_injection_delta_press")
-        self.steam_generator_press_outlet = \
-            (self.res_press + self.steam_injection_delta_press) * \
-            self.friction_loss_steam_distr * self.pressure_loss_choke_wellhead
+        self.steam_generator_press_outlet = ((self.res_press + self.steam_injection_delta_press) *
+                                             self.friction_loss_steam_distr *
+                                             self.pressure_loss_choke_wellhead)
         self.prod_water_inlet_press = self.attr("prod_water_inlet_press")
         self.makeup_water_inlet_press = self.attr("makeup_water_inlet_press")
         self.eta_displacement_pump = self.attr("eta_displacement_pump")

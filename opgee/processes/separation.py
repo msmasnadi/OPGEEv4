@@ -23,6 +23,27 @@ class Separation(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
+        self.compressor_eff = None
+        self.gas_comp = None
+        self.gas_oil_ratio = None
+        self.loss_rate = None
+        self.loss_rate = None
+        self.num_of_stages = None
+        self.num_of_stages = None
+        self.oil_volume_rate = None
+        self.outlet_tp = None
+        self.pressure_after_boosting = None
+        self.pressure_stage1 = None
+        self.pressure_stage2 = None
+        self.pressure_stage3 = None
+        self.prime_mover_type = None
+        self.temperature_stage1 = None
+        self.temperature_stage2 = None
+        self.water_content = None
+
+        self.cache_attributes()
+
+    def cache_attributes(self):
         field = self.field
         self.oil_volume_rate = field.oil_volume_rate
 

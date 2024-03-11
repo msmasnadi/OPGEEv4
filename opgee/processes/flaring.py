@@ -13,7 +13,6 @@ from ..stream import Stream
 
 _logger = getLogger(__name__)
 
-
 class Flaring(Process):
 
     def run(self, analysis):

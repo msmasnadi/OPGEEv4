@@ -11,7 +11,6 @@ from ..process import Process
 
 _logger = getLogger(__name__)
 
-
 class NGL(Process):
     def run(self, analysis):
         self.print_running_msg()

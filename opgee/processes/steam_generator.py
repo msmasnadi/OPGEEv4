@@ -12,7 +12,7 @@ from .. import ureg
 from ..core import OpgeeObject
 from ..stream import PHASE_GAS
 
-class SteamGenerator(OpgeeObject):
+class SteamGenerator(OpgeeObject):  # N.B. NOT a subclass of Process
     def __init__(self, field):
         self.field = field
         model = field.model
@@ -81,9 +81,9 @@ class SteamGenerator(OpgeeObject):
         self.reaction_combustion_coeff = model.reaction_combustion_coeff
         self.gas_turbine_tlb = model.gas_turbine_tbl
 
-        self.steam_generator_press_outlet = \
-            (self.res_press + self.steam_injection_delta_press) * \
-            self.friction_loss_steam_distr * self.pressure_loss_choke_wellhead
+        self.steam_generator_press_outlet = ((self.res_press + self.steam_injection_delta_press) *
+                                             self.friction_loss_steam_distr *
+                                             self.pressure_loss_choke_wellhead)
         self.steam_generator_press_outlet = min(self.steam_generator_press_outlet, ureg.Quantity(220, "bar"))
 
         self.O2_excess_HRSG = self.gas_turbine_tlb["Turbine excess air"][self.gas_turbine_type]

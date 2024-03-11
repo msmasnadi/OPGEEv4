@@ -46,6 +46,19 @@ class Drilling(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        self.ecosystem_richness = None
+        self.field_development_intensity = None
+        self.fraction_wells_fractured = None
+        self.fracture_consumption_tbl = None
+        self.land_use_EF = None
+        self.oil_sands_mine = None
+        self.pressure_gradient_fracturing = None
+        self.volume_per_well_fractured = None
+
+        self.cache_attributes()
+
+    def cache_attributes(self):
         field = self.field
 
         self.fraction_wells_fractured = field.fraction_wells_fractured

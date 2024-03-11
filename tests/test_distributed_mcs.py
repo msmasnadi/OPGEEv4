@@ -18,6 +18,6 @@ def test_field_status():
 
     energy = "energy proxy"
     emiss = "emiss proxy"
-    res = FieldResult(analysis_name, field_name, result_type, energy_data=energy, emissions_data=emiss)
+    res = FieldResult(analysis_name, field_name, result_type, energy_data=energy, ghg_data=emiss)
 
     assert res.energy == energy and res.emissions == emiss

@@ -18,14 +18,29 @@ _logger = getLogger(__name__)
 class Venting(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
-
         field = self.field
-        self.frac_venting = field.frac_venting
+        self.imported_fuel_gas_comp = field.imported_gas_comp["Imported Fuel"]
+        self.imported_fuel_gas_mass_fracs = field.gas.component_mass_fractions(self.imported_fuel_gas_comp)
+
+        self.FOR = None
+        self.GLIR = None
+        self.GOR = None
+        self.frac_venting = None
+        self.gas_lifting = None
+        self.oil_volume_rate = None
+        self.pipe_leakage = None
+        self.res_press = None
+
+        self.cache_attributes()
+
+    def cache_attributes(self):
+        field = self.field
 
         #TODO: give warning when frac_venting is not within [0, 1]
-        self.frac_venting = min(ureg.Quantity(1.0,"frac"), max(self.frac_venting, ureg.Quantity(0, "frac")))
+        frac = field.frac_venting
+        self.frac_venting = min(ureg.Quantity(1., "frac"),
+                                max(frac, ureg.Quantity(0., "frac")))
 
-        self.gas = field.gas
         self.pipe_leakage = field.pipe_leakage
         self.gas_lifting = field.gas_lifting
         self.GOR = field.GOR
@@ -33,8 +48,6 @@ class Venting(Process):
         self.GLIR = field.GLIR
         self.oil_volume_rate = field.oil_volume_rate
         self.res_press = field.res_press
-        self.imported_fuel_gas_comp = field.imported_gas_comp["Imported Fuel"]
-        self.imported_fuel_gas_mass_fracs = field.gas.component_mass_fractions(self.imported_fuel_gas_comp)
 
         self.is_first_loop = True
 

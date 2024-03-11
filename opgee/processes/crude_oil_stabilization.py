@@ -36,8 +36,21 @@ class CrudeOilStabilization(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
+        self.eps_stab = None
+        self.eta_compressor = None
+        self.eta_electricity = None
+        self.eta_gas = None
+        self.mol_per_scf = None
+        self.prime_mover_type = None
+        self.stab_gas_press = None
+        self.stab_tp = None
+
+        self.cache_attributes()
+
+    def cache_attributes(self):
         field = self.field
-        self.stab_tp = TemperaturePressure(self.attr("stabilizer_column_temp"), self.attr("stabilizer_column_press"))
+        self.stab_tp = TemperaturePressure(self.attr("stabilizer_column_temp"),
+                                           self.attr("stabilizer_column_press"))
         self.mol_per_scf = field.model.const("mol-per-scf")
         self.stab_gas_press = field.stab_gas_press
         self.eps_stab = self.attr("eps_stab")

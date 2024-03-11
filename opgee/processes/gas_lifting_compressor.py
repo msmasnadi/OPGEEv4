@@ -19,8 +19,16 @@ _logger = getLogger(__name__)
 class GasLiftingCompressor(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        self.res_press = None
+        self.prime_mover_type = None
+        self.eta_compressor = None
+        self.gas_lifting = None
+
+        self.cache_attributes()
+
+    def cache_attributes(self):
         field = self.field
-        self.gas = field.gas
         self.res_press = field.res_press
         self.prime_mover_type = self.attr("prime_mover_type")
         self.eta_compressor = self.attr("eta_compressor")

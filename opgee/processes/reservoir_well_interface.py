@@ -10,7 +10,6 @@ import numpy as np
 
 from .. import ureg
 from ..core import TemperaturePressure, STP
-from ..error import ModelValidationError
 from ..log import getLogger
 from ..process import Process
 from ..stream import PHASE_GAS
@@ -22,6 +21,17 @@ class ReservoirWellInterface(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
+        self.frac_CO2_breakthrough = None
+        self.num_prod_wells = None
+        self.oil_volume_rate = None
+        self.permeability = None
+        self.productivity_index = None
+        self.res_thickness = None
+        self.res_tp = None
+
+        self.cache_attributes()
+
+    def cache_attributes(self):
         field = self.field
         self.res_tp = TemperaturePressure(field.res_temp,
                                           field.res_press)

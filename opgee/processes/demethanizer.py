@@ -65,20 +65,36 @@ class Demethanizer(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
         field = self.field
-        self.gas = field.gas
+        self.demethanizer_tbl = field.model.demethanizer
+        self.mol_per_scf = field.model.const("mol-per-scf")
+
+        self.air_cooler_delta_T = None
+        self.air_cooler_fan_eff = None
+        self.air_cooler_press_drop = None
+        self.air_cooler_speed_reducer_eff = None
+        self.column_pressure = None
+        self.eta_compressor = None
+        self.eta_reboiler_demethanizer = None
+        self.feed_press_demethanizer = None
+        self.methane_to_LPG_ratio = None
+        self.prime_mover_type = None
+        self.water_press = None
+
+        self.cache_attributes()
+
+    def cache_attributes(self):
+        field = self.field
         self.feed_press_demethanizer = self.attr("feed_press_demethanizer")
         self.column_pressure = self.attr("column_pressure")
         self.methane_to_LPG_ratio = self.attr("methane_to_LPG_ratio")
-        self.demethanizer_tbl = field.model.demethanizer
-        self.mol_per_scf = field.model.const("mol-per-scf")
         self.eta_reboiler_demethanizer = self.attr("eta_reboiler_demethanizer")
         self.air_cooler_speed_reducer_eff = self.attr("air_cooler_speed_reducer_eff")
         self.air_cooler_delta_T = self.attr("air_cooler_delta_T")
         self.air_cooler_fan_eff = self.attr("air_cooler_fan_eff")
         self.air_cooler_press_drop = self.attr("air_cooler_press_drop")
-        self.water_press = field.water.density() * \
-                           self.air_cooler_press_drop * \
-                           field.model.const("gravitational-acceleration")
+        self.water_press = (field.water.density() *
+                           self.air_cooler_press_drop *
+                           field.model.const("gravitational-acceleration"))
         self.eta_compressor = self.attr("eta_compressor")
         self.prime_mover_type = self.attr("prime_mover_type")
 

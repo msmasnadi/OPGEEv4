@@ -17,7 +17,6 @@ from ..process import Process
 
 _logger = getLogger(__name__)
 
-
 class TransmissionCompressor(Process):
     """
     Transmission compressor calculate compressor emissions after the production site boundary.
@@ -25,8 +24,20 @@ class TransmissionCompressor(Process):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # self.field = field = self.get_field()
-        self.gas = self.field.gas
+        self.eta_compressor = None
+        self.gas_to_storage_frac = None
+        self.loss_rate = None
+        self.natural_gas_to_liquefaction_frac = None
+        self.press_drop_per_dist = None
+        self.prime_mover_type = None
+        self.transmission_dist = None
+        self.transmission_freq = None
+        self.transmission_inlet_press = None
+        self.transmission_sys_discharge = None
+
+        self.cache_attributes()
+
+    def cache_attributes(self):
         self.press_drop_per_dist = self.attr("press_drop_per_dist")
         self.transmission_dist = self.attr("transmission_dist")
         self.transmission_freq = self.attr("transmission_freq")

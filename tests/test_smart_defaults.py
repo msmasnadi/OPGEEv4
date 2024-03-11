@@ -8,7 +8,7 @@ template = """<?xml version='1.0' encoding='UTF-8'?>
     <A name="GWP_horizon">100</A>
     <A name="GWP_version">AR5</A>
 
-    <Field name="test"/>
+    <FieldRef name="test"/>
   </Analysis>
 
   <Field name="test" modifies="template">
@@ -29,7 +29,7 @@ template = """<?xml version='1.0' encoding='UTF-8'?>
 
 def model_for_country(country):
     xml = template.format(country=country)
-    model = load_model_from_str(xml)
+    model = load_model_from_str(xml,  use_default_model=True)
     return model
 
 def test_model_1(configure_logging_for_tests):

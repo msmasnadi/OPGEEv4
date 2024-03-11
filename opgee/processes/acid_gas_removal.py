@@ -61,10 +61,31 @@ class AcidGasRemoval(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
+        self.AGR_feedin_press = None
+        self.AGR_table = None
+        self.air_cooler_delta_T = None
+        self.air_cooler_fan_eff = None
+        self.air_cooler_press_drop = None
+        self.air_cooler_speed_reducer_eff = None
+        self.air_density_ratio = None
+        self.air_elevation_const = None
+        self.amine_solution_K_value = None
+        self.eta_compressor = None
+        self.eta_reboiler = None
+        self.gas_comp_H2S = None
+        self.prime_mover_type = None
+        self.ratio_reflux_reboiler = None
+        self.regeneration_temp = None
+        self.type_amine = None
+        self.type_amine = None
+        self.water_press = None
+
+        self.cache_attributes()
+
+    def cache_attributes(self):
         field = self.field
         m = field.model
 
-        self.gas = field.gas
         self.type_amine = self.attr("type_amine")
         self.ratio_reflux_reboiler = self.attr("ratio_reflux_reboiler")
 
@@ -91,8 +112,9 @@ class AcidGasRemoval(Process):
         self.AGR_table = m.AGR_tbl
         self.eta_compressor = self.attr("eta_compressor")
         self.prime_mover_type = self.attr("prime_mover_type")
-        self.amine_solution_K_value =\
-            ureg.Quantity(amine_solution_K_value_dict[self.type_amine]*100, "gallon*day/minutes/mmscf")
+
+        value = amine_solution_K_value_dict[self.type_amine] * 100
+        self.amine_solution_K_value = ureg.Quantity(value, "gallon*day/minutes/mmscf")
 
     def run(self, analysis):
         self.print_running_msg()

@@ -20,7 +20,9 @@ class GasDistribution(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
-        self.gas = self.field.gas
+        self.cache_attributes()
+
+    def cache_attributes(self):
         self.frac_loss = (self.attr("frac_loss_distribution") +
                           self.attr("frac_loss_meter") +
                           self.attr("frac_loss_enduse"))

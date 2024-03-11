@@ -26,9 +26,38 @@ class Exploration(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
         field = self.field
         self.vertical_drill_df = field.vertical_drill_df
         self.horizontal_drill_df = field.horizontal_drill_df
+        self.transport_parameter = self.model.transport_parameter[["Crude", "Units"]]
+
+        self.depth = None
+        self.distance_survey = None
+        self.drill_energy_consumption = None
+        self.drill_fuel_consumption = None
+        self.eta_rig = None
+        self.field_production_lifetime = None
+        self.frac_wells_horizontal = None
+        self.horizontal_drill_energy_intensity = None
+        self.length_lateral = None
+        self.num_gas_inj_wells = None
+        self.num_water_inj_wells = None
+        self.num_wells = None
+        self.number_wells_dry = None
+        self.number_wells_exploratory = None
+        self.offshore = None
+        self.oil_sands_mine = None
+        self.vertical_drill_energy_intensity = None
+        self.weight_land_survey = None
+        self.weight_ocean_survey = None
+        self.well_complexity = None
+        self.well_size = None
+
+        self.cache_attributes()
+
+    def cache_attributes(self):
+        field = self.field
 
         self.well_size = field.well_size
         self.well_complexity = field.well_complexity
@@ -60,8 +89,6 @@ class Exploration(Process):
             (self.vertical_drill_energy_intensity * (1 - self.frac_wells_horizontal) * self.depth +
              self.horizontal_drill_energy_intensity * self.frac_wells_horizontal * self.length_lateral) * self.num_wells
         self.drill_energy_consumption = field.model.const("diesel-LHV") * self.drill_fuel_consumption
-
-        self.transport_parameter = self.model.transport_parameter[["Crude", "Units"]]
 
     def run(self, analysis):
         self.print_running_msg()

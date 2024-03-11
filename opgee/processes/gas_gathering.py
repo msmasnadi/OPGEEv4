@@ -19,12 +19,20 @@ _logger = getLogger(__name__)
 class GasGathering(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+        self.site_fugitive_breakdown = self.model.site_fugitive_processing_unit_breakdown
 
+        self.site_fugitive_intercept = None
+        self.site_fugitive_slope = None
+        self.processing_plant_average_site_throughput = None
+        self.gathering_site_average_site_throughput = None
+
+        self.cache_attributes()
+
+    def cache_attributes(self):
         self.site_fugitive_intercept = self.attr("site_fugitive_intercept")
         self.site_fugitive_slope = self.attr("site_fugitive_slope")
         self.processing_plant_average_site_throughput = self.attr("processing_plant_average_site_throughput")
         self.gathering_site_average_site_throughput = self.attr("gathering_site_average_site_throughput")
-        self.site_fugitive_breakdown = self.model.site_fugitive_processing_unit_breakdown
 
     def run(self, analysis):
         self.print_running_msg()

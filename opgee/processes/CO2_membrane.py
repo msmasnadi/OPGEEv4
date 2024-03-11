@@ -31,8 +31,17 @@ class CO2Membrane(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        self.AGR_feedin_press = None
+        self.eta_compressor = None
+        self.membrane_comp = None
+        self.press_drop = None
+        self.prime_mover_type = None
+
+        self.cache_attributes()
+
+    def cache_attributes(self):
         field = self.field
-        self.gas = field.gas
         self.membrane_comp = field.imported_gas_comp["Membrane Separation Gas"]
         self.press_drop = self.attr("press_drop_across_membrane")
         self.eta_compressor = self.attr("eta_compressor")

@@ -23,21 +23,32 @@ _logger = getLogger(__name__)
 class HeavyOilUpgrading(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
-        field = self.field
-        self.upgrader_type = field.upgrader_type
-        self.oil = self.field.oil
-        self.water = self.field.water
-        self.upgrader_gas_comp = field.imported_gas_comp["Upgrader Gas"]
-        self.NG_comp = field.imported_gas_comp["Imported Fuel"]
-        self.oil_sands_mine = field.oil_sands_mine
-        self.fraction_elec_onsite = field.fraction_elec_onsite
-        self.cogeneration_upgrading = self.attr("cogeneration_upgrading")
-        self.NG_heating_value = self.model.const("NG-heating-value")
-        self.petro_coke_heating_value = self.model.const("petrocoke-heating-value")
-        self.mole_to_scf = self.model.const("mol-per-scf")
 
-        self.water = field.water
+        field = self.field
         self.water_density = self.water.density()
+
+        self.NG_comp = field.imported_gas_comp["Imported Fuel"]
+        self.upgrader_gas_comp = field.imported_gas_comp["Upgrader Gas"]
+
+        model = self.model
+        self.NG_heating_value = model.const("NG-heating-value")
+        self.petro_coke_heating_value = model.const("petrocoke-heating-value")
+        self.mole_to_scf = model.const("mol-per-scf")
+
+        self.cogeneration_upgrading = None
+        self.fraction_elec_onsite = None
+        self.oil_sands_mine = None
+        self.upgrader_type = None
+
+        self.cache_attributes()
+
+    def cache_attributes(self):
+        field = self.field
+        self.cogeneration_upgrading = self.attr("cogeneration_upgrading")
+        self.fraction_elec_onsite = field.fraction_elec_onsite
+        self.oil_sands_mine = field.oil_sands_mine
+        self.upgrader_type = field.upgrader_type
+
 
     def check_enabled(self):
         if self.upgrader_type == "None":

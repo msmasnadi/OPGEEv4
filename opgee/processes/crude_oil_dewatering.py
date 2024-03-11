@@ -42,7 +42,16 @@ class CrudeOilDewatering(Process):
                               "Upgrading": "oil for upgrading",
                               "Dilution": "oil for dilution",
                               "Dilution and Upgrading": "oil for dilution"}
+        self.eta_electricity = None
+        self.eta_gas = None
+        self.heat_loss = None
+        self.heater_treater = None
+        self.prime_mover_type = None
+        self.temperature_heater_treater = None
 
+        self.cache_attributes()
+
+    def cache_attributes(self):
         self.heater_treater = self.attr("heater_treater")
         self.temperature_heater_treater = self.attr("temperature_heater_treater")
         self.heat_loss = self.attr("heat_loss")

@@ -64,6 +64,25 @@ class DownholePump(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+        self.gravitational_acceleration = self.field.model.const("gravitational-acceleration")
+
+        self.depth = None
+        self.downhole_pump = None
+        self.eta_pump_well = None
+        self.friction_factor = None
+        self.gas_lifting = None
+        self.num_prod_wells = None
+        self.oil_sand_mine = None
+        self.oil_volume_rate = None
+        self.prime_mover_type = None
+        self.prod_tubing_diam = None
+        self.prod_tubing_xsection_area = None
+        self.res_temp = None
+        self.wellhead_tp = None
+
+        self.cache_attributes()
+
+    def cache_attributes(self):
         field = self.field
         self.downhole_pump = field.downhole_pump
         self.gas_lifting = field.gas_lifting
@@ -75,7 +94,6 @@ class DownholePump(Process):
         self.depth = field.depth
         self.friction_factor = field.friction_factor
         self.num_prod_wells = field.num_prod_wells
-        self.gravitational_acceleration = field.model.const("gravitational-acceleration")
         self.prime_mover_type = self.attr("prime_mover_type")
         self.wellhead_tp = TemperaturePressure(field.wellhead_t, field.attr("wellhead_pressure"))
         self.oil_sand_mine = field.oil_sands_mine

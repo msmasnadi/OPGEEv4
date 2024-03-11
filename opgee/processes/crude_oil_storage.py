@@ -45,11 +45,18 @@ class CrudeOilStorage(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
-        field = self.field
-        self.oil = field.oil
-        self.oil_sands_mine = field.oil_sands_mine
-        self.storage_gas_comp = field.imported_gas_comp["Storage Gas"]
+        self.CH4_comp = None
+        self.f_FG_CS_FL = None
+        self.f_FG_CS_VRU = None
+        self.oil_sands_mine = None
+
+        self.storage_gas_comp = self.field.imported_gas_comp["Storage Gas"]
         self.CH4_comp = self.storage_gas_comp["C1"]
+
+        self.cache_attributes()
+
+    def cache_attributes(self):
+        self.oil_sands_mine = self.field.oil_sands_mine
         self.f_FG_CS_VRU = self.attr("f_FG_CS_VRU")
         self.f_FG_CS_FL = self.attr("f_FG_CS_FL")
 

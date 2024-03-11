@@ -27,12 +27,15 @@ class VRUCompressor(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+        self.discharge_press = None
+        self.eta_compressor = None
+        self.prime_mover_type = None
+        self.cache_attributes()
 
-        field = self.field
-        self.gas = field.gas
+    def cache_attributes(self):
         self.discharge_press = self.attr("discharge_press")
-        self.prime_mover_type = self.attr("prime_mover_type")
         self.eta_compressor = self.attr("eta_compressor")
+        self.prime_mover_type = self.attr("prime_mover_type")
 
     def run(self, analysis):
         self.print_running_msg()

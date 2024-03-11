@@ -29,7 +29,28 @@ class WaterTreatment(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+        self.water_treatment_table = self.model.water_treatment
 
+        self.SOR = None
+        self.WIR = None
+        self.frac_disp_subsurface = None
+        self.frac_disp_surface = None
+        self.frac_water_reinj = None
+        self.makeup_water_tp = None
+        self.makeup_water_treatment = None
+        self.makeup_water_treatment_tbl = None
+        self.num_stages = None
+        self.oil_volume_rate = None
+        self.steam_flooding = None
+        self.steam_quality_blowdown = None
+        self.steam_quality_outlet = None
+        self.water_density_STP = None
+        self.water_flooding = None
+        self.water_reinjection = None
+
+        self.cache_attributes()
+
+    def cache_attributes(self):
         field = self.field
         self.oil_volume_rate = field.oil_volume_rate
         self.WIR = field.WIR
@@ -47,7 +68,6 @@ class WaterTreatment(Process):
         self.frac_disp_subsurface = self.attr("fraction_disp_water_subsurface")
         self.frac_disp_surface = self.attr("fraction_disp_water_surface")
 
-        self.water_treatment_table = self.model.water_treatment
         self.makeup_water_treatment = None
         self.makeup_water_treatment_tbl = self.attr("makeup_water_treatment_table")
 

@@ -44,14 +44,35 @@ class GasDehydration(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
-        field = self.field
-        model = field.model
+        model = self.field.model
 
-        self.gas = field.gas
         self.gas_dehydration_tbl = model.gas_dehydration_tbl
         self.mol_to_scf = model.const("mol-per-scf")
         self.air_elevation_const = model.const("air-elevation-corr")
         self.air_density_ratio = model.const("air-density-ratio")
+
+        self.gas_path_dict = {"Minimal": "gas for gas partition",
+                              "Acid Gas": "gas for AGR",
+                              "Acid Wet Gas": "gas for AGR",
+                              "CO2-EOR Membrane": "gas for chiller",
+                              "CO2-EOR Ryan Holmes": "gas for Ryan Holmes",
+                              "Sour Gas Reinjection": "gas for sour gas compressor",
+                              "Wet Gas": "gas for demethanizer"}
+
+        self.air_cooler_delta_T = None
+        self.air_cooler_fan_eff = None
+        self.air_cooler_press_drop = None
+        self.air_cooler_speed_reducer_eff = None
+        self.eta_reboiler_dehydrator = None
+        self.gas_path = None
+        self.reflux_ratio = None
+        self.regeneration_feed_temp = None
+        self.water_press = None
+
+        self.cache_attributes()
+
+    def cache_attributes(self):
+        field = self.field
         self.reflux_ratio = field.reflux_ratio
         self.regeneration_feed_temp = field.regeneration_feed_temp
         self.eta_reboiler_dehydrator = self.attr("eta_reboiler_dehydrator")
@@ -65,14 +86,6 @@ class GasDehydration(Process):
                            field.model.const("gravitational-acceleration")
 
         self.gas_path = field.gas_path
-
-        self.gas_path_dict = {"Minimal": "gas for gas partition",
-                              "Acid Gas": "gas for AGR",
-                              "Acid Wet Gas": "gas for AGR",
-                              "CO2-EOR Membrane": "gas for chiller",
-                              "CO2-EOR Ryan Holmes": "gas for Ryan Holmes",
-                              "Sour Gas Reinjection": "gas for sour gas compressor",
-                              "Wet Gas": "gas for demethanizer"}
 
     def run(self, analysis):
         self.print_running_msg()

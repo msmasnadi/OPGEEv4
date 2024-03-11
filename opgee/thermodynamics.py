@@ -841,7 +841,7 @@ class Gas(AbstractSubstance):
 
     def component_mass_fractions(self, molar_fracs):
         """
-        generate moss fractions from molar fractions
+        generate mass fractions from molar fractions
 
         :param molar_fracs:
 

@@ -23,7 +23,13 @@ class StorageCompressor(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
-        self.gas = self.field.gas
+        self.discharge_press = None
+        self.eta_compressor = None
+        self.prime_mover_type = None
+
+        self.cache_attributes()
+
+    def cache_attributes(self):
         self.discharge_press = self.attr("discharge_press")
         self.eta_compressor = self.attr("eta_compressor")
         self.prime_mover_type = self.attr("prime_mover_type")

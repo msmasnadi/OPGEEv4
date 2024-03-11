@@ -20,12 +20,17 @@ class RyanHolmes(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
-        field = self.field
-        self.gas = field.gas
-        self.RH_process_tbl = field.model.ryan_holmes_process_tbl
-        self.diesel_LHV = field.model.const("diesel-LHV")
-        self.mol_to_scf = field.model.const("mol-per-scf")
+        self.RH_process_tbl = self.field.model.ryan_holmes_process_tbl
+
+        self.daily_use_engine = None
+        self.diesel_LHV = None
+        self.mol_to_scf = None
+        self.cache_attributes()
+
+    def cache_attributes(self):
         self.daily_use_engine = self.attr("daily_use_engine")
+        self.diesel_LHV = self.model.const("diesel-LHV")
+        self.mol_to_scf = self.model.const("mol-per-scf")
 
     def run(self, analysis):
         self.print_running_msg()

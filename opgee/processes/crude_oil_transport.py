@@ -18,13 +18,20 @@ class CrudeOilTransport(Process):
     """
     Crude oil transport calculate emissions from crude oil to the market
     """
-
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
-        field = self.field
-        self.oil = field.oil
+
         self.transport_share_fuel = self.model.transport_share_fuel.loc["Crude"]
         self.transport_parameter = self.model.transport_parameter[["Crude", "Units"]]
+
+        self.frac_transport_mode = None
+        self.transport_by_mode = None
+        self.transport_dist = None
+
+        self.cache_attributes()
+
+    def cache_attributes(self):
+        field = self.field
         self.frac_transport_mode = field.attrs_with_prefix("frac_transport_").rename("Fraction")
         self.transport_dist = field.attrs_with_prefix("transport_dist_").rename("Distance")
         self.transport_by_mode = self.frac_transport_mode.to_frame().join(self.transport_dist)
@@ -55,7 +62,6 @@ class CrudeOilTransport(Process):
                                                                             self.transport_by_mode,
                                                                             oil_LHV_rate,
                                                                             "Crude")
-
         energy_use = self.energy
         for name, value in fuel_consumption.items():
             energy_use.set_rate(get_energy_carrier(name), value.to("mmBtu/day"))

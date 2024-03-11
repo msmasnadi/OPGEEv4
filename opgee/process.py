@@ -184,7 +184,12 @@ class Process(AttributeMixin, XmlInstantiable):
         XmlInstantiable.__init__(self, name, parent=parent)
 
         self.model = self.find_container('Model')
-        self.field = self.find_container('Field')
+        self.field = field = self.find_container('Field')
+
+        # One or more of these are used by most processes
+        self.gas = field.gas
+        self.oil = field.oil
+        self.water = field.water
 
         self.attr_defs = AttrDefs.get_instance()
 

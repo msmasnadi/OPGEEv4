@@ -20,11 +20,17 @@ class VFPartition(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+        self.mol_per_scf = self.field.model.const("mol-per-scf")
 
+        self.FOR = None
+        self.combusted_gas_frac = None
+        self.oil_volume_rate = None
+
+        self.cache_attributes()
+
+    def cache_attributes(self):
         field = self.field
-        self.gas = field.gas
         self.FOR = field.FOR
-        self.mol_per_scf = field.model.const("mol-per-scf")
         self.oil_volume_rate = field.oil_volume_rate
 
         # TODO: add smart default to this parameter from lookup table

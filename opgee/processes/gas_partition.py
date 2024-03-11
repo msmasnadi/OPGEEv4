@@ -30,33 +30,30 @@ class GasPartition(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
         field = self.field
-        self.gas = field.gas
 
-        self.gas_lifting = None
-        self.CO2_source = None
-        self.impurity_CH4_in_CO2 = None
-        self.impurity_N2_in_CO2 = None
-        self.imported_NG_comp = None
-        self.imported_NG_mass_frac = None
+        self.imported_NG_comp = ng_comp = field.imported_gas_comp["NG Flooding"]
+        self.imported_NG_mass_frac = field.gas.component_mass_fractions(ng_comp)
 
-        self.fraction_remaining_gas_inj = None
-        self.natural_gas_reinjection = None
-        self.gas_flooding = None
-        self.flood_gas_type = None
-        self.GLIR = None
-        self.oil_volume_rate = None
-        self.WOR = None
-        self.iteration_tolerance = None
-
-        self.flood_gas_type = None
-        self.N2_flooding_tp = None
         self.C1_flooding_tp = None
         self.CO2_flooding_tp = None
-
+        self.CO2_source = None
         self.GFIR = None
+        self.GLIR = None
+        self.N2_flooding_tp = None
+        self.WOR = None
+        self.flood_gas_type = None
+        self.flood_gas_type = None
+        self.fraction_remaining_gas_inj = None
+        self.gas_flooding = None
         self.gas_flooding_vol_rate = None
+        self.gas_lifting = None
+        self.impurity_CH4_in_CO2 = None
+        self.impurity_N2_in_CO2 = None
         self.is_first_loop = None
         self.is_gas_flooding_visited = None
+        self.iteration_tolerance = None
+        self.natural_gas_reinjection = None
+        self.oil_volume_rate = None
         self.reset_flag = None
 
         self.cache_attributes()
@@ -68,11 +65,6 @@ class GasPartition(Process):
         self.CO2_source = self.attr("CO2_source")
         self.impurity_CH4_in_CO2 = self.attr("impurity_CH4_in_CO2")
         self.impurity_N2_in_CO2 = self.attr("impurity_N2_in_CO2")
-
-        self.imported_NG_comp = field.imported_gas_comp["NG Flooding"]
-        self.imported_NG_mass_frac = field.gas.component_mass_fractions(
-            self.imported_NG_comp
-        )
 
         self.fraction_remaining_gas_inj = field.fraction_remaining_gas_inj
         self.natural_gas_reinjection = field.natural_gas_reinjection

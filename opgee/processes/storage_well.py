@@ -20,6 +20,9 @@ class StorageWell(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+        self.cache_attributes()
+
+    def cache_attributes(self):
         self.loss_rate = self.venting_fugitive_rate()
 
     def run(self, analysis):

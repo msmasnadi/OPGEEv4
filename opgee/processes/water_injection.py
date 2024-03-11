@@ -37,17 +37,33 @@ class WaterInjection(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+        self.gravitation_acc = self.model.const("gravitational-acceleration")
+        self.gravitation_const = self.model.const("gravitational-constant")
+        self.water_density = self.water.density()
 
+        self.depth = None
+        self.eta_pump = None
+        self.friction_factor = None
+        self.num_water_inj_wells = None
+        self.press_pump = None
+        self.prime_mover_type = None
+        self.prod_tubing_diam = None
+        self.productivity_index = None
+        self.res_press = None
+        self.water_flooding = None
+        self.water_reinjection = None
+        self.xsection_area = None
+
+        self.cache_attributes()
+
+    def cache_attributes(self):
         field = self.field
         self.water_reinjection = field.water_reinjection
         self.water_flooding = field.water_flooding
         self.productivity_index = field.productivity_index
-        self.water = field.water
-        self.water_density = self.water.density()
         self.res_press = field.res_press
         self.num_water_inj_wells = field.num_water_inj_wells
-        self.gravitation_acc = self.field.model.const("gravitational-acceleration")
-        self.gravitation_const = self.field.model.const("gravitational-constant")
+
         self.depth = field.depth
         self.prod_tubing_diam = field.prod_tubing_diam
         self.xsection_area = np.pi * (self.prod_tubing_diam / 2) ** 2

@@ -17,10 +17,30 @@ from .shared import get_energy_carrier
 class HeavyOilDilution(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
-        field = self.field
-        self.oil = field.oil
-        self.water = field.water
         self.water_density = self.water.density()
+
+        model = self.model
+        self.transport_share_fuel = model.transport_share_fuel.loc["Diluent"]
+        self.transport_parameter = model.transport_parameter[["Diluent", "Units"]]
+        self.transport_by_mode = model.transport_by_mode.loc["Diluent"]
+
+        self.before_diluent_tp = None
+        self.bitumen_tp = None
+        self.dilbit_API = None
+        self.dilbit_SG = None
+        self.diluent_API = None
+        self.diluent_tp = None
+        self.dilution_SG = None
+        self.dilution_type = None
+        self.downhole_pump = None
+        self.final_mix_tp = None
+        self.frac_diluent = None
+        self.oil_sands_mine = None
+
+        self.cache_attributes()
+
+    def cache_attributes(self):
+        field = self.field
 
         self.frac_diluent = self.attr("fraction_diluent")
         self.downhole_pump = field.downhole_pump
@@ -41,10 +61,6 @@ class HeavyOilDilution(Process):
                                                      self.attr("before_diluent_press"))
         self.final_mix_tp = TemperaturePressure(self.attr("final_mix_temp"),
                                                 self.attr("final_mix_press"))
-
-        self.transport_share_fuel = self.model.transport_share_fuel.loc["Diluent"]
-        self.transport_parameter = self.model.transport_parameter[["Diluent", "Units"]]
-        self.transport_by_mode = self.model.transport_by_mode.loc["Diluent"]
 
     def run(self, analysis):
         self.print_running_msg()

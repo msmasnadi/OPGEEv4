@@ -16,10 +16,15 @@ _logger = getLogger(__name__)
 class GasReinjectionWell(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+        self.gas_flooding = None
+        self.natural_gas_reinjection = None
+
+        self.cache_attributes()
+
+    def cache_attributes(self):
         field = self.field
-        self.gas = field.gas
-        self.natural_gas_reinjection = field.natural_gas_reinjection
         self.gas_flooding = field.gas_flooding
+        self.natural_gas_reinjection = field.natural_gas_reinjection
 
     def check_enabled(self):
         if not self.natural_gas_reinjection and not self.gas_flooding:

@@ -18,9 +18,16 @@ class LNGLiquefaction(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
-        self.gas = self.field.gas
-        self.compression_refrigeration_load = self.attr("compression_refrigeration_load")
+
+        self.ancillary_loads = None
+        self.compression_refrigeration_load = None
+        self.NG_to_liq_rate = None
+
+        self.cache_attributes()
+
+    def cache_attributes(self):
         self.ancillary_loads = self.attr("ancillary_loads")
+        self.compression_refrigeration_load = self.attr("compression_refrigeration_load")
         self.NG_to_liq_rate = self.attr("NG_to_liq_rate")
 
     def run(self, analysis):

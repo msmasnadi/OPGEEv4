@@ -23,7 +23,6 @@ class LNGTransport(Process):
 
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
-        self.gas = self.field.gas
         self.transport_share_fuel = self.model.transport_share_fuel.loc["LNG"]
         self.transport_parameter = self.model.transport_parameter[["LNG", "Units"]]
         self.transport_by_mode = self.model.transport_by_mode.loc["LNG"]

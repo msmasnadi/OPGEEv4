@@ -20,14 +20,15 @@ class LNGRegasification(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
-        self.gas = self.field.gas
-        self.energy_intensity_regas = self.attr("energy_intensity_regas")
+        self.cache_attributes()
+
+    def cache_attributes(self):
         self.efficiency = self.attr("efficiency")
+        self.energy_intensity_regas = self.attr("energy_intensity_regas")
         self.prime_mover_type = self.attr("prime_mover_type")
 
     def run(self, analysis):
         self.print_running_msg()
-        field = self.field
 
         input = self.find_input_stream("gas")
 

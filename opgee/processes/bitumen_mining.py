@@ -46,10 +46,30 @@ class BitumenMining(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        self.bitumen_path_dict = {"Integrated with upgrader": "oil for upgrading",
+                                  "Integrated with diluent": "oil for dilution",
+                                  "Integrated with both": "oil for dilution"}
+        self.water_density = self.water.density()
+
+        self.CH4_loss_rate = None
+        self.FOR = None
+        self.bitumen_SG = None
+        self.downhole_pump = None
+        self.gas_comp = None
+        self.mined_bitumen_p = None
+        self.mined_bitumen_t = None
+        self.mined_bitumen_tp = None
+        self.oil_sands_mine = None
+        self.oil_volume_rate = None
+        self.upgrader_type = None
+
+        self.cache_attributes()
+
+    def cache_attributes(self):
         field = self.field
 
         self.oil_sands_mine = field.oil_sands_mine
-        self.oil = field.oil
         self.bitumen_SG = self.oil.specific_gravity(field.attr("API"))
 
         self.mined_bitumen_t = field.mined_bitumen_t
@@ -61,12 +81,7 @@ class BitumenMining(Process):
         self.upgrader_type = field.upgrader_type
         self.gas_comp = field.gas_comp
         self.FOR = field.FOR
-        self.bitumen_path_dict = {"Integrated with upgrader": "oil for upgrading",
-                                  "Integrated with diluent": "oil for dilution",
-                                  "Integrated with both": "oil for dilution"}
 
-        self.water = self.field.water
-        self.water_density = self.water.density()
         self.CH4_loss_rate = self.attr("CH4_loss_rate")
 
     def run(self, analysis):
