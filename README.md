@@ -50,6 +50,29 @@ The main features of OPGEEv4 are:
 
 # Release Notes
 
+## Version 4.1.0 (2024-03-11)
+
+* Improved performance 
+* Merged 3 different run commands (run, runsim, runmany) into a unified "run" command (more below)
+* Updated model XML format (more below)
+
+### Unified run command
+* User can select to generate "simple" or "detailed" results in one or more CSV files.
+* OPGEE can run in parallel on a single multi-processor node or across a SLURM cluster,
+  returning either "simple" or "detailed" results.
+* OPGEE can run multiple fields in parallel or multiple instances of a single field in Monte Carlo mode.
+* User can choose how many OPGEE runs (packets) to perform in each worker process.
+
+### Updated model XML format
+* The only change is that the `<Analysis>` element can no longer contain `<Field>` elements. 
+  Instead, the element `<FieldRef>` is used inside an `<Analysis>` element,
+  and all `<Field>` elements appear directly under the `<Model>` element.
+* The new `update` subcommand is provided to convert old-format model XML files to this new format.
+
+## Version 4.0.0 (not tagged)
+* We did not tag a release 4.0.0
+
 ## Version 4.0.0-alpha.0 (2022-03-01)
 
-First alpha version made public. Still testing against Excel version and adding essential features.
+* First alpha version made public. Still testing against Excel version and adding essential features.
+
