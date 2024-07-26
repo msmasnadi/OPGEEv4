@@ -9,10 +9,13 @@
 This exists only to display the updated README notifying users that this is a forked repo and directing them to the original.
 
 ### `main`
-Primary production branch. Should be stable and will be used as a source for any PRs submitted to the original repo.
+Primary production branch. Should be stable and will be used as a source for any PRs submitted to the original repo. We'll keep this up to date with the original.
 
-### `develop`
+### `dev`
 Development/feature source branch. Will be kept up to date with `main`, but all work should start from here.
 
-### `original`
-This exists mostly as a convenience branch to allow developers to quickly reference the current state of `master` in OPGEEv4.
+### `main-rmi`
+Production branch for any RMI specific features. Will be kept up to date with `main` but may contain changes we do not want to propagate to OPGEEv4.
+
+### `dev-rmi`
+Like `dev` but for RMI specific work.
