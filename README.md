@@ -1,3 +1,15 @@
+### \* \* \* \* \* \* \* \* \* \* \* \* \*
+# STOP!!!
+
+> [!CAUTION]
+> This is not the original OPGEEv4 repository. DO NOT FORK OR CLONE THIS REPO!
+> ## Please refer to the *[OPGEEv4 Repository](https://github.com/msmasnadi/OPGEEv4)*.
+<br/>
+
+For RMI personnel, please refer to [CONTRIBUTING.md](./CONTRIBUTING.md)
+### \* \* \* \* \* \* \* \* \* \* \* \* \*
+<br/>
+
 [![Build Status](https://travis-ci.com/Stanford-EAO/OPGEEv4.svg?token=qVku1FaPpCm5v3f1zYpw&branch=master)](https://travis-ci.com/Stanford-EAO/OPGEEv4)
 [![codecov](https://codecov.io/gh/Stanford-EAO/OPGEEv4/branch/master/graph/badge.svg?token=NVziMt7tdD)](https://codecov.io/gh/Stanford-EAO/OPGEEv4)
 [![Coverage Status](https://coveralls.io/repos/github/Stanford-EAO/OPGEEv4/badge.svg?branch=master&t=xSjoF0)](https://coveralls.io/github/Stanford-EAO/OPGEEv4?branch=master)
