@@ -299,6 +299,7 @@ class Field(Container):
         self.weight_ocean_survey = self.attr("weight_ocean_survey")
         self.well_complexity = self.attr("well_complexity")
         self.well_size = self.attr("well_size")
+        self.ocean_tanker_size = self.attr("ocean_tanker_size")
 
         # Add wellhead tp to the smart default
         self.wellhead_t = min(self.res_temp, self.attr("wellhead_temperature"))

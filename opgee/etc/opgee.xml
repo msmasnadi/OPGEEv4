@@ -52,10 +52,14 @@
 		<A name="water_flooding">0</A>
 		<A name="water_reinjection">1</A>
 		<A name="well_diam">8.0</A>
+		<A name="frac_transport_rail">1</A>
 
 		<Process class="CrudeOilDewatering">
         <A name="heater_treater">0</A>
       </Process>
+		<Process class="DownholePump">
+			<A name="eta_pump_well">50</A>
+		</Process>
       <Process class="HeavyOilDilution">
         <A name="fraction_diluent">0.0</A>
       </Process>
@@ -235,25 +239,35 @@
 			<ProcessGroup name="Stabilization">
 				<ProcessRef name="CrudeOilStabilization"/>
 				<ProcessRef name="CrudeOilStorage"/>
+				<ProcessRef name="CrudeOilTransport"/>
+				<StreamRef name="CrudeOilStorage => CrudeOilTransport"/>
 				<StreamRef name="CrudeOilStabilization => CrudeOilStorage"/>
 				<StreamRef name="CrudeOilDewatering => CrudeOilStabilization"/>
 			</ProcessGroup>
 
 			<ProcessGroup name="Storage">
 				<ProcessRef name="CrudeOilStorage"/>
+				<ProcessRef name="CrudeOilTransport"/>
+				<StreamRef name="CrudeOilStorage => CrudeOilTransport"/>
 				<StreamRef name="CrudeOilDewatering => CrudeOilStorage"/>
 			</ProcessGroup>
 
 			<ProcessGroup name="Upgrading">
 				<ProcessRef name="HeavyOilUpgrading"/>
 				<ProcessRef name="CrudeOilStorage"/>
+				<ProcessRef name="CrudeOilTransport"/>
+				<ProcessRef name="PetrocokeTransport"/>
+				<StreamRef name="CrudeOilStorage => CrudeOilTransport"/>
 				<StreamRef name="HeavyOilUpgrading => CrudeOilStorage"/>
+				<StreamRef name="HeavyOilUpgrading => PetrocokeTransport"/>
 				<StreamRef name="CrudeOilDewatering => HeavyOilUpgrading"/>
 			</ProcessGroup>
 
 			<ProcessGroup name="Dilution">
 				<ProcessRef name="HeavyOilDilution"/>
 				<ProcessRef name="CrudeOilStorage"/>
+				<ProcessRef name="CrudeOilTransport"/>
+				<StreamRef name="CrudeOilStorage => CrudeOilTransport"/>
 				<StreamRef name="HeavyOilDilution => CrudeOilStorage"/>
 				<StreamRef name="CrudeOilDewatering => HeavyOilDilution"/>
 			</ProcessGroup>
@@ -262,6 +276,8 @@
 				<ProcessRef name="HeavyOilDilution"/>
 				<ProcessRef name="HeavyOilUpgrading"/>
 				<ProcessRef name="CrudeOilStorage"/>
+				<ProcessRef name="CrudeOilTransport"/>
+				<StreamRef name="CrudeOilStorage => CrudeOilTransport"/>
 				<StreamRef name="HeavyOilDilution => HeavyOilUpgrading"/>
 				<StreamRef name="HeavyOilUpgrading => CrudeOilStorage"/>
 				<StreamRef name="CrudeOilDewatering => HeavyOilDilution"/>
@@ -274,8 +290,8 @@
 		</Aggregator>
 
 		<Aggregator name="ProductionExtraction">
-			<Process class="ReservoirWellInterface"/>
-			<Process class="DownholePump" cycle-start="true"/>
+			<Process class="ReservoirWellInterface" cycle-start="true"/>
+			<Process class="DownholePump"/>
 			<Process class="CrudeOilStorage"/>
 			<Process class="CO2ReinjectionCompressor"/>
 			<Process class="SourGasCompressor"/>
@@ -425,31 +441,39 @@
 			<Contains>oil for storage</Contains>
 		</Stream>
 
-		<Stream src="HeavyOilUpgrading" dst="ProductionBoundary" name="exported petrocoke">
+<!--		<Stream src="HeavyOilUpgrading" dst="ProductionBoundary" name="exported petrocoke">-->
+<!--			<Contains>petrocoke</Contains>-->
+<!--		</Stream>-->
+
+		<Stream src="HeavyOilUpgrading" dst="PetrocokeTransport">
 			<Contains>petrocoke</Contains>
 		</Stream>
 
-		<Stream src="HeavyOilUpgrading" dst="ProductionBoundary" name="exported process gas">
+		<Stream src="HeavyOilUpgrading" dst="ProductionBoundary">
 			<Contains>process gas</Contains>
 		</Stream>
 
-		<Stream src="ProductionBoundary" dst="PetrocokeTransport">
-			<Contains>petrocoke</Contains>
-		</Stream>
+<!--		<Stream src="ProductionBoundary" dst="PetrocokeTransport">-->
+<!--			<Contains>petrocoke</Contains>-->
+<!--		</Stream>-->
 
-		<Stream src="CrudeOilStorage" dst="ProductionBoundary">
+<!--		<Stream src="CrudeOilStorage" dst="ProductionBoundary">-->
+<!--			<Contains>oil</Contains>-->
+<!--		</Stream>-->
+
+		<Stream src="CrudeOilStorage" dst="CrudeOilTransport">
 			<Contains>oil</Contains>
 		</Stream>
 
-		<Stream src="ProductionBoundary" dst="CrudeOilTransport">
+<!--		<Stream src="ProductionBoundary" dst="CrudeOilTransport">-->
+<!--			<Contains>oil</Contains>-->
+<!--		</Stream>-->
+
+		<Stream src="CrudeOilTransport" dst="ProductionBoundary">
 			<Contains>oil</Contains>
 		</Stream>
 
-		<Stream src="CrudeOilTransport" dst="TransportationBoundary">
-			<Contains>oil</Contains>
-		</Stream>
-
-		<Stream src="PetrocokeTransport" dst="TransportationBoundary">
+		<Stream src="PetrocokeTransport" dst="ProductionBoundary">
 			<Contains>petrocoke</Contains>
 		</Stream>
 
