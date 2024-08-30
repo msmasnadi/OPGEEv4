@@ -687,11 +687,11 @@ class Field(Container):
             proc.name: proc.energy.rates().sum() for proc in procs
         }
         energy_data = pd.Series(energy_by_proc, name=self.name)
-        energy_data = energy_data.pint.to("mmbtu/day")
+        # energy_data = energy_data.pint.to("mmbtu/day")
 
         ghgs_by_proc = {proc.name: total_emissions(proc, gwp) for proc in procs}
         ghg_data = pd.Series(ghgs_by_proc, name=self.name)
-        ghg_data = ghg_data.pint.to("tonne/day")
+        # ghg_data = ghg_data.pint.to("tonne/day")
 
         # TBD: create a more detailed csv file with ProcessName, and emission categories
         #  [EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES, EM_OTHER] as
