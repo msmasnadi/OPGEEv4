@@ -450,7 +450,7 @@ def save_results(results, output_dir, batch_num=None):
         df.to_csv(pathname, **kwargs)
 
     df = pd.DataFrame(data=ci_rows)
-    _to_csv(df, 'carbon_intensity', index=False)
+    _to_csv(df, 'carbon_intensity-g_per_MJ', index=False)
 
     if error_rows:
         df = pd.DataFrame(data=error_rows)
@@ -464,18 +464,18 @@ def save_results(results, output_dir, batch_num=None):
 
     # These aren't saved for SIMPLE_RESULTS
     if energy_cols:
-        _save_cols(energy_cols, "energy")
+        _save_cols(energy_cols, "energy-MMBtu_per_day")
 
     if emission_cols:
-        _save_cols(emission_cols, "emissions")
+        _save_cols(emission_cols, "emissions-tonne_per_day")
 
     if gas_dfs:
         df = pd.concat(gas_dfs, axis="rows")
-        _to_csv(df, "gases", index=False)
+        _to_csv(df, "gases-tonne_per_day", index=False)
 
     if stream_dfs:
         df = pd.concat(stream_dfs, axis="rows")
-        _to_csv(df, "streams", index=False)
+        _to_csv(df, "streams-tonne_per_day", index=False)
 
 
 def _combine_results(filenames, output_name, sort_by=None):
