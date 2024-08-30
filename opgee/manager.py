@@ -475,7 +475,7 @@ def save_results(results, output_dir, batch_num=None):
 
     if stream_dfs:
         df = pd.concat(stream_dfs, axis="rows")
-        _to_csv(df, "streams-tonne_per_day", index=False)
+        _to_csv(df, "streams", index=False)
 
 
 def _combine_results(filenames, output_name, sort_by=None):
