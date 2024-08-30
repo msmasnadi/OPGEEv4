@@ -80,7 +80,7 @@ class FieldResult:
 def total_emissions(proc, gwp):
     rates = proc.emissions.rates(gwp)
     total = rates.loc["GHG"].sum()
-    return magnitude(total)
+    return total
 
 
 class Field(Container):
@@ -684,12 +684,14 @@ class Field(Container):
         gwp = analysis.gwp
         procs = self.processes()
         energy_by_proc = {
-            proc.name: magnitude(proc.energy.rates().sum()) for proc in procs
+            proc.name: proc.energy.rates().sum() for proc in procs
         }
         energy_data = pd.Series(energy_by_proc, name=self.name)
+        energy_data = energy_data.pint.to("mmbtu/day")
 
         ghgs_by_proc = {proc.name: total_emissions(proc, gwp) for proc in procs}
         ghg_data = pd.Series(ghgs_by_proc, name=self.name)
+        ghg_data = ghg_data.pint.to("tonne/day")
 
         # TBD: create a more detailed csv file with ProcessName, and emission categories
         #  [EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES, EM_OTHER] as
@@ -704,7 +706,7 @@ class Field(Container):
             df['field'] = self.name
             df['process'] = proc.name
             df = df[cols].pint.dequantify() # move units to 2nd row of column headings...
-            return df.droplevel('unit', axis='columns')    # ... and drop the units
+            return df
 
         gases_by_proc = [gas_df_with_name(proc) for proc in procs]
         gases_data = pd.concat(gases_by_proc)
@@ -733,7 +735,7 @@ class Field(Container):
         ci_results = (
             None
             if ci_tuples is None
-            else [("TOTAL", self.carbon_intensity.m)] + ci_tuples
+            else [("TOTAL", self.carbon_intensity)] + ci_tuples
         )
 
         streams = self.streams()
