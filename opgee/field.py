@@ -49,17 +49,17 @@ _logger = getLogger(__name__)
 
 class FieldResult:
     def __init__(
-        self,
-        analysis_name,
-        field_name,
-        result_type,
-        energy_data=None,
-        ghg_data=None,      # CO2e
-        gas_data=None,      # individual gases
-        streams_data=None,
-        ci_results=None,
-        trial_num=None,
-        error=None,
+            self,
+            analysis_name,
+            field_name,
+            result_type,
+            energy_data=None,
+            ghg_data=None,  # CO2e
+            gas_data=None,  # individual gases
+            streams_data=None,
+            ci_results=None,
+            trial_num=None,
+            error=None,
     ):
         self.analysis_name = analysis_name
         self.field_name = field_name
@@ -310,7 +310,6 @@ class Field(Container):
         self.transport_energy = TransportEnergy(self)  # N.B. accesses field.SOR
         self.steam_generator = SteamGenerator(self)
 
-
     # Used by validate() to descend model hierarchy
     def _children(self):
         return (
@@ -318,7 +317,7 @@ class Field(Container):
         )  # + self.streams() # Adding this caused several errors...
 
     def add_children(
-        self, aggs=None, procs=None, streams=None, process_choice_dict=None
+            self, aggs=None, procs=None, streams=None, process_choice_dict=None
     ):
         # Note that `procs` include only Processes defined at the top-level of the field.
         # Other Processes maybe defined within the Aggregators in `aggs`.
@@ -635,7 +634,7 @@ class Field(Container):
         self.carbon_intensity = ci = ureg.Quantity(0, "grams/MJ")
         if boundary_energy_flow_rate.m != 0:
             self.carbon_intensity = ci = (
-                total_emissions / boundary_energy_flow_rate
+                    total_emissions / boundary_energy_flow_rate
             ).to("grams/MJ")
 
         return ci
@@ -669,7 +668,7 @@ class Field(Container):
 
             ci = ghgs / energy
             # convert to g/MJ, but we don't need units in CSV file
-            return ci.to("grams/MJ").m
+            return ci.to("grams/MJ")
 
         results = [
             (obj.name, partial_ci(obj))
@@ -680,18 +679,24 @@ class Field(Container):
 
     def energy_and_emissions(self, analysis):
         import pandas as pd
+        def process_data(proc_dict, column_name):
+            data = pd.Series(proc_dict).apply(lambda x: x.m)
+            unit = next(iter(proc_dict.values())).u
+            data = pd.DataFrame(data, columns=[f'{column_name} ({unit})']).reset_index()
+            data.columns = ['process', data.columns[1]]
+            data.set_index('process', inplace=True)
+            return data
 
         gwp = analysis.gwp
         procs = self.processes()
-        energy_by_proc = {
-            proc.name: proc.energy.rates().sum() for proc in procs
-        }
-        energy_data = pd.Series(energy_by_proc, name=self.name)
-        # energy_data = energy_data.pint.to("mmbtu/day")
 
+        # Energy data processing
+        energy_by_proc = {proc.name: proc.energy.rates().sum() for proc in procs}
+        energy_data = process_data(energy_by_proc, self.name)
+
+        # GHG data processing
         ghgs_by_proc = {proc.name: total_emissions(proc, gwp) for proc in procs}
-        ghg_data = pd.Series(ghgs_by_proc, name=self.name)
-        # ghg_data = ghg_data.pint.to("tonne/day")
+        ghg_data = process_data(ghgs_by_proc, self.name)
 
         # TBD: create a more detailed csv file with ProcessName, and emission categories
         #  [EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES, EM_OTHER] as
@@ -705,7 +710,7 @@ class Field(Container):
             cols = ['field', 'process'] + list(df.columns)
             df['field'] = self.name
             df['process'] = proc.name
-            df = df[cols].pint.dequantify() # move units to 2nd row of column headings...
+            df = df[cols].pint.dequantify()  # move units to 2nd row of column headings...
             return df
 
         gases_by_proc = [gas_df_with_name(proc) for proc in procs]
@@ -752,7 +757,7 @@ class Field(Container):
             trial_num=trial_num,
             ci_results=ci_results,
             energy_data=energy_data,
-            ghg_data=ghg_data,          # TBD: superseded by gas_data
+            ghg_data=ghg_data,  # TBD: superseded by gas_data
             gas_data=gas_data,
             streams_data=streams_data,
         )
@@ -802,7 +807,7 @@ class Field(Container):
             process_name = self.product_boundaries.loc[name, analysis.boundary]
             if process_name and process_name in process_names:
                 carbon_credit += (
-                    export.loc[process_name, name] * self.upstream_CI.loc[name, "EF"]
+                        export.loc[process_name, name] * self.upstream_CI.loc[name, "EF"]
                 )
 
         return carbon_credit
@@ -818,7 +823,7 @@ class Field(Container):
         """
         result = prod_mat_gas[
             (prod_mat_gas["Bin low"] < mean) & (prod_mat_gas["Bin high"] >= mean)
-        ].index.values.astype(int)[0]
+            ].index.values.astype(int)[0]
 
         return result
 
@@ -849,7 +854,7 @@ class Field(Container):
 
         if self.attr("gas_flooding") and self.attr("flood_gas_type") == "CO2":
             productivity += (
-                oil_rate * self.attr("GFIR") * self.attr("frac_CO2_breakthrough")
+                    oil_rate * self.attr("GFIR") * self.attr("frac_CO2_breakthrough")
             )
 
         num_prod_wells = self.attr("num_prod_wells")
@@ -945,8 +950,8 @@ class Field(Container):
 
             if GOR > GOR_cutoff:
                 pump_loss_rate["LU-plunger-norm"] = (
-                    pump_loss_rate["LU-plunger"] * frac_wells_with_plunger
-                    + pump_loss_rate["LU-no plunger"] * frac_wells_with_non_plunger
+                        pump_loss_rate["LU-plunger"] * frac_wells_with_plunger
+                        + pump_loss_rate["LU-no plunger"] * frac_wells_with_non_plunger
                 )
                 pump_loss_rate.drop(
                     "LU-plunger", inplace=True
@@ -997,7 +1002,7 @@ class Field(Container):
                 & (df["type"] == well_type)
                 & (df["is_flaring"] == is_flaring)
                 & (df["is_REC"] == is_REC)
-            ]
+                ]
 
             return (
                 result["value"].values[0]
@@ -1010,7 +1015,7 @@ class Field(Container):
             no_fracture_rate = find_value(df, "No", well_type, is_flaring, "No")
 
             C1_rate = fracture_rate * frac_well_fractured + no_fracture_rate * (
-                1 - frac_well_fractured
+                    1 - frac_well_fractured
             )
             return C1_rate * event
 
@@ -1072,7 +1077,7 @@ class Field(Container):
                 is_beyond = not is_inside  # improves readability
                 for proc in procs:
                     if (is_inside and proc in beyond) or (
-                        is_beyond and proc not in beyond
+                            is_beyond and proc not in beyond
                     ):
                         msgs.append(f"{agg} spans the {proc.boundary} boundary.")
 
@@ -1170,7 +1175,7 @@ class Field(Container):
         run_afters = {process for process in processes if process.run_after}
 
         cycle_independent = (
-            set(processes) - procs_in_cycles - cycle_dependent - run_afters
+                set(processes) - procs_in_cycles - cycle_dependent - run_afters
         )
         return cycle_independent, procs_in_cycles, cycle_dependent, run_afters
 
@@ -1514,7 +1519,7 @@ class Field(Container):
                 procs, streams = group.processes_and_streams(self)
 
                 if (
-                    group_name == selected_group_name
+                        group_name == selected_group_name
                 ):  # remember the ones to turn back on
                     to_enable.extend(procs)
                     to_enable.extend(streams)
