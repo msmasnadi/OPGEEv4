@@ -56,7 +56,14 @@ def test_run_one_field(opgee_main):
         df = pd.read_csv(pathjoin(output_dir, 'carbon_intensity.csv'), index_col='node')
 
     assert df is not None and len(df) == 4
-    assert df.loc['TOTAL', 'CI'] == 0.0
+
+    # This used to work...
+    # assert df.loc['TOTAL', 'CI'] == 0.0
+
+    # TODO: Separate units from value in CI column!
+    value_str = df.loc['TOTAL', 'CI'] # '0.0 gram / MJ'
+    value = float(value_str.split(' ')[0])
+    assert value == 0.0
 
 
 def test_unknown_field(opgee_main):

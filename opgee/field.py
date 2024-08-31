@@ -681,11 +681,16 @@ class Field(Container):
         import pandas as pd
         def process_data(proc_dict, column_name):
             data = pd.Series(proc_dict).apply(lambda x: x.m)
+
+            # TODO: Extracts units from first element in the dict, which
+            #  assumes all elements have the same units.
             unit = next(iter(proc_dict.values())).u
-            data = pd.DataFrame(data, columns=[f'{column_name} ({unit})']).reset_index()
-            data.columns = ['process', data.columns[1]]
-            data.set_index('process', inplace=True)
-            return data
+
+            # TODO: embedding units in the column name makes it difficult to use
+            #  the units programmatically.
+            df = pd.DataFrame(data, columns=[f'{column_name} ({unit})'])
+            df.index.rename('process', inplace=True)
+            return df
 
         gwp = analysis.gwp
         procs = self.processes()
