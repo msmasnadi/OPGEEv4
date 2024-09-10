@@ -1681,7 +1681,7 @@ class Field(Container):
     def depth_default(self, GOR):
         # =IF(GOR > 10000, Z62, 7122), where Z62 has constant 8285 [gas field default depth]
         gas_field_default_depth = 8285.0
-        return gas_field_default_depth if GOR.m > 1000 else 7122.0
+        return gas_field_default_depth if GOR.m > 10000 else 7122.0
 
     @SmartDefault.register("res_press", ["country", "depth", "steam_flooding"])
     def res_press_default(self, country, depth, steam_flooding):
