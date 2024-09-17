@@ -186,7 +186,7 @@ class GasPartition(Process):
                 )
             )
 
-        exported_gas = self.find_output_stream("gas for transmission")
+        exported_gas = self.find_output_stream("gas")
         if field.get_process_data("is_input_from_well") is None:
             exported_gas.copy_flow_rates_from(exported_gas_stream)
 

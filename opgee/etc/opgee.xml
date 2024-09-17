@@ -630,7 +630,7 @@
 		</Stream>
 
 		<Stream src="GasPartition" dst="TransmissionCompressor">
-			<Contains>gas for transmission</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="NGL" dst="ProductionBoundary">
