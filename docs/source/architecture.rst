@@ -112,7 +112,11 @@ abstract method intended to be overridden as appropriate in each subclass of ``P
 
 The ``Process`` class defines two class variables, ``_required_inputs`` and ``_required_outputs``,
 which can be set in each subclass to the names of stream *contents* expected to be defined by
-input or output streams, accordingly.
+input or output streams, accordingly. These class variables should be set in the ``__init__()``
+method of each ``Process`` subclass as ``self._required_inputs`` and ``self._required_outputs``.
+The value of each must be a list containing any mix of strings or tuples of strings. String elements
+identify the contents of a required input or output stream. Tuple elements define a set of
+content names of which one or more must be present.
 
 XML processing
 ----------------
