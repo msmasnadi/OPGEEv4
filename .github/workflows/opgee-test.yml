@@ -10,7 +10,7 @@ jobs:
     strategy:
       max-parallel: 5
     env:
-      OPGEE_HOME: ${{ github.workspace }}/tests/files
+      OPGEE_HOME: tests/files
 
     steps:
     - uses: actions/checkout@v4
@@ -18,7 +18,7 @@ jobs:
       uses: conda-incubator/setup-miniconda@v3
       with:
         activate-environment: opgee
-        environment-file: ${{ github.workspace }}/py3-opgee-linux.yml
+        environment-file: py3-opgee-linux.yml
         python-version: 3.9
         auto-activate-base: false
     - name: Install dependencies
