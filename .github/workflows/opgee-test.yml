@@ -5,12 +5,13 @@ on:
     branches: ['feat/github-actions']
 
 jobs:
-  build-linux:
+  test-linux:
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 5
-  env:
-    OPGEE_HOME: ${{ github.workspace }}/tests/files
+    env:
+      OPGEE_HOME: ${{ github.workspace }}/tests/files
+
     steps:
     - uses: actions/checkout@v4
     - name: Set up Miniconda
