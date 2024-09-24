@@ -10,7 +10,7 @@ jobs:
     strategy:
       max-parallel: 5
     env:
-      OPGEE_HOME: ${{ gitub.workspace }}/tests/files
+      OPGEE_HOME: ${{ github.workspace }}/tests/files
     defaults:
       run:
         shell: bash -el {0}
