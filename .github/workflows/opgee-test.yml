@@ -25,7 +25,8 @@ jobs:
         path: ~/conda_pkg_dirs
         key:
           ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{hashFiles('py3-opgee-linux.yml')}}
-    - name: Cacke pip dependencies
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
       with:
         path: ~/.cache/pip
         key:
