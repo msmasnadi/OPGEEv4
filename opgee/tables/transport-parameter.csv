@@ -1,5 +1,4 @@
 Parameters,Diluent,LNG,Crude,Petrocoke,Units
-ocean_tanker_size,250000,250000,250000,250000,tonne
 capacity_barge,22500,22500,22500,22500,tonne
 speed_tanker,18.52,18.52,18.52,18.52,mile/hr
 speed_barge,5,5,5,5,mile/hr

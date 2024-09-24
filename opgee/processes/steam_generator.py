@@ -493,16 +493,18 @@ class SteamGenerator(OpgeeObject):  # N.B. NOT a subclass of Process
         blowdown_mass_rate = blowdown_water_mass_rate
 
         steam_generator_temp_outlet = self.water.saturated_temperature(self.steam_generator_press_outlet)
-        blowdown_before_heat_recovery_enthalpy_rate = self.water.enthalpy_PT(self.steam_generator_press_outlet,
-                                                                             steam_generator_temp_outlet,
-                                                                             blowdown_mass_rate)
-        blowdown_after_heat_recovery_enthalpy_rate = self.water.enthalpy_PT(self.waste_water_reinjection_press,
-                                                                            self.waste_water_reinjection_temp,
-                                                                            blowdown_mass_rate)
-        blowdown_water_recoverable_enthalpy_rate = self.eta_blowdown_heat_rec_HRSG * \
-                                                   (blowdown_before_heat_recovery_enthalpy_rate -
-                                                    blowdown_after_heat_recovery_enthalpy_rate) \
-            if self.blowdown_heat_recovery else ureg.Quantity(0.0, "MJ/day")
+        blowdown_water_recoverable_enthalpy_rate = blowdown_before_heat_recovery_enthalpy_rate = ureg.Quantity(0, "MJ/day")
+        if blowdown_mass_rate.m != 0:
+            blowdown_before_heat_recovery_enthalpy_rate = self.water.enthalpy_PT(self.steam_generator_press_outlet,
+                                                                                 steam_generator_temp_outlet,
+                                                                                 blowdown_mass_rate)
+            blowdown_after_heat_recovery_enthalpy_rate = self.water.enthalpy_PT(self.waste_water_reinjection_press,
+                                                                                self.waste_water_reinjection_temp,
+                                                                                blowdown_mass_rate)
+            blowdown_water_recoverable_enthalpy_rate = self.eta_blowdown_heat_rec_HRSG * \
+                                                       (blowdown_before_heat_recovery_enthalpy_rate -
+                                                        blowdown_after_heat_recovery_enthalpy_rate) \
+                if self.blowdown_heat_recovery else ureg.Quantity(0.0, "MJ/day")
 
         steam_out_enthalpy_rate = desired_steam_enthalpy_rate + blowdown_before_heat_recovery_enthalpy_rate
 
