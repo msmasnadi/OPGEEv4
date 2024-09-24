@@ -272,6 +272,9 @@ class Process(AttributeMixin, XmlInstantiable):
     def validate_streams(self):
         """
         Verify that each Process is connected to all required input and output streams.
+        If any of the required inputs or outputs are tuples, then at least one of the
+        contents named in the tuple must be present in the input or output streams,
+        respectively.
 
         :return: none
         :raises ModelValidationError: if any required input or output streams are missing.
@@ -279,11 +282,24 @@ class Process(AttributeMixin, XmlInstantiable):
         msgs = []
 
         for contents in self.required_inputs():
-            if not self.find_input_streams(contents, as_list=True, raiseError=False):
+            if isinstance(contents, tuple):
+                # tuples indicate sets from which at least one must be present
+                present = [bool(self.find_input_streams(c, as_list=True, raiseError=False))
+                           for c in contents]
+                if not any(present):
+                    msgs.append(f"{self} has no input streams containing any of '{contents}'")
+
+            elif not self.find_input_streams(contents, as_list=True, raiseError=False):
                 msgs.append(f"{self} is missing a required input stream containing '{contents}'")
 
         for contents in self.required_outputs():
-            if not self.find_output_streams(contents, as_list=True, raiseError=False):
+            if isinstance(contents, tuple):
+                present = [bool(self.find_output_streams(c, as_list=True, raiseError=False))
+                           for c in contents]
+                if not any(present):
+                    msgs.append(f"{self} has no output streams containing any of '{contents}'")
+
+            elif not self.find_output_streams(contents, as_list=True, raiseError=False):
                 msgs.append(f"{self} is missing a required output stream containing '{contents}'")
 
         if msgs:

@@ -8,6 +8,7 @@
 #
 from .. import ureg
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
+from ..energy import EN_ELECTRICITY
 from ..log import getLogger
 from ..process import Process, run_corr_eqns
 from .compressor import Compressor
@@ -60,6 +61,21 @@ class AcidGasRemoval(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        self._required_inputs = [
+            "gas for AGR",          # TODO: avoid process names in contents. Should be "acidic gas"?
+        ]
+
+        self._required_outputs = [
+            # TODO: If the process name were avoided, we could have just one output stream
+            #  with, say, "deacidified gas". Should describe the contents, not the destination.
+            # One of these must exist.
+            ("gas for demethanizer",  # TODO: avoid process names in contents
+             "gas for gas partition") # TODO: avoid process names in contents
+        ]
+
+        # Optional streams include:
+        # "gas for CO2 compressor" (output)
 
         self.AGR_feedin_press = None
         self.AGR_table = None
@@ -179,15 +195,15 @@ class AcidGasRemoval(Process):
         energy_use = self.energy
         energy_carrier = get_energy_carrier(self.prime_mover_type)
         energy_use.set_rate(energy_carrier, compressor_energy_consumption + reboiler_fuel_use)
-        energy_use.add_rate("Electricity", electricity_consump) \
-            if energy_carrier == "Electricty" else energy_use.set_rate("Electricity", electricity_consump)
+        energy_use.add_rate(EN_ELECTRICITY, electricity_consump) \
+            if energy_carrier == EN_ELECTRICITY else energy_use.set_rate(EN_ELECTRICITY, electricity_consump)
 
         # import and export
         self.set_import_from_energy(energy_use)
 
         # emissions
         emissions = self.emissions
-        energy_for_combustion = energy_use.data.drop("Electricity")
+        energy_for_combustion = energy_use.data.drop(EN_ELECTRICITY)
         combustion_emission = (energy_for_combustion * self.process_EF).sum()
         emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
 
