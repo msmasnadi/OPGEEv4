@@ -54,7 +54,7 @@ class TransportEnergy(OpgeeObject):
         barge_load_factor_origin = parameter_dict["load_factor_to_orig_barge"]
         barge_capacity = parameter_dict["capacity_barge"]
         ocean_tanker_speed = parameter_dict["speed_tanker"]
-        ocean_tanker_size = parameter_dict["ocean_tanker_size"]
+        ocean_tanker_size = field.ocean_tanker_size
         barge_speed = parameter_dict["speed_barge"]
         energy_intensity_pipeline_turbine = parameter_dict["energy_intensity_pipeline_turbine"]
         energy_intensity_pipeline_engine_current = parameter_dict["energy_intensity_pipeline_engine_current"]
@@ -149,10 +149,12 @@ class TransportEnergy(OpgeeObject):
             :return: Energy intensity for ocean tankers from origin to destination (unit: btu/tonne/mile)
         """
 
+        field = self.field
+
         parameter_dict = TransportEnergy.get_parameter_dict(parameter_table)
         ocean_tanker_load_factor_dest = parameter_dict["load_factor_to_dest_tanker"]
         ocean_tanker_speed = parameter_dict["speed_tanker"]
-        ocean_tanker_size = parameter_dict["ocean_tanker_size"]
+        ocean_tanker_size = field.ocean_tanker_size
 
         ocean_tanker_orig_dest_energy_intensity = \
             self.transport_energy_intensity(
