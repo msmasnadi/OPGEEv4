@@ -5,17 +5,23 @@
 
 ## Branches
 
-### `default`
-This exists only to display the updated README notifying users that this is a forked repo and directing them to the original.
-
 ### `main`
-Primary production branch. Should be stable and will be used as a source for any PRs submitted to the original repo. We'll keep this up to date with the original.
+RMI's internal production branch. We'll periodically merge `opgee-main`, but this may contain code that's specific to RMI's needs.
 
 ### `dev`
-Development/feature source branch. Will be kept up to date with `main`, but all work should start from here.
+RMI's internal development branch. Though it's safer to start with `opgee-dev` if all work is certain to be RMI-specific, feature branchs can originate here, too.
 
-### `main-rmi`
-Production branch for any RMI specific features. Will be kept up to date with `main` but may contain changes we do not want to propagate to OPGEEv4.
+### `opgee-main`
+Corresponds to the main OPGEE branch. This should not be updated from RMI's end; we will always sync this from the upstream repo.
 
-### `dev-rmi`
-Like `dev` but for RMI specific work.
+### `opgee-dev`
+This is the primary development branch for work that is intended to be integrated into the upstream OPGEE repo. All feature branches start here. We'll periodically merge `opgee-main` into `opgee-dev` to keep things up to date.
+
+## Workflows
+### OPGEE
+Check out a new branch from `opgee-dev`.
+```bash
+git checkout opgee-dev
+git checkout -b feat/my-new-branch
+```
+Once work is completed, open a PR into the upstream repo's `dev` branch.
