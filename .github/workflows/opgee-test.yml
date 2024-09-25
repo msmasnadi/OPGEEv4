@@ -32,7 +32,7 @@ jobs:
     - name: Opgee resolved env cache key
       id: opgee-env-key
       run: |
-        ENV_HASH = $(conda list --explicit | sha256sum | cut -d ' ' -f 1)
+        ENV_HASH=$(conda list --explicit | sha256sum | cut -d ' ' -f 1)
         echo "opgee_hash=$ENV_HASH" >> $GITHUB_OUTPUT
     - name: Cache Conda env
       id: opgee-env-cache
