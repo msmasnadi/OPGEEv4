@@ -13,7 +13,7 @@ jobs:
       run:
         shell: bash -el {0}
     env:
-      HOME: ${{ github.workspace }} 
+      OPGEE_HOME: ${{ github.workspace }}/tests/files
       CI: 'true'
     steps:
     - uses: actions/checkout@v4
@@ -31,11 +31,6 @@ jobs:
         miniforge-version: latest
         activate-environment: opgee
         python-version: 3.9
-    - name: Opgee resolved env cache key
-      id: opgee-env-key
-      run: |
-        ENV_HASH=$(conda list --explicit | sha256sum | cut -d ' ' -f 1)
-        echo "opgee_hash=$ENV_HASH" >> $GITHUB_OUTPUT
     - name: Cache Conda env
       id: opgee-env-cache
       uses: actions/cache@v3
