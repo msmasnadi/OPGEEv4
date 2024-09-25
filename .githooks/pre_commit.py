@@ -5,13 +5,16 @@ import subprocess
 import sys
 from textwrap import dedent
 
+cmd = ["conda", "list", "--export"]
+cmd_str = " ".join(cmd)
+list_file = "opgee-linux64.pkg_list.txt"
 
 def run_conda_env():
     try:
-        result = subprocess.run(["conda", "env", "export"], capture_output=True, text=True, check=True)
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
         return result.stdout
     except subprocess.CalledProcessError as e:
-        print(f"Error running `conda env export`: {e}")
+        print(f"Error running `{cmd_str}`: {e}")
         return None
         
 def read_env_file(file_path: Path):
@@ -27,21 +30,21 @@ def compare_env_contents(current_env_out: str, stored_env_out: str):
         diff = difflib.unified_diff(
             stored_env_out.splitlines(keepends=True),
             current_env_out.splitlines(keepends=True),
-            fromfile='stored_env_out',
-            tofile='current_env_out',
+            fromfile='environment pkg_list',
+            tofile=list_file,
             n=3
         )
         return "".join(diff)
     return None
 
-def check_output(output_file: Path = Path('py3-opgee-gh-actions.yml')):
+def check_output(output_file: Path = Path(list_file)):
     git_root = subprocess.check_output(["git", "rev-parse", "--show-toplevel"], text=True).strip()
     
     os.chdir(git_root)
     
     current_env_out = run_conda_env()
     if current_env_out is None:
-        return False, "`conda env export` failed to run."
+        return False, f"`{cmd_str}` failed to run."
 
     stored_env_out = read_env_file(output_file) 
     if stored_env_out is None:
@@ -51,12 +54,12 @@ def check_output(output_file: Path = Path('py3-opgee-gh-actions.yml')):
     
     if diff:
         message = """\
-Error: your environment doesn't match that defined in `py3-opgee-gh-actions.yml`.
+Error: your environment doesn't match that defined in `{0}`.
 
-{0}
+{1}
 
-Please remove the package or run `conda env export > py3-opgee-gh-actions.yml`, add the file, and recommit.
-        """.format(diff)
+Please remove the package(s) and/or run `{2} > {0}`, add the file, and recommit.
+        """.format(list_file, diff, cmd_str)
         return False, dedent(message)
     else:
         return True, ""
