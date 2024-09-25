@@ -41,8 +41,8 @@ jobs:
         python-version: 3.9
         use-only-tar-bz2: true
     - run: |
-      python -m pip install .
-      pip install pytest-cov codecov coveralls PyYAML
+        python -m pip install .
+        pip install pytest-cov codecov coveralls PyYAML
     - name: Run unit tests with coverate
       run: coverage run --source=opgee -m pytest
     - name: Code coverage report
