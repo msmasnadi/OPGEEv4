@@ -47,7 +47,7 @@ jobs:
           ${{ runner.os }}-conda-${{ runner.arch }}-${{ hashFiles(env.opgee_pkg_list) }}-${{ env.CACHE_NUMBER }}
     - name: Update Conda env
       run: |
-        conda env update -n opgee -f $OPGEE_PKG_LIST
+        conda env update -n opgee -f $opgee_pkg_list
       if: steps.opgee-env-cache.outputs.cache-hit != 'true'
     - run: |
         pip install -e .
