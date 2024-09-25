@@ -19,6 +19,7 @@ jobs:
       OPGEE_HOME: ${{ github.workspace }}/tests/files
       CI: 'true'
       opgee_pkg_list: 'opgee-linux64.pkg_list.txt'
+      opgee_linux_yml: 'py3-opgee-linux.yml'
     steps:
     - uses: actions/checkout@v4
     - name: Cache pip dependencies
@@ -47,7 +48,7 @@ jobs:
           ${{ runner.os }}-conda-${{ runner.arch }}-${{ hashFiles(env.opgee_pkg_list) }}-${{ env.CACHE_NUMBER }}
     - name: Update Conda env
       run: |
-        conda env update -n opgee -f $opgee_pkg_list
+        conda env update -n opgee -f $opgee_linux_yml
       if: steps.opgee-env-cache.outputs.cache-hit != 'true'
     - run: |
         pip install -e .
