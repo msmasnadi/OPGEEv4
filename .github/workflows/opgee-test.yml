@@ -1,8 +1,11 @@
 name: Run Tests and Coverage for OPGEE
 run-name: ${{ github.actor }} is running unit tests
 on:
-  push:
-    branches: ['feat/github-actions']
+  pull_request:
+    branches:
+      - master
+      - main
+      - dev
 
 jobs:
   test-linux:
