@@ -12,7 +12,9 @@ jobs:
     defaults:
       run:
         shell: bash -el {0}
-
+    env:
+      HOME: ${{ github.workspace }} 
+      CI: 'true'
     steps:
     - uses: actions/checkout@v4
     - name: Cache pip dependencies
