@@ -19,6 +19,7 @@ _logger = getLogger(__name__)
 
 
 class BitumenMining(Process):
+    # TODO: documentation below describes input streams that do not appear in the code.
     """
         This process takes input streams and produces output streams as part of an
         oil sands mining operation.
@@ -46,6 +47,18 @@ class BitumenMining(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        self._required_outputs = []
+
+        self._required_outputs = [
+            # TODO: If the process names were avoided, we might have just one output stream
+            #  with, say, "heavy oil". Should describe the contents, not the destination.
+            ("oil for upgrading",     # TODO: avoid process names in contents.
+             "oil for dilution"),     # TODO: avoid process names in contents.
+
+            "gas for partition",
+        ]
+
 
         self.bitumen_path_dict = {"Integrated with upgrader": "oil for upgrading",
                                   "Integrated with diluent": "oil for dilution",

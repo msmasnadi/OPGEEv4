@@ -86,6 +86,38 @@ specification of data types. Built-in tabular data can be modified through XML s
 See also: :doc:`opgee-xml` for documentation of the XML, and class documentation for
 :py:class:`~opgee.table_manager.TableManager` and :py:class:`~opgee.table_update.TableUpdate`
 
+
+Model Validation
+-------------------
+The major model-building classes -- ``Model``, ``Analysis``, ``Field``, ``Process``, and ``Stream`` -- inherit
+the ``validate()`` method from ``Container``. After a model is loaded from XML, the ``ModelFile`` instance calls
+``model.validate()``, which descends through the ``Model`` to ``Analysis`` instances, to ``Field`` and
+``Process`` instances.
+
+The ``Model`` and ``Analysis`` classes currently do not override the ``validate()`` method inherited from
+``Container``, which merely calls ``validate()`` on the object's children. The children of ``Model`` are
+``Analysis`` instances. The children of ``Analysis`` instances are ``Field`` instances.
+
+
+The ``Field.validate()`` method ensures that the chosen system boundary process exists in the model,
+that there are boundary processes defined, and that
+boundary processes are not included in cycles, nor included in ``Aggregator`` instances that
+includes processes on both sides of the boundary. It also checks that steam:oil ratio (``SOR``)
+is not 0 for ``steam_flooding`` fields.
+
+
+All ``Process`` subclasses calls two methods, ``validate_streams()`` and ``validate_proc``;
+the prior checks that required input and output streams are present, while the latter is an
+abstract method intended to be overridden as appropriate in each subclass of ``Process``.
+
+The ``Process`` class defines two class variables, ``_required_inputs`` and ``_required_outputs``,
+which can be set in each subclass to the names of stream *contents* expected to be defined by
+input or output streams, accordingly. These class variables should be set in the ``__init__()``
+method of each ``Process`` subclass as ``self._required_inputs`` and ``self._required_outputs``.
+The value of each must be a list containing any mix of strings or tuples of strings. String elements
+identify the contents of a required input or output stream. Tuple elements define a set of
+content names of which one or more must be present.
+
 XML processing
 ----------------
 
