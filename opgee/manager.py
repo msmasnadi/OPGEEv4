@@ -419,7 +419,6 @@ def save_results(results, output_dir, batch_num=None):
 
     for result in flatten(results):
         trial = result.trial_num
-        print(trial)
 
         if result.result_type == ERROR_RESULT:
             d = {"analysis": result.analysis_name,
@@ -454,7 +453,6 @@ def save_results(results, output_dir, batch_num=None):
                  "EI": ei}
             if trial is not None:
                 d['trial'] = trial
-            print(d)
             ei_rows.append(d)
 
     # Append batch number to filename if not None
