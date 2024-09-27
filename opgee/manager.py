@@ -408,14 +408,18 @@ def save_results(results, output_dir, batch_num=None):
         return
 
     energy_cols = []
+    diesel_cols = []
+    electricity_cols = []
     emission_cols = []
     gas_dfs = []
     ci_rows = []
+    ei_rows = []
     error_rows = []
     stream_dfs = []
 
     for result in flatten(results):
         trial = result.trial_num
+        print(trial)
 
         if result.result_type == ERROR_RESULT:
             d = {"analysis": result.analysis_name,
@@ -428,6 +432,8 @@ def save_results(results, output_dir, batch_num=None):
 
         if result.result_type != SIMPLE_RESULT:
             energy_cols.append(result.energy)
+            diesel_cols.append(result.diesel)
+            electricity_cols.append(result.electricity)
             emission_cols.append(result.emissions)
             stream_dfs.append(result.streams)
             gas_dfs.append(result.gases)
@@ -440,6 +446,16 @@ def save_results(results, output_dir, batch_num=None):
             if trial is not None:
                 d['trial'] = trial
             ci_rows.append(d)
+        
+        for name, ei in result.ei_results:
+            d = {"analysis": result.analysis_name,
+                 "field": result.field_name,
+                 "node": name,
+                 "EI": ei}
+            if trial is not None:
+                d['trial'] = trial
+            print(d)
+            ei_rows.append(d)
 
     # Append batch number to filename if not None
     batch = '' if batch_num is None else f"_{batch_num}"
@@ -451,6 +467,9 @@ def save_results(results, output_dir, batch_num=None):
 
     df = pd.DataFrame(data=ci_rows)
     _to_csv(df, 'carbon_intensity', index=False)
+
+    df = pd.DataFrame(data=ei_rows)
+    _to_csv(df, 'energy_intensity', index=False)
 
     if error_rows:
         df = pd.DataFrame(data=error_rows)
@@ -465,6 +484,12 @@ def save_results(results, output_dir, batch_num=None):
     # These aren't saved for SIMPLE_RESULTS
     if energy_cols:
         _save_cols(energy_cols, "energy")
+    
+    if diesel_cols:
+        _save_cols(diesel_cols,"diesel")
+    
+    if electricity_cols:
+        _save_cols(electricity_cols,'electricity')
 
     if emission_cols:
         _save_cols(emission_cols, "emissions")
