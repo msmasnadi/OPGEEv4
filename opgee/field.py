@@ -741,7 +741,6 @@ class Field(Container):
             return None
 
         def partial_ei(obj):
-            print(obj.energy.data)
             energy_input = obj.energy.data.sum()
             if not isinstance(energy_input, pint.Quantity):
                 energy_input = ureg.Quantity(energy_input, "mmBtu/day")
