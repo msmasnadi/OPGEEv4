@@ -58,6 +58,7 @@ class FieldResult:
             gas_data=None,  # individual gases
             streams_data=None,
             ci_results=None,
+            energy_output=None,
             trial_num=None,
             error=None,
     ):
@@ -65,8 +66,9 @@ class FieldResult:
         self.field_name = field_name
         self.result_type = result_type
         self.ci_results = ci_results  # list of tuples of (node_name, CI)
-        self.energy = energy_data
-        self.emissions = ghg_data  # TBD: change self.emissions to self.ghgs
+        self.energy_output = energy_output
+        self.energy = energy_data   # energy consumption data
+        self.emissions = ghg_data   # TBD: change self.emissions to self.ghgs
         self.gases = gas_data
         self.streams = streams_data
         self.trial_num = trial_num
@@ -129,6 +131,11 @@ class Field(Container):
         self.modifies = None
 
         self.carbon_intensity = ureg.Quantity(0.0, "g/MJ")
+
+        # These are set when carbon intensity is computed
+        self.energy_output = ureg.Quantity(0.0, "mmbtu/day")
+        self.total_emissions = ureg.Quantity(0.0, "tonnes/day")
+
         self.procs_beyond_boundary = None
 
         self.graph = None
@@ -637,6 +644,10 @@ class Field(Container):
                     total_emissions / boundary_energy_flow_rate
             ).to("grams/MJ")
 
+        # Also save the numerator and denominator separately for reporting
+        self.energy_output = boundary_energy_flow_rate
+        self.total_emissions = total_emissions
+
         return ci
 
     def partial_ci_values(self, analysis, nodes):
@@ -743,8 +754,7 @@ class Field(Container):
         ci_tuples = self.partial_ci_values(analysis, nodes)
 
         ci_results = (
-            None
-            if ci_tuples is None
+            None if ci_tuples is None
             else [("TOTAL", self.carbon_intensity)] + ci_tuples
         )
 
@@ -761,6 +771,7 @@ class Field(Container):
             result_type,
             trial_num=trial_num,
             ci_results=ci_results,
+            energy_output=self.energy_output,
             energy_data=energy_data,
             ghg_data=ghg_data,  # TBD: superseded by gas_data
             gas_data=gas_data,

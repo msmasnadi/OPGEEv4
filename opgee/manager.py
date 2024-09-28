@@ -13,6 +13,7 @@ from dask.distributed import Client, LocalCluster, as_completed
 from glob import glob
 import os
 import pandas as pd
+import pint
 import re
 from typing import Sequence
 
@@ -392,8 +393,9 @@ def run_serial(model_xml_file, analysis_name, field_names, result_type=DETAILED_
 def save_results(results, output_dir, batch_num=None):
     """
     Save "detailed" results, comprising top-level carbon intensity (CI) from
-    ``results``, and per-process energy and emissions details. Results are
-     written to CSV files under the directory ``output_dir``.
+    ``results``, and per-process energy use, emissions details, and total output
+     energy at system boundary. Results are written to CSV files under the
+     directory ``output_dir``.
 
     :param results: (list[FieldResult]) results from running a ``Field``
     :param output_dir: (str) where to write the CSV files
@@ -411,34 +413,58 @@ def save_results(results, output_dir, batch_num=None):
     emission_cols = []
     gas_dfs = []
     ci_rows = []
+    energy_output_rows = []
     error_rows = []
     stream_dfs = []
+
+    def create_dict(analysis, field, trial,
+                    name=None, value=None, unit_col=True):
+        # create the common portion of result dicts
+        d = {"analysis": analysis_name,
+             "field": field_name}
+
+        if trial is not None:
+            d["trial"] = trial
+
+        if name:
+            if isinstance(value, pint.Quantity):
+                if unit_col:
+                    d['units'] = value.u
+                value = value.m
+            d[name] = value
+        return d
 
     for result in flatten(results):
         trial = result.trial_num
 
+        analysis_name = result.analysis_name
+        field_name = result.field_name
+
         if result.result_type == ERROR_RESULT:
-            d = {"analysis": result.analysis_name,
-                 "field": result.field_name,
-                 "error": result.error}
-            if trial is not None:
-                d['trial'] = trial
+            d = create_dict(analysis_name, field_name, trial)
+            d['error'] = result.error
             error_rows.append(d)
             continue
 
         if result.result_type != SIMPLE_RESULT:
+            if trial is not None:
+                result.streams['trial'] = trial
+                result.gases['trial'] = trial
+                result.emissions['trial'] = trial
+
             energy_cols.append(result.energy)
             emission_cols.append(result.emissions)
             stream_dfs.append(result.streams)
             gas_dfs.append(result.gases)
 
+            # Add a row for total energy output
+            d = create_dict(analysis_name, field_name, trial,
+                            name='energy_output', value=result.energy_output)
+            energy_output_rows.append(d)
+
         for name, ci in result.ci_results:
-            d = {"analysis": result.analysis_name,
-                 "field": result.field_name,
-                 "node": name,
-                 "CI": ci}
-            if trial is not None:
-                d['trial'] = trial
+            d = create_dict(analysis_name, field_name, trial, name='CI', value=ci)
+            d['node'] = name
             ci_rows.append(d)
 
     # Append batch number to filename if not None
@@ -464,7 +490,11 @@ def save_results(results, output_dir, batch_num=None):
 
     # These aren't saved for SIMPLE_RESULTS
     if energy_cols:
-        _save_cols(energy_cols, "energy")
+        _save_cols(energy_cols, "energy_use")
+
+    if energy_output_rows:
+        df = pd.DataFrame(data=energy_output_rows)
+        _to_csv(df, "energy_output", index=False)
 
     if emission_cols:
         _save_cols(emission_cols, "emissions")
