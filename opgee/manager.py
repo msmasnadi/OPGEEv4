@@ -450,7 +450,8 @@ def save_results(results, output_dir, batch_num=None):
             d = {"analysis": result.analysis_name,
                  "field": result.field_name,
                  "node": name,
-                 "EI": ei}
+                 "EI": ei.m,
+                 "Unit": 'dimensionless'}
             if trial is not None:
                 d['trial'] = trial
             ei_rows.append(d)
