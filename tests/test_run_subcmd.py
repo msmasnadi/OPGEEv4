@@ -1,22 +1,10 @@
-from contextlib import contextmanager
 from glob import glob
 import os
 import pytest
 from opgee.config import setParam, pathjoin
 from opgee.error import CommandlineError
 from opgee.tool import opg
-from .utils_for_tests import path_to_test_file
-
-@contextmanager
-def tempdir():
-    import tempfile
-    import shutil
-
-    d = tempfile.mkdtemp()
-    try:
-        yield d
-    finally:
-        shutil.rmtree(d)
+from .utils_for_tests import path_to_test_file, tempdir
 
 def test_missing_output_dir(opgee_main):
     name = 'test'

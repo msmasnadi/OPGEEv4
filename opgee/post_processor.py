@@ -5,11 +5,8 @@
 # Copyright (c) 2024 the author and RMI
 # See the https://opensource.org/licenses/MIT for license details.
 #
-
-from .analysis import Analysis
-from .core import OpgeeObject, Timer
-from .error import AbstractMethodError
-from .field import Field, FieldResult
+from .core import OpgeeObject
+from .error import AbstractMethodError, McsUserError
 
 class PostProcessor(OpgeeObject):
     """
@@ -18,27 +15,15 @@ class PostProcessor(OpgeeObject):
     implement the ``save`` method to save the post-processed data to a file.
     """
 
-    # Track instances in order defined on the command-line, so we can
-    # run them in the intended sequence
+    # List subclass instances in order defined on the command-line
     instances = []
 
     def __init__(self):
         pass
 
-    @classmethod
-    def clear(cls):
-        """
-        [Optional method to be implemented by subclasses]
+    def run(self, analysis, field, results):
+        # to avoid an import cycle, args have no type specs
 
-        Clear any state stored in class variables that should not persist between
-        model runs. This describes class variables in the subclasses of
-        ``PostProcessor``: the plugin instances stored here *should* persist.
-
-        :return: nothing
-        """
-        pass
-
-    def run(self, analysis: Analysis, field: Field, results: FieldResult):
         """
         [Required method to be implemented by subclasses.]
 
@@ -50,14 +35,72 @@ class PostProcessor(OpgeeObject):
           the Field.
         :return: nothing
         """
-        raise AbstractMethodError(PostProcessor, 'run')
+        raise AbstractMethodError(self.__class__, 'PostProcessor.run')
 
-    def save(self):
+    def save(self, output_dir):
         """
         [Optional method to be implemented by subclasses.]
 
         Save the data accumulated by this plugin to a file.
 
+        :param output_dir: (str) the directory to save the data to
         :return: nothing
         """
         pass
+
+    @classmethod
+    def clear(cls):
+        """
+        [Optional method to be implemented by subclasses]
+
+        Clear any class variable state that should not persist between
+        model runs. This describes class variables in the subclasses of
+        ``PostProcessor``: the plugin instances stored here *should* persist.
+
+        :return: nothing
+        """
+        pass
+
+    @classmethod
+    def decache(cls):
+        cls.instances.clear()
+
+    @classmethod
+    def load_plugin(cls, path):
+        """
+        Load the plugin at the given ``path``, which must be a subclass
+        of PostProcessor. Only one subclass should defined in this file;
+        if more than one appears in the file, which one gets loaded is
+        not well-defined.
+
+        :return: nothing
+        """
+        import inspect
+        import os.path
+        from .utils import loadModuleFromPath
+
+        if not os.path.exists(path):
+            raise McsUserError(f"Path to plugin '{path}' does not exist.")
+
+        module = loadModuleFromPath(path)
+
+        # Find the class, create an instance, and store it in cls.instances
+        for name, subcls in inspect.getmembers(module):
+            # Subclasses import PostProcessor, but we want only proper subclasses, not PostProcessor
+            if subcls != PostProcessor and inspect.isclass(subcls) and issubclass(subcls, PostProcessor):
+                instance = subcls()
+                cls.instances.append(instance)
+                return instance
+
+        raise McsUserError(f"No subclass of PostProcessor found in module '{path}'")
+
+    @classmethod
+    def run_post_processors(cls, analysis, field, result):
+        for instance in cls.instances:
+            instance.run(analysis, field, result)
+
+    @classmethod
+    def save_post_processor_results(cls, output_dir):
+        for instance in cls.instances:
+            instance.save(output_dir)
+            instance.clear()
