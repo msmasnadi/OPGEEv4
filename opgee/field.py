@@ -22,7 +22,7 @@ from .constants import (
 )
 from .container import Container
 from .core import elt_name, instantiate_subelts, dict_from_list, STP, magnitude
-from .energy import Energy
+from .energy import EN_CRUDE_OIL, EN_DIESEL, EN_ELECTRICITY, EN_NATURAL_GAS, EN_NGL, EN_PETCOKE, EN_RESID, EN_UPG_PROC_GAS, Energy
 from .error import (
     OpgeeException,
     OpgeeStopIteration,
@@ -54,7 +54,13 @@ class FieldResult:
             field_name,
             result_type,
             energy_data=None,
+            natural_gas_data=None,
+            upg_proc_gas_data=None,
+            ngl_data=None,
+            crude_oil_data=None,
             diesel_data=None,
+            residual_fuel_data=None,
+            petcoke_data=None,
             electricity_data=None,
             ghg_data=None,  # CO2e
             gas_data=None,  # individual gases
@@ -70,7 +76,13 @@ class FieldResult:
         self.ci_results = ci_results  # list of tuples of (node_name, CI)
         self.ei_results = ei_results
         self.energy = energy_data
+        self.natural_gas_data = natural_gas_data
+        self.upg_proc_gas = upg_proc_gas_data
+        self.ngl_data = ngl_data
+        self.crude_oil = crude_oil_data
         self.diesel = diesel_data
+        self.residual_fuel = residual_fuel_data
+        self.petcoke = petcoke_data
         self.electricity = electricity_data
         self.emissions = ghg_data  # TBD: change self.emissions to self.ghgs
         self.gases = gas_data
@@ -777,14 +789,38 @@ class Field(Container):
         # Energy data processing
         energy_by_proc = {proc.name: proc.energy.rates().sum() for proc in procs}
         energy_data = process_data(energy_by_proc, self.name)
-        
-        # Electricity data processing
-        electricity_by_proc = {proc.name: proc.energy.rates()['Electricity'] for proc in procs}
-        electricity_data = process_data(electricity_by_proc, self.name)
+
+        # Natural gas data processing
+        natural_gas_by_proc = {proc.name: proc.energy.rates(EN_NATURAL_GAS) for proc in procs}
+        natural_gas_data = process_data(natural_gas_by_proc, self.name)
+
+        # Upgrader Proc. Gas data processing
+        upg_proc_gas_by_proc = {proc.name: proc.energy.rates(EN_UPG_PROC_GAS) for proc in procs}
+        upg_proc_gas_data = process_data(upg_proc_gas_by_proc, self.name)
+
+        # NGL data processing
+        ngl_by_proc = {proc.name: proc.energy.rates(EN_NGL) for proc in procs}
+        ngl_data = process_data(ngl_by_proc, self.name)
+
+        # Crude Oil data processing
+        crude_oil_by_proc = {proc.name: proc.energy.rates(EN_CRUDE_OIL) for proc in procs}
+        crude_oil_data = process_data(crude_oil_by_proc, self.name)
 
         # Diesel data processing
-        diesel_by_proc = {proc.name: proc.energy.rates()['Diesel'] for proc in procs}
+        diesel_by_proc = {proc.name: proc.energy.rates(EN_DIESEL) for proc in procs}
         diesel_data = process_data(diesel_by_proc, self.name)
+
+        # Residual Fuel data processing
+        residual_fuel_by_proc = {proc.name: proc.energy.rates(EN_RESID) for proc in procs}
+        residual_fuel_data = process_data(residual_fuel_by_proc, self.name)
+
+        # Petrocoke data processing
+        petcoke_by_proc = {proc.name: proc.energy.rates(EN_PETCOKE) for proc in procs}
+        petcoke_data = process_data(petcoke_by_proc, self.name)
+        
+        # Electricity data processing
+        electricity_by_proc = {proc.name: proc.energy.rates(EN_ELECTRICITY) for proc in procs}
+        electricity_data = process_data(electricity_by_proc, self.name)
 
         # GHG data processing
         ghgs_by_proc = {proc.name: total_emissions(proc, gwp) for proc in procs}
@@ -808,7 +844,7 @@ class Field(Container):
         gases_by_proc = [gas_df_with_name(proc) for proc in procs]
         gases_data = pd.concat(gases_by_proc)
 
-        return energy_data, ghg_data, gases_data, diesel_data, electricity_data
+        return energy_data, ghg_data, gases_data, natural_gas_data, upg_proc_gas_data, ngl_data, crude_oil_data, diesel_data, residual_fuel_data, petcoke_data, electricity_data
 
     def get_result(self, analysis, result_type, trial_num=None) -> FieldResult:
         """
@@ -820,7 +856,7 @@ class Field(Container):
         :param trial_num: (int) trial number, if running in MCS mode
         :return: (FieldResult) results
         """
-        energy_data, ghg_data, gas_data, diesel_data, electricity_data = (
+        energy_data, ghg_data, gas_data, natural_gas_data, upg_proc_gas_data, ngl_data, crude_oil_data, diesel_data, residual_fuel_data, petcoke_data, electricity_data = (
             self.energy_and_emissions(analysis)
             if result_type == DETAILED_RESULT
             else (None, None, None)
@@ -857,7 +893,13 @@ class Field(Container):
             ci_results=ci_results,
             ei_results=ei_results,
             energy_data=energy_data,
+            natural_gas_data=natural_gas_data,
+            upg_proc_gas_data=upg_proc_gas_data,
+            ngl_data=ngl_data,
+            crude_oil_data=crude_oil_data,
             diesel_data=diesel_data,
+            residual_fuel_data=residual_fuel_data,
+            petcoke_data=petcoke_data,
             electricity_data=electricity_data,
             ghg_data=ghg_data,  # TBD: superseded by gas_data
             gas_data=gas_data,
@@ -865,7 +907,7 @@ class Field(Container):
         )
         return result
 
-    def get_imported_emissions(self, net_import):
+    def get_imported_energy(self, net_import):
         """
         Calculate imported product energy
 

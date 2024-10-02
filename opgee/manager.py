@@ -408,7 +408,13 @@ def save_results(results, output_dir, batch_num=None):
         return
 
     energy_cols = []
+    natural_gas_cols = []
+    upg_proc_gas_cols = []
+    ngl_cols = []
+    crude_oil_cols = []
     diesel_cols = []
+    residual_fuel_cols = []
+    petcoke_cols = []
     electricity_cols = []
     emission_cols = []
     gas_dfs = []
@@ -431,7 +437,13 @@ def save_results(results, output_dir, batch_num=None):
 
         if result.result_type != SIMPLE_RESULT:
             energy_cols.append(result.energy)
+            natural_gas_cols.append(result.natural_gas)
+            upg_proc_gas_cols.append(result.upg_proc_gas)
+            ngl_cols.append(result.ngl)
+            crude_oil_cols.append(result.crude_oil)
             diesel_cols.append(result.diesel)
+            residual_fuel_cols.append(result.residual_fuel)
+            petcoke_cols.append(result.petcoke)
             electricity_cols.append(result.electricity)
             emission_cols.append(result.emissions)
             stream_dfs.append(result.streams)
@@ -486,8 +498,26 @@ def save_results(results, output_dir, batch_num=None):
     if energy_cols:
         _save_cols(energy_cols, "energy")
     
+    if natural_gas_cols:
+        _save_cols(natural_gas_cols,"natural_gas")
+    
+    if upg_proc_gas_cols:
+        _save_cols(upg_proc_gas_cols,"upg_proc_gas")
+    
+    if ngl_cols:
+        _save_cols(ngl_cols,"ngl")
+
+    if crude_oil_cols:
+        _save_cols(crude_oil_cols,"crude_oil")
+
     if diesel_cols:
         _save_cols(diesel_cols,"diesel")
+
+    if residual_fuel_cols:
+        _save_cols(residual_fuel_cols,"residual_fuel")
+
+    if petcoke_cols:
+        _save_cols(petcoke_cols,"petcoke")
     
     if electricity_cols:
         _save_cols(electricity_cols,'electricity')
