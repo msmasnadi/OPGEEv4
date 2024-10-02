@@ -86,6 +86,5 @@ class CO2Membrane(Process):
         self.set_import_from_energy(energy_use)
 
         # emissions
-        
         combustion_emission = self.compute_emission_combustion()
         self.emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
