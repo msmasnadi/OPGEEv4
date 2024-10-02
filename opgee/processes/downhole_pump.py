@@ -206,13 +206,11 @@ class DownholePump(Process):
 
             # import and export
             self.set_import_from_energy(energy_use)
-        # emission
-        emissions = self.emissions
-        energy_for_combustion = energy_use.data.drop("Electricity")
-        combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
+        # emissions
+        combustion_emission = self.compute_emission_combustion()
+        self.emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
 
-        emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
+        self.emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
 
     def impute(self):
         field = self.field

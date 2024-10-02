@@ -190,8 +190,7 @@ class HeavyOilUpgrading(Process):
         field.import_export.set_export(self.name, H2, proc_gas_to_H2_mass_rate.sum() + NG_to_H2_mass_rate.sum())
 
         # emission
-        emissions = self.emissions
-        energy_for_combustion = energy_use.data.drop("Electricity")
-        combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
-        emissions.set_from_series(EM_FLARING, proc_gas_flaring_mass_rate.pint.to("tonne/day"))
+        combustion_emission = self.compute_emission_combustion()
+        self.emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
+
+        self.emissions.set_from_series(EM_FLARING, proc_gas_flaring_mass_rate.pint.to("tonne/day"))

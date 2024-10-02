@@ -183,10 +183,9 @@ class SteamGeneration(Process):
         import_product = field.import_export
         import_product.set_export(self.name, EN_ELECTRICITY, electricity_HRSG)
 
-        emissions = self.emissions
-        energy_for_combustion = energy_use.data.drop("Electricity")
-        combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
+        # emissions
+        combustion_emission = self.compute_emission_combustion()
+        self.emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
 
     def get_feedwater_horsepower(self, prod_water_mass_rate, makeup_water_mass_rate):
         prod_water_volume_rate = prod_water_mass_rate / self.water_density

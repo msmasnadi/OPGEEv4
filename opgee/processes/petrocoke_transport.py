@@ -67,7 +67,5 @@ class PetrocokeTransport(Process):
         import_product.set_export(self.name, NGL_LPG, petrocoke_LHV_rate)
 
         # emission
-        emissions = self.emissions
-        energy_for_combustion = energy_use.data.drop("Electricity")
-        combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
+        combustion_emission = self.compute_emission_combustion()
+        self.emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)

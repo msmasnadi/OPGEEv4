@@ -110,11 +110,10 @@ class Drilling(Process):
         energy_use = self.energy
         energy_use.set_rate(EN_DIESEL, diesel_consumption)
 
-        emissions = self.emissions
-        energy_for_combustion = energy_use.data.drop("Electricity")
-        combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
-        emissions.set_rate(EM_LAND_USE, "CO2", land_use_emission)
+        # emissions
+        combustion_emission = self.compute_emission_combustion()
+        self.emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
+        self.emissions.set_rate(EM_LAND_USE, "CO2", land_use_emission)
 
     def get_fracture_constant(self):
         """
