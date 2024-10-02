@@ -16,7 +16,6 @@
 import numpy as np
 
 from .shared import get_energy_carrier, get_energy_consumption
-from ..emissions import EM_COMBUSTION
 from ..error import OpgeeException
 from ..log import getLogger
 from ..process import Process
@@ -113,6 +112,5 @@ class WaterInjection(Process):
         # import and export
         self.set_import_from_energy(energy_use)
 
-        # emission
-        combustion_emission = self.compute_emission_combustion()
-        self.emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
+        # emissions
+        self.set_combustion_emissions()

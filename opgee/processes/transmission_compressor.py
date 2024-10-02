@@ -11,7 +11,7 @@ import math
 from .compressor import Compressor
 from .shared import get_energy_carrier
 from ..core import TemperaturePressure
-from ..emissions import EM_COMBUSTION, EM_FUGITIVES
+from ..emissions import EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
 
@@ -110,7 +110,5 @@ class TransmissionCompressor(Process):
         gas_to_distribution.subtract_rates_from(gas_to_liquefaction)
 
         # emissions
-        combustion_emission = self.compute_emission_combustion()
-        self.emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
-
+        self.set_combustion_emissions()
         self.emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)

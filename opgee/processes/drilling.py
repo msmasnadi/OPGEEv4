@@ -9,7 +9,7 @@
 import numpy as np
 
 from .. import ureg
-from ..emissions import EM_COMBUSTION, EM_LAND_USE
+from ..emissions import EM_LAND_USE
 from ..energy import EN_DIESEL
 from ..log import getLogger
 from ..process import Process
@@ -111,8 +111,7 @@ class Drilling(Process):
         energy_use.set_rate(EN_DIESEL, diesel_consumption)
 
         # emissions
-        combustion_emission = self.compute_emission_combustion()
-        self.emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
+        self.set_combustion_emissions()
         self.emissions.set_rate(EM_LAND_USE, "CO2", land_use_emission)
 
     def get_fracture_constant(self):

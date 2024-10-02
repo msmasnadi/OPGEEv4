@@ -8,7 +8,6 @@
 #
 from .. import ureg
 from ..core import TemperaturePressure
-from ..emissions import EM_COMBUSTION
 from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY
 from ..error import BalanceError
 from ..import_export import WATER
@@ -184,8 +183,7 @@ class SteamGeneration(Process):
         import_product.set_export(self.name, EN_ELECTRICITY, electricity_HRSG)
 
         # emissions
-        combustion_emission = self.compute_emission_combustion()
-        self.emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
+        self.set_combustion_emissions()
 
     def get_feedwater_horsepower(self, prod_water_mass_rate, makeup_water_mass_rate):
         prod_water_volume_rate = prod_water_mass_rate / self.water_density

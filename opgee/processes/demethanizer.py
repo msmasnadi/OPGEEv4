@@ -10,13 +10,12 @@ import pandas as pd
 
 from .. import ureg
 from ..core import STP, TemperaturePressure
-from ..emissions import EM_COMBUSTION, EM_FUGITIVES
+from ..emissions import EM_FUGITIVES
 from ..energy import EN_ELECTRICITY
 from ..log import getLogger
 from ..process import Process
 from ..process import run_corr_eqns
 from ..stream import PHASE_GAS, Stream
-from ..thermodynamics import ChemicalInfo
 from .compressor import Compressor
 from .shared import get_energy_carrier, predict_blower_energy_use, get_bounded_value
 
@@ -230,7 +229,5 @@ class Demethanizer(Process):
         self.set_import_from_energy(energy_use)
 
         # emissions
-        combustion_emission = self.compute_emission_combustion()
-        self.emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
-
+        self.set_combustion_emissions()
         self.emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)

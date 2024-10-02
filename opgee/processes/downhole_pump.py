@@ -10,7 +10,7 @@ import numpy as np
 
 from .. import ureg
 from ..core import TemperaturePressure
-from ..emissions import EM_COMBUSTION, EM_FUGITIVES
+from ..emissions import EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
 from ..stream import Stream, PHASE_GAS
@@ -206,10 +206,9 @@ class DownholePump(Process):
 
             # import and export
             self.set_import_from_energy(energy_use)
-        # emissions
-        combustion_emission = self.compute_emission_combustion()
-        self.emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
 
+        # emissions
+        self.set_combustion_emissions()
         self.emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
 
     def impute(self):

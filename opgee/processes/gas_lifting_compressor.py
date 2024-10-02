@@ -7,7 +7,7 @@
 # See LICENSE.txt for license details.
 #
 from .. import ureg
-from ..emissions import EM_COMBUSTION, EM_FUGITIVES
+from ..emissions import EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
 from ..processes.compressor import Compressor
@@ -58,11 +58,12 @@ class GasLiftingCompressor(Process):
         input_tp = input.tp
         discharge_press = (self.res_press + input_tp.P) / 2 + ureg.Quantity(100.0, "psia")
         overall_compression_ratio = discharge_press / input_tp.P
-        energy_consumption, output_temp, _ = Compressor.get_compressor_energy_consumption(field,
-                                                                                          self.prime_mover_type,
-                                                                                          self.eta_compressor,
-                                                                                          overall_compression_ratio,
-                                                                                          input)
+        energy_consumption, output_temp, _ = \
+            Compressor.get_compressor_energy_consumption(field,
+                                                         self.prime_mover_type,
+                                                         self.eta_compressor,
+                                                         overall_compression_ratio,
+                                                         input)
 
         lifting_gas.tp.set(T=output_temp, P=discharge_press)
 
@@ -77,7 +78,5 @@ class GasLiftingCompressor(Process):
         self.set_import_from_energy(energy_use)
 
         # emissions
-        combustion_emission = self.compute_emission_combustion()
-        self.emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
-
+        self.set_combustion_emissions()
         self.emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)

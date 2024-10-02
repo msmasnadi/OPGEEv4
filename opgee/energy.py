@@ -72,7 +72,9 @@ class Energy(OpgeeObject):
         Get the rate of energy use for a single carrier
 
         :param carrier: (str) one of the defined energy carriers (values of Energy.carriers)
-        :return: (float) the rate of use for all energy sources in mmbtu/day (LHV), except for electricity, which is in mmbtu/day without LHV (no combustion to thermal energy), assuming 100% mechanical to thermal energy conversion.
+        :return: (float) the rate of use for all energy sources in mmbtu/day (LHV), except
+            for electricity, which is in mmbtu/day without LHV (no combustion to thermal
+            energy), assuming 100% mechanical to thermal energy conversion.
         """
         if carrier not in self._carrier_set:
             raise OpgeeException(f"Energy.set_rate: Unrecognized carrier '{carrier}'")
@@ -84,7 +86,9 @@ class Energy(OpgeeObject):
         Set the rate of energy use for a single carrier.
 
         :param carrier: (str) one of the defined energy carriers (values of Energy.carriers)
-        :param rate: (float) the rate of use for all energy sources in mmbtu/day (LHV), except for electricity, which is in mmbtu/day without LHV (no combustion to thermal energy), assuming 100% mechanical to thermal energy conversion.
+        :param rate: (float) the rate of use for all energy sources in mmbtu/day (LHV), except
+            for electricity, which is in mmbtu/day without LHV (no combustion to thermal
+            energy), assuming 100% mechanical to thermal energy conversion.
         :return: none
         """
         if carrier not in self._carrier_set:
@@ -107,7 +111,9 @@ class Energy(OpgeeObject):
         Add to the rate of energy use for a single carrier.
 
         :param carrier: (str) one of the defined energy carriers (values of Energy.carriers)
-        :param rate: (float) the increment  rate of use for all energy sources in mmbtu/day (LHV), except for electricity, which is in mmbtu/day without LHV (no combustion to thermal energy), assuming 100% mechanical to thermal energy conversion.
+        :param rate: (float) the increment  rate of use for all energy sources in mmbtu/day (LHV),
+            except for electricity, which is in mmbtu/day without LHV (no combustion to thermal
+            energy), assuming 100% mechanical to thermal energy conversion.
         :return: none
         """
         if carrier not in self._carrier_set:

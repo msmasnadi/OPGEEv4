@@ -7,10 +7,8 @@
 # See LICENSE.txt for license details.
 #
 from ..core import TemperaturePressure
-from ..emissions import EM_COMBUSTION
 from ..import_export import DILUENT
 from ..process import Process
-from ..processes.transport_energy import TransportEnergy
 from .shared import get_energy_carrier
 
 
@@ -128,6 +126,5 @@ class HeavyOilDilution(Process):
         self.set_import_from_energy(energy_use)
         import_product.set_export(self.name, DILUENT, diluent_energy_rate)
 
-        # emission
-        combustion_emission = self.compute_emission_combustion()
-        self.emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
+        # emissions
+        self.set_combustion_emissions()

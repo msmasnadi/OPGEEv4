@@ -8,7 +8,7 @@
 #
 from .compressor import Compressor
 from .shared import get_energy_carrier
-from ..emissions import EM_COMBUSTION, EM_FUGITIVES
+from ..emissions import EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
 
@@ -69,7 +69,5 @@ class PostStorageCompressor(Process):
         self.set_import_from_energy(energy_use)
 
         # emissions
-        combustion_emission = self.compute_emission_combustion()
-        self.emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
-
+        self.set_combustion_emissions()
         self.emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
