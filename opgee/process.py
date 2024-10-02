@@ -367,7 +367,7 @@ class Process(AttributeMixin, XmlInstantiable):
 
         :param category: (str) one of the defined emissions categories
         :param gas: (str) one of the defined emissions (values of Emissions.emissions)
-        :param rate: (float) the increment in rate in the Process' flow units (e.g., mmbtu (LHV) of fuel burned)
+        :param rate: (float) the increment in rate in the Process' flow units (e.g., mmbtu/day (LHV) of fuel burned) except for electricity, which is in mmbtu/day as well but without LHV (no combustion to thermal energy), assuming 100% mechanical to thermal energy conversion.
         :return: none
         """
         self.emissions.add_rate(category, gas, rate)
@@ -400,8 +400,7 @@ class Process(AttributeMixin, XmlInstantiable):
         Set the rate of energy use for a single carrier.
 
         :param carrier: (str) one of the defined energy carriers (values of Energy.carriers)
-        :param rate: (float) the rate of use (e.g., mmbtu/day (LHV) for all but electricity,
-            which is in units of kWh/day.
+        :param rate: (float)  the rate of use for all energy sources in mmbtu/day (LHV), except for electricity, which is in mmbtu/day as well but without LHV (no combustion to thermal energy), assuming 100% mechanical to thermal energy conversion.
         :return: none
         """
         self.energy.add_rate(carrier, rate)
