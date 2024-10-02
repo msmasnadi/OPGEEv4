@@ -658,7 +658,7 @@ class Field(Container):
         :return: (pint.Quantity) carbon intensity in units of g CO2e/MJ
         """
         onsite_energy = self.energy.rates().sum()
-        net_import_energy = self.get_net_imported_product()
+        net_import_energy = self.get_net_imported_product().sum()
         total_energy = ureg.Quantity(0,'mmBtu/day')
 
         # TODO: add option for displacement method

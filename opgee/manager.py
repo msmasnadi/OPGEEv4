@@ -454,6 +454,8 @@ def save_results(results, output_dir, batch_num=None):
                  "Unit": 'dimensionless'}
             if trial is not None:
                 d['trial'] = trial
+                print('done')
+            print(d)
             ei_rows.append(d)
 
     # Append batch number to filename if not None
@@ -468,7 +470,7 @@ def save_results(results, output_dir, batch_num=None):
     _to_csv(df, 'carbon_intensity', index=False)
 
     df = pd.DataFrame(data=ei_rows)
-    _to_csv(df, 'energy_intensity', index=False)
+    _to_csv(df, 'energy_intensity_1', index=False)
 
     if error_rows:
         df = pd.DataFrame(data=error_rows)
