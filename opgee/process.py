@@ -18,7 +18,7 @@ from .config import getParamAsBoolean
 from .container import Container
 from .core import OpgeeObject, XmlInstantiable, elt_name, instantiate_subelts, magnitude
 from .emissions import Emissions
-from .energy import Energy
+from .energy import EN_ELECTRICITY, Energy
 from .error import OpgeeException, AbstractMethodError, OpgeeIterationConverged, ModelValidationError
 from .import_export import ImportExport
 from .log import getLogger
@@ -367,7 +367,7 @@ class Process(AttributeMixin, XmlInstantiable):
 
         :param category: (str) one of the defined emissions categories
         :param gas: (str) one of the defined emissions (values of Emissions.emissions)
-        :param rate: (float) the increment in rate in the Process' flow units (e.g., mmbtu (LHV) of fuel burned)
+        :param rate: (float) the increment in rate in the Process' flow units (e.g., mmbtu/day (LHV) of fuel burned) except for electricity, which is in mmbtu/day as well but without LHV (no combustion to thermal energy), assuming 100% mechanical to thermal energy conversion.
         :return: none
         """
         self.emissions.add_rate(category, gas, rate)
@@ -394,14 +394,26 @@ class Process(AttributeMixin, XmlInstantiable):
             and the GHG value computed using the model's current GWP settings.
         """
         return self.emissions.rates(gwp=analysis.gwp)
+    
+    def compute_emission_combustion(self)->float:
+        """
+        Compute the total emissions from the combustion of all energy carriers,
+        excluding electricity.
+
+        :return: (float) the total combustion emissions calculated by multiplying
+                the energy used (excluding electricity) by the process emission
+                factor and summing the result.
+        """
+        energy_for_combustion = self.energy.data.drop(EN_ELECTRICITY)
+        combustion_emission : float = (energy_for_combustion * self.process_EF).sum()
+        return combustion_emission
 
     def add_energy_rate(self, carrier, rate):
         """
         Set the rate of energy use for a single carrier.
 
         :param carrier: (str) one of the defined energy carriers (values of Energy.carriers)
-        :param rate: (float) the rate of use (e.g., mmbtu/day (LHV) for all but electricity,
-            which is in units of kWh/day.
+        :param rate: (float)  the rate of use for all energy sources in mmbtu/day (LHV), except for electricity, which is in mmbtu/day as well but without LHV (no combustion to thermal energy), assuming 100% mechanical to thermal energy conversion.
         :return: none
         """
         self.energy.add_rate(carrier, rate)

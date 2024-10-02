@@ -77,9 +77,7 @@ class GasLiftingCompressor(Process):
         self.set_import_from_energy(energy_use)
 
         # emissions
-        emissions = self.emissions
-        energy_for_combustion = energy_use.data.drop("Electricity")
-        combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
+        combustion_emission = self.compute_emission_combustion()
+        self.emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
 
-        emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
+        self.emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)

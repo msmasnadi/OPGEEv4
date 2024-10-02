@@ -11,6 +11,7 @@ import pandas as pd
 from .. import ureg
 from ..core import STP, TemperaturePressure
 from ..emissions import EM_COMBUSTION, EM_FUGITIVES
+from ..energy import EN_ELECTRICITY
 from ..log import getLogger
 from ..process import Process
 from ..process import run_corr_eqns
@@ -223,15 +224,13 @@ class Demethanizer(Process):
         energy_carrier = get_energy_carrier(self.prime_mover_type)
         energy_use.set_rate(energy_carrier,
                             inlet_compressor_energy_consump + outlet_compressor_energy_consump + reboiler_fuel_use)
-        energy_use.set_rate("Electricity", cooler_energy_consumption)
+        energy_use.set_rate(EN_ELECTRICITY, cooler_energy_consumption)
 
         # import/export
         self.set_import_from_energy(energy_use)
 
         # emissions
-        emissions = self.emissions
-        energy_for_combustion = energy_use.data.drop("Electricity")
-        combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
+        combustion_emission = self.compute_emission_combustion()
+        self.emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
 
-        emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
+        self.emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
