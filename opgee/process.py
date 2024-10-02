@@ -18,7 +18,7 @@ from .config import getParamAsBoolean
 from .container import Container
 from .core import OpgeeObject, XmlInstantiable, elt_name, instantiate_subelts, magnitude
 from .emissions import Emissions
-from .energy import Energy
+from .energy import EN_ELECTRICITY, Energy
 from .error import OpgeeException, AbstractMethodError, OpgeeIterationConverged, ModelValidationError
 from .import_export import ImportExport
 from .log import getLogger
@@ -394,6 +394,19 @@ class Process(AttributeMixin, XmlInstantiable):
             and the GHG value computed using the model's current GWP settings.
         """
         return self.emissions.rates(gwp=analysis.gwp)
+    
+    def compute_emission_combustion(self)->float:
+        """
+        Compute the total emissions from the combustion of all energy carriers,
+        excluding electricity.
+
+        :return: (float) the total combustion emissions calculated by multiplying
+                the energy used (excluding electricity) by the process emission
+                factor and summing the result.
+        """
+        energy_for_combustion = self.energy.data.drop(EN_ELECTRICITY)
+        combustion_emission : float = (energy_for_combustion * self.process_EF).sum()
+        return combustion_emission
 
     def add_energy_rate(self, carrier, rate):
         """
