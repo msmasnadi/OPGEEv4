@@ -16,6 +16,15 @@ _logger = getLogger(__name__)
 class GasReinjectionWell(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "gas for gas reinjection well"        ]
+
+        self._required_outputs = [
+            "gas for reservoir",
+        ]
+
         self.gas_flooding = None
         self.natural_gas_reinjection = None
 

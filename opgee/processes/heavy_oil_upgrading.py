@@ -25,6 +25,18 @@ class HeavyOilUpgrading(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "oil for upgrading"
+        ]
+
+        self._required_outputs = [
+            "oil for storage",
+            "process gas",
+            "gas for flaring",
+            "petrocoke",
+        ]
+
         field = self.field
         self.water_density = self.water.density()
 

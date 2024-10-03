@@ -35,6 +35,15 @@ class CO2ReinjectionCompressor(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "gas for CO2 compressor",   # might be multiple
+        ]
+
+        self._required_outputs = [
+            "gas for CO2 injection well",
+        ]
+
         self.res_press = None
         self.eta_compressor = None
         self.prime_mover_type = None
@@ -68,11 +77,12 @@ class CO2ReinjectionCompressor(Process):
         input_streams = self.find_input_streams("gas for CO2 compressor")
         for _, input_stream in input_streams.items():
             overall_compression_ratio = discharge_press / input_stream.tp.P
-            energy_consumption, out_temp, _ = Compressor.get_compressor_energy_consumption(field,
-                                                                                       self.prime_mover_type,
-                                                                                       self.eta_compressor,
-                                                                                       overall_compression_ratio,
-                                                                                       input_stream)
+            energy_consumption, out_temp, _ = \
+                Compressor.get_compressor_energy_consumption(field,
+                                                             self.prime_mover_type,
+                                                             self.eta_compressor,
+                                                             overall_compression_ratio,
+                                                             input_stream)
             total_energy_consumption += energy_consumption
 
         # Set output stream and iteration value

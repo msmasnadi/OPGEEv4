@@ -36,6 +36,16 @@ class CrudeOilStabilization(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "oil for stabilization",
+        ]
+
+        self._required_outputs = [
+            "gas for gas gathering",
+            "oil for storage",
+        ]
+
         self.eps_stab = None
         self.eta_compressor = None
         self.eta_electricity = None

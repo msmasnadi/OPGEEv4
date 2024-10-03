@@ -20,6 +20,16 @@ class StorageWell(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "gas for well",
+        ]
+
+        self._required_outputs = [
+            "gas for separator",
+        ]
+
         self.cache_attributes()
 
     def cache_attributes(self):

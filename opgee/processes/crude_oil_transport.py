@@ -20,6 +20,15 @@ class CrudeOilTransport(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
+        self._required_inputs = [
+            "oil"
+        ]
+
+        self._required_outputs = [
+            "oil"
+        ]
+
+
         self.transport_share_fuel = self.model.transport_share_fuel.loc["Crude"]
         self.transport_parameter = self.model.transport_parameter[["Crude", "Units"]]
 
