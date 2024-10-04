@@ -190,7 +190,7 @@ class Stream(AttributeMixin, XmlInstantiable):
         self.has_exogenous_data = self.initialized = comp_matrix is not None
 
     def __str__(self):
-        return f"<Stream '{self.name}'>"
+        return f"<Stream '{self.name}' enabled={self.enabled}>"
 
     def to_dataframe(self):
         """
@@ -213,6 +213,7 @@ class Stream(AttributeMixin, XmlInstantiable):
 
         # Add extra bits that don't fit the original matrix format
         no_phase = ""
+
         columns = ["phase", "component", "value", "units"]
 
         items = [('electricity', self.electricity),
@@ -221,8 +222,6 @@ class Stream(AttributeMixin, XmlInstantiable):
                  ('API', self.API)]
 
         tuples = [(no_phase, name, value.m, str(value.units))
-                   # '' if value is None else value.m,
-                   # '' if value is None else str(value.units))
                     for name, value in items if value is not None and value.m != 0]
 
         extras = pd.DataFrame(data=tuples, columns=columns)
@@ -230,8 +229,10 @@ class Stream(AttributeMixin, XmlInstantiable):
 
         result['field'] = self.parent.name
         result['stream'] = self.name
+        result['source'] = self.src_name
+        result['destination'] = self.dst_name
 
-        col_order = ["field", "stream"] + columns
+        col_order = ["field", "stream", "source", "destination"] + columns
         return result[col_order]
 
     def children(self):
