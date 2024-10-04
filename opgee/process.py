@@ -280,6 +280,9 @@ class Process(AttributeMixin, XmlInstantiable):
         :return: none
         :raises ModelValidationError: if any required input or output streams are missing.
         """
+        if not self.enabled:
+            raise ModelValidationError(f"Trying to validate disabled process {self}")
+
         msgs = []
 
         for contents in self.required_inputs():

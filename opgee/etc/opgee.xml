@@ -54,15 +54,24 @@
 		<A name="well_diam">8.0</A>
 		<A name="frac_transport_rail">1</A>
 
-		<Process class="CrudeOilDewatering">
+		<!--
+		  Set attributes with correct nesting to Process declarations,
+		  i.e., withing Aggregator nodes, so the proper element is modified.
+		-->
+		<Aggregator name="ProductionExtraction">
+			<Process class="DownholePump">
+				<A name="eta_pump_well">50</A>
+			</Process>
+			<Process class="CrudeOilDewatering">
         <A name="heater_treater">0</A>
       </Process>
-		<Process class="DownholePump">
-			<A name="eta_pump_well">50</A>
-		</Process>
+		</Aggregator>
+
+		<Aggregator name="SurfaceProcessing">
       <Process class="HeavyOilDilution">
         <A name="fraction_diluent">0.0</A>
       </Process>
+		</Aggregator>
 	</Field>
 
 	<Field name="template">

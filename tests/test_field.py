@@ -7,6 +7,7 @@ from .test_processes import approx_equal
 
 model_xml_1 = """
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
+	<A name="skip_validation">1</A>
 
 	<Analysis name="test">
 	  <A name="functional_unit">oil</A>
@@ -30,6 +31,7 @@ model_xml_1 = """
 
 model_xml_2 = """
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
+	<A name="skip_validation">1</A>
 
 	<Analysis name="test">
 	  <A name="functional_unit">oil</A>

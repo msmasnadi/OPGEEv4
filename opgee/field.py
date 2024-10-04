@@ -1043,7 +1043,13 @@ class Field(Container):
         :return: none
         :raises ModelValidationError: raised if any validation condition is violated.
         """
-        super().validate()
+
+        # Allow test models to skip validation to avoid overly complicating all tests
+        if self.model.attr("skip_validation"):
+            _logger.warning(f"{self} skipping Process and Stream validation")
+        else:
+            for child in self.children():
+                child.validate()
 
         # Accumulate error msgs so user can correct them all at once.
         msgs = []
@@ -1599,6 +1605,24 @@ class Field(Container):
 
         return None
 
+    def print_process_list(self):
+        """
+        Debugging tool
+        """
+        p_dict = self.process_dict
+
+        for name in sorted(p_dict.keys()):
+            proc = p_dict[name]
+            print(f"\n{proc}")
+
+            print("  Inputs:")
+            for s in proc.inputs:
+                print(f"    {s} contains '{s.contents}'")
+
+            print("  Outputs:")
+            for s in proc.outputs:
+                print(f"    {s} contains '{s.contents}'")
+
     #
     # Smart Defaults and Distributions
     #
@@ -1799,3 +1823,4 @@ class Field(Container):
         return num_prod_wells * 0.25
 
     # TODO: decide how to handle "associated gas defaults", which is just global vs CA-LCFS values currently
+
