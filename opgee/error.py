@@ -32,7 +32,7 @@ class AbstractMethodError(OpgeeException):
         self.method = method
 
     def __str__(self):
-        return f"Abstract method {self.method} was called. A subclass of {self.cls.__name__} must implement this method."
+        return f"Abstract method {self.method} was called. Subclass {self.cls.__name__} must implement this method."
 
 
 class AttributeError(OpgeeException):

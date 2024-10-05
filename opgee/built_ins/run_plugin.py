@@ -102,6 +102,16 @@ class RunCommand(SubcommandABC):
         )
 
         parser.add_argument(
+            "-g",
+            "--post-plugin",
+            metavar="PATH",
+            action="append",
+            help="""Loads the post-processing plugin from the given path. The file
+                    must contain a single, valid subclass of ``opgee.post_process.PostProcess``.
+                    This arg can be specified multiple times to load multiple post-processing
+                    classes. They will be invoked in the order given on the command-line.""")
+
+        parser.add_argument(
             "-i",
             "--ignore-errors",
             action="store_true",
@@ -338,6 +348,11 @@ class RunCommand(SubcommandABC):
             packets = FieldPacket.packetize(
                 model_xml_file, analysis_name, field_names, packet_size
             )
+
+        # Load any (optional) post-processing plugins
+        for path in args.post_plugin:
+            from ..post_processor import PostProcessor
+            PostProcessor.load_plugin(path)
 
         results_list = []
         save_batches = batch_size is not None
