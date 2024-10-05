@@ -17,8 +17,8 @@ from .combine_streams import combine_streams
 from .config import getParamAsBoolean
 from .container import Container
 from .core import OpgeeObject, XmlInstantiable, elt_name, instantiate_subelts, magnitude
-from .emissions import Emissions
-from .energy import Energy
+from .emissions import Emissions, EM_COMBUSTION
+from .energy import EN_ELECTRICITY, Energy
 from .error import OpgeeException, AbstractMethodError, OpgeeIterationConverged, ModelValidationError
 from .import_export import ImportExport
 from .log import getLogger
@@ -144,21 +144,22 @@ def run_corr_eqns(x1, x2, x3, x4, x5, coef_df):
 
 class Process(AttributeMixin, XmlInstantiable):
     """
-    The "leaf" node in the container/process hierarchy. ``Process`` is an abstract superclass: actual runnable Process
-    instances must be of subclasses of ``Process``, defined either in `opgee/processes/*.py` or in the user's files,
-    provided in the configuration file in the variable ``OPGEE.ClassPath``.
+    The "leaf" node in the container/process hierarchy. ``Process`` is an abstract superclass: actual
+    runnable Process instances must be of subclasses of ``Process``, defined either in `opgee/processes/*.py`
+    or in the user's files, provided in the configuration file in the variable ``OPGEE.ClassPath``.
 
     Each Process subclass must implement the ``run`` and ``bypass`` methods, described below.
 
     If a model contains process loops (cycles), one or more of the processes can call the method
-    ``set_iteration_value()`` to store the value(s) of a designated variable(s) to be checked on each call to see
-    if the change from the prior iteration is <= the value of Model attribute "maximum_change". If so,
+    ``set_iteration_value()`` to store the value(s) of a designated variable(s) to be checked on each call
+    to see if the change from the prior iteration is <= the value of Model attribute "maximum_change". If so,
     an ``OpgeeIterationConverged`` exception is raised to terminate the run.
 
-    In addition to testing for convergence, a "visit" counter in each ``Process`` is incremented each time the process
-    is run (or bypassed) and if the count >= the Model's "maximum_iterations" attribute, ``OpgeeMaxIterationsReached``
-    is likewise raised. Whichever limit is reached first will cause iterations to stop. Between model runs, the method
-    ``field.reset()`` is called for all processes to clear the visited counters and reset the iteration value to ``None``.
+    In addition to testing for convergence, a "visit" counter in each ``Process`` is incremented each time
+    the process is run (or bypassed) and if the count >= the Model's "maximum_iterations" attribute,
+    ``OpgeeMaxIterationsReached`` is likewise raised. Whichever limit is reached first will cause iterations
+    to stop. Between model runs, the method ``field.reset()`` is called for all processes to clear the visited
+    counters and reset the iteration value to ``None``.
 
     See also :doc:`OPGEE XML documentation <opgee-xml>`
     """
@@ -367,7 +368,10 @@ class Process(AttributeMixin, XmlInstantiable):
 
         :param category: (str) one of the defined emissions categories
         :param gas: (str) one of the defined emissions (values of Emissions.emissions)
-        :param rate: (float) the increment in rate in the Process' flow units (e.g., mmbtu (LHV) of fuel burned)
+        :param rate: (float) the increment in rate in the Process' flow units (e.g., mmbtu/day
+            (LHV) of fuel burned) except for electricity, which is in mmbtu/day as well but
+            without LHV (no combustion to thermal energy), assuming 100% mechanical to thermal
+            energy conversion.
         :return: none
         """
         self.emissions.add_rate(category, gas, rate)
@@ -395,13 +399,32 @@ class Process(AttributeMixin, XmlInstantiable):
         """
         return self.emissions.rates(gwp=analysis.gwp)
 
+    def compute_emission_combustion(self) -> pint.Quantity:
+        """
+        Compute the total emissions from the combustion of all energy carriers,
+        excluding electricity.
+
+        :return: (float) the total combustion emissions calculated by multiplying
+                the energy used (excluding electricity) by the process emission
+                factor and summing the result.
+        """
+        energy_for_combustion = self.energy.data.drop(EN_ELECTRICITY)
+        combustion_emission = (energy_for_combustion * self.process_EF).sum()
+        return combustion_emission
+
+    def set_combustion_emissions(self):
+        emissions = self.compute_emission_combustion()
+        self.emissions.set_rate(EM_COMBUSTION, "CO2", emissions)
+
+
     def add_energy_rate(self, carrier, rate):
         """
         Set the rate of energy use for a single carrier.
 
         :param carrier: (str) one of the defined energy carriers (values of Energy.carriers)
-        :param rate: (float) the rate of use (e.g., mmbtu/day (LHV) for all but electricity,
-            which is in units of kWh/day.
+        :param rate: (float)  the rate of use for all energy sources in mmbtu/day (LHV), except
+            for electricity, which is in mmbtu/day as well but without LHV (no combustion to
+            thermal energy), assuming 100% mechanical to thermal energy conversion.
         :return: none
         """
         self.energy.add_rate(carrier, rate)
@@ -463,11 +486,12 @@ class Process(AttributeMixin, XmlInstantiable):
             A Quantity object representing the compressor and well loss rate for the given inlet stream.
 
 
-        This function calculates the compressor and well loss rate for a given inlet stream based on the properties of
-        the gas field and the loss matrix average data. The compressor and well loss rate is calculated based on the
-        volume flow rate of gas at STP for each injection well, and the corresponding loss rate values from the loss matrix
-        average data. If the system contains a compressor, the compressor loss rate is returned, otherwise the well loss
-        rate is returned. The result is returned as a Quantity object with units of "frac".
+        This function calculates the compressor and well loss rate for a given inlet stream based on
+        the properties of the gas field and the loss matrix average data. The compressor and well loss
+        rate is calculated based on the volume flow rate of gas at STP for each injection well, and the
+        corresponding loss rate values from the loss matrix average data. If the system contains a
+        compressor, the compressor loss rate is returned, otherwise the well loss rate is returned. The
+        result is returned as a Quantity object with units of "frac".
         """
 
         if inlet_stream.total_flow_rate() == 0:
@@ -750,7 +774,7 @@ class Process(AttributeMixin, XmlInstantiable):
         :param analysis: (Analysis) the `Analysis` used to retrieve global settings
         :return: None
         """
-        raise AbstractMethodError(Process, 'Process.run')
+        raise AbstractMethodError(self.__class__, 'Process.run')
 
     # TODO: implement mass balance check
     def check_balances(self):
@@ -838,9 +862,9 @@ class Process(AttributeMixin, XmlInstantiable):
         For user-defined processes not listed in the process_EF table, the Process
         subclass must implement this method to override the lookup.
 
-        :return: (float) a pandas series of emission factor
-           for natural gas, upgrader proc.gas, NGL, diesel, residual fuel, pet.coke
-           (unit = gGHG/mmBtu)
+        :return: (pandas.Series) a series of emission factors for natural gas,
+            upgrader proc.gas, NGL, diesel, residual fuel, pet.coke in units of
+            g CO2e / mmBtu.
         """
         process_EF_df = self.model.process_EF_df
 
@@ -950,7 +974,8 @@ class Boundary(Process):
                         break
                     contents = in_stream.contents
                     if len(contents) != 1:
-                        raise ModelValidationError(f"Streams to and from boundaries must have only a single Content declaration; {self} inputs are {contents}")
+                        raise ModelValidationError(f"Streams to and from boundaries must have only a "
+                                                   f"single Content declaration; {self} inputs are {contents}")
 
                     # If not exactly one stream that declares the same contents, raises error
                     out_stream = self.find_output_stream(contents[0], raiseError=False)
