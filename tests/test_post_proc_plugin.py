@@ -83,7 +83,7 @@ def test_cmd_line_post_proc(opgee_main):
             '--no-default-model',
             '--cluster-type=serial',
             '--output-dir', output_dir,
-            '--post-plugin', plugin_path,
+            '--post-proc-plugin', plugin_path,
         ]
         print("opg ", ' '.join(args))
 
@@ -95,3 +95,58 @@ def test_cmd_line_post_proc(opgee_main):
 
         csv_file = os.path.join(output_dir, 'simple_post_processor.csv')
         assert os.path.exists(csv_file)
+
+def test_auto_loading(opgee_main):
+    from opgee.config import setParam
+    PostProcessor.decache()
+
+    setParam('OPGEE.PostProcPluginPath', path_to_test_file('post-proc-plugins'))
+
+    xml_path = path_to_test_file('test_run_subcmd.xml')
+
+    with tempdir() as output_dir:
+        args = [
+            'run',
+            '-m', xml_path,
+            '-a', 'test',
+            '--no-default-model',
+            '--cluster-type=serial',
+            '--output-dir', output_dir,
+        ]
+        print("opg ", ' '.join(args))
+
+        opgee_main.run(None, args)
+
+        inst = PostProcessor.instances
+        assert len(inst) == 2
+        assert inst[0].__class__.__name__ == 'PostProcessor_1'
+        assert inst[1].__class__.__name__ == 'PostProcessor_2'
+
+        for i in (1, 2):
+            csv_file = os.path.join(output_dir, f'auto_loaded_post_proc_{i}.csv')
+            assert os.path.exists(csv_file)
+
+def test_no_auto_loading(opgee_main):
+    from opgee.config import setParam
+    PostProcessor.decache()
+
+    setParam('OPGEE.PostProcPluginPath', path_to_test_file('post-proc-plugins'))
+
+    xml_path = path_to_test_file('test_run_subcmd.xml')
+
+    with tempdir() as output_dir:
+        args = [
+            'run',
+            '-m', xml_path,
+            '-a', 'test',
+            '--no-default-model',
+            '--cluster-type=serial',
+            '--output-dir', output_dir,
+            '--no-post-proc-plugin-path'
+        ]
+        print("opg ", ' '.join(args))
+
+        opgee_main.run(None, args)
+
+        inst = PostProcessor.instances
+        assert len(inst) == 0

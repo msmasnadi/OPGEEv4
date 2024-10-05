@@ -5,6 +5,9 @@
 # Copyright (c) 2024 the author and RMI
 # See the https://opensource.org/licenses/MIT for license details.
 #
+import glob
+import os
+from .config import getParam
 from .core import OpgeeObject
 from .error import AbstractMethodError, McsUserError
 
@@ -93,6 +96,35 @@ class PostProcessor(OpgeeObject):
                 return instance
 
         raise McsUserError(f"No subclass of PostProcessor found in module '{path}'")
+
+    @staticmethod
+    def _getPluginDirs():
+        pluginPath = getParam('OPGEE.PostProcPluginPath')
+        if not pluginPath:
+            return []
+
+        sep = os.path.pathsep  # ';' on Windows, ':' on Unix
+        items = pluginPath.split(sep)
+
+        return items
+
+    @classmethod
+    def load_all_plugins(cls):
+        """
+        Load all plugins found in the directory path specified by ``OPGEE.PostProcPluginPath``.
+        The path is a semicolon-delimited (on Windows) or colon-delimited (on Unix) string
+        of directories from which to load files. Files are loaded in alphabetical order from
+        each directory in the order the directories are specified in the path.
+
+        :return: nothing
+        """
+        if not (dirs := cls._getPluginDirs()):
+            return
+
+        for dir in dirs:
+            files = sorted(glob.glob(os.path.join(dir, '*.py')))
+            for file in files:
+                cls.load_plugin(file)
 
     @classmethod
     def run_post_processors(cls, analysis, field, result):
