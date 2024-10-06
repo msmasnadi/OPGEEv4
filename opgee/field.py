@@ -691,23 +691,23 @@ class Field(Container):
 
     def energy_and_emissions(self, analysis):
         import pandas as pd
+
         def process_data(proc_dict, column_name):
             data = pd.Series(proc_dict).apply(lambda x: x.m)
+            df = pd.DataFrame(data, columns=[column_name])
 
-            # TODO: Extracts units from first element in the dict, which
-            #  assumes all elements have the same units.
+            # Add a 'units' columns using the units from the first element
+            # in the dict. N.B. We assume all elements have the same units.
             unit = next(iter(proc_dict.values())).u
+            df['unit'] = unit
 
-            # TODO: embedding units in the column name makes it difficult to use
-            #  the units programmatically.
-            df = pd.DataFrame(data, columns=[f'{column_name} ({unit})'])
             df.index.rename('process', inplace=True)
             return df
 
         gwp = analysis.gwp
         procs = self.processes()
 
-        # Energy data processing
+        # Energy use data processing
         energy_by_proc = {proc.name: proc.energy.rates().sum() for proc in procs}
         energy_data = process_data(energy_by_proc, self.name)
 
@@ -721,8 +721,6 @@ class Field(Container):
         #  So basically, adding a column to each Emissions dataframe with the name of the
         #  process, then concatenating them into a dataframe.
         def gas_df_with_name(proc):
-            from copy import copy
-
             df = proc.emissions.data.reset_index().rename(columns={"index": "gas"})
             cols = ['field', 'process'] + list(df.columns)
             df['field'] = self.name
@@ -745,11 +743,8 @@ class Field(Container):
         :param trial_num: (int) trial number, if running in MCS mode
         :return: (FieldResult) results
         """
-        energy_data, ghg_data, gas_data = (
-            self.energy_and_emissions(analysis)
-            if result_type == DETAILED_RESULT
-            else (None, None, None)
-        )
+        energy_data, ghg_data, gas_data = self.energy_and_emissions(analysis) \
+            if result_type == DETAILED_RESULT else (None, None, None)
 
         nodes = self.processes() if DETAILED_RESULT else self.children()
         ci_tuples = self.partial_ci_values(analysis, nodes)

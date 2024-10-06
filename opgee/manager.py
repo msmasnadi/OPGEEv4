@@ -452,6 +452,7 @@ def save_results(results, output_dir, batch_num=None):
                 result.streams['trial'] = trial
                 result.gases['trial'] = trial
                 result.emissions['trial'] = trial
+                result.energy['trial'] = trial      # energy consumption
 
             energy_cols.append(result.energy)
             emission_cols.append(result.emissions)
@@ -471,42 +472,63 @@ def save_results(results, output_dir, batch_num=None):
     # Append batch number to filename if not None
     batch = '' if batch_num is None else f"_{batch_num}"
 
-    def _to_csv(df, file_prefix, **kwargs):
+    def _to_csv(df, file_prefix):
         pathname = pathjoin(output_dir, f"{file_prefix}{batch}.csv")
         _logger.info(f"Writing '{pathname}'")
-        df.to_csv(pathname, **kwargs)
+        df.to_csv(pathname, index=False)
 
     df = pd.DataFrame(data=ci_rows)
-    _to_csv(df, 'carbon_intensity', index=False)
+    _to_csv(df, 'carbon_intensity')
 
     if error_rows:
         df = pd.DataFrame(data=error_rows)
-        _to_csv(df, 'errors', index=False)
+        _to_csv(df, 'errors')
 
-    def _save_cols(columns, file_prefix):
-        df = pd.concat(columns, axis="columns")
-        df.index.name = "process"
-        df.sort_index(axis="rows", inplace=True)
+    def _save_dfs(dfs, file_prefix):
+        # Column name is field name, but we change this to 'value'
+        # and we add a column with the field name.
+
+        def _reformat(df):
+            df = df.sort_index(axis="rows").reset_index()
+
+            id_vars = ['process', 'unit']
+            if 'trial' in df.columns:
+                id_vars.append('trial')
+
+            df = df.melt(value_name='value', var_name='field', id_vars=id_vars)
+            return df
+
+        dfs = [_reformat(df) for df in dfs]
+
+        # concatenate the dataframes vertically
+        df = pd.concat(dfs, axis="rows")
+
+        # reordering the columns
+        col_order = ['field', 'process', 'value', 'unit']
+        if 'trial' in df.columns:
+            col_order.insert(0, 'trial')
+
+        df = df[col_order]
         _to_csv(df, file_prefix)
 
     # These aren't saved for SIMPLE_RESULTS
     if energy_cols:
-        _save_cols(energy_cols, "energy_use")
+        _save_dfs(energy_cols, "energy_use")
 
     if energy_output_rows:
         df = pd.DataFrame(data=energy_output_rows)
-        _to_csv(df, "energy_output", index=False)
+        _to_csv(df, "energy_output")
 
     if emission_cols:
-        _save_cols(emission_cols, "emissions")
+        _save_dfs(emission_cols, "emissions")
 
     if gas_dfs:
         df = pd.concat(gas_dfs, axis="rows")
-        _to_csv(df, "gases", index=False)
+        _to_csv(df, "gases")
 
     if stream_dfs:
         df = pd.concat(stream_dfs, axis="rows")
-        _to_csv(df, "streams", index=False)
+        _to_csv(df, "streams")
 
     # Save any results captured by optional post-processor plugins
     PostProcessor.save_post_processor_results(output_dir)
