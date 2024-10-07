@@ -466,8 +466,6 @@ def save_results(results, output_dir, batch_num=None):
                  "Unit": 'dimensionless'}
             if trial is not None:
                 d['trial'] = trial
-                print('done')
-            print(d)
             ei_rows.append(d)
 
     # Append batch number to filename if not None

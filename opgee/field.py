@@ -76,9 +76,9 @@ class FieldResult:
         self.ci_results = ci_results  # list of tuples of (node_name, CI)
         self.ei_results = ei_results
         self.energy = energy_data
-        self.natural_gas_data = natural_gas_data
+        self.natural_gas = natural_gas_data
         self.upg_proc_gas = upg_proc_gas_data
-        self.ngl_data = ngl_data
+        self.ngl = ngl_data
         self.crude_oil = crude_oil_data
         self.diesel = diesel_data
         self.residual_fuel = residual_fuel_data
@@ -670,7 +670,7 @@ class Field(Container):
         :return: (pint.Quantity) carbon intensity in units of g CO2e/MJ
         """
         onsite_energy = self.energy.rates().sum()
-        net_import_energy = self.get_net_imported_product().sum()
+        net_import_energy = self.get_net_imported_product()
         total_energy = ureg.Quantity(0,'mmBtu/day')
 
         # TODO: add option for displacement method
@@ -791,35 +791,35 @@ class Field(Container):
         energy_data = process_data(energy_by_proc, self.name)
 
         # Natural gas data processing
-        natural_gas_by_proc = {proc.name: proc.energy.rates(EN_NATURAL_GAS) for proc in procs}
+        natural_gas_by_proc = {proc.name: proc.energy.rates()[EN_NATURAL_GAS] for proc in procs}
         natural_gas_data = process_data(natural_gas_by_proc, self.name)
 
         # Upgrader Proc. Gas data processing
-        upg_proc_gas_by_proc = {proc.name: proc.energy.rates(EN_UPG_PROC_GAS) for proc in procs}
+        upg_proc_gas_by_proc = {proc.name: proc.energy.rates()[EN_UPG_PROC_GAS] for proc in procs}
         upg_proc_gas_data = process_data(upg_proc_gas_by_proc, self.name)
 
         # NGL data processing
-        ngl_by_proc = {proc.name: proc.energy.rates(EN_NGL) for proc in procs}
+        ngl_by_proc = {proc.name: proc.energy.rates()[EN_NGL] for proc in procs}
         ngl_data = process_data(ngl_by_proc, self.name)
 
         # Crude Oil data processing
-        crude_oil_by_proc = {proc.name: proc.energy.rates(EN_CRUDE_OIL) for proc in procs}
+        crude_oil_by_proc = {proc.name: proc.energy.rates()[EN_CRUDE_OIL] for proc in procs}
         crude_oil_data = process_data(crude_oil_by_proc, self.name)
 
         # Diesel data processing
-        diesel_by_proc = {proc.name: proc.energy.rates(EN_DIESEL) for proc in procs}
+        diesel_by_proc = {proc.name: proc.energy.rates()[EN_DIESEL] for proc in procs}
         diesel_data = process_data(diesel_by_proc, self.name)
 
         # Residual Fuel data processing
-        residual_fuel_by_proc = {proc.name: proc.energy.rates(EN_RESID) for proc in procs}
+        residual_fuel_by_proc = {proc.name: proc.energy.rates()[EN_RESID] for proc in procs}
         residual_fuel_data = process_data(residual_fuel_by_proc, self.name)
 
         # Petrocoke data processing
-        petcoke_by_proc = {proc.name: proc.energy.rates(EN_PETCOKE) for proc in procs}
+        petcoke_by_proc = {proc.name: proc.energy.rates()[EN_PETCOKE] for proc in procs}
         petcoke_data = process_data(petcoke_by_proc, self.name)
         
         # Electricity data processing
-        electricity_by_proc = {proc.name: proc.energy.rates(EN_ELECTRICITY) for proc in procs}
+        electricity_by_proc = {proc.name: proc.energy.rates()[EN_ELECTRICITY] for proc in procs}
         electricity_data = process_data(electricity_by_proc, self.name)
 
         # GHG data processing
