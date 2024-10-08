@@ -11,7 +11,7 @@ import time
 import datetime
 
 from . import ureg
-from .error import OpgeeException, AbstractMethodError
+from .error import OpgeeException, AbstractMethodError, ModelValidationError
 from .log import getLogger
 from .utils import coercible, getBooleanXML
 
@@ -157,6 +157,22 @@ class XmlInstantiable(OpgeeObject):
         name_str = f' name="{self.name}"' if self.name else ''
         return f'<{type_str}{name_str} enabled={self.enabled}>'
 
+    def print_in_context(self):
+        """
+        Print the object along with its parents, to provide context.
+
+        :return: none
+        """
+        obj = self
+        seq = [obj]
+        while ((obj := obj.parent) is not None):
+            seq.insert(0, obj)
+
+        indent = 0
+        for obj in seq:
+            print("  " * indent, obj)
+            indent += 1
+
     def is_enabled(self):
         return self.enabled
 
@@ -166,7 +182,7 @@ class XmlInstantiable(OpgeeObject):
     def adopt(self, objs, asDict=False):
         """
         Set the `parent` of each object to self. This is used to create back pointers
-        up the hieararchy so Processes and Streams can find their Field and Analysis
+        up the hierarchy so Processes and Streams can find their Field and Analysis
         containers. Return the objects either as a list or dict.
 
         :param objs: (None or list of XmlInstantiable)
@@ -176,11 +192,17 @@ class XmlInstantiable(OpgeeObject):
             otherwise return the objs either in a list or dict.
         """
         objs = [] if objs is None else objs
+        dct = {}
 
         for obj in objs:
+            if (existing := dct.get(obj.name)):
+                obj.print_in_context()
+                existing.print_in_context()
+                raise ModelValidationError(f"Tried to adopt {obj} which is a duplicate of {existing}.")
+            dct[obj.name] = obj
             obj.set_parent(self)
 
-        return {obj.name: obj for obj in objs} if asDict else objs
+        return dct if asDict else objs
 
     def find_container(self, cls):
         """

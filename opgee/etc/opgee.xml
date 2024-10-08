@@ -56,7 +56,7 @@
 
 		<!--
 		  Set attributes with correct nesting to Process declarations,
-		  i.e., withing Aggregator nodes, so the proper element is modified.
+		  so model / template merger works properly.
 		-->
 		<Aggregator name="ProductionExtraction">
 			<Process class="DownholePump">

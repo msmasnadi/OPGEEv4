@@ -12,16 +12,9 @@ import pandas as pd
 
 from . import ureg
 from .config import getParamAsList
-from .constants import (
-    SIMPLE_RESULT,
-    DETAILED_RESULT,
-    ERROR_RESULT,
-    DEFAULT_RESULT_TYPE,
-    USER_RESULT_TYPES,
-    ALL_RESULT_TYPES,
-)
+from .constants import DETAILED_RESULT
 from .container import Container
-from .core import elt_name, instantiate_subelts, dict_from_list, STP, magnitude
+from .core import elt_name, instantiate_subelts, dict_from_list, STP
 from .energy import Energy
 from .error import (
     OpgeeException,
@@ -316,9 +309,7 @@ class Field(Container):
             super()._children()
         )  # + self.streams() # Adding this caused several errors...
 
-    def add_children(
-            self, aggs=None, procs=None, streams=None, process_choice_dict=None
-    ):
+    def add_children(self, aggs=None, procs=None, streams=None, process_choice_dict=None):
         # Note that `procs` include only Processes defined at the top-level of the field.
         # Other Processes maybe defined within the Aggregators in `aggs`.
         super().add_children(aggs=aggs, procs=procs)
@@ -334,7 +325,7 @@ class Field(Container):
         known_boundaries = self.known_boundaries
 
         # Remember streams that declare themselves as system boundaries. Keys must be one of the
-        # values in the tuples in the _known_boundaries dictionary above. s
+        # values in the tuples in the _known_boundaries dictionary above.
         boundary_dict = self.boundary_dict
 
         # Save references to boundary processes by name; fail if duplicate definitions are found.
@@ -364,10 +355,8 @@ class Field(Container):
 
         self.check_attr_constraints(self.attr_dict)
 
-        (
-            self.component_fugitive_table,
-            self.loss_mat_gas_ave_df,
-        ) = self.get_component_fugitive()
+        self.component_fugitive_table, self.loss_mat_gas_ave_df = \
+            self.get_component_fugitive()
 
         self.finalize_process_graph()
 
@@ -1464,10 +1453,10 @@ class Field(Container):
                 else:
                     _collect(process_list, child)
 
-        processes = (
-            self.builtin_procs.copy()
-        )  # copy since we're appending to this list recursively
+        # use a copy since we append to this list recursively
+        processes = self.builtin_procs.copy()
         _collect(processes, self)
+
         return processes
 
     def save_process_data(self, **kwargs):
@@ -1529,9 +1518,8 @@ class Field(Container):
             for group_name, group in choice.groups_dict.items():
                 procs, streams = group.processes_and_streams(self)
 
-                if (
-                        group_name == selected_group_name
-                ):  # remember the ones to turn back on
+                # remember the ones to enable
+                if (group_name == selected_group_name):
                     to_enable.extend(procs)
                     to_enable.extend(streams)
 

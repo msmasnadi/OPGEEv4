@@ -236,7 +236,7 @@ class Process(AttributeMixin, XmlInstantiable):
         else:
             name_str = f' name="{self.name}"' if self.name else ''
 
-        return f'<{type_str}{name_str} enabled={self.enabled}>'
+        return f'<{type_str}{name_str} enabled={self.enabled} @{id(self)}>'
 
     @classmethod
     def clear_iterating_process_list(cls):
