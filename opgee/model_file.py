@@ -406,6 +406,12 @@ class ModelFile(XMLFile):
         if instantiate_model:
             build_timer = Timer('ModelFile build model')
             _logger.debug(build_timer)
+
+            # TODO: debugging support
+            # outfile = '/tmp/merged-model.xml'
+            # print(f"Writing model to '{outfile}'")
+            # save_xml(outfile, base_root, overwrite=True)
+
             self.model = model = Model.from_xml(base_root, analysis_names=analysis_names,
                                                 field_names=field_names)
             _logger.debug(build_timer.stop())

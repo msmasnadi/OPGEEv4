@@ -67,7 +67,8 @@ def import_fields(csv_path, xml_path, analysis_name, count=0, skip_fields=None,
     from ..xml_utils import attr_to_xml
 
     fields, dtypes = read_fields(csv_path,
-                                 from_package=from_package, skip_fields=skip_fields)
+                                 from_package=from_package,
+                                 skip_fields=skip_fields)
 
     if count:
         fields = fields[fields.columns[:count]]

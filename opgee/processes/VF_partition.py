@@ -20,6 +20,18 @@ class VFPartition(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "gas for partition",
+        ]
+
+        self._required_outputs = [
+            "gas for flaring",
+            "methane slip",
+            "gas for venting",
+        ]
+
         self.mol_per_scf = self.field.model.const("mol-per-scf")
 
         self.FOR = None

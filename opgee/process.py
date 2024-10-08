@@ -236,7 +236,7 @@ class Process(AttributeMixin, XmlInstantiable):
         else:
             name_str = f' name="{self.name}"' if self.name else ''
 
-        return f'<{type_str}{name_str} enabled={self.enabled}>'
+        return f'<{type_str}{name_str} enabled={self.enabled} @{id(self)}>'
 
     @classmethod
     def clear_iterating_process_list(cls):
@@ -280,6 +280,9 @@ class Process(AttributeMixin, XmlInstantiable):
         :return: none
         :raises ModelValidationError: if any required input or output streams are missing.
         """
+        if not self.enabled:
+            raise ModelValidationError(f"Trying to validate disabled process {self}")
+
         msgs = []
 
         for contents in self.required_inputs():
@@ -304,7 +307,7 @@ class Process(AttributeMixin, XmlInstantiable):
                 msgs.append(f"{self} is missing a required output stream containing '{contents}'")
 
         if msgs:
-            msg = '\n'.join(msgs)
+            msg = f"Field {self.field}:\n" + '\n'.join(msgs)
             raise ModelValidationError(msg)
 
     def reset(self):

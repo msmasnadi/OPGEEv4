@@ -45,6 +45,17 @@ class CrudeOilStorage(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "oil for storage",
+        ]
+
+        self._required_outputs = [
+            "gas for partition",
+            "gas for VRU",
+            "oil",
+        ]
+
         self.CH4_comp = None
         self.f_FG_CS_FL = None
         self.f_FG_CS_VRU = None

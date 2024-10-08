@@ -36,11 +36,24 @@ class CrudeOilDewatering(Process):
         super().__init__(name, **kwargs)
 
         self.oil_path = self.field.oil_path
+
+        # TODO: avoid process names in contents. Can all the subsequent processes just
+        #  look for "crude oil"? Then we'd have a single output stream.
         self.oil_path_dict = {"Stabilization": "oil for stabilization",
                               "Storage": "oil for storage",
                               "Upgrading": "oil for upgrading",
                               "Dilution": "oil for dilution",
                               "Dilution and Upgrading": "oil for dilution"}
+
+        self._required_inputs = [
+            "crude oil",
+        ]
+
+        self._required_outputs = [
+            "water",
+            self.oil_path_dict[self.field.oil_path]
+        ]
+
         self.eta_electricity = None
         self.eta_gas = None
         self.heat_loss = None

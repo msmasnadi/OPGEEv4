@@ -141,6 +141,10 @@ class Model(Container):
         except KeyError:
             raise OpgeeException(f"No known constant with name '{name}'")
 
+    def validate(self):
+        for child in self.children():
+            child.validate()
+
     def _children(self, include_disabled=False):
         """
         Return a list of all children objects. External callers should use children()

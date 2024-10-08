@@ -31,6 +31,11 @@ class Container(AttributeMixin, XmlInstantiable):
         self.energy = Energy()
         self.import_export = ImportExport()
 
+        # N.B. These are the Process and Container instances directly inside
+        # the present Container, not including those held by sub-Containers.
+        self.procs = None
+        self.aggs = None
+
     def add_children(self, aggs=None, procs=None, **kwargs):
         self.aggs  = self.adopt(aggs)
         self.procs = self.adopt(procs)

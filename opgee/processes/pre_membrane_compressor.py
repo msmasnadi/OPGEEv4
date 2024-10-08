@@ -19,6 +19,16 @@ _logger = getLogger(__name__)
 class PreMembraneCompressor(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "gas for compressor",
+        ]
+
+        self._required_outputs = [
+            "gas for CO2 membrane",
+        ]
+
         self.discharge_press = None
         self.eta_compressor = None
         self.prime_mover_type = None

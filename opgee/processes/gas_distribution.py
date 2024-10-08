@@ -20,6 +20,16 @@ class GasDistribution(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "gas for distribution"
+        ]
+
+        self._required_outputs = [
+            "gas",
+        ]
+
         self.cache_attributes()
 
     def cache_attributes(self):

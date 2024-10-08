@@ -36,6 +36,14 @@ class WaterInjection(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "water for water injection",
+        ]
+
+        self._required_outputs = []
+
         self.gravitation_acc = self.model.const("gravitational-acceleration")
         self.gravitation_const = self.model.const("gravitational-constant")
         self.water_density = self.water.density()

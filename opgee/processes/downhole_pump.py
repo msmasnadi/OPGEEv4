@@ -64,6 +64,16 @@ class DownholePump(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        self._required_inputs = [
+            "crude oil",
+            # "lifting gas", # optional input stream
+        ]
+
+        self._required_outputs = [
+            "crude oil",
+        ]
+
         self.gravitational_acceleration = self.field.model.const("gravitational-acceleration")
 
         self.depth = None
