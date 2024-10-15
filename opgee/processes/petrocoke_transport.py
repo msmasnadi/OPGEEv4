@@ -6,7 +6,6 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-from ..emissions import EM_COMBUSTION
 from ..import_export import NGL_LPG
 from ..log import getLogger
 from ..process import Process
@@ -51,12 +50,13 @@ class PetrocokeTransport(Process):
 
         # energy use
         energy_use = self.energy
-        fuel_consumption = field.transport_energy.get_transport_energy_dict(self.field,
-                                                                            self.transport_parameter,
-                                                                            self.transport_share_fuel,
-                                                                            self.transport_by_mode,
-                                                                            petrocoke_LHV_rate,
-                                                                            "Petrocoke")
+        fuel_consumption = \
+            field.transport_energy.get_transport_energy_dict(self.field,
+                                                             self.transport_parameter,
+                                                             self.transport_share_fuel,
+                                                             self.transport_by_mode,
+                                                             petrocoke_LHV_rate,
+                                                             "Petrocoke")
 
         for name, value in fuel_consumption.items():
             energy_use.set_rate(get_energy_carrier(name), value.to("mmBtu/day"))
@@ -66,8 +66,5 @@ class PetrocokeTransport(Process):
         self.set_import_from_energy(energy_use)
         import_product.set_export(self.name, NGL_LPG, petrocoke_LHV_rate)
 
-        # emission
-        emissions = self.emissions
-        energy_for_combustion = energy_use.data.drop("Electricity")
-        combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
+        # emissions
+        self.set_combustion_emissions()

@@ -1,5 +1,6 @@
 from opgee import ureg
-from opgee.energy import Energy, EN_DIESEL, EN_NATURAL_GAS, EN_RESID, EN_PETCOKE, EN_CRUDE_OIL
+from opgee.energy import (Energy, EN_DIESEL, EN_NATURAL_GAS, EN_RESID,
+                          EN_PETCOKE, EN_CRUDE_OIL, EN_ELECTRICITY)
 from opgee.error import OpgeeException
 import pytest
 
@@ -8,6 +9,17 @@ def test_set_rate():
     rate = ureg.Quantity(123.45, 'mmbtu/day')
     e.set_rate(EN_DIESEL, rate)
     assert e.data[EN_DIESEL] == rate
+
+def test_set_electricity():
+    e = Energy()
+    rate = ureg.Quantity(123.45, 'kWh/day')
+    e.set_rate(EN_ELECTRICITY, rate)
+
+    # Though set as "kWh/day", value is stored as "mmBtu/day", after conversion
+    as_set = e.get_rate(EN_ELECTRICITY)
+    assert as_set.u == Energy._units
+
+    assert e.data[EN_ELECTRICITY] == rate
 
 def test_set_rates_error():
     """Test that an unknown carrier name throws an OpgeeException"""

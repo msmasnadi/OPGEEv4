@@ -7,7 +7,7 @@
 # See LICENSE.txt for license details.
 #
 from .. import ureg
-from ..emissions import EM_COMBUSTION, EM_FUGITIVES
+from ..emissions import EM_FUGITIVES
 from ..energy import EN_NATURAL_GAS, EN_DIESEL
 from ..log import getLogger
 from ..process import Process
@@ -91,9 +91,5 @@ class RyanHolmes(Process):
         self.set_import_from_energy(energy_use)
 
         # emissions
-        emissions = self.emissions
-        energy_for_combustion = energy_use.data.drop("Electricity")
-        combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
-
-        emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
+        self.set_combustion_emissions()
+        self.emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
