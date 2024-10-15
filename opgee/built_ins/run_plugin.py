@@ -102,6 +102,25 @@ class RunCommand(SubcommandABC):
         )
 
         parser.add_argument(
+            "-g",
+            "--post-proc-plugin",
+            metavar="PATH",
+            action="append",
+            default=[],
+            help="""Loads the post-processing plugin from the given path. The file
+                    must contain a single, valid subclass of ``opgee.post_process.PostProcess``.
+                    This arg can be specified multiple times to load multiple post-processing
+                    classes. They will be invoked in the order given on the command-line.""")
+
+        parser.add_argument(
+            "-G",
+            "--no-post-proc-plugin-path",
+            action="store_true",
+            help="""Override the automatic loading of post-processing plugins from the path(s)
+                specified in config variable OPGEE.PostProcPluginPath. Specific plugins can
+                still be loaded using the --post-plugin argument.""")
+
+        parser.add_argument(
             "-i",
             "--ignore-errors",
             action="store_true",
@@ -229,6 +248,7 @@ class RunCommand(SubcommandABC):
         from ..manager import Manager, save_results, TrialPacket, FieldPacket
         from ..utils import parseTrialString, mkdirs
         from ..mcs.simulation import Simulation, model_file_path
+        from ..post_processor import PostProcessor
 
         analysis_names = args.analyses or []
         batch_size = args.batch_size
@@ -338,6 +358,15 @@ class RunCommand(SubcommandABC):
             packets = FieldPacket.packetize(
                 model_xml_file, analysis_name, field_names, packet_size
             )
+
+        # Load all plugins specified in OPGEE.PostProcPluginPath, unless user
+        # had overridden this using command line option --no-post-plugin-path
+        if not args.no_post_proc_plugin_path:
+            PostProcessor.load_all_plugins()
+
+        # Load explicitly specified post-processing plugins
+        for path in args.post_proc_plugin:
+            PostProcessor.load_plugin(path)
 
         results_list = []
         save_batches = batch_size is not None

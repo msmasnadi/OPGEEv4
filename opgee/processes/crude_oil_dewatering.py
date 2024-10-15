@@ -8,7 +8,6 @@
 #
 from .. import ureg
 from ..core import TemperaturePressure
-from ..emissions import EM_COMBUSTION
 from ..error import OpgeeException
 from ..log import getLogger
 from ..process import Process
@@ -109,7 +108,4 @@ class CrudeOilDewatering(Process):
         self.set_import_from_energy(energy_use)
 
         # emissions
-        emissions = self.emissions
-        energy_for_combustion = energy_use.data.drop("Electricity")
-        combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
+        self.set_combustion_emissions()

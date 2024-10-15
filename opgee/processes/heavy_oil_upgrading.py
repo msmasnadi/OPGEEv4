@@ -10,8 +10,9 @@ import pandas as pd
 
 from .. import ureg
 from ..core import STP
-from ..emissions import EM_COMBUSTION, EM_FLARING
+from ..emissions import EM_FLARING
 from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_UPG_PROC_GAS, EN_PETCOKE
+from ..import_export import ELECTRICITY, H2
 from ..log import getLogger
 from ..process import Process
 from ..stream import PHASE_GAS
@@ -185,12 +186,9 @@ class HeavyOilUpgrading(Process):
 
         # import/export
         self.set_import_from_energy(energy_use)
-        field.import_export.set_export(self.name, "Electricity", elect_cogen)
-        field.import_export.set_export(self.name, "H2", proc_gas_to_H2_mass_rate.sum() + NG_to_H2_mass_rate.sum())
+        field.import_export.set_export(self.name, ELECTRICITY, elect_cogen)
+        field.import_export.set_export(self.name, H2, proc_gas_to_H2_mass_rate.sum() + NG_to_H2_mass_rate.sum())
 
-        # emission
-        emissions = self.emissions
-        energy_for_combustion = energy_use.data.drop("Electricity")
-        combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
-        emissions.set_from_series(EM_FLARING, proc_gas_flaring_mass_rate.pint.to("tonne/day"))
+        # emissions
+        self.set_combustion_emissions()
+        self.emissions.set_from_series(EM_FLARING, proc_gas_flaring_mass_rate.pint.to("tonne/day"))
