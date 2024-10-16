@@ -844,6 +844,12 @@ class Field(Container):
         """
         return loss_mat_ave.iloc[assignment - 1, :]
 
+    # TODO: It would be better to implement loss rate calcs in the specific
+    #   classes (DownholePump, Separation, CrudeOilStorage) rather than here.
+    #   The Field method should aggregate these to the field level.
+    #   Probably should make "fugitives()" part of the Process API so it can
+    #   be called on all Processes, some of which use the inherited NO-OP method.
+    #   -RP
     def get_component_fugitive(self):
         """
         Calculate loss rate for downhole pump, separation, and crude oil storage using Jeff's component fugitive model

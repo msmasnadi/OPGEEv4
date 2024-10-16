@@ -12,7 +12,7 @@ from pathlib import Path
 
 from .XMLFile import XMLFile
 from .attributes import AttrDefs
-from .config import getParam, unixPath, pathjoin
+from .config import getParam, getParamAsBoolean, unixPath, pathjoin
 from .core import Timer
 from .error import OpgeeException, XmlFormatError
 from .log import getLogger
@@ -43,8 +43,9 @@ class ModelCache(object):
     @classmethod
     def get_xml_file(cls, model_xml):
         """
-        If the file ``model_xml`` is not known in the cache, load it and
-        store it in the cache. Return the cached XMLFile object.
+        If the file ``model_xml`` is not known in the cache, load it, and
+        (unless config variable 'OPGEE.CacheModelXML' is False) cache the
+        XMLFile object by pathname. Return the XMLFile object.
 
         :param model_xml: (str) pathname of an XML file
         :return: (XMLFile) representing the model XML
@@ -53,7 +54,9 @@ class ModelCache(object):
             obj = cls.model_file_cache[model_xml]
         except KeyError:
             obj = XMLFile(model_xml, schemaPath='etc/opgee.xsd')
-            cls.model_file_cache[model_xml] = obj
+
+            if getParamAsBoolean('OPGEE.CacheModelXML'):
+                cls.model_file_cache[model_xml] = obj
 
         return obj
 
