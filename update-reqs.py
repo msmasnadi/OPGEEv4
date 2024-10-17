@@ -2,14 +2,15 @@
 #
 # Update requirements.txt to reflect versions installed using the YML file
 #
+import os
 import re
 import subprocess
 
-REPO_DIR = "/Users/rjp/repos/OPGEEv4/"
+REPO_DIR = os.path.dirname(__file__)
 
 def main():
-    reqs_in  = REPO_DIR + "requirements.in"
-    reqs_out = REPO_DIR + "requirements.txt"
+    reqs_in  = os.path.join(REPO_DIR, "requirements.in")
+    reqs_out = os.path.join(REPO_DIR, "requirements.txt")
 
     with open(reqs_in) as f:
         pkgs = [line.strip() for line in f.readlines() if not line.startswith('#')]
