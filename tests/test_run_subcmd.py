@@ -45,13 +45,7 @@ def test_run_one_field(opgee_main):
 
     assert df is not None and len(df) == 4
 
-    # This used to work...
-    # assert df.loc['TOTAL', 'CI'] == 0.0
-
-    # TODO: Separate units from value in CI column!
-    value_str = df.loc['TOTAL', 'CI'] # '0.0 gram / MJ'
-    value = float(value_str.split(' ')[0])
-    assert value == 0.0
+    assert df.loc['TOTAL', 'CI'] == 0.0
 
 
 def test_unknown_field(opgee_main):
@@ -101,7 +95,6 @@ def test_packetization(opgee_main):
     batch_start = 2      # arbitrary start number for result batches
     packet_size = 3
     cluster_type = 'serial'
-    # cluster_type = 'local'
 
     with tempdir() as output_dir:
         args = ['run',
@@ -121,7 +114,17 @@ def test_packetization(opgee_main):
         opgee_main.run(None, args)
 
         csv_files = glob(f"{output_dir}/*.csv")
-        d = {os.path.basename(name): pd.read_csv(name) for name in csv_files}
+
+        # TODO: reinstate this once debugged
+        # d = {os.path.basename(name): pd.read_csv(name) for name in csv_files}
+
+        # TODO: remove temporary debugging code
+        d = {}
+        for name in csv_files:
+            try:
+                d[os.path.basename(name)] = pd.read_csv(name)
+            except Exception as e:
+                print(f"\n\nTest Exception: {e}: '{name}'\n\n")
 
     # Should find 3 result files; 2 with 3 results each, and one with 1 result.
     num_files = fields // packet_size + (1 if fields % packet_size else 0)
