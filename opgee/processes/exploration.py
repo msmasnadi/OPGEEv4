@@ -12,6 +12,7 @@ from .. import ureg
 from ..energy import EN_DIESEL
 from ..log import getLogger
 from ..process import Process
+from ..stream import Stream, PHASE_GAS
 
 _logger = getLogger(__name__)
 
@@ -104,8 +105,25 @@ class Exploration(Process):
         truck_energy_intensity = field.transport_energy.energy_intensity_truck
 
         export_LHV = field.get_process_data("exported_prod_LHV")
-        cumulative_export_LHV = export_LHV * self.field_production_lifetime * m.const("days-per-year")
+        if field.has_EUR_gas:
+            EUR_gas_total_volume = field.EUR_gas
+            day = ureg.Quantity(1, "day")
 
+            EUR_gas_total_volume = EUR_gas_total_volume / day
+            bounary_stream = field.get_process_data("boundary_stream")
+
+            gas_mol_frac = field.gas.component_molar_fractions(bounary_stream)
+            gas_density = field.gas.component_gas_rho_STP[gas_mol_frac.index]
+            gas_volume_rate = gas_mol_frac * EUR_gas_total_volume
+            gas_mass_rate = gas_volume_rate * gas_density
+
+            gas_stream = Stream("gas_stream", tp=bounary_stream)
+            gas_stream.set_rates_from_series(gas_mass_rate, PHASE_GAS)
+            EUR_gas_LHV = field.gas.energy_flow_rate(gas_stream)
+
+            cumulative_export_LHV = EUR_gas_LHV * day
+        else:
+            cumulative_export_LHV = export_LHV * self.field_production_lifetime
         survey_vehicle_energy_consumption = (truck_energy_intensity * self.weight_land_survey *
                                              self.distance_survey if not self.offshore else
                                              ocean_tank_energy_intensity * self.weight_ocean_survey *

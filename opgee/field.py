@@ -177,6 +177,7 @@ class Field(Container):
         self.downhole_pump = None
         self.ecosystem_richness = None
         self.eta_rig = None
+        self.EUR_gas = None
         self.field_development_intensity = None
         self.field_production_lifetime = None
         self.flood_gas_type = None
@@ -199,6 +200,7 @@ class Field(Container):
         self.GOR = None
         self.GFIR = None
         self.GLIR = None
+        self.has_EUR_gas = None
         self.length_lateral = None
         self.mined_bitumen_p = None
         self.mined_bitumen_t = None
@@ -251,6 +253,7 @@ class Field(Container):
         self.downhole_pump = self.attr("downhole_pump")
         self.ecosystem_richness = self.attr("ecosystem_richness")
         self.eta_rig = self.attr("eta_rig")
+        self.EUR_gas = self.attr("EUR_gas")
         self.field_development_intensity = self.attr("field_development_intensity")
         self.field_production_lifetime = self.attr("field_production_lifetime")
         self.flood_gas_type = self.attr("flood_gas_type")
@@ -273,6 +276,7 @@ class Field(Container):
         self.GOR = self.attr("GOR")
         self.GFIR = self.attr("GFIR")
         self.GLIR = self.attr("GLIR")
+        self.has_EUR_gas = self.attr("has_EUR_gas")
         self.length_lateral = self.attr("length_lateral")
         self.mined_bitumen_p = self.attr("pressure_mined_bitumen")
         self.mined_bitumen_t = self.attr("temperature_mined_bitumen")

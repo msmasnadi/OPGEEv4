@@ -142,6 +142,8 @@
       <AttrDef name="gas_pressure_after_boosting" type="float" unit="psia" desc="Separator gas outlet pressure after boosting compressors">500</AttrDef>
       <AttrDef name="friction_factor" type="float" unit="frac" desc="wellbore friction factor">0.02</AttrDef>
       <AttrDef name="AGR_feedin_press" type="float" unit="psia">500.0</AttrDef>
+      <AttrDef name="EUR_gas" type="float" desc="Field ultimated recovery for gas and NGL" unit="scf">3.3e+10</AttrDef>
+      <AttrDef name="has_EUR_gas" type="binary" desc="Does the input contain EUR infomation">0</AttrDef>
 
       <!-- Processing practices -->
       <Options name="upgrader_type" default="None">
