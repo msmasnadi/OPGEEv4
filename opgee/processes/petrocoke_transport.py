@@ -21,6 +21,17 @@ class PetrocokeTransport(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
         model = self.model
+
+        self._required_inputs = [
+            "petrocoke"
+        ]
+
+        # TODO: avoid process names in contents.
+        self._required_outputs = [
+            "petrocoke for market",
+            "exported petrocoke",
+        ]
+
         self.transport_share_fuel = model.transport_share_fuel.loc["Petrocoke"]
         self.transport_parameter = model.transport_parameter[["Petrocoke", "Units"]]
         self.transport_by_mode = model.transport_by_mode.loc["Petrocoke"]

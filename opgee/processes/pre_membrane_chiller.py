@@ -18,6 +18,16 @@ _logger = getLogger(__name__)
 class PreMembraneChiller(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "gas for chiller",
+        ]
+
+        self._required_outputs = [
+            "gas for compressor",
+        ]
+
         self.compressor_load = ureg.Quantity(3.44, "kW")
         self.feed_stream_mass_rate = ureg.Quantity(6.111072, "tonne/day")
         self.pressure_drop = ureg.Quantity(56.0, "delta_degC")

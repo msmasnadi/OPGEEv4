@@ -22,6 +22,15 @@ class Separation(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "crude oil",
+        ]
+
+        self._required_outputs = [
+            "gas for partition",    # TODO: this is called "gas for gas partition" elsewhere
+        ]
+
         self.compressor_eff = None
         self.gas_comp = None
         self.gas_oil_ratio = None

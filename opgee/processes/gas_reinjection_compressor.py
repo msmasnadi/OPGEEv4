@@ -21,6 +21,15 @@ class GasReinjectionCompressor(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "gas for gas reinjection compressor"
+        ]
+
+        self._required_outputs = [
+            "gas for gas reinjection well"
+        ]
+
         self.air_separation_energy_intensity = None
         self.eta_compressor = None
         self.flood_gas_type = None
@@ -49,6 +58,7 @@ class GasReinjectionCompressor(Process):
         self.print_running_msg()
         field = self.field
 
+        # TODO: unclear how this can work if the input stream doesn't exist
         input = self.find_input_stream("gas for gas reinjection compressor", raiseError=False)
 
         if input is None or input.is_uninitialized():

@@ -23,9 +23,27 @@ tolerance = 0.01
 
 
 class SteamGeneration(Process):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # TODO: this process disables itself under certain circumstances.
+        #  As noted in a comment below, this is undesirable behavior since
+        #  it silently edits the user's model. Rethink how to handle this.
+        #  In the meantime, it requires special processing below:
+        field = self.field
+        if field.steam_flooding == 1 and field.SOR != 0:
+            self._required_inputs = [
+                # TODO: avoid process names in contents.
+                "produced water for steam generation",
+                "makeup water for steam generation"
+            ]
+
+            self._required_outputs = [
+                "recycled water",
+            ]
+        else:
+            self._required_inputs = []
+            self._required_outputs = []
 
         self.SOR = None
         self.eta_air_blower_HRSG = None

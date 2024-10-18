@@ -20,6 +20,15 @@ class GasLiftingCompressor(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "lifting gas"
+        ]
+
+        self._required_outputs = [
+            "lifting gas"
+        ]
+
         self.res_press = None
         self.prime_mover_type = None
         self.eta_compressor = None

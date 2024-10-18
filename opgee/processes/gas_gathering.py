@@ -19,6 +19,17 @@ _logger = getLogger(__name__)
 class GasGathering(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "gas for gas gathering"
+        ]
+
+        self._required_outputs = [
+            ("gas for gas dehydration",
+             "gas for gas partition")
+        ]
+
         self.site_fugitive_breakdown = self.model.site_fugitive_processing_unit_breakdown
 
         self.site_fugitive_intercept = None

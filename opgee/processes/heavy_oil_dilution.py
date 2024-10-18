@@ -15,6 +15,17 @@ from .shared import get_energy_carrier
 class HeavyOilDilution(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "oil for dilution"
+        ]
+
+        self._required_outputs = [
+            ("oil for storage",
+             "oil for upgrading")
+        ]
+
         self.water_density = self.water.density()
 
         model = self.model
