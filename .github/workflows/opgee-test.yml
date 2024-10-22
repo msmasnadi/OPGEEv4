@@ -24,6 +24,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: Cache pip dependencies
       uses: actions/cache@v3
+      id: pip-cache
       with:
         path: ~/.cache/pip
         key:
@@ -49,11 +50,15 @@ jobs:
     - name: Update Conda env
       run: |
         conda env update -n opgee -f $opgee_linux_yml
+        pip install -e .
       if: steps.opgee-env-cache.outputs.cache-hit != 'true'
     - name: Install pip deps
       run: |
         pip install -e .
         pip install pytest-cov codecov coveralls PyYAML
+      if: steps.pip-cache.outputs.cache-hit != 'true'
+    - name: Check setuptools
+      run: pip show setuptools
     - name: Run unit tests with coverage
       run: coverage run --source=opgee -m pytest
     - name: Code coverage report
