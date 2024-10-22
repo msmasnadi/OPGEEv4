@@ -39,9 +39,7 @@ wheel:
 
 clean: clean-html clean-setup clean-requirements
 
-init:
-	git config --local core.hooksPath .githooks
-dev: init
+dev:
 	pip install -e .
 
 EMPTY :=
