@@ -50,10 +50,11 @@ jobs:
       run: |
         conda env update -n opgee -f $opgee_linux_yml
       if: steps.opgee-env-cache.outputs.cache-hit != 'true'
-    - run: |
+    - name: Install pip deps
+      run: |
         pip install -e .
         pip install pytest-cov codecov coveralls PyYAML
-    - name: Run unit tests with coverate
+    - name: Run unit tests with coverage
       run: coverage run --source=opgee -m pytest
     - name: Code coverage report
       if: ${{ success() }}
