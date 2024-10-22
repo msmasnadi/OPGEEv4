@@ -7,7 +7,6 @@
 # See LICENSE.txt for license details.
 #
 from ..core import std_pressure
-from ..emissions import EM_COMBUSTION
 from ..log import getLogger
 from ..process import Process
 from ..processes.compressor import Compressor
@@ -76,7 +75,6 @@ class CO2Membrane(Process):
                                                                                    self.eta_compressor,
                                                                                    overall_compression_ratio,
                                                                                    input)
-
         # energy-use
         energy_use = self.energy
         energy_carrier = get_energy_carrier(self.prime_mover_type)
@@ -86,7 +84,4 @@ class CO2Membrane(Process):
         self.set_import_from_energy(energy_use)
 
         # emissions
-        emissions = self.emissions
-        energy_for_combustion = energy_use.data.drop("Electricity")
-        combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
+        self.set_combustion_emissions()
