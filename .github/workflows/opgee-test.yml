@@ -54,11 +54,9 @@ jobs:
       if: steps.opgee-env-cache.outputs.cache-hit != 'true'
     - name: Install pip deps
       run: |
-        pip install -e .
+        python -m pip install -e .
         pip install pytest-cov codecov coveralls PyYAML
-      if: steps.pip-cache.outputs.cache-hit != 'true'
-    - name: Check setuptools
-      run: pip show setuptools
+      if: steps.pip-cache.outputs.cache-hit != 'true' || steps.opgee-env-cache.cache-hit != 'true'
     - name: Run unit tests with coverage
       run: coverage run --source=opgee -m pytest
     - name: Code coverage report
