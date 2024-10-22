@@ -150,10 +150,6 @@ class HeavyOilUpgrading(Process):
         coke_to_heat = \
             ureg.Quantity(max(0, (coke_dict.sum() - coke_to_stockpile_and_transport).to("tonne/day").m), "tonne/day")
 
-        if self.field.get_process_data("frac_coke_exported") is None:
-            self.field.save_process_data(
-                frac_coke_exported=d["Coke yield per bbl SCO output"]["Fraction coke exported"])
-
         coke_to_transport = self.find_output_stream("petrocoke")
         coke_to_transport.set_solid_flow_rate("PC", coke_to_stockpile_and_transport)
         coke_to_transport.set_tp(STP)
