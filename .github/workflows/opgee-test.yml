@@ -51,6 +51,7 @@ jobs:
         conda env update -n opgee -f $opgee_linux_yml
       if: steps.opgee-env-cache.outputs.cache-hit != 'true'
     - run: |
+        pip install setuptools
         pip install -e .
         pip install pytest-cov codecov coveralls PyYAML
     - name: Run unit tests with coverate
