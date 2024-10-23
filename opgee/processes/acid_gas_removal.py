@@ -7,7 +7,7 @@
 # See LICENSE.txt for license details.
 #
 from .. import ureg
-from ..emissions import EM_COMBUSTION, EM_FUGITIVES
+from ..emissions import EM_FUGITIVES
 from ..energy import EN_ELECTRICITY
 from ..log import getLogger
 from ..process import Process, run_corr_eqns
@@ -202,12 +202,8 @@ class AcidGasRemoval(Process):
         self.set_import_from_energy(energy_use)
 
         # emissions
-        emissions = self.emissions
-        energy_for_combustion = energy_use.data.drop(EN_ELECTRICITY)
-        combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
-
-        emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
+        self.set_combustion_emissions()
+        self.emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
 
 
     def calculate_energy_consumption_from_Aspen(self, input, output_gas, mol_frac_CO2, mol_frac_H2S):

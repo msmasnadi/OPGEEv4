@@ -33,6 +33,7 @@ from .error import (
 )
 from .import_export import ImportExport
 from .log import getLogger
+from .post_processor import PostProcessor
 from .process import Process, Aggregator, Reservoir, decache_subclasses
 from .process_groups import ProcessChoice
 from .processes.steam_generator import SteamGenerator
@@ -886,6 +887,9 @@ class Field(Container):
 
         # TBD: need to save the streams data to CSV
         #  =========================================
+        dfs = [s.to_dataframe() for s in self.streams()]
+        streams_data = pd.concat(dfs)
+
 
         result = FieldResult(
             analysis.name,
@@ -907,6 +911,10 @@ class Field(Container):
             gas_data=gas_data,
             streams_data=streams_data,
         )
+
+        # Run optional post-process plugins
+        PostProcessor.run_post_processors(analysis, self, result)
+
         return result
 
     def get_imported_energy(self, net_import):
