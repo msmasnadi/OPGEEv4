@@ -672,7 +672,7 @@ class Field(Container):
         """
         onsite_energy = self.energy.rates().sum()
         net_import_energy = self.get_net_imported_product()
-        total_energy = ureg.Quantity(0,'mmBtu/day')
+        total_energy = ureg.Quantity(0,'mmBtu/day')  #To be changed because it is not right.
 
         # TODO: add option for displacement method
         # fn_unit = NATURAL_GAS if analysis.fn_unit == 'gas' else CRUDE_OIL
@@ -862,7 +862,7 @@ class Field(Container):
         energy_data, ghg_data, gas_data, natural_gas_data, upg_proc_gas_data, ngl_data, crude_oil_data, diesel_data, residual_fuel_data, petcoke_data, electricity_data = (
             self.energy_and_emissions(analysis)
             if result_type == DETAILED_RESULT
-            else (None, None, None)
+            else (None, None, None, None, None, None, None, None, None, None, None)
         )
 
         nodes = self.processes() if DETAILED_RESULT else self.children()
