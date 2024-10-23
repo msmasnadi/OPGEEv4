@@ -31,7 +31,7 @@ def main():
             if not line:
                 continue
             # print(f"Line is '{line}'")
-            name, version, _, _ = re.split('\s+', line)
+            name, version, _, _ = re.split(r'\s+', line)
             f.write(f"{name}=={version}\n")
 
 main()

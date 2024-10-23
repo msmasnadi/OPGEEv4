@@ -12,6 +12,7 @@ from .. import ureg
 from ..core import OpgeeObject
 from ..stream import PHASE_GAS
 
+
 class SteamGenerator(OpgeeObject):  # N.B. NOT a subclass of Process
     def __init__(self, field):
         self.field = field
@@ -332,7 +333,7 @@ class SteamGenerator(OpgeeObject):  # N.B. NOT a subclass of Process
         :return: (float) Pandas Series, reaction gas comp
         """
         table = coeff_table.loc[gas_comp.index, :]
-        table = table.transpose()
+        table = table.transpose().apply(lambda x: x.astype(gas_comp.dtype))
         result = table.dot(gas_comp)
 
         return result
