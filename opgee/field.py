@@ -684,8 +684,27 @@ class Field(Container):
         :return: (pint.Quantity) carbon intensity in units of g CO2e/MJ
         """
         onsite_energy = self.energy.rates().sum()
-        net_import_energy = self.get_net_imported_product()
-        total_energy = ureg.Quantity(0,'mmBtu/day')  #To be changed because it is not right.
+        net_import = self.get_net_imported_product()
+        net_import_energy = 0
+
+        from .import_export import WATER, N2, CO2_Flooding
+
+        for product, energy_rate in net_import.items():
+            # TODO: Water, N2, and CO2 flooding is not in self.upstream_CI and not in upstream-CI.csv,
+            #  which has units of g/mmbtu
+            if product == WATER or product == N2 or product == CO2_Flooding:
+                continue
+
+            energy_rate = (
+                energy_rate
+                if isinstance(energy_rate, pint.Quantity)
+                else ureg.Quantity(energy_rate, "mmbtu/day")
+            )
+
+            if energy_rate.m > 0:
+                net_import_energy += energy_rate.m
+        
+        total_energy = ureg.Quantity(net_import_energy,'mmBtu/day') + onsite_energy
 
         # TODO: add option for displacement method
         # fn_unit = NATURAL_GAS if analysis.fn_unit == 'gas' else CRUDE_OIL

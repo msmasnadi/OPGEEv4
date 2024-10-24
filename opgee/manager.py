@@ -495,7 +495,6 @@ def save_results(results, output_dir, batch_num=None):
             if trial is not None:
                 d['trial'] = trial
             ei_rows.append(d)
-
     # Append batch number to filename if not None
     batch = '' if batch_num is None else f"_{batch_num}"
 
@@ -506,9 +505,6 @@ def save_results(results, output_dir, batch_num=None):
 
     df = pd.DataFrame(data=ci_rows)
     _to_csv(df, 'carbon_intensity')
-
-    df = pd.DataFrame(data=ei_rows)
-    _to_csv(df, 'energy_intensity_1', index=False)
 
     if error_rows:
         df = pd.DataFrame(data=error_rows)
@@ -543,31 +539,31 @@ def save_results(results, output_dir, batch_num=None):
 
     # These aren't saved for SIMPLE_RESULTS
     if energy_cols:
-        _save_cols(energy_cols, "energy")
+        _save_dfs(energy_cols, "energy")
     
     if natural_gas_cols:
-        _save_cols(natural_gas_cols,"natural_gas")
+        _save_dfs(natural_gas_cols,"natural_gas")
     
     if upg_proc_gas_cols:
-        _save_cols(upg_proc_gas_cols,"upg_proc_gas")
+        _save_dfs(upg_proc_gas_cols,"upg_proc_gas")
     
     if ngl_cols:
-        _save_cols(ngl_cols,"ngl")
+        _save_dfs(ngl_cols,"ngl")
 
     if crude_oil_cols:
-        _save_cols(crude_oil_cols,"crude_oil")
+        _save_dfs(crude_oil_cols,"crude_oil")
 
     if diesel_cols:
-        _save_cols(diesel_cols,"diesel")
+        _save_dfs(diesel_cols,"diesel")
 
     if residual_fuel_cols:
-        _save_cols(residual_fuel_cols,"residual_fuel")
+        _save_dfs(residual_fuel_cols,"residual_fuel")
 
     if petcoke_cols:
-        _save_cols(petcoke_cols,"petcoke")
+        _save_dfs(petcoke_cols,"petcoke")
     
     if electricity_cols:
-        _save_cols(electricity_cols,'electricity')
+        _save_dfs(electricity_cols,'electricity')
 
     if energy_output_rows:
         df = pd.DataFrame(data=energy_output_rows)
