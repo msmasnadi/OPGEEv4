@@ -1,5 +1,4 @@
-name: Run Tests and Coverage for OPGEE
-run-name: ${{ github.actor }} is running unit tests
+name: OPGEE Unit Tests with Coverage
 on:
   pull_request:
     branches:
@@ -31,13 +30,13 @@ jobs:
           ${{ runner.os }}-pip-${{ hashFiles('requirements.txt')}}
         restore-keys: |
           ${{ runner.os }}-pip-
-    - name: Init opgee conda env
+    - name: Init Anaconda
       uses: conda-incubator/setup-miniconda@v3
       with: 
         miniforge-version: latest
         activate-environment: opgee
         python-version: 3.9
-    - name: Cache Conda env
+    - name: Cache OPGEE env
       id: opgee-env-cache
       uses: actions/cache@v3
       env:
@@ -47,25 +46,10 @@ jobs:
         path: ${{ env.CONDA }}/envs
         key:
           ${{ runner.os }}-conda-${{ runner.arch }}-${{ hashFiles(env.opgee_pkg_list) }}-${{ env.CACHE_NUMBER }}
-    - name: Update Conda env
+    - name: Update Conda env and pip dependencies
       run: |
         conda env update -n opgee -f $opgee_linux_yml
         pip install -e .
         python -m pip install -e .
         pip install pytest-cov codecov coveralls PyYAML
-      # if: steps.opgee-env-cache.outputs.cache-hit != 'true'
       if: steps.pip-cache.outputs.cache-hit != 'true' || steps.opgee-env-cache.cache-hit != 'true'
-    # - name: Install pip deps
-    #   run: |
-    #     conda activate opgee
-    #     python -m pip install setuptools
-    #     python -m pip install -e .
-    #     pip install pytest-cov codecov coveralls PyYAML
-    #   if: steps.pip-cache.outputs.cache-hit != 'true' || steps.opgee-env-cache.cache-hit != 'true'
-    - name: Run unit tests with coverage
-      run: coverage run --source=opgee -m pytest
-    - name: Code coverage report
-      if: ${{ success() }}
-      run: |
-        coveralls
-        bash <(curl -s https://codecov.io/bash)
