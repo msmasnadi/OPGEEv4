@@ -506,6 +506,9 @@ def save_results(results, output_dir, batch_num=None):
     df = pd.DataFrame(data=ci_rows)
     _to_csv(df, 'carbon_intensity')
 
+    df = pd.DataFrame(data=ei_rows)
+    _to_csv(df, 'energy_intensity')
+
     if error_rows:
         df = pd.DataFrame(data=error_rows)
         _to_csv(df, 'errors')
