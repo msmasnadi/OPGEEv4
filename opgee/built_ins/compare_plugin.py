@@ -119,7 +119,7 @@ def compare(file1, file2, count=DefaultCount, max_diff=DefaultFractionalDiff, ve
     #
     status = ComparisonStatus.GOOD
 
-    for field, values1 in df1.iteritems():
+    for field, values1 in df1.items():
         values2 = df2[field]
 
         na1 = values1.isna()
