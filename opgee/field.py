@@ -820,7 +820,6 @@ class Field(Container):
         procs = self.processes()
 
         energy_output = self.boundary_energy_flow_rate(analysis)
-
         # Energy data processing
 
         # Energy use data processing
@@ -828,35 +827,35 @@ class Field(Container):
         energy_data = process_data(energy_by_proc, self.name)
 
         # Natural gas data processing
-        natural_gas_by_proc = {proc.name: proc.energy.rates()[EN_NATURAL_GAS].m/energy_output for proc in procs}
+        natural_gas_by_proc = {proc.name: ureg.Quantity(proc.energy.rates()[EN_NATURAL_GAS].m/energy_output.m, "dimensionless") for proc in procs}
         natural_gas_data = process_data(natural_gas_by_proc, self.name)
 
         # Upgrader Proc. Gas data processing
-        upg_proc_gas_by_proc = {proc.name: proc.energy.rates()[EN_UPG_PROC_GAS].m/energy_output for proc in procs}
+        upg_proc_gas_by_proc = {proc.name: ureg.Quantity(proc.energy.rates()[EN_UPG_PROC_GAS].m/energy_output.m,"dimensionless") for proc in procs}
         upg_proc_gas_data = process_data(upg_proc_gas_by_proc, self.name)
 
         # NGL data processing
-        ngl_by_proc = {proc.name: proc.energy.rates()[EN_NGL].m/energy_output for proc in procs}
+        ngl_by_proc = {proc.name: ureg.Quantity(proc.energy.rates()[EN_NGL].m/energy_output.m, "dimensionless") for proc in procs}
         ngl_data = process_data(ngl_by_proc, self.name)
 
         # Crude Oil data processing
-        crude_oil_by_proc = {proc.name: proc.energy.rates()[EN_CRUDE_OIL].m/energy_output for proc in procs}
+        crude_oil_by_proc = {proc.name: ureg.Quantity(proc.energy.rates()[EN_CRUDE_OIL].m/energy_output.m, "dimensionless") for proc in procs}
         crude_oil_data = process_data(crude_oil_by_proc, self.name)
 
         # Diesel data processing
-        diesel_by_proc = {proc.name: proc.energy.rates()[EN_DIESEL].m/energy_output for proc in procs}
+        diesel_by_proc = {proc.name: ureg.Quantity(proc.energy.rates()[EN_DIESEL].m/energy_output.m, "dimensionless") for proc in procs}
         diesel_data = process_data(diesel_by_proc, self.name)
 
         # Residual Fuel data processing
-        residual_fuel_by_proc = {proc.name: proc.energy.rates()[EN_RESID].m/energy_output for proc in procs}
+        residual_fuel_by_proc = {proc.name: ureg.Quantity(proc.energy.rates()[EN_RESID].m/energy_output.m, "dimensionless") for proc in procs}
         residual_fuel_data = process_data(residual_fuel_by_proc, self.name)
 
         # Petrocoke data processing
-        petcoke_by_proc = {proc.name: proc.energy.rates()[EN_PETCOKE].m/energy_output for proc in procs}
+        petcoke_by_proc = {proc.name: ureg.Quantity(proc.energy.rates()[EN_PETCOKE].m/energy_output.m, "dimensionless") for proc in procs}
         petcoke_data = process_data(petcoke_by_proc, self.name)
         
         # Electricity data processing
-        electricity_by_proc = {proc.name: proc.energy.rates()[EN_ELECTRICITY].m/energy_output for proc in procs}
+        electricity_by_proc = {proc.name: ureg.Quantity(proc.energy.rates()[EN_ELECTRICITY].m/energy_output.m, "dimensionless") for proc in procs}
         electricity_data = process_data(electricity_by_proc, self.name)
 
         # GHG data processing
