@@ -22,7 +22,7 @@ from .constants import (
 )
 from .container import Container
 from .core import elt_name, instantiate_subelts, dict_from_list, STP, magnitude
-from .energy import Energy
+from .energy import EN_CRUDE_OIL, EN_DIESEL, EN_ELECTRICITY, EN_NATURAL_GAS, EN_NGL, EN_PETCOKE, EN_RESID, EN_UPG_PROC_GAS, Energy
 from .error import (
     OpgeeException,
     OpgeeStopIteration,
@@ -55,10 +55,19 @@ class FieldResult:
             field_name,
             result_type,
             energy_data=None,
+            natural_gas_data=None,
+            upg_proc_gas_data=None,
+            ngl_data=None,
+            crude_oil_data=None,
+            diesel_data=None,
+            residual_fuel_data=None,
+            petcoke_data=None,
+            electricity_data=None,
             ghg_data=None,  # CO2e
             gas_data=None,  # individual gases
             streams_data=None,
             ci_results=None,
+            ei_results=None, # energy intensity result
             energy_output=None,
             trial_num=None,
             error=None,
@@ -67,6 +76,17 @@ class FieldResult:
         self.field_name = field_name
         self.result_type = result_type
         self.ci_results = ci_results  # list of tuples of (node_name, CI)
+        self.ei_results = ei_results
+        self.energy = energy_data
+        self.natural_gas = natural_gas_data
+        self.upg_proc_gas = upg_proc_gas_data
+        self.ngl = ngl_data
+        self.crude_oil = crude_oil_data
+        self.diesel = diesel_data
+        self.residual_fuel = residual_fuel_data
+        self.petcoke = petcoke_data
+        self.electricity = electricity_data
+        self.emissions = ghg_data  # TBD: change self.emissions to self.ghgs
         self.energy_output = energy_output
         self.energy = energy_data   # energy consumption data
         self.emissions = ghg_data   # TBD: change self.emissions to self.ghgs
@@ -481,7 +501,7 @@ class Field(Container):
                 "Impute failed due to a process loop. Use Stream attribute impute='0' to break cycle."
             )
 
-    def run(self, analysis, compute_ci=True, trial_num=None):
+    def run(self, analysis, compute_ci=True, compute_ei=True, trial_num=None):
         """
         Run all Processes defined for this Field, in the order computed from the graph
         characteristics, using the settings in `analysis` (e.g., GWP).
@@ -522,6 +542,9 @@ class Field(Container):
             )
             self.carbon_intensity = (
                 self.compute_carbon_intensity(analysis) if compute_ci else None
+            )
+            self.energy_intensity = (
+                self.compute_energy_intensity(analysis) if compute_ei else None
             )
             _logger.info(timer.stop())
 
@@ -650,6 +673,57 @@ class Field(Container):
         self.total_emissions = total_emissions
 
         return ci
+    
+    def compute_energy_intensity(self, analysis):
+        """
+        Compute carbon intensity by summing emissions from all processes within the
+        selected system boundary and dividing by the flow of the functional unit
+        across that boundary stream.
+
+        :param analysis: (Analysis) the analysis this field is part of
+        :return: (pint.Quantity) carbon intensity in units of g CO2e/MJ
+        """
+        onsite_energy = self.energy.rates().sum()
+        net_import = self.get_net_imported_product()
+        net_import_energy = 0
+
+        from .import_export import WATER, N2, CO2_Flooding
+
+        for product, energy_rate in net_import.items():
+            # TODO: Water, N2, and CO2 flooding is not in self.upstream_CI and not in upstream-CI.csv,
+            #  which has units of g/mmbtu
+            if product == WATER or product == N2 or product == CO2_Flooding:
+                continue
+
+            energy_rate = (
+                energy_rate
+                if isinstance(energy_rate, pint.Quantity)
+                else ureg.Quantity(energy_rate, "mmbtu/day")
+            )
+
+            if energy_rate.m > 0:
+                net_import_energy += energy_rate.m
+        
+        total_energy = ureg.Quantity(net_import_energy,'mmBtu/day') + onsite_energy
+
+        # TODO: add option for displacement method
+        # fn_unit = NATURAL_GAS if analysis.fn_unit == 'gas' else CRUDE_OIL
+        # byproduct_names = self.product_names.drop(fn_unit)
+        # byproduct_carbon_credit = self.get_carbon_credit(byproduct_names, analysis)
+        # total_emissions = onsite_emissions + imported_emissions - byproduct_carbon_credit
+        # energy = self.boundary_energy_flow_rate(analysis)
+
+        # export_df = self.import_export.export_df
+        # export_LHV = export_df.drop(columns=["Water"]).sum(axis='columns').sum()
+        # self.carbon_intensity = ci = (total_emissions / export_LHV).to('grams/MJ')
+        boundary_energy_flow_rate = self.boundary_energy_flow_rate(analysis)
+        self.energy_intensity = ei = ureg.Quantity(0, "mmBtu/mmBtu")
+        if boundary_energy_flow_rate.m != 0:
+            self.energy_intensity = ei = (
+                    total_energy / boundary_energy_flow_rate
+            ).to("mmBtu/mmBtu")
+
+        return ei
 
     def partial_ci_values(self, analysis, nodes):
         """
@@ -688,6 +762,44 @@ class Field(Container):
             if not isinstance(obj, Boundary)
         ]
         return results
+    
+    def partial_ei_values(self, analysis, nodes):
+        """
+        Compute partial EI for each node in ``nodes``, skipping boundary nodes, since
+        these have no emissions and serve only to identify the endpoint for EI
+        calculation.
+
+        :param analysis: (opgee.Analysis)
+        :param nodes: (list of Processes and/or Containers)
+        :return: A list of tuples of (item_name, partial_EI)
+        """
+        from .error import ZeroEnergyFlowError
+        from .process import Boundary
+
+        try:
+            energy_output = self.boundary_energy_flow_rate(analysis)
+
+        except ZeroEnergyFlowError:
+            _logger.error(
+                f"Can't save results: zero energy flow at system boundary for {self}"
+            )
+            return None
+
+        def partial_ei(obj):
+            energy_input = obj.energy.data.sum()
+            if not isinstance(energy_input, pint.Quantity):
+                energy_input = ureg.Quantity(energy_input, "mmBtu/day")
+
+            ei = energy_input / energy_output
+            # convert to mmBtu/MJ, but we don't need units in CSV file
+            return ei.to("mmBtu/mmBtu")
+
+        results = [
+            (obj.name, partial_ei(obj))
+            for obj in nodes
+            if not isinstance(obj, Boundary)
+        ]
+        return results
 
     def energy_and_emissions(self, analysis):
         import pandas as pd
@@ -707,9 +819,44 @@ class Field(Container):
         gwp = analysis.gwp
         procs = self.processes()
 
+        energy_output = self.boundary_energy_flow_rate(analysis)
+        # Energy data processing
+
         # Energy use data processing
         energy_by_proc = {proc.name: proc.energy.rates().sum() for proc in procs}
         energy_data = process_data(energy_by_proc, self.name)
+
+        # Natural gas data processing
+        natural_gas_by_proc = {proc.name: ureg.Quantity(proc.energy.rates()[EN_NATURAL_GAS].m/energy_output.m, "dimensionless") for proc in procs}
+        natural_gas_data = process_data(natural_gas_by_proc, self.name)
+
+        # Upgrader Proc. Gas data processing
+        upg_proc_gas_by_proc = {proc.name: ureg.Quantity(proc.energy.rates()[EN_UPG_PROC_GAS].m/energy_output.m,"dimensionless") for proc in procs}
+        upg_proc_gas_data = process_data(upg_proc_gas_by_proc, self.name)
+
+        # NGL data processing
+        ngl_by_proc = {proc.name: ureg.Quantity(proc.energy.rates()[EN_NGL].m/energy_output.m, "dimensionless") for proc in procs}
+        ngl_data = process_data(ngl_by_proc, self.name)
+
+        # Crude Oil data processing
+        crude_oil_by_proc = {proc.name: ureg.Quantity(proc.energy.rates()[EN_CRUDE_OIL].m/energy_output.m, "dimensionless") for proc in procs}
+        crude_oil_data = process_data(crude_oil_by_proc, self.name)
+
+        # Diesel data processing
+        diesel_by_proc = {proc.name: ureg.Quantity(proc.energy.rates()[EN_DIESEL].m/energy_output.m, "dimensionless") for proc in procs}
+        diesel_data = process_data(diesel_by_proc, self.name)
+
+        # Residual Fuel data processing
+        residual_fuel_by_proc = {proc.name: ureg.Quantity(proc.energy.rates()[EN_RESID].m/energy_output.m, "dimensionless") for proc in procs}
+        residual_fuel_data = process_data(residual_fuel_by_proc, self.name)
+
+        # Petrocoke data processing
+        petcoke_by_proc = {proc.name: ureg.Quantity(proc.energy.rates()[EN_PETCOKE].m/energy_output.m, "dimensionless") for proc in procs}
+        petcoke_data = process_data(petcoke_by_proc, self.name)
+        
+        # Electricity data processing
+        electricity_by_proc = {proc.name: ureg.Quantity(proc.energy.rates()[EN_ELECTRICITY].m/energy_output.m, "dimensionless") for proc in procs}
+        electricity_data = process_data(electricity_by_proc, self.name)
 
         # GHG data processing
         ghgs_by_proc = {proc.name: total_emissions(proc, gwp) for proc in procs}
@@ -731,7 +878,7 @@ class Field(Container):
         gases_by_proc = [gas_df_with_name(proc) for proc in procs]
         gases_data = pd.concat(gases_by_proc)
 
-        return energy_data, ghg_data, gases_data
+        return energy_data, ghg_data, gases_data, natural_gas_data, upg_proc_gas_data, ngl_data, crude_oil_data, diesel_data, residual_fuel_data, petcoke_data, electricity_data
 
     def get_result(self, analysis, result_type, trial_num=None) -> FieldResult:
         """
@@ -743,19 +890,38 @@ class Field(Container):
         :param trial_num: (int) trial number, if running in MCS mode
         :return: (FieldResult) results
         """
-        energy_data, ghg_data, gas_data = self.energy_and_emissions(analysis) \
-            if result_type == DETAILED_RESULT else (None, None, None)
+
+        energy_data, ghg_data, gas_data, natural_gas_data, upg_proc_gas_data, ngl_data, crude_oil_data, diesel_data, residual_fuel_data, petcoke_data, electricity_data = (
+            self.energy_and_emissions(analysis)
+            if result_type == DETAILED_RESULT
+            else (None, None, None, None, None, None, None, None, None, None, None)
+        )
+
 
         nodes = self.processes() if DETAILED_RESULT else self.children()
         ci_tuples = self.partial_ci_values(analysis, nodes)
+        ei_tuples = self.partial_ei_values(analysis, nodes)
 
         ci_results = (
             None if ci_tuples is None
             else [("TOTAL", self.carbon_intensity)] + ci_tuples
         )
 
+        ei_results = (
+            None
+            if ei_tuples is None
+            else [("TOTAL", self.energy_intensity)] + ei_tuples
+        )
+
+        streams = self.streams()
+
+        streams_data = pd.concat([s.to_dataframe() for s in streams])
+
+        # TBD: need to save the streams data to CSV
+        #  =========================================
         dfs = [s.to_dataframe() for s in self.streams()]
         streams_data = pd.concat(dfs)
+
 
         result = FieldResult(
             analysis.name,
@@ -763,8 +929,17 @@ class Field(Container):
             result_type,
             trial_num=trial_num,
             ci_results=ci_results,
+            ei_results=ei_results,
             energy_output=self.energy_output,
             energy_data=energy_data,
+            natural_gas_data=natural_gas_data,
+            upg_proc_gas_data=upg_proc_gas_data,
+            ngl_data=ngl_data,
+            crude_oil_data=crude_oil_data,
+            diesel_data=diesel_data,
+            residual_fuel_data=residual_fuel_data,
+            petcoke_data=petcoke_data,
+            electricity_data=electricity_data,
             ghg_data=ghg_data,  # TBD: superseded by gas_data
             gas_data=gas_data,
             streams_data=streams_data,
@@ -774,6 +949,33 @@ class Field(Container):
         PostProcessor.run_post_processors(analysis, self, result)
 
         return result
+
+    def get_imported_energy(self, net_import):
+        """
+        Calculate imported product energy
+
+        :param net_import: (Pandas.Series) net import energy rates (water is mass rate)
+        :return: total energy imported (units of mmBtu/day)
+        """
+        from .import_export import WATER, N2, CO2_Flooding
+
+        imported_energy = ureg.Quantity(0.0, "mmBtu/day")
+
+        for product, energy_rate in net_import.items():
+            # TODO: Water, N2, and CO2 flooding is not in self.upstream_CI and not in upstream-CI.csv,
+            #  which has units of g/mmbtu
+            if product == WATER or product == N2 or product == CO2_Flooding:
+                continue
+
+            energy_rate = (
+                energy_rate
+                if isinstance(energy_rate, pint.Quantity)
+                else ureg.Quantity(energy_rate, "mmbtu/day")
+            )
+
+            if energy_rate.m > 0:
+                imported_energy += energy_rate
+        return imported_energy
 
     def get_imported_emissions(self, net_import):
         """
