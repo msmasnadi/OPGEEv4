@@ -10,7 +10,7 @@ def test_unixpath():
     assert unixPath(r"\Users\foo\bar") == "/Users/foo/bar"
 
 def test_expanduser():
-    if os.environ.get('TRAVIS') == 'true':
+    if os.environ.get('CI') == 'true':
         home = os.environ['HOME']           # don't use OPGEE_HOME for this test
     else:
         home = getHomeDir()
