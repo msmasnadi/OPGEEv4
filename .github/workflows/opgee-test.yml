@@ -1,0 +1,55 @@
+name: OPGEE Unit Tests with Coverage
+on:
+  pull_request:
+    branches:
+      - master
+      - main
+      - dev
+
+jobs:
+  test-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 5
+    defaults:
+      run:
+        shell: bash -el {0}
+    env:
+      OPGEE_HOME: ${{ github.workspace }}/tests/files
+      CI: 'true'
+      opgee_pkg_list: 'opgee-linux64.pkg_list.txt'
+      opgee_linux_yml: 'py3-opgee-linux.yml'
+    steps:
+    - uses: actions/checkout@v4
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      id: pip-cache
+      with:
+        path: ~/.cache/pip
+        key:
+          ${{ runner.os }}-pip-${{ hashFiles('requirements.txt')}}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    - name: Init Anaconda
+      uses: conda-incubator/setup-miniconda@v3
+      with: 
+        miniforge-version: latest
+        activate-environment: opgee
+        python-version: 3.9
+    - name: Cache OPGEE env
+      id: opgee-env-cache
+      uses: actions/cache@v3
+      env:
+        # increment cache number to invalidate and rebuild the env
+        CACHE_NUMBER: 0
+      with:
+        path: ${{ env.CONDA }}/envs
+        key:
+          ${{ runner.os }}-conda-${{ runner.arch }}-${{ hashFiles(env.opgee_pkg_list) }}-${{ env.CACHE_NUMBER }}
+    - name: Update Conda env and pip dependencies
+      run: |
+        conda env update -n opgee -f $opgee_linux_yml
+        pip install -e .
+        python -m pip install -e .
+        pip install pytest-cov codecov coveralls PyYAML
+      if: steps.pip-cache.outputs.cache-hit != 'true' || steps.opgee-env-cache.cache-hit != 'true'
