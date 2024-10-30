@@ -4,6 +4,17 @@ from opgee.config import pathjoin, getParam, setParam, readConfigFile
 from opgee.model_file import ModelFile
 from opgee.process import Process
 
+@contextmanager
+def tempdir():
+    import tempfile
+    import shutil
+
+    d = tempfile.mkdtemp()
+    try:
+        yield d
+    finally:
+        shutil.rmtree(d)
+
 class ProcA(Process):
     def run(self, analysis):
         pass

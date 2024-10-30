@@ -777,7 +777,7 @@ class Process(AttributeMixin, XmlInstantiable):
         :param analysis: (Analysis) the `Analysis` used to retrieve global settings
         :return: None
         """
-        raise AbstractMethodError(Process, 'Process.run')
+        raise AbstractMethodError(self.__class__, 'Process.run')
 
     # TODO: implement mass balance check
     def check_balances(self):
