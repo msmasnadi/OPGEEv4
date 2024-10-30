@@ -28,8 +28,7 @@ class PetrocokeTransport(Process):
 
         # TODO: avoid process names in contents.
         self._required_outputs = [
-            "petrocoke for market",
-            "exported petrocoke",
+            "petrocoke",
         ]
 
         self.transport_share_fuel = model.transport_share_fuel.loc["Petrocoke"]
