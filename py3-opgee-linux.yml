@@ -5,7 +5,6 @@ channels:
   - defaults
 dependencies:
   - colour
-  - cython
   - dash
   - dask
   - dask-jobqueue

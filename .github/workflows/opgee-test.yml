@@ -53,3 +53,5 @@ jobs:
         python -m pip install -e .
         pip install pytest-cov codecov coveralls PyYAML
       if: steps.pip-cache.outputs.cache-hit != 'true' || steps.opgee-env-cache.cache-hit != 'true'
+    - name: Run unit tests with coverage
+      run: coverage run --source=opgee -m pytest
