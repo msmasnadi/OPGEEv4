@@ -10,12 +10,10 @@ dependencies:
   - dask
   - dask-jobqueue
   - graphviz
-  - python-graphviz
   - jinja2
   - llvm-openmp
   - lxml
   - networkx
-  - nuitka
   - numba
   - numpy
   - pandas
@@ -24,17 +22,18 @@ dependencies:
   - pip
   - pydot
   - pytest
+  - python-graphviz
   - python>=3.9.0,<3.10.0
   - semver
   - setuptools
-  - sphinx>=4.3.0
+  - sphinx
   - sphinx-argparse
-  - sphinx_rtd_theme>=0.5.1
+  - sphinx_rtd_theme
   - sphinxcontrib-serializinghtml
   - pip:
-    - dash-cytoscape==0.3.0
-    - pyXSteam==0.4.9
-    - thermosteam==0.34.0
+    - dash-cytoscape
+    - pyXSteam
+    - thermosteam
     - fluids==1.0.24
     - chemicals==1.1.4
     - thermo==0.2.25
