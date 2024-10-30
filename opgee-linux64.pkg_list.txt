@@ -49,7 +49,7 @@ cycler=0.12.1=pypi_0
 cython=3.0.11=py39h5eee18b_0
 cytoolz=0.12.2=py39h5eee18b_0
 dash=2.14.2=py39h06a4308_0
-dash-cytoscape=0.3.0=pypi_0
+dash-cytoscape=1.0.2=pypi_0
 dask=2024.5.0=py39h06a4308_0
 dask-core=2024.5.0=py39h06a4308_0
 dask-expr=1.1.0=py39h06a4308_0
@@ -238,7 +238,7 @@ tbb=2021.8.0=hdb19cb5_0
 tblib=1.7.0=pyhd3eb1b0_0
 tenacity=9.0.0=py39h06a4308_0
 thermo=0.2.25=pypi_0
-thermosteam=0.34.0=pypi_0
+thermosteam=0.45.0=pypi_0
 tk=8.6.14=h39e8969_0
 tomli=2.0.1=py39h06a4308_0
 toolz=0.12.0=py39h06a4308_0
