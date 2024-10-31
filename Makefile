@@ -92,7 +92,12 @@ create-opgee: $(YML_FILE)
 install-opgee:
 	bash -l -c 'conda activate opgee && pip install -e .'
 
-rebuild-opgee: remove-opgee create-opgee install-opgee
+rebuild-opgee: remove-opgee create-opgee travis-reqs install-opgee
+
+# Generate a detailed package list to cache for validation of
+# environment on CI platform (currently github actions)
+linux-pkg-list:
+	conda list --export > opgee-linux64.pkg_list.txt
 
 NUITKA_EXE    = opgee.exe
 NUITKA_OUTDIR = /tmp/opgee-nuitka
