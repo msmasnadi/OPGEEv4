@@ -36,6 +36,7 @@ class CO2Membrane(Process):
         ]
 
         self._required_outputs = [
+            "gas for AGR",
             "gas for CO2 compressor",
         ]
 

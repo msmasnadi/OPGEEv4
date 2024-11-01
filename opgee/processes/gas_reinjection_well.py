@@ -19,7 +19,8 @@ class GasReinjectionWell(Process):
 
         # TODO: avoid process names in contents.
         self._required_inputs = [
-            "gas for gas reinjection well"        ]
+            "gas for gas reinjection well"
+        ]
 
         self._required_outputs = [
             "gas for reservoir",
