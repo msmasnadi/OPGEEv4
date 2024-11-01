@@ -29,10 +29,10 @@ dependencies:
   - sphinxcontrib-serializinghtml
   - pip:
     # - nuitka            # experimental; moved here because conda version is very outdated
-    - dash-cytoscape
-    - pyXSteam
-    - thermosteam
-    - fluids
     - chemicals
+    - dash-cytoscape
+    - fluids
+    - pyXSteam
     - thermo
+    - thermosteam
 

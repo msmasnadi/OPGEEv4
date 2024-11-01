@@ -67,9 +67,9 @@ travis-reqs $(TRAVIS_REQS): requirements.in
 #
 UNAME=$(strip $(shell uname))
 ifeq ($(UNAME), Darwin)
-	YML_FILE=py3-opgee-macos.yml
+	YML_FILE=py3-opgee-unix.yml
 else ifeq ($(UNAME), Linux)
-	YML_FILE=py3-opgee-linux.yml
+	YML_FILE=py3-opgee-unix.yml
 else
 	YML_FILE=py3-opgee-win10.yml
 endif
