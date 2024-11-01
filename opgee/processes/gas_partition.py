@@ -31,6 +31,22 @@ class GasPartition(Process):
         super().__init__(name, **kwargs)
         field = self.field
 
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "gas for gas partition"
+        ]
+
+        self._required_outputs = [
+            "gas",
+            # also two possible output streams below
+        ]
+
+        if field.natural_gas_reinjection:
+            self._required_outputs.append("gas for gas reinjection compressor")
+
+        if field.gas_lifting:
+            self._required_outputs.append("lifting gas")
+
         self.imported_NG_comp = ng_comp = field.imported_gas_comp["NG Flooding"]
         self.imported_NG_mass_frac = field.gas.component_mass_fractions(ng_comp)
 
@@ -196,20 +212,20 @@ class GasPartition(Process):
             self.reset_flag = True
         self.set_iteration_value(exported_gas.total_flow_rate())
 
-    def gas_flooding_setup(
-        self, import_product, reinjected_gas_stream, exported_gas_stream
-    ):
+    def gas_flooding_setup(self, import_product, reinjected_gas_stream, exported_gas_stream):
         """
         Set up the gas flooding system for this field.
 
         The method first checks the type of flooding gas used (either "N2", "NG", or "CO2").
         If the type is not recognized, an exception is raised.
 
-        For each type of gas, the method calculates the mass flow rate, adjusts the reinjected gas stream, and updates
-        process data for the field. It also takes care of different scenarios for each type of gas flooding (like source of CO2,
-        required imported natural gas etc.).
+        For each type of gas, the method calculates the mass flow rate, adjusts the reinjected
+        gas stream, and updates process data for the field. It also takes care of different
+        scenarios for each type of gas flooding (like source of CO2, required imported natural
+        gas etc.).
 
-        If the reinjected gas stream has a non-zero total flow rate, the flow rates are copied to the gas for gas reinjection compressor.
+        If the reinjected gas stream has a non-zero total flow rate, the flow rates are copied
+        to the gas for gas reinjection compressor.
 
         :param import_product: (ImportProduct) import product object
         :param reinjected_gas_stream: (Stream) gas stream being reinjected into the reservoir
