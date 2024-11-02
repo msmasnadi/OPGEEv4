@@ -20,7 +20,7 @@ jobs:
       OPGEE_HOME: ${{ github.workspace }}/tests/files
       CI: 'true'
       opgee_pkg_list: 'opgee.pkg_list.txt'
-      opgee_env_yml: 'py3-opgee-unix.yml'
+      opgee_env_yml: 'py3-opgee-all.yml'
     steps:
     - uses: actions/checkout@v4
     - name: Cache pip dependencies
