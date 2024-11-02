@@ -96,8 +96,8 @@ rebuild-opgee: remove-opgee create-opgee travis-reqs install-opgee
 
 # Generate a detailed package list to cache for validation of
 # environment on CI platform (currently github actions)
-linux-pkg-list:
-	conda list --export > opgee-linux64.pkg_list.txt
+env-pkg-list:
+	conda list --export > opgee.pkg_list.txt
 
 NUITKA_EXE    = opgee.exe
 NUITKA_OUTDIR = /tmp/opgee-nuitka

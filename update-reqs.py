@@ -18,7 +18,7 @@ def main():
         pkgs = [line.strip() for line in f.readlines() if not line.startswith('#')]
 
     expr = '(' + '|'.join(pkgs) + ')'
-    cmd = f"conda list -n opgee | egrep -v '^#' | egrep '^{expr}\s+'"
+    cmd = f"conda list -n opgee | egrep -v '^#' | egrep '^{expr}\\s+'"
 
     if Verbose:
         print(cmd)

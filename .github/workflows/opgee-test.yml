@@ -7,18 +7,26 @@ on:
       - dev
 
 jobs:
-  test-linux:
-    runs-on: ubuntu-latest
+  test:
     strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        arch: [x64, arm64]
+        exclude:
+          - os: ubuntu-latest
+            arch: arm64
+          - os: macos-latest
+            arch: x64
       max-parallel: 5
+    runs-on: ${{ matrix.os }}
     defaults:
       run:
         shell: bash -el {0}
     env:
       OPGEE_HOME: ${{ github.workspace }}/tests/files
       CI: 'true'
-      opgee_pkg_list: 'opgee-linux64.pkg_list.txt'
-      opgee_linux_yml: 'py3-opgee-linux.yml'
+      opgee_pkg_list: 'opgee.pkg_list.txt'
+      opgee_env_yml: 'py3-opgee-unix.yml'
     steps:
     - uses: actions/checkout@v4
     - name: Cache pip dependencies
@@ -48,9 +56,8 @@ jobs:
           ${{ runner.os }}-conda-${{ runner.arch }}-${{ hashFiles(env.opgee_pkg_list) }}-${{ env.CACHE_NUMBER }}
     - name: Update Conda env and pip dependencies
       run: |
-        conda env update -n opgee -f $opgee_linux_yml
+        conda env update -n opgee -f $opgee_env_yml
         pip install -e .
-        python -m pip install -e .
         pip install pytest-cov codecov coveralls PyYAML
       if: steps.pip-cache.outputs.cache-hit != 'true' || steps.opgee-env-cache.cache-hit != 'true'
     - name: Run unit tests with coverage
