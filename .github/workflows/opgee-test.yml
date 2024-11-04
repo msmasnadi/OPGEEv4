@@ -24,19 +24,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Cache Conda packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         env:
           CACHE_NUMBER: 0
         with:
           enableCrossOsArchive: true
           path: ${{ runner.os == 'Windows' && 'D:\conda_pkgs_dir' || '~/conda_pkgs_dir'}}
           key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles(env.opgee_env_yml) }}
+          restore-keys: |
+            ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-
       - name: Cache pip dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: pip-cache
         with:
           enableCrossOsArchive: true
-          path: ${{ runner.os == 'Windows' && 'D:\.cache\pp' || '~/.cache/pip' }}
+          path: ${{ runner.os == 'Windows' && 'D:\.cache\pip' || runner.os == 'macOS' && '~/Library/Caches/pip' || '~/.cache/pip' }}
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt')}}
           restore-keys: |
             ${{ runner.os }}-pip-
@@ -48,7 +50,7 @@ jobs:
           python-version: 3.9
       - name: Cache OPGEE env
         id: opgee-env-cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         env:
           # increment cache number to invalidate and rebuild the env
           CACHE_NUMBER: 0
