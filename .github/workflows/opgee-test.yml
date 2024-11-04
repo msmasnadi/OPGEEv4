@@ -23,6 +23,14 @@ jobs:
       opgee_env_yml: 'py3-opgee.yml'
     steps:
     - uses: actions/checkout@v4
+    - name: Cache Conda packages
+      uses: actions/cache@v3
+      env:
+        CACHE_NUMBER: 0
+      with:
+        enableCrossOsArchive: true
+        path: ${{ runner.os == 'Windows' && 'D:\conda_pkgs_dir' || '~/conda_pkgs_dir'}}
+        key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles(env.opgee_env_yml) }}
     - name: Cache pip dependencies
       uses: actions/cache@v3
       id: pip-cache
