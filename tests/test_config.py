@@ -29,7 +29,7 @@ def test_realpath(tmp_path):    # built-in fixture returns a temporary directory
 
     bar = tmp_path / 'bar.txt'
     os.symlink(foo, bar)
-    assert pathjoin(bar, realpath=True) == str(foo)
+    assert pathjoin(bar, realpath=True) == unixPath(str(foo))
 
 
 def test_reload():
