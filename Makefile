@@ -65,14 +65,7 @@ travis-reqs $(TRAVIS_REQS): requirements.in
 #
 # Virtual environment / package dependency support
 #
-UNAME=$(strip $(shell uname))
-ifeq ($(UNAME), Darwin)
-	YML_FILE=py3-opgee-unix.yml
-else ifeq ($(UNAME), Linux)
-	YML_FILE=py3-opgee-unix.yml
-else
-	YML_FILE=py3-opgee-win10.yml
-endif
+YML_FILE=py3-opgee.yml
 
 
 #INPUT_YML=py3-opgee-macos.yml
