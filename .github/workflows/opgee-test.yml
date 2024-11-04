@@ -53,6 +53,6 @@ jobs:
         conda env update -n opgee -f $opgee_env_yml
         pip install -e .
         pip install pytest-cov codecov coveralls PyYAML
-      if: steps.pip-cache.outputs.cache-hit != 'true' || steps.opgee-env-cache.cache-hit != 'true'
+      if: steps.pip-cache.outputs.cache-hit != 'true' || steps.opgee-env-cache.outputs.cache-hit != 'true'
     - name: Run unit tests with coverage
       run: coverage run --source=opgee -m pytest
