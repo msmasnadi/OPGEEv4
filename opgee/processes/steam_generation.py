@@ -38,7 +38,7 @@ class SteamGeneration(Process):
             ]
 
             self._required_outputs = [
-                "recycled water",
+                "water",
             ]
         else:
             self._required_inputs = []
@@ -145,7 +145,7 @@ class SteamGeneration(Process):
 
         recycled_blowdown_water = blowdown_water_mass_rate * self.fraction_blowdown_recycled
 
-        recycled_water_stream = self.find_output_stream("recycled water")
+        recycled_water_stream = self.find_output_stream("water")
         recycled_water_stream.set_liquid_flow_rate("H2O",
                                                    recycled_blowdown_water.to("tonne/day"),
                                                    tp=self.waste_water_reinjection_tp)

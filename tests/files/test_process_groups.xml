@@ -484,11 +484,11 @@
 		</Stream>
 
 		<Stream src="CO2ReinjectionCompressor" dst="CO2InjectionWell">
-			<Contains>gas for CO2 injection well</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="CO2InjectionWell" dst="Reservoir" impute="false">
-			<Contains>gas for reservoir</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="GasDehydration" dst="SourGasCompressor">
@@ -499,9 +499,12 @@
 			<Contains>gas</Contains>
 		</Stream>
 
+		<!-- doesn't match code for SourGasInjection -->
+		<!--
 		<Stream src="SourGasInjection" dst="Reservoir" impute="false">
 			<Contains>gas for reservoir</Contains>
 		</Stream>
+		-->
 
 		<Stream src="Demethanizer" dst="GasPartition">
 			<Contains>gas for gas partition</Contains>
@@ -532,11 +535,11 @@
 		</Stream>
 
 		<Stream src="GasReinjectionCompressor" dst="GasReinjectionWell">
-			<Contains>gas for gas reinjection well</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="GasReinjectionWell" dst="Reservoir" impute="false">
-			<Contains>gas for reservoir</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="GasPartition" dst="TransmissionCompressor">

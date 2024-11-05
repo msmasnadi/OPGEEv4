@@ -530,7 +530,7 @@
 		</Stream>
 
 		<Stream src="SteamGeneration" dst="WaterTreatment">
-			<Contains>recycled water</Contains>
+			<Contains>water</Contains>
 		</Stream>
 
 
@@ -622,7 +622,7 @@
 		</Stream>
 
 		<Stream src="CO2ReinjectionCompressor" dst="CO2InjectionWell">
-			<Contains>gas for CO2 injection well</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="CO2InjectionWell" dst="GasPartition">
@@ -670,11 +670,11 @@
 		</Stream>
 
 		<Stream src="GasReinjectionCompressor" dst="GasReinjectionWell">
-			<Contains>gas for gas reinjection well</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="GasReinjectionWell" dst="Reservoir" impute="false">
-			<Contains>gas for reservoir</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="ProductionBoundary" dst="TransmissionCompressor">

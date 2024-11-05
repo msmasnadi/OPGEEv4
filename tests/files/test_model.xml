@@ -781,7 +781,7 @@
 		</Stream>
 
 		<Stream src="CO2ReinjectionCompressor" dst="ProductionBoundary">
-			<Contains>gas for CO2 injection well</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 	</Field>
@@ -795,7 +795,7 @@
 		<Process class="Boundary" boundary="Production"/>
 
 		<Stream src="Before" dst="CO2InjectionWell">
-			<Contains>gas for CO2 injection well</Contains>
+			<Contains>gas</Contains>
 			<Component name="N2" phase="gas">530.281476</Component>
 			<Component name="CO2" phase="gas">7577.609834</Component>
 			<Component name="C1" phase="gas">372.658027</Component>
@@ -890,7 +890,7 @@
 		</Stream>
 
 		<Stream src="GasReinjectionCompressor" dst="ProductionBoundary">
-			<Contains>gas for gas reinjection well</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 	</Field>
@@ -1355,7 +1355,7 @@
 		</Stream>
 
 		<Stream src="SteamGeneration" dst="ProductionBoundary" name="water">
-			<Contains>recycled water</Contains>
+			<Contains>water</Contains>
 		</Stream>
 
 	</Field>
@@ -1388,7 +1388,7 @@
 		</Stream>
 
 		<Stream src="SteamGeneration" dst="ProductionBoundary" name="water">
-			<Contains>recycled water</Contains>
+			<Contains>water</Contains>
 		</Stream>
 
 	</Field>
@@ -1420,7 +1420,7 @@
 		</Stream>
 
 		<Stream src="SteamGeneration" dst="ProductionBoundary" name="water">
-			<Contains>recycled water</Contains>
+			<Contains>water</Contains>
 		</Stream>
 
 	</Field>

@@ -21,13 +21,12 @@ class GasReinjectionCompressor(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
-        # TODO: avoid process names in contents.
         self._required_inputs = [
             "gas"
         ]
 
         self._required_outputs = [
-            "gas for gas reinjection well"
+            "gas"
         ]
 
         self.air_separation_energy_intensity = None
@@ -67,7 +66,7 @@ class GasReinjectionCompressor(Process):
         loss_rate = self.get_compressor_and_well_loss_rate(input)
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
-        gas_to_well = self.find_output_stream("gas for gas reinjection well")
+        gas_to_well = self.find_output_stream("gas")
         gas_to_well.copy_flow_rates_from(input)
         gas_to_well.subtract_rates_from(gas_fugitives)
 
