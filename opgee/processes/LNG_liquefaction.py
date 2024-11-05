@@ -23,9 +23,8 @@ class LNGLiquefaction(Process):
             "LNG",
         ]
 
-        # TODO: avoid process names in contents.
         self._required_outputs = [
-            "gas for transport",
+            "gas",
             # "gas fugitives"       # TODO: future feature
         ]
 
@@ -52,7 +51,7 @@ class LNGLiquefaction(Process):
         # TODO: delete unused code here and below
         # total_load = (self.compression_refrigeration_load + self.ancillary_loads) * self.NG_to_liq_rate
 
-        gas_to_transport = self.find_output_stream("gas for transport")
+        gas_to_transport = self.find_output_stream("gas")
         gas_to_transport.copy_flow_rates_from(input)
         gas_to_transport.tp.set(T=self.field.LNG_temp)
 

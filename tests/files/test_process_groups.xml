@@ -543,7 +543,7 @@
 		</Stream>
 
 		<Stream src="GasPartition" dst="TransmissionCompressor">
-			<Contains>gas for transmission</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="GasPartition" dst="ProductionBoundary">
@@ -575,15 +575,15 @@
         </Stream>
 
         <Stream src="StorageCompressor" dst="StorageWell">
-            <Contains>gas for well</Contains>
+            <Contains>gas</Contains>
         </Stream>
 
         <Stream src="StorageWell" dst="StorageSeparator">
-            <Contains>gas for separator</Contains>
+            <Contains>gas</Contains>
         </Stream>
 
         <Stream src="StorageSeparator" dst="PostStorageCompressor">
-            <Contains>gas for storage</Contains>
+            <Contains>gas</Contains>
         </Stream>
 
         <Stream src="PostStorageCompressor" dst="GasDistribution">
@@ -591,7 +591,7 @@
         </Stream>
 
         <Stream src="LNGLiquefaction" dst="LNGTransport">
-            <Contains>gas for transport</Contains>
+            <Contains>gas</Contains>
         </Stream>
 
         <Stream src="LNGTransport" dst="LNGRegasification">

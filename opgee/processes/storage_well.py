@@ -21,13 +21,12 @@ class StorageWell(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
-        # TODO: avoid process names in contents.
         self._required_inputs = [
-            "gas for well",
+            "gas",
         ]
 
         self._required_outputs = [
-            "gas for separator",
+            "gas",
         ]
 
         self.cache_attributes()
@@ -38,14 +37,14 @@ class StorageWell(Process):
     def run(self, analysis):
         self.print_running_msg()
 
-        input = self.find_input_stream("gas for well")
+        input = self.find_input_stream("gas")
 
         if input.is_uninitialized():
             return
 
         gas_fugitives = self.set_gas_fugitives(input, self.loss_rate)
 
-        gas_to_separator = self.find_output_stream("gas for separator")
+        gas_to_separator = self.find_output_stream("gas")
         gas_to_separator.copy_gas_rates_from(input)
         gas_to_separator.subtract_rates_from(gas_fugitives)
 
