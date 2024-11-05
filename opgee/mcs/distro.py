@@ -27,7 +27,7 @@ def parseDistroKey(key):
     '''
     Gets the name and list of dimensions from a distro key. Inverse of makeDistroKey
     '''
-    s = re.split('\[', key)
+    s = re.split(r'\[', key)
     return s[0], s[1][:-1].split(',')
 
 def makeDistroKey(name, dimensions, dropZeros=False):
