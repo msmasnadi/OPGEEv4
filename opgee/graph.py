@@ -91,13 +91,15 @@ def write_model_diagram(model, pathname, levels=0):
     display_in_notebook(graph)
 
 def write_process_diagram(field, pathname):
-    graph = pydot.Dot('model', graph_type='graph', bgcolor='white')
+    graph = pydot.Dot('model', graph_type='digraph', bgcolor='white')
 
     for name, proc in field.process_dict.items():
         graph.add_node(pydot.Node(name, shape='box'))
 
     for name, stream in field.stream_dict.items():
-        graph.add_edge(pydot.Edge(stream.src_name, stream.dst_name, color='black'))
+        contents = ', '.join(stream.contents)
+        graph.add_edge(pydot.Edge(stream.src_name, stream.dst_name,
+                                  color='black', label=contents))
 
     _logger.info(f"Writing {pathname}")
     graph.write_png(pathname)

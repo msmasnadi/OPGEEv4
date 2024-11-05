@@ -12,7 +12,7 @@ import pandas as pd
 import numpy as np
 import pint
 from pyXSteam.XSteam import XSteam
-from thermosteam import Chemical, Mixture
+from thermosteam import Chemical, IdealMixture
 
 from . import ureg
 from .core import OpgeeObject, STP, TemperaturePressure
@@ -239,7 +239,7 @@ class Air(OpgeeObject):
         self.field = field
         self.components = [name for name, fraction in self.composition]
         self.mol_fraction = mol_fraction = [fraction for name, fraction in self.composition]
-        self.mixture = mixture = Mixture.from_chemicals(self.components)
+        self.mixture = mixture = IdealMixture.from_chemicals(self.components)
         self.mol_weight = ureg.Quantity(mixture.MW(mol_fraction), "g/mol")
 
     def density(self):
