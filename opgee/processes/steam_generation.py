@@ -33,9 +33,8 @@ class SteamGeneration(Process):
         field = self.field
         if field.steam_flooding == 1 and field.SOR != 0:
             self._required_inputs = [
-                # TODO: avoid process names in contents.
-                "produced water for steam generation",
-                "makeup water for steam generation"
+                "produced water",
+                "makeup water"
             ]
 
             self._required_outputs = [
@@ -122,8 +121,8 @@ class SteamGeneration(Process):
 
         # mass rate
 
-        input_prod_water = self.find_input_stream("produced water for steam generation")
-        input_makeup_water = self.find_input_stream("makeup water for steam generation")
+        input_prod_water = self.find_input_stream("produced water")
+        input_makeup_water = self.find_input_stream("makeup water")
         if input_prod_water.is_uninitialized() and input_makeup_water.is_uninitialized():
             return
 

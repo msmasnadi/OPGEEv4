@@ -19,7 +19,7 @@ class SourGasInjection(Process):
 
         # TODO: avoid process names in contents.
         self._required_inputs = [
-            "gas for sour gas injection",
+            "gas",
         ]
 
         self._required_outputs = [
@@ -31,7 +31,7 @@ class SourGasInjection(Process):
         field = self.field
 
         # mass rate
-        input = self.find_input_stream("gas for sour gas injection")
+        input = self.find_input_stream("gas")
         if input.is_uninitialized():
             return
 

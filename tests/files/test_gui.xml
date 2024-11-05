@@ -77,7 +77,7 @@
 		</Stream>
 
 		<Stream src="ProducedWaterTreatment" dst="After" name="produced water treatment to surface disposal">
-			<Contains>water for surface disposal</Contains>
+			<Contains>water</Contains>
 		</Stream>
 
 		<Stream src="ProducedWaterTreatment" dst="After" name="produced water treatment to subsurface disposal">
@@ -160,7 +160,7 @@
 		</Stream>
 
 		<Stream src="ProducedWaterTreatment" dst="After" name="produced water treatment to surface disposal">
-			<Contains>water for surface disposal</Contains>
+			<Contains>water</Contains>
 		</Stream>
 
 		<Stream src="ProducedWaterTreatment" dst="After" name="produced water treatment to subsurface disposal">

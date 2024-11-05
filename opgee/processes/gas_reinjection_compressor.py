@@ -23,7 +23,7 @@ class GasReinjectionCompressor(Process):
 
         # TODO: avoid process names in contents.
         self._required_inputs = [
-            "gas for gas reinjection compressor"
+            "gas"
         ]
 
         self._required_outputs = [
@@ -59,7 +59,7 @@ class GasReinjectionCompressor(Process):
         field = self.field
 
         # TODO: unclear how this can work if the input stream doesn't exist
-        input = self.find_input_stream("gas for gas reinjection compressor", raiseError=False)
+        input = self.find_input_stream("gas", raiseError=False)
 
         if input is None or input.is_uninitialized():
             return

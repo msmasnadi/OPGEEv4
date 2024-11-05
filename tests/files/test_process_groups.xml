@@ -280,7 +280,7 @@
 		</Stream>
 
 		<Stream src="Separation" dst="GasGathering">
-			<Contains>gas for gas gathering</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 <!--		oil processing path-->
@@ -313,7 +313,7 @@
 		</Stream>
 
 		<Stream src="CrudeOilStabilization" dst="GasGathering">
-			<Contains>gas for gas gathering</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="HeavyOilDilution" dst="CrudeOilStorage">
@@ -372,24 +372,24 @@
 
 <!--		water processing path-->
 		<Stream src="WaterTreatment" dst="ProductionBoundary">
-			<Contains>water for surface disposal</Contains>
+			<Contains>water</Contains>
 			<Contains>water for subsurface disposal</Contains>
 		</Stream>
 
 		<Stream src="WaterTreatment" dst="SteamGeneration">
-			<Contains>produced water for steam generation</Contains>
+			<Contains>produced water</Contains>
 		</Stream>
 
 		<Stream src="WaterTreatment" dst="SteamGeneration" name="makeup water treatment">
-			<Contains>makeup water for steam generation</Contains>
+			<Contains>makeup water</Contains>
 		</Stream>
 
 		<Stream src="WaterTreatment" dst="WaterInjection" name="produced water treatment">
-			<Contains>produced water for water injection</Contains>
+			<Contains>water</Contains>
 		</Stream>
 
 		<Stream src="WaterTreatment" dst="WaterInjection">
-			<Contains>makeup water for water injection</Contains>
+			<Contains>water</Contains>
 		</Stream>
 
 		<Stream src="SteamGeneration" dst="WaterTreatment">
@@ -408,15 +408,15 @@
 		</Stream>
 
 		<Stream src="Flaring" dst="GasGathering">
-			<Contains>gas for gas gathering</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="Venting" dst="GasGathering">
-			<Contains>gas for gas gathering</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="VRUCompressor" dst="GasGathering">
-			<Contains>gas for gas gathering</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="GasGathering" dst="GasDehydration">
@@ -440,11 +440,11 @@
 		</Stream>
 
 		<Stream src="PreMembraneChiller" dst="PreMembraneCompressor">
-			<Contains>gas for compressor</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="PreMembraneCompressor" dst="CO2Membrane">
-			<Contains>gas for CO2 membrane</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="CO2Membrane" dst="AcidGasRemoval">
@@ -496,7 +496,7 @@
 		</Stream>
 
 		<Stream src="SourGasCompressor" dst="SourGasInjection">
-			<Contains>gas for sour gas injection</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="SourGasInjection" dst="Reservoir" impute="false">
@@ -528,7 +528,7 @@
 		</Stream>
 
 		<Stream src="GasPartition" dst="GasReinjectionCompressor">
-			<Contains>gas for gas reinjection compressor</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="GasReinjectionCompressor" dst="GasReinjectionWell">
@@ -544,7 +544,7 @@
 		</Stream>
 
 		<Stream src="GasPartition" dst="ProductionBoundary">
-			<Contains>gas</Contains>
+			<Contains>exported gas</Contains>
 		</Stream>
 
 		<Stream src="TransmissionCompressor" dst="TransportationBoundary" name="transmission gas for storage">
