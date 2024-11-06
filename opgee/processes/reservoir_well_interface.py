@@ -21,6 +21,14 @@ class ReservoirWellInterface(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
+        self._required_inputs = [
+            "crude oil",
+        ]
+
+        self._required_outputs = [
+            "crude oil",
+        ]
+
         self.frac_CO2_breakthrough = None
         self.num_prod_wells = None
         self.oil_volume_rate = None

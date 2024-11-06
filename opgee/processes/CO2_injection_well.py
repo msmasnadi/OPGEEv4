@@ -26,6 +26,15 @@ class CO2InjectionWell(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "gas for CO2 injection well",
+        ]
+
+        self._required_outputs = [
+            "gas for gas partition",
+        ]
+
     def run(self, analysis):
         self.print_running_msg()
         field = self.field

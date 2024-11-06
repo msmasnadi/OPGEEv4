@@ -29,6 +29,24 @@ class WaterTreatment(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        self._required_inputs = [
+            "water",
+        ]
+
+        # TODO: avoid process names in contents.
+        self._required_outputs = []
+
+        field = self.field
+        if field.steam_flooding:
+            self._required_outputs.extend([
+                "makeup water for steam generation",
+                "produced water for steam generation",
+            ])
+
+        if field.water_flooding or field.water_reinjection:
+            self._required_outputs.append("water for water injection")
+
         self.water_treatment_table = self.model.water_treatment
 
         self.SOR = None
