@@ -33,7 +33,7 @@
 
 		<!-- Creates a process loop -->
 		<Stream src="Proc2" dst="Proc3">
-			<Contains>natural gas</Contains>
+			<Contains>gas for Proc3</Contains>
 		</Stream>
 
 		<Stream src="Proc3" dst="Proc2">
