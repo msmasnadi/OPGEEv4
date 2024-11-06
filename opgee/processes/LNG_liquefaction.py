@@ -19,6 +19,17 @@ class LNGLiquefaction(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
+        self._required_inputs = [
+            "LNG",
+        ]
+
+        # TODO: avoid process names in contents.
+        self._required_outputs = [
+            "gas for transport",
+            # "gas fugitives"       # TODO: future feature
+        ]
+
+
         self.ancillary_loads = None
         self.compression_refrigeration_load = None
         self.NG_to_liq_rate = None

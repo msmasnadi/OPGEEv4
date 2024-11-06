@@ -8,6 +8,8 @@ import subprocess
 
 REPO_DIR = os.path.dirname(__file__)
 
+Verbose = False
+
 def main():
     reqs_in  = os.path.join(REPO_DIR, "requirements.in")
     reqs_out = os.path.join(REPO_DIR, "requirements.txt")
@@ -16,13 +18,15 @@ def main():
         pkgs = [line.strip() for line in f.readlines() if not line.startswith('#')]
 
     expr = '(' + '|'.join(pkgs) + ')'
-    cmd = f"conda list -f '{expr}' | egrep -v '^#'"
-    # | egrep -i '{expr}'
+    cmd = f"conda list -n opgee | egrep -v '^#' | egrep '^{expr}\\s+'"
 
-    # print(cmd)
+    if Verbose:
+        print(cmd)
+
     proc = subprocess.run(cmd, shell=True, capture_output=True, text=True)
 
-    # print(f"Lines:\n{proc.stdout}")
+    if Verbose:
+        print(f"Lines:\n{proc.stdout}")
 
     lines = proc.stdout.split('\n')
     with open(reqs_out, 'w') as f:
@@ -30,7 +34,10 @@ def main():
         for line in lines:
             if not line:
                 continue
-            # print(f"Line is '{line}'")
+
+            if Verbose:
+                print(f"Line is '{line}'")
+
             name, version, _, _ = re.split(r'\s+', line)
             f.write(f"{name}=={version}\n")
 

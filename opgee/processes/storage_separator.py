@@ -20,6 +20,16 @@ class StorageSeparator(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "gas for separator",
+        ]
+
+        self._required_outputs = [
+            "gas for storage",
+        ]
+
         self.water_production_frac = None
         self.outlet_tp = None
         self.cache_attributes()

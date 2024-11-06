@@ -70,6 +70,7 @@ class Analysis(Container):
 
         fields = [model.get_field(name) for name in self._field_names]
 
+        # Add to 'fields' any Field that matches Groups declared by the Analysis
         for group in self.groups:
             text = group.text
             if group.is_regex:

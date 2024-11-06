@@ -19,6 +19,16 @@ class Venting(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
         field = self.field
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "gas for venting",
+        ]
+
+        self._required_outputs = [
+            "gas for gas gathering",
+        ]
+
         self.imported_fuel_gas_comp = field.imported_gas_comp["Imported Fuel"]
         self.imported_fuel_gas_mass_fracs = field.gas.component_mass_fractions(self.imported_fuel_gas_comp)
 

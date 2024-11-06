@@ -31,6 +31,15 @@ class CO2Membrane(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
+        self._required_inputs = [
+            "gas for CO2 membrane",         # TODO: avoid process names in contents.
+        ]
+
+        self._required_outputs = [
+            "gas for AGR",
+            "gas for CO2 compressor",
+        ]
+
         self.AGR_feedin_press = None
         self.eta_compressor = None
         self.membrane_comp = None

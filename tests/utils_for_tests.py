@@ -73,6 +73,17 @@ def tmpdir(*args):
     d = pathjoin(getParam('OPGEE.TempDir'), *args)
     return d
 
+@contextmanager
+def tempdir():
+    import tempfile
+    import shutil
+
+    d = tempfile.mkdtemp()
+    try:
+        yield d
+    finally:
+        shutil.rmtree(d)
+
 def load_config_from_string(text):
     stream = StringIO(text)
     readConfigFile(stream)

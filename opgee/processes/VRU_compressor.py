@@ -27,6 +27,16 @@ class VRUCompressor(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "gas for VRU"
+        ]
+
+        self._required_outputs = [
+            "gas for gas gathering"
+        ]
+
         self.discharge_press = None
         self.eta_compressor = None
         self.prime_mover_type = None

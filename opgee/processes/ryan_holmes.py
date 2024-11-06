@@ -20,6 +20,17 @@ class RyanHolmes(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "gas for Ryan Holmes",
+        ]
+
+        self._required_outputs = [
+            "gas for gas partition",
+            "gas for NGL",
+            "gas for CO2 compressor",
+        ]
+
         self.RH_process_tbl = self.field.model.ryan_holmes_process_tbl
 
         self.daily_use_engine = None
