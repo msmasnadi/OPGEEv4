@@ -29,7 +29,7 @@ class StorageCompressor(Process):
         ]
 
         self._required_outputs = [
-            "gas for well",
+            "gas",
         ]
 
         self.discharge_press = None
@@ -71,7 +71,7 @@ class StorageCompressor(Process):
         # import/export
         self.set_import_from_energy(energy_use)
 
-        gas_to_well = self.find_output_stream("gas for well")
+        gas_to_well = self.find_output_stream("gas")
         gas_to_well.copy_flow_rates_from(input, phase=PHASE_GAS)
         gas_to_well.tp.set(T=output_temp, P=self.discharge_press)
         gas_to_well.subtract_rates_from(gas_fugitives)

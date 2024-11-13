@@ -24,7 +24,7 @@ class CO2ReinjectionCompressor(Process):
         - gas for CO2 compressor: The inlet stream of CO2 gas to the compressor.
 
         Outputs:
-        - gas for CO2 injection well: The outlet stream of CO2 gas that is reinjected into the reservoir.
+        - gas: The outlet stream of CO2 gas that is reinjected into the reservoir.
 
         Attributes:
         - res_press: The reservoir pressure in psia.
@@ -41,7 +41,7 @@ class CO2ReinjectionCompressor(Process):
         ]
 
         self._required_outputs = [
-            "gas for CO2 injection well",
+            "gas",
         ]
 
         self.res_press = None
@@ -86,7 +86,7 @@ class CO2ReinjectionCompressor(Process):
             total_energy_consumption += energy_consumption
 
         # Set output stream and iteration value
-        gas_to_well = self.find_output_stream("gas for CO2 injection well")
+        gas_to_well = self.find_output_stream("gas")
         gas_to_well.copy_flow_rates_from(input)
         gas_to_well.subtract_rates_from(gas_fugitives)
         gas_to_well.tp.set(T=out_temp, P=discharge_press)

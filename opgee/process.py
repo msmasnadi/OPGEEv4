@@ -537,7 +537,7 @@ class Process(AttributeMixin, XmlInstantiable):
         Stream, list, dict]:
         """
         Find the input or output streams (indicated by `direction`) that contain the indicated
-        `stream_type`, e.g., 'crude oil', 'raw water' and so on.
+        `stream_type`, e.g., 'oil', 'water' and so on.
 
         :param direction: (str) 'input' or 'output'
         :param stream_type: (str) the generic type of stream a process can handle.
@@ -593,7 +593,7 @@ class Process(AttributeMixin, XmlInstantiable):
     def find_input_stream(self, stream_type, raiseError=True) -> Union[Stream, None]:
         """
         Find exactly one input stream connected to a downstream Process that produces the indicated
-        `stream_type`, e.g., 'crude oil', 'raw water' and so on.
+        `stream_type`, e.g., 'oil', 'water' and so on.
 
         :param stream_type: (str) the generic type of stream a process can handle.
         :param raiseError: (bool) whether to raise an error if no handlers of `stream_type` are found.
@@ -611,7 +611,7 @@ class Process(AttributeMixin, XmlInstantiable):
     def find_output_stream(self, stream_type, raiseError=True) -> Union[Stream, None]:
         """
         Find exactly one output stream connected to a downstream Process that consumes the indicated
-        `stream_type`, e.g., 'crude oil', 'raw water' and so on.
+        `stream_type`, e.g., 'oil', 'water' and so on.
 
         :param stream_type: (str) the generic type of stream a process can handle.
         :param raiseError: (bool) whether to raise an error if no handlers of `stream_type` are found.

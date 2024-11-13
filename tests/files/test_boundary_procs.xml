@@ -27,7 +27,7 @@
 		</Stream>
 
 		<Stream src="ProductionBoundary" dst="DistributionBoundary">
-			<Contains>gas for transmission</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 	</Field>

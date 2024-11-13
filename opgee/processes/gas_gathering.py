@@ -22,7 +22,7 @@ class GasGathering(Process):
 
         # TODO: avoid process names in contents.
         self._required_inputs = [
-            "gas for gas gathering"
+            "gas"
         ]
 
         self._required_outputs = [
@@ -49,11 +49,11 @@ class GasGathering(Process):
         self.print_running_msg()
         field = self.field
 
-        if not self.all_streams_ready("gas for gas gathering"):
+        if not self.all_streams_ready("gas"):
             return
 
         # mass_rate
-        input = self.find_input_streams("gas for gas gathering", combine=True)
+        input = self.find_input_streams("gas", combine=True)
         if input.is_uninitialized():
             return
 
