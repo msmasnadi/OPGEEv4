@@ -828,39 +828,68 @@ class Field(Container):
 
         # Natural gas data processing
         natural_gas_by_proc = {proc.name: ureg.Quantity(proc.energy.rates()[EN_NATURAL_GAS].m/energy_output.m, "dimensionless") for proc in procs}
-        natural_gas_data = process_data(natural_gas_by_proc, self.name)
 
         # Upgrader Proc. Gas data processing
         upg_proc_gas_by_proc = {proc.name: ureg.Quantity(proc.energy.rates()[EN_UPG_PROC_GAS].m/energy_output.m,"dimensionless") for proc in procs}
-        upg_proc_gas_data = process_data(upg_proc_gas_by_proc, self.name)
 
         # NGL data processing
         ngl_by_proc = {proc.name: ureg.Quantity(proc.energy.rates()[EN_NGL].m/energy_output.m, "dimensionless") for proc in procs}
-        ngl_data = process_data(ngl_by_proc, self.name)
 
         # Crude Oil data processing
         crude_oil_by_proc = {proc.name: ureg.Quantity(proc.energy.rates()[EN_CRUDE_OIL].m/energy_output.m, "dimensionless") for proc in procs}
-        crude_oil_data = process_data(crude_oil_by_proc, self.name)
 
         # Diesel data processing
         diesel_by_proc = {proc.name: ureg.Quantity(proc.energy.rates()[EN_DIESEL].m/energy_output.m, "dimensionless") for proc in procs}
-        diesel_data = process_data(diesel_by_proc, self.name)
 
         # Residual Fuel data processing
         residual_fuel_by_proc = {proc.name: ureg.Quantity(proc.energy.rates()[EN_RESID].m/energy_output.m, "dimensionless") for proc in procs}
-        residual_fuel_data = process_data(residual_fuel_by_proc, self.name)
 
         # Petrocoke data processing
         petcoke_by_proc = {proc.name: ureg.Quantity(proc.energy.rates()[EN_PETCOKE].m/energy_output.m, "dimensionless") for proc in procs}
-        petcoke_data = process_data(petcoke_by_proc, self.name)
         
         # Electricity data processing
         electricity_by_proc = {proc.name: ureg.Quantity(proc.energy.rates()[EN_ELECTRICITY].m/energy_output.m, "dimensionless") for proc in procs}
-        electricity_data = process_data(electricity_by_proc, self.name)
 
         # GHG data processing
         ghgs_by_proc = {proc.name: total_emissions(proc, gwp) for proc in procs}
         ghg_data = process_data(ghgs_by_proc, self.name)
+
+        # Add the importation of energy vector
+        from .import_export import WATER, N2, CO2_Flooding
+        net_import = self.get_net_imported_product()
+        for product, energy_rate in net_import.items():
+            # TODO: Water, N2, and CO2 flooding is not in self.upstream_CI and not in upstream-CI.csv,
+            #  which has units of g/mmbtu
+            if product == WATER or product == N2 or product == CO2_Flooding:
+                continue
+
+            if product == EN_ELECTRICITY: 
+                electricity_by_proc["Import"] = ureg.Quantity(energy_rate.m/energy_output.m, "dimensionless") 
+            if product == EN_DIESEL: 
+                diesel_by_proc["Import"] = ureg.Quantity(energy_rate.m/energy_output.m, "dimensionless") 
+            # The crude oil import is negative, so I do not know to what it corresponds to. I decided to remove it for now, what is strange is that it does not equal to 1 but always to 0.98 and I do not know why.
+            # if product == EN_CRUDE_OIL: 
+            #    crude_oil_by_proc["Import"] = ureg.Quantity(energy_rate.m/energy_output.m, "dimensionless") 
+            if product == EN_NATURAL_GAS: 
+                natural_gas_by_proc["Import"] = ureg.Quantity(energy_rate.m/energy_output.m, "dimensionless") 
+            if product == EN_NGL: 
+                ngl_by_proc["Import"] = ureg.Quantity(energy_rate.m/energy_output.m, "dimensionless") 
+            if product == EN_PETCOKE: 
+                petcoke_by_proc["Import"] = ureg.Quantity(energy_rate.m/energy_output.m, "dimensionless") 
+            if product == EN_RESID:
+                residual_fuel_by_proc["Import"] = ureg.Quantity(energy_rate.m/energy_output.m, "dimensionless") 
+            if product == EN_UPG_PROC_GAS:
+                upg_proc_gas_by_proc["Import"] = ureg.Quantity(energy_rate.m/energy_output.m, "dimensionless") 
+        
+        # Process all the energy vectors data. 
+        natural_gas_data = process_data(natural_gas_by_proc, self.name)
+        upg_proc_gas_data = process_data(upg_proc_gas_by_proc, self.name)
+        ngl_data = process_data(ngl_by_proc, self.name)
+        crude_oil_data = process_data(crude_oil_by_proc, self.name)
+        diesel_data = process_data(diesel_by_proc, self.name)
+        residual_fuel_data = process_data(residual_fuel_by_proc, self.name)
+        petcoke_data = process_data(petcoke_by_proc, self.name)
+        electricity_data = process_data(electricity_by_proc, self.name)
 
         # TBD: create a more detailed csv file with ProcessName, and emission categories
         #  [EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES, EM_OTHER] as
