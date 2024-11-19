@@ -498,8 +498,8 @@
       <AttrDef name="fraction_diluent" unit="frac" desc="Volume fraction of diluent in diluted crude" type="float" GE="0" LE="1">0.0</AttrDef>
     </ClassAttrs>
     <ClassAttrs name="CrudeOilStorage">
-      <AttrDef name="f_FG_CS_VRU" unit="percent" type="float" desc="storage gas recovery fraction" GE="0" LE="100">90.0</AttrDef>
-      <AttrDef name="f_FG_CS_FL" unit="percent" type="float" desc="storage gas flare fraction" GE="0" LE="100">10.0</AttrDef>
+      <AttrDef name="f_FG_CS_VRU" unit="percent" type="float" desc="storage gas recovery fraction" GE="0" LE="100">6</AttrDef>
+      <AttrDef name="f_FG_CS_FL" unit="percent" type="float" desc="storage gas flare fraction" GE="0" LE="100">43</AttrDef>
     </ClassAttrs>
 
     <ClassAttrs name="GasDehydration">
