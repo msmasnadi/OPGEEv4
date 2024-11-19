@@ -12,6 +12,17 @@ from ..process import Process
 _logger = getLogger(__name__)
 
 class NGL(Process):
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "gas for NGL",
+        ]
+
+        self._required_outputs = [
+            "LPG",
+        ]
     def run(self, analysis):
         self.print_running_msg()
 

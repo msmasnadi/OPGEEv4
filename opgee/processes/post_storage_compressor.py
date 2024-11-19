@@ -21,6 +21,16 @@ class PostStorageCompressor(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
+        self._required_inputs = [
+            "gas",
+        ]
+
+        # TODO: avoid process names in contents.
+        self._required_outputs = [
+            "gas for distribution",
+        ]
+
+
         self.discharge_press = None
         self.eta_compressor = None
         self.prime_mover_type = None
@@ -35,7 +45,7 @@ class PostStorageCompressor(Process):
     def run(self, analysis):
         self.print_running_msg()
 
-        input = self.find_input_stream("gas for storage")
+        input = self.find_input_stream("gas")
 
         if input.is_uninitialized():
             return

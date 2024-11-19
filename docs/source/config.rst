@@ -167,7 +167,13 @@ Referencing configuration variables
 A powerful feature of the configuration system is that variables can be defined in
 terms of other variables. The syntax for referencing the value of a variable is to
 precede the variable name with ``%(`` and follow it with ``)s``. Thus to reference
-variable ``OPGEE.QueryDir``, you would write ``%(OPGEE.QueryDir)s``.
+variable ``Home``, you would write ``%(Home)s``. For example (from the "etc/system.cfg" file):
+
+.. code-block:: cfg
+
+    OPGEE.LogDir = %(Home)s/tmp
+    OPGEE.LogFile = %(OPGEE.LogDir)s/opgee.log
+
 
 .. note::
 

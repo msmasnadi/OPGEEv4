@@ -64,6 +64,16 @@ class DownholePump(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        self._required_inputs = [
+            "oil",
+            # "lifting gas", # optional input stream
+        ]
+
+        self._required_outputs = [
+            "oil",
+        ]
+
         self.gravitational_acceleration = self.field.model.const("gravitational-acceleration")
 
         self.depth = None
@@ -103,7 +113,7 @@ class DownholePump(Process):
         field = self.field
 
         # mass rate
-        input = self.find_input_stream("crude oil")
+        input = self.find_input_stream("oil")
         if input.is_uninitialized():
             return
 
@@ -114,7 +124,7 @@ class DownholePump(Process):
         loss_rate = field.component_fugitive_table[self.name]
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
-        output = self.find_output_stream("crude oil")
+        output = self.find_output_stream("oil")
         output.copy_flow_rates_from(input, tp=self.wellhead_tp)
         output.subtract_rates_from(gas_fugitives)
 
@@ -213,7 +223,7 @@ class DownholePump(Process):
 
     def impute(self):
         field = self.field
-        output = self.find_output_stream("crude oil")
+        output = self.find_output_stream("oil")
 
         loss_rate = field.component_fugitive_table[self.name]
         loss_rate = (1 / (1 - loss_rate)).to("frac")
@@ -228,7 +238,7 @@ class DownholePump(Process):
         completion_workover_fugitive_stream.set_rates_from_series(completion_workover_fugitive_series, phase=PHASE_GAS)
         field.save_process_data(completion_workover_fugitive_stream=completion_workover_fugitive_stream)
 
-        input = self.find_input_stream("crude oil")
+        input = self.find_input_stream("oil")
         input.copy_flow_rates_from(output)
         input.multiply_flow_rates(loss_rate)
         input.add_flow_rates_from(completion_workover_fugitive_stream)

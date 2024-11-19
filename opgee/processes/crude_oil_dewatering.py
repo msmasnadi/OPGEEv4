@@ -19,7 +19,8 @@ _logger = getLogger(__name__)
 
 class CrudeOilDewatering(Process):
     """
-        A subclass of the Process class that represents a crude oil dewatering process in an oil and gas production system.
+        A subclass of the Process class that represents a crude oil dewatering process
+        in an oil and gas production system.
 
         Attributes:
             field (Field): The field associated with the dewatering process.
@@ -36,11 +37,24 @@ class CrudeOilDewatering(Process):
         super().__init__(name, **kwargs)
 
         self.oil_path = self.field.oil_path
+
+        # TODO: avoid process names in contents. Can all the subsequent processes just
+        #  look for "oil"? Then we'd have a single output stream.
         self.oil_path_dict = {"Stabilization": "oil for stabilization",
                               "Storage": "oil for storage",
                               "Upgrading": "oil for upgrading",
                               "Dilution": "oil for dilution",
                               "Dilution and Upgrading": "oil for dilution"}
+
+        self._required_inputs = [
+            "oil",
+        ]
+
+        self._required_outputs = [
+            "water",
+            self.oil_path_dict[self.field.oil_path]
+        ]
+
         self.eta_electricity = None
         self.eta_gas = None
         self.heat_loss = None
@@ -62,7 +76,7 @@ class CrudeOilDewatering(Process):
         self.print_running_msg()
 
         # mass rate
-        input = self.find_input_stream("crude oil")
+        input = self.find_input_stream("oil")
         if input.is_uninitialized():
             return
 

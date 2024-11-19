@@ -36,6 +36,14 @@ class WaterInjection(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "water",
+        ]
+
+        self._required_outputs = []
+
         self.gravitation_acc = self.model.const("gravitational-acceleration")
         self.gravitation_const = self.model.const("gravitational-constant")
         self.water_density = self.water.density()
@@ -81,7 +89,7 @@ class WaterInjection(Process):
         if self.num_water_inj_wells.m == 0:
             raise OpgeeException(f"Got zero number of injector in the {self.name} process")
 
-        input = self.find_input_stream("water for water injection")
+        input = self.find_input_stream("water")
         if input.is_uninitialized():
             return
 

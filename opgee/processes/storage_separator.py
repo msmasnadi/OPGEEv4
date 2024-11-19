@@ -20,6 +20,15 @@ class StorageSeparator(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        self._required_inputs = [
+            "gas",
+        ]
+
+        self._required_outputs = [
+            "gas",
+        ]
+
         self.water_production_frac = None
         self.outlet_tp = None
         self.cache_attributes()
@@ -31,7 +40,7 @@ class StorageSeparator(Process):
     def run(self, analysis):
         self.print_running_msg()
 
-        input = self.find_input_stream("gas for separator")
+        input = self.find_input_stream("gas")
 
         if input.is_uninitialized():
             return
@@ -40,7 +49,7 @@ class StorageSeparator(Process):
         prod_water = Stream("produced water stream", self.outlet_tp)
         prod_water.set_liquid_flow_rate("H2O", (input.total_gas_rate() * self.water_production_frac).m)
 
-        gas_to_compressor = self.find_output_stream("gas for storage")
+        gas_to_compressor = self.find_output_stream("gas")
         gas_to_compressor.copy_gas_rates_from(input, tp=self.outlet_tp)
 
         #TODO: Future versions of OPGEE may treat this process in more detail.

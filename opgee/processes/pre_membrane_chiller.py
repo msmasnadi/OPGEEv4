@@ -18,6 +18,16 @@ _logger = getLogger(__name__)
 class PreMembraneChiller(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "gas for chiller",
+        ]
+
+        self._required_outputs = [
+            "gas",
+        ]
+
         self.compressor_load = ureg.Quantity(3.44, "kW")
         self.feed_stream_mass_rate = ureg.Quantity(6.111072, "tonne/day")
         self.pressure_drop = ureg.Quantity(56.0, "delta_degC")
@@ -39,7 +49,7 @@ class PreMembraneChiller(Process):
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
-        gas_to_compressor = self.find_output_stream("gas for compressor")
+        gas_to_compressor = self.find_output_stream("gas")
         gas_to_compressor.copy_flow_rates_from(input)
         gas_to_compressor.subtract_rates_from(gas_fugitives)
         gas_to_compressor.tp.set(T=self.outlet_temp, P=input.tp.P)

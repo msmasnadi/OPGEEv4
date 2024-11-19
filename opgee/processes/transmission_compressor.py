@@ -24,6 +24,17 @@ class TransmissionCompressor(Process):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "gas",
+        ]
+
+        self._required_outputs = [
+            "gas for storage",
+            "LNG",
+            "gas for distribution",
+        ]
+
         self.eta_compressor = None
         self.gas_to_storage_frac = None
         self.loss_rate = None
