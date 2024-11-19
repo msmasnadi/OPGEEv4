@@ -463,10 +463,6 @@
 			<Contains>oil for storage</Contains>
 		</Stream>
 
-<!--		<Stream src="HeavyOilUpgrading" dst="ProductionBoundary" name="exported petrocoke">-->
-<!--			<Contains>petrocoke</Contains>-->
-<!--		</Stream>-->
-
 		<Stream src="HeavyOilUpgrading" dst="PetrocokeTransport">
 			<Contains>petrocoke</Contains>
 		</Stream>
@@ -475,21 +471,9 @@
 			<Contains>process gas</Contains>
 		</Stream>
 
-<!--		<Stream src="ProductionBoundary" dst="PetrocokeTransport">-->
-<!--			<Contains>petrocoke</Contains>-->
-<!--		</Stream>-->
-
-<!--		<Stream src="CrudeOilStorage" dst="ProductionBoundary">-->
-<!--			<Contains>oil</Contains>-->
-<!--		</Stream>-->
-
 		<Stream src="CrudeOilStorage" dst="CrudeOilTransport">
 			<Contains>oil</Contains>
 		</Stream>
-
-<!--		<Stream src="ProductionBoundary" dst="CrudeOilTransport">-->
-<!--			<Contains>oil</Contains>-->
-<!--		</Stream>-->
 
 		<Stream src="CrudeOilTransport" dst="ProductionBoundary">
 			<Contains>oil</Contains>
@@ -667,11 +651,7 @@
 			<Contains>gas for reservoir</Contains>
 		</Stream>
 
-		<Stream src="ProductionBoundary" dst="TransmissionCompressor">
-			<Contains>gas for transmission</Contains>
-		</Stream>
-
-		<Stream src="GasPartition" dst="ProductionBoundary">
+		<Stream src="GasPartition" dst="TransmissionCompressor">
 			<Contains>gas</Contains>
 		</Stream>
 
@@ -679,29 +659,17 @@
 			<Contains>LPG</Contains>
 		</Stream>
 
-		<Stream src="TransmissionCompressor" dst="TransportationBoundary" name="transmission gas for storage">
+		<Stream src="TransmissionCompressor" dst="StorageCompressor" name="transmission gas for storage">
 			<Contains>gas for storage</Contains>
 		</Stream>
 
-		<Stream src="TransmissionCompressor" dst="TransportationBoundary" name="transmission gas for LNG">
+		<Stream src="TransmissionCompressor" dst="LNGLiquefaction" name="transmission gas for LNG">
 			<Contains>LNG</Contains>
 		</Stream>
 
-		<Stream src="TransmissionCompressor" dst="TransportationBoundary" name="transmission gas for distribution">
+		<Stream src="TransmissionCompressor" dst="GasDistribution" name="transmission gas for distribution">
 			<Contains>gas for distribution</Contains>
 		</Stream>
-
-		<Stream src="TransportationBoundary" dst="StorageCompressor">
-            <Contains>gas for storage</Contains>
-        </Stream>
-
-        <Stream src="TransportationBoundary" dst="LNGLiquefaction">
-            <Contains>LNG</Contains>
-        </Stream>
-
-        <Stream src="TransportationBoundary" dst="GasDistribution">
-            <Contains>gas for distribution</Contains>
-        </Stream>
 
         <Stream src="StorageCompressor" dst="StorageWell">
             <Contains>gas for well</Contains>
@@ -731,7 +699,7 @@
             <Contains>gas for distribution</Contains>
         </Stream>
 
-        <Stream src="GasDistribution" dst="DistributionBoundary">
+        <Stream src="GasDistribution" dst="ProductionBoundary">
             <Contains>gas</Contains>
         </Stream>
 
