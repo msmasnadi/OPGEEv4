@@ -271,6 +271,19 @@ class Process(AttributeMixin, XmlInstantiable):
         """
         pass
 
+    @staticmethod
+    def valdict(pattern: str, min: int = 1, max: int = 1):
+        """
+        Support method for setting _required_inputs and _required_outputs to
+        validate Stream contents.
+
+        :param pattern: (str) the content name or a regex pattern matching names
+        :param min: (int) the minimum number of inputs that must match; defaults to 1
+        :param max: (int) the maximum number of inputs that must match; defaults to 1
+        :return: (dict) a dictionary with keys required by the validation subsystem.
+        """
+        return dict(pattern=pattern, min=min, max=max)
+
     def validate_streams(self):
         """
         Verify that each Process is connected to all required input and output streams.
@@ -286,26 +299,40 @@ class Process(AttributeMixin, XmlInstantiable):
 
         msgs = []
 
-        for contents in self.required_inputs():
-            if isinstance(contents, tuple):
-                # tuples indicate sets from which at least one must be present
-                present = [bool(self.find_input_streams(c, as_list=True, regex=True, raiseError=False))
-                           for c in contents]
-                if not any(present):
-                    msgs.append(f"{self} has no input streams containing any of '{contents}'")
+        # helper func consolidates input/output stream validation methods
+        def _validate(direction):
+            if direction == 'input':
+                required = self._required_inputs
+                find_func = self.find_input_streams
+            elif direction == 'output':
+                find_func = self.find_output_streams
+                required = self._required_outputs
+            else:
+                raise ModelValidationError(f"validate_streams: Internal error: unknown direction '{direction}'")
 
-            elif not self.find_input_streams(contents, as_list=True, regex=True, raiseError=False):
-                msgs.append(f"{self} is missing a required input stream containing '{contents}'")
+            for contents in required:
+                if isinstance(contents, tuple):
+                    # tuples indicate sets from which at least one must be present
+                    found = [bool(find_func(c, as_list=True, regex=True, raiseError=False))
+                             for c in contents]
+                    if not any(found):
+                        msgs.append(f"{self} has no {direction} streams containing any of '{contents}'")
 
-        for contents in self.required_outputs():
-            if isinstance(contents, tuple):
-                present = [bool(self.find_output_streams(c, as_list=True, regex=True, raiseError=False))
-                           for c in contents]
-                if not any(present):
-                    msgs.append(f"{self} has no output streams containing any of '{contents}'")
+                elif isinstance(contents, dict):
+                # dicts are used to indicate max/min allowable occurrences of the given content pattern
+                    pattern = contents['pattern']
+                    mn = contents['min']
+                    mx = contents['max']
+                    found = find_func(pattern, as_list=True, regex=True, raiseError=False)
+                    count = len(found)
+                    if not (mn <= count <= mx):
+                        msgs.append(f"{self} has {count} streams with '{pattern}'; max allowed:{mx}, min allowed:{mn}'")
 
-            elif not self.find_output_streams(contents, as_list=True, regex=True, raiseError=False):
-                msgs.append(f"{self} is missing a required output stream containing '{contents}'")
+                elif not find_func(contents, as_list=True, regex=True, raiseError=False):
+                    msgs.append(f"{self} is missing a required {direction} stream containing '{contents}'")
+
+        _validate('input')
+        _validate('output')
 
         if msgs:
             msg = f"Field {self.field}:\n" + '\n'.join(msgs)

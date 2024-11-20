@@ -17,6 +17,16 @@ class Proc2(Process):
 
 
 class Proc3(Process):
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
+
+        self._required_inputs = [
+            self.valdict(r'.*gas.*', min=2, max=2),
+        ]
+        self._required_outputs = [
+            "CO2",
+        ]
+
     def run(self, analysis):
         pass
 

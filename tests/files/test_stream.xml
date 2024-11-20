@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
-	<A name="skip_validation">1</A>
 
 	<Analysis name="test">
 		<A name="functional_unit">oil</A>
@@ -34,6 +33,11 @@
 		<!-- Creates a process loop -->
 		<Stream src="Proc2" dst="Proc3">
 			<Contains>gas for Proc3</Contains>
+		</Stream>
+
+		<Stream src="Proc2" dst="Proc3" name="Proc2-to-Proc3">
+			<Contains>CO2</Contains>
+			<Contains>Other gas</Contains>
 		</Stream>
 
 		<Stream src="Proc3" dst="Proc2">
