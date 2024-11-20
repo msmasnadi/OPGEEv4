@@ -692,7 +692,7 @@ class Stream(AttributeMixin, XmlInstantiable):
         :return: (bool) True if `stream_type` is among the contents of `stream`
         """
         if regex:
-            return any(re.match(stream_type, name) for name in self.contents)
+            return any(re.fullmatch(stream_type, name) for name in self.contents)
         else:
             return stream_type in self.contents
 
