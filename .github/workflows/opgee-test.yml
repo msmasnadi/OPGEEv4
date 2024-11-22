@@ -10,44 +10,70 @@ jobs:
   test:
     strategy:
       matrix:
+        include:
+          - os: ubuntu-latest
+            label: linux-64
+            prefix: /usr/share/miniconda3/envs/opgee
+            pkg_path: ~/conda_pkgs_dir
+            pip_dir: ~/.cache/pip
+
+          - os: macos-latest
+            label: osx-arm64
+            prefix: /Users/runner/miniconda3/envs/opgee
+            pkg_path: ~/conda_pkgs_dir
+            pip_dir: ~/Library/Caches/pip
+
+          - os: windows-latest
+            label: win-64
+            prefix: C:\Miniconda3\envs\opgee
+            pkg_path: D:\conda_pkgs_dir
+            pip_dir: D:\.cache\pip
+
         os: [ubuntu-latest, macos-latest, windows-latest]
       max-parallel: 5
     runs-on: ${{ matrix.os }}
+    name: ${{ matrix.label }}
     defaults:
       run:
         shell: bash -el {0}
     env:
       OPGEE_HOME: ${{ github.workspace }}/tests/files
       CI: "true"
-      opgee_pkg_list: "opgee.pkg_list.txt"
-      opgee_env_yml: "py3-opgee.yml"
+      lock_file: "opgee.conda.lock"
+      opgee_env_yml: "opgee.yml"
     steps:
       - uses: actions/checkout@v4
+
       - name: Cache Conda packages
         uses: actions/cache@v4
         env:
           CACHE_NUMBER: 0
         with:
           enableCrossOsArchive: true
-          path: ${{ runner.os == 'Windows' && 'D:\conda_pkgs_dir' || '~/conda_pkgs_dir'}}
-          key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles(env.opgee_env_yml) }}
+          path: ${{ matrix.pkg_path }}
+          key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles(env.lock_file) }}
           restore-keys: |
             ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-
+
       - name: Cache pip dependencies
         uses: actions/cache@v4
         id: pip-cache
         with:
           enableCrossOsArchive: true
-          path: ${{ runner.os == 'Windows' && 'D:\.cache\pip' || runner.os == 'macOS' && '~/Library/Caches/pip' || '~/.cache/pip' }}
+          path: ${{ matrix.pip_dir }}
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt')}}
           restore-keys: |
             ${{ runner.os }}-pip-
+
       - name: Init Anaconda
         uses: conda-incubator/setup-miniconda@v3
         with:
           miniforge-version: latest
+          channel-priority: strict
           activate-environment: opgee
-          python-version: 3.9
+          use-only-tar-bz2: true
+          pkgs-dirs: ${{ matrix.pkg_path }}
+
       - name: Cache OPGEE env
         id: opgee-env-cache
         uses: actions/cache@v4
@@ -57,12 +83,15 @@ jobs:
         with:
           enableCrossOsArchive: true
           path: ${{ env.CONDA }}/envs
-          key: ${{ runner.os }}-conda-${{ runner.arch }}-${{ hashFiles(env.opgee_pkg_list) }}-${{ env.CACHE_NUMBER }}
+          key: ${{ runner.os }}-conda-${{ runner.arch }}-${{ hashFiles(env.lock_file) }}-${{ env.CACHE_NUMBER }}
+
       - name: Update Conda env and pip dependencies
         run: |
-          conda env update -n opgee -f $opgee_env_yml
-          pip install -e .
+          pip install conda-lock
+          conda-lock install -n opgee ${{ env.lock_file }}
           pip install pytest-cov codecov coveralls PyYAML
+          conda develop .
         if: steps.pip-cache.outputs.cache-hit != 'true' || steps.opgee-env-cache.outputs.cache-hit != 'true'
+
       - name: Run unit tests with coverage
         run: coverage run --source=opgee -m pytest
