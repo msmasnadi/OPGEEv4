@@ -90,7 +90,7 @@ jobs:
           pip install conda-lock
           conda-lock install -n opgee ${{ env.lock_file }}
           pip install pytest-cov codecov coveralls PyYAML
-          conda develop .
+          pip install .
         if: steps.pip-cache.outputs.cache-hit != 'true' || steps.opgee-env-cache.outputs.cache-hit != 'true'
 
       - name: Run unit tests with coverage
