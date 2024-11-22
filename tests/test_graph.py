@@ -1,16 +1,21 @@
 import os
+
 import pytest
-from opgee.error import CommandlineError
+
 from opgee.config import IsWindows
+from opgee.error import CommandlineError
+from tests.utils_for_tests import path_to_test_file
+
 DEVNULL = 'nul' if IsWindows else '/dev/null'
 
 is_sherlock = os.environ.get('LMOD_SYSHOST') == 'sherlock'
+xml_path = path_to_test_file('gas_lifting_field.xml')
 
 @pytest.mark.skipif(is_sherlock, reason="requires the graphviz/dot which isn't working on sherlock")
 @pytest.mark.parametrize(
     "args", [
         ['graph', '--classes', 'core', '--classes-output', DEVNULL],
-        ['graph', '--field', 'gas_lifting_field', '--field-output', DEVNULL],
+        ['graph', '--field', 'gas_lifting_field', '-x', xml_path, '--field-output', DEVNULL],
         ['graph', '--hierarchy-output', DEVNULL],
     ]
 )
