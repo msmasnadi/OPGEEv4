@@ -75,7 +75,7 @@ principles:
 2. **Keep stream contents as generic as possible.** |br|
    Avoid names that encode the endpoints of the stream, using instead as generic a name
    for the contents as possible. Use content names that describe the main contents of the
-   stream, like "crude oil" or "dehydrated gas". **Do not** include the name of the source or
+   stream, like "oil" or "dehydrated gas". **Do not** include the name of the source or
    destination processes in the contents.
 
 3. **Store data that needs to be shared with other processes in the Field instance.** |br|

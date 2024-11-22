@@ -12,16 +12,9 @@ import pandas as pd
 
 from . import ureg
 from .config import getParamAsList
-from .constants import (
-    SIMPLE_RESULT,
-    DETAILED_RESULT,
-    ERROR_RESULT,
-    DEFAULT_RESULT_TYPE,
-    USER_RESULT_TYPES,
-    ALL_RESULT_TYPES,
-)
+from .constants import DETAILED_RESULT
 from .container import Container
-from .core import elt_name, instantiate_subelts, dict_from_list, STP, magnitude
+from .core import elt_name, instantiate_subelts, dict_from_list, STP
 from .energy import Energy
 from .error import (
     OpgeeException,
@@ -33,6 +26,7 @@ from .error import (
 )
 from .import_export import ImportExport
 from .log import getLogger
+from .post_processor import PostProcessor
 from .process import Process, Aggregator, Reservoir, decache_subclasses
 from .process_groups import ProcessChoice
 from .processes.steam_generator import SteamGenerator
@@ -58,6 +52,7 @@ class FieldResult:
             gas_data=None,  # individual gases
             streams_data=None,
             ci_results=None,
+            energy_output=None,
             trial_num=None,
             error=None,
     ):
@@ -65,8 +60,9 @@ class FieldResult:
         self.field_name = field_name
         self.result_type = result_type
         self.ci_results = ci_results  # list of tuples of (node_name, CI)
-        self.energy = energy_data
-        self.emissions = ghg_data  # TBD: change self.emissions to self.ghgs
+        self.energy_output = energy_output
+        self.energy = energy_data   # energy consumption data
+        self.emissions = ghg_data   # TBD: change self.emissions to self.ghgs
         self.gases = gas_data
         self.streams = streams_data
         self.trial_num = trial_num
@@ -129,6 +125,11 @@ class Field(Container):
         self.modifies = None
 
         self.carbon_intensity = ureg.Quantity(0.0, "g/MJ")
+
+        # These are set when carbon intensity is computed
+        self.energy_output = ureg.Quantity(0.0, "mmbtu/day")
+        self.total_emissions = ureg.Quantity(0.0, "tonnes/day")
+
         self.procs_beyond_boundary = None
 
         self.graph = None
@@ -316,9 +317,7 @@ class Field(Container):
             super()._children()
         )  # + self.streams() # Adding this caused several errors...
 
-    def add_children(
-            self, aggs=None, procs=None, streams=None, process_choice_dict=None
-    ):
+    def add_children(self, aggs=None, procs=None, streams=None, process_choice_dict=None):
         # Note that `procs` include only Processes defined at the top-level of the field.
         # Other Processes maybe defined within the Aggregators in `aggs`.
         super().add_children(aggs=aggs, procs=procs)
@@ -334,7 +333,7 @@ class Field(Container):
         known_boundaries = self.known_boundaries
 
         # Remember streams that declare themselves as system boundaries. Keys must be one of the
-        # values in the tuples in the _known_boundaries dictionary above. s
+        # values in the tuples in the _known_boundaries dictionary above.
         boundary_dict = self.boundary_dict
 
         # Save references to boundary processes by name; fail if duplicate definitions are found.
@@ -364,10 +363,8 @@ class Field(Container):
 
         self.check_attr_constraints(self.attr_dict)
 
-        (
-            self.component_fugitive_table,
-            self.loss_mat_gas_ave_df,
-        ) = self.get_component_fugitive()
+        self.component_fugitive_table, self.loss_mat_gas_ave_df = \
+            self.get_component_fugitive()
 
         self.finalize_process_graph()
 
@@ -637,6 +634,10 @@ class Field(Container):
                     total_emissions / boundary_energy_flow_rate
             ).to("grams/MJ")
 
+        # Also save the numerator and denominator separately for reporting
+        self.energy_output = boundary_energy_flow_rate
+        self.total_emissions = total_emissions
+
         return ci
 
     def partial_ci_values(self, analysis, nodes):
@@ -679,18 +680,23 @@ class Field(Container):
 
     def energy_and_emissions(self, analysis):
         import pandas as pd
+
         def process_data(proc_dict, column_name):
             data = pd.Series(proc_dict).apply(lambda x: x.m)
+            df = pd.DataFrame(data, columns=[column_name])
+
+            # Add a 'units' columns using the units from the first element
+            # in the dict. N.B. We assume all elements have the same units.
             unit = next(iter(proc_dict.values())).u
-            data = pd.DataFrame(data, columns=[f'{column_name} ({unit})']).reset_index()
-            data.columns = ['process', data.columns[1]]
-            data.set_index('process', inplace=True)
-            return data
+            df['unit'] = unit
+
+            df.index.rename('process', inplace=True)
+            return df
 
         gwp = analysis.gwp
         procs = self.processes()
 
-        # Energy data processing
+        # Energy use data processing
         energy_by_proc = {proc.name: proc.energy.rates().sum() for proc in procs}
         energy_data = process_data(energy_by_proc, self.name)
 
@@ -704,8 +710,6 @@ class Field(Container):
         #  So basically, adding a column to each Emissions dataframe with the name of the
         #  process, then concatenating them into a dataframe.
         def gas_df_with_name(proc):
-            from copy import copy
-
             df = proc.emissions.data.reset_index().rename(columns={"index": "gas"})
             cols = ['field', 'process'] + list(df.columns)
             df['field'] = self.name
@@ -728,27 +732,19 @@ class Field(Container):
         :param trial_num: (int) trial number, if running in MCS mode
         :return: (FieldResult) results
         """
-        energy_data, ghg_data, gas_data = (
-            self.energy_and_emissions(analysis)
-            if result_type == DETAILED_RESULT
-            else (None, None, None)
-        )
+        energy_data, ghg_data, gas_data = self.energy_and_emissions(analysis) \
+            if result_type == DETAILED_RESULT else (None, None, None)
 
         nodes = self.processes() if DETAILED_RESULT else self.children()
         ci_tuples = self.partial_ci_values(analysis, nodes)
 
         ci_results = (
-            None
-            if ci_tuples is None
+            None if ci_tuples is None
             else [("TOTAL", self.carbon_intensity)] + ci_tuples
         )
 
-        streams = self.streams()
-
-        streams_data = pd.concat([s.to_dataframe() for s in streams])
-
-        # TBD: need to save the streams data to CSV
-        #  =========================================
+        dfs = [s.to_dataframe() for s in self.streams()]
+        streams_data = pd.concat(dfs)
 
         result = FieldResult(
             analysis.name,
@@ -756,11 +752,16 @@ class Field(Container):
             result_type,
             trial_num=trial_num,
             ci_results=ci_results,
+            energy_output=self.energy_output,
             energy_data=energy_data,
             ghg_data=ghg_data,  # TBD: superseded by gas_data
             gas_data=gas_data,
             streams_data=streams_data,
         )
+
+        # Run optional post-process plugins
+        PostProcessor.run_post_processors(analysis, self, result)
+
         return result
 
     def get_imported_emissions(self, net_import):
@@ -1038,7 +1039,13 @@ class Field(Container):
         :return: none
         :raises ModelValidationError: raised if any validation condition is violated.
         """
-        super().validate()
+
+        # Allow test models to skip validation to avoid overly complicating all tests
+        if self.model.attr("skip_validation"):
+            _logger.warning(f"{self} skipping Process and Stream validation")
+        else:
+            for child in self.children():
+                child.validate()
 
         # Accumulate error msgs so user can correct them all at once.
         msgs = []
@@ -1453,10 +1460,10 @@ class Field(Container):
                 else:
                     _collect(process_list, child)
 
-        processes = (
-            self.builtin_procs.copy()
-        )  # copy since we're appending to this list recursively
+        # use a copy since we append to this list recursively
+        processes = self.builtin_procs.copy()
         _collect(processes, self)
+
         return processes
 
     def save_process_data(self, **kwargs):
@@ -1518,9 +1525,8 @@ class Field(Container):
             for group_name, group in choice.groups_dict.items():
                 procs, streams = group.processes_and_streams(self)
 
-                if (
-                        group_name == selected_group_name
-                ):  # remember the ones to turn back on
+                # remember the ones to enable
+                if (group_name == selected_group_name):
                     to_enable.extend(procs)
                     to_enable.extend(streams)
 
@@ -1593,6 +1599,24 @@ class Field(Container):
             return results or None
 
         return None
+
+    def print_process_list(self):
+        """
+        Debugging tool
+        """
+        p_dict = self.process_dict
+
+        for name in sorted(p_dict.keys()):
+            proc = p_dict[name]
+            print(f"\n{proc}")
+
+            print("  Inputs:")
+            for s in proc.inputs:
+                print(f"    {s} contains '{s.contents}'")
+
+            print("  Outputs:")
+            for s in proc.outputs:
+                print(f"    {s} contains '{s.contents}'")
 
     #
     # Smart Defaults and Distributions
@@ -1676,7 +1700,7 @@ class Field(Container):
     def depth_default(self, GOR):
         # =IF(GOR > 10000, Z62, 7122), where Z62 has constant 8285 [gas field default depth]
         gas_field_default_depth = 8285.0
-        return gas_field_default_depth if GOR.m > 1000 else 7122.0
+        return gas_field_default_depth if GOR.m > 10000 else 7122.0
 
     @SmartDefault.register("res_press", ["country", "depth", "steam_flooding"])
     def res_press_default(self, country, depth, steam_flooding):
@@ -1794,3 +1818,4 @@ class Field(Container):
         return num_prod_wells * 0.25
 
     # TODO: decide how to handle "associated gas defaults", which is just global vs CA-LCFS values currently
+

@@ -11,7 +11,7 @@ import math
 from .compressor import Compressor
 from .shared import get_energy_carrier
 from ..core import TemperaturePressure
-from ..emissions import EM_COMBUSTION, EM_FUGITIVES
+from ..emissions import EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
 
@@ -23,6 +23,17 @@ class TransmissionCompressor(Process):
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "gas",
+        ]
+
+        self._required_outputs = [
+            "gas for storage",
+            "LNG",
+            "gas for distribution",
+        ]
 
         self.eta_compressor = None
         self.gas_to_storage_frac = None
@@ -110,8 +121,5 @@ class TransmissionCompressor(Process):
         gas_to_distribution.subtract_rates_from(gas_to_liquefaction)
 
         # emissions
-        emissions = self.emissions
-        energy_for_combustion = energy_use.data.drop("Electricity")
-        combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
-        emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
+        self.set_combustion_emissions()
+        self.emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)

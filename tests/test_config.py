@@ -10,7 +10,7 @@ def test_unixpath():
     assert unixPath(r"\Users\foo\bar") == "/Users/foo/bar"
 
 def test_expanduser():
-    if os.environ.get('TRAVIS') == 'true':
+    if os.environ.get('CI') == 'true':
         home = os.environ['HOME']           # don't use OPGEE_HOME for this test
     else:
         home = getHomeDir()
@@ -29,7 +29,7 @@ def test_realpath(tmp_path):    # built-in fixture returns a temporary directory
 
     bar = tmp_path / 'bar.txt'
     os.symlink(foo, bar)
-    assert pathjoin(bar, realpath=True) == str(foo)
+    assert pathjoin(bar, realpath=True) == unixPath(str(foo))
 
 
 def test_reload():

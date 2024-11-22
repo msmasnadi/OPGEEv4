@@ -19,50 +19,82 @@
 	</Analysis>
 
 	<Field name="gas_lifting_field" modifies="template">
-		<A name="API">32.0</A>
-		<A name="GLIR">30.26</A>
-		<A name="GOR">584.29</A>
-		<A name="WIR">1.5</A>
-		<A name="WOR">0.5</A>
-		<A name="age">12.0</A>
-		<A name="country">Angola</A>
-		<A name="depth">3937.0</A>
-		<A name="downhole_pump">0</A>
-		<A name="frac_transport_barge">0.0</A>
-		<A name="frac_transport_pipeline">0.0</A>
-		<A name="frac_transport_rail">0.0</A>
-		<A name="frac_transport_tanker">1.0</A>
-		<A name="fraction_elec_onsite">1.0</A>
-		<A name="fraction_water_reinjected">1.0</A>
-		<A name="gas_flooding">0</A>
-		<A name="gas_lifting">1</A>
-		<A name="name">Girassol</A>
-		<A name="natural_gas_reinjection">1</A>
-		<A name="num_prod_wells">24</A>
-		<A name="num_water_inj_wells">20</A>
-		<A name="oil_prod">175000.0</A>
-		<A name="oil_sands_mine">None</A>
-		<A name="prod_index">90.9</A>
-		<A name="res_press">3655.0</A>
-		<A name="steam_flooding">0</A>
-		<A name="transport_dist_barge">0.0</A>
-		<A name="transport_dist_pipeline">0.0</A>
-		<A name="transport_dist_rail">0.0</A>
-		<A name="transport_dist_tanker">7984.0</A>
-		<A name="water_flooding">0</A>
-		<A name="water_reinjection">1</A>
-		<A name="well_diam">8.0</A>
-		<A name="frac_transport_rail">1</A>
+		<A name="downhole_pump">1</A>
+	<A name="water_reinjection">0</A>
+	<A name="natural_gas_reinjection">0</A>
+	<A name="water_flooding">0</A>
+	<A name="gas_lifting">0</A>
+	<A name="gas_flooding">0</A>
+	<A name="steam_flooding">0</A>
+	<A name="country">Venezuela</A>
+	<A name="name">Hamaca</A>
+	<A name="age">13.0</A>
+	<A name="depth">2200.0</A>
+	<A name="oil_prod">158441.0</A>
+	<A name="num_prod_wells">190</A>
+	<A name="num_water_inj_wells">0</A>
+	<A name="well_diam">5.5</A>
+	<A name="prod_index">10.0</A>
+	<A name="res_press">950.0</A>
+	<A name="res_temp">109.6</A>
+	<A name="offshore">0.0</A>
+	<A name="API">8.6</A>
+	<A name="gas_comp_N2">0.1</A>
+	<A name="gas_comp_CO2">5.9</A>
+	<A name="gas_comp_C1">91.9</A>
+	<A name="gas_comp_C2">0.86</A>
+	<A name="gas_comp_C3">0.39</A>
+	<A name="gas_comp_C4">0.85</A>
+	<A name="gas_comp_H2S">0.0</A>
+	<A name="GOR">111.0</A>
+	<A name="WOR">0.1</A>
+	<A name="WIR">1.1</A>
+	<A name="GLIR">363.8</A>
+	<A name="GFIR">166.5</A>
+	<A name="flood_gas_type">NG</A>
+	<A name="SOR">0.0</A>
+	<A name="fraction_elec_onsite">1.0</A>
+	<A name="fraction_remaining_gas_inj">0.0</A>
+	<A name="fraction_water_reinjected">0.0</A>
+	<A name="fraction_steam_cogen">0.0</A>
+	<A name="fraction_steam_solar">0.0</A>
+	<A name="stabilizer_column">0</A>
+	<A name="upgrader_type">Delayed coking</A>
+	<A name="gas_processing_path">Acid Wet Gas</A>
+	<A name="FOR">99.9</A>
+	<A name="frac_venting">0.002</A>
+	<A name="frac_transport_tanker">1.0</A>
+	<A name="frac_transport_barge">0.0</A>
+	<A name="frac_transport_pipeline">1.0</A>
+	<A name="frac_transport_rail">0.0</A>
+	<A name="frac_transport_truck">0.0</A>
+	<A name="transport_dist_tanker">2443.0</A>
+	<A name="transport_dist_barge">500.0</A>
+	<A name="transport_dist_pipeline">140.0</A>
+	<A name="transport_dist_rail">800.0</A>
+	<A name="transport_dist_truck">100.0</A>
+	<A name="oil_sands_mine">None</A>
+	<A name="oil_processing_path">Upgrading</A>
+	<A name="frac_CO2_breakthrough">59</A>
+	<A name="ecosystem_richness">High carbon</A>
+	<A name="field_development_intensity">High</A>
+	<A name="prod_water_inlet_temp">140.0</A>
 
+		<!--
+		  Set attributes with correct nesting to Process declarations,
+		  so model / template merger works properly.
+		-->
+	<Aggregator name="ProductionExtraction">
 		<Process class="CrudeOilDewatering">
-        <A name="heater_treater">0</A>
-      </Process>
-		<Process class="DownholePump">
-			<A name="eta_pump_well">50</A>
-		</Process>
+        	<A name="heater_treater">1</A>
+        </Process>
+	</Aggregator>
+
+	<Aggregator name="SurfaceProcessing">
       <Process class="HeavyOilDilution">
         <A name="fraction_diluent">0.0</A>
       </Process>
+	</Aggregator>
 	</Field>
 
 	<Field name="template">
@@ -351,21 +383,21 @@
 		</Stream>
 
 		<Stream src="Reservoir" dst="ReservoirWellInterface">
-			<Contains>crude oil</Contains>
+			<Contains>oil</Contains>
 		</Stream>
 
 		<Stream src="ReservoirWellInterface" dst="DownholePump">
-			<Contains>crude oil</Contains>
+			<Contains>oil</Contains>
 		</Stream>
 
 		<Stream src="DownholePump" dst="Separation">
-			<Contains>crude oil</Contains>
+			<Contains>oil</Contains>
 		</Stream>
 
 
 <!--		After separation-->
 		<Stream src="Separation" dst="CrudeOilDewatering">
-			<Contains>crude oil</Contains>
+			<Contains>oil</Contains>
 		</Stream>
 
 		<Stream src="Separation" dst="WaterTreatment">
@@ -406,7 +438,7 @@
 		</Stream>
 
 		<Stream src="CrudeOilStabilization" dst="GasGathering">
-			<Contains>gas for gas gathering</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="HeavyOilDilution" dst="CrudeOilStorage">
@@ -465,24 +497,24 @@
 
 <!--		water processing path-->
 		<Stream src="WaterTreatment" dst="ProductionBoundary">
-			<Contains>water for surface disposal</Contains>
+			<Contains>water</Contains>
 			<Contains>water for subsurface disposal</Contains>
 		</Stream>
 
 		<Stream src="WaterTreatment" dst="SteamGeneration" name="produced water treatment">
-			<Contains>produced water for steam generation</Contains>
+			<Contains>produced water</Contains>
 		</Stream>
 
 		<Stream src="WaterTreatment" dst="SteamGeneration" name="makeup water treatment">
-			<Contains>makeup water for steam generation</Contains>
+			<Contains>makeup water</Contains>
 		</Stream>
 
 		<Stream src="WaterTreatment" dst="WaterInjection">
-			<Contains>water for water injection</Contains>
+			<Contains>water</Contains>
 		</Stream>
 
 		<Stream src="SteamGeneration" dst="WaterTreatment">
-			<Contains>recycled water</Contains>
+			<Contains>water</Contains>
 		</Stream>
 
 
@@ -502,11 +534,11 @@
 		</Stream>
 
 		<Stream src="Venting" dst="GasGathering">
-			<Contains>gas for gas gathering</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="VRUCompressor" dst="GasGathering">
-			<Contains>gas for gas gathering</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="GasGathering" dst="GasDehydration">
@@ -530,11 +562,11 @@
 		</Stream>
 
 		<Stream src="PreMembraneChiller" dst="PreMembraneCompressor">
-			<Contains>gas for compressor</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="PreMembraneCompressor" dst="CO2Membrane">
-			<Contains>gas for CO2 membrane</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="CO2Membrane" dst="AcidGasRemoval">
@@ -574,7 +606,7 @@
 		</Stream>
 
 		<Stream src="CO2ReinjectionCompressor" dst="CO2InjectionWell">
-			<Contains>gas for CO2 injection well</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="CO2InjectionWell" dst="GasPartition">
@@ -586,7 +618,7 @@
 		</Stream>
 
 		<Stream src="SourGasCompressor" dst="SourGasInjection">
-			<Contains>gas for sour gas injection</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="SourGasInjection" dst="GasPartition">
@@ -618,15 +650,15 @@
 		</Stream>
 
 		<Stream src="GasPartition" dst="GasReinjectionCompressor">
-			<Contains>gas for gas reinjection compressor</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="GasReinjectionCompressor" dst="GasReinjectionWell">
-			<Contains>gas for gas reinjection well</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="GasReinjectionWell" dst="Reservoir" impute="false">
-			<Contains>gas for reservoir</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="GasPartition" dst="TransmissionCompressor">
@@ -650,15 +682,15 @@
 		</Stream>
 
         <Stream src="StorageCompressor" dst="StorageWell">
-            <Contains>gas for well</Contains>
+            <Contains>gas</Contains>
         </Stream>
 
         <Stream src="StorageWell" dst="StorageSeparator">
-            <Contains>gas for separator</Contains>
+            <Contains>gas</Contains>
         </Stream>
 
         <Stream src="StorageSeparator" dst="PostStorageCompressor">
-            <Contains>gas for storage</Contains>
+            <Contains>gas</Contains>
         </Stream>
 
         <Stream src="PostStorageCompressor" dst="GasDistribution">
@@ -666,7 +698,7 @@
         </Stream>
 
         <Stream src="LNGLiquefaction" dst="LNGTransport">
-            <Contains>gas for transport</Contains>
+            <Contains>gas</Contains>
         </Stream>
 
         <Stream src="LNGTransport" dst="LNGRegasification">

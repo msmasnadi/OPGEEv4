@@ -8,7 +8,7 @@
 #
 from .. import ureg
 from ..core import TemperaturePressure
-from ..emissions import EM_COMBUSTION, EM_FUGITIVES
+from ..emissions import EM_FUGITIVES
 from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL
 from ..log import getLogger
 from ..process import Process
@@ -19,6 +19,7 @@ _logger = getLogger(__name__)
 
 
 class BitumenMining(Process):
+    # TODO: documentation below describes input streams that do not appear in the code.
     """
         This process takes input streams and produces output streams as part of an
         oil sands mining operation.
@@ -46,6 +47,18 @@ class BitumenMining(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        self._required_outputs = []
+
+        self._required_outputs = [
+            # TODO: If the process names were avoided, we might have just one output stream
+            #  with, say, "heavy oil". Should describe the contents, not the destination.
+            ("oil for upgrading",     # TODO: avoid process names in contents.
+             "oil for dilution"),     # TODO: avoid process names in contents.
+
+            "gas for partition",
+        ]
+
 
         self.bitumen_path_dict = {"Integrated with upgrader": "oil for upgrading",
                                   "Integrated with diluent": "oil for dilution",
@@ -135,9 +148,5 @@ class BitumenMining(Process):
         self.set_import_from_energy(energy_use)
 
         # emissions
-        emissions = self.emissions
-        energy_for_combustion = energy_use.data.drop("Electricity")
-        combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
-
-        emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
+        self.set_combustion_emissions()
+        self.emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)

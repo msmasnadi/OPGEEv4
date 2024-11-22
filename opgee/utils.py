@@ -308,7 +308,7 @@ def loadModuleFromPath(module_path, raiseError=True):
     except KeyError:
         module = None
 
-    _logger.debug(f"Loading module {module_path}")
+    _logger.debug(f"Loading module '{module_path}'")
 
     # Load the compiled code if it's a '.pyc', otherwise load the source code
     try:

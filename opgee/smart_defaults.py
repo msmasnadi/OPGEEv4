@@ -30,6 +30,13 @@ class SmartDefault(OpgeeObject):
     the :obj:`opgee.smart_defaults.SmartDefault.register` decorator instead. The
     decorator can be used both on methods of OPGEE classes and on ordinary functions.
 
+    The ``register`` decorator takes the name of a target attribute, whose default value
+    is to be returned by the method, and a list of names of attributes on which the target
+    depends. At runtime, the current values of the named dependencies are read and passed
+    to the method through its parameters, which must appear in the same order as the names
+    of the attributes in the dependency list. The method makes any calculations required
+    based on those parameters and returns a default value.
+
     Attribute names can be of the form ``class_name.attr_name`` or ``attr_name``.
     If the ``class_name`` is "Field" or "Analysis", the current ``Field`` or ``Analysis``
     instance, respectively, is assumed to hold ``attr_name``. Class names other than

@@ -7,7 +7,7 @@
 # See LICENSE.txt for license details.
 #
 from .. import ureg
-from ..emissions import EM_COMBUSTION, EM_FUGITIVES
+from ..emissions import EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
 from ..processes.compressor import Compressor
@@ -19,6 +19,15 @@ _logger = getLogger(__name__)
 class SourGasCompressor(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "gas for sour gas compressor",
+        ]
+
+        self._required_outputs = [
+            "gas",
+        ]
 
         self.eta_compressor = None
         self.prime_mover_type = None
@@ -43,7 +52,7 @@ class SourGasCompressor(Process):
         loss_rate = self.get_compressor_and_well_loss_rate(input)
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
-        gas_to_injection = self.find_output_stream("gas for sour gas injection")
+        gas_to_injection = self.find_output_stream("gas")
         gas_to_injection.copy_flow_rates_from(input)
         gas_to_injection.subtract_rates_from(gas_fugitives)
 
@@ -69,12 +78,8 @@ class SourGasCompressor(Process):
         self.set_import_from_energy(energy_use)
 
         # emissions
-        emissions = self.emissions
-        energy_for_combustion = energy_use.data.drop("Electricity")
-        combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
-
-        emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
+        self.set_combustion_emissions()
+        self.emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
 
 
 

@@ -7,22 +7,31 @@
 # See LICENSE.txt for license details.
 #
 from ..core import TemperaturePressure
-from ..emissions import EM_COMBUSTION
 from ..import_export import DILUENT
 from ..process import Process
-from ..processes.transport_energy import TransportEnergy
 from .shared import get_energy_carrier
 
 
 class HeavyOilDilution(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "oil for dilution"
+        ]
+
+        self._required_outputs = [
+            ("oil for storage",
+             "oil for upgrading")
+        ]
+
         self.water_density = self.water.density()
 
         model = self.model
-        self.transport_share_fuel = model.transport_share_fuel.loc["Diluent"]
-        self.transport_parameter = model.transport_parameter[["Diluent", "Units"]]
-        self.transport_by_mode = model.transport_by_mode.loc["Diluent"]
+        self.transport_share_fuel = model.transport_share_fuel.loc[DILUENT]
+        self.transport_parameter = model.transport_parameter[[DILUENT, "Units"]]
+        self.transport_by_mode = model.transport_by_mode.loc[DILUENT]
 
         self.before_diluent_tp = None
         self.bitumen_tp = None
@@ -85,7 +94,7 @@ class HeavyOilDilution(Process):
             input_liquid_volume_rate / (1 - frac_diluent)
         required_volume_diluent = expected_volume_oil_bitumen * frac_diluent
 
-        if self.dilution_type == "Diluent":
+        if self.dilution_type == DILUENT:
             required_mass_dilution = required_volume_diluent * self.dilution_SG * self.water_density
             total_mass_diluted_oil = required_mass_dilution + input_liquid_mass_rate
             diluent_LHV = field.oil.mass_energy_density(API=self.diluent_API)
@@ -117,7 +126,7 @@ class HeavyOilDilution(Process):
                                                                             self.transport_share_fuel,
                                                                             self.transport_by_mode,
                                                                             diluent_energy_rate,
-                                                                            "Diluent")
+                                                                            DILUENT)
 
         energy_use = self.energy
         for name, value in fuel_consumption.items():
@@ -128,8 +137,5 @@ class HeavyOilDilution(Process):
         self.set_import_from_energy(energy_use)
         import_product.set_export(self.name, DILUENT, diluent_energy_rate)
 
-        # emission
-        emissions = self.emissions
-        energy_for_combustion = energy_use.data.drop("Electricity")
-        combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
+        # emissions
+        self.set_combustion_emissions()

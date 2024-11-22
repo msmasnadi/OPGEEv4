@@ -70,6 +70,7 @@ class Analysis(Container):
 
         fields = [model.get_field(name) for name in self._field_names]
 
+        # Add to 'fields' any Field that matches Groups declared by the Analysis
         for group in self.groups:
             text = group.text
             if group.is_regex:
@@ -220,7 +221,7 @@ class Analysis(Container):
 
         :param elt: (etree.Element) representing a <Analysis> element
         :param parent: (opgee.Model) the Model containing the new Analysis
-          :param field_names: (list[str] or None) field names to restrict to,
+        :param field_names: (list[str] or None) field names to restrict to,
             otherwise all fields declared in the Analysis are used.
         :return: (Analysis) instance populated from XML
         """
