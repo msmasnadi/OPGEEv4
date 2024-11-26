@@ -142,6 +142,11 @@ class DownholePump(Process):
         energy_use = self.energy
         energy_carrier = get_energy_carrier(self.prime_mover_type)
         if not self.gas_lifting:
+            # TODO: It looks like this series of function calls could be greatly simplified.
+            #   There should be no need to pass to a method of "oil" the values of instance
+            #   variables of the instance itself. All of these methods could compute oil_SG
+            #   (given input.API), and already have access to oil.gas_specific_gravity and
+            #   oil.gas_oil_ratio internally. [RJP]
             oil_SG = oil.specific_gravity(input.API)
             solution_gas_oil_ratio_input = oil.solution_gas_oil_ratio(input,
                                                                       oil_SG,

@@ -133,7 +133,6 @@ class Drilling(Process):
 
         :return: diesel use (unit=gallon)
         """
-        variables = []
         volume = self.volume_per_well_fractured.m
         variables = [volume * volume, volume, 1]
 
