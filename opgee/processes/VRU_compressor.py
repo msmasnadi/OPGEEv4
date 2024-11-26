@@ -34,7 +34,7 @@ class VRUCompressor(Process):
         ]
 
         self._required_outputs = [
-            "gas for gas gathering"
+            "gas"
         ]
 
         self.discharge_press = None
@@ -59,7 +59,7 @@ class VRUCompressor(Process):
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
-        gas_to_gathering = self.find_output_stream("gas for gas gathering")
+        gas_to_gathering = self.find_output_stream("gas")
 
         overall_compression_ratio = self.discharge_press / input.tp.P
         energy_consumption, output_temp, output_press = \

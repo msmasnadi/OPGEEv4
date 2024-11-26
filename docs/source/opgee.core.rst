@@ -64,6 +64,12 @@ This module contains core classes of the opgee package.
 .. automodule:: opgee.model
    :members:
 
+``opgee.post_processor``
+-------------------------
+
+.. automodule:: opgee.post_processor
+   :members:
+
 ``opgee.process``
 ----------------------
 

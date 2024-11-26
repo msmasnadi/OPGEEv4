@@ -38,11 +38,11 @@ class GasPartition(Process):
 
         self._required_outputs = [
             "gas",
-            # also two possible output streams below
+            # also two possible output streams below: "lifting gas" and "exported gas"
         ]
 
         if field.natural_gas_reinjection:
-            self._required_outputs.append("gas for gas reinjection compressor")
+            self._required_outputs.append("gas")
 
         if field.gas_lifting:
             self._required_outputs.append("lifting gas")
@@ -185,9 +185,7 @@ class GasPartition(Process):
                 exported_gas_stream.subtract_rates_from(reinjected_HC_stream)
                 exported_gas_stream.subtract_rates_from(fuel_stream)
 
-            gas_to_reinjection = self.find_output_stream(
-                "gas for gas reinjection compressor"
-            )
+            gas_to_reinjection = self.find_output_stream("gas")
             combined_gas_stream = reinjected_HC_stream
             if field.get_process_data("gas_flooding_stream") is not None:
                 gas_flooding_stream = field.get_process_data("gas_flooding_stream")
@@ -202,7 +200,7 @@ class GasPartition(Process):
                 )
             )
 
-        exported_gas = self.find_output_stream("gas")
+        exported_gas = self.find_output_stream("exported gas")
         if field.get_process_data("is_input_from_well") is None:
             exported_gas.copy_flow_rates_from(exported_gas_stream)
 
@@ -225,7 +223,7 @@ class GasPartition(Process):
         gas etc.).
 
         If the reinjected gas stream has a non-zero total flow rate, the flow rates are copied
-        to the gas for gas reinjection compressor.
+        to the gas for the reinjection compressor.
 
         :param import_product: (ImportProduct) import product object
         :param reinjected_gas_stream: (Stream) gas stream being reinjected into the reservoir
@@ -338,8 +336,6 @@ class GasPartition(Process):
                     self.name, NATURAL_GAS, imported_NG_energy_rate
                 )
 
-        gas_to_reinjection = self.find_output_stream(
-            "gas for gas reinjection compressor"
-        )
+        gas_to_reinjection = self.find_output_stream("gas")
         if reinjected_gas_stream.total_flow_rate().m != 0:
             gas_to_reinjection.copy_flow_rates_from(reinjected_gas_stream)

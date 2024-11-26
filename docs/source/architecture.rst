@@ -168,7 +168,6 @@ Running a Field
 
     * User-defined maximum iterations and solution tolerance like in Excel
 
-
 Command-line interface
 ------------------------
 
@@ -176,8 +175,12 @@ Plug-in architecture
 ~~~~~~~~~~~~~~~~~~~~~~
 
   * Built-in sub-commands (plug-ins internal to the ``opgee`` package)
-  * User-defined plug-ins create additional sub-commands
+  * User-defined plug-ins can create additional sub-commands.
 
+  * Post-processing plugins allow users to perform calculations and
+    save results when running single or multiple fields, including in
+    Monte Carlo simulations. See the class
+    :py:class:`~opgee.post_processor.PostProcessor` for details.
 
 Graphical User Interface
 ------------------------------

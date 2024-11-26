@@ -22,11 +22,11 @@ class ReservoirWellInterface(Process):
         super().__init__(name, **kwargs)
 
         self._required_inputs = [
-            "crude oil",
+            "oil",
         ]
 
         self._required_outputs = [
-            "crude oil",
+            "oil",
         ]
 
         self.frac_CO2_breakthrough = None
@@ -55,13 +55,13 @@ class ReservoirWellInterface(Process):
         field = self.field
 
         # mass rate
-        input = self.find_input_stream("crude oil")
+        input = self.find_input_stream("oil")
         if input.is_uninitialized():
             return
 
         input.set_tp(self.res_tp)
 
-        output = self.find_output_stream("crude oil")
+        output = self.find_output_stream("oil")
         output.copy_flow_rates_from(input)
 
         CO2_flooding_rate = field.get_process_data("CO2_flooding_rate_init")
@@ -77,9 +77,9 @@ class ReservoirWellInterface(Process):
         output.tp.set(T=self.res_tp.T, P=bottomhole_flowing_press)
 
     def impute(self):
-        output = self.find_output_stream("crude oil")
+        output = self.find_output_stream("oil")
 
-        input = self.find_input_stream("crude oil")
+        input = self.find_input_stream("oil")
         input.copy_flow_rates_from(output)
 
     def get_bottomhole_press(self, input_stream):
