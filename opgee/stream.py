@@ -683,14 +683,18 @@ class Stream(AttributeMixin, XmlInstantiable):
         self.set_flow_rate("CO2", PHASE_GAS, rate)  # sets initialized flag
         return rate
 
-    def contains(self, stream_type):
+    def contains(self, stream_type, regex=False):
         """
         Return whether ``stream_type`` is one of named contents of ``self``.
 
         :param stream_type: (str) a symbolic name for contents of `stream`
+        :param regex (bool) whether to interpret `stream_type` as a regular expression
         :return: (bool) True if `stream_type` is among the contents of `stream`
         """
-        return stream_type in self.contents
+        if regex:
+            return any(re.fullmatch(stream_type, name) for name in self.contents)
+        else:
+            return stream_type in self.contents
 
     @classmethod
     def from_xml(cls, elt, parent=None):
