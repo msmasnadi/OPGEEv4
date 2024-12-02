@@ -1,10 +1,11 @@
 import pandas as pd
 import pytest
+
 from opgee import ureg
-from opgee.energy import EN_NATURAL_GAS, EN_CRUDE_OIL
 from opgee.emissions import EM_FLARING
+from opgee.energy import EN_CRUDE_OIL, EN_NATURAL_GAS
 from opgee.error import OpgeeException, ZeroEnergyFlowError
-from opgee.process import Process, _get_subclass, Reservoir
+from opgee.process import Process, Reservoir, _get_subclass
 
 
 class NotProcess(): pass
@@ -350,7 +351,11 @@ def test_GasReinjectionCompressor(test_model):
     total = proc.energy.data.sum()
     expected = ureg.Quantity(64913.96925930, "mmbtu/day")
     assert approx_equal(total, expected, rel=10e-3)
-
+    
+def test_TransmissionCompressor(test_model):
+    analysis = test_model.get_analysis('test_gas_processes')
+    field = analysis.get_field('test_TransmissionCompressor')
+    field.run(analysis)
 
 def test_N2Flooding(test_model):
     analysis = test_model.get_analysis('test_gas_processes')
@@ -684,7 +689,7 @@ def test_WaterTreatment(test_model):
 
 # TODO: RP created this test. Wennan should improve it!
 def test_CrudeOilTransport():
-    from .utils_for_tests import path_to_test_file, load_test_model
+    from .utils_for_tests import load_test_model, path_to_test_file
 
     model2 = load_test_model('test_model2.xml', class_path=path_to_test_file('user_processes.py'))
 
