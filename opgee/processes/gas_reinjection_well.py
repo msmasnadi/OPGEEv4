@@ -19,11 +19,11 @@ class GasReinjectionWell(Process):
 
         # TODO: avoid process names in contents.
         self._required_inputs = [
-            "gas for gas reinjection well"
+            "gas"
         ]
 
         self._required_outputs = [
-            "gas for reservoir",
+            "gas",
         ]
 
         self.gas_flooding = None
@@ -44,7 +44,7 @@ class GasReinjectionWell(Process):
         self.print_running_msg()
 
         # mass rate
-        input = self.find_input_stream("gas for gas reinjection well")
+        input = self.find_input_stream("gas")
 
         if input.is_uninitialized():
             return
@@ -52,7 +52,7 @@ class GasReinjectionWell(Process):
         loss_rate = self.get_compressor_and_well_loss_rate(input)
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
-        gas_to_reservoir = self.find_output_stream("gas for reservoir")
+        gas_to_reservoir = self.find_output_stream("gas")
         gas_to_reservoir.copy_flow_rates_from(input)
         gas_to_reservoir.subtract_rates_from(gas_fugitives)
 

@@ -21,7 +21,7 @@ class CO2Membrane(Process):
     This process represents the separation of CO2 from natural gas using a membrane.
 
     input streams:
-        - gas for CO2 membrane
+        - gas
 
     output streams:
         - gas for AGR
@@ -32,9 +32,10 @@ class CO2Membrane(Process):
         super().__init__(name, **kwargs)
 
         self._required_inputs = [
-            "gas for CO2 membrane",         # TODO: avoid process names in contents.
+            "gas",
         ]
 
+        # TODO: avoid process names in contents.
         self._required_outputs = [
             "gas for AGR",
             "gas for CO2 compressor",
@@ -60,7 +61,7 @@ class CO2Membrane(Process):
         self.print_running_msg()
         field = self.field
 
-        input = self.find_input_stream("gas for CO2 membrane")
+        input = self.find_input_stream("gas")
         if input.is_uninitialized():
             return
 

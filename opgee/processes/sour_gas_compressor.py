@@ -26,7 +26,7 @@ class SourGasCompressor(Process):
         ]
 
         self._required_outputs = [
-            "gas for sour gas injection",
+            "gas",
         ]
 
         self.eta_compressor = None
@@ -52,7 +52,7 @@ class SourGasCompressor(Process):
         loss_rate = self.get_compressor_and_well_loss_rate(input)
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
-        gas_to_injection = self.find_output_stream("gas for sour gas injection")
+        gas_to_injection = self.find_output_stream("gas")
         gas_to_injection.copy_flow_rates_from(input)
         gas_to_injection.subtract_rates_from(gas_fugitives)
 

@@ -33,13 +33,12 @@ class SteamGeneration(Process):
         field = self.field
         if field.steam_flooding == 1 and field.SOR != 0:
             self._required_inputs = [
-                # TODO: avoid process names in contents.
-                "produced water for steam generation",
-                "makeup water for steam generation"
+                "produced water",
+                "makeup water"
             ]
 
             self._required_outputs = [
-                "recycled water",
+                "water",
             ]
         else:
             self._required_inputs = []
@@ -122,8 +121,8 @@ class SteamGeneration(Process):
 
         # mass rate
 
-        input_prod_water = self.find_input_stream("produced water for steam generation")
-        input_makeup_water = self.find_input_stream("makeup water for steam generation")
+        input_prod_water = self.find_input_stream("produced water")
+        input_makeup_water = self.find_input_stream("makeup water")
         if input_prod_water.is_uninitialized() and input_makeup_water.is_uninitialized():
             return
 
@@ -146,7 +145,7 @@ class SteamGeneration(Process):
 
         recycled_blowdown_water = blowdown_water_mass_rate * self.fraction_blowdown_recycled
 
-        recycled_water_stream = self.find_output_stream("recycled water")
+        recycled_water_stream = self.find_output_stream("water")
         recycled_water_stream.set_liquid_flow_rate("H2O",
                                                    recycled_blowdown_water.to("tonne/day"),
                                                    tp=self.waste_water_reinjection_tp)

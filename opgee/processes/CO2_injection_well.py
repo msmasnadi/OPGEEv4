@@ -18,17 +18,17 @@ class CO2InjectionWell(Process):
         This process models a injection well used for injecting CO2 into the reservoir.
 
         input streams:
-            - gas for CO2 injection well: gas stream with CO2 for injection
+            - gas: gas stream with CO2 for injection
 
         output streams:
-            - gas for reservoir: gas stream with CO2 injected into reservoir
+            - gas for gas partition: gas stream with CO2 injected into reservoir
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
         # TODO: avoid process names in contents.
         self._required_inputs = [
-            "gas for CO2 injection well",
+            "gas",
         ]
 
         self._required_outputs = [
@@ -40,7 +40,7 @@ class CO2InjectionWell(Process):
         field = self.field
 
         # Get input stream and check if it's initialized
-        input = self.find_input_stream("gas for CO2 injection well")
+        input = self.find_input_stream("gas")
         if input.is_uninitialized():
             return
 

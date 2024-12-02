@@ -221,7 +221,7 @@ class Analysis(Container):
 
         :param elt: (etree.Element) representing a <Analysis> element
         :param parent: (opgee.Model) the Model containing the new Analysis
-          :param field_names: (list[str] or None) field names to restrict to,
+        :param field_names: (list[str] or None) field names to restrict to,
             otherwise all fields declared in the Analysis are used.
         :return: (Analysis) instance populated from XML
         """

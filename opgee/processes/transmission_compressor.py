@@ -26,7 +26,7 @@ class TransmissionCompressor(Process):
 
         # TODO: avoid process names in contents.
         self._required_inputs = [
-            "gas for transmission",
+            "gas",
         ]
 
         self._required_outputs = [
@@ -63,7 +63,7 @@ class TransmissionCompressor(Process):
     def run(self, analysis):
         self.print_running_msg()
 
-        input = self.find_input_stream("gas for transmission")
+        input = self.find_input_stream("gas")
 
         if input.is_uninitialized():
             return

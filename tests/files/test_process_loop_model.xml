@@ -21,12 +21,12 @@
 			<Component name="oil" phase="liquid">100</Component>
 			<Component name="H2O" phase="liquid">80</Component>
 			<Component name="C1" phase="gas">200</Component>
-			<Contains>crude oil</Contains>
+			<Contains>oil</Contains>
 		</Stream>
 
 		<!-- Creates a process loop -->
 		<Stream src="LoopProc2" dst="LoopProc3">
-			<Contains>crude oil</Contains>
+			<Contains>oil</Contains>
 		</Stream>
 
 		<Stream src="LoopProc3" dst="LoopProc2">
@@ -54,12 +54,12 @@
 			<Component name="oil" phase="liquid">100</Component>
 			<Component name="H2O" phase="liquid">80</Component>
 			<Component name="C1" phase="gas">200</Component>
-			<Contains>crude oil</Contains>
+			<Contains>oil</Contains>
 		</Stream>
 
 		<!-- Creates a process loop -->
 		<Stream src="LoopProc2" dst="LoopProc3">
-			<Contains>crude oil</Contains>
+			<Contains>oil</Contains>
 		</Stream>
 
 		<Stream src="LoopProc3" dst="LoopProc2">

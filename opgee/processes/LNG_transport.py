@@ -22,9 +22,8 @@ class LNGTransport(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
-        # TODO: avoid process names in contents.
         self._required_inputs = [
-            "gas for transport",
+            "gas",
         ]
 
         self._required_outputs = [
@@ -39,7 +38,7 @@ class LNGTransport(Process):
         self.print_running_msg()
         field = self.field
 
-        input = self.find_input_stream("gas for transport")
+        input = self.find_input_stream("gas")
 
         if input.is_uninitialized():
             return
