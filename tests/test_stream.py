@@ -17,6 +17,16 @@ class Proc2(Process):
 
 
 class Proc3(Process):
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
+
+        self._required_inputs = [
+            self.valdict(r'.*gas.*', min=2, max=2),
+        ]
+        self._required_outputs = [
+            "CO2",
+        ]
+
     def run(self, analysis):
         pass
 
@@ -68,15 +78,18 @@ def test_find_stream(stream_model):
     with pytest.raises(OpgeeException, match=f".*both 'combine' and 'as_list' cannot be True"):
         proc3.find_output_streams('hydrogen', as_list=True, combine=True)
 
-    streams = proc3.find_input_streams('natural gas', as_list=False)
+    streams = proc3.find_input_streams('gas.*', as_list=False, regex=True)
     assert streams and type(streams) == dict
 
-    streams = proc3.find_input_streams('natural gas', as_list=True)
+    streams = proc3.find_input_streams('gas.*', as_list=True, regex=True)
     assert streams and type(streams) == list
 
     with pytest.raises(OpgeeException, match=f".*no input streams contain '{bad_name}'"):
         proc3.find_input_streams(bad_name, combine=False, as_list=False, raiseError=True)
 
+    bad_regex = r'foo.*'
+    with pytest.raises(OpgeeException, match=f".*no input streams contain '{bad_regex}'"):
+        proc3.find_input_streams(bad_regex, combine=False, as_list=False, regex=True, raiseError=True)
 
 def test_initialization(stream_model):
     analysis = stream_model.get_analysis('test')
