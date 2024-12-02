@@ -156,9 +156,9 @@ def _get_xml_str(model_xml, analysis_name, field_name, with_model_elt=False):
     analysis_attrs = root.xpath(f'/Model/Analysis[@name="{analysis_name}"]/A')
     for attr in analysis_attrs:
         analysis.append(deepcopy(attr))
+
     ET.SubElement(analysis, 'FieldRef', name=field_name)
     
-    model.append(deepcopy(analysis))
     model.append(deepcopy(field_def))
 
     xml_string = ET.tostring(model, pretty_print=True, encoding="unicode")
