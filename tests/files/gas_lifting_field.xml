@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <Model schema_version="4.0.0.a" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
-    <Analysis name="template">
-        <FieldRef name="template" />
-    </Analysis>
-
     <Analysis name="example">
         <A name="functional_unit">oil</A>
         <A name="GWP_horizon">100</A>
