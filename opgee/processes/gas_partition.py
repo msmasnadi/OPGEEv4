@@ -26,6 +26,7 @@ class GasPartition(Process):
     """
     Gas partition is to check the reasonable amount of gas goes to gas lifting and gas reinjection
     """
+    iteration_tolerance = 0.000001
 
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
@@ -67,7 +68,6 @@ class GasPartition(Process):
         self.impurity_N2_in_CO2 = None
         self.is_first_loop = None
         self.is_gas_flooding_visited = None
-        self.iteration_tolerance = None
         self.natural_gas_reinjection = None
         self.oil_volume_rate = None
         self.reset_flag = None
@@ -89,7 +89,6 @@ class GasPartition(Process):
         self.GLIR = field.GLIR
         self.oil_volume_rate = field.oil_volume_rate
         self.WOR = field.WOR
-        self.iteration_tolerance = self.model.attr("iteration_tolerance")
 
         self.flood_gas_type = field.flood_gas_type
         self.N2_flooding_tp = TemperaturePressure(
