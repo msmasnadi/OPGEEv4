@@ -1632,7 +1632,7 @@ class Field(Container):
         if steam_flooding:
             return SOR
 
-        tmp = 4.021 * exp(0.024 * age.m) - 4.021
+        tmp = 4.021 * exp(0.024 * age.to("yr").m) - 4.021
         return tmp if tmp <= 100 else 100
 
     @SmartDefault.register("SOR", ["steam_flooding"])
@@ -1643,10 +1643,12 @@ class Field(Container):
     # registering the dependency as this would create a dependency cycle.
     @SmartDefault.register("GOR", ["API"])
     def GOR_default(self, API):
+        api = API.to("degAPI").m
+
         # =IF(API_grav<20,1122.4,IF(AND(API_grav>=20,API_grav<=30),1205.4,2429.3))
-        if API.m < 20:
+        if api < 20:
             return 1122.4
-        elif 20 <= API.m <= 30:
+        elif 20 <= api <= 30:
             return 1205.4
         else:
             return 2429.3
@@ -1709,18 +1711,18 @@ class Field(Container):
         return (
             100.0
             if (country == "California" and steam_flooding)
-            else 0.5 * depth.m * 0.43
+            else 0.5 * depth.to("ft").m * 0.43
         )
 
     @SmartDefault.register("res_temp", ["depth"])
     def res_temp_default(self, depth):
         # = 70+1.8*J62/100 [J62 = depth]
-        return 70 + 1.8 * depth.m / 100.0
+        return 70 + 1.8 * depth.to("ft").m / 100.0
 
     @SmartDefault.register("CrudeOilDewatering.heater_treater", ["API"])
     def heater_treater_default(self, API):
         # =IF(J73<18,1,0)  [J73 is API gravity]
-        return API.m < 18
+        return API.to("degAPI").m < 18
 
     @SmartDefault.register("num_prod_wells", ["oil_sands_mine", "oil_prod"])
     def num_producing_wells_default(self, oil_sands_mine, oil_prod):
@@ -1730,7 +1732,7 @@ class Field(Container):
         # Owing to constraint that requires num_prod_wells > 0, we return 1 for oils_sands mine.
         # num_prod_wells is used only in Exploration, ReservoirWellInterface, and DownholePump, which
         # shouldn't exist for oils sands mines.
-        return 1 if oil_sands_mine != "None" else max(1.0, round(oil_prod.m / 87.5, 0))
+        return 1 if oil_sands_mine != "None" else max(1.0, round(oil_prod.to("bbl_oil/d").m / 87.5, 0))
 
     @SmartDefault.register(
         "num_water_inj_wells", ["oil_sands_mine", "oil_prod", "num_prod_wells"]
