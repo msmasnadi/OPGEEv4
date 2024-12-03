@@ -17,7 +17,7 @@ pint==0.24.4
 pint-pandas==0.6.2
 pydot==3.0.2
 pytest==8.3.4
-python-dateutil==2.9.0.post0
+python-dateutil==2.9.0post0
 pyxsteam==0.4.9
 scipy==1.14.1
 setuptools==75.6.0
