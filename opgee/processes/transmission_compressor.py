@@ -71,11 +71,11 @@ class TransmissionCompressor(Process):
         gas_fugitives = self.set_gas_fugitives(input, self.loss_rate)
 
         # Transmission system properties
-        station_outlet_press = self.press_drop_per_dist.to("kilopascal/mile") * self.transmission_freq + self.transmission_inlet_press
+        station_outlet_press = self.press_drop_per_dist * self.transmission_freq + self.transmission_inlet_press
         num_compressor_stations = math.ceil(self.transmission_dist / self.transmission_freq)
 
         # initial compressor properties
-        overall_compression_ratio_init = (station_outlet_press.to("psi_absolute") / input.tp.P).to("frac")
+        overall_compression_ratio_init = station_outlet_press.to("psi_absolute") / input.tp.P
         energy_consumption_init, output_temp_init, output_press_init = \
             Compressor.get_compressor_energy_consumption(
                 self.field,
@@ -85,7 +85,7 @@ class TransmissionCompressor(Process):
                 input)
 
         # Along-pipeline booster compressor properties
-        overall_compression_ratio_booster = (station_outlet_press.to("psi_absolute") / self.transmission_inlet_press).to("frac")
+        overall_compression_ratio_booster = station_outlet_press.to("psi_absolute") / self.transmission_inlet_press
         energy_consumption_booster, output_temp_booster, output_press_booster = \
             Compressor.get_compressor_energy_consumption(
                 self.field,
