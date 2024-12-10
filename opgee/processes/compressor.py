@@ -8,22 +8,26 @@
 #
 from typing import Optional, Sequence, Tuple
 
-from pint.facets.plain import PlainQuantity
+from pint.facets.plain import PlainQuantity as Quantity
 
-from .. import ureg
-from ..core import OpgeeObject
-from ..units import ensure_dimensionless
-from .shared import get_energy_consumption
+from opgee.core import OpgeeObject, TemperaturePressure
+from opgee.processes.shared import get_energy_consumption
+from opgee.stream import Stream
+from opgee.units import ureg
+
+# type aliases
+Q_Float = Quantity[float]
+Q_IntTuple = Tuple[Q_Float, int]
+
+
 
 _power = [1, 1 / 2, 1 / 3, 1 / 4, 1 / 5]
-
 
 class Compressor(OpgeeObject):
     def __init__(self, field):
         self.field = field
 
     @staticmethod
-    @ureg.wraps(("hp*day/mmscf", "degF", "degF"), (None, "degF", "psia", None, "frac", None))
     def get_compressor_work_temp(
         field,
         inlet_temp,
@@ -31,7 +35,7 @@ class Compressor(OpgeeObject):
         gas_stream,
         compression_ratio,
         num_of_compression,
-    ) -> Tuple[PlainQuantity, PlainQuantity, PlainQuantity]:
+    ) -> Tuple[Q_Float, Q_Float, Q_Float]:
         """
 
         :param field:
@@ -42,12 +46,11 @@ class Compressor(OpgeeObject):
         :param num_of_compression:
         :return:(float) overall work from compressor which has maximum five stages (unit = hp*day/mmscf)
         """
-        compression_ratio = ensure_dimensionless(compression_ratio)
         gas = field.gas
         corrected_temp = gas.corrected_pseudocritical_temperature(gas_stream)
         corrected_press = gas.corrected_pseudocritical_pressure(gas_stream)
         ratio_of_specific_heat = gas.ratio_of_specific_heat(gas_stream)
-        work_temp1: PlainQuantity = (
+        work_temp1: Quantity = (
             3.027
             * 14.7
             / (60 + 460)
@@ -55,9 +58,9 @@ class Compressor(OpgeeObject):
             / (ratio_of_specific_heat - 1)
         )
         ratio = (ratio_of_specific_heat - 1) / ratio_of_specific_heat
-        work: PlainQuantity = ureg.Quantity(0.0, "frac * rankine")
+        work: Quantity = ureg.Quantity(0.0, "frac * rankine")
 
-        for j in range(num_of_compression):
+        for _ in range(num_of_compression):
             inlet_reduced_temp = inlet_temp.to("rankine") / corrected_temp
             inlet_reduced_press = inlet_press / corrected_press
             z_factor = gas.Z_factor(inlet_reduced_temp, inlet_reduced_press)
@@ -77,58 +80,30 @@ class Compressor(OpgeeObject):
 
     @staticmethod
     def get_compression_ratio_stages(
-        overall_compression_ratio_stages: Sequence[PlainQuantity],
-    ) -> Sequence[Tuple[PlainQuantity, int]]:
-        compression_ratios = map(
-            Compressor.get_compression_ratio, overall_compression_ratio_stages
+        overall_compression_ratio_stages: Sequence[Q_Float],
+    ) -> Sequence[Q_IntTuple]:
+        compression_ratios: map[Optional[Q_IntTuple]] = map(
+            Compressor.get_compression_ratio_and_stage, overall_compression_ratio_stages
         )
         return [ratio for ratio in compression_ratios if ratio is not None]
 
     @staticmethod
-    @ureg.wraps("frac", "frac")
-    def get_compression_ratio(
-        overall_compression_ratio: float,
-    ) -> Optional[Tuple[float, int]]:
+    @ureg.wraps(("frac", None), "frac", strict=False)
+    def get_compression_ratio_and_stage(overall_compression_ratio: float) -> Optional[Q_IntTuple]:
         max_stages = len(_power)
         for pow in _power:
             if overall_compression_ratio**pow < max_stages:
                 return overall_compression_ratio**pow, int(1 / pow)
 
     @staticmethod
-    def get_num_of_compression_stages(overall_compression_ratio_stages):
-        num_of_compression_stages = []
-        compression_ratio_per_stages = Compressor.get_compression_ratio_stages(
-            overall_compression_ratio_stages
-        )
-
-        for overall_compression_ratio, compression_ratio in zip(
-            overall_compression_ratio_stages, compression_ratio_per_stages
-        ):
-            for pow in _power:
-                if overall_compression_ratio**pow == compression_ratio:
-                    num_of_compression_stages.append(int(1 / pow))
-                    break
-
-        return num_of_compression_stages
-
-    @staticmethod
-    def get_num_of_compression(overall_compression_ratio: PlainQuantity):
-        result = 0
-        compression_ratio = Compressor.get_compression_ratio(overall_compression_ratio)
-
-        for pow in _power:
-            if overall_compression_ratio**pow == compression_ratio:
-                result = int(1 / pow)
-                return result
-
-    @staticmethod
+    @ureg.wraps(("mmbtu/day", "degF", "psia"), (None, None, None, "frac", None, None))
     def get_compressor_energy_consumption(
         field,
         prime_mover_type,
         eta_compressor,
         overall_compression_ratio,
-        inlet_stream,
-        inlet_tp=None,
+        inlet_stream: Stream,
+        inlet_tp: Optional[TemperaturePressure] = None,
     ):
         """
         Calculate compressor energy consumption
@@ -143,16 +118,13 @@ class Compressor(OpgeeObject):
         :return:
         """
         energy_consumption = ureg.Quantity(0, "mmbtu/day")
-        tp = inlet_tp or inlet_stream.tp
+        tp: TemperaturePressure = inlet_tp or inlet_stream.tp
         inlet_temp, inlet_press = tp.get()
-
-        overall_compression_ratio = ensure_dimensionless(overall_compression_ratio)
 
         if overall_compression_ratio < 1 or inlet_stream.has_zero_flow():
             return energy_consumption, inlet_temp, inlet_press
 
-        compression_ratio = Compressor.get_compression_ratio(overall_compression_ratio)
-        num_stages = Compressor.get_num_of_compression(overall_compression_ratio)
+        compression_ratio, num_stages = Compressor.get_compression_ratio_and_stage(overall_compression_ratio)
         total_work, outlet_temp, outlet_press = Compressor.get_compressor_work_temp(
             field, inlet_temp, inlet_press, inlet_stream, compression_ratio, num_stages
         )
