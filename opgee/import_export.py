@@ -10,9 +10,17 @@ import pandas as pd
 import pint
 
 from .core import OpgeeObject
+from .energy import (
+    EN_CRUDE_OIL,
+    EN_DIESEL,
+    EN_ELECTRICITY,
+    EN_NATURAL_GAS,
+    EN_NGL,
+    EN_PETCOKE,
+    EN_RESID,
+    EN_UPG_PROC_GAS,
+)
 from .error import OpgeeException
-from .energy import (EN_CRUDE_OIL, EN_DIESEL, EN_ELECTRICITY, EN_NATURAL_GAS,
-                     EN_NGL, EN_PETCOKE, EN_RESID, EN_UPG_PROC_GAS)
 from .log import getLogger
 
 _logger = getLogger(__name__)
@@ -159,7 +167,7 @@ class ImportExport(OpgeeObject):
         """
 
         def _sum(series, name):
-            from . import ureg
+            from .units import ureg
             # Sum of an empty series is returned as int(0); need to initialize units
             return series.sum() if len(series) > 0 else ureg.Quantity(0.0, self.unit_dict[name])
 

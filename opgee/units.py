@@ -1,75 +1,55 @@
+from collections.abc import Callable
 from typing import (
-    Callable,
-    Iterable,
-    ParamSpec,
-    Sequence,
-    Tuple,
+    Final,
+    Optional,
     TypeVar,
-    Union,
-    overload,
 )
 
-from pint import Unit
-from pint.facets.plain import PlainQuantity
+import pint
+from pint.registry import ApplicationRegistry
 
-from . import ureg
-
-# TypeVar for `ensure_dimensionless` methods
-T_QSeq = TypeVar("T_QSeq", PlainQuantity, Sequence[PlainQuantity])
+from opgee.pkg_utils import resourceStream
 
 FRAC = "frac"
-
-_unit_registry = ureg.get()
-
-def ensure_unit(quantity: PlainQuantity, unit: str):
-    ...
+T = TypeVar("T", bound=Callable)
 
 
-@overload
-def ensure_dimensionless(val: PlainQuantity) -> PlainQuantity: ...
-
-
-@overload
-def ensure_dimensionless(val: Sequence[PlainQuantity]) -> Sequence[PlainQuantity]: ...
-
-
-def ensure_dimensionless(val: T_QSeq) -> T_QSeq:
+def iif(fn: Callable[[], T]) -> T:
     """
-    Validate and coerce the passed value or list of values into dimensionless quantities.
+    Simple decorator to define an immediately invoked function. Similar to
+    JS/TS `(function () {})()`
 
-    :param val: (PlainQuantity | Sequence[PlainQuantity]) The quantity or sequence of quantities
-    :return: (PlainQuantity | Sequence[PlainQuantity]) The same quantity converted to 'frac' units
-    :raises: ValueError if any of the passed quantities are not dimensionless
+    :param fn: Any callable that returns a Callable
+    :type fn: Callable[[], T]
+    :return: The return value from the passed Callable
+    :rtype: T
     """
-    msg = "Ratios must be dimensionless, %s passed. Dimensionality %s"
-    if isinstance(val, PlainQuantity):
-        if not val.dimensionless:
-            dim = val.dimensionality
-            raise ValueError(msg % (repr(val), repr(dim)))
-        return val.to("frac")
-    else:
-        dimless = [r.dimensionless for r in val]
-        if not all(dimless):
-            bad_val = val[dimless.index(False)]
-            dim = bad_val.dimensionality
-            raise ValueError(msg % (repr(bad_val), repr(dim)))
-        return [r.to("frac") for r in val]
+    return fn()
 
 
+@iif
+def get_ureg() -> Callable[[], ApplicationRegistry]:
+    """
+    Always return the same instance of OPGEE's `pint.ApplicationRegistry`.
 
-P = ParamSpec('P')
-RT = TypeVar('RT')
+    :return: callable to fetch the ApplicationRegistry instance
+    :rtype: Callable[[], ApplicationRegistry]
+    """
+    _ar: Optional[ApplicationRegistry] = None
 
-TUnit = Union[str, Unit, None]
-TUnitSpec = Union[TUnit, Iterable[TUnit]]
+    def _ret() -> ApplicationRegistry:
+        nonlocal _ar
+        if _ar is None:
+            _ar = pint.get_application_registry()
+            del _ar._units["bbl"]
+            stream = resourceStream("etc/units.txt")
+            lines = [line.strip() for line in stream.readlines()]
+            _ar.load_definitions(lines)
+        return _ar
 
-IntVarArgs = ParamSpec('IntVarArgs')
-PreWrappedSig = Callable[IntVarArgs, float]
+    return _ret
 
-def wraps(args_units: TUnitSpec, ret_units: TUnitSpec):
-    ...
-    
-def simple(x: float, y: float) -> float:
-    return y / x
 
-q_simple = ureg.wraps('m/s', ('hour', 'mile'))(simple)
+ureg: Final[ApplicationRegistry] = get_ureg()
+
+Qty = ureg.Quantity

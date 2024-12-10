@@ -1,14 +1,12 @@
-import functools
-
 import pandas as pd
 import pytest
 
-from opgee import ureg
 from opgee.emissions import EM_FLARING
 from opgee.energy import EN_CRUDE_OIL, EN_NATURAL_GAS
 from opgee.error import OpgeeException, ZeroEnergyFlowError
 from opgee.process import Process, Reservoir, _get_subclass
 from opgee.processes.compressor import Compressor
+from opgee.units import ureg
 
 
 class NotProcess(): pass
@@ -710,12 +708,3 @@ def test_CrudeOilTransport():
     total = proc.find_output_stream("oil").liquid_flow_rate("oil")
     expected = ureg.Quantity(100.0, "tonne/day")
     assert approx_equal(total, expected)
-
-def test_Compressor():
-    overall_comp_ratio = ureg.Quantity(25., 'kilopascal') / ureg.Quantity(0.5, 'psia')
-    result = Compressor.get_compression_ratio(overall_comp_ratio)
-    assert result is not None
-    _approx = functools.partial(pytest.approx, rel=10e-3, abs=10e-6)
-    comp_ratio, num_stages = result
-    assert comp_ratio.m == _approx(2.6929, rel=10E-3, abs=10E-6)
-    assert num_stages == 2

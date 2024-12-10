@@ -1,7 +1,16 @@
 import pytest
-from opgee import ureg
-from opgee.core import magnitude, dict_from_list, validate_unit, XmlInstantiable, A, _undefined_units
-from opgee.error import OpgeeException, AbstractMethodError
+
+from opgee.core import (
+    A,
+    XmlInstantiable,
+    _undefined_units,
+    dict_from_list,
+    magnitude,
+    validate_unit,
+)
+from opgee.error import AbstractMethodError, OpgeeException
+from opgee.units import ureg
+
 
 def test_magnitude_error():
     q = ureg.Quantity(10.0, "tonnes/day")

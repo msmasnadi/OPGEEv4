@@ -6,37 +6,39 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-import networkx as nx
-import pint
-import pandas as pd
+from typing import cast
 
-from . import ureg
+import networkx as nx
+import pandas as pd
+import pint
+
+from .bfs import bfs
+from .combine_streams import combine_streams
 from .config import getParamAsList
 from .constants import DETAILED_RESULT
 from .container import Container
-from .core import elt_name, instantiate_subelts, dict_from_list, STP
+from .core import STP, dict_from_list, elt_name, instantiate_subelts
 from .energy import Energy
 from .error import (
-    OpgeeException,
-    OpgeeStopIteration,
-    OpgeeMaxIterationsReached,
-    OpgeeIterationConverged,
     ModelValidationError,
+    OpgeeException,
+    OpgeeIterationConverged,
+    OpgeeMaxIterationsReached,
+    OpgeeStopIteration,
     ZeroEnergyFlowError,
 )
 from .import_export import ImportExport
 from .log import getLogger
 from .post_processor import PostProcessor
-from .process import Process, Aggregator, Reservoir, decache_subclasses
+from .process import Aggregator, Process, Reservoir, decache_subclasses
 from .process_groups import ProcessChoice
 from .processes.steam_generator import SteamGenerator
 from .processes.transport_energy import TransportEnergy
 from .smart_defaults import SmartDefault
 from .stream import Stream
-from .thermodynamics import Oil, Gas, Water
+from .thermodynamics import Gas, Oil, Water
+from .units import ureg
 from .utils import getBooleanXML, roundup
-from .combine_streams import combine_streams
-from .bfs import bfs
 
 _logger = getLogger(__name__)
 
@@ -93,10 +95,14 @@ class Field(Container):
     See also :doc:`OPGEE XML documentation <opgee-xml>`
     """
 
+    oil: Oil
+    gas: Gas
+    water: Water
+
     def __init__(self, name, attr_dict=None, parent=None, group_names=None):
         super().__init__(name, attr_dict=attr_dict, parent=parent)
 
-        self.model = model = self.find_container("Model")
+        self.model = self.find_container("Model")
         self.group_names = group_names or []
 
         self.stream_dict = None
@@ -155,12 +161,12 @@ class Field(Container):
         # TODO: It's good practice to declare all instance vars in __init__ (set to None perhaps)
         #       other programmers (and PyCharm) recognize them as proper instance variables and
         #       not random values set in other methods.
-        self.upstream_CI = model.upstream_CI
-        self.vertical_drill_df = model.vertical_drill_df
-        self.horizontal_drill_df = model.horizontal_drill_df
-        self.imported_gas_comp = model.imported_gas_comp
+        self.upstream_CI = self.model.upstream_CI
+        self.vertical_drill_df = self.model.vertical_drill_df
+        self.horizontal_drill_df = self.model.horizontal_drill_df
+        self.imported_gas_comp = self.model.imported_gas_comp
 
-        self.LNG_temp = model.const("LNG-temp")
+        self.LNG_temp = self.model.const("LNG-temp")
 
         # declare instance vars to IDE knows about them
         self.AGR_feedin_press = None
@@ -771,7 +777,7 @@ class Field(Container):
         :param net_import: (Pandas.Series) net import energy rates (water is mass rate)
         :return: total emissions (units of g CO2)
         """
-        from .import_export import WATER, N2, CO2_Flooding
+        from .import_export import N2, WATER, CO2_Flooding
 
         imported_emissions = ureg.Quantity(0.0, "tonne/day")
 

@@ -1,9 +1,10 @@
 import pytest
-from opgee import ureg
-from .utils_for_tests import load_model_from_str
+
 from opgee.error import XmlFormatError
-from .utils_for_tests import load_test_model
+from opgee.units import ureg
+
 from .test_processes import approx_equal
+from .utils_for_tests import load_model_from_str, load_test_model
 
 model_xml_1 = """
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
