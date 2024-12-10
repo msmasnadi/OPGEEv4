@@ -1,6 +1,6 @@
 import pandas as pd
 import pytest
-from opgee import ureg
+from opgee.units import ureg
 from opgee.energy import EN_NATURAL_GAS, EN_CRUDE_OIL
 from opgee.emissions import EM_FLARING
 from opgee.error import OpgeeException, ZeroEnergyFlowError
