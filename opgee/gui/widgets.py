@@ -1,7 +1,8 @@
 from dash import dcc, html
-from ..core import magnitude
+
 from ..error import OpgeeException
 from ..log import getLogger
+from ..units import magnitude
 
 _logger = getLogger(__name__)
 

@@ -1,11 +1,12 @@
 import pytest
 from lxml import etree as ET
-from opgee import ureg
+
 from opgee.analysis import Analysis
-from opgee.attributes import ClassAttrs, AttributeMixin, AttrDefs
+from opgee.attributes import AttrDefs, AttributeMixin, ClassAttrs
 from opgee.core import instantiate_subelts
-from opgee.error import OpgeeException, AttributeError
+from opgee.error import AttributeError, OpgeeException
 from opgee.model import Model
+from opgee.units import ureg
 
 
 @pytest.fixture

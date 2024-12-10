@@ -10,11 +10,16 @@ from collections import defaultdict
 
 import pandas as pd
 
-from . import ureg
-from .core import (OpgeeObject, XmlInstantiable, A, instantiate_subelts,
-                   elt_name, validate_unit, magnitude)
+from .core import (
+    A,
+    OpgeeObject,
+    XmlInstantiable,
+    elt_name,
+    instantiate_subelts,
+)
 from .error import AttributeError, ModelValidationError
 from .log import getLogger
+from .units import magnitude, ureg, validate_unit
 from .utils import coercible
 
 _logger = getLogger(__name__)

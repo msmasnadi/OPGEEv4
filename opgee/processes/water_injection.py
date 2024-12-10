@@ -15,11 +15,11 @@
 #
 import numpy as np
 
-from .shared import get_energy_carrier, get_energy_consumption
 from ..error import OpgeeException
 from ..log import getLogger
 from ..process import Process
-from .. import ureg
+from ..units import ureg
+from .shared import get_energy_carrier, get_energy_consumption
 
 _logger = getLogger(__name__)
 

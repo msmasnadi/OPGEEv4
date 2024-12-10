@@ -6,12 +6,11 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-from .. import ureg
 from ..emissions import EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
-from ..stream import PHASE_GAS
-from ..stream import Stream
+from ..stream import PHASE_GAS, Stream
+from ..units import ureg
 
 _logger = getLogger(__name__)
 

@@ -6,10 +6,13 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-from .. import ureg
-from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL, EN_RESID
+from pint.facets.plain import PlainQuantity
+
+from opgee.units import ureg
+
+from ..energy import EN_DIESEL, EN_ELECTRICITY, EN_NATURAL_GAS, EN_RESID
 from ..error import OpgeeException
-from ..stream import Stream, PHASE_GAS
+from ..stream import PHASE_GAS, Stream
 
 _slope = {"NG_engine": -0.6035,
           "NG_turbine": -0.1279}
@@ -23,14 +26,14 @@ _maxBHP = {"NG_engine": 2800.0,
            "Electric_motor": 1000.0}
 
 
-def get_efficiency(prime_mover_type, brake_horsepower):
+@ureg.wraps("btu/hp/hr", (None, "hp"), strict=False)
+def get_efficiency(prime_mover_type: str, brake_horsepower=ureg.Quantity(0., 'hp')):
     """
 
-    :param prime_mover_type:
-    :param brake_horsepower:
-    :return: (pint.Quantity) efficiency in units of "btu/horsepower/hour"
+    :param prime_mover_type: (str)
+    :param brake_horsepower: (float)
+    :return: (float) efficiency in units of "btu/horsepower/hour"
     """
-    brake_horsepower = brake_horsepower.to("horsepower").m
     brake_horsepower = min(_maxBHP[prime_mover_type], brake_horsepower)
 
     if prime_mover_type == "Electric_motor":
@@ -40,7 +43,7 @@ def get_efficiency(prime_mover_type, brake_horsepower):
     else:
         efficiency = _slope[prime_mover_type] * brake_horsepower + _intercept[prime_mover_type]
 
-    return ureg.Quantity(efficiency, "btu/horsepower/hour")
+    return efficiency
 
 
 def get_init_lifting_stream(gas,
@@ -127,11 +130,10 @@ def get_energy_consumption_stages(prime_mover_type, brake_horsepower_of_stages):
     return energy_consumption_of_stages
 
 
-def get_energy_consumption(prime_mover_type, brake_horsepower):
+@ureg.check(None, ureg.hp)
+def get_energy_consumption(prime_mover_type: str, brake_horsepower: PlainQuantity):
     eff = get_efficiency(prime_mover_type, brake_horsepower)
-    energy_consumption = (brake_horsepower * eff).to("mmBtu/day")
-
-    return energy_consumption
+    return (brake_horsepower * eff).to("mmBtu/day")
 
 
 def get_bounded_value(value, name, variable_bound_dict):

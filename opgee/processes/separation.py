@@ -239,16 +239,14 @@ class Separation(Process):
         overall_compression_ratio_stages = [self.pressure_after_boosting /
                                             pressure_of_stages[stage] for stage in range(self.num_of_stages)]
         compression_ratio_per_stages = Compressor.get_compression_ratio_stages(overall_compression_ratio_stages)
-        num_of_compression_stages = Compressor.get_num_of_compression_stages(overall_compression_ratio_stages)  # (int)
 
         brake_horsepower_of_stages = []
-        for (inlet_temp, inlet_press, compression_ratio,
-             gas_compression_volume, num_of_compression) \
+        for (inlet_temp, inlet_press, (compression_ratio, num_of_compression),
+             gas_compression_volume) \
                 in zip(temperature_of_stages,
                        pressure_of_stages,
                        compression_ratio_per_stages,
-                       gas_compression_volume_stages,
-                       num_of_compression_stages):
+                       gas_compression_volume_stages):
             work_sum, _, _ = Compressor.get_compressor_work_temp(field, inlet_temp, inlet_press,
                                                                  gas_stream, compression_ratio, num_of_compression)
             horsepower = work_sum * gas_compression_volume

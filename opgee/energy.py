@@ -8,10 +8,10 @@
 #
 import pandas as pd
 
-from . import ureg
 from .core import OpgeeObject
 from .error import OpgeeException
 from .log import getLogger
+from .units import ureg
 
 _logger = getLogger(__name__)
 

@@ -7,11 +7,12 @@
 # See LICENSE.txt for license details.
 #
 import math
-from .. import ureg
+
 from ..emissions import EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
 from ..stream import Stream
+from ..units import ureg
 
 _logger = getLogger(__name__)
 

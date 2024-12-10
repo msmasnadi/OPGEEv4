@@ -1,8 +1,9 @@
 import pytest
-from opgee import ureg
+
+from opgee.combine_streams import combine_streams
 from opgee.model_file import ModelFile
 from opgee.process import Process
-from opgee.combine_streams import combine_streams
+from opgee.units import ureg
 
 xml_string = """
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">

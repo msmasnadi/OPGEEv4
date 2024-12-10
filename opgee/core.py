@@ -6,39 +6,17 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-import pint
-import time
 import datetime
+import time
+from typing import Optional, TypeVar
 
-from . import ureg
-from .error import OpgeeException, AbstractMethodError, ModelValidationError
-from .log import getLogger
+import pint
+
+from opgee.units import validate_unit
+
+from .error import AbstractMethodError, ModelValidationError, OpgeeException
+from .units import ureg
 from .utils import coercible, getBooleanXML
-
-_logger = getLogger(__name__)
-
-def magnitude(value, units=None):
-    """
-    Return the magnitude of ``value``. If ``value`` is a ``pint.Quantity`` and
-    ``units`` is not None, check that ``value`` has the expected units and
-    return the magnitude of ``value``. If ``value`` is not a ``pint.Quantity``,
-    just return it.
-
-    :param value: (float or pint.Quantity) the value for which we return the magnitude.
-    :param units: (None or pint.Unit) the expected units
-    :return: the magnitude of `value`
-    """
-    if isinstance(value, ureg.Quantity):
-        # if optional units are provided, validate them
-        if units:
-            if not isinstance(units, pint.Unit):
-                units = ureg.Unit(units)
-            if value.units != units:
-                raise OpgeeException(f"magnitude: value {value} units are not {units}")
-
-        return value.m
-    else:
-        return value
 
 
 def name_of(obj):
@@ -142,7 +120,7 @@ class XmlInstantiable(OpgeeObject):
     def __init__(self, name, parent=None):
         super().__init__()
         self.name = name
-        self.parent = parent
+        self.parent: Optional[XmlInstantiable] = parent
         self.enabled = True
 
     def set_parent(self, parent):
@@ -221,32 +199,6 @@ class XmlInstantiable(OpgeeObject):
         return self.parent.find_container(cls)  # recursively ascend the graph
 
 
-# to avoid redundantly reporting bad units
-_undefined_units = {}
-
-
-def validate_unit(unit):
-    """
-    Return the ``pint.Unit`` associated with the string ``unit``, or ``None``
-    if ``unit`` is ``None`` or not in the unit registry.
-
-    :param unit: (str) a string representation of a ``pint.Unit``
-
-    :return: (pint.Unit or None)
-    """
-    if not unit:
-        return None
-
-    if unit in ureg:
-        return ureg.Unit(unit)
-
-    if unit not in _undefined_units:
-        _logger.warning(f"Unit '{unit}' is not in the UnitRegistry")
-        _undefined_units[unit] = 1
-
-    return None
-
-
 class A(OpgeeObject):
     """
     The ``<A>`` element represents the value of an attribute previously defined in
@@ -323,8 +275,8 @@ class TemperaturePressure(OpgeeObject):
     __slots__ = ('T', 'P')      # keeps instances small and fast
 
     def __init__(self, T, P):
-        self.T = None
-        self.P = None
+        self.T: Optional[pint.Quantity]= None
+        self.P: Optional[pint.Quantity] = None
         self.set(T=T, P=P)
 
     def __str__(self):
