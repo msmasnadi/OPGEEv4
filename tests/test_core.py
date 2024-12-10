@@ -3,13 +3,10 @@ import pytest
 from opgee.core import (
     A,
     XmlInstantiable,
-    _undefined_units,
     dict_from_list,
-    magnitude,
-    validate_unit,
 )
 from opgee.error import AbstractMethodError, OpgeeException
-from opgee.units import ureg
+from opgee.units import _undefined_units, magnitude, ureg, validate_unit
 
 
 def test_magnitude_error():

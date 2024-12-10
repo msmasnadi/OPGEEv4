@@ -16,12 +16,10 @@ from .core import (
     XmlInstantiable,
     elt_name,
     instantiate_subelts,
-    magnitude,
-    validate_unit,
 )
 from .error import AttributeError, ModelValidationError
 from .log import getLogger
-from .units import ureg
+from .units import magnitude, ureg, validate_unit
 from .utils import coercible
 
 _logger = getLogger(__name__)

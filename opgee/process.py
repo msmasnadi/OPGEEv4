@@ -16,7 +16,7 @@ from .attributes import AttrDefs, AttributeMixin
 from .combine_streams import combine_streams
 from .config import getParamAsBoolean
 from .container import Container
-from .core import OpgeeObject, XmlInstantiable, elt_name, instantiate_subelts, magnitude
+from .core import OpgeeObject, XmlInstantiable, elt_name, instantiate_subelts
 from .emissions import EM_COMBUSTION, Emissions
 from .energy import EN_ELECTRICITY, Energy
 from .error import (
@@ -28,7 +28,7 @@ from .error import (
 from .import_export import ImportExport
 from .log import getLogger
 from .stream import Stream
-from .units import ureg
+from .units import magnitude, ureg
 from .utils import getBooleanXML
 
 _logger = getLogger(__name__)

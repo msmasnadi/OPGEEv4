@@ -14,11 +14,11 @@ import pint
 import pint_pandas
 
 from .attributes import AttributeMixin
-from .core import TemperaturePressure, XmlInstantiable, elt_name, magnitude
+from .core import TemperaturePressure, XmlInstantiable, elt_name
 from .error import ModelValidationError, OpgeeException
 from .log import getLogger
 from .table_manager import TableManager
-from .units import ureg
+from .units import magnitude, ureg
 from .utils import coercible, getBooleanXML
 
 _logger = getLogger(__name__)

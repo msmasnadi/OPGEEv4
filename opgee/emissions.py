@@ -9,11 +9,11 @@
 import pandas as pd
 import pint
 
-from .core import OpgeeObject, magnitude
+from .core import OpgeeObject
 from .error import OpgeeException
 from .log import getLogger
 from .stream import Stream
-from .units import ureg
+from .units import magnitude, ureg
 
 _logger = getLogger(__name__)
 

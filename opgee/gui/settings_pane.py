@@ -1,14 +1,14 @@
 from collections import defaultdict
+from pathlib import Path
+
 from dash import dcc, html
 from dash.dependencies import Input, Output, State
-from pathlib import Path
 
 from ..attributes import AttrDefs
 from ..config import getParam
 from ..gui.widgets import attr_inputs
 from ..log import getLogger
 from ..utils import mkdirs
-
 from .widgets import OpgeePane
 
 _logger = getLogger(__name__)
@@ -112,7 +112,8 @@ class SettingsPane(OpgeePane):
         :return: none
         """
         from lxml import etree as ET
-        from ..core import magnitude
+
+        from ..units import magnitude
         from ..utils import coercible
 
         attr_defs = AttrDefs.get_instance()
