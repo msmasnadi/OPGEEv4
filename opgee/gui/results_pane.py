@@ -1,9 +1,9 @@
 from dash import dcc, html
 from dash.dependencies import Input, Output, State
+
 from ..error import ZeroEnergyFlowError
 from ..log import getLogger
-
-from .widgets import get_analysis_and_field, OpgeePane, horiz_space
+from .widgets import OpgeePane, get_analysis_and_field, horiz_space
 
 _logger = getLogger(__name__)
 
@@ -72,7 +72,7 @@ class ResultsPane(OpgeePane):
                 ci = field.compute_carbon_intensity(analysis)
             except ZeroEnergyFlowError:
                 return dcc.Markdown("**Cannot compute CI: zero energy flow at system boundary**")
-                # from .. import ureg
+                # from ..units import ureg
                 # _logger.warning(f"ci_text: {e}")
                 # ci = ureg.Quantity(0, "grams/MJ")
 

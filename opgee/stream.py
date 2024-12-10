@@ -13,7 +13,7 @@ import pandas as pd
 import pint
 import pint_pandas
 
-from . import ureg
+from .units import ureg
 from .attributes import AttributeMixin
 from .core import XmlInstantiable, elt_name, magnitude, TemperaturePressure
 from .error import OpgeeException, ModelValidationError

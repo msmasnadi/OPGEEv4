@@ -1,5 +1,5 @@
 import pytest
-from opgee import ureg
+from opgee.units import ureg
 from opgee.core import magnitude, dict_from_list, validate_unit, XmlInstantiable, A, _undefined_units
 from opgee.error import OpgeeException, AbstractMethodError
 

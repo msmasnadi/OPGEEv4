@@ -10,7 +10,7 @@ import networkx as nx
 import pint
 import pandas as pd
 
-from . import ureg
+from .units import ureg
 from .config import getParamAsList
 from .constants import DETAILED_RESULT
 from .container import Container

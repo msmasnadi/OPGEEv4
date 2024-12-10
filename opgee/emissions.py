@@ -9,7 +9,7 @@
 import pandas as pd
 import pint
 
-from . import ureg
+from .units import ureg
 from .core import OpgeeObject, magnitude
 from .error import OpgeeException
 from .log import getLogger

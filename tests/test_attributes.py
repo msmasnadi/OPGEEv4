@@ -1,6 +1,6 @@
 import pytest
 from lxml import etree as ET
-from opgee import ureg
+from opgee.units import ureg
 from opgee.analysis import Analysis
 from opgee.attributes import ClassAttrs, AttributeMixin, AttrDefs
 from opgee.core import instantiate_subelts

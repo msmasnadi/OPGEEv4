@@ -10,7 +10,7 @@ import pint
 import time
 import datetime
 
-from . import ureg
+from .units import ureg
 from .error import OpgeeException, AbstractMethodError, ModelValidationError
 from .log import getLogger
 from .utils import coercible, getBooleanXML

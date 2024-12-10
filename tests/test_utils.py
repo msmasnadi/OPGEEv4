@@ -1,7 +1,7 @@
 import os
 import pytest
 
-from opgee import ureg
+from opgee.units import ureg
 from opgee.error import OpgeeException
 from opgee.utils import (getBooleanXML, coercible, mkdirs, loadModuleFromPath,
                          removeTree, parseTrialString, getResource)

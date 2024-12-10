@@ -10,7 +10,7 @@ from collections import defaultdict
 
 import pandas as pd
 
-from . import ureg
+from .units import ureg
 from .core import (OpgeeObject, XmlInstantiable, A, instantiate_subelts,
                    elt_name, validate_unit, magnitude)
 from .error import AttributeError, ModelValidationError

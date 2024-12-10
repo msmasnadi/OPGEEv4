@@ -12,7 +12,7 @@ import pandas as pd
 import pint
 import re
 
-from . import ureg
+from .units import ureg
 from .attributes import AttrDefs, AttributeMixin
 from .combine_streams import combine_streams
 from .config import getParamAsBoolean

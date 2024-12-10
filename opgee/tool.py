@@ -324,7 +324,7 @@ def opg(cmdline):
 
 # Code in function moved to constants.py
 # def load_pint_registry():
-#     from . import ureg
+#     from .units import ureg
 #     from .pkg_utils import resourceStream
 #
 #     stream = resourceStream('etc/units.txt')
