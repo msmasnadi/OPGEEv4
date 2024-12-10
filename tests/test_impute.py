@@ -1,8 +1,11 @@
 import pytest
+
 from opgee.error import OpgeeException
 from opgee.process import Process
+from opgee.units import ureg
+
 from .utils_for_tests import load_test_model
-from opgee import ureg
+
 
 class CopyingProcess(Process):
     def run(self, analysis):

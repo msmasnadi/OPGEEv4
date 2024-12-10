@@ -1,11 +1,21 @@
 import os
+
 import pytest
 
-from opgee import ureg
 from opgee.error import OpgeeException
-from opgee.utils import (getBooleanXML, coercible, mkdirs, loadModuleFromPath,
-                         removeTree, parseTrialString, getResource)
+from opgee.units import ureg
+from opgee.utils import (
+    coercible,
+    getBooleanXML,
+    getResource,
+    loadModuleFromPath,
+    mkdirs,
+    parseTrialString,
+    removeTree,
+)
+
 from .utils_for_tests import tmpdir
+
 
 @pytest.mark.parametrize(
     "value, expected", [("true", True), ("yes", True), ("1", True),

@@ -6,24 +6,29 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-from typing import Union, Optional
+import re
+from typing import Optional, Union
 
 import pandas as pd
 import pint
-import re
 
-from . import ureg
 from .attributes import AttrDefs, AttributeMixin
 from .combine_streams import combine_streams
 from .config import getParamAsBoolean
 from .container import Container
 from .core import OpgeeObject, XmlInstantiable, elt_name, instantiate_subelts, magnitude
-from .emissions import Emissions, EM_COMBUSTION
+from .emissions import EM_COMBUSTION, Emissions
 from .energy import EN_ELECTRICITY, Energy
-from .error import OpgeeException, AbstractMethodError, OpgeeIterationConverged, ModelValidationError
+from .error import (
+    AbstractMethodError,
+    ModelValidationError,
+    OpgeeException,
+    OpgeeIterationConverged,
+)
 from .import_export import ImportExport
 from .log import getLogger
 from .stream import Stream
+from .units import ureg
 from .utils import getBooleanXML
 
 _logger = getLogger(__name__)
@@ -186,12 +191,12 @@ class Process(AttributeMixin, XmlInstantiable):
         XmlInstantiable.__init__(self, name, parent=parent)
 
         self.model = self.find_container('Model')
-        self.field = field = self.find_container('Field')
+        self.field = self.find_container('Field')
 
         # One or more of these are used by most processes
-        self.gas = field.gas
-        self.oil = field.oil
-        self.water = field.water
+        self.gas = self.field.gas
+        self.oil = self.field.oil
+        self.water = self.field.water
 
         self.attr_defs = AttrDefs.get_instance()
 
@@ -1076,7 +1081,7 @@ class Aggregator(Container):
     def __init__(self, name, attr_dict=None, parent=None):
         super().__init__(name, attr_dict=attr_dict, parent=parent)
 
-    def add_children(self, aggs=None, procs=None, **kwargs):
+    def add_children(self, aggs=None, procs=None):
         super().add_children(aggs=aggs, procs=procs)
 
     @classmethod

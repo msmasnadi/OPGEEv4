@@ -8,7 +8,6 @@
 #
 import pandas as pd
 
-from .. import ureg
 from ..core import STP
 from ..emissions import EM_FLARING
 from ..energy import EN_ELECTRICITY, EN_NATURAL_GAS, EN_PETCOKE, EN_UPG_PROC_GAS
@@ -16,6 +15,7 @@ from ..import_export import ELECTRICITY, H2
 from ..log import getLogger
 from ..process import Process
 from ..stream import PHASE_GAS, Stream
+from ..units import ureg
 
 _logger = getLogger(__name__)
 

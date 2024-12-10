@@ -6,13 +6,15 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-import pint
-import time
 import datetime
+import time
+from typing import Optional, TypeVar
 
-from . import ureg
-from .error import OpgeeException, AbstractMethodError, ModelValidationError
+import pint
+
+from .error import AbstractMethodError, ModelValidationError, OpgeeException
 from .log import getLogger
+from .units import ureg
 from .utils import coercible, getBooleanXML
 
 _logger = getLogger(__name__)
@@ -142,7 +144,7 @@ class XmlInstantiable(OpgeeObject):
     def __init__(self, name, parent=None):
         super().__init__()
         self.name = name
-        self.parent = parent
+        self.parent: Optional[XmlInstantiable] = parent
         self.enabled = True
 
     def set_parent(self, parent):
@@ -323,8 +325,8 @@ class TemperaturePressure(OpgeeObject):
     __slots__ = ('T', 'P')      # keeps instances small and fast
 
     def __init__(self, T, P):
-        self.T = None
-        self.P = None
+        self.T: Optional[pint.Quantity]= None
+        self.P: Optional[pint.Quantity] = None
         self.set(T=T, P=P)
 
     def __str__(self):

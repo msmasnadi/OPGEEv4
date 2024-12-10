@@ -1,8 +1,17 @@
-from opgee import ureg
-from opgee.energy import (Energy, EN_DIESEL, EN_NATURAL_GAS, EN_RESID,
-                          EN_PETCOKE, EN_CRUDE_OIL, EN_ELECTRICITY)
-from opgee.error import OpgeeException
 import pytest
+
+from opgee.energy import (
+    EN_CRUDE_OIL,
+    EN_DIESEL,
+    EN_ELECTRICITY,
+    EN_NATURAL_GAS,
+    EN_PETCOKE,
+    EN_RESID,
+    Energy,
+)
+from opgee.error import OpgeeException
+from opgee.units import ureg
+
 
 def test_set_rate():
     e = Energy()

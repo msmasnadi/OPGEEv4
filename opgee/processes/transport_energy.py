@@ -8,10 +8,10 @@
 #
 import pandas as pd
 
-from .. import ureg
 from ..core import OpgeeObject
-from ..error import OpgeeException
 from ..energy import EN_DIESEL
+from ..error import OpgeeException
+from ..units import ureg
 
 
 class TransportEnergy(OpgeeObject):
