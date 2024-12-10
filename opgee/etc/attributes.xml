@@ -14,7 +14,6 @@
 
       <!-- Maximum number of iterations for process loops -->
       <AttrDef name="maximum_iterations" type="int">100</AttrDef>
-      <AttrDef name="iteration_tolerance" type="float">0.000001</AttrDef>
 
       <!-- Change threshold for iteration loops. Requires a Process to set a change variable. -->
       <AttrDef name="maximum_change" type="float">0.001</AttrDef>
