@@ -24,7 +24,6 @@ def test_graphing(opgee_main, args):
         opgee_main.run(None, args)
         good = True
     except Exception as e:
-        import pdb; pdb.set_trace()
         # print(e)
         good = False
 
