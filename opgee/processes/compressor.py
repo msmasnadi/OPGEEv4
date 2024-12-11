@@ -76,8 +76,9 @@ class Compressor(OpgeeObject):
     def get_compression_ratio_and_stage(overall_compression_ratio: float) -> Optional[Q_IntTuple]:
         max_stages = len(_power)
         for pow in _power:
-            if overall_compression_ratio**pow < max_stages:
-                return overall_compression_ratio**pow, int(1 / pow)
+            comp_raised = overall_compression_ratio ** pow
+            if comp_raised < max_stages:
+                return comp_raised, int(1 / pow)
 
     @staticmethod
     @ureg.wraps(("mmbtu/day", "degF", "psia"), (None, None, None, "frac", None, None))
