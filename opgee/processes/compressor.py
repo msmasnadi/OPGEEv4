@@ -28,13 +28,7 @@ class Compressor(OpgeeObject):
         self.field = field
 
     @staticmethod
-    def get_compressor_work_temp(
-        field,
-        inlet_temp,
-        inlet_press,
-        gas_stream,
-        compression_ratio,
-        num_of_compression,
+    def get_compressor_work_temp(field, inlet_temp, inlet_press, gas_stream, compression_ratio, num_of_compression,
     ) -> Tuple[Q_Float, Q_Float, Q_Float]:
         """
 
@@ -50,28 +44,18 @@ class Compressor(OpgeeObject):
         corrected_temp = gas.corrected_pseudocritical_temperature(gas_stream)
         corrected_press = gas.corrected_pseudocritical_pressure(gas_stream)
         ratio_of_specific_heat = gas.ratio_of_specific_heat(gas_stream)
-        work_temp1: Quantity = (
-            3.027
-            * 14.7
-            / (60 + 460)
-            * ratio_of_specific_heat
-            / (ratio_of_specific_heat - 1)
-        )
+        work_temp1: Quantity = 3.027 * 14.7 / (60 + 460) * ratio_of_specific_heat / (ratio_of_specific_heat - 1)
         ratio = (ratio_of_specific_heat - 1) / ratio_of_specific_heat
         work: Quantity = ureg.Quantity(0.0, "frac * rankine")
-
         for _ in range(num_of_compression):
             inlet_reduced_temp = inlet_temp.to("rankine") / corrected_temp
             inlet_reduced_press = inlet_press / corrected_press
             z_factor = gas.Z_factor(inlet_reduced_temp, inlet_reduced_press)
 
-            work_temp2 = (compression_ratio**z_factor) ** ratio - 1
+            work_temp2 = (compression_ratio ** z_factor) ** ratio - 1
             work += work_temp1 * work_temp2 * inlet_temp.to("rankine")
 
-            delta_temp = (
-                inlet_temp.to("rankine") * compression_ratio ** (z_factor * ratio)
-                - inlet_temp
-            ) * 0.2
+            delta_temp = (inlet_temp.to("rankine") * compression_ratio ** (z_factor * ratio) - inlet_temp) * 0.2
             inlet_temp = ureg.Quantity(inlet_temp.m + delta_temp.m, "degF")
             inlet_press = compression_ratio * inlet_press
 
@@ -80,7 +64,7 @@ class Compressor(OpgeeObject):
 
     @staticmethod
     def get_compression_ratio_stages(
-        overall_compression_ratio_stages: Sequence[Q_Float],
+        overall_compression_ratio_stages: Sequence[Q_Float]
     ) -> Sequence[Q_IntTuple]:
         compression_ratios: map[Optional[Q_IntTuple]] = map(
             Compressor.get_compression_ratio_and_stage, overall_compression_ratio_stages
@@ -125,9 +109,12 @@ class Compressor(OpgeeObject):
             return energy_consumption, inlet_temp, inlet_press
 
         compression_ratio, num_stages = Compressor.get_compression_ratio_and_stage(overall_compression_ratio)
-        total_work, outlet_temp, outlet_press = Compressor.get_compressor_work_temp(
-            field, inlet_temp, inlet_press, inlet_stream, compression_ratio, num_stages
-        )
+        total_work, outlet_temp, outlet_press = Compressor.get_compressor_work_temp(field,
+                                                                                    inlet_temp,
+                                                                                    inlet_press,
+                                                                                    inlet_stream,
+                                                                                    compression_ratio,
+                                                                                    num_stages)
         volume_flow_rate_STP = field.gas.volume_flow_rate_STP(inlet_stream)
         total_energy = total_work * volume_flow_rate_STP
         brake_horse_power = total_energy / eta_compressor

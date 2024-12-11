@@ -267,22 +267,6 @@ def roundup(value, digits):
     return round(value + 0.5, digits)
 
 
-def mkdirs(newdir, mode=0o770):
-    """
-    Try to create the full path `newdir` and ignore the error if it already exists.
-
-    :param newdir: the directory to create (along with any needed parent directories)
-    :return: nothing
-    """
-    import errno  # PyCharm thinks this doesn't exist but it does.
-
-    try:
-        os.makedirs(newdir, mode)
-    except OSError as e:
-        if e.errno != errno.EEXIST:
-            raise
-
-
 def loadModuleFromPath(module_path, raiseError=True):
     """
     Load a module from a '.py' or '.pyc' file from a path that ends in the
@@ -325,7 +309,7 @@ def loadModuleFromPath(module_path, raiseError=True):
     return module
 
 
-def getResource(relpath):
+def getResource(relpath: str):
     """
     Extract a resource (e.g., file) from the given relative path in
     the pygcam package.
@@ -337,11 +321,9 @@ def getResource(relpath):
     import pkgutil
 
     try:
-        contents = pkgutil.get_data('opgee', relpath)
+        return pkgutil.get_data('opgee', relpath)
     except FileNotFoundError as e:
         raise OpgeeException(f"Resource '{relpath}' was not found in the opgee package: {e}")
-
-    return contents.decode('utf-8')
 
 
 def dequantify_dataframe(df):

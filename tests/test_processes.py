@@ -350,6 +350,15 @@ def test_GasReinjectionCompressor(test_model):
     total = proc.energy.data.sum()
     expected = ureg.Quantity(64913.96925930, "mmbtu/day")
     assert approx_equal(total, expected, rel=10e-3)
+    
+def test_TransmissionCompressor(test_model):
+    analysis = test_model.get_analysis('test_gas_processes')
+    field = analysis.get_field('test_TransmissionCompressor')
+    field.run(analysis)
+    proc = field.find_process("TransmissionCompressor")
+    total = proc.energy.data.sum()
+    expected = ureg.Quantity(1733.3619, "mmbtu/day")
+    assert approx_equal(total, expected, rel=10e-3)
 
 
 def test_N2Flooding(test_model):
@@ -698,6 +707,3 @@ def test_CrudeOilTransport():
     total = proc.find_output_stream("oil").liquid_flow_rate("oil")
     expected = ureg.Quantity(100.0, "tonne/day")
     assert approx_equal(total, expected)
-
-
-

@@ -8,13 +8,13 @@
 #
 import numpy as np
 
-from ..combine_streams import combine_streams
+from ..units import ureg
 from ..core import TemperaturePressure
 from ..emissions import EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
-from ..stream import PHASE_GAS, Stream
-from ..units import ureg
+from ..stream import Stream, PHASE_GAS
+from ..combine_streams import combine_streams
 from .shared import get_energy_carrier, get_energy_consumption_stages
 
 _logger = getLogger(__name__)

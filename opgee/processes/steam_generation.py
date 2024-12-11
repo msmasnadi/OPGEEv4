@@ -6,13 +6,13 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
+from ..units import ureg
 from ..core import TemperaturePressure
-from ..energy import EN_ELECTRICITY, EN_NATURAL_GAS
+from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY
 from ..error import BalanceError
 from ..import_export import WATER
 from ..log import getLogger
 from ..process import Process
-from ..units import ureg
 from .shared import get_energy_consumption
 
 _logger = getLogger(__name__)

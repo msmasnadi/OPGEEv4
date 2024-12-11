@@ -8,14 +8,15 @@
 #
 import pandas as pd
 
+from ..units import ureg
 from ..core import STP
 from ..emissions import EM_FLARING
-from ..energy import EN_ELECTRICITY, EN_NATURAL_GAS, EN_PETCOKE, EN_UPG_PROC_GAS
+from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_UPG_PROC_GAS, EN_PETCOKE
 from ..import_export import ELECTRICITY, H2
 from ..log import getLogger
 from ..process import Process
-from ..stream import PHASE_GAS, Stream
-from ..units import ureg
+from ..stream import PHASE_GAS
+from ..stream import Stream
 
 _logger = getLogger(__name__)
 
@@ -31,7 +32,7 @@ class HeavyOilUpgrading(Process):
 
         self._required_outputs = [
             "oil for storage",
-            "process gas",
+            "gas",
             "gas for flaring",
             "petrocoke",
         ]
@@ -122,7 +123,7 @@ class HeavyOilUpgrading(Process):
 
         proc_gas_exported_mass_rate = calculate_mass_rate_from_volume_rate(proc_gas_exported, self.upgrader_gas_comp)
         proc_gas_to_H2_mass_rate = calculate_mass_rate_from_volume_rate(proc_gas_to_H2, self.upgrader_gas_comp)
-        output_proc_gas = self.find_output_stream("process gas")
+        output_proc_gas = self.find_output_stream("gas")
         output_proc_gas.set_rates_from_series(proc_gas_exported_mass_rate, PHASE_GAS)
         output_proc_gas.set_tp(STP)
 

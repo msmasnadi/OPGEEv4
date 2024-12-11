@@ -8,10 +8,10 @@
 #
 import math
 
+from ..units import ureg
 from ..energy import EN_DIESEL
 from ..log import getLogger
 from ..process import Process
-from ..units import ureg
 
 _logger = getLogger(__name__)
 

@@ -72,9 +72,6 @@ class ResultsPane(OpgeePane):
                 ci = field.compute_carbon_intensity(analysis)
             except ZeroEnergyFlowError:
                 return dcc.Markdown("**Cannot compute CI: zero energy flow at system boundary**")
-                # from ..units import ureg
-                # _logger.warning(f"ci_text: {e}")
-                # ci = ureg.Quantity(0, "grams/MJ")
 
             return f"CI: {ci.m:0.2f} g CO2e/MJ LHV of {analysis.fn_unit}"
 

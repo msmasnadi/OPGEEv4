@@ -9,13 +9,10 @@
 import pandas as pd
 import pint
 
-from .units import ureg
-from .core import OpgeeObject, magnitude
+from .units import magnitude, ureg
+from .core import OpgeeObject
 from .error import OpgeeException
-from .log import getLogger
 from .stream import Stream
-
-_logger = getLogger(__name__)
 
 EM_COMBUSTION = 'Combustion'
 EM_LAND_USE = 'Land-use'

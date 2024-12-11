@@ -8,16 +8,16 @@
 #
 import math
 
-import numpy as np
 import pandas as pd
+import numpy as np
 import pint
 from pyXSteam.XSteam import XSteam
 from thermosteam import Chemical, IdealMixture
 
-from .core import STP, OpgeeObject, TemperaturePressure
+from .units import ureg
+from .core import OpgeeObject, STP, TemperaturePressure
 from .error import ModelValidationError
 from .stream import PHASE_GAS, PHASE_LIQUID, PHASE_SOLID, Stream
-from .units import ureg
 
 
 class ChemicalInfo(OpgeeObject):

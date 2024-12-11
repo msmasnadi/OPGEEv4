@@ -6,15 +6,17 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
+from ..units import ureg
 from ..combine_streams import combine_streams
-from ..core import STP, TemperaturePressure
-from ..energy import EN_NATURAL_GAS
+from ..core import STP
+from ..core import TemperaturePressure
 from ..error import OpgeeException
-from ..import_export import N2, NATURAL_GAS, CO2_Flooding
+from ..energy import EN_NATURAL_GAS
+from ..import_export import N2, CO2_Flooding, NATURAL_GAS
 from ..log import getLogger
 from ..process import Process
 from ..stream import PHASE_GAS, Stream
-from ..units import ureg
+
 from .shared import get_init_lifting_stream
 
 _logger = getLogger(__name__)
