@@ -89,6 +89,7 @@ class DownholePump(Process):
         self.prod_tubing_xsection_area = None
         self.res_temp = None
         self.wellhead_tp = None
+        self.field_lvl_leak_rate = None
 
         self.cache_attributes()
 
@@ -107,6 +108,7 @@ class DownholePump(Process):
         self.prime_mover_type = self.attr("prime_mover_type")
         self.wellhead_tp = TemperaturePressure(field.wellhead_t, field.attr("wellhead_pressure"))
         self.oil_sand_mine = field.oil_sands_mine
+        self.field_lvl_leak_rate = field.field_lvl_leak_rate
 
     def run(self, analysis):
         self.print_running_msg()
@@ -121,7 +123,7 @@ class DownholePump(Process):
         if lift_gas is not None and lift_gas.is_initialized():
             input = combine_streams([input, lift_gas])
 
-        loss_rate = field.component_fugitive_table[self.name]
+        loss_rate = field.component_fugitive_table[self.name] if self.field_lvl_leak_rate == 0 else self.field_lvl_leak_rate
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
         output = self.find_output_stream("oil")

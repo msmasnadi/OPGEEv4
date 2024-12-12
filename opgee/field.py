@@ -301,6 +301,7 @@ class Field(Container):
         self.well_complexity = self.attr("well_complexity")
         self.well_size = self.attr("well_size")
         self.ocean_tanker_size = self.attr("ocean_tanker_size")
+        self.field_lvl_leak_rate = self.attr("field_lvl_leak_rate")
 
         # Add wellhead tp to the smart default
         self.wellhead_t = min(self.res_temp, self.attr("wellhead_temperature"))
@@ -864,7 +865,7 @@ class Field(Container):
         pump_loss_rate = ureg.Quantity(0.0, "frac")
         loss_mat_gas_ave_df = pd.DataFrame()
 
-        if num_prod_wells > 0:
+        if num_prod_wells > 0 and self.field_lvl_leak_rate == 0:
             productivity /= num_prod_wells
 
             productivity = productivity.to("kscf/day").m
