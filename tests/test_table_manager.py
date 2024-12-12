@@ -1,11 +1,12 @@
 import pytest
+from opgee.energy import EN_NATURAL_GAS, EN_NGL
 from opgee.error import OpgeeException
 from opgee.table_manager import TableManager
 from .utils_for_tests import path_to_test_file
 
 def test_updates(test_model):
     df = test_model.upstream_CI
-    assert df.loc['NGL', 'EF'].m == 1234.5 and df.loc['Natural gas', 'EF'].m == 12345.67
+    assert df.loc[EN_NGL, 'EF'].m == 1234.5 and df.loc[EN_NATURAL_GAS, 'EF'].m == 12345.67
 
 def test_add_table():
     table_name = 'test_table'

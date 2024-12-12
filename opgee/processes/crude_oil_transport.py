@@ -6,7 +6,6 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-from ..emissions import EM_COMBUSTION
 from ..import_export import CRUDE_OIL
 from ..log import getLogger
 from ..process import Process
@@ -20,6 +19,15 @@ class CrudeOilTransport(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        self._required_inputs = [
+            "oil"
+        ]
+
+        self._required_outputs = [
+            "oil"
+        ]
+
 
         self.transport_share_fuel = self.model.transport_share_fuel.loc["Crude"]
         self.transport_parameter = self.model.transport_parameter[["Crude", "Units"]]
@@ -71,6 +79,4 @@ class CrudeOilTransport(Process):
         field.import_export.set_export(self.name, CRUDE_OIL, oil_LHV_rate)
 
         # emissions
-        energy_for_combustion = energy_use.data.drop("Electricity")
-        combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        self.emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
+        self.set_combustion_emissions()

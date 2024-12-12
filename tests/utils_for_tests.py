@@ -1,7 +1,19 @@
+from contextlib import contextmanager
 from io import StringIO
 from opgee.config import pathjoin, getParam, setParam, readConfigFile
 from opgee.model_file import ModelFile
 from opgee.process import Process
+
+@contextmanager
+def tempdir():
+    import tempfile
+    import shutil
+
+    d = tempfile.mkdtemp()
+    try:
+        yield d
+    finally:
+        shutil.rmtree(d)
 
 class ProcA(Process):
     def run(self, analysis):
@@ -60,6 +72,17 @@ def load_model_from_str(xml_str, use_default_model=False):
 def tmpdir(*args):
     d = pathjoin(getParam('OPGEE.TempDir'), *args)
     return d
+
+@contextmanager
+def tempdir():
+    import tempfile
+    import shutil
+
+    d = tempfile.mkdtemp()
+    try:
+        yield d
+    finally:
+        shutil.rmtree(d)
 
 def load_config_from_string(text):
     stream = StringIO(text)

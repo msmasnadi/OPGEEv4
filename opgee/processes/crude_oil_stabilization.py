@@ -9,7 +9,7 @@
 from .compressor import Compressor
 from .shared import get_energy_carrier
 from ..core import TemperaturePressure
-from ..emissions import EM_COMBUSTION, EM_FUGITIVES
+from ..emissions import EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
 from ..stream import Stream, PHASE_LIQUID, PHASE_GAS
@@ -35,6 +35,16 @@ class CrudeOilStabilization(Process):
    """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "oil for stabilization",
+        ]
+
+        self._required_outputs = [
+            "gas",
+            "oil for storage",
+        ]
 
         self.eps_stab = None
         self.eta_compressor = None
@@ -91,7 +101,7 @@ class CrudeOilStabilization(Process):
         gas_removed_molar_rate = gas_removed_by_stabilizer * self.mol_per_scf * oil.gas_comp  # Pandas Series
         gas_removed_mass_rate = oil.component_MW[gas_removed_molar_rate.index] * gas_removed_molar_rate
 
-        output_stab_gas = self.find_output_stream("gas for gas gathering")
+        output_stab_gas = self.find_output_stream("gas")
         gas_tp_after_separation = field.get_process_data("gas_tp_after_separation")
         if gas_tp_after_separation is None:
             gas_tp_after_separation = input.tp
@@ -130,10 +140,6 @@ class CrudeOilStabilization(Process):
         # import and export
         self.set_import_from_energy(energy_use)
 
-        # emission rate
-        emissions = self.emissions
-        energy_for_combustion = energy_use.data.drop("Electricity")
-        combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
-
-        emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
+        # emissions
+        self.set_combustion_emissions()
+        self.emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)

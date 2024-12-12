@@ -16,7 +16,6 @@
 import numpy as np
 
 from .shared import get_energy_carrier, get_energy_consumption
-from ..emissions import EM_COMBUSTION
 from ..error import OpgeeException
 from ..log import getLogger
 from ..process import Process
@@ -37,6 +36,14 @@ class WaterInjection(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "water",
+        ]
+
+        self._required_outputs = []
+
         self.gravitation_acc = self.model.const("gravitational-acceleration")
         self.gravitation_const = self.model.const("gravitational-constant")
         self.water_density = self.water.density()
@@ -82,7 +89,7 @@ class WaterInjection(Process):
         if self.num_water_inj_wells.m == 0:
             raise OpgeeException(f"Got zero number of injector in the {self.name} process")
 
-        input = self.find_input_stream("water for water injection")
+        input = self.find_input_stream("water")
         if input.is_uninitialized():
             return
 
@@ -113,8 +120,5 @@ class WaterInjection(Process):
         # import and export
         self.set_import_from_energy(energy_use)
 
-        # emission
-        emissions = self.emissions
-        energy_for_combustion = energy_use.data.drop("Electricity")
-        combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
+        # emissions
+        self.set_combustion_emissions()

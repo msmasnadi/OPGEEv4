@@ -7,7 +7,7 @@
 # See LICENSE.txt for license details.
 #
 from .. import ureg
-from ..emissions import EM_COMBUSTION, EM_FUGITIVES
+from ..emissions import EM_FUGITIVES
 from ..energy import EN_NATURAL_GAS, EN_DIESEL
 from ..log import getLogger
 from ..process import Process
@@ -19,6 +19,17 @@ _logger = getLogger(__name__)
 class RyanHolmes(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "gas for Ryan Holmes",
+        ]
+
+        self._required_outputs = [
+            "gas for gas partition",
+            "gas for NGL",
+            "gas for CO2 compressor",
+        ]
 
         self.RH_process_tbl = self.field.model.ryan_holmes_process_tbl
 
@@ -91,9 +102,5 @@ class RyanHolmes(Process):
         self.set_import_from_energy(energy_use)
 
         # emissions
-        emissions = self.emissions
-        energy_for_combustion = energy_use.data.drop("Electricity")
-        combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
-
-        emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
+        self.set_combustion_emissions()
+        self.emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)

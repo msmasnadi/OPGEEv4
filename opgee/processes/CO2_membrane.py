@@ -7,7 +7,6 @@
 # See LICENSE.txt for license details.
 #
 from ..core import std_pressure
-from ..emissions import EM_COMBUSTION
 from ..log import getLogger
 from ..process import Process
 from ..processes.compressor import Compressor
@@ -22,7 +21,7 @@ class CO2Membrane(Process):
     This process represents the separation of CO2 from natural gas using a membrane.
 
     input streams:
-        - gas for CO2 membrane
+        - gas
 
     output streams:
         - gas for AGR
@@ -31,6 +30,16 @@ class CO2Membrane(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        self._required_inputs = [
+            "gas",
+        ]
+
+        # TODO: avoid process names in contents.
+        self._required_outputs = [
+            "gas for AGR",
+            "gas for CO2 compressor",
+        ]
 
         self.AGR_feedin_press = None
         self.eta_compressor = None
@@ -52,7 +61,7 @@ class CO2Membrane(Process):
         self.print_running_msg()
         field = self.field
 
-        input = self.find_input_stream("gas for CO2 membrane")
+        input = self.find_input_stream("gas")
         if input.is_uninitialized():
             return
 
@@ -76,7 +85,6 @@ class CO2Membrane(Process):
                                                                                    self.eta_compressor,
                                                                                    overall_compression_ratio,
                                                                                    input)
-
         # energy-use
         energy_use = self.energy
         energy_carrier = get_energy_carrier(self.prime_mover_type)
@@ -86,7 +94,4 @@ class CO2Membrane(Process):
         self.set_import_from_energy(energy_use)
 
         # emissions
-        emissions = self.emissions
-        energy_for_combustion = energy_use.data.drop("Electricity")
-        combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
+        self.set_combustion_emissions()

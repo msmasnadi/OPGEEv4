@@ -6,6 +6,7 @@
    See the https://opensource.org/licenses/MIT for license details.
 '''
 from io import BytesIO
+
 from lxml import etree as ET
 
 from .config import getConfigDict, getParam
@@ -85,7 +86,7 @@ class XMLFile(object):
             raise XmlFormatError(f"Can't read from XML {thing}: {e}")
 
         if self.removeComments:
-            for elt in tree.iterfind('//comment'):
+            for elt in tree.iterfind('.//comment'):
                 parent = elt.getparent()
                 if parent is not None:
                     parent.remove(elt)

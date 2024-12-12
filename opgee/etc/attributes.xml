@@ -9,6 +9,9 @@
 <Model schema_version="4.0.a">
   <AttrDefs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="opgee.xsd">
     <ClassAttrs name="Model">
+      <!-- Allow test XML to skip Process and Stream validation -->
+      <AttrDef name="skip_validation" type="binary" desc="Skip validation step">0</AttrDef>
+
       <!-- Maximum number of iterations for process loops -->
       <AttrDef name="maximum_iterations" type="int">100</AttrDef>
       <AttrDef name="iteration_tolerance" type="float">0.000001</AttrDef>
@@ -347,8 +350,8 @@
       <AttrDef name="is_REC" type="str" desc="Fracturing flowback captured with reduced emissons completions?">Yes</AttrDef>
       <AttrDef name="frac_well_fractured" type="float" unit="frac" desc="Fraction of wells fractured">0.0</AttrDef>
 
-
     </ClassAttrs>
+
     <ClassAttrs name="SurveyTruck">
       <AttrDef name="distance" type="float" desc="Distance of travel for survey" unit="mi">10000</AttrDef>
       <AttrDef name="weight" type="float" desc="Weight of land survey vehicle" unit="tons">25</AttrDef>

@@ -1,15 +1,13 @@
 name: opgee
 channels:
-  - anaconda
   - conda-forge
   - defaults
 dependencies:
-  - colour
+  - chemicals
   - dash
   - dask
   - dask-jobqueue
-  - jinja2
-  - llvm-openmp
+  - fluids
   - lxml
   - networkx
   - numba
@@ -20,18 +18,15 @@ dependencies:
   - pip
   - pydot
   - pytest
-  - python>=3.9.0,<3.10.0
-  - semver
+  - python>=3.11.0,<3.12.0
   - setuptools
   - sphinx
   - sphinx-argparse
   - sphinx_rtd_theme
   - sphinxcontrib-serializinghtml
+  - thermo
   - pip:
-    # - nuitka            # experimental; moved here because conda version is very outdated
     - dash-cytoscape
     - pyXSteam
     - thermosteam
-    - fluids==1.0.24
-    - chemicals==1.1.4
-    - thermo==0.2.25
+

@@ -13,6 +13,7 @@ from dask.distributed import Client, LocalCluster, as_completed
 from glob import glob
 import os
 import pandas as pd
+import pint
 import re
 from typing import Sequence
 
@@ -23,6 +24,7 @@ from .error import McsSystemError, AbstractMethodError
 from .field import FieldResult
 from .log import getLogger, setLogFile
 from .model_file import extract_model
+from .post_processor import PostProcessor
 from .utils import flatten, pushd, mkdirs
 from .mcs.simulation import Simulation, RESULTS_CSV, FAILURES_CSV
 
@@ -392,8 +394,9 @@ def run_serial(model_xml_file, analysis_name, field_names, result_type=DETAILED_
 def save_results(results, output_dir, batch_num=None):
     """
     Save "detailed" results, comprising top-level carbon intensity (CI) from
-    ``results``, and per-process energy and emissions details. Results are
-     written to CSV files under the directory ``output_dir``.
+    ``results``, and per-process energy use, emissions details, and total output
+     energy at system boundary. Results are written to CSV files under the
+     directory ``output_dir``.
 
     :param results: (list[FieldResult]) results from running a ``Field``
     :param output_dir: (str) where to write the CSV files
@@ -411,72 +414,124 @@ def save_results(results, output_dir, batch_num=None):
     emission_cols = []
     gas_dfs = []
     ci_rows = []
+    energy_output_rows = []
     error_rows = []
     stream_dfs = []
+
+    def create_dict(analysis, field, trial,
+                    name=None, value=None, unit_col=True):
+        # create the common portion of result dicts
+        d = {"analysis": analysis_name,
+             "field": field_name}
+
+        if trial is not None:
+            d["trial"] = trial
+
+        if name:
+            if isinstance(value, pint.Quantity):
+                if unit_col:
+                    d['units'] = value.u
+                value = value.m
+            d[name] = value
+        return d
 
     for result in flatten(results):
         trial = result.trial_num
 
+        analysis_name = result.analysis_name
+        field_name = result.field_name
+
         if result.result_type == ERROR_RESULT:
-            d = {"analysis": result.analysis_name,
-                 "field": result.field_name,
-                 "error": result.error}
-            if trial is not None:
-                d['trial'] = trial
+            d = create_dict(analysis_name, field_name, trial)
+            d['error'] = result.error
             error_rows.append(d)
             continue
 
         if result.result_type != SIMPLE_RESULT:
+            if trial is not None:
+                result.streams['trial'] = trial
+                result.gases['trial'] = trial
+                result.emissions['trial'] = trial
+                result.energy['trial'] = trial      # energy consumption
+
             energy_cols.append(result.energy)
             emission_cols.append(result.emissions)
             stream_dfs.append(result.streams)
             gas_dfs.append(result.gases)
 
+            # Add a row for total energy output
+            d = create_dict(analysis_name, field_name, trial,
+                            name='energy_output', value=result.energy_output)
+            energy_output_rows.append(d)
+
         for name, ci in result.ci_results:
-            d = {"analysis": result.analysis_name,
-                 "field": result.field_name,
-                 "node": name,
-                 "CI": ci}
-            if trial is not None:
-                d['trial'] = trial
+            d = create_dict(analysis_name, field_name, trial, name='CI', value=ci)
+            d['node'] = name
             ci_rows.append(d)
 
     # Append batch number to filename if not None
     batch = '' if batch_num is None else f"_{batch_num}"
 
-    def _to_csv(df, file_prefix, **kwargs):
+    def _to_csv(df, file_prefix):
         pathname = pathjoin(output_dir, f"{file_prefix}{batch}.csv")
         _logger.info(f"Writing '{pathname}'")
-        df.to_csv(pathname, **kwargs)
+        df.to_csv(pathname, index=False)
 
     df = pd.DataFrame(data=ci_rows)
-    _to_csv(df, 'carbon_intensity', index=False)
+    _to_csv(df, 'carbon_intensity')
 
     if error_rows:
         df = pd.DataFrame(data=error_rows)
-        _to_csv(df, 'errors', index=False)
+        _to_csv(df, 'errors')
 
-    def _save_cols(columns, file_prefix):
-        df = pd.concat(columns, axis="columns")
-        df.index.name = "process"
-        df.sort_index(axis="rows", inplace=True)
+    def _save_dfs(dfs, file_prefix):
+        # Column name is field name, but we change this to 'value'
+        # and we add a column with the field name.
+
+        def _reformat(df):
+            df = df.sort_index(axis="rows").reset_index()
+
+            id_vars = ['process', 'unit']
+            if 'trial' in df.columns:
+                id_vars.append('trial')
+
+            df = df.melt(value_name='value', var_name='field', id_vars=id_vars)
+            return df
+
+        dfs = [_reformat(df) for df in dfs]
+
+        # concatenate the dataframes vertically
+        df = pd.concat(dfs, axis="rows")
+
+        # reordering the columns
+        col_order = ['field', 'process', 'value', 'unit']
+        if 'trial' in df.columns:
+            col_order.insert(0, 'trial')
+
+        df = df[col_order]
         _to_csv(df, file_prefix)
 
     # These aren't saved for SIMPLE_RESULTS
     if energy_cols:
-        _save_cols(energy_cols, "energy")
+        _save_dfs(energy_cols, "energy_use")
+
+    if energy_output_rows:
+        df = pd.DataFrame(data=energy_output_rows)
+        _to_csv(df, "energy_output")
 
     if emission_cols:
-        _save_cols(emission_cols, "emissions")
+        _save_dfs(emission_cols, "emissions")
 
     if gas_dfs:
         df = pd.concat(gas_dfs, axis="rows")
-        _to_csv(df, "gases", index=False)
+        _to_csv(df, "gases")
 
     if stream_dfs:
         df = pd.concat(stream_dfs, axis="rows")
-        _to_csv(df, "streams", index=False)
+        _to_csv(df, "streams")
 
+    # Save any results captured by optional post-processor plugins
+    PostProcessor.save_post_processor_results(output_dir)
 
 def _combine_results(filenames, output_name, sort_by=None):
     if not filenames:

@@ -8,12 +8,11 @@
 #
 from ..combine_streams import combine_streams
 from ..core import TemperaturePressure
-from ..emissions import EM_COMBUSTION, EM_FUGITIVES
+from ..emissions import EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
 from ..processes.compressor import Compressor
-from ..stream import Stream, PHASE_LIQUID, PHASE_GAS
-from ..thermodynamics import rho
+from ..stream import Stream, PHASE_GAS
 from .shared import get_energy_carrier, get_energy_consumption_stages
 
 _logger = getLogger(__name__)
@@ -22,6 +21,15 @@ _logger = getLogger(__name__)
 class Separation(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "oil",
+        ]
+
+        self._required_outputs = [
+            "gas for partition",    # TODO: this is called "gas for gas partition" elsewhere
+        ]
 
         self.compressor_eff = None
         self.gas_comp = None
@@ -85,7 +93,7 @@ class Separation(Process):
         water_oil_ratio = field.attr("WOR")
 
         # mass rate
-        input = self.find_input_stream("crude oil")
+        input = self.find_input_stream("oil")
 
         loss_rate = field.component_fugitive_table[self.name]
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
@@ -117,12 +125,8 @@ class Separation(Process):
         self.set_import_from_energy(energy_use)
 
         # emission rate
-        emissions = self.emissions
-        energy_for_combustion = energy_use.data.drop("Electricity")
-        combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
-
-        emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
+        self.set_combustion_emissions()
+        self.emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
 
     def impute(self):
         field = self.field
@@ -135,7 +139,7 @@ class Separation(Process):
         loss_rate = (1 / (1 - loss_rate)).to("frac")
         output.multiply_flow_rates(loss_rate)
 
-        input = self.find_input_stream("crude oil")
+        input = self.find_input_stream("oil")
         input.copy_flow_rates_from(output, tp=field.wellhead_tp)
         oil_LHV_rate = oil.energy_flow_rate(input)
         gas_LHV_rate = field.gas.energy_flow_rate(input)
@@ -172,7 +176,7 @@ class Separation(Process):
         gas_after.set_rates_from_series(gas_mass_rate, PHASE_GAS)
         gas_after.tp.set(T=self.outlet_tp.T, P=self.pressure_after_boosting)
 
-        oil_after = self.find_output_stream("crude oil")
+        oil_after = self.find_output_stream("oil")
         oil_mass_rate = (self.oil_volume_rate * density).to("tonne/day")
         water_in_oil_mass_rate = self.water_in_oil_mass_rate(oil_mass_rate)
         oil_after.set_liquid_flow_rate("oil", oil_mass_rate)

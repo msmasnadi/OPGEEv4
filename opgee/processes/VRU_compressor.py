@@ -6,7 +6,7 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-from ..emissions import EM_COMBUSTION, EM_FUGITIVES
+from ..emissions import EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
 from ..processes.compressor import Compressor
@@ -27,6 +27,16 @@ class VRUCompressor(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "gas for VRU"
+        ]
+
+        self._required_outputs = [
+            "gas"
+        ]
+
         self.discharge_press = None
         self.eta_compressor = None
         self.prime_mover_type = None
@@ -49,7 +59,7 @@ class VRUCompressor(Process):
         loss_rate = self.venting_fugitive_rate()
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
-        gas_to_gathering = self.find_output_stream("gas for gas gathering")
+        gas_to_gathering = self.find_output_stream("gas")
 
         overall_compression_ratio = self.discharge_press / input.tp.P
         energy_consumption, output_temp, output_press = \
@@ -75,9 +85,5 @@ class VRUCompressor(Process):
         self.set_import_from_energy(energy_use)
 
         # emissions
-        emissions = self.emissions
-        energy_for_combustion = energy_use.data.drop("Electricity")
-        combustion_emission = (energy_for_combustion * self.process_EF).sum()
-        emissions.set_rate(EM_COMBUSTION, "CO2", combustion_emission)
-
-        emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
+        self.set_combustion_emissions()
+        self.emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
