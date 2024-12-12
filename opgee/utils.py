@@ -8,9 +8,9 @@
    See the https://opensource.org/licenses/MIT for license details.
 '''
 import argparse
-from contextlib import contextmanager
 import os
 import sys
+from contextlib import contextmanager
 
 from .config import unixPath
 from .error import OpgeeException
@@ -121,7 +121,7 @@ def removeTree(path, ignore_errors=True):
 
 def filecopy(src, dst, removeDst=True):
     'Copy src file to dst, optionally removing dst first to avoid writing through symlinks'
-    from shutil import copy2        # equivalent to "cp -p"
+    from shutil import copy2  # equivalent to "cp -p"
 
     _logger.debug(f"copyfile({src}, dst, removeDst)")
     if removeDst and os.path.islink(dst):
@@ -307,23 +307,6 @@ def loadModuleFromPath(module_path, raiseError=True):
             raise OpgeeException(errorString)
 
     return module
-
-
-def getResource(relpath: str):
-    """
-    Extract a resource (e.g., file) from the given relative path in
-    the pygcam package.
-
-    :param relpath: (str) a path relative to the pygcam package
-    :return: the file contents
-    :raises: OpgeeException if the resource isn't found
-    """
-    import pkgutil
-
-    try:
-        return pkgutil.get_data('opgee', relpath)
-    except FileNotFoundError as e:
-        raise OpgeeException(f"Resource '{relpath}' was not found in the opgee package: {e}")
 
 
 def dequantify_dataframe(df):
