@@ -155,6 +155,8 @@ class Field(Container):
         #       other programmers (and PyCharm) recognize them as proper instance variables and
         #       not random values set in other methods.
         self.upstream_CI = model.upstream_CI
+        self.grid_mix_EF = model.grid_mix_EF
+        self.grid_mix_feed = model.grid_mix_feed
         self.vertical_drill_df = model.vertical_drill_df
         self.horizontal_drill_df = model.horizontal_drill_df
         self.imported_gas_comp = model.imported_gas_comp
@@ -231,6 +233,7 @@ class Field(Container):
         self.WOR = None
         self.transport_energy = None
         self.steam_generator = None
+        self.has_grid_mix = None
 
         # Cache attribute values and call initializers that depend on them
         self.cache_attributes()
@@ -300,6 +303,7 @@ class Field(Container):
         self.well_complexity = self.attr("well_complexity")
         self.well_size = self.attr("well_size")
         self.ocean_tanker_size = self.attr("ocean_tanker_size")
+        self.has_grid_mix = self.attr("has_grid_mix")
 
         # Add wellhead tp to the smart default
         self.wellhead_t = min(self.res_temp, self.attr("wellhead_temperature"))
@@ -770,9 +774,12 @@ class Field(Container):
         :param net_import: (Pandas.Series) net import energy rates (water is mass rate)
         :return: total emissions (units of g CO2)
         """
-        from .import_export import WATER, N2, CO2_Flooding
+        from .import_export import WATER, N2, CO2_Flooding, ELECTRICITY
 
         imported_emissions = ureg.Quantity(0.0, "tonne/day")
+
+        if self.has_grid_mix:
+            self.upstream_CI.loc[ELECTRICITY] = self.grid_mix_EF.T.dot(self.grid_mix_feed).iloc[0,0]
 
         for product, energy_rate in net_import.items():
             # TODO: Water, N2, and CO2 flooding is not in self.upstream_CI and not in upstream-CI.csv,

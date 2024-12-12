@@ -87,6 +87,8 @@ class Model(Container):
         self.ryan_holmes_process_tbl = tbl_mgr.get_table("ryan-holmes-process")
         self.demethanizer = tbl_mgr.get_table("demethanizer")
         self.upstream_CI = tbl_mgr.get_table("upstream-CI")
+        self.grid_mix_EF = tbl_mgr.get_table("grid_mix_EF")
+        self.grid_mix_feed = tbl_mgr.get_table("grid_mix_feed")
 
         self.pubchem_cid = tbl_mgr.get_table("pubchem-cid")
 
