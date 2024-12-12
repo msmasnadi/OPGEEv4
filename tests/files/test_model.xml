@@ -112,6 +112,7 @@
 		<FieldRef name="test_SourGasInjection"/>
 		<FieldRef name="test_VRUCompressor"/>
 		<FieldRef name="test_GasReinjectionCompressor"/>
+		<FieldRef name="test_TransmissionCompressor"/>
 		<FieldRef name="test_N2Flooding"/>
 		<FieldRef name="test_CO2Flooding"/>
 		<FieldRef name="test_NGFlooding_onsite_gas"/>
@@ -894,6 +895,37 @@
 		</Stream>
 
 	</Field>
+	<Field name="test_TransmissionCompressor">
+		<Process class="Before"/>
+		<Process class="TransmissionCompressor"/>
+		<Process class="Boundary" boundary="Production"/>
+		<Stream src="Before" dst="TransmissionCompressor">
+			<Contains>gas</Contains>
+			<Component name="CO2" phase="gas">119.35794</Component>
+			<Component name="H2" phase="gas">18.04195</Component>
+			<Component name="H2S" phase="gas">18.48612</Component>
+			<Component name="C1" phase="gas">108.77169</Component>
+			<Component name="C2" phase="gas">122.32514</Component>
+			<Component name="C3" phase="gas">119.59151</Component>
+			<Component name="C4" phase="gas">78.81646</Component>
+			<A name="temperature">60</A>
+			<A name="pressure">14.676</A>
+		</Stream>
+		<Stream src="TransmissionCompressor" dst="ProductionBoundary"
+			name="transmission gas for storage">
+			<Contains>gas for storage</Contains>
+		</Stream>
+
+		<Stream src="TransmissionCompressor" dst="ProductionBoundary"
+			name="transmission gas for LNG">
+			<Contains>LNG</Contains>
+		</Stream>
+
+		<Stream src="TransmissionCompressor" dst="ProductionBoundary"
+			name="transmission gas for distribution">
+			<Contains>gas for distribution</Contains>
+		</Stream>
+	</Field>
 
 	<Field name="test_GasLiftingCompressor">
 
@@ -1226,7 +1258,7 @@
 		</Stream>
 
 		<Stream src="HeavyOilUpgrading" dst="ProductionBoundary" name="process gas">
-			<Contains>process gas</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="HeavyOilUpgrading" dst="ProductionBoundary" name="petrocoke">

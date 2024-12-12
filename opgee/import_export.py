@@ -159,7 +159,7 @@ class ImportExport(OpgeeObject):
         """
 
         def _sum(series, name):
-            from . import ureg
+            from .units import ureg
             # Sum of an empty series is returned as int(0); need to initialize units
             return series.sum() if len(series) > 0 else ureg.Quantity(0.0, self.unit_dict[name])
 

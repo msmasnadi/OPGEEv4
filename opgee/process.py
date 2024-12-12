@@ -10,14 +10,13 @@ from typing import Union, Optional
 
 import pandas as pd
 import pint
-import re
 
-from . import ureg
+from .units import ureg, magnitude
 from .attributes import AttrDefs, AttributeMixin
 from .combine_streams import combine_streams
 from .config import getParamAsBoolean
 from .container import Container
-from .core import OpgeeObject, XmlInstantiable, elt_name, instantiate_subelts, magnitude
+from .core import OpgeeObject, XmlInstantiable, elt_name, instantiate_subelts
 from .emissions import Emissions, EM_COMBUSTION
 from .energy import EN_ELECTRICITY, Energy
 from .error import OpgeeException, AbstractMethodError, OpgeeIterationConverged, ModelValidationError
@@ -1076,7 +1075,7 @@ class Aggregator(Container):
     def __init__(self, name, attr_dict=None, parent=None):
         super().__init__(name, attr_dict=attr_dict, parent=parent)
 
-    def add_children(self, aggs=None, procs=None, **kwargs):
+    def add_children(self, aggs=None, procs=None):
         super().add_children(aggs=aggs, procs=procs)
 
     @classmethod
