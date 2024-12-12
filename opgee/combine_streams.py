@@ -8,7 +8,7 @@
 #
 import pandas as pd
 
-from . import ureg
+from .units import ureg
 from .core import STP
 from .core import TemperaturePressure
 from .log import getLogger

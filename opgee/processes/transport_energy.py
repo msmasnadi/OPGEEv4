@@ -8,7 +8,7 @@
 #
 import pandas as pd
 
-from .. import ureg
+from ..units import ureg
 from ..core import OpgeeObject
 from ..error import OpgeeException
 from ..energy import EN_DIESEL

@@ -13,9 +13,9 @@ import pandas as pd
 import pint
 import pint_pandas
 
-from . import ureg
+from .units import ureg, magnitude
 from .attributes import AttributeMixin
-from .core import XmlInstantiable, elt_name, magnitude, TemperaturePressure
+from .core import XmlInstantiable, elt_name, TemperaturePressure
 from .error import OpgeeException, ModelValidationError
 from .log import getLogger
 from .table_manager import TableManager
@@ -144,6 +144,8 @@ class Stream(AttributeMixin, XmlInstantiable):
     _extensions = {}
 
     _units = ureg.Unit("tonne/day")
+    
+    tp: TemperaturePressure
 
     def __init__(
         self,

@@ -1,5 +1,5 @@
 import pytest
-from opgee import ureg
+from opgee.units import ureg
 from opgee.model_file import ModelFile
 from opgee.process import Process
 from opgee.combine_streams import combine_streams

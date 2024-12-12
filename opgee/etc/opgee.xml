@@ -393,7 +393,7 @@
 		</Stream>
 
 		<Stream src="HeavyOilUpgrading" dst="ProductionBoundary">
-			<Contains>process gas</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="CrudeOilStorage" dst="CrudeOilTransport">

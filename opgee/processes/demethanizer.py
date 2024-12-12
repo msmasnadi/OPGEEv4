@@ -8,7 +8,7 @@
 #
 import pandas as pd
 
-from .. import ureg
+from ..units import ureg
 from ..core import STP, TemperaturePressure
 from ..emissions import EM_FUGITIVES
 from ..energy import EN_ELECTRICITY

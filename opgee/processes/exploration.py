@@ -8,7 +8,7 @@
 #
 import math
 
-from .. import ureg
+from ..units import ureg
 from ..energy import EN_DIESEL
 from ..log import getLogger
 from ..process import Process

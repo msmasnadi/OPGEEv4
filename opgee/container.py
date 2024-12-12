@@ -7,12 +7,13 @@
 # See LICENSE.txt for license details.
 #
 from .attributes import AttrDefs, AttributeMixin
-from .core import  ureg, XmlInstantiable
+from .core import XmlInstantiable
 from .emissions import Emissions
 from .energy import Energy
 from .error import OpgeeException
 from .import_export import ImportExport
 from .log import getLogger
+from .units import ureg
 
 _logger = getLogger(__name__)
 

@@ -8,7 +8,7 @@
 #
 import numpy as np
 
-from .. import ureg
+from ..units import ureg
 from ..emissions import EM_FUGITIVES
 from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY
 from ..error import OpgeeException

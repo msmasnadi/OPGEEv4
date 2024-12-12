@@ -7,7 +7,7 @@
 # See LICENSE.txt for license details.
 #
 import math
-from .. import ureg
+from ..units import ureg
 from ..emissions import EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process

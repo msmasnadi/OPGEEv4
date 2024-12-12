@@ -1,5 +1,5 @@
 import pytest
-from opgee import ureg
+from opgee.units import ureg
 from .utils_for_tests import load_model_from_str
 from opgee.error import XmlFormatError
 from .utils_for_tests import load_test_model

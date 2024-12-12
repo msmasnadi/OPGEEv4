@@ -8,9 +8,9 @@
    See the https://opensource.org/licenses/MIT for license details.
 '''
 import argparse
-from contextlib import contextmanager
 import os
 import sys
+from contextlib import contextmanager
 
 from .config import unixPath
 from .error import OpgeeException
@@ -121,7 +121,7 @@ def removeTree(path, ignore_errors=True):
 
 def filecopy(src, dst, removeDst=True):
     'Copy src file to dst, optionally removing dst first to avoid writing through symlinks'
-    from shutil import copy2        # equivalent to "cp -p"
+    from shutil import copy2  # equivalent to "cp -p"
 
     _logger.debug(f"copyfile({src}, dst, removeDst)")
     if removeDst and os.path.islink(dst):
@@ -267,22 +267,6 @@ def roundup(value, digits):
     return round(value + 0.5, digits)
 
 
-def mkdirs(newdir, mode=0o770):
-    """
-    Try to create the full path `newdir` and ignore the error if it already exists.
-
-    :param newdir: the directory to create (along with any needed parent directories)
-    :return: nothing
-    """
-    import errno  # PyCharm thinks this doesn't exist but it does.
-
-    try:
-        os.makedirs(newdir, mode)
-    except OSError as e:
-        if e.errno != errno.EEXIST:
-            raise
-
-
 def loadModuleFromPath(module_path, raiseError=True):
     """
     Load a module from a '.py' or '.pyc' file from a path that ends in the
@@ -323,25 +307,6 @@ def loadModuleFromPath(module_path, raiseError=True):
             raise OpgeeException(errorString)
 
     return module
-
-
-def getResource(relpath):
-    """
-    Extract a resource (e.g., file) from the given relative path in
-    the pygcam package.
-
-    :param relpath: (str) a path relative to the pygcam package
-    :return: the file contents
-    :raises: OpgeeException if the resource isn't found
-    """
-    import pkgutil
-
-    try:
-        contents = pkgutil.get_data('opgee', relpath)
-    except FileNotFoundError as e:
-        raise OpgeeException(f"Resource '{relpath}' was not found in the opgee package: {e}")
-
-    return contents.decode('utf-8')
 
 
 def dequantify_dataframe(df):

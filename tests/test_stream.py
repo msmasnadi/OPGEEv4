@@ -1,7 +1,7 @@
 import pytest
 from opgee.error import OpgeeException
 from opgee.process import Process
-from opgee import ureg
+from opgee.units import ureg
 
 from .utils_for_tests import load_test_model
 
