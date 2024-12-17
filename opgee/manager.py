@@ -9,7 +9,7 @@
 import asyncio
 import dask
 from dask_jobqueue import SLURMCluster
-from dask.distributed import Client, LocalCluster, as_completed
+from dask.distributed import Client, SubprocessCluster, as_completed
 from glob import glob
 import os
 import pandas as pd
@@ -206,7 +206,7 @@ class Manager(OpgeeObject):
         cls = self.__class__.__name__
         return f"<{cls} cluster:{self.cluster_type}>"
 
-    def start_cluster(self, num_engines=None, minutes_per_task=None):
+    def start_cluster(self, num_workers=None, minutes_per_task=None):
         cluster_type = self.cluster_type
 
         _logger.info(f"Creating {cluster_type} cluster")
@@ -251,16 +251,16 @@ class Manager(OpgeeObject):
             cluster = SLURMCluster(**arg_dict)
             _logger.debug(cluster.job_script())
 
-            _logger.debug(f"calling cluster.scale(cores={num_engines})")
-            cluster.scale(cores=num_engines)  # scale up to the desired total number of cores
+            _logger.debug(f"calling cluster.scale(cores={num_workers})")
+            cluster.scale(cores=num_workers)  # scale up to the desired total number of cores
 
         elif cluster_type == 'local':
             # Set processes=False and swap n_workers and threads_per_worker to use threads in one
             # process, which is helpful for debugging. Note that some packages are not thread-safe.
             # Running with n_workers=1, threads_per_worker=2 resulted in weird runtime errors in Chemical.
-            # self.cluster = cluster = LocalCluster(n_workers=1, threads_per_worker=num_engines, processes=False)
+            # self.cluster = cluster = SubprocessCluster(n_workers=1, threads_per_worker=num_engines, processes=False)
 
-            self.cluster = cluster = LocalCluster(n_workers=num_engines, threads_per_worker=1, processes=True,
+            self.cluster = cluster = SubprocessCluster(n_workers=num_workers, threads_per_worker=1, processes=True,
                                                   local_directory=local_dir)
 
         else:
@@ -326,7 +326,7 @@ class Manager(OpgeeObject):
 
         else:
             # N.B. start_cluster saves client in self.client and returns it as well
-            client = self.start_cluster(num_engines=num_engines, minutes_per_task=minutes_per_task)
+            client = self.start_cluster(num_workers=num_engines, minutes_per_task=minutes_per_task)
 
             # Start the worker processes on all available CPUs.
             futures = client.map(lambda pkt: pkt.run(result_type),packets)
