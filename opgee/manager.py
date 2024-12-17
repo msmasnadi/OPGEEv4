@@ -260,8 +260,7 @@ class Manager(OpgeeObject):
             # Running with n_workers=1, threads_per_worker=2 resulted in weird runtime errors in Chemical.
             # self.cluster = cluster = SubprocessCluster(n_workers=1, threads_per_worker=num_engines, processes=False)
 
-            self.cluster = cluster = SubprocessCluster(n_workers=num_workers, threads_per_worker=1, processes=True,
-                                                  local_directory=local_dir)
+            self.cluster = cluster = SubprocessCluster(n_workers=num_workers, threads_per_worker=1, worker_kwargs=dict(local_directory=local_dir))
 
         else:
             raise McsSystemError(f"Unknown cluster type '{cluster_type}'. Valid options are 'slurm' and 'local'.")
