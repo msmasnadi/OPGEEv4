@@ -101,25 +101,6 @@ class RunCommand(SubcommandABC):
             help="""Comma-delimited list of field names to exclude from analysis""",
         )
 
-        # parser.add_argument(
-        #     "-g",
-        #     "--post-proc-plugin",
-        #     metavar="PATH",
-        #     action="append",
-        #     default=[],
-        #     help="""Loads the post-processing plugin from the given path. The file
-        #             must contain a single, valid subclass of ``opgee.post_process.PostProcess``.
-        #             This arg can be specified multiple times to load multiple post-processing
-        #             classes. They will be invoked in the order given on the command-line.""")
-
-        # parser.add_argument(
-        #     "-G",
-        #     "--no-post-proc-plugin-path",
-        #     action="store_true",
-        #     help="""Override the automatic loading of post-processing plugins from the path(s)
-        #         specified in config variable OPGEE.PostProcPluginPath. Specific plugins can
-        #         still be loaded using the --post-plugin argument.""")
-
         parser.add_argument(
             "-i",
             "--ignore-errors",
