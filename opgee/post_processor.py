@@ -176,6 +176,7 @@ class PostProcessor(OpgeeObject):
 
     @classmethod
     def save_post_processor_results(cls, output_dir):
+        cls.load_all_plugins()
         for instance in cls.instances:
             instance.save(output_dir)
             instance.clear()
