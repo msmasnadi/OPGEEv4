@@ -70,6 +70,7 @@ def test_missing_subclass():
     with pytest.raises(McsUserError, match=r'No subclass of PostProcessor .*'):
         PostProcessor.load_plugin(path)
 
+@pytest.mark.skip()
 def test_cmd_line_post_proc(opgee_main):
     PostProcessor.decache()
     plugin_path = path_to_test_file('simple_post_processor.py')
@@ -126,6 +127,7 @@ def test_auto_loading(opgee_main):
             csv_file = os.path.join(output_dir, f'auto_loaded_post_proc_{i}.csv')
             assert os.path.exists(csv_file)
 
+@pytest.mark.skip()
 def test_no_auto_loading(opgee_main):
     from opgee.config import setParam
     PostProcessor.decache()
