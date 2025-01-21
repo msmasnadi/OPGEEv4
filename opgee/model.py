@@ -8,7 +8,7 @@
 #
 import pint
 
-from . import ureg
+from .units import ureg
 from .analysis import Analysis
 from .container import Container
 from .core import elt_name, instantiate_subelts

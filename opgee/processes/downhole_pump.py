@@ -8,7 +8,7 @@
 #
 import numpy as np
 
-from .. import ureg
+from ..units import ureg
 from ..core import TemperaturePressure
 from ..emissions import EM_FUGITIVES
 from ..log import getLogger

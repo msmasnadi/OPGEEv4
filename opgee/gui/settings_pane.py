@@ -112,7 +112,7 @@ class SettingsPane(OpgeePane):
         :return: none
         """
         from lxml import etree as ET
-        from ..core import magnitude
+        from ..units import magnitude
         from ..utils import coercible
 
         attr_defs = AttrDefs.get_instance()
