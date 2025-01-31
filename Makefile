@@ -6,7 +6,75 @@
 # python setup.py sdist upload -r pypitest
 #
 # Do the same with pypi instead of pypitest to go live
+.ONESHELL:
+SHELL=/bin/bash
+CONDA_ENV = opgee
+CONDA_ACTIVATE = source $$(conda info --base)/etc/profile.d/conda.sh; conda activate; conda activate
 
+LOCK=opgee.conda.lock
+ifeq ($(OS),Windows_NT)
+    CONDA_INIT_CMD = call "$(shell where conda | grep Scripts\\conda.exe | sed 's/conda.exe/activate.bat/')"
+    CONDA_PATH_CHECK = where conda
+    CONDA_INIT_IN_SUBSHELL = call activate.bat
+else
+    UNAME_S := $(shell uname -s)
+    ifeq ($(UNAME_S),Linux)
+        CONDA_ROOT = ~/anaconda3
+        CONDA_INIT_CMD = source $(CONDA_ROOT)/bin/activate
+        CONDA_PATH_CHECK = which conda
+    else
+        UNAME_P := $(shell uname -p)
+        ifeq ($(UNAME_P),arm)
+            CONDA_ROOT = /opt/homebrew/anaconda3
+            CONDA_INIT_CMD = source $(CONDA_ROOT)/bin/activate
+            CONDA_PATH_CHECK = which conda
+        else
+            CONDA_ROOT = ~/anaconda3
+            CONDA_INIT_CMD = source $(CONDA_ROOT)/bin/activate
+            CONDA_PATH_CHECK = which conda
+        endif
+    endif
+    CONDA_INIT_IN_SUBSHELL = source $(CONDA_ROOT)/bin/activate
+endif
+
+check-conda:
+	@$(CONDA_PATH_CHECK) >/dev/null 2>&1 || \
+	(echo "Conda not found. Initializing conda..." && \
+	$(CONDA_INIT_CMD))
+	
+act:
+	$(CONDA_ACTIVATE)
+a: act
+	# py=$$(which python3)
+	# @echo "before $$py"
+	# $(CONDA_ACTIVATE) base
+	py2=$$(which python)
+	echo "after $$py2"
+	
+t: 
+	py=$$(which python3)
+	echo "after $$py"
+	
+list:
+	@$(CONDA_ACTIVATE) ./foo; conda list
+
+dc:
+	$(conda deactivate)
+
+check-active-env: check-conda
+	@bash -c '$(CONDA_INIT_IN_SUBSHELL) && \
+	active_env=$$(conda info --envs | grep "*" | cut -d" " -f1) && \
+	echo "Current environment: $$active_env" && \
+	if [ "$$active_env" = "$(CONDA_ENV)" ]; then \
+		echo "Deactivating $(CONDA_ENV) environment..." && \
+		conda deactivate; \
+	else \
+		echo "Environment $(CONDA_ENV) is not active"; \
+	fi'
+
+remove-opgee: check-conda check-active-env
+	@echo "Removing $(CONDA_ENV) environment..."
+	@conda env remove -n $(CONDA_ENV)
 all: clean html sdist wheel
 
 version = `./version.sh`
@@ -76,8 +144,8 @@ YML_FILE=py3-opgee.yml
 #$(TEST_YML) : $(INPUT_YML)
 #	egrep -v '^#' $(INPUT_YML) > $(TEST_YML)
 
-remove-opgee:
-	conda env remove -n opgee
+# remove-opgee:
+# 	conda env remove -n opgee
 
 create-opgee: $(YML_FILE)
 	conda env create -f $(YML_FILE)
