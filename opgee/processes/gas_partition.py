@@ -38,8 +38,8 @@ class GasPartition(Process):
         ]
 
         self._required_outputs = [
-            "gas",
-            # also two possible output streams below: "lifting gas" and "exported gas"
+            "exported gas",
+            # also two possible output streams below: "lifting gas" and "gas"
         ]
 
         if field.natural_gas_reinjection:
