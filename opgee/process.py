@@ -666,7 +666,7 @@ class Process(AttributeMixin, XmlInstantiable):
         streams = self.find_output_streams(stream_type, as_list=True, regex=regex, raiseError=raiseError)
         if len(streams) != 1:
             if raiseError:
-                raise OpgeeException(f"Expected one output stream with '{stream_type}'; found {len(streams)}")
+                raise OpgeeException(f"{self}: Expected one output stream with '{stream_type}'; found {len(streams)}")
             return None
 
         stream = streams[0]

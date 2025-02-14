@@ -409,9 +409,8 @@
 		</Stream>
 
 
-		<!--		water processing path-->
+		<!-- water processing path-->
 		<Stream src="WaterTreatment" dst="ProductionBoundary">
-			<Contains>water</Contains>
 			<Contains>water for subsurface disposal</Contains>
 		</Stream>
 
