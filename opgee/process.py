@@ -630,7 +630,7 @@ class Process(AttributeMixin, XmlInstantiable):
         :return: (Stream, list or dict of Streams) depends on various keyword args
         :raises: OpgeeException if no processes handling `stream_type` are found and `raiseError` is True
         """
-        return self._find_streams_by_type(self.OUTPUT, stream_type, combine=combine, as_list=as_list,
+        return self._find_streams_by_type(self.OUTPUT, stream_type, regex=regex, combine=combine, as_list=as_list,
                                           raiseError=raiseError)
 
     def find_input_stream(self, stream_type, regex=False, raiseError=True) -> Union[Stream, None]:
@@ -666,7 +666,7 @@ class Process(AttributeMixin, XmlInstantiable):
         streams = self.find_output_streams(stream_type, as_list=True, regex=regex, raiseError=raiseError)
         if len(streams) != 1:
             if raiseError:
-                raise OpgeeException(f"Expected one output stream with '{stream_type}'; found {len(streams)}")
+                raise OpgeeException(f"{self}: Expected one output stream with '{stream_type}'; found {len(streams)}")
             return None
 
         stream = streams[0]
