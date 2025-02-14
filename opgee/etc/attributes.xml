@@ -144,6 +144,7 @@
       <AttrDef name="gas_pressure_after_boosting" type="float" unit="psia" desc="Separator gas outlet pressure after boosting compressors">500</AttrDef>
       <AttrDef name="friction_factor" type="float" unit="frac" desc="wellbore friction factor">0.02</AttrDef>
       <AttrDef name="AGR_feedin_press" type="float" unit="psia">500.0</AttrDef>
+      <AttrDef name="has_grid_mix" type="binary" desc="user has grid mix data">0</AttrDef>
 
       <!-- Processing practices -->
       <Options name="upgrader_type" default="None">
