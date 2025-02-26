@@ -1,4 +1,4 @@
-Copyright © 2012-2022 The Board of Trustees of the Leland Stanford Junior University. All rights reserved.
+Copyright © 2012-2025 The Board of Trustees of the Leland Stanford Junior University. All rights reserved.
 
 The files herein derived from pygcam (as indicated in header comments) and are Copyright 2015-2022
 Richard Plevin, licensed under the MIT open source license: https://opensource.org/licenses/MIT.
