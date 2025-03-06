@@ -35,9 +35,7 @@ class OnsiteElectricityGeneration(Process):
 
         # Declare required inputs/outputs.
         self._required_inputs = [
-            # Add required inputs here, e.g., "input stream"
-            "H2",
-            "waste gas"# assume only fuel gas comes in, not considering oil
+            "gas"
         ]
         self._required_outputs = [
             "H2",
@@ -66,8 +64,13 @@ class OnsiteElectricityGeneration(Process):
         Returns:
             None
         """
-        waste_gas_in = self.find_input_stream("waste gas")
-        H2_in = self.find_input_stream("H2")
+        gas_in = self.find_input_stream("gas")
+
+        H2_in = self.find_output_stream("H2")
+        H2_in.set_gas_flow_rate("H2", gas_in.gas_flow_rate("H2"))
+        waste_gas_in = self.find_output_stream("gas")
+        waste_gas_in.copy_gas_rates_from(gas_in)
+        waste_gas_in.subtract_rates_from(H2_in)
 
         # step 1 calculate how much total electricity we actually need from all processes
         required_energy = sum([proc.energy.get_rate("Electricity") for proc in self.field.processes()])
@@ -85,9 +88,7 @@ class OnsiteElectricityGeneration(Process):
         percentage_waste_gas_burned = required_energy/electricity_rate_from_waste
         emission_stream.add_combustion_CO2_from(waste_gas_in, (percentage_waste_gas_burned if percentage_waste_gas_burned < 1 else 1))
 
-        waste_out = self.find_output_stream("gas")
-        waste_out.copy_gas_rates_from(waste_gas_in)
-        waste_out.multiply_flow_rates(1 - (percentage_waste_gas_burned if percentage_waste_gas_burned < 1 else 1))
+        waste_gas_in.multiply_flow_rates(1 - (percentage_waste_gas_burned if percentage_waste_gas_burned < 1 else 1))
 
         # check if waste gas was sufficient
         remaining_energy_needed = required_energy - electricity_rate_from_waste *(percentage_waste_gas_burned if percentage_waste_gas_burned < 1 else 1)
@@ -102,10 +103,7 @@ class OnsiteElectricityGeneration(Process):
                 percentage_H2_burned if percentage_H2_burned < 1 else 1))
             emission_stream = combine_streams([emission_stream, em2])
 
-
-        output = self.find_output_stream("H2")
-        output.copy_gas_rates_from(H2_in)
-        output.multiply_flow_rates(1-(percentage_H2_burned if percentage_H2_burned < 1 else 1))
+        H2_in.multiply_flow_rates(1-(percentage_H2_burned if percentage_H2_burned < 1 else 1))
 
         emissions.set_from_stream(EM_COMBUSTION, emission_stream)
 

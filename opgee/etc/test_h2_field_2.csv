@@ -1,7 +1,7 @@
 python_name,Type,Field without lifting,Field without lifting
 downhole_pump,int,0,0
-water_reinjection,int,0,0
-natural_gas_reinjection,int,0,0
+water_reinjection,int,1,1
+natural_gas_reinjection,int,1,1
 water_flooding,int,0,0
 gas_lifting,int,0,0
 gas_flooding,int,0,0
@@ -12,7 +12,7 @@ age,float,15,15
 depth,float,10000,10000
 oil_prod,float,0.1,0.1
 num_prod_wells,int,8,8
-num_water_inj_wells,int,0,0
+num_water_inj_wells,int,1,1
 well_diam,float,,
 prod_index,float,6.8,6.8
 res_press,float,2520,2520
@@ -35,8 +35,8 @@ GFIR,float,,
 flood_gas_type,str,NG,NG
 SOR,float,0,0
 fraction_elec_onsite,float,1,1
-fraction_remaining_gas_inj,float,0.5,0.5
-fraction_water_reinjected,float,0,0
+fraction_remaining_gas_inj,float,1,1
+fraction_water_reinjected,float,1,1
 fraction_steam_cogen,float,0,0
 fraction_steam_solar,float,0,0
 stabilizer_column,int,1,1

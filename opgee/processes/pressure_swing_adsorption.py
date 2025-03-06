@@ -53,8 +53,7 @@ class PressureSwingAdsorption(Process):
         ]
 
         self._required_outputs = [
-            "H2",
-            "waste gas"
+            "gas"
         ]
 
         model = self.field.model
@@ -90,13 +89,12 @@ class PressureSwingAdsorption(Process):
         input = self.find_input_stream("gas")
 
         # separate stream into (1) pure H2 (2) waste gas
-        out_h2 = self.find_output_stream("H2")
-        temp = input.gas_flow_rate("H2")*(1-self.slip_rate)
-        out_h2.set_gas_flow_rate("H2", temp)
+        output = self.find_output_stream("gas")
+        temp = input.gas_flow_rate("H2")*self.slip_rate
+        output.copy_flow_rates_from(input)
+        output.subtract_rates_from(temp)
 
-        out_waste = self.find_output_stream("waste gas")
-        out_waste.copy_flow_rates_from(input)
-        out_waste.subtract_rates_from(out_h2)
+
 
         # check waste gas treatment
             # if flaring, flare
