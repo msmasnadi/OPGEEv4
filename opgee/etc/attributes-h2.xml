@@ -8,7 +8,12 @@
      -->
 <Model schema_version="4.0.a">
   <AttrDefs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="opgee.xsd">
-    <ClassAttrs name="Model">
+      <ClassAttrs name="PressureSwingAbsorption">
+        <AttrDef name="flaring" type="binary" desc="flare waste gas treatment or not">0</AttrDef>
+        <AttrDef name="slip_rate" type="float" desc="Slip rate of pure H2 to waste gas">0.10</AttrDef>
+      </ClassAttrs>
+
+      <ClassAttrs name="Model">
       <!-- Allow test XML to skip Process and Stream validation -->
       <AttrDef name="skip_validation" type="binary" desc="Skip validation step">0</AttrDef>
 
@@ -119,6 +124,7 @@
       <AttrDef name="gas_comp_C3" unit="mol_pct" type="float">1.62</AttrDef>
       <AttrDef name="gas_comp_C4" unit="mol_pct" type="float">0.71</AttrDef>
       <AttrDef name="gas_comp_H2S" unit="mol_pct" type="float">0.0</AttrDef>
+      <AttrDef name="gas_comp_H2" unit="mol_pct" type="float">0.0</AttrDef>
 
       <!-- Production practices -->
 

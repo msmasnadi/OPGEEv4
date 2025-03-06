@@ -128,10 +128,11 @@ class DownholePump(Process):
         output.copy_flow_rates_from(input, tp=self.wellhead_tp)
         output.subtract_rates_from(gas_fugitives)
 
-        completion_workover_fugitive_stream = field.get_process_data("completion_workover_fugitive_stream")
-        if completion_workover_fugitive_stream is not None:
-            gas_fugitives.add_flow_rates_from(completion_workover_fugitive_stream)
-            output.subtract_rates_from(completion_workover_fugitive_stream)
+        # TODO create an attribute here
+        # completion_workover_fugitive_stream = field.get_process_data("completion_workover_fugitive_stream")
+        # if completion_workover_fugitive_stream is not None:
+        #     gas_fugitives.add_flow_rates_from(completion_workover_fugitive_stream)
+        #     output.subtract_rates_from(completion_workover_fugitive_stream)
 
         self.set_iteration_value(output.total_flow_rate())
 
@@ -239,6 +240,6 @@ class DownholePump(Process):
         field.save_process_data(completion_workover_fugitive_stream=completion_workover_fugitive_stream)
 
         input = self.find_input_stream("oil")
-        input.copy_flow_rates_from(output)
+        input.copy_flow_rates_from(output, API=field.API)
         input.multiply_flow_rates(loss_rate)
         input.add_flow_rates_from(completion_workover_fugitive_stream)

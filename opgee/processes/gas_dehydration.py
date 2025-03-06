@@ -46,6 +46,7 @@ class GasDehydration(Process):
         super().__init__(name, **kwargs)
 
         self.gas_path_dict = {"Minimal": "gas for gas partition",
+                              "PSA": "gas for electricity generation",
                               "Acid Gas": "gas for AGR",
                               "Acid Wet Gas": "gas for AGR",
                               "CO2-EOR Membrane": "gas for chiller",
@@ -55,12 +56,10 @@ class GasDehydration(Process):
 
         # TODO: avoid process names in contents.
         self._required_inputs = [
-            "gas for gas dehydration",
+            "gas",
         ]
 
-        self._required_outputs = [
-            self.gas_path_dict[self.field.gas_path],
-        ]
+        self._required_outputs = [self.gas_path_dict[self.field.gas_path]]
 
         model = self.field.model
 
@@ -102,12 +101,15 @@ class GasDehydration(Process):
         field = self.field
 
         # mass rate
-        input = self.find_input_stream("gas for gas dehydration")
+        input = self.find_input_stream("gas")
         processing_unit_loss_rate_df = field.get_process_data("processing_unit_loss_rate_df")
-        if input.is_uninitialized() or processing_unit_loss_rate_df is None:
+        # if input.is_uninitialized() or processing_unit_loss_rate_df is None:
+        if input.is_uninitialized():
             return
 
-        loss_rate = processing_unit_loss_rate_df.T[self.name].values[0]
+        loss_rate = (0.01 if processing_unit_loss_rate_df is None
+                     else processing_unit_loss_rate_df.T[self.name].values[0]) # TODO
+
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
         try:

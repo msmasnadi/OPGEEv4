@@ -65,7 +65,7 @@ travis-reqs $(TRAVIS_REQS): requirements.in
 #
 # Virtual environment / package dependency support
 #
-YML_FILE=py3-opgee.yml
+YML_FILE=opgee-RP.yml
 
 
 #INPUT_YML=py3-opgee-macos.yml

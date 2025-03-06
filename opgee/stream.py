@@ -224,7 +224,10 @@ class Stream(AttributeMixin, XmlInstantiable):
                     for name, value in items if value is not None and value.m != 0]
 
         extras = pd.DataFrame(data=tuples, columns=columns)
-        result = pd.concat([df, extras], axis='rows')
+        if len(extras) == 0 or len(extras) == 0:
+            result = df if len(extras) == 0 else extras
+        else:
+            result = pd.concat([df, extras], axis='rows')
 
         result['field'] = self.parent.name
         result['stream'] = self.name
@@ -468,7 +471,7 @@ class Stream(AttributeMixin, XmlInstantiable):
         self.initialized = True
         return self.set_flow_rate(name, PHASE_SOLID, rate)
 
-    def set_rates_from_series(self, series, phase, upper_bound_stream=None):
+    def set_rates_from_series(self, series:pd.Series, phase, upper_bound_stream=None):
         """
         set rates from pandas series given phase given the upper bound stream
 
@@ -535,7 +538,7 @@ class Stream(AttributeMixin, XmlInstantiable):
         else:
             self.components[self.components.columns] = stream.components
 
-        self.API = API or stream.API
+        self.API = API if API is not None else stream.API
         self.tp.copy_from(tp or stream.tp)
 
         self.initialized = True
@@ -627,7 +630,7 @@ class Stream(AttributeMixin, XmlInstantiable):
         self.components[phase] -= stream.components[phase]
         self.components[phase] = self.components[phase].clip(0)
 
-    def add_combustion_CO2_from(self, stream):
+    def add_combustion_CO2_from(self, stream, factor = 1):
         """
         Compute the amount of CO2 from the combustible components in `stream`
         and add these to ``self`` as CO2, assuming complete combustion.
@@ -650,7 +653,7 @@ class Stream(AttributeMixin, XmlInstantiable):
             * component_MW["CO2"]
         ).sum()
 
-        self.set_flow_rate("CO2", PHASE_GAS, rate)  # sets initialized flag
+        self.set_flow_rate("CO2", PHASE_GAS, rate*factor)  # sets initialized flag
         return rate
 
     def contains(self, stream_type, regex=False):

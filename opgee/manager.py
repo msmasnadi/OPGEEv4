@@ -371,6 +371,8 @@ def _run_field(analysis_name, field_name, xml_string, result_type,
 
     except Exception as e:
         result = FieldResult(analysis_name, field_name, ERROR_RESULT, error=str(e))
+        import traceback
+        traceback.print_exc()
 
     return result
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Working draft of XML file format -->
+<!-- Working draft of Geologic Hydrogen production pathway XML file format -->
 <!-- This file contains the standard OPGEEv4 LCA model. The metadata describing fields, options,
      and default values is found in attributes.xml. When creating a new model, the user can start
      with the standard model and add/delete/alter elements in a separate file, or simply save copy
@@ -8,63 +8,64 @@
      -->
 <Model schema_version="4.0.0.a" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="opgee.xsd">
-	<Analysis name="template">
-		<FieldRef name="template" />
+
+	<Analysis name="template-h2">
+		<FieldRef name="template-h2" />
 	</Analysis>
 
-	<Field name="template">
+	<Field name="template-h2">
 		<Process class="Boundary" boundary="Production" />
 		<Process class="Boundary" boundary="Transportation" />
 		<Process class="Boundary" boundary="Distribution" />
 
-		<ProcessChoice name="oil_sands_mine">
-			<ProcessGroup name="None">
+		<ProcessChoice name="gas_processing_path">
+			<ProcessGroup name="PSA">
+                <ProcessRef name="Exploration" />
+                <ProcessRef name="Drilling" />
 				<ProcessRef name="Reservoir" />
 				<ProcessRef name="ReservoirWellInterface" />
 				<ProcessRef name="DownholePump" />
 				<ProcessRef name="Separation" />
-				<ProcessRef name="CrudeOilDewatering" />
 				<ProcessRef name="WaterTreatment" />
-				<ProcessRef name="SteamGeneration" />
-				<ProcessRef name="WaterInjection" />
-				<ProcessRef name="Drilling" />
+                <ProcessRef name="GasDehydration" />
+                <ProcessRef name="WaterTreatment" />
+                <ProcessRef name="Flaring" />
+                <ProcessRef name="Venting" />
+                <ProcessRef name="PressureSwingAbsorption" />
+                <ProcessRef name="OnsiteElectricityGeneration" />
 
 				<StreamRef name="Reservoir => ReservoirWellInterface" />
 				<StreamRef name="ReservoirWellInterface => DownholePump" />
 				<StreamRef name="DownholePump => Separation" />
-				<StreamRef name="Separation => CrudeOilDewatering" />
 				<StreamRef name="Separation => WaterTreatment" />
-				<StreamRef name="Separation => VFPartition" />
-				<StreamRef name="CrudeOilDewatering => CrudeOilStabilization" />
-				<StreamRef name="CrudeOilDewatering => CrudeOilStorage" />
-				<StreamRef name="CrudeOilDewatering => HeavyOilUpgrading" />
-				<StreamRef name="CrudeOilDewatering => HeavyOilDilution" />
-				<StreamRef name="WaterTreatment => ProductionBoundary" />
-				<StreamRef name="produced water treatment" />
-				<StreamRef name="makeup water treatment" />
-				<StreamRef name="WaterTreatment => WaterInjection" />
+				<!--StreamRef name="Separation => VFPartition" />
+                <StreamRef name="VFPartition => Venting" />
+                <StreamRef name="VFPartition => Flaring" />
+                <StreamRef name="GasGathering => GasDehydration" /-->
+                <StreamRef name="Separation => GasDehydration" />
+                <StreamRef name="Separation => ProductionBoundary" />
+                <StreamRef name="GasDehydration => OnsiteElectricityGeneration" />
+                <StreamRef name="OnsiteElectricityGeneration => PressureSwingAbsorption" />
+                <StreamRef name="PressureSwingAbsorption => ProductionBoundary" />
+                <StreamRef name="PressureSwingAbsorption => Venting" />
+                <StreamRef name="PressureSwingAbsorption => Flaring" />
+                <StreamRef name="Venting => Flaring" />
 			</ProcessGroup>
 
-			<ProcessGroup name="Integrated with upgrader">
-				<ProcessRef name="BitumenMining" />
+<!--			<ProcessGroup name="Acid Gas Removal">-->
+<!--				<ProcessRef name="AcidGasRemoval" />-->
+<!--				<StreamRef name="GasDehydration => AcidGasRemoval" />-->
+<!--                <StreamRef name="AcidGasRemoval => GasPartition" />-->
+<!--			</ProcessGroup>-->
 
-				<StreamRef name="BitumenMining => HeavyOilUpgrading" />
-			</ProcessGroup>
-
-			<ProcessGroup name="Integrated with diluent">
-				<ProcessRef name="BitumenMining" />
-
-				<StreamRef name="BitumenMining => HeavyOilDilution" />
-			</ProcessGroup>
-
-			<ProcessGroup name="Integrated with both">
-				<ProcessRef name="BitumenMining" />
-
-				<StreamRef name="BitumenMining => HeavyOilDilution" />
-			</ProcessGroup>
+<!--            <ProcessGroup name="Demethanizer">-->
+<!--				<ProcessRef name="Demethanizer" />-->
+<!--				<StreamRef name="GasDehydration => Demethanizer" />-->
+<!--                <StreamRef name="Demethanizer => GasPartition" />-->
+<!--			</ProcessGroup>-->
 		</ProcessChoice>
 
-		<ProcessChoice name="gas_processing_path">
+		<!--ProcessChoice name="stimulated-geologic-hydrogen">
 			<ProcessGroup name="None">
 				<ProcessRef name="GasGathering" />
 				<StreamRef name="GasGathering => GasPartition" />
@@ -107,129 +108,7 @@
 				<StreamRef name="Demethanizer => GasPartition" />
 				<StreamRef name="Demethanizer => NGL" />
 			</ProcessGroup>
-
-			<ProcessGroup name="CO2-EOR Ryan Holmes">
-				<ProcessRef name="GasGathering" />
-				<ProcessRef name="GasDehydration" />
-				<ProcessRef name="RyanHolmes" />
-				<ProcessRef name="CO2ReinjectionCompressor" />
-				<ProcessRef name="CO2InjectionWell" />
-				<ProcessRef name="NGL" />
-				<StreamRef name="GasGathering => GasDehydration" />
-				<StreamRef name="GasDehydration => RyanHolmes" />
-				<StreamRef name="RyanHolmes => CO2ReinjectionCompressor" />
-				<StreamRef name="RyanHolmes => GasPartition" />
-				<StreamRef name="RyanHolmes => NGL" />
-				<StreamRef name="CO2ReinjectionCompressor => CO2InjectionWell" />
-				<StreamRef name="CO2InjectionWell => ReservoirWellInterface" />
-			</ProcessGroup>
-
-			<ProcessGroup name="Sour Gas Reinjection">
-				<ProcessRef name="GasGathering" />
-				<ProcessRef name="GasDehydration" />
-				<ProcessRef name="SourGasCompressor" />
-				<ProcessRef name="SourGasInjection" />
-				<StreamRef name="GasGathering => GasDehydration" />
-				<StreamRef name="GasDehydration => SourGasCompressor" />
-				<StreamRef name="SourGasCompressor => SourGasInjection" />
-			</ProcessGroup>
-
-			<ProcessGroup name="CO2-EOR Membrane">
-				<ProcessRef name="GasGathering" />
-				<ProcessRef name="GasDehydration" />
-				<ProcessRef name="PreMembraneChiller" />
-				<ProcessRef name="PreMembraneCompressor" />
-				<ProcessRef name="CO2Membrane" />
-				<ProcessRef name="AcidGasRemoval" />
-				<ProcessRef name="CO2ReinjectionCompressor" />
-				<ProcessRef name="CO2InjectionWell" />
-				<ProcessRef name="Demethanizer" />
-				<ProcessRef name="NGL" />
-				<StreamRef name="GasGathering => GasDehydration" />
-				<StreamRef name="GasDehydration => PreMembraneChiller" />
-				<StreamRef name="PreMembraneChiller => PreMembraneCompressor" />
-				<StreamRef name="PreMembraneCompressor => CO2Membrane" />
-				<StreamRef name="CO2Membrane => AcidGasRemoval" />
-				<StreamRef name="CO2Membrane => CO2ReinjectionCompressor" />
-				<StreamRef name="CO2ReinjectionCompressor => CO2InjectionWell" />
-				<StreamRef name="CO2InjectionWell => ReservoirWellInterface" />
-				<StreamRef name="AcidGasRemoval => Demethanizer" />
-				<StreamRef name="Demethanizer => GasPartition" />
-				<StreamRef name="Demethanizer => NGL" />
-			</ProcessGroup>
-		</ProcessChoice>
-
-		<ProcessChoice name="common_gas_process_choice">
-			<ProcessGroup name="All">
-				<ProcessRef name="GasLiftingCompressor" />
-				<ProcessRef name="GasReinjectionCompressor" />
-				<ProcessRef name="TransmissionCompressor" />
-				<ProcessRef name="GasReinjectionWell" />
-				<ProcessRef name="StorageCompressor" />
-				<ProcessRef name="LNGLiquefaction" />
-				<ProcessRef name="GasDistribution" />
-				<ProcessRef name="LNGRegasification" />
-				<ProcessRef name="LNGTransport" />
-				<ProcessRef name="StorageWell" />
-				<ProcessRef name="StorageSeparator" />
-				<ProcessRef name="PostStorageCompressor" />
-				<StreamRef name="CO2Membrane => CO2ReinjectionCompressor" />
-				<StreamRef name="GasLiftingCompressor => DownholePump" />
-				<StreamRef name="GasReinjectionCompressor => GasReinjectionWell" />
-				<StreamRef name="transmission gas for storage" />
-				<StreamRef name="transmission gas for LNG" />
-				<StreamRef name="transmission gas for distribution" />
-			</ProcessGroup>
-		</ProcessChoice>
-
-		<ProcessChoice name="oil_processing_path">
-			<ProcessGroup name="Stabilization">
-				<ProcessRef name="CrudeOilStabilization" />
-				<ProcessRef name="CrudeOilStorage" />
-				<ProcessRef name="CrudeOilTransport" />
-				<StreamRef name="CrudeOilStorage => CrudeOilTransport" />
-				<StreamRef name="CrudeOilStabilization => CrudeOilStorage" />
-				<StreamRef name="CrudeOilDewatering => CrudeOilStabilization" />
-			</ProcessGroup>
-
-			<ProcessGroup name="Storage">
-				<ProcessRef name="CrudeOilStorage" />
-				<ProcessRef name="CrudeOilTransport" />
-				<StreamRef name="CrudeOilStorage => CrudeOilTransport" />
-				<StreamRef name="CrudeOilDewatering => CrudeOilStorage" />
-			</ProcessGroup>
-
-			<ProcessGroup name="Upgrading">
-				<ProcessRef name="HeavyOilUpgrading" />
-				<ProcessRef name="CrudeOilStorage" />
-				<ProcessRef name="CrudeOilTransport" />
-				<ProcessRef name="PetrocokeTransport" />
-				<StreamRef name="CrudeOilStorage => CrudeOilTransport" />
-				<StreamRef name="HeavyOilUpgrading => CrudeOilStorage" />
-				<StreamRef name="HeavyOilUpgrading => PetrocokeTransport" />
-				<StreamRef name="CrudeOilDewatering => HeavyOilUpgrading" />
-			</ProcessGroup>
-
-			<ProcessGroup name="Dilution">
-				<ProcessRef name="HeavyOilDilution" />
-				<ProcessRef name="CrudeOilStorage" />
-				<ProcessRef name="CrudeOilTransport" />
-				<StreamRef name="CrudeOilStorage => CrudeOilTransport" />
-				<StreamRef name="HeavyOilDilution => CrudeOilStorage" />
-				<StreamRef name="CrudeOilDewatering => HeavyOilDilution" />
-			</ProcessGroup>
-
-			<ProcessGroup name="Dilution and Upgrading">
-				<ProcessRef name="HeavyOilDilution" />
-				<ProcessRef name="HeavyOilUpgrading" />
-				<ProcessRef name="CrudeOilStorage" />
-				<ProcessRef name="CrudeOilTransport" />
-				<StreamRef name="CrudeOilStorage => CrudeOilTransport" />
-				<StreamRef name="HeavyOilDilution => HeavyOilUpgrading" />
-				<StreamRef name="HeavyOilUpgrading => CrudeOilStorage" />
-				<StreamRef name="CrudeOilDewatering => HeavyOilDilution" />
-			</ProcessGroup>
-		</ProcessChoice>
+		</ProcessChoice-->
 
 		<Aggregator name="ExplorationAndDrilling">
 			<Process class="Exploration" after="true" />
@@ -239,57 +118,59 @@
 		<Aggregator name="ProductionExtraction">
 			<Process class="ReservoirWellInterface" cycle-start="true" />
 			<Process class="DownholePump" />
-			<Process class="CrudeOilStorage" />
-			<Process class="CO2ReinjectionCompressor" />
-			<Process class="SourGasCompressor" />
-			<Process class="CO2InjectionWell" />
+<!--			<Process class="CrudeOilStorage" />-->
+<!--			<Process class="CO2ReinjectionCompressor" />-->
+<!--			<Process class="SourGasCompressor" />-->
+<!--			<Process class="CO2InjectionWell" />-->
 			<Process class="Flaring" />
 			<Process class="Separation" impute-start="true" />
-			<Process class="CrudeOilDewatering" />
-			<Process class="CrudeOilStabilization" />
-			<Process class="VRUCompressor" />
+<!--			<Process class="CrudeOilDewatering" />-->
+<!--			<Process class="CrudeOilStabilization" />-->
+<!--			<Process class="VRUCompressor" />-->
 			<Process class="Venting" />
-			<Process class="SourGasInjection" />
-			<Process class="GasLiftingCompressor" />
-			<Process class="GasReinjectionCompressor" />
+<!--			<Process class="SourGasInjection" />-->
+<!--			<Process class="GasLiftingCompressor" />-->
+<!--			<Process class="GasReinjectionCompressor" />-->
 			<Process class="WaterTreatment" />
-			<Process class="BitumenMining" />
-			<Process class="SteamGeneration" />
-			<Process class="WaterInjection" />
+<!--			<Process class="BitumenMining" />-->
+<!--			<Process class="SteamGeneration" />-->
+<!--			<Process class="WaterInjection" />-->
 		</Aggregator>
 
 		<Aggregator name="SurfaceProcessing">
-			<Process class="HeavyOilDilution" />
-			<Process class="HeavyOilUpgrading" />
-			<Process class="GasGathering" />
-			<Process class="GasPartition" />
-			<Process class="VFPartition" />
+<!--			<Process class="HeavyOilDilution" />-->
+<!--			<Process class="HeavyOilUpgrading" />-->
+<!--			<Process class="GasGathering" />-->
+<!--			<Process class="GasPartition" />-->
+<!--			<Process class="VFPartition" />-->
 			<Process class="GasDehydration" />
-			<Process class="AcidGasRemoval" />
-			<Process class="Demethanizer" />
-			<Process class="PreMembraneChiller" />
-			<Process class="PreMembraneCompressor" />
-			<Process class="CO2Membrane" />
-			<Process class="RyanHolmes" />
-			<Process class="GasReinjectionWell" />
+            <Process class="PressureSwingAbsorption" />
+            <Process class="OnsiteElectricityGeneration"/>
+<!--			<Process class="AcidGasRemoval" />-->
+<!--			<Process class="Demethanizer" />-->
+<!--			<Process class="PreMembraneChiller" />-->
+<!--			<Process class="PreMembraneCompressor" />-->
+<!--			<Process class="CO2Membrane" />-->
+<!--			<Process class="RyanHolmes" />-->
+<!--			<Process class="GasReinjectionWell" />-->
 		</Aggregator>
 
 		<Aggregator name="TransportAndStorage">
-			<Process class="CrudeOilTransport" />
-			<Process class="PetrocokeTransport" />
-			<Process class="TransmissionCompressor" />
-			<Process class="StorageCompressor" />
-			<Process class="StorageWell" />
-			<Process class="StorageSeparator" />
-			<Process class="GasDistribution" />
-			<Process class="PostStorageCompressor" />
+<!--			<Process class="CrudeOilTransport" />-->
+<!--			<Process class="PetrocokeTransport" />-->
+<!--			<Process class="TransmissionCompressor" />-->
+<!--			<Process class="StorageCompressor" />-->
+<!--			<Process class="StorageWell" />-->
+<!--			<Process class="StorageSeparator" />-->
+<!--			<Process class="GasDistribution" />-->
+<!--			<Process class="PostStorageCompressor" />-->
 		</Aggregator>
 
 		<Aggregator name="LiquifiedNaturalGas">
-			<Process class="NGL" />
-			<Process class="LNGLiquefaction" />
-			<Process class="LNGRegasification" />
-			<Process class="LNGTransport" />
+<!--			<Process class="NGL" />-->
+<!--			<Process class="LNGLiquefaction" />-->
+<!--			<Process class="LNGRegasification" />-->
+<!--			<Process class="LNGTransport" />-->
 		</Aggregator>
 
 		<!--		Mixture processing path-->
@@ -311,19 +192,19 @@
 
 
 		<!--		After separation-->
-		<Stream src="Separation" dst="CrudeOilDewatering">
-			<Contains>oil</Contains>
-		</Stream>
+		<!--Stream src="Separation" dst="CrudeOilDewatering">
+			<Contains>oil</Contains> assume no oil production
+		</Stream-->
 
 		<Stream src="Separation" dst="WaterTreatment">
 			<Contains>water</Contains>
 		</Stream>
 
-		<Stream src="Separation" dst="VFPartition">
+		<!--Stream src="Separation" dst="VFPartition">
 			<Contains>gas for partition</Contains>
-		</Stream>
+		</Stream-->
 
-		<!--		oil processing path-->
+		<!--		oil processing path>
 		<Stream src="BitumenMining" dst="HeavyOilDilution">
 			<Contains>oil for dilution</Contains>
 		</Stream>
@@ -406,16 +287,16 @@
 
 		<Stream src="PetrocokeTransport" dst="ProductionBoundary">
 			<Contains>petrocoke</Contains>
-		</Stream>
+		</Stream-->
 
 
 		<!--		water processing path-->
 		<Stream src="WaterTreatment" dst="ProductionBoundary">
 			<!--Contains>water</Contains-->
-			<Contains>water for subsurface disposal</Contains>
+			<Contains>water</Contains>
 		</Stream>
 
-		<Stream src="WaterTreatment" dst="SteamGeneration" name="produced water treatment">
+		<!--Stream src="WaterTreatment" dst="SteamGeneration" name="produced water treatment">
 			<Contains>produced water</Contains>
 		</Stream>
 
@@ -429,12 +310,12 @@
 
 		<Stream src="SteamGeneration" dst="WaterTreatment">
 			<Contains>water</Contains>
-		</Stream>
+		</Stream-->
 
 
 		<!--		gas processing path-->
 
-		<Stream src="VFPartition" dst="Flaring" name="gas for flaring">
+		<!--Stream src="VFPartition" dst="Flaring" name="gas for flaring">
 			<Contains>gas for flaring</Contains>
 		</Stream>
 
@@ -452,21 +333,53 @@
 
 		<Stream src="VRUCompressor" dst="GasGathering">
 			<Contains>gas</Contains>
+		</Stream-->
+
+		<Stream src="Separation" dst="GasDehydration">
+			<Contains>gas</Contains>
 		</Stream>
 
-		<Stream src="GasGathering" dst="GasDehydration">
-			<Contains>gas for gas dehydration</Contains>
+        <Stream src="Separation" dst="ProductionBoundary">
+			<Contains>oil</Contains>
 		</Stream>
 
-		<Stream src="GasGathering" dst="GasPartition">
+		<!--Stream src="GasGathering" dst="GasPartition">
 			<Contains>gas for gas partition</Contains>
 		</Stream>
 
 		<Stream src="GasDehydration" dst="AcidGasRemoval">
 			<Contains>gas for AGR</Contains>
+		</Stream-->
+
+        <Stream src="GasDehydration" dst="OnsiteElectricityGeneration">
+			<Contains>gas for electricity generation</Contains>
 		</Stream>
 
-		<Stream src="CO2InjectionWell" dst="ReservoirWellInterface" impute="False">
+        <Stream src="OnsiteElectricityGeneration" dst="PressureSwingAbsorption">
+			<Contains>gas</Contains>
+		</Stream>
+
+        <!--Stream src="PressureSwingAbsorption" dst="GasLiftingCompressor">
+			<Contains>lifting gas</Contains>
+		</Stream-->
+
+        <Stream src="PressureSwingAbsorption" dst="ProductionBoundary">
+			<Contains>H2</Contains>
+		</Stream>
+
+        <Stream src="PressureSwingAbsorption" dst="Venting">
+			<Contains>gas for venting</Contains>
+		</Stream>
+
+        <Stream src="PressureSwingAbsorption" dst="Flaring">
+			<Contains>gas for flaring</Contains>
+		</Stream>
+
+        <Stream src="Venting" dst="Flaring">
+			<Contains>gas</Contains>
+		</Stream>
+
+		<!--Stream src="CO2InjectionWell" dst="ReservoirWellInterface" impute="False">
 			<Contains>CO2</Contains>
 		</Stream>
 
@@ -643,7 +556,7 @@
 
 		<Stream src="GasDistribution" dst="DistributionBoundary">
 			<Contains>gas</Contains>
-		</Stream>
+		</Stream-->
 
 	</Field>
 

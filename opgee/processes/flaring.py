@@ -21,7 +21,7 @@ class Flaring(Process):
         # TODO: avoid process names in contents.
         self._required_inputs = [
             "gas for flaring",
-            "methane slip"
+            # "methane slip"
         ]
 
         self._required_outputs = []
@@ -31,13 +31,14 @@ class Flaring(Process):
 
         # mass rate
         gas_to_flare = self.find_input_streams("gas for flaring", combine=True)  # type: Stream
-        methane_slip = self.find_input_stream("methane slip")  # type: Stream
-        if gas_to_flare.is_uninitialized() or methane_slip.is_uninitialized():
+        # methane_slip = self.find_input_stream("methane slip")  # type: Stream
+        #if gas_to_flare.is_uninitialized() or methane_slip.is_uninitialized():
+        if gas_to_flare.is_uninitialized(): #or methane_slip.is_uninitialized():
             return
 
         # emissions
         emissions = self.emissions
         sum_streams = Stream("combusted_stream", tp=gas_to_flare.tp)
         sum_streams.add_combustion_CO2_from(gas_to_flare)
-        sum_streams.add_flow_rates_from(methane_slip)
+        #sum_streams.add_flow_rates_from(methane_slip)
         emissions.set_from_stream(EM_FLARING, sum_streams)

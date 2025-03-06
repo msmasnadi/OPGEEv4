@@ -1478,7 +1478,7 @@ class Field(Container):
         for name, value in kwargs.items():
             self.process_data[name] = value
 
-    def get_process_data(self, name, raiseError=None):
+    def get_process_data(self, name, raiseError=False):
         """
         Retrieve a stored value from the field's `process_data` dictionary.
 
