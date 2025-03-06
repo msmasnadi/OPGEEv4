@@ -1,5 +1,5 @@
 #
-# PressureSwingAbsorption class
+# PressureSwingAdsorption class
 #
 # Author: Spencer Zhihao Zhang
 #
@@ -23,7 +23,7 @@ from ..stream import PHASE_GAS
 _logger = getLogger(__name__)
 
 
-class PressureSwingAbsorption(Process):
+class PressureSwingAdsorption(Process):
     """
         This class represents the gas dehydration process in an oil and gas field.
         It calculates the energy consumption and emissions related to the gas dehydration process.
@@ -53,9 +53,8 @@ class PressureSwingAbsorption(Process):
         ]
 
         self._required_outputs = [
-            "gas for venting",
             "H2",
-            "gas for flaring"
+            "waste gas"
         ]
 
         model = self.field.model
@@ -95,7 +94,7 @@ class PressureSwingAbsorption(Process):
         temp = input.gas_flow_rate("H2")*(1-self.slip_rate)
         out_h2.set_gas_flow_rate("H2", temp)
 
-        out_waste = self.find_output_stream("gas for flaring" if self.flaring else "gas for venting")
+        out_waste = self.find_output_stream("waste gas")
         out_waste.copy_flow_rates_from(input)
         out_waste.subtract_rates_from(out_h2)
 

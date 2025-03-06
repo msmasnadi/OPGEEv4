@@ -61,7 +61,7 @@ frac_CO2_breakthrough,str,59,59
 ecosystem_richness,str,Low carbon,Low carbon
 field_development_intensity,str,High,High
 prod_water_inlet_temp,float,140,140
-PressureSwingAbsorption.flaring,int,0,1
-PressureSwingAbsorption.slip_rate,float,0.1,0.1
+PressureSwingAdsorption.flaring,int,0,1
+PressureSwingAdsorption.slip_rate,float,0.1,0.1
 DownholePump.prime_mover_type,str,Electric_motor,Electric_motor
 Separation.prime_mover_type,str,Electric_motor,Electric_motor

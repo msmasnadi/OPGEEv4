@@ -12,7 +12,7 @@ from ..emissions import EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
 from ..processes.compressor import Compressor
-from ..stream import Stream, PHASE_GAS
+from ..stream import Stream, PHASE_GAS, PHASE_LIQUID
 from .shared import get_energy_carrier, get_energy_consumption_stages
 
 _logger = getLogger(__name__)
@@ -100,8 +100,11 @@ class Separation(Process):
         loss_rate = field.component_fugitive_table[self.name]
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
+        water_after = self.find_output_stream("water")
+        water_after.copy_gas_rates_from(input, phase=PHASE_LIQUID)
+
         gas_after = self.find_output_stream("gas")
-        gas_after.copy_gas_rates_from(input)
+        gas_after.copy_gas_rates_from(input, phase=PHASE_GAS)
         gas_after.subtract_rates_from(gas_fugitives)
         field.save_process_data(gas_tp_after_separation=gas_after.tp)
 

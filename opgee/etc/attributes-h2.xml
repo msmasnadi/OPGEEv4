@@ -8,7 +8,7 @@
      -->
 <Model schema_version="4.0.a">
   <AttrDefs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="opgee.xsd">
-      <ClassAttrs name="PressureSwingAbsorption">
+      <ClassAttrs name="PressureSwingAdsorption">
         <AttrDef name="flaring" type="binary" desc="flare waste gas treatment or not">0</AttrDef>
         <AttrDef name="slip_rate" type="float" desc="Slip rate of pure H2 to waste gas">0.10</AttrDef>
       </ClassAttrs>

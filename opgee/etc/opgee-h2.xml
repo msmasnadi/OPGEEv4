@@ -27,29 +27,21 @@
 				<ProcessRef name="DownholePump" />
 				<ProcessRef name="Separation" />
 				<ProcessRef name="WaterTreatment" />
-                <ProcessRef name="GasDehydration" />
-                <ProcessRef name="WaterTreatment" />
-                <ProcessRef name="Flaring" />
-                <ProcessRef name="Venting" />
-                <ProcessRef name="PressureSwingAbsorption" />
+                <ProcessRef name="PressureSwingAdsorption" />
                 <ProcessRef name="OnsiteElectricityGeneration" />
+                <ProcessRef name="GasReinjectionCompressor"/>
+                <ProcessRef name="GasReinjectionWell"/>
 
 				<StreamRef name="Reservoir => ReservoirWellInterface" />
 				<StreamRef name="ReservoirWellInterface => DownholePump" />
 				<StreamRef name="DownholePump => Separation" />
 				<StreamRef name="Separation => WaterTreatment" />
-				<!--StreamRef name="Separation => VFPartition" />
-                <StreamRef name="VFPartition => Venting" />
-                <StreamRef name="VFPartition => Flaring" />
-                <StreamRef name="GasGathering => GasDehydration" /-->
-                <StreamRef name="Separation => GasDehydration" />
-                <StreamRef name="Separation => ProductionBoundary" />
-                <StreamRef name="GasDehydration => OnsiteElectricityGeneration" />
-                <StreamRef name="OnsiteElectricityGeneration => PressureSwingAbsorption" />
-                <StreamRef name="PressureSwingAbsorption => ProductionBoundary" />
-                <StreamRef name="PressureSwingAbsorption => Venting" />
-                <StreamRef name="PressureSwingAbsorption => Flaring" />
-                <StreamRef name="Venting => Flaring" />
+                <StreamRef name="Separation => PressureSwingAdsorption" />
+                <StreamRef name="Separation => WaterTreatment" />
+                <StreamRef name="PressureSwingAdsorption => OnsiteElectricityGeneration" />
+                <StreamRef name="OnsiteElectricityGeneration => ProductionBoundary" />
+                <StreamRef name="OnsiteElectricityGeneration => GasReinjectionCompressor" />
+                <StreamRef name="GasReinjectionCompressor => GasReinjectionWell" />
 			</ProcessGroup>
 
 <!--			<ProcessGroup name="Acid Gas Removal">-->
@@ -122,16 +114,15 @@
 <!--			<Process class="CO2ReinjectionCompressor" />-->
 <!--			<Process class="SourGasCompressor" />-->
 <!--			<Process class="CO2InjectionWell" />-->
-			<Process class="Flaring" />
+<!--			<Process class="Flaring" />-->
 			<Process class="Separation" impute-start="true" />
 <!--			<Process class="CrudeOilDewatering" />-->
 <!--			<Process class="CrudeOilStabilization" />-->
 <!--			<Process class="VRUCompressor" />-->
-			<Process class="Venting" />
+<!--			<Process class="Venting" />-->
 <!--			<Process class="SourGasInjection" />-->
 <!--			<Process class="GasLiftingCompressor" />-->
-<!--			<Process class="GasReinjectionCompressor" />-->
-			<Process class="WaterTreatment" />
+
 <!--			<Process class="BitumenMining" />-->
 <!--			<Process class="SteamGeneration" />-->
 <!--			<Process class="WaterInjection" />-->
@@ -143,8 +134,9 @@
 <!--			<Process class="GasGathering" />-->
 <!--			<Process class="GasPartition" />-->
 <!--			<Process class="VFPartition" />-->
-			<Process class="GasDehydration" />
-            <Process class="PressureSwingAbsorption" />
+			<Process class="WaterTreatment" />
+<!--			<Process class="GasDehydration" />-->
+            <Process class="PressureSwingAdsorption" />
             <Process class="OnsiteElectricityGeneration"/>
 <!--			<Process class="AcidGasRemoval" />-->
 <!--			<Process class="Demethanizer" />-->
@@ -200,9 +192,9 @@
 			<Contains>water</Contains>
 		</Stream>
 
-		<!--Stream src="Separation" dst="VFPartition">
-			<Contains>gas for partition</Contains>
-		</Stream-->
+		<Stream src="Separation" dst="PressureSwingAdsorption">
+			<Contains>gas</Contains>
+		</Stream>
 
 		<!--		oil processing path>
 		<Stream src="BitumenMining" dst="HeavyOilDilution">
@@ -291,10 +283,9 @@
 
 
 		<!--		water processing path-->
-		<Stream src="WaterTreatment" dst="ProductionBoundary">
-			<!--Contains>water</Contains-->
-			<Contains>water</Contains>
-		</Stream>
+<!--		<Stream src="WaterTreatment" dst="ProductionBoundary">-->
+<!--			<Contains>water</Contains>-->
+<!--		</Stream>-->
 
 		<!--Stream src="WaterTreatment" dst="SteamGeneration" name="produced water treatment">
 			<Contains>produced water</Contains>
@@ -335,14 +326,6 @@
 			<Contains>gas</Contains>
 		</Stream-->
 
-		<Stream src="Separation" dst="GasDehydration">
-			<Contains>gas</Contains>
-		</Stream>
-
-        <Stream src="Separation" dst="ProductionBoundary">
-			<Contains>oil</Contains>
-		</Stream>
-
 		<!--Stream src="GasGathering" dst="GasPartition">
 			<Contains>gas for gas partition</Contains>
 		</Stream>
@@ -351,33 +334,45 @@
 			<Contains>gas for AGR</Contains>
 		</Stream-->
 
-        <Stream src="GasDehydration" dst="OnsiteElectricityGeneration">
-			<Contains>gas for electricity generation</Contains>
+        <Stream src="PressureSwingAdsorption" dst="OnsiteElectricityGeneration">
+			<Contains>waste gas</Contains>
 		</Stream>
 
-        <Stream src="OnsiteElectricityGeneration" dst="PressureSwingAbsorption">
-			<Contains>gas</Contains>
-		</Stream>
-
-        <!--Stream src="PressureSwingAbsorption" dst="GasLiftingCompressor">
-			<Contains>lifting gas</Contains>
-		</Stream-->
-
-        <Stream src="PressureSwingAbsorption" dst="ProductionBoundary">
+        <Stream src="PressureSwingAdsorption" dst="OnsiteElectricityGeneration">
 			<Contains>H2</Contains>
 		</Stream>
 
-        <Stream src="PressureSwingAbsorption" dst="Venting">
-			<Contains>gas for venting</Contains>
+        <Stream src="OnsiteElectricityGeneration" dst="ProductionBoundary">
+			<Contains>H2</Contains>
 		</Stream>
 
-        <Stream src="PressureSwingAbsorption" dst="Flaring">
-			<Contains>gas for flaring</Contains>
-		</Stream>
-
-        <Stream src="Venting" dst="Flaring">
+        <Stream src="OnsiteElectricityGeneration" dst="CO2ReinjectionCompressor">
 			<Contains>gas</Contains>
 		</Stream>
+
+		<Stream src="CO2ReinjectionCompressor" dst="CO2InjectionWell">
+			<Contains>gas</Contains>
+		</Stream>
+
+        <!--Stream src="PressureSwingAdsorption" dst="GasLiftingCompressor">
+			<Contains>lifting gas</Contains>
+		</Stream-->
+
+<!--        <Stream src="PressureSwingAdsorption" dst="ProductionBoundary">-->
+<!--			<Contains>H2</Contains>-->
+<!--		</Stream>-->
+
+<!--        <Stream src="PressureSwingAdsorption" dst="Venting">-->
+<!--			<Contains>gas for venting</Contains>-->
+<!--		</Stream>-->
+
+<!--        <Stream src="PressureSwingAdsorption" dst="Flaring">-->
+<!--			<Contains>gas for flaring</Contains>-->
+<!--		</Stream>-->
+
+<!--        <Stream src="Venting" dst="Flaring">-->
+<!--			<Contains>gas</Contains>-->
+<!--		</Stream>-->
 
 		<!--Stream src="CO2InjectionWell" dst="ReservoirWellInterface" impute="False">
 			<Contains>CO2</Contains>
