@@ -1,33 +1,7 @@
-Copyright © 2012-2025 The Board of Trustees of the Leland Stanford Junior University. All rights reserved.
+Copyright 2025 Rocky Mountain Institute (RMI), https://rmi.org
 
-The files herein derived from pygcam (as indicated in header comments) and are Copyright 2015-2022
-Richard Plevin, licensed under the MIT open source license: https://opensource.org/licenses/MIT.
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-The Oil Production Greenhouse Gas Emissions Estimator (OPGEE) Program (Software), source code, binary files, and
-operating manuals are being provided free of charge. Software may be downloaded, modified and redistributed freely
-under the following terms and conditions:
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-Redistributions of any of the following: Software's source code, executables, and any other materials provided must
-	* retain the above copyright notice
-	* require that the source and executable with any modifications be made publicly available under these same terms
-      and conditions and
-	* be sent to: Adam Brandt, Department of Energy Resources Engineering, Stanford University, abrandt@stanford.edu
-	* include this entire Agreement with any redistribution
-
-Neither the name of Stanford University nor the names of the contributors may be used to endorse or promote products
-derived from this Software without specific prior written permission.
-
-Software is being provided “AS IS” and With All Faults. Users acknowledge that Stanford or contributors will not provide
-any maintenance or support for Software.
-
-Stanford makes no representations and extends no warranties of any kind, either express or implied.
-
-Stanford disclaims any express or implied warranty of merchantability, or fitness for a particular purpose, of
-non-infringement, or arising out of any course of dealing.
-
-Stanford is not liable for any special, consequential, lost profits, expectation, punitive or other indirect damages in
-connection with any claim arising out of or related to the use of Software whether grounded in tort (including negligence),
-strict liability, contract, or otherwise; and,
-
-Users will indemnify, hold harmless and defend Stanford against any claim of any kind arising out of or related to the
-exercise of any rights in this Agreement.
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
