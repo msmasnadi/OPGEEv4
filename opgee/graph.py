@@ -14,17 +14,21 @@ from .process import Process
 
 _logger = getLogger(__name__)
 
-def add_subclasses(graph, cls, show_process_subclasses=False):
+def add_subclasses(graph, cls, show_process_subclasses=False,
+                   exclude=None):
     name = cls.__name__
     graph.add_node(pydot.Node(name, shape='box'))
 
     if (not show_process_subclasses) and (cls == Process):
         return
 
-    subs = cls.__subclasses__()
-    for sub in subs:
-        graph.add_edge(pydot.Edge(name, sub.__name__, color='black'))
-        add_subclasses(graph, sub, show_process_subclasses=show_process_subclasses)
+    subs = cls.__subclasses__() or []
+    for sub in sorted(subs, key=lambda s: s.__name__):
+        if exclude and sub.__name__ not in exclude:
+            graph.add_edge(pydot.Edge(name, sub.__name__, color='black'))
+            add_subclasses(graph, sub,
+                           show_process_subclasses=show_process_subclasses,
+                           exclude=exclude)
 
 def display_in_notebook(graph):
     from .utils import ipython_info
@@ -35,7 +39,7 @@ def display_in_notebook(graph):
         png = graph.create_png()
         display(Image(png))
 
-def write_class_diagram(pathname, show_process_subclasses=False):
+def write_class_diagram(pathname, show_process_subclasses=False, exclude=None):
     """
     Create and save a graph of the class hierarchy starting from OpgeeObject.
     If `show_process_subclasses` is True, all classes are shown, notably including
@@ -46,7 +50,9 @@ def write_class_diagram(pathname, show_process_subclasses=False):
     :return: None
     """
     graph = pydot.Dot('classes', graph_type='graph', bgcolor='white')
-    add_subclasses(graph, OpgeeObject, show_process_subclasses=show_process_subclasses)
+    add_subclasses(graph, OpgeeObject,
+                   show_process_subclasses=show_process_subclasses,
+                   exclude=exclude)
 
     _logger.info(f"Writing {pathname}")
     graph.write_png(pathname)

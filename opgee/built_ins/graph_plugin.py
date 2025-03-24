@@ -17,6 +17,8 @@ class GraphCommand(SubcommandABC):
         super().__init__('graph', subparsers, kwargs, group='project')
 
     def addArgs(self, parser):
+        from ..utils import ParseCommaList
+
         class_choices = ['all', 'core']
         parser.add_argument('-c', '--classes', choices=class_choices,
                             help=clean_help('''Graph the class structure, either "all", including all defined
@@ -27,6 +29,9 @@ class GraphCommand(SubcommandABC):
                             help=clean_help('''The pathname of the image file to create for classes. If none 
                             is specified, and the code is running in a jupyter notebook, the image is 
                             displayed inline. (Implies --classes.)'''))
+
+        parser.add_argument('-e', '--exclude-classes', action=ParseCommaList,
+                            help=clean_help('''Classes to exclude from graph creation when using --classes-output.'''))
 
         parser.add_argument('-f', '--field',
                             help=clean_help('''Graph the process network for the named field.'''))
@@ -69,7 +74,9 @@ class GraphCommand(SubcommandABC):
 
         if args.classes or args.classes_output:
             show_process_subclasses = (args.classes == 'all')
-            write_class_diagram(args.classes_output, show_process_subclasses=show_process_subclasses)
+            write_class_diagram(args.classes_output,
+                                show_process_subclasses=show_process_subclasses,
+                                exclude=args.exclude_classes)
 
         if args.field:
             field = model.field_dict.get(args.field)
