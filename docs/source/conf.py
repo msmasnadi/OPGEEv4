@@ -23,7 +23,7 @@ from opgee.version import VERSION
 # -- Project information -----------------------------------------------------
 
 project = 'OPGEE'
-copyright = '2022-2024, The Board of Trustees of the Leland Stanford Junior University'
+copyright = '2022-2025, The Board of Trustees of the Leland Stanford Junior University'
 author = 'Adam Brandt, Richard Plevin, Wennan Long'
 
 # The short X.Y version.
@@ -78,5 +78,7 @@ html_static_path = ['_static']
 
 # -- Options for intersphinx extension ---------------------------------------
 
-# Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'python' : ('https://docs.python.org/3/', None)}
+intersphinx_mapping = {
+    'python' : ('https://docs.python.org/3/', None),
+    # 'pint' : ('https://pint.readthedocs.io/', None),
+}

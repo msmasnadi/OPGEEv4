@@ -134,11 +134,27 @@ is used for both validation and to generate the interactive user interface.
 
 ProcessChoice and ProcessGroup
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-A ``<ProcessGroup>`` describes a set of ``<ProcessRef>`` and ``<StreamRef>`` elements that
+The ``<ProcessChoice>`` and ``<ProcessGroup>`` elements enable ``Fields`` to be used
+as parameterized templates. A ``<ProcessGroup>`` encloses a set of ``<ProcessRef>``
+and ``<StreamRef>`` elements that
 can be enabled or disabled as a set. The ``<ProcessChoice>`` element encloses multiple
-``<ProcessGroup>`` elements and selects among them based on the value of an attribute
+``<ProcessGroup>`` elements and selects among them based on the value of a ``Field`` attribute
 named in the ``<ProcessChoice>``, whose value must match the name of one of the enclosed
 ``<ProcessGroup>`` elements.
+
+When the model is built, all the ``Streams`` and ``Processes`` identified by
+``StreamRef`` and ``ProcessRef`` elements within the enclosed ``<ProcessGroup>>``
+elements are disabled, then the ``Streams`` and ``Processes`` within the selected
+``ProcessGroup`` are enabled. In this way, groups
+of related ``Processes`` can be turned on and off.
+
+The file ``etc/opgee.xml``, included in the OPGEE distribution,
+defines a ``Field`` named ``template`` that provides the basis for common
+oil and gas field configurations. The subcommand ``csv2xml`` allows a
+user to define ``Fields`` using a small number of attributes by generating
+XML from the columns in the CSV file and combining these with the
+``template`` field in ``opgee.xml``. This system is used to generate XML
+definitions for the 9,000 Fields used in testing OPGEE.
 
 All XML elements are described further in :doc:`opgee-xml`.
 

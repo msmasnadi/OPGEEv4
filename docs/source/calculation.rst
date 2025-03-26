@@ -25,14 +25,20 @@ The GHGs tracked by OPGEE processes are:
 * N\ :sub:`2`\ O
 * VOC (non-methane volatile organic compounds)
 
-Per-process emissions are grouped into the following categories for reporting:
+Emissions of carbon monoxide (CO), carbon dioxide (CO\ :sub:`2`), methane (CH\ :sub:`4`),
+volatile organic compounds (VOC), and nitrous oxide (N\ :sub:`2`\ O) from each ``Process``
+are tracked in units of Mg/day, subdivided into the following categories:
 
-* Combustion
-* Land-use
-* Venting
-* Flaring
-* Fugitives
+* Combustion – emissions resulting from fuel combustion for energy use
+* Land-use – emissions resulting from land-use changes at the Field
+* Venting – intentionally released gases
+* Flaring – combustion of gases without energy use
+* Fugitives – unintentional release of gases, e.g., from leaking valves or pipes
 * Other
+
+
+Emissions are stored in a pandas ``DataFrame`` in the :py:class:`Emissions <opgee.emissions>`
+class in the file emissions.py.
 
 Global Warming Potentials
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -107,8 +113,8 @@ The values associated with these choices are shown below.
 
 Energy use
 ------------------
-
-OPGEE tracks the consumption of energy by each process, including:
+Each Process in OPGEE tracks its own energy consumption in units of million BTUs (mmbtu)
+per day, subdivided into the following categories:
 
 * Natural gas
 * Upgrader proc. gas
@@ -116,9 +122,11 @@ OPGEE tracks the consumption of energy by each process, including:
 * Crude oil
 * Diesel
 * Residual fuel
-* Petroleum coke
+* Petroleum coke (petcoke)
 * Electricity
 
+The structure is implemented as a pandas ``Series`` in the :py:class:`Energy <opgee.energy>` class in
+the file energy.py.
 
 System Boundaries
 -------------------

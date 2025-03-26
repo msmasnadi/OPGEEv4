@@ -78,7 +78,7 @@ class Stream(AttributeMixin, XmlInstantiable):
     in any of the three states of matter (solid, liquid, or gas). Streams and stream components are specified in mass
     flow rates (e.g., Mg per day). The default set of substances is defined by ``Stream.component_names`` but can be
     extended by the user to include other substances, by setting the configuration file variable
-    `OPGEE.StreamComponents`.
+    `OPGEE.StreamComponents`. Streams also track their temperature and pressure for use in thermochemical calculations.
 
     Streams are defined within the `<Field>` element and are stored in a `Field` instance. The `Field` class tracks
     all `Stream` instances in a dictionary keyed by `Stream` name.
@@ -144,7 +144,7 @@ class Stream(AttributeMixin, XmlInstantiable):
     _extensions = {}
 
     _units = ureg.Unit("tonne/day")
-    
+
     tp: TemperaturePressure
 
     def __init__(
