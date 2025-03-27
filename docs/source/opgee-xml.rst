@@ -3,9 +3,9 @@ XML File Format
 
 The `opgee` package includes two built-in XML files:
 
-* `opgee/etc/opgee.xml` describes the default model, and
+* ``etc/opgee.xml`` describes the default model, and
 
-* `opgee/etc/attributes.xml` describes attributes of various model components.
+* ``etc/attributes.xml`` describes OPGEE attributes of various model components.
 
 Users can provide their own XML files which can be merged with or used in place of,
 the built-in definitions. The elements of the two files are described below,
@@ -15,8 +15,8 @@ XML file merging
 -----------------
 The user can specify multiple XML filenames to the `opg run` sub-command. The purpose of this
 feature is to allow users to use the built-in model specification as much as possible, by
-specifying only modifications changes to that model. The built-in files etc/opgee.xml and
-etc/attributes.xml are first loaded unless the user specifies `--no-default-model` on the command-line
+specifying only modifications changes to that model. The built-in files ``etc/opgee.xml`` and
+``etc/attributes.xml`` are first loaded unless the user specifies `--no-default-model` on the command-line
 to the `opg run` sub-command. Files are merged in the order they are given on the command-line.
 
 How merging works
@@ -31,7 +31,7 @@ it needs to specify only
 
 For an elements to "match" a previously defined one, it must be in the position in the XML
 hierarchy where each element in the hierarchy of the new and old models have the same tag
-and attributes (attribute order is irrelevant).
+and keyword (keyword order is irrelevant).
 
 An element is inserted into the XML in the position where a non-matching element first appears
 in the structure. **Give example**
@@ -56,8 +56,18 @@ The elements that comprise the ``opgee.xml`` file are described below.
 ^^^^^^^^^^
 
 The top-most element, ``<Model>``, encloses one or more ``<Analysis>``,
-``<Field>``, and ``<A>`` elements. The ``<Model>`` element takes no attributes.
+``<Field>``, and ``<A>`` elements. The ``<Model>`` element takes no XML keywords.
 The ``<Model>`` element is represented by the class :py:class:`~opgee.model.Model`.
+
+OPGEE attributes supported by ``<Model>`` include:
+
+* ``maximum_iterations`` – the maximum number of times a Process cycle is run
+  before raising an exception that terminates the model run.
+
+* ``maximum_change`` – the threshold for change variables to end process cycles.
+  This requires that a Process identify a change variable, whose value is tested
+  to determine if the cycle has converged, i.e., the change between successive
+  iterations is less than the value of the ``maximum_change`` attribute.
 
 ..
   [Saved for later]
@@ -69,11 +79,12 @@ The ``<Model>`` element is represented by the class :py:class:`~opgee.model.Mode
 <A>
 ^^^^^^^^^^^^^^^
 
-The ``<A>`` element is used to set values for attributes in a ``<Model>``, ``<Analysis>``,
+The ``<A>`` element is used to set values for OPGEE attributes in a ``<Model>``, ``<Analysis>``,
 ``<Field>`` or ``<Process>`` element.
-The XML schema allows model elements to have zero or more attributes. The XML schema ensures that the
+
+The XML schema allows model elements to have zero or more OPGEE attributes. The XML schema ensures that the
 ``<A>`` elements are syntactically correct. The semantics of these elements is defined by a corresponding
-``<AttrDef>`` element (see attributes.xml) in the named class. For example,
+``<AttrDef>`` element (see ``etc/attributes.xml``) in the named class. For example,
 
 .. code-block:: xml
 
@@ -82,9 +93,9 @@ The XML schema allows model elements to have zero or more attributes. The XML sc
         <A name="distance">2342</A>
     </Process >
 
-provides values for two attributes, `weight` and `distance`, for the `SurveyShip` class. These have a
-corresponding (**required**) ``<AttrDef>`` definition in attributes.xml that provides the units, description, type, and
-default value:
+provides values for two OPGEE attributes, `weight` and `distance`, for the `SurveyShip` class.
+These have a corresponding (**required**) ``<AttrDef>`` definition in attributes.xml that
+provides the units, description, type, and default value:
 
 .. code-block:: xml
 
@@ -95,15 +106,15 @@ default value:
 
 
 The ``<A>`` element contains no further elements, but it contains an optional value for the attribute,
-which if absent is assigned the default for this attribute. The `name` attribute must refer to
-the name of an ``<AttrDef>`` defined in the built-in `attributes.xml` or a file loaded by
+which if absent is assigned the default for this attribute. The ``name`` attribute must refer to
+the name of an ``<AttrDef>`` defined in the built-in ``attributes.xml`` or a file loaded by
 the user.
 
-.. list-table:: <A> Attributes
+.. list-table:: <A> Keywords
    :widths: 10 10 10 10
    :header-rows: 1
 
-   * - Attribute
+   * - Keyword
      - Required
      - Default
      - Values
@@ -115,17 +126,17 @@ the user.
 <Analysis>
 ^^^^^^^^^^^^^
 This element contains one or more ``<Field>`` or ``<Group>`` elements and accepts one
-required attribute, `name`. The ``<Field>`` elements identify fields to include in the
+required attribute, ``name``. The ``<Field>`` elements identify fields to include in the
 analysis by field name, whereas ``<Group>`` elements allow matching of group names
 indicated in ``<Field>`` definitions, by direct string match or by regular expression match.
 
-The ``<Analysis>`` element is represented by the class :py:class:`~opgee.analysis.Analysis`
+The ``<Analysis>`` element is represented by the class :py:class:`~opgee.analysis.Analysis`.
 
-.. list-table:: <Analysis> Attributes
+.. list-table:: <Analysis> Keywords
    :widths: 10 10 10 10
    :header-rows: 1
 
-   * - Attribute
+   * - Keyword
      - Required
      - Default
      - Values
@@ -134,17 +145,32 @@ The ``<Analysis>`` element is represented by the class :py:class:`~opgee.analysi
      - (none)
      - text
 
+The ``Analysis`` class defines the following OPGEE attributes in the file ``etc/attributes.xml``:
+
+* ``GWP_horizon`` – Selects the time horizon for global warming potential values.
+  Allowable values are 20 or 100 years.
+
+* ``GWP_version`` – Selects the IPCC Assessment Report whose GWP values should be used.
+  Allowable values are “AR4”, “AR5”, “AR5_CCF” (AR5 values that include with carbon-cycle
+  feedbacks), or “AR6”.
+
+* ``functional_unit`` – Can be set to either “oil” or “gas”.
+
+* ``boundary`` – Defines the system boundary to use. Allowable values are “Production”,
+  “Transportation”, “Distribution”, and “Refinery”.
+
+
 <Group>
 ^^^^^^^^^
 The ``<Group>`` element provides a system of keyword matching by which ``<Field>``
 elements can declare themselves members of a group, and ``<Analysis>`` elements
 can reference members of the group.
 
-.. list-table:: <Group> Attributes
+.. list-table:: <Group> Keywords
    :widths: 10 10 10 10
    :header-rows: 1
 
-   * - Attribute
+   * - Keyword
      - Required
      - Default
      - Values
@@ -170,13 +196,15 @@ This element describes an oil or gas field and its processes.
 ``<Field>`` can contain more or more ``<A>``, ``<Aggregator>``, ``<Stream>``,
 ``<Process>``, or ``<Group>`` elements.
 
-The ``<Field>`` element is represented by the class :py:class:`~opgee.field.Field`
+The ``<Field>`` element is represented by the class :py:class:`~opgee.field.Field`.
+The ``Field`` element supports a large number of OPGEE attributes.
+See the file ``etc/attributes.xml`` for details.
 
-.. list-table:: <Field> Attributes
+.. list-table:: <Field> Keywords
    :widths: 10 10 10 10
    :header-rows: 1
 
-   * - Attribute
+   * - Keyword
      - Required
      - Default
      - Values
@@ -198,11 +226,11 @@ The ``<Field>`` element is represented by the class :py:class:`~opgee.field.Fiel
 This element contains one or more ``<Aggregator>``, ``<Process>``, or ``<A>`` elements.
 The ``<Aggregator>`` element is represented by the class :py:class:`~opgee.process.Aggregator`.
 
-.. list-table:: <Aggregator> Attributes
+.. list-table:: <Aggregator> Keywords
    :widths: 10 10 10 10
    :header-rows: 1
 
-   * - Attribute
+   * - Keyword
      - Required
      - Default
      - Values
@@ -226,11 +254,11 @@ The ``<Process>`` element is represented by subclasses of the class
 :py:class:`~opgee.process.Process`.
 
 
-.. list-table:: <Process> Attributes
+.. list-table:: <Process> Keywords
    :widths: 10 10 10 10
    :header-rows: 1
 
-   * - Attribute
+   * - Keyword
      - Required
      - Default
      - Values
@@ -304,11 +332,11 @@ This element contains one or more ``<Component>``, ``<Contains>`` or ``<A>`` ele
 The ``<Stream>`` element is represented by the class :py:class:`~opgee.stream.Stream`.
 
 
-.. list-table:: <Stream> Attributes
+.. list-table:: <Stream> Keywords
    :widths: 10 10 10 10
    :header-rows: 1
 
-   * - Attribute
+   * - Keyword
      - Required
      - Default
      - Values
@@ -333,25 +361,33 @@ The ``<Stream>`` element is represented by the class :py:class:`~opgee.stream.St
      - 1
      - bool
 
-The `src` and `dst` attributes must be set to the names of Process subclasses that are the
+The `src` and `dst` keywords must be set to the names of Process subclasses that are the
 source and destination, respectively, for the `Stream`. If no `name` is provided, the name
 becomes "{src} => {dst}", with the names of the source and destination processes substituted
-for `{src}` and `{dst}`. The `impute` attribute defaults to "1" (true); if set to "0" (or
+for `{src}` and `{dst}`. The `impute` keyword defaults to "1" (true); if set to "0" (or
 "false" or "no") the `Stream` will not be traversed during the `impute()` processing phase,
 which works backwards (upstream) from the `Streams` with exogenously-defined flow rates.
+
+The Stream class accepts the following OPGEE attributes:
+
+* ``temperature`` – the Stream’s temperature.
+
+* ``pressure`` – the Stream’s pressure.
+
+* ``API`` – the API gravity of oil (if any) in the Stream.
 
 <Component>
 ^^^^^^^^^^^^^^^^
 This element must occur within a ``<Stream>`` definition.
 Component encloses a numerical value defining an exogenous component flow rate,
-expressed in mmbtu/day for all components other than electricity, expressed in kWh/day.
+expressed in ``mmbtu/day`` for all components other than electricity, expressed in ``kWh/day``.
 (See :obj:`opgee.stream.Stream` for a list of component names.)
 
-.. list-table:: <Component> Attributes
+.. list-table:: <Component> Keywords
    :widths: 10 10 10 10
    :header-rows: 1
 
-   * - Attribute
+   * - Keyword
      - Required
      - Default
      - Values
@@ -361,15 +397,15 @@ expressed in mmbtu/day for all components other than electricity, expressed in k
      - text
    * - phase
      - yes
-     - "solid", "liquid" or "gas"
-     - str
+     - (none)
+     - "solid", "liquid", "gas"
 
 <Contains>
 ^^^^^^^^^^^^^^^^
 This element must occur within a ``<Stream>`` definition.
 The ``<Contains>`` element holds a string indicating a generic name for the substance found in
 the stream. This allows processes to find different input streams without reference to any
-specific process name. The ``<Contains>`` element takes no XML attributes.
+specific process name. The ``<Contains>`` element takes no XML keywords.
 
 
 <ProcessChoice>
@@ -379,11 +415,11 @@ This element can contain multiple ``<ProcessGroup>`` elements.
 The ``<ProcessChoice>`` element is represented by the class :py:class:`~opgee.process_groups.ProcessChoice`.
 
 
-.. list-table:: <ProcessChoice> Attributes
+.. list-table:: <ProcessChoice> Keywords
    :widths: 10 10 10 10
    :header-rows: 1
 
-   * - Attribute
+   * - Keyword
      - Required
      - Default
      - Values
@@ -403,11 +439,11 @@ That is, ``<ProcessChoice>`` elements can nest recursively, so there can be choi
 
 The ``<ProcessGroup>`` element is represented by the class :py:class:`~opgee.process_groups.ProcessGroup`.
 
-.. list-table:: <ProcessGroup> Attributes
+.. list-table:: <ProcessGroup> Keywords
    :widths: 10 10 10 10
    :header-rows: 1
 
-   * - Attribute
+   * - Keyword
      - Required
      - Default
      - Values
@@ -420,11 +456,11 @@ The ``<ProcessGroup>`` element is represented by the class :py:class:`~opgee.pro
 ^^^^^^^^^^^^^^^^^^^
 This element identifies a ``Process`` by name for inclusion in a ``<ProcessGroup>``.
 
-.. list-table:: <ProcessRef> Attributes
+.. list-table:: <ProcessRef> Keywords
    :widths: 10 10 10 10
    :header-rows: 1
 
-   * - Attribute
+   * - Keyword
      - Required
      - Default
      - Values
@@ -437,11 +473,11 @@ This element identifies a ``Process`` by name for inclusion in a ``<ProcessGroup
 ^^^^^^^^^^^^^^^^^^^
 This element identifies a ``Stream`` by name for inclusion in a ``<ProcessGroup>``.
 
-.. list-table:: <StreamRef> Attributes
+.. list-table:: <StreamRef> Keywords
    :widths: 10 10 10 10
    :header-rows: 1
 
-   * - Attribute
+   * - Keyword
      - Required
      - Default
      - Values
@@ -457,11 +493,11 @@ This element defines one or more updates to a built-in CSV data file.
 The ``name`` attribute must be the basename of a built-in table.
 A ``TableUpdate`` element must contain one or more ``<Cell>`` elements.
 
-.. list-table:: <TableUpdate> Attributes
+.. list-table:: <TableUpdate> Keywords
    :widths: 10 10 10 10
    :header-rows: 1
 
-   * - Attribute
+   * - Keyword
      - Required
      - Default
      - Values
@@ -473,14 +509,14 @@ A ``TableUpdate`` element must contain one or more ``<Cell>`` elements.
 <Cell>
 ^^^^^^^^^^^^^^^^^^^
 This element defines a single replacement value for a value in a built-in CSV data
-file. The ``row`` and ``col`` attributes (both required) define the cell whose
+file. The ``row`` and ``col`` keywords (both required) define the cell whose
 value is replaced by the content
 
-.. list-table:: <TableUpdate> Attributes
+.. list-table:: <TableUpdate> Keywords
    :widths: 10 10 10 10
    :header-rows: 1
 
-   * - Attribute
+   * - Keyword
      - Required
      - Default
      - Values
@@ -517,20 +553,20 @@ attributes.xml
 .. the :ref:`query sub-command <query>`, or by setting a value for
 .. the config variable ``GCAM.RewriteSetsFile``.
 
-This is the top-level element in the `attributes.xml` file. It accepts
-no attributes and contains only ``<ClassAttrs>`` elements.
+This is the top-level element in the ``attributes.xml`` file. It accepts
+no keywords and contains only ``<ClassAttrs>`` elements.
 
 <ClassAttrs>
 ^^^^^^^^^^^^^^^^^
-This element describes attributes associated with an OPGEE class, whose
-name is provide by the `name` attribute. ``<ClassAttrs>`` elements contain
+This element describes OPGEE attributes associated with an OPGEE class, whose
+name is provide by the `name` keyword. ``<ClassAttrs>`` elements contain
 any number of ``<Options>`` and ``<AttrDef>`` elements.
 
-.. list-table:: <ClassAttrs> Attributes
+.. list-table:: <ClassAttrs> Keywords
    :widths: 10 10 10 10
    :header-rows: 1
 
-   * - Attribute
+   * - Keyword
      - Required
      - Default
      - Values
@@ -543,14 +579,14 @@ any number of ``<Options>`` and ``<AttrDef>`` elements.
 ^^^^^^^^^^^^
 
 This element defines a named set of legal values. Both the `name` and
-`default` attributes are required. The ``<Options>`` element contains
+`default` keywords are required. The ``<Options>`` element contains
 one or more (more usefully, two or more) ``<Option>`` elements.
 
-.. list-table:: <Options> Attributes
+.. list-table:: <Options> Keywords
    :widths: 10 10 10 10
    :header-rows: 1
 
-   * - Attribute
+   * - Keyword
      - Required
      - Default
      - Values
@@ -579,11 +615,11 @@ e.g.,
     <Option desc="High carbon richness (forested)">High</Option>
   </Options>
 
-.. list-table:: <Option> Attributes
+.. list-table:: <Option> Keywords
    :widths: 10 10 10 10
    :header-rows: 1
 
-   * - Attribute
+   * - Keyword
      - Required
      - Default
      - Values
@@ -601,23 +637,23 @@ for this attribute.
 
 ..
   ``<AttrDef>`` also can include ``<Requires>`` elements indicating other
-  attributes upon whose value the "smart default" for this attribute depends.
+  OPGEE attributes upon whose value the "smart default" for this attribute depends.
 
 The ``<AttrDef>`` element supports several types of optional, declarative constraints
-in the form of attributes:
+in the form of XML keywords:
 
-* **synchronized** : the value of the ``synchronized`` attribute is the name of
+* ``synchronized`` : the value of the ``synchronized`` attribute is the name of
   a "synchronization group"', which can be any text string. All the attributes declared to be
   in this group name must have the same value.
 
-* **exclusive** : the value of the ``exclusive`` attribute is the name of a "exclusive group"',
+* ``exclusive`` : the value of the ``exclusive`` attribute is the name of a "exclusive group"',
   which can be any text string. All the attributes declared to be in this group must be
   binary attributes and only one of them may have a value of 1 (true).
 
-* **GT, GE, LT, LE** : these are numerical constraints requiring that the value of the
+* ``GT, GE, LT, LE`` : these are numerical constraints requiring that the value of the
   attribute be greater than (GT), greater than or equal (GE), less than (LT), or
   less than or equal (LE) to the value of the attribute. The following are examples
-  of numerical constraints in the built-in file "etc/attributes.xml":
+  of numerical constraints in the built-in file ``etc/attributes.xml``:
 
   .. code-block:: XML
 
@@ -629,11 +665,11 @@ in the form of attributes:
       <AttrDef name="well_diam" unit="in" desc="Well diameter" type="float" GT="0">2.78</AttrDef>
 
 
-.. list-table:: <AttrDef> Attributes
+.. list-table:: <AttrDef> Keywords
    :widths: 10 10 10 10
    :header-rows: 1
 
-   * - Attribute
+   * - Keyword
      - Required
      - Default
      - Values
@@ -655,7 +691,7 @@ in the form of attributes:
      - text
    * - type
      - no
-     - str
+     - "str"
      - text
    * - unit
      - no

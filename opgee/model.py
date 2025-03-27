@@ -23,6 +23,12 @@ DEFAULT_SCHEMA_VERSION = "4.0.0.a"
 _logger = getLogger(__name__)
 
 class Model(Container):
+    """
+    The ``Model`` class is a container holding one or more
+    :py:class:`~opgee.analysis.Analysis` instances and one or
+    more :py:class:`~opgee.field.Field` instances. It represents
+    a runnable OPGEE model.
+    """
 
     def __init__(self, name, attr_dict=None, table_updates=None):
         super().__init__(name, attr_dict=attr_dict, parent=None)
