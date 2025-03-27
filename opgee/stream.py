@@ -80,8 +80,31 @@ class Stream(AttributeMixin, XmlInstantiable):
     extended by the user to include other substances, by setting the configuration file variable
     `OPGEE.StreamComponents`. Streams also track their temperature and pressure for use in thermochemical calculations.
 
-    Streams are defined within the `<Field>` element and are stored in a `Field` instance. The `Field` class tracks
-    all `Stream` instances in a dictionary keyed by `Stream` name.
+    By default, the following substances can be tracked in Streams:
+
+    * Hydrocarbons with carbon numbers 1-30 (i.e., C1 = CH\ :sub:`4`\ , C2 = C\ :sub:`2`\ H\ :sub:`6`\ ,
+      C3 = C\ :sub:`3`\ H\ :sub:`8`\ , and so on.)
+    * Petroleum coke (petcoke)
+    * Oil
+    * Nitrogen (N\ :sub:`2`\ )
+    * Oxygen (O\ :sub:`2`\ )
+    * Carbon dioxide (CO\ :sub:`2`\ )
+    * Water (H\ :sub:`2`\ O)
+    * Hydrogen (H\ :sub:`2`\ )
+    * Hydrogen sulfide (H\ :sub:`2`\ S)
+    * Sulfur dioxide (SO\ :sub:`2`\ )
+    * Carbon monoxide (CO)
+    * Argon
+    * Neon
+    * Helium
+    * Krypton
+    * Xenon
+    * Sodium (Na\ :sup:`+`\ )
+    * Chlorine (Cl\ :sup:`-`\ )
+    * Silicon (Si\ :sup:`-`\ )
+
+    In XML, Streams are defined within the `<Field>` element and are stored in a `Field` instance. The `Field`
+    class tracks all `Stream` instances in a dictionary keyed by `Stream` name.
 
     See also :doc:`OPGEE XML documentation <opgee-xml>`
     """
@@ -658,7 +681,7 @@ class Stream(AttributeMixin, XmlInstantiable):
         Return whether ``stream_type`` is one of named contents of ``self``.
 
         :param stream_type: (str) a symbolic name for contents of `stream`
-        :param regex (bool) whether to interpret `stream_type` as a regular expression
+        :param regex: (bool) whether to interpret `stream_type` as a regular expression
         :return: (bool) True if `stream_type` is among the contents of `stream`
         """
         if regex:

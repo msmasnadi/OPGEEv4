@@ -76,6 +76,12 @@ This module contains core classes of the opgee package.
 .. automodule:: opgee.process
    :members:
 
+``opgee.process_groups``
+--------------------------
+
+.. automodule:: opgee.process_groups
+   :members:
+
 ``opgee.stream``
 ----------------------
 

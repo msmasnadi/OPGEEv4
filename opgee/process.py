@@ -574,7 +574,7 @@ class Process(AttributeMixin, XmlInstantiable):
         :param stream_type: (str) the generic type of stream a process can handle.
         :param combine: (bool) whether to (thermodynamically) combine multiple Streams into a single one
         :param as_list: (bool) return results as a list rather than as a dict
-        :param regex (bool) whether to interpret `stream_type` as a regular expression
+        :param regex: (bool) whether to interpret `stream_type` as a regular expression
         :param raiseError: (bool) whether to raise an error if no handlers of `stream_type` are found.
         :return: (Stream, list or dict of Streams) depends on various keyword args
         :raises: OpgeeException if no processes handling `stream_type` are found and `raiseError` is True
@@ -605,7 +605,7 @@ class Process(AttributeMixin, XmlInstantiable):
         :param stream_type: (str) the generic type of stream a process can handle.
         :param combine: (bool) whether to (thermodynamically) combine multiple Streams into a single one
         :param as_list: (bool) return results as a list rather than as a dict
-        :param regex (bool) whether to interpret `stream_type` as a regular expression
+        :param regex: (bool) whether to interpret `stream_type` as a regular expression
         :param raiseError: (bool) whether to raise an error if no handlers of `stream_type` are found.
         :return: (Stream, list or dict of Streams) depends on various keyword args
         :raises: OpgeeException if no processes handling `stream_type` are found and `raiseError` is True
@@ -625,7 +625,7 @@ class Process(AttributeMixin, XmlInstantiable):
         :param stream_type: (str) the generic type of stream a process can handle.
         :param combine: (bool) whether to (thermodynamically) combine multiple Streams into a single one
         :param as_list: (bool) return results as a list rather than as a dict
-        :param regex (bool) whether to interpret `stream_type` as a regular expression
+        :param regex: (bool) whether to interpret `stream_type` as a regular expression
         :param raiseError: (bool) whether to raise an error if no handlers of `stream_type` are found.
         :return: (Stream, list or dict of Streams) depends on various keyword args
         :raises: OpgeeException if no processes handling `stream_type` are found and `raiseError` is True
@@ -639,7 +639,7 @@ class Process(AttributeMixin, XmlInstantiable):
         `stream_type`, e.g., 'oil', 'water' and so on.
 
         :param stream_type: (str) the generic type of stream a process can handle.
-        :param regex (bool) whether to interpret `stream_type` as a regular expression
+        :param regex: (bool) whether to interpret `stream_type` as a regular expression
         :param raiseError: (bool) whether to raise an error if no handlers of `stream_type` are found.
         :return: (Streams or None)
         :raises: OpgeeException if exactly one process producing `stream_type` is not found and `raiseError` is True
@@ -658,7 +658,7 @@ class Process(AttributeMixin, XmlInstantiable):
         `stream_type`, e.g., 'oil', 'water' and so on.
 
         :param stream_type: (str) the generic type of stream a process can handle.
-        :param regex (bool) whether to interpret `stream_type` as a regular expression
+        :param regex: (bool) whether to interpret `stream_type` as a regular expression
         :param raiseError: (bool) whether to raise an error if no handlers of `stream_type` are found.
         :return: (Streams or None)
         :raises: OpgeeException if exactly one process consuming `stream_type` is not found and `raiseError` is True
@@ -1071,7 +1071,7 @@ class Reservoir(Process):
 # This class is defined here rather than in container.py to avoid import loops and to
 # allow the reference to Aggregator above.
 #
-class Aggregator(Container):
+class  Aggregator(Container):
     def __init__(self, name, attr_dict=None, parent=None):
         super().__init__(name, attr_dict=attr_dict, parent=parent)
 

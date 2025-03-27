@@ -121,6 +121,8 @@ content names of which one or more must be present.
 XML processing
 ----------------
 
+.. note:: All XML elements are described further in :doc:`opgee-xml`.
+
 AttrDef
 ~~~~~~~~~~
 The XML element ``<AttrDef>`` defines metadata for an attribute of an OPGEE XML element.
@@ -153,10 +155,17 @@ defines a ``Field`` named ``template`` that provides the basis for common
 oil and gas field configurations. The subcommand ``csv2xml`` allows a
 user to define ``Fields`` using a small number of attributes by generating
 XML from the columns in the CSV file and combining these with the
-``template`` field in ``opgee.xml``. This system is used to generate XML
-definitions for the 9,000 Fields used in testing OPGEE.
+``template`` field in ``etc/opgee.xml``. This system is used to generate XML
+definitions for the 9,000 Fields used in testing OPGEE. See the schematic
+figure below for an illustration of one such field.
 
-All XML elements are described further in :doc:`opgee-xml`.
+.. figure:: images/gas_lifting.*
+   :figclass: align-center
+
+   Schematic diagram of a "gas lifting field" from the "template" field
+   in ``etc/opgee.xml``, generated using OPGEE’s built-in “graph” command.
+   Rectangles indicate ``Process`` subclasses, and each arrow represents a
+   ``Stream``. Labels on arrows show the declared ``Stream`` contents.
 
 
 Assorted features

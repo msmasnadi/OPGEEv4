@@ -3,11 +3,15 @@ Attributes
 
 In OPGEE the term "attributes" refers to a class of model parameters that are pre-defined
 with metadata (attribute definitions) and are class-specific, i.e., they related to
-Analysis, Field, Process, or subclasses of Process.
+:py:class:`~opgee.analysis.Analysis`,
+:py:class:`~opgee.field.Field`,
+:py:class:`~opgee.process.Process`, or subclasses of ``Process``.
 
 Attributes are central to the operation of both the "Smart Defaults" and Monte Carlo
 simulation (MCS) subsystems. This page provides a brief overview of how attributes are
 used in these subsystems. See the pages linked below for more information.
+
+Attributes are defined by XML element, in the file ``etc/attributes.xml``.
 
 See :obj:`opgee.attributes` for the Python API and more detailed documentation.
 

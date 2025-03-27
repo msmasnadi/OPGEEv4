@@ -57,6 +57,7 @@ The elements that comprise the ``opgee.xml`` file are described below.
 
 The top-most element, ``<Model>``, encloses one or more ``<Analysis>``,
 ``<Field>``, and ``<A>`` elements. The ``<Model>`` element takes no attributes.
+The ``<Model>`` element is represented by the class :py:class:`~opgee.model.Model`.
 
 ..
   [Saved for later]
@@ -118,6 +119,8 @@ required attribute, `name`. The ``<Field>`` elements identify fields to include 
 analysis by field name, whereas ``<Group>`` elements allow matching of group names
 indicated in ``<Field>`` definitions, by direct string match or by regular expression match.
 
+The ``<Analysis>`` element is represented by the class :py:class:`~opgee.analysis.Analysis`
+
 .. list-table:: <Analysis> Attributes
    :widths: 10 10 10 10
    :header-rows: 1
@@ -167,6 +170,8 @@ This element describes an oil or gas field and its processes.
 ``<Field>`` can contain more or more ``<A>``, ``<Aggregator>``, ``<Stream>``,
 ``<Process>``, or ``<Group>`` elements.
 
+The ``<Field>`` element is represented by the class :py:class:`~opgee.field.Field`
+
 .. list-table:: <Field> Attributes
    :widths: 10 10 10 10
    :header-rows: 1
@@ -191,6 +196,7 @@ This element describes an oil or gas field and its processes.
 <Aggregator>
 ^^^^^^^^^^^^^^^
 This element contains one or more ``<Aggregator>``, ``<Process>``, or ``<A>`` elements.
+The ``<Aggregator>`` element is represented by the class :py:class:`~opgee.process.Aggregator`.
 
 .. list-table:: <Aggregator> Attributes
    :widths: 10 10 10 10
@@ -216,6 +222,9 @@ It must include a `class` attribute which identifies the Python class that
 implements the process. The identified class must be a subclass of `Process`.
 
 ``<Process>>`` elements may contain one or more ``<A>`` elements.
+The ``<Process>`` element is represented by subclasses of the class
+:py:class:`~opgee.process.Process`.
+
 
 .. list-table:: <Process> Attributes
    :widths: 10 10 10 10
@@ -292,6 +301,8 @@ Example:
 <Stream>
 ^^^^^^^^^^^^^^^
 This element contains one or more ``<Component>``, ``<Contains>`` or ``<A>`` elements.
+The ``<Stream>`` element is represented by the class :py:class:`~opgee.stream.Stream`.
+
 
 .. list-table:: <Stream> Attributes
    :widths: 10 10 10 10
@@ -365,6 +376,9 @@ specific process name. The ``<Contains>`` element takes no XML attributes.
 ^^^^^^^^^^^^^^^^^^^
 This element can contain multiple ``<ProcessGroup>`` elements.
 
+The ``<ProcessChoice>`` element is represented by the class :py:class:`~opgee.process_groups.ProcessChoice`.
+
+
 .. list-table:: <ProcessChoice> Attributes
    :widths: 10 10 10 10
    :header-rows: 1
@@ -387,7 +401,9 @@ This element can contain multiple ``<ProcessGroup>`` elements.
 This element can contain multiple ``<ProcessRef>``, ``<StreamRef>``, and ``<ProcessChoice>`` elements.
 That is, ``<ProcessChoice>`` elements can nest recursively, so there can be choices within choices.
 
-.. list-table:: <ProcessChoice> Attributes
+The ``<ProcessGroup>`` element is represented by the class :py:class:`~opgee.process_groups.ProcessGroup`.
+
+.. list-table:: <ProcessGroup> Attributes
    :widths: 10 10 10 10
    :header-rows: 1
 
