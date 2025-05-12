@@ -1,6 +1,11 @@
 XML File Format
 ====================
 
+.. note:: OPGEE uses the term "attribute" to refer to model variables settable
+          in OPGEE XML files. To avoid ambiguity, the named arguments to XML
+          elements (often called "attributes" in XML descriptions) are here
+          referred to as "keywords".
+
 The `opgee` package includes two built-in XML files:
 
 * ``etc/opgee.xml`` describes the default model, and
@@ -34,16 +39,52 @@ hierarchy where each element in the hierarchy of the new and old models have the
 and keyword (keyword order is irrelevant).
 
 An element is inserted into the XML in the position where a non-matching element first appears
-in the structure. **Give example**
+in the structure.
 
 If a match is found and the attribute ``delete=true`` is specified in the new XML, that element
 and everything below it in original XML is deleted, and any XML below this element is inserted
-in its place. **Give example**
+in its place.
+
+In the example below, Fragment 2 is merged into Fragment 1, resulting in the final XML block,
+with the element ``<baz name="c">lmnop</baz>`` deleted and the element
+``<baz name="b">abc</baz>`` added after the elements forming its structural siblings.
+
+.. code-block:: xml
+   :caption: Fragment 1
+
+    <foo>
+        <bar>
+            <baz name="horace">abcdef</baz>
+            <baz name="a">xyz</baz>
+            <baz name="c">lmnop</baz>
+        </bar>
+    </foo>
+
+.. code-block:: xml
+   :caption: Fragment 2
+
+    <foo>
+        <bar>
+            <baz name="b">abc</baz>
+            <baz name="c" delete="1"/>
+        </bar>
+    </foo>
+
+.. code-block:: xml
+   :caption: Merge of fragments 1 and 2
+
+    <foo>
+        <bar>
+            <baz name="horace">abcdef</baz>
+            <baz name="a">xyz</baz>
+            <baz name="b">abc</baz>
+      </bar>
+    </foo>
 
 If a match is found and the attribute ``delete=true`` is *not* specified in the new XML, the
 matching process proceeds recursively to the next lower level of the XML structure. If a final
 XML element (i.e., one with no children) matches, its text is copied in place of any that appeared
-in the currently merged XML. **Give example.**
+in the currently merged XML. More examples are available in the ``tests/test_merge_xml.py``.
 
 ---------------------------------------------------------------------------------------------------------
 
