@@ -12,6 +12,7 @@ from openpyxl.styles.builtins import output
 
 from .shared import get_energy_consumption
 from ..combine_streams import combine_streams
+from ..core import TemperaturePressure
 from ..emissions import EM_COMBUSTION
 from ..units import ureg
 from ..error import OpgeeException
@@ -35,8 +36,10 @@ class OnsiteElectricityGeneration(Process):
 
         # Declare required inputs/outputs.
         self._required_inputs = [
-            "gas"
+            "gas",
+            "iteration gas"
         ]
+
         self._required_outputs = [
             "H2",
             "gas"
@@ -52,7 +55,9 @@ class OnsiteElectricityGeneration(Process):
         """
         Cache attributes or calculations needed for the process.
         """
-        pass
+        self.slip_rate = self.field.attr("slip_rate")
+        self.waste_P = self.field.attr("PSA_waste_gas_P")
+        self.waste_T = self.field.attr("PSA_waste_gas_T")
 
     def run(self, analysis):
         """
@@ -64,16 +69,20 @@ class OnsiteElectricityGeneration(Process):
         Returns:
             None
         """
+        self.print_running_msg()
+
         gas_in = self.find_input_stream("gas")
 
         H2_in = self.find_output_stream("H2")
-        H2_in.set_gas_flow_rate("H2", gas_in.gas_flow_rate("H2"))
+        H2_in.set_gas_flow_rate("H2", gas_in.gas_flow_rate("H2") * (1-self.slip_rate))
         waste_gas_in = self.find_output_stream("gas")
-        waste_gas_in.copy_gas_rates_from(gas_in)
+        tp = TemperaturePressure(self.waste_T, self.waste_P)
+        waste_gas_in.copy_gas_rates_from(gas_in, tp = tp) # TODO: the TP of waste stream should change based on the exiting P from PSA
         waste_gas_in.subtract_rates_from(H2_in)
 
         # step 1 calculate how much total electricity we actually need from all processes
-        required_energy = sum([proc.energy.get_rate("Electricity") for proc in self.field.processes()])
+        energy_list = [proc.energy.get_rate("Electricity") for proc in self.field.processes() if proc != self]
+        required_energy = sum(energy_list)
 
         # step 2 calculate the energy density of the current gas stream
         # step 3 calculate how much electricity can be generated from the current gas stream
@@ -86,6 +95,8 @@ class OnsiteElectricityGeneration(Process):
 
         # burn waste gas first
         percentage_waste_gas_burned = required_energy/electricity_rate_from_waste
+        self.field.save_process_data(percentage_waste_gas_burned=percentage_waste_gas_burned)
+
         emission_stream.add_combustion_CO2_from(waste_gas_in, (percentage_waste_gas_burned if percentage_waste_gas_burned < 1 else 1))
 
         waste_gas_in.multiply_flow_rates(1 - (percentage_waste_gas_burned if percentage_waste_gas_burned < 1 else 1))
@@ -103,13 +114,21 @@ class OnsiteElectricityGeneration(Process):
                 percentage_H2_burned if percentage_H2_burned < 1 else 1))
             emission_stream = combine_streams([emission_stream, em2])
 
+        self.field.save_process_data(percentage_H2_burned=percentage_H2_burned)
         H2_in.multiply_flow_rates(1-(percentage_H2_burned if percentage_H2_burned < 1 else 1))
 
         emissions.set_from_stream(EM_COMBUSTION, emission_stream)
 
-        # step 5 record energy used
-        energy_use = self.energy
-        energy_use.set_rate(EN_ELECTRICITY, required_energy)
+        # # step 5 record energy used
+        # # TODO: this is commented out bcuz we are producing energy
+        # # not generating energy
+        # # the required energy amount is documented at each energy-consuming process
+        # energy_use = self.energy
+        # energy_use.set_rate(EN_ELECTRICITY, required_energy)
+
+        self.set_iteration_value(required_energy)
+
+        self.set_embodied_emissions()
 
     def energy_rates(self, input):
         return self.field.gas.energy_flow_rate(input)

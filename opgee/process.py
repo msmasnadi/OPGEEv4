@@ -10,6 +10,7 @@ from typing import Union, Optional
 
 import pandas as pd
 import pint
+from pint.registry import Quantity
 
 from .units import ureg, magnitude
 from .attributes import AttrDefs, AttributeMixin
@@ -17,7 +18,7 @@ from .combine_streams import combine_streams
 from .config import getParamAsBoolean
 from .container import Container
 from .core import OpgeeObject, XmlInstantiable, elt_name, instantiate_subelts
-from .emissions import Emissions, EM_COMBUSTION
+from .emissions import Emissions, EM_COMBUSTION, EM_EMBODIED
 from .energy import EN_ELECTRICITY, Energy
 from .error import OpgeeException, AbstractMethodError, OpgeeIterationConverged, ModelValidationError
 from .import_export import ImportExport
@@ -439,6 +440,10 @@ class Process(AttributeMixin, XmlInstantiable):
                 factor and summing the result.
         """
         energy_for_combustion = self.energy.data.drop(EN_ELECTRICITY)
+
+        if self.process_EF is None:
+            raise OpgeeException(f"compute_emission_combustion: '{self}' has a None process EF.")
+
         combustion_emission = (energy_for_combustion * self.process_EF).sum()
         return combustion_emission
 
@@ -446,6 +451,13 @@ class Process(AttributeMixin, XmlInstantiable):
         emissions = self.compute_emission_combustion()
         self.emissions.set_rate(EM_COMBUSTION, "CO2", emissions)
 
+    def compute_embodied_emissions(self) -> pint.Quantity:
+        # TODO: SZ
+        return Quantity(0.0, "tonne/day")
+
+    def set_embodied_emissions(self):
+        emissions = self.compute_embodied_emissions()
+        self.emissions.set_rate(EM_EMBODIED, "CO2", emissions)
 
     def add_energy_rate(self, carrier, rate):
         """

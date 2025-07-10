@@ -22,11 +22,11 @@ class Venting(Process):
 
         # TODO: avoid process names in contents.
         self._required_inputs = [
-            "gas for venting",
+            "gas",
         ]
 
         self._required_outputs = [
-            "gas",
+            #"gas",
         ]
 
         self.imported_fuel_gas_comp = field.imported_gas_comp["Imported Fuel"]
@@ -70,7 +70,7 @@ class Venting(Process):
         # WOR = field.attr("WOR")
         # water_prod = self.oil_volume_rate * WOR
 
-        input = self.find_input_stream("gas for venting")  # type: Stream
+        input = self.find_input_stream("gas")  # type: Stream
         if input.is_uninitialized():
             return
 
@@ -95,11 +95,11 @@ class Venting(Process):
 
         gas_fugitives = self.set_gas_fugitives(input, fugitive_frac.to("frac").m)
 
-        gas_to_gathering = self.find_output_stream("gas")
-        gas_tp_after_separation = field.get_process_data("gas_tp_after_separation")
-        gas_to_gathering.copy_flow_rates_from(input, tp=gas_tp_after_separation)
-        gas_to_gathering.subtract_rates_from(gas_to_vent)
-        gas_to_gathering.subtract_rates_from(gas_fugitives)
+        # gas_to_gathering = self.find_output_stream("gas")
+        # gas_tp_after_separation = field.get_process_data("gas_tp_after_separation")
+        # gas_to_gathering.copy_flow_rates_from(input, tp=gas_tp_after_separation)
+        # gas_to_gathering.subtract_rates_from(gas_to_vent)
+        # gas_to_gathering.subtract_rates_from(gas_fugitives)
 
         self.set_iteration_value(gas_to_gathering.total_flow_rate())
 

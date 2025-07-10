@@ -19,6 +19,7 @@ EM_LAND_USE = 'Land-use'
 EM_VENTING = 'Venting'
 EM_FLARING = 'Flaring'
 EM_FUGITIVES = 'Fugitives'
+EM_EMBODIED = 'Embodied'
 EM_OTHER = 'Other'
 
 EM_VOC = "VOC"
@@ -27,6 +28,7 @@ EM_CH4 = "CH4"
 EM_C1  = "C1"   # refers to CH4 in some contexts
 EM_N2O = "N2O"
 EM_CO2 = "CO2"
+EM_H2 = "H2"
 EM_GHG = "GHG"
 
 class EmissionsError(OpgeeException):
@@ -52,14 +54,14 @@ class Emissions(OpgeeObject):
     #: `Emissions.emissions` defines the set of substances tracked by this class.
     #: In addition, the `Model` class computes CO2-equivalent GHG emission using its
     #: current settings for GWP values and stored in a row with index 'GHG'.
-    emissions = [EM_VOC, EM_CO, EM_CH4, EM_N2O, EM_CO2]
+    emissions = [EM_VOC, EM_CO, EM_CH4, EM_N2O, EM_CO2, EM_H2]
 
     indices = emissions + [EM_GHG]
 
     # for faster test for inclusion in this list
     _emissions_set = set(indices)
 
-    categories = [EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES, EM_OTHER]
+    categories = [EM_COMBUSTION, EM_LAND_USE, EM_VENTING, EM_FLARING, EM_FUGITIVES, EM_EMBODIED, EM_OTHER]
     _categories_set = set(categories)
 
     _units = ureg.Unit("tonne/day")
@@ -187,6 +189,7 @@ class Emissions(OpgeeObject):
         self.add_rate(category, EM_CO2, stream.gas_flow_rate(EM_CO2))
         self.add_rate(category, EM_CH4, stream.gas_flow_rate(EM_C1))
         self.add_rate(category, EM_CO, stream.gas_flow_rate(EM_CO))
+        self.add_rate(category, EM_H2, stream.gas_flow_rate(EM_H2))
 
         # TODO: where to get N2O?
 
@@ -205,6 +208,7 @@ class Emissions(OpgeeObject):
         self.set_rate(category, EM_CO2, stream.gas_flow_rate(EM_CO2))
         self.set_rate(category, EM_CH4, stream.gas_flow_rate(EM_C1))
         self.set_rate(category, EM_CO, stream.gas_flow_rate(EM_CO))
+        self.set_rate(category, EM_H2, stream.gas_flow_rate(EM_H2))
 
         # TODO: where to get N2O?
 
@@ -226,6 +230,8 @@ class Emissions(OpgeeObject):
             self.add_rate(category, EM_CH4, series[EM_C1])
         if EM_CO in series:
             self.add_rate(category, EM_CO, series[EM_CO])
+        if EM_H2 in series:
+            self.add_rate(category, EM_H2, series[EM_H2])
 
         # All gas-phase hydrocarbons heavier than methane are considered VOCs
         voc_rate = series[series.index.intersection(Stream.VOCs)].sum()
@@ -245,6 +251,8 @@ class Emissions(OpgeeObject):
             self.set_rate(category, EM_CH4, series[EM_C1])
         if EM_CO in series:
             self.set_rate(category, EM_CO, series[EM_CO])
+        if EM_H2 in series:
+            self.set_rate(category, EM_H2, series[EM_H2])
 
         # All gas-phase hydrocarbons heavier than methane are considered VOCs
         voc_rate = series[series.index.intersection(Stream.VOCs)].sum()

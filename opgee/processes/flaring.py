@@ -20,7 +20,7 @@ class Flaring(Process):
 
         # TODO: avoid process names in contents.
         self._required_inputs = [
-            "gas for flaring",
+            "gas",
             # "methane slip"
         ]
 
@@ -30,7 +30,7 @@ class Flaring(Process):
         self.print_running_msg()
 
         # mass rate
-        gas_to_flare = self.find_input_streams("gas for flaring", combine=True)  # type: Stream
+        gas_to_flare = self.find_input_streams("gas", combine=True)  # type: Stream
         # methane_slip = self.find_input_stream("methane slip")  # type: Stream
         #if gas_to_flare.is_uninitialized() or methane_slip.is_uninitialized():
         if gas_to_flare.is_uninitialized(): #or methane_slip.is_uninitialized():

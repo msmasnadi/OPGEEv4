@@ -15,7 +15,7 @@ num_prod_wells,int,8,8
 num_water_inj_wells,int,1,1
 well_diam,float,,
 prod_index,float,6.8,6.8
-res_press,float,2520,2520
+res_press,float,"",""
 res_temp,float,,
 offshore,float,0,0
 API,float,,
@@ -27,8 +27,8 @@ gas_comp_C3,float,0,0
 gas_comp_C4,float,0,0
 gas_comp_H2S,float,0,0
 gas_comp_H2,float,0.92,0.92
-GOR,float,28916428,28916428
-WOR,float,28.91642853,28.91642853
+GOR,float,6954140.999,6954140.999
+WOR,float,2989.73306,2989.73306
 WIR,float,,
 GLIR,float,,
 GFIR,float,,
@@ -62,6 +62,9 @@ ecosystem_richness,str,Low carbon,Low carbon
 field_development_intensity,str,High,High
 prod_water_inlet_temp,float,140,140
 PressureSwingAdsorption.flaring,int,0,1
-PressureSwingAdsorption.slip_rate,float,0.1,0.1
+slip_rate,float,0.1,0.1
 DownholePump.prime_mover_type,str,Electric_motor,Electric_motor
 Separation.prime_mover_type,str,Electric_motor,Electric_motor
+PSA_waste_gas_P,float,15.7,15.7
+PSA_waste_gas_T,float,32,32
+GasReinjectionCompressor.prime_mover_type,str,Electric_motor,Electric_motor

@@ -53,6 +53,7 @@ class FieldResult:
             streams_data=None,
             ci_results=None,
             energy_output=None,
+            electricity_data = None,
             trial_num=None,
             error=None,
     ):
@@ -65,6 +66,7 @@ class FieldResult:
         self.emissions = ghg_data   # TBD: change self.emissions to self.ghgs
         self.gases = gas_data
         self.streams = streams_data
+        self.electricity = electricity_data
         self.trial_num = trial_num
         self.error = error
 
@@ -746,6 +748,14 @@ class Field(Container):
         dfs = [s.to_dataframe() for s in self.streams()]
         streams_data = pd.concat(dfs)
 
+        perc_waste = self.get_process_data("percentage_waste_gas_burned")
+        if perc_waste is not None:
+            electricity_dict = dict(percentage_waste_gas_burned = [perc_waste],
+                                    percentage_H2_burned = [self.get_process_data("percentage_H2_burned")])
+            electricity_data = pd.DataFrame(electricity_dict)
+        else:
+            electricity_data = None
+
         result = FieldResult(
             analysis.name,
             self.name,
@@ -757,6 +767,7 @@ class Field(Container):
             ghg_data=ghg_data,  # TBD: superseded by gas_data
             gas_data=gas_data,
             streams_data=streams_data,
+            electricity_data=electricity_data
         )
 
         # Run optional post-process plugins

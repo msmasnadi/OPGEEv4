@@ -7,6 +7,7 @@
 # See LICENSE.txt for license details.
 #
 import numpy as np
+from pint.registry import Quantity
 
 from ..units import ureg
 from ..core import TemperaturePressure
@@ -205,6 +206,7 @@ class DownholePump(Process):
 
             # downhole pump
             pressure_drop_elev = fluid_lifted_density * self.gravitational_acceleration * self.depth
+            self.prod_tubing_diam = Quantity(2.78,'inch') # TODO: delete after debug [SZ]
             pressure_drop_fric = (fluid_lifted_density * self.friction_factor * self.depth * fluid_velocity ** 2 /
                                   (2 * self.prod_tubing_diam))
             pressure_drop_total = pressure_drop_fric + pressure_drop_elev

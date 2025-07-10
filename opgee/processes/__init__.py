@@ -48,4 +48,5 @@ from .water_injection import WaterInjection
 from .water_treatment import WaterTreatment
 from .pressure_swing_adsorption import PressureSwingAdsorption
 from .onsite_electricity_generation import OnsiteElectricityGeneration
-
+from .psa_pre_compressor import PsaPreCompressor
+from .gas_node import GasNode

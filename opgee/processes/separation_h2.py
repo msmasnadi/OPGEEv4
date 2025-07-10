@@ -30,7 +30,7 @@ class Separation(Process):
         self._required_outputs = [
             "gas",    # TODO: this is called "gas for gas partition" elsewhere
             "water",
-            "oil"
+           # "oil"
         ]
 
         self.compressor_eff = None
@@ -101,10 +101,10 @@ class Separation(Process):
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
         water_after = self.find_output_stream("water")
-        water_after.copy_gas_rates_from(input, phase=PHASE_LIQUID)
+        water_after.set_liquid_flow_rate("H2O", input.liquid_flow_rate("H2O"))
 
         gas_after = self.find_output_stream("gas")
-        gas_after.copy_gas_rates_from(input, phase=PHASE_GAS)
+        gas_after.copy_gas_rates_from(input)
         gas_after.subtract_rates_from(gas_fugitives)
         field.save_process_data(gas_tp_after_separation=gas_after.tp)
 
@@ -137,7 +137,7 @@ class Separation(Process):
         field = self.field
         oil = field.oil
 
-        gas_after, oil_after, water_after = self.get_output_streams(field)
+        gas_after, water_after = self.get_output_streams(field)
         output = combine_streams([gas_after, water_after])
 
         loss_rate = field.component_fugitive_table[self.name]
@@ -181,21 +181,21 @@ class Separation(Process):
         gas_after.set_rates_from_series(gas_mass_rate, PHASE_GAS)
         gas_after.tp.set(T=self.outlet_tp.T, P=self.pressure_after_boosting)
 
-        oil_after = self.find_output_stream("oil")
-        oil_mass_rate = (self.oil_volume_rate * density).to("tonne/day")
-        water_in_oil_mass_rate = self.water_in_oil_mass_rate(oil_mass_rate)
-        oil_after.set_liquid_flow_rate("oil", oil_mass_rate)
-        oil_after.set_liquid_flow_rate("H2O", water_in_oil_mass_rate)
-        oil_after.set_tp(self.outlet_tp)
-        oil_after.set_API(field.attr("API"))
-        #water_in_oil_mass_rate = 0
+        # oil_after = self.find_output_stream("oil")
+        # oil_mass_rate = (self.oil_volume_rate * density).to("tonne/day")
+        # water_in_oil_mass_rate = self.water_in_oil_mass_rate(oil_mass_rate)
+        # oil_after.set_liquid_flow_rate("oil", oil_mass_rate)
+        # oil_after.set_liquid_flow_rate("H2O", water_in_oil_mass_rate)
+        # oil_after.set_tp(self.outlet_tp)
+        # oil_after.set_API(field.attr("API"))
+        water_in_oil_mass_rate = 0
 
         water_density_STP = field.water.density()
         water_mass_rate = max(0, self.oil_volume_rate * field.attr("WOR") * water_density_STP - water_in_oil_mass_rate)
         water_after = self.find_output_stream("water")
         water_after.set_liquid_flow_rate("H2O", water_mass_rate, tp=self.outlet_tp)
 
-        return gas_after, oil_after, water_after
+        return gas_after, water_after
 
     def water_in_oil_mass_rate(self, oil_mass_rate):
         """

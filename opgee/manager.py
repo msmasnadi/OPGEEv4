@@ -371,8 +371,6 @@ def _run_field(analysis_name, field_name, xml_string, result_type,
 
     except Exception as e:
         result = FieldResult(analysis_name, field_name, ERROR_RESULT, error=str(e))
-        import traceback
-        traceback.print_exc()
 
     return result
 
@@ -419,6 +417,7 @@ def save_results(results, output_dir, batch_num=None):
     energy_output_rows = []
     error_rows = []
     stream_dfs = []
+    electricity_dfs = []
 
     def create_dict(analysis, field, trial,
                     name=None, value=None, unit_col=True):
@@ -455,11 +454,13 @@ def save_results(results, output_dir, batch_num=None):
                 result.gases['trial'] = trial
                 result.emissions['trial'] = trial
                 result.energy['trial'] = trial      # energy consumption
+                result.electricity['trial'] = trial
 
             energy_cols.append(result.energy)
             emission_cols.append(result.emissions)
             stream_dfs.append(result.streams)
             gas_dfs.append(result.gases)
+            electricity_dfs.append(result.electricity)
 
             # Add a row for total energy output
             d = create_dict(analysis_name, field_name, trial,
@@ -531,6 +532,10 @@ def save_results(results, output_dir, batch_num=None):
     if stream_dfs:
         df = pd.concat(stream_dfs, axis="rows")
         _to_csv(df, "streams")
+
+    if electricity_dfs:
+        df = pd.concat(electricity_dfs, axis="rows")
+        _to_csv(df, "electricity")
 
     # Save any results captured by optional post-processor plugins
     PostProcessor.save_post_processor_results(output_dir)

@@ -10,7 +10,7 @@
 import numpy as np
 
 from ..units import ureg
-from ..emissions import EM_FUGITIVES
+from ..emissions import EM_FUGITIVES, EM_VENTING, EM_H2
 from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY
 from ..error import OpgeeException
 from ..log import getLogger
@@ -53,7 +53,8 @@ class PressureSwingAdsorption(Process):
         ]
 
         self._required_outputs = [
-            "gas"
+            "gas",
+            #"iteration gas"
         ]
 
         model = self.field.model
@@ -81,30 +82,22 @@ class PressureSwingAdsorption(Process):
         field = self.field
 
         self.flaring = self.attr("flaring")
-        self.slip_rate = self.attr("slip_rate")
+        self.slip_rate = field.attr("slip_rate")
         self.gas_path = field.gas_path
 
     def run(self, analysis):
+
+        self.print_running_msg()
 
         input = self.find_input_stream("gas")
 
         # separate stream into (1) pure H2 (2) waste gas
         output = self.find_output_stream("gas")
-        temp = input.gas_flow_rate("H2")*self.slip_rate
+
+        H2_loss = input.gas_flow_rate("H2")*self.slip_rate
+        H2_remain = input.gas_flow_rate("H2") - H2_loss
+
         output.copy_flow_rates_from(input)
-        output.subtract_rates_from(temp)
+        #output.set_gas_flow_rate("H2", H2_remain)
 
-
-
-        # check waste gas treatment
-            # if flaring, flare
-
-        # calculate gas partition if gas_lifting_option is on
-        # if self.flaring:
-        #     # calculate gas partition
-        #     lifting_gas = self.find_output_stream("lifting gas")
-        #     gas_partition = input.gas_flow_rates() * self.calculate_gas_lifting(input)
-        #     lifting_gas.set_rates_from_series(gas_partition, PHASE_GAS)
-
-
-
+        #self.emissions.set_rate(EM_VENTING, EM_H2, H2_loss)

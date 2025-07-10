@@ -75,6 +75,7 @@ class ReservoirWellInterface(Process):
         # bottom hole flowing pressure
         bottomhole_flowing_press = self.get_bottomhole_press(output)
         output.tp.set(T=self.res_tp.T, P=bottomhole_flowing_press)
+        output.set_API(field.API)
 
     def impute(self):
         output = self.find_output_stream("oil")

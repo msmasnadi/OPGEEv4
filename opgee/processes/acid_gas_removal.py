@@ -63,15 +63,16 @@ class AcidGasRemoval(Process):
         super().__init__(name, **kwargs)
 
         self._required_inputs = [
-            "gas for AGR",          # TODO: avoid process names in contents. Should be "acidic gas"?
+            "gas",          # TODO: avoid process names in contents. Should be "acidic gas"?
         ]
 
         self._required_outputs = [
             # TODO: If the process name were avoided, we could have just one output stream
             #  with, say, "deacidified gas". Should describe the contents, not the destination.
             # One of these must exist.
-            ("gas for demethanizer",  # TODO: avoid process names in contents
-             "gas for gas partition") # TODO: avoid process names in contents
+            # ("gas for demethanizer",  # TODO: avoid process names in contents
+            #  "gas for gas partition") # TODO: avoid process names in contents
+            "gas"
         ]
 
         # Optional streams include:
@@ -136,11 +137,11 @@ class AcidGasRemoval(Process):
         self.print_running_msg()
         field = self.field
 
-        if not self.all_streams_ready("gas for AGR"):
+        if not self.all_streams_ready("gas"):
             return
 
         # Calculate mass rate
-        gas_input_stream = self.find_input_streams("gas for AGR", combine=True)
+        gas_input_stream = self.find_input_streams("gas", combine=True)
         processing_unit_loss_rate_df = field.get_process_data("processing_unit_loss_rate_df")
         if gas_input_stream.is_uninitialized() or processing_unit_loss_rate_df is None:
             return
@@ -155,8 +156,9 @@ class AcidGasRemoval(Process):
         H2S_to_demethanizer = ureg.Quantity(0.0, "tonne/day")
 
         # Calculate output stream for demethanizer
-        output_gas = self.find_output_stream("gas for demethanizer", raiseError=False) or \
-                     self.find_output_stream("gas for gas partition")
+        output_gas = self.find_output_stream("gas", raiseError=False)
+        # output_gas = self.find_output_stream("gas for demethanizer", raiseError=False) or \
+        #              self.find_output_stream("gas for gas partition")
         output_gas.copy_flow_rates_from(gas_input_stream)
         output_gas.set_gas_flow_rate("CO2", CO2_to_demethanizer)
         if field.gas_path != "CO2-EOR Membrane":

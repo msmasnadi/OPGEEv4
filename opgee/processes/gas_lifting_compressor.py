@@ -26,7 +26,8 @@ class GasLiftingCompressor(Process):
         ]
 
         self._required_outputs = [
-            "lifting gas"
+            "lifting gas",
+            "iteration gas"
         ]
 
         self.res_press = None

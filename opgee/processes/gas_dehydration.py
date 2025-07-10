@@ -48,7 +48,7 @@ class GasDehydration(Process):
         self.gas_path_dict = {"Minimal": "gas for gas partition",
                               "PSA": "gas for electricity generation",
                               "Acid Gas": "gas for AGR",
-                              "Acid Wet Gas": "gas for AGR",
+                              "Acid Wet Gas": "gas",
                               "CO2-EOR Membrane": "gas for chiller",
                               "CO2-EOR Ryan Holmes": "gas for Ryan Holmes",
                               "Sour Gas Reinjection": "gas for sour gas compressor",

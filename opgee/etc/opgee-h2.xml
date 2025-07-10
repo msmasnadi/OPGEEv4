@@ -18,31 +18,76 @@
 		<Process class="Boundary" boundary="Transportation" />
 		<Process class="Boundary" boundary="Distribution" />
 
-		<ProcessChoice name="gas_processing_path">
-			<ProcessGroup name="PSA">
-                <ProcessRef name="Exploration" />
-                <ProcessRef name="Drilling" />
-				<ProcessRef name="Reservoir" />
-				<ProcessRef name="ReservoirWellInterface" />
+		<ProcessChoice name="downhole_pump_option">
+             <ProcessGroup name="downhole_pump_on">
 				<ProcessRef name="DownholePump" />
-				<ProcessRef name="Separation" />
-				<ProcessRef name="WaterTreatment" />
-                <ProcessRef name="PressureSwingAdsorption" />
-                <ProcessRef name="OnsiteElectricityGeneration" />
-                <ProcessRef name="GasReinjectionCompressor"/>
-                <ProcessRef name="GasReinjectionWell"/>
 
-				<StreamRef name="Reservoir => ReservoirWellInterface" />
 				<StreamRef name="ReservoirWellInterface => DownholePump" />
 				<StreamRef name="DownholePump => Separation" />
-				<StreamRef name="Separation => WaterTreatment" />
-                <StreamRef name="Separation => PressureSwingAdsorption" />
-                <StreamRef name="PressureSwingAdsorption => OnsiteElectricityGeneration" />
-                <StreamRef name="OnsiteElectricityGeneration => ProductionBoundary" />
-                <StreamRef name="OnsiteElectricityGeneration => GasReinjectionCompressor" />
-                <StreamRef name="GasReinjectionCompressor => GasReinjectionWell" />
+			</ProcessGroup>
+
+			<ProcessGroup name="downhole_pump_off">
+				<StreamRef name="ReservoirWellInterface => Separation" />
 			</ProcessGroup>
 		</ProcessChoice>
+
+        <ProcessChoice name="dehydrator_option">
+            <ProcessGroup name="dehydrator_on">
+                <ProcessRef name="GasDehydration"/>
+
+                <StreamRef name="Separation => GasDehydration"/>
+                <StreamRef name="GasDehydration => GasNode"/>
+            </ProcessGroup>
+
+            <ProcessGroup name="dehydrator_off">
+                <StreamRef name="Separation => GasNode"/>
+            </ProcessGroup>
+        </ProcessChoice>
+
+        <ProcessChoice name="agr_option">
+            <ProcessGroup name="agr_on">
+                <ProcessRef name="AcidGasRemoval"/>
+
+                <StreamRef name="GasNode => AcidGasRemoval" />
+                <StreamRef name="AcidGasRemoval => PsaPreCompressor" />
+            </ProcessGroup>
+
+            <ProcessGroup name="agr_off">
+                <StreamRef name="GasNode => PsaPreCompressor" />
+            </ProcessGroup>
+        </ProcessChoice>
+
+        <ProcessChoice name="waste_gas_treatment">
+            <ProcessGroup name="vent">
+                <ProcessRef name="Venting"/>
+
+                <StreamRef name="PressureSwingAdsorption => Venting"/>
+<!--                #<StreamRef name="Ventin => ProductionBoundary"/>-->
+            </ProcessGroup>
+
+            <ProcessGroup name="flare">
+                <ProcessRef name="Flaring"/>
+
+                <StreamRef name="PressureSwingAdsorption => Flaring"/>
+            </ProcessGroup>
+
+            <ProcessGroup name="onsite_electricity_generation">
+                <ProcessRef name="OnsiteElectricityGeneration"/>
+
+                <StreamRef name="PressureSwingAdsorption => OnsiteElectricityGeneration"/>
+                <StreamRef name="OnsiteElectricityGeneration => GasReinjectionCompressor"/>
+                <StreamRef name="GasReinjectionCompressor => OnsiteElectricityGeneration"/>
+                <StreamRef name="GasReinjectionCompressor => GasReinjectionWell"/>
+            </ProcessGroup>
+
+            <ProcessGroup name="gas_reinjection">
+                <ProcessRef name="GasReinjectionCompressor" />
+			    <ProcessRef name="GasReinjectionWell" />
+
+                <StreamRef name="PressureSwingAdsorption => GasReinjectionCompressor"/>
+                <StreamRef name="GasReinjectionCompressor => GasReinjectionWell"/>
+            </ProcessGroup>
+        </ProcessChoice>
 
 		<Aggregator name="ExplorationAndDrilling">
 			<Process class="Exploration" after="true" />
@@ -57,10 +102,17 @@
 
 		<Aggregator name="SurfaceProcessing">
 			<Process class="WaterTreatment" />
+            <Process class="GasDehydration"/>
+            <Process class="GasNode"/>
+            <Process class="AcidGasRemoval"/>
+            <Process class="PsaPreCompressor" />
             <Process class="PressureSwingAdsorption" />
             <Process class="OnsiteElectricityGeneration"/>
+<!--            <Process class="OnsiteElectricityGeneration" cycle-start="true" />-->
             <Process class="GasReinjectionCompressor" />
 			<Process class="GasReinjectionWell" />
+            <Process class="Venting"/>
+            <Process class="Flaring"/>
 		</Aggregator>
 
 		<Stream src="Exploration" dst="Drilling">
@@ -68,6 +120,10 @@
 		</Stream>
 
 		<Stream src="Reservoir" dst="ReservoirWellInterface">
+			<Contains>oil</Contains>
+		</Stream>
+
+        <Stream src="ReservoirWellInterface" dst="Separation">
 			<Contains>oil</Contains>
 		</Stream>
 
@@ -83,11 +139,59 @@
 			<Contains>water</Contains>
 		</Stream>
 
-		<Stream src="Separation" dst="PressureSwingAdsorption">
+        <Stream src="WaterTreatment" dst="ProductionBoundary">
+			<Contains>water</Contains>
+		</Stream>
+
+<!--		<Stream src="Separation" dst="PsaPreCompressor">-->
+<!--			<Contains>gas</Contains>-->
+<!--		</Stream>-->
+
+         <Stream src="Separation" dst="GasDehydration">
+			<Contains>gas</Contains>
+		</Stream>
+
+        <Stream src="Separation" dst="GasNode">
+			<Contains>gas</Contains>
+		</Stream>
+
+        <Stream src="GasDehydration" dst="GasNode">
+			<Contains>gas</Contains>
+		</Stream>
+
+        <Stream src="GasNode" dst="AcidGasRemoval">
+			<Contains>gas</Contains>
+		</Stream>
+
+        <Stream src="AcidGasRemoval" dst="PsaPreCompressor">
+			<Contains>gas</Contains>
+		</Stream>
+
+        <Stream src="GasNode" dst="PsaPreCompressor">
+			<Contains>gas</Contains>
+		</Stream>
+
+        <Stream src="PsaPreCompressor" dst="PressureSwingAdsorption">
 			<Contains>gas</Contains>
 		</Stream>
 
         <Stream src="PressureSwingAdsorption" dst="OnsiteElectricityGeneration">
+			<Contains>gas</Contains>
+		</Stream>
+
+        <Stream src="PressureSwingAdsorption" dst="Venting">
+			<Contains>gas</Contains>
+		</Stream>
+
+<!--        <Stream src="Venting" dst="ProductionBoundary">-->
+<!--			<Contains>gas</Contains>-->
+<!--		</Stream>-->
+
+        <Stream src="PressureSwingAdsorption" dst="Flaring">
+			<Contains>gas</Contains>
+		</Stream>
+
+        <Stream src="PressureSwingAdsorption" dst="GasReinjectionCompressor">
 			<Contains>gas</Contains>
 		</Stream>
 
@@ -99,10 +203,15 @@
 			<Contains>gas</Contains>
 		</Stream>
 
-		<Stream src="GasReinjectionCompressor" dst="GasInjectionWell">
+        <Stream src="GasReinjectionCompressor" dst="OnsiteElectricityGeneration">
+			<Contains>iteration gas</Contains>
+		</Stream>
+
+		<Stream src="GasReinjectionCompressor" dst="GasReinjectionWell">
 			<Contains>gas</Contains>
 		</Stream>
 
 	</Field>
+
 
 </Model>

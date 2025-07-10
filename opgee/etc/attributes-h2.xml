@@ -8,9 +8,10 @@
      -->
 <Model schema_version="4.0.a">
   <AttrDefs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="opgee.xsd">
+
+
       <ClassAttrs name="PressureSwingAdsorption">
         <AttrDef name="flaring" type="binary" desc="flare waste gas treatment or not">0</AttrDef>
-        <AttrDef name="slip_rate" type="float" desc="Slip rate of pure H2 to waste gas">0.10</AttrDef>
       </ClassAttrs>
 
       <ClassAttrs name="Model">
@@ -36,7 +37,7 @@
         <Option label="20 year">20</Option>
         <Option label="100 year">100</Option>
       </Options>
-      <Options name="GWP version" default="AR5">
+      <Options name="GWP version" default="AR5_CCF">
         <Option>AR4</Option>
         <Option>AR5</Option>
         <Option label="AR5 with C-cycle feedback">AR5_CCF</Option>
@@ -73,6 +74,9 @@
 
     <ClassAttrs name="Field">
       <!-- Production methods -->
+      <AttrDef name="PSA_waste_gas_P" unit="psia" type="float">14.7</AttrDef>
+      <AttrDef name="PSA_waste_gas_T" unit="degF" type="float">32</AttrDef>
+      <AttrDef name="slip_rate" type="float" desc="Slip rate of pure H2 to waste gas">0.10</AttrDef>
       <AttrDef name="downhole_pump" type="binary" desc="Downhole pump">1</AttrDef>
       <AttrDef name="water_reinjection" type="binary" desc="Water reinjection">1</AttrDef>
       <AttrDef name="natural_gas_reinjection" type="binary" desc="Natural gas reinjection">1</AttrDef>
@@ -134,6 +138,7 @@
         <Option>None</Option>
       </Options>
 
+      <AttrDef name="gas_processing_path" desc="gas_processing_path" type="str">Acid Wet Gas</AttrDef>
       <AttrDef name="GOR" desc="Gas-to-oil ratio" unit="scf/bbl_oil" type="float">2429.3</AttrDef>
       <AttrDef name="WOR" desc="Water-to-oil ratio" unit="bbl_water/bbl_oil" type="float" GT="0">6.0</AttrDef>
       <AttrDef name="WIR" desc="Water injection ratio" unit="bbl_water/bbl_oil" type="float">7.0</AttrDef>
@@ -180,8 +185,34 @@
         <Option desc="Dilution">Dilution</Option>
       </Options>
 
+
+      <AttrDef name="downhole_pump_option" desc="Using downhole pump" type="str">downhole_pump_on</AttrDef>
+      <Options name="downhole_pump_option" default="downhole_pump_on">
+        <Option>downhole_pump_on</Option>
+        <Option>downhole_pump_off</Option>
+      </Options>
+
+        <AttrDef name="dehydrator_option" desc="Using dehydrator" type="str">dehydrator_on</AttrDef>
+      <Options name="dehydrator_option" default="dehydrator_on">
+        <Option>dehydrator_on</Option>
+        <Option>dehydrator_off</Option>
+      </Options>
+
+        <AttrDef name="agr_option" desc="Using AGR" type="str">agr_on</AttrDef>
+      <Options name="agr_option" default="agr_on">
+        <Option>agr_on</Option>
+        <Option>agr_off</Option>
+      </Options>
+
+        <AttrDef name="waste_gas_treatment" desc="what for waste gas treatment" type="str">vent</AttrDef>
+      <Options name="waste_gas_treatment" default="vent">
+        <Option>vent</Option>
+        <Option>flare</Option>
+        <Option>onsite_electricity_generation</Option>
+        <Option>gas_reinjection</Option>
+      </Options>
+
       <AttrDef name="upgrader_type" desc="Upgrader type" options="upgrader_type" type="str"/>
-      <AttrDef name="gas_processing_path" desc="Associated gas processing path" options="gas_processing_path" type="str"/>
       <AttrDef name="common_gas_process_choice" desc="Processes common to all gas pathways" options="common_gas_processes" type="str"/>
       <AttrDef name="FOR" unit="scf/bbl_oil" desc="Ratio of flaring to oil production" type="float">141.3</AttrDef>  <!-- TODO: Add smart default value using Zhang's lookup table -->
       <AttrDef name="frac_venting" unit="frac" desc="purposeful venting of post-flare gas" type="float">0.002</AttrDef>
@@ -386,6 +417,7 @@
       <AttrDef name="res_perm" unit="mD" desc="Reservoir permeability" type="float">100</AttrDef>
 
     </ClassAttrs>
+
     <ClassAttrs name="WaterInjection">
       <Options name="prime_mover_type" default="NG_engine">
         <Option>NG_engine</Option>
@@ -398,15 +430,19 @@
       <AttrDef name="press_pump" type="float" unit="psia" desc="Water reinjection pump characteristics Suction pressure">0.0</AttrDef>
       <AttrDef name="eta_pump" type="float" unit="percent" desc="Water reinjection pump characteristics Pump efficiency ">65.0</AttrDef>
     </ClassAttrs>
+
     <ClassAttrs name="FluidProduction">
       <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
     </ClassAttrs>
+
     <ClassAttrs name="FluidInjection">
       <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
     </ClassAttrs>
+
     <ClassAttrs name="BitumenMining">
       <AttrDef name="CH4_loss_rate" type="float" unit="scf/bbl" desc="Fugitive emissions rates from Baray et al. 2018. https://doi.org/10.5194/acp-18-7361-2018. Data from Table 2. Data collected in tonnes of CH4 per hour from each project">22.881511207</AttrDef>
     </ClassAttrs>
+
     <ClassAttrs name="MaintenanceAndWorkovers">
       <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
     </ClassAttrs>
@@ -430,6 +466,7 @@
       <AttrDef name="temperature_outlet" type="float" unit="degF" desc="Separator temperature (final if multi-stage)">90.0</AttrDef>
       <AttrDef name="eta_compressor" type="float" unit="percent" desc="Compressor efficiency">75.0</AttrDef>
     </ClassAttrs>
+
     <ClassAttrs name="CrudeOilDewatering">
       <Options name="prime_mover_type" default="NG_engine">
         <Option>NG_engine</Option>
@@ -443,6 +480,7 @@
       <AttrDef name="eta_electricity" type="float" unit="kWh/btu" desc="heater fuel use efficiency electricity">0.0004</AttrDef>
       <AttrDef name="heater_treater" type="binary" desc="Heater/treater">0</AttrDef>
     </ClassAttrs>
+
     <ClassAttrs name="WaterTreatment">
       <AttrDef name="fraction_disp_water_subsurface" unit="frac" type="float" desc="Fraction of excess water disposed in sub-surface" GE="0" LE="1">1.0</AttrDef>
       <AttrDef name="fraction_disp_water_surface" unit="frac" type="float" desc="Fraction of excess water disposed in surface waters" GE="0" LE="1">0.0</AttrDef>
@@ -453,6 +491,7 @@
       <AttrDef name="steam_quality_at_generator_outlet" unit="frac" type="float" desc="steam quality at generator outlet">0.7</AttrDef>
       <AttrDef name="steam_quality_after_blowdown" unit="frac" type="float" desc="desired steam quality after blowdown and recycle (if any)">0.7</AttrDef>
     </ClassAttrs>
+
     <ClassAttrs name="CrudeOilStabilization">
       <Options name="prime_mover_type" default="NG_engine">
         <Option>NG_engine</Option>
@@ -468,9 +507,11 @@
       <AttrDef name="eta_electricity" type="float" unit="kWh/btu" desc="heater fuel use efficiency electricity">0.0004</AttrDef>
       <AttrDef name="eta_compressor" type="float" unit="percent" desc="Compressor efficiency">75.0</AttrDef>
     </ClassAttrs>
+
     <ClassAttrs name="HeavyOilUpgrading">
       <AttrDef name="cogeneration_upgrading" type="binary">1</AttrDef>
     </ClassAttrs>
+
     <ClassAttrs name="SteamGeneration">
       <AttrDef name="steam_quality_outlet" type="float" unit="frac" desc="Steam quality at generator outlet">0.7</AttrDef>
       <AttrDef name="steam_quality_after_blowdown" type="float" desc="Desired steam quality after blowdown and recycle (if any)">0.7</AttrDef>
@@ -506,6 +547,7 @@
       <AttrDef name="before_diluent_press" unit="psia" type="float" desc="Standard pressure before dilution (for calculating volume at standard temperature)">14.7</AttrDef>
       <AttrDef name="fraction_diluent" unit="frac" desc="Volume fraction of diluent in diluted crude" type="float" GE="0" LE="1">0.0</AttrDef>
     </ClassAttrs>
+
     <ClassAttrs name="CrudeOilStorage">
       <AttrDef name="f_FG_CS_VRU" unit="percent" type="float" desc="storage gas recovery fraction" GE="0" LE="100">90.0</AttrDef>
       <AttrDef name="f_FG_CS_FL" unit="percent" type="float" desc="storage gas flare fraction" GE="0" LE="100">10.0</AttrDef>
@@ -754,9 +796,24 @@
       <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
     </ClassAttrs>
 
+    <ClassAttrs name="PsaPreCompressor">
+      <AttrDef name="prime_mover_type" type="str" options="prime_mover_type">Electric_motor</AttrDef>
+      <Options name="prime_mover_type" default="Electric_motor">
+        <Option>NG_engine</Option>
+        <Option>Electric_motor</Option>
+        <Option>Diesel_engine</Option>
+        <Option>NG_turbine</Option>
+      </Options>
+
+        <AttrDef name="suction_pressure" unit="psi" desc="PSA compressor inlet pressure" type="float">64.7</AttrDef>
+        <AttrDef name="discharge_pressure" unit="psi" desc="PSA compressor outlet pressure" type="float">464.7</AttrDef>
+    </ClassAttrs>
+
     <!-- Transport -->
     <ClassAttrs name="CrudeTransport">
       <AttrDef name="baz" type="int" unit="d" desc="xxx">1</AttrDef>
     </ClassAttrs>
   </AttrDefs>
+
+
 </Model>

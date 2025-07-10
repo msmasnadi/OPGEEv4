@@ -75,7 +75,7 @@ class GensimCommand(SubcommandABC):
         read_distributions(pathname=args.distributions)
 
         # TBD: do this instead
-        # param_list = ParameterList.load()
+        # param_list = ParameterList.load()Li
 
         analysis_name = args.analysis
         sim_dir = args.simulation_dir
