@@ -51,7 +51,7 @@ def read_fields(csv_path, from_package=False, skip_fields=None):
 
 
 def import_fields(csv_path, xml_path, analysis_name, count=0, skip_fields=None,
-                  modifies=DEFAULT_MODIFIES, from_package=False):
+                  modifies=DEFAULT_MODIFIES, from_package=False, use_group=True):
     """
     Import Field information from a CSV file.
 
@@ -77,7 +77,7 @@ def import_fields(csv_path, xml_path, analysis_name, count=0, skip_fields=None,
         p = Path(csv_path)
         analysis_name = p.name[:-(len(p.suffix))]
 
-    attr_to_xml(fields, dtypes, xml_path, analysis_name, modifies=modifies)
+    attr_to_xml(fields, dtypes, xml_path, analysis_name, modifies=modifies, use_group=use_group)
 
 
 class Csv2XmlCommand(SubcommandABC):
@@ -98,12 +98,15 @@ class Csv2XmlCommand(SubcommandABC):
         parser.add_argument('-f', '--format', choices=format_choices, default=default_format,
                             help=f'''Which type of conversion to perform. Default is "{default_format}".''')
 
-        parser.add_argument('-m', '--modifies', default=DEFAULT_MODIFIES,
-                            help=f'''The name to use in the <Field modifies="NAME"> element. 
-                            Default is "{DEFAULT_MODIFIES}"''')
+        parser.add_argument('-g', '--no_group', action='store_false', default=True, dest='use_group',
+                            help='''Use <FieldRef> instead of <Group> under <Analysis>''')
 
         parser.add_argument('-i', '--inputCSV', default=None, required=True,
                             help='''The pathname of the file to import''')
+
+        parser.add_argument('-m', '--modifies', default=DEFAULT_MODIFIES,
+                            help=f'''The name to use in the <Field modifies="NAME"> element. 
+                            Default is "{DEFAULT_MODIFIES}"''')
 
         parser.add_argument('-n', '--count', type=int, default=0,
                             help='''The number of rows to import from the CSV file. 
@@ -146,4 +149,4 @@ class Csv2XmlCommand(SubcommandABC):
             raise CommandlineError(f"Refusing to overwrite '{output_path}'; use --overwrite to override this.")
 
         import_fields(input_csv, output_xml, args.analysis, count=args.count,
-                      modifies=args.modifies, from_package=from_package, skip_fields=args.skipFields)
+                      modifies=args.modifies, from_package=from_package, skip_fields=args.skipFields, use_group=args.use_group)

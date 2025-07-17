@@ -95,9 +95,9 @@ class OnsiteElectricityGeneration(Process):
 
         # burn waste gas first
         percentage_waste_gas_burned = required_energy/electricity_rate_from_waste
-        self.field.save_process_data(percentage_waste_gas_burned=percentage_waste_gas_burned)
+        self.field.save_process_data(percentage_waste_gas_burned=percentage_waste_gas_burned if percentage_waste_gas_burned < 1 else 1)
 
-        emission_stream.add_combustion_CO2_from(waste_gas_in, (percentage_waste_gas_burned if percentage_waste_gas_burned < 1 else 1))
+        emission_stream.add_combustion_CO2_from(waste_gas_in, factor = (percentage_waste_gas_burned if percentage_waste_gas_burned < 1 else 1))
 
         waste_gas_in.multiply_flow_rates(1 - (percentage_waste_gas_burned if percentage_waste_gas_burned < 1 else 1))
 
@@ -110,8 +110,7 @@ class OnsiteElectricityGeneration(Process):
             electricity_rate_from_H2 = energy_flow_rate_from_H2 * self.efficiency  # mmbtu/day
             percentage_H2_burned = remaining_energy_needed / electricity_rate_from_H2
             em2 = Stream("emission_stream2", tp=H2_in.tp)
-            em2.add_combustion_CO2_from(H2_in, (
-                percentage_H2_burned if percentage_H2_burned < 1 else 1))
+            em2.add_combustion_CO2_from(H2_in, factor = (percentage_H2_burned if percentage_H2_burned < 1 else 1))
             emission_stream = combine_streams([emission_stream, em2])
 
         self.field.save_process_data(percentage_H2_burned=percentage_H2_burned)

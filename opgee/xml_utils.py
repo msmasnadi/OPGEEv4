@@ -66,7 +66,7 @@ def _find_proc_in_agg(process_name, aggs):
 
     return None
 
-def attr_to_xml(fields, dtypes, xml_path, analysis_name, modifies='default'):
+def attr_to_xml(fields, dtypes, xml_path, analysis_name, modifies='default', use_group = True):
     from lxml import etree as ET
     import numpy as np
 
@@ -76,8 +76,13 @@ def attr_to_xml(fields, dtypes, xml_path, analysis_name, modifies='default'):
     analysis = ET.SubElement(model, 'Analysis', attrib={'name' : analysis_name})
 
     # add <Group>all</Group> under <Analysis>
-    group = ET.SubElement(analysis, "Group")
-    group.text = "all"
+    if use_group:
+        group = ET.SubElement(analysis, "Group")
+        group.text = "all"
+    else:
+        for field_name, col in fields.items():
+            ET.SubElement(analysis, 'FieldRef',
+                                  attrib={'name': field_name})
 
     # we use this to look up enclosing <Aggregator> nodes for <Process> nodes
     template_field = _load_opgee_template(modifies)
@@ -89,8 +94,9 @@ def attr_to_xml(fields, dtypes, xml_path, analysis_name, modifies='default'):
                               attrib={'name' : field_name, 'modifies' : modifies})
 
         # Add Group declaration to <Field> as well
-        group = ET.SubElement(field, 'Group')
-        group.text = 'all'
+        if use_group:
+            group = ET.SubElement(field, 'Group')
+            group.text = 'all'
 
         proc_dict = {}  # remember process elements created for attributes within each field
         agg_dict = {}   # same for aggregators we create

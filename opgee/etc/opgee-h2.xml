@@ -73,6 +73,8 @@
 
             <ProcessGroup name="onsite_electricity_generation">
                 <ProcessRef name="OnsiteElectricityGeneration"/>
+                <ProcessRef name="GasReinjectionCompressor" />
+			    <ProcessRef name="GasReinjectionWell" />
 
                 <StreamRef name="PressureSwingAdsorption => OnsiteElectricityGeneration"/>
                 <StreamRef name="OnsiteElectricityGeneration => GasReinjectionCompressor"/>
@@ -95,7 +97,7 @@
 		</Aggregator>
 
 		<Aggregator name="ProductionExtraction">
-			<Process class="ReservoirWellInterface" cycle-start="true" />
+			<Process class="ReservoirWellInterface"/>
 			<Process class="DownholePump" />
 			<Process class="Separation" impute-start="true" />
 		</Aggregator>
@@ -107,8 +109,7 @@
             <Process class="AcidGasRemoval"/>
             <Process class="PsaPreCompressor" />
             <Process class="PressureSwingAdsorption" />
-            <Process class="OnsiteElectricityGeneration"/>
-<!--            <Process class="OnsiteElectricityGeneration" cycle-start="true" />-->
+            <Process class="OnsiteElectricityGeneration" cycle-start="true" />
             <Process class="GasReinjectionCompressor" />
 			<Process class="GasReinjectionWell" />
             <Process class="Venting"/>

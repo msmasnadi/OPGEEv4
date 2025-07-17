@@ -107,6 +107,15 @@ def read_distributions(pathname=None):
 
             rv = get_frozen_rv("uniform", min=low, max=high)
 
+        elif shape == "integers":
+            if low == high:
+                _logger.info(
+                    f"* Ignoring distribution on {name}, Integers high and low bounds are both {low}"
+                )
+                continue
+
+            rv = get_frozen_rv("integers", min=low, max=high)
+
         elif shape == "triangular":
             if low == high:
                 _logger.info(
