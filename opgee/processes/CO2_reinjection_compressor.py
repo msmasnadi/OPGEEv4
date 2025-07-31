@@ -6,7 +6,7 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-from .. import ureg
+from ..units import ureg
 from ..emissions import EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
@@ -24,7 +24,7 @@ class CO2ReinjectionCompressor(Process):
         - gas for CO2 compressor: The inlet stream of CO2 gas to the compressor.
 
         Outputs:
-        - gas for CO2 injection well: The outlet stream of CO2 gas that is reinjected into the reservoir.
+        - gas: The outlet stream of CO2 gas that is reinjected into the reservoir.
 
         Attributes:
         - res_press: The reservoir pressure in psia.
@@ -34,6 +34,15 @@ class CO2ReinjectionCompressor(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "gas for CO2 compressor",   # might be multiple
+        ]
+
+        self._required_outputs = [
+            "gas",
+        ]
 
         self.res_press = None
         self.eta_compressor = None
@@ -68,15 +77,16 @@ class CO2ReinjectionCompressor(Process):
         input_streams = self.find_input_streams("gas for CO2 compressor")
         for _, input_stream in input_streams.items():
             overall_compression_ratio = discharge_press / input_stream.tp.P
-            energy_consumption, out_temp, _ = Compressor.get_compressor_energy_consumption(field,
-                                                                                       self.prime_mover_type,
-                                                                                       self.eta_compressor,
-                                                                                       overall_compression_ratio,
-                                                                                       input_stream)
+            energy_consumption, out_temp, _ = \
+                Compressor.get_compressor_energy_consumption(field,
+                                                             self.prime_mover_type,
+                                                             self.eta_compressor,
+                                                             overall_compression_ratio,
+                                                             input_stream)
             total_energy_consumption += energy_consumption
 
         # Set output stream and iteration value
-        gas_to_well = self.find_output_stream("gas for CO2 injection well")
+        gas_to_well = self.find_output_stream("gas")
         gas_to_well.copy_flow_rates_from(input)
         gas_to_well.subtract_rates_from(gas_fugitives)
         gas_to_well.tp.set(T=out_temp, P=discharge_press)

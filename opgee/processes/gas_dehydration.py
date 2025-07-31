@@ -8,7 +8,7 @@
 #
 import numpy as np
 
-from .. import ureg
+from ..units import ureg
 from ..emissions import EM_FUGITIVES
 from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY
 from ..error import OpgeeException
@@ -44,12 +44,6 @@ class GasDehydration(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
-        model = self.field.model
-
-        self.gas_dehydration_tbl = model.gas_dehydration_tbl
-        self.mol_to_scf = model.const("mol-per-scf")
-        self.air_elevation_const = model.const("air-elevation-corr")
-        self.air_density_ratio = model.const("air-density-ratio")
 
         self.gas_path_dict = {"Minimal": "gas for gas partition",
                               "Acid Gas": "gas for AGR",
@@ -58,6 +52,22 @@ class GasDehydration(Process):
                               "CO2-EOR Ryan Holmes": "gas for Ryan Holmes",
                               "Sour Gas Reinjection": "gas for sour gas compressor",
                               "Wet Gas": "gas for demethanizer"}
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "gas for gas dehydration",
+        ]
+
+        self._required_outputs = [
+            self.gas_path_dict[self.field.gas_path],
+        ]
+
+        model = self.field.model
+
+        self.gas_dehydration_tbl = model.gas_dehydration_tbl
+        self.mol_to_scf = model.const("mol-per-scf")
+        self.air_elevation_const = model.const("air-elevation-corr")
+        self.air_density_ratio = model.const("air-density-ratio")
 
         self.air_cooler_delta_T = None
         self.air_cooler_fan_eff = None

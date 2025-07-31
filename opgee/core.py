@@ -10,35 +10,9 @@ import pint
 import time
 import datetime
 
-from . import ureg
-from .error import OpgeeException, AbstractMethodError
-from .log import getLogger
+from .units import ureg, validate_unit
+from .error import OpgeeException, AbstractMethodError, ModelValidationError
 from .utils import coercible, getBooleanXML
-
-_logger = getLogger(__name__)
-
-def magnitude(value, units=None):
-    """
-    Return the magnitude of ``value``. If ``value`` is a ``pint.Quantity`` and
-    ``units`` is not None, check that ``value`` has the expected units and
-    return the magnitude of ``value``. If ``value`` is not a ``pint.Quantity``,
-    just return it.
-
-    :param value: (float or pint.Quantity) the value for which we return the magnitude.
-    :param units: (None or pint.Unit) the expected units
-    :return: the magnitude of `value`
-    """
-    if isinstance(value, ureg.Quantity):
-        # if optional units are provided, validate them
-        if units:
-            if not isinstance(units, pint.Unit):
-                units = ureg.Unit(units)
-            if value.units != units:
-                raise OpgeeException(f"magnitude: value {value} units are not {units}")
-
-        return value.m
-    else:
-        return value
 
 
 def name_of(obj):
@@ -157,6 +131,22 @@ class XmlInstantiable(OpgeeObject):
         name_str = f' name="{self.name}"' if self.name else ''
         return f'<{type_str}{name_str} enabled={self.enabled}>'
 
+    def print_in_context(self):
+        """
+        Print the object along with its parents, to provide context.
+
+        :return: none
+        """
+        obj = self
+        seq = [obj]
+        while ((obj := obj.parent) is not None):
+            seq.insert(0, obj)
+
+        indent = 0
+        for obj in seq:
+            print("  " * indent, obj)
+            indent += 1
+
     def is_enabled(self):
         return self.enabled
 
@@ -166,7 +156,7 @@ class XmlInstantiable(OpgeeObject):
     def adopt(self, objs, asDict=False):
         """
         Set the `parent` of each object to self. This is used to create back pointers
-        up the hieararchy so Processes and Streams can find their Field and Analysis
+        up the hierarchy so Processes and Streams can find their Field and Analysis
         containers. Return the objects either as a list or dict.
 
         :param objs: (None or list of XmlInstantiable)
@@ -176,11 +166,17 @@ class XmlInstantiable(OpgeeObject):
             otherwise return the objs either in a list or dict.
         """
         objs = [] if objs is None else objs
+        dct = {}
 
         for obj in objs:
+            if (existing := dct.get(obj.name)):
+                obj.print_in_context()
+                existing.print_in_context()
+                raise ModelValidationError(f"Tried to adopt {obj} which is a duplicate of {existing}.")
+            dct[obj.name] = obj
             obj.set_parent(self)
 
-        return {obj.name: obj for obj in objs} if asDict else objs
+        return dct if asDict else objs
 
     def find_container(self, cls):
         """
@@ -197,32 +193,6 @@ class XmlInstantiable(OpgeeObject):
             return None
 
         return self.parent.find_container(cls)  # recursively ascend the graph
-
-
-# to avoid redundantly reporting bad units
-_undefined_units = {}
-
-
-def validate_unit(unit):
-    """
-    Return the ``pint.Unit`` associated with the string ``unit``, or ``None``
-    if ``unit`` is ``None`` or not in the unit registry.
-
-    :param unit: (str) a string representation of a ``pint.Unit``
-
-    :return: (pint.Unit or None)
-    """
-    if not unit:
-        return None
-
-    if unit in ureg:
-        return ureg.Unit(unit)
-
-    if unit not in _undefined_units:
-        _logger.warning(f"Unit '{unit}' is not in the UnitRegistry")
-        _undefined_units[unit] = 1
-
-    return None
 
 
 class A(OpgeeObject):

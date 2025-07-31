@@ -36,6 +36,16 @@ class CrudeOilStabilization(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "oil for stabilization",
+        ]
+
+        self._required_outputs = [
+            "gas",
+            "oil for storage",
+        ]
+
         self.eps_stab = None
         self.eta_compressor = None
         self.eta_electricity = None
@@ -91,7 +101,7 @@ class CrudeOilStabilization(Process):
         gas_removed_molar_rate = gas_removed_by_stabilizer * self.mol_per_scf * oil.gas_comp  # Pandas Series
         gas_removed_mass_rate = oil.component_MW[gas_removed_molar_rate.index] * gas_removed_molar_rate
 
-        output_stab_gas = self.find_output_stream("gas for gas gathering")
+        output_stab_gas = self.find_output_stream("gas")
         gas_tp_after_separation = field.get_process_data("gas_tp_after_separation")
         if gas_tp_after_separation is None:
             gas_tp_after_separation = input.tp

@@ -7,7 +7,7 @@
 # See LICENSE.txt for license details.
 #
 import math
-from .. import ureg
+from ..units import ureg
 from ..emissions import EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
@@ -19,6 +19,17 @@ _logger = getLogger(__name__)
 class GasGathering(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "gas"
+        ]
+
+        self._required_outputs = [
+            ("gas for gas dehydration",
+             "gas for gas partition")
+        ]
+
         self.site_fugitive_breakdown = self.model.site_fugitive_processing_unit_breakdown
 
         self.site_fugitive_intercept = None
@@ -38,11 +49,11 @@ class GasGathering(Process):
         self.print_running_msg()
         field = self.field
 
-        if not self.all_streams_ready("gas for gas gathering"):
+        if not self.all_streams_ready("gas"):
             return
 
         # mass_rate
-        input = self.find_input_streams("gas for gas gathering", combine=True)
+        input = self.find_input_streams("gas", combine=True)
         if input.is_uninitialized():
             return
 

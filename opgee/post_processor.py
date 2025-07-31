@@ -13,13 +13,51 @@ from .error import AbstractMethodError, McsUserError
 
 class PostProcessor(OpgeeObject):
     """
-    Abstract base class for post-processing plugins. Subclasses must implement
-    the ``run`` method to perform the post-processing, and they can optionally
-    implement the ``save`` method to save the post-processed data to a file.
+    Abstract base class for post-processing plugins.
+
+    Post-processing plugins provide users a way to collect model results,
+    perform custom processing on them from within the ``opgee`` model, and
+    to save those results in CSV files.
+
+    To implement a post-processing plugin:
+
+    1. Create a subclass of ``PostProcessor`` and implement the required
+       ``run`` method, and optionally, the ``save`` method.
+
+    2. Set the configuration variable ``OPGEE.PostProcPluginPath`` to the
+       directory in which to find post-processing plugins. The value is a
+       semicolon-delimited (on Windows) or colon-delimited (on macOS/Linux)
+       string of directories from which to load files. Files are loaded in
+       alphabetical order from each directory in the order given. Plugins
+       are loaded by the ``opg run`` subcommand before running any fields,
+       by calling ``PostProcessor.load_all_plugins()``
+
+       Note that the loading and running of post-processors can be defeated
+       by passing ``--no-post-plugin-path`` to the ``opg run`` subcommand.
+
+    Post-processing plugins are run immediately after results are returned
+    from running a ``Field``, in the method ``Field.get_result()``, by calling
+    ``PostProcessor.run_post_processors(analysis: Analysis, self: Field, result: FieldResult)``,
+    which calls the ``run()`` method on each plugin, in alphabetical order
+    from each directory in the order specified in config variable
+    ``OPGEE.PostProcPluginPath``.
+
+
+    Subclasses must implement the ``run`` method to perform the post-processing,
+    and they can optionally implement the ``save`` method to save the post-processed
+    data to a file.
+
+    The following is an example of a simple post-processing plugin, implemented
+    as part of the ``opgee`` testing subsystem.
+
+    .. literalinclude:: ../../tests/files/simple_post_processor.py
+       :language: python
     """
 
     # List subclass instances in order defined on the command-line
     instances = []
+    
+    _plugins_loaded: bool = False
 
     def __init__(self):
         pass
@@ -88,9 +126,12 @@ class PostProcessor(OpgeeObject):
         module = loadModuleFromPath(path)
 
         # Find the class, create an instance, and store it in cls.instances
-        for name, subcls in inspect.getmembers(module):
+        for _, subcls in inspect.getmembers(module):
             # Subclasses import PostProcessor, but we want only proper subclasses, not PostProcessor
             if subcls != PostProcessor and inspect.isclass(subcls) and issubclass(subcls, PostProcessor):
+                # ensure that only one instance of a given class is registered
+                if any((isinstance(inst, subcls) for inst in cls.instances)):
+                    continue
                 instance = subcls()
                 cls.instances.append(instance)
                 return instance
@@ -118,21 +159,24 @@ class PostProcessor(OpgeeObject):
 
         :return: nothing
         """
-        if not (dirs := cls._getPluginDirs()):
+        if not (dirs := cls._getPluginDirs()) or cls._plugins_loaded:
             return
 
         for dir in dirs:
             files = sorted(glob.glob(os.path.join(dir, '*.py')))
             for file in files:
                 cls.load_plugin(file)
+        cls._plugins_loaded = True
 
     @classmethod
     def run_post_processors(cls, analysis, field, result):
+        cls.load_all_plugins()
         for instance in cls.instances:
             instance.run(analysis, field, result)
 
     @classmethod
     def save_post_processor_results(cls, output_dir):
+        cls.load_all_plugins()
         for instance in cls.instances:
             instance.save(output_dir)
             instance.clear()

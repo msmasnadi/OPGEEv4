@@ -1,10 +1,10 @@
 import os
 import pytest
 
-from opgee import ureg
+from opgee.units import ureg
 from opgee.error import OpgeeException
 from opgee.utils import (getBooleanXML, coercible, mkdirs, loadModuleFromPath,
-                         removeTree, parseTrialString, getResource)
+                         removeTree, parseTrialString)
 from .utils_for_tests import tmpdir
 
 @pytest.mark.parametrize(
@@ -75,9 +75,3 @@ def test_trial_string():
 
     with pytest.raises(ValueError):
         parseTrialString(s + 'junk')
-
-def test_getResource():
-    x = getResource('etc/units.txt')
-
-    with pytest.raises(OpgeeException):
-        getResource('not/a/real/resource')

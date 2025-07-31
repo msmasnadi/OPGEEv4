@@ -6,7 +6,7 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-from .. import ureg
+from ..units import ureg
 from ..emissions import EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
@@ -44,6 +44,17 @@ class CrudeOilStorage(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "oil for storage",
+        ]
+
+        self._required_outputs = [
+            "gas for partition",
+            "gas for VRU",
+            "oil",
+        ]
 
         self.CH4_comp = None
         self.f_FG_CS_FL = None

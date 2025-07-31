@@ -9,9 +9,11 @@
 <Model schema_version="4.0.a">
   <AttrDefs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="opgee.xsd">
     <ClassAttrs name="Model">
+      <!-- Allow test XML to skip Process and Stream validation -->
+      <AttrDef name="skip_validation" type="binary" desc="Skip validation step">0</AttrDef>
+
       <!-- Maximum number of iterations for process loops -->
       <AttrDef name="maximum_iterations" type="int">100</AttrDef>
-      <AttrDef name="iteration_tolerance" type="float">0.000001</AttrDef>
 
       <!-- Change threshold for iteration loops. Requires a Process to set a change variable. -->
       <AttrDef name="maximum_change" type="float">0.001</AttrDef>
@@ -142,6 +144,7 @@
       <AttrDef name="gas_pressure_after_boosting" type="float" unit="psia" desc="Separator gas outlet pressure after boosting compressors">500</AttrDef>
       <AttrDef name="friction_factor" type="float" unit="frac" desc="wellbore friction factor">0.02</AttrDef>
       <AttrDef name="AGR_feedin_press" type="float" unit="psia">500.0</AttrDef>
+      <AttrDef name="has_grid_mix" type="binary" desc="user has grid mix data">0</AttrDef>
 
       <!-- Processing practices -->
       <Options name="upgrader_type" default="None">
@@ -346,8 +349,8 @@
       <AttrDef name="is_REC" type="str" desc="Fracturing flowback captured with reduced emissons completions?">Yes</AttrDef>
       <AttrDef name="frac_well_fractured" type="float" unit="frac" desc="Fraction of wells fractured">0.0</AttrDef>
 
-
     </ClassAttrs>
+
     <ClassAttrs name="SurveyTruck">
       <AttrDef name="distance" type="float" desc="Distance of travel for survey" unit="mi">10000</AttrDef>
       <AttrDef name="weight" type="float" desc="Weight of land survey vehicle" unit="tons">25</AttrDef>

@@ -24,6 +24,17 @@ class TransmissionCompressor(Process):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "gas",
+        ]
+
+        self._required_outputs = [
+            "gas for storage",
+            "LNG",
+            "gas for distribution",
+        ]
+
         self.eta_compressor = None
         self.gas_to_storage_frac = None
         self.loss_rate = None
@@ -52,7 +63,7 @@ class TransmissionCompressor(Process):
     def run(self, analysis):
         self.print_running_msg()
 
-        input = self.find_input_stream("gas for transmission")
+        input = self.find_input_stream("gas")
 
         if input.is_uninitialized():
             return
@@ -64,7 +75,7 @@ class TransmissionCompressor(Process):
         num_compressor_stations = math.ceil(self.transmission_dist / self.transmission_freq)
 
         # initial compressor properties
-        overall_compression_ratio_init = station_outlet_press / input.tp.P
+        overall_compression_ratio_init = station_outlet_press.to("psi_absolute") / input.tp.P
         energy_consumption_init, output_temp_init, output_press_init = \
             Compressor.get_compressor_energy_consumption(
                 self.field,
@@ -74,7 +85,7 @@ class TransmissionCompressor(Process):
                 input)
 
         # Along-pipeline booster compressor properties
-        overall_compression_ratio_booster = station_outlet_press / self.transmission_inlet_press
+        overall_compression_ratio_booster = station_outlet_press.to("psi_absolute") / self.transmission_inlet_press
         energy_consumption_booster, output_temp_booster, output_press_booster = \
             Compressor.get_compressor_energy_consumption(
                 self.field,

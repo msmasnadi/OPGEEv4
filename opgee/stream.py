@@ -13,9 +13,9 @@ import pandas as pd
 import pint
 import pint_pandas
 
-from . import ureg
+from .units import ureg, magnitude
 from .attributes import AttributeMixin
-from .core import XmlInstantiable, elt_name, magnitude, TemperaturePressure
+from .core import XmlInstantiable, elt_name, TemperaturePressure
 from .error import OpgeeException, ModelValidationError
 from .log import getLogger
 from .table_manager import TableManager
@@ -144,6 +144,8 @@ class Stream(AttributeMixin, XmlInstantiable):
     _extensions = {}
 
     _units = ureg.Unit("tonne/day")
+    
+    tp: TemperaturePressure
 
     def __init__(
         self,
@@ -164,8 +166,6 @@ class Stream(AttributeMixin, XmlInstantiable):
         self.components = (
             self.create_component_matrix() if comp_matrix is None else comp_matrix
         )
-
-        self.electricity = ureg.Quantity(0.0, "kWh/day")
 
         self.tp = copy(tp)
 
@@ -194,8 +194,8 @@ class Stream(AttributeMixin, XmlInstantiable):
 
     def to_dataframe(self):
         """
-        Converts the data for the stream, including stream name, electricity flows,
-        temperature, pressure, and API to a long-format DataFrame for writing CSV files.
+        Converts the data for the stream, including stream name, temperature, pressure,
+        and API to a long-format DataFrame for writing CSV files.
 
         :return: (pd.DataFrame) data series
         """
@@ -216,8 +216,7 @@ class Stream(AttributeMixin, XmlInstantiable):
 
         columns = ["phase", "component", "value", "units"]
 
-        items = [('electricity', self.electricity),
-                 ('T', self.tp.T),
+        items = [('T', self.tp.T),
                  ('P', self.tp.P),
                  ('API', self.API)]
 
@@ -498,23 +497,6 @@ class Stream(AttributeMixin, XmlInstantiable):
             series * self.components.loc[series.index, phase]
         )
 
-    def set_electricity_flow_rate(self, rate):
-        """
-        Set the electricity flow rate.
-
-        :param rate: (pint.Quantity) the flow rate (energy per day)
-        :return: none
-        """
-        self.electricity = rate
-
-    def electricity_flow_rate(self):
-        """
-        Get the electricity flow rate.
-
-        :return: (pint.Quantity) the flow rate (energy per day)
-        """
-        return self.electricity
-
     def set_tp(self, tp):
         """
         Set the stream's temperature and pressure, unless the pressure is zero,
@@ -554,7 +536,6 @@ class Stream(AttributeMixin, XmlInstantiable):
             self.components[self.components.columns] = stream.components
 
         self.API = API or stream.API
-        self.electricity = stream.electricity
         self.tp.copy_from(tp or stream.tp)
 
         self.initialized = True
@@ -594,18 +575,9 @@ class Stream(AttributeMixin, XmlInstantiable):
         self.initialized = True
         self.components[PHASE_LIQUID] = stream.components[PHASE_LIQUID]
 
-    def copy_electricity_rate_from(self, stream):
-        """
-        Copy electricity flow rate from `stream` to `self`
-
-        :param stream: (Stream) to copy electricity from
-        :return: none
-        """
-        self.electricity = stream.electricity
-
     def multiply_flow_rates(self, factor):
         """
-        Multiply all our mass flow and electricity rates by `factor`.
+        Multiply all our mass flow rates by `factor`.
 
         :param factor: (float) the value to multiply by
         :return: none
@@ -615,7 +587,6 @@ class Stream(AttributeMixin, XmlInstantiable):
 
         multiplier = magnitude(factor, "fraction")
         self.components *= multiplier
-        self.electricity *= multiplier
 
     def add_flow_rate(self, name, phase, rate):
         """
@@ -630,7 +601,7 @@ class Stream(AttributeMixin, XmlInstantiable):
 
     def add_flow_rates_from(self, stream):
         """
-        Add the mass flow rates and electricity rate from `stream` to our own.
+        Add the mass flow rates from `stream` to our own.
 
         :param stream: (Stream) the source of the rates to add
         :return: none
@@ -640,7 +611,6 @@ class Stream(AttributeMixin, XmlInstantiable):
 
         self.initialized = True
         self.components += stream.components
-        self.electricity += stream.electricity
 
     def subtract_rates_from(self, stream, phase=PHASE_GAS):
         """
@@ -683,14 +653,18 @@ class Stream(AttributeMixin, XmlInstantiable):
         self.set_flow_rate("CO2", PHASE_GAS, rate)  # sets initialized flag
         return rate
 
-    def contains(self, stream_type):
+    def contains(self, stream_type, regex=False):
         """
         Return whether ``stream_type`` is one of named contents of ``self``.
 
         :param stream_type: (str) a symbolic name for contents of `stream`
+        :param regex (bool) whether to interpret `stream_type` as a regular expression
         :return: (bool) True if `stream_type` is among the contents of `stream`
         """
-        return stream_type in self.contents
+        if regex:
+            return any(re.fullmatch(stream_type, name) for name in self.contents)
+        else:
+            return stream_type in self.contents
 
     @classmethod
     def from_xml(cls, elt, parent=None):

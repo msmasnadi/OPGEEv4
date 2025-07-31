@@ -33,4 +33,5 @@ Supporting Modules
 
    opgee.config
    opgee.subcommand
+   opgee.units
    opgee.utils

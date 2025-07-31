@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
+	<A name="skip_validation">1</A>
+
 	<Analysis name="test">
 		<A name="functional_unit">oil</A>
 		<FieldRef name="test_single_loop"/>
@@ -19,12 +21,12 @@
 			<Component name="oil" phase="liquid">100</Component>
 			<Component name="H2O" phase="liquid">80</Component>
 			<Component name="C1" phase="gas">200</Component>
-			<Contains>crude oil</Contains>
+			<Contains>oil</Contains>
 		</Stream>
 
 		<!-- Creates a process loop -->
 		<Stream src="LoopProc2" dst="LoopProc3">
-			<Contains>crude oil</Contains>
+			<Contains>oil</Contains>
 		</Stream>
 
 		<Stream src="LoopProc3" dst="LoopProc2">
@@ -52,12 +54,12 @@
 			<Component name="oil" phase="liquid">100</Component>
 			<Component name="H2O" phase="liquid">80</Component>
 			<Component name="C1" phase="gas">200</Component>
-			<Contains>crude oil</Contains>
+			<Contains>oil</Contains>
 		</Stream>
 
 		<!-- Creates a process loop -->
 		<Stream src="LoopProc2" dst="LoopProc3">
-			<Contains>crude oil</Contains>
+			<Contains>oil</Contains>
 		</Stream>
 
 		<Stream src="LoopProc3" dst="LoopProc2">

@@ -1,7 +1,7 @@
 import pytest
 from opgee.error import OpgeeException
 from opgee.process import Process
-from opgee import ureg
+from opgee.units import ureg
 
 from .utils_for_tests import load_test_model
 
@@ -17,6 +17,16 @@ class Proc2(Process):
 
 
 class Proc3(Process):
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
+
+        self._required_inputs = [
+            self.valdict(r'.*gas.*', min=2, max=2),
+        ]
+        self._required_outputs = [
+            "CO2",
+        ]
+
     def run(self, analysis):
         pass
 
@@ -68,15 +78,18 @@ def test_find_stream(stream_model):
     with pytest.raises(OpgeeException, match=f".*both 'combine' and 'as_list' cannot be True"):
         proc3.find_output_streams('hydrogen', as_list=True, combine=True)
 
-    streams = proc3.find_input_streams('natural gas', as_list=False)
+    streams = proc3.find_input_streams('gas.*', as_list=False, regex=True)
     assert streams and type(streams) == dict
 
-    streams = proc3.find_input_streams('natural gas', as_list=True)
+    streams = proc3.find_input_streams('gas.*', as_list=True, regex=True)
     assert streams and type(streams) == list
 
     with pytest.raises(OpgeeException, match=f".*no input streams contain '{bad_name}'"):
         proc3.find_input_streams(bad_name, combine=False, as_list=False, raiseError=True)
 
+    bad_regex = r'foo.*'
+    with pytest.raises(OpgeeException, match=f".*no input streams contain '{bad_regex}'"):
+        proc3.find_input_streams(bad_regex, combine=False, as_list=False, regex=True, raiseError=True)
 
 def test_initialization(stream_model):
     analysis = stream_model.get_analysis('test')
@@ -123,30 +136,4 @@ def test_stream_utils(stream_model):
     # check that T & P are unchanged
     s.tp.T.m == 100.0
     s.tp.P.m == 200.0
-
-
-def test_electricity(stream_model):
-    from copy import copy
-
-    analysis = stream_model.get_analysis('test')
-    field = analysis.get_field('test')
-
-    # copy so we don't alter model, in case we add more tests after this
-    stream = copy(field.find_stream('initialized'))
-
-    assert stream.electricity_flow_rate() == ureg.Quantity(0.0, "kWh/day")
-
-    rate = ureg.Quantity(100.00, "kWh/day")
-    stream.set_electricity_flow_rate(rate)
-    assert stream.electricity_flow_rate() == rate
-
-    factor = 3
-    stream.multiply_flow_rates(factor)
-    assert stream.electricity_flow_rate() == rate * factor
-
-    stream2 = copy(stream)
-    stream.add_flow_rates_from(stream2)
-    assert stream.electricity_flow_rate() == rate * factor * 2
-
-    stream2.copy_electricity_rate_from(stream)
-    assert stream2.electricity_flow_rate() == stream.electricity_flow_rate()
+    

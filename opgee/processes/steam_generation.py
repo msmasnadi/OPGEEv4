@@ -6,7 +6,7 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-from .. import ureg
+from ..units import ureg
 from ..core import TemperaturePressure
 from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY
 from ..error import BalanceError
@@ -23,9 +23,26 @@ tolerance = 0.01
 
 
 class SteamGeneration(Process):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # TODO: this process disables itself under certain circumstances.
+        #  As noted in a comment below, this is undesirable behavior since
+        #  it silently edits the user's model. Rethink how to handle this.
+        #  In the meantime, it requires special processing below:
+        field = self.field
+        if field.steam_flooding == 1 and field.SOR != 0:
+            self._required_inputs = [
+                "produced water",
+                "makeup water"
+            ]
+
+            self._required_outputs = [
+                "water",
+            ]
+        else:
+            self._required_inputs = []
+            self._required_outputs = []
 
         self.SOR = None
         self.eta_air_blower_HRSG = None
@@ -104,8 +121,8 @@ class SteamGeneration(Process):
 
         # mass rate
 
-        input_prod_water = self.find_input_stream("produced water for steam generation")
-        input_makeup_water = self.find_input_stream("makeup water for steam generation")
+        input_prod_water = self.find_input_stream("produced water")
+        input_makeup_water = self.find_input_stream("makeup water")
         if input_prod_water.is_uninitialized() and input_makeup_water.is_uninitialized():
             return
 
@@ -128,7 +145,7 @@ class SteamGeneration(Process):
 
         recycled_blowdown_water = blowdown_water_mass_rate * self.fraction_blowdown_recycled
 
-        recycled_water_stream = self.find_output_stream("recycled water")
+        recycled_water_stream = self.find_output_stream("water")
         recycled_water_stream.set_liquid_flow_rate("H2O",
                                                    recycled_blowdown_water.to("tonne/day"),
                                                    tp=self.waste_water_reinjection_tp)

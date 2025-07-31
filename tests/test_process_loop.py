@@ -1,4 +1,4 @@
-from opgee import ureg
+from opgee.units import ureg
 from opgee.stream import Stream, PHASE_LIQUID
 from opgee.process import Process
 from .utils_for_tests import load_test_model
@@ -9,19 +9,19 @@ class LoopProc1(Process):
         # find appropriate streams by checking connected processes' capabilities
         oil_flow_rate = ureg.Quantity(100.0, Stream.units())
 
-        out_stream = self.find_output_stream('crude oil')
+        out_stream = self.find_output_stream('oil')
         out_stream.set_liquid_flow_rate('oil', oil_flow_rate)
 
 
 class LoopProc2(Process):
     def run(self, analysis):
-        crude_oil = self.find_input_stream('crude oil')
+        crude_oil = self.find_input_stream('oil')
         recycled_water = self.find_input_stream("water")
 
         if crude_oil.is_uninitialized() and recycled_water.is_uninitialized():
             return
 
-        output = self.find_output_stream("crude oil")
+        output = self.find_output_stream("oil")
         output.copy_flow_rates_from(crude_oil)
         output.set_liquid_flow_rate("H2O", recycled_water.liquid_flow_rate("H2O"))
         self.set_iteration_value(output.total_flow_rate())
@@ -29,7 +29,7 @@ class LoopProc2(Process):
 
 class LoopProc3(Process):
     def run(self, analysis):
-        input = self.find_input_stream("crude oil")
+        input = self.find_input_stream("oil")
         if input.is_uninitialized():
             return
         water = input.liquid_flow_rate("H2O")

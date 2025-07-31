@@ -10,18 +10,11 @@ import networkx as nx
 import pint
 import pandas as pd
 
-from . import ureg
+from .units import ureg
 from .config import getParamAsList
-from .constants import (
-    SIMPLE_RESULT,
-    DETAILED_RESULT,
-    ERROR_RESULT,
-    DEFAULT_RESULT_TYPE,
-    USER_RESULT_TYPES,
-    ALL_RESULT_TYPES,
-)
+from .constants import DETAILED_RESULT
 from .container import Container
-from .core import elt_name, instantiate_subelts, dict_from_list, STP, magnitude
+from .core import elt_name, instantiate_subelts, dict_from_list, STP
 from .energy import Energy
 from .error import (
     OpgeeException,
@@ -163,6 +156,8 @@ class Field(Container):
         #       other programmers (and PyCharm) recognize them as proper instance variables and
         #       not random values set in other methods.
         self.upstream_CI = model.upstream_CI
+        self.grid_mix_EF = model.grid_mix_EF
+        self.grid_mix_feed = model.grid_mix_feed
         self.vertical_drill_df = model.vertical_drill_df
         self.horizontal_drill_df = model.horizontal_drill_df
         self.imported_gas_comp = model.imported_gas_comp
@@ -239,6 +234,7 @@ class Field(Container):
         self.WOR = None
         self.transport_energy = None
         self.steam_generator = None
+        self.has_grid_mix = None
 
         # Cache attribute values and call initializers that depend on them
         self.cache_attributes()
@@ -308,6 +304,7 @@ class Field(Container):
         self.well_complexity = self.attr("well_complexity")
         self.well_size = self.attr("well_size")
         self.ocean_tanker_size = self.attr("ocean_tanker_size")
+        self.has_grid_mix = self.attr("has_grid_mix")
 
         # Add wellhead tp to the smart default
         self.wellhead_t = min(self.res_temp, self.attr("wellhead_temperature"))
@@ -324,9 +321,7 @@ class Field(Container):
             super()._children()
         )  # + self.streams() # Adding this caused several errors...
 
-    def add_children(
-            self, aggs=None, procs=None, streams=None, process_choice_dict=None
-    ):
+    def add_children(self, aggs=None, procs=None, streams=None, process_choice_dict=None):
         # Note that `procs` include only Processes defined at the top-level of the field.
         # Other Processes maybe defined within the Aggregators in `aggs`.
         super().add_children(aggs=aggs, procs=procs)
@@ -342,7 +337,7 @@ class Field(Container):
         known_boundaries = self.known_boundaries
 
         # Remember streams that declare themselves as system boundaries. Keys must be one of the
-        # values in the tuples in the _known_boundaries dictionary above. s
+        # values in the tuples in the _known_boundaries dictionary above.
         boundary_dict = self.boundary_dict
 
         # Save references to boundary processes by name; fail if duplicate definitions are found.
@@ -372,10 +367,8 @@ class Field(Container):
 
         self.check_attr_constraints(self.attr_dict)
 
-        (
-            self.component_fugitive_table,
-            self.loss_mat_gas_ave_df,
-        ) = self.get_component_fugitive()
+        self.component_fugitive_table, self.loss_mat_gas_ave_df = \
+            self.get_component_fugitive()
 
         self.finalize_process_graph()
 
@@ -782,9 +775,12 @@ class Field(Container):
         :param net_import: (Pandas.Series) net import energy rates (water is mass rate)
         :return: total emissions (units of g CO2)
         """
-        from .import_export import WATER, N2, CO2_Flooding
+        from .import_export import WATER, N2, CO2_Flooding, ELECTRICITY
 
         imported_emissions = ureg.Quantity(0.0, "tonne/day")
+
+        if self.has_grid_mix:
+            self.upstream_CI.loc[ELECTRICITY] = self.grid_mix_EF.T.dot(self.grid_mix_feed).iloc[0, 0]
 
         for product, energy_rate in net_import.items():
             # TODO: Water, N2, and CO2 flooding is not in self.upstream_CI and not in upstream-CI.csv,
@@ -1050,7 +1046,13 @@ class Field(Container):
         :return: none
         :raises ModelValidationError: raised if any validation condition is violated.
         """
-        super().validate()
+
+        # Allow test models to skip validation to avoid overly complicating all tests
+        if self.model.attr("skip_validation"):
+            _logger.warning(f"{self} skipping Process and Stream validation")
+        else:
+            for child in self.children():
+                child.validate()
 
         # Accumulate error msgs so user can correct them all at once.
         msgs = []
@@ -1465,10 +1467,10 @@ class Field(Container):
                 else:
                     _collect(process_list, child)
 
-        processes = (
-            self.builtin_procs.copy()
-        )  # copy since we're appending to this list recursively
+        # use a copy since we append to this list recursively
+        processes = self.builtin_procs.copy()
         _collect(processes, self)
+
         return processes
 
     def save_process_data(self, **kwargs):
@@ -1530,9 +1532,8 @@ class Field(Container):
             for group_name, group in choice.groups_dict.items():
                 procs, streams = group.processes_and_streams(self)
 
-                if (
-                        group_name == selected_group_name
-                ):  # remember the ones to turn back on
+                # remember the ones to enable
+                if (group_name == selected_group_name):
                     to_enable.extend(procs)
                     to_enable.extend(streams)
 
@@ -1606,6 +1607,24 @@ class Field(Container):
 
         return None
 
+    def print_process_list(self):
+        """
+        Debugging tool
+        """
+        p_dict = self.process_dict
+
+        for name in sorted(p_dict.keys()):
+            proc = p_dict[name]
+            print(f"\n{proc}")
+
+            print("  Inputs:")
+            for s in proc.inputs:
+                print(f"    {s} contains '{s.contents}'")
+
+            print("  Outputs:")
+            for s in proc.outputs:
+                print(f"    {s} contains '{s.contents}'")
+
     #
     # Smart Defaults and Distributions
     #
@@ -1620,7 +1639,7 @@ class Field(Container):
         if steam_flooding:
             return SOR
 
-        tmp = 4.021 * exp(0.024 * age.m) - 4.021
+        tmp = 4.021 * exp(0.024 * age.to("yr").m) - 4.021
         return tmp if tmp <= 100 else 100
 
     @SmartDefault.register("SOR", ["steam_flooding"])
@@ -1631,10 +1650,12 @@ class Field(Container):
     # registering the dependency as this would create a dependency cycle.
     @SmartDefault.register("GOR", ["API"])
     def GOR_default(self, API):
+        api = API.to("degAPI").m
+
         # =IF(API_grav<20,1122.4,IF(AND(API_grav>=20,API_grav<=30),1205.4,2429.3))
-        if API.m < 20:
+        if api < 20:
             return 1122.4
-        elif 20 <= API.m <= 30:
+        elif 20 <= api <= 30:
             return 1205.4
         else:
             return 2429.3
@@ -1697,18 +1718,18 @@ class Field(Container):
         return (
             100.0
             if (country == "California" and steam_flooding)
-            else 0.5 * depth.m * 0.43
+            else 0.5 * depth.to("ft").m * 0.43
         )
 
     @SmartDefault.register("res_temp", ["depth"])
     def res_temp_default(self, depth):
         # = 70+1.8*J62/100 [J62 = depth]
-        return 70 + 1.8 * depth.m / 100.0
+        return 70 + 1.8 * depth.to("ft").m / 100.0
 
     @SmartDefault.register("CrudeOilDewatering.heater_treater", ["API"])
     def heater_treater_default(self, API):
         # =IF(J73<18,1,0)  [J73 is API gravity]
-        return API.m < 18
+        return API.to("degAPI").m < 18
 
     @SmartDefault.register("num_prod_wells", ["oil_sands_mine", "oil_prod"])
     def num_producing_wells_default(self, oil_sands_mine, oil_prod):
@@ -1718,7 +1739,7 @@ class Field(Container):
         # Owing to constraint that requires num_prod_wells > 0, we return 1 for oils_sands mine.
         # num_prod_wells is used only in Exploration, ReservoirWellInterface, and DownholePump, which
         # shouldn't exist for oils sands mines.
-        return 1 if oil_sands_mine != "None" else max(1.0, round(oil_prod.m / 87.5, 0))
+        return 1 if oil_sands_mine != "None" else max(1.0, round(oil_prod.to("bbl_oil/d").m / 87.5, 0))
 
     @SmartDefault.register(
         "num_water_inj_wells", ["oil_sands_mine", "oil_prod", "num_prod_wells"]
@@ -1806,3 +1827,4 @@ class Field(Container):
         return num_prod_wells * 0.25
 
     # TODO: decide how to handle "associated gas defaults", which is just global vs CA-LCFS values currently
+

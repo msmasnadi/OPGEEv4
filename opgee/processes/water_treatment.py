@@ -6,7 +6,7 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-from .. import ureg
+from ..units import ureg
 from ..core import TemperaturePressure
 from ..energy import EN_ELECTRICITY
 from ..error import OpgeeException
@@ -29,6 +29,23 @@ class WaterTreatment(Process):
     """
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        self._required_inputs = [
+            "water",
+        ]
+
+        self._required_outputs = []
+
+        field = self.field
+        if field.steam_flooding:
+            self._required_outputs.extend([
+                "makeup water",
+                "produced water",
+            ])
+
+        if field.water_flooding or field.water_reinjection:
+            self._required_outputs.append("water")
+
         self.water_treatment_table = self.model.water_treatment
 
         self.SOR = None
@@ -121,14 +138,14 @@ class WaterTreatment(Process):
             min(injected_steam_mass_demand, input_water_mass_rate - prod_water_mass)
 
         if self.steam_flooding:
-            makeup_water_to_steam = self.find_output_stream("makeup water for steam generation")
-            prod_water_to_steam = self.find_output_stream("produced water for steam generation")
+            makeup_water_to_steam = self.find_output_stream("makeup water")
+            prod_water_to_steam = self.find_output_stream("produced water")
             prod_water_to_steam.set_liquid_flow_rate("H2O", prod_steam_mass.to("tonne/day"), tp=input.tp)
             if makeup_steam_mass.m != 0:
                 makeup_water_to_steam.set_liquid_flow_rate("H2O", makeup_steam_mass.to("tonne/day"),
                                                            tp=self.makeup_water_tp)
         if self.water_flooding or self.water_reinjection:
-            water_to_reinjection = self.find_output_stream("water for water injection")
+            water_to_reinjection = self.find_output_stream("water")
             water_to_reinjection_rate = prod_water_mass + makeup_water_mass
             water_to_reinjection.set_liquid_flow_rate("H2O", water_to_reinjection_rate, tp=input.tp)
 

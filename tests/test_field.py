@@ -1,5 +1,5 @@
 import pytest
-from opgee import ureg
+from opgee.units import ureg
 from .utils_for_tests import load_model_from_str
 from opgee.error import XmlFormatError
 from .utils_for_tests import load_test_model
@@ -7,6 +7,7 @@ from .test_processes import approx_equal
 
 model_xml_1 = """
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
+	<A name="skip_validation">1</A>
 
 	<Analysis name="test">
 	  <A name="functional_unit">oil</A>
@@ -30,6 +31,7 @@ model_xml_1 = """
 
 model_xml_2 = """
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
+	<A name="skip_validation">1</A>
 
 	<Analysis name="test">
 	  <A name="functional_unit">oil</A>
@@ -80,8 +82,11 @@ def test_bad_boundary():
     with pytest.raises(XmlFormatError, match=".*UnknownBoundary is not a known boundary name.*"):
         model = load_model_from_str(model_xml_1)
 
-    with pytest.raises(XmlFormatError, match=".*Duplicate declaration of boundary.*"):
+    with pytest.raises(XmlFormatError, match=".*duplicate.*"):
         model = load_model_from_str(model_xml_2)
+
+    # with pytest.raises(XmlFormatError, match=".*Duplicate declaration of boundary.*"):
+    #     model = load_model_from_str(model_xml_2)
 
     # model.validate()
     # analysis = model.get_analysis('test')

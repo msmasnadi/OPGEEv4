@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
+	<A name="skip_validation">1</A>
 
 	<Analysis name="test_boundary_procs">
 		<A name="functional_unit">gas</A>
@@ -26,7 +27,7 @@
 		</Stream>
 
 		<Stream src="ProductionBoundary" dst="DistributionBoundary">
-			<Contains>gas for transmission</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 	</Field>

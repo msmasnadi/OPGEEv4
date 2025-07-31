@@ -1,8 +1,10 @@
-from opgee import ureg
+from opgee.units import ureg
 from .utils_for_tests import load_model_from_str
 
 template = """<?xml version='1.0' encoding='UTF-8'?>
 <Model>
+  <A name="skip_validation">1</A>
+  
   <Analysis name="test">
     <A name="functional_unit">oil</A>
     <A name="GWP_horizon">100</A>

@@ -6,7 +6,7 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-from .. import ureg
+from ..units import ureg
 from ..emissions import EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
@@ -19,6 +19,15 @@ _logger = getLogger(__name__)
 class GasLiftingCompressor(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "lifting gas"
+        ]
+
+        self._required_outputs = [
+            "lifting gas"
+        ]
 
         self.res_press = None
         self.prime_mover_type = None

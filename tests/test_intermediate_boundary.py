@@ -1,5 +1,5 @@
 import pytest
-from opgee import ureg
+from opgee.units import ureg
 from opgee.model_file import ModelFile
 from opgee.process import Process
 from opgee.combine_streams import combine_streams
@@ -21,7 +21,7 @@ xml_string = """
     
     <Stream src="Boundary_proc_1" dst="Boundary_proc_2">
       <Component name="oil" phase="liquid">100</Component>
-      <Contains>crude oil</Contains>
+      <Contains>oil</Contains>
     </Stream>
     
     <Stream src="Boundary_proc_1" dst="Boundary_proc_3">
@@ -30,7 +30,7 @@ xml_string = """
     </Stream>
 
     <Stream src="Boundary_proc_2" dst="ProductionBoundary">
-      <Contains>crude oil</Contains>
+      <Contains>oil</Contains>
     </Stream>
         
     <Stream src="Boundary_proc_3" dst="ProductionBoundary">
@@ -38,14 +38,14 @@ xml_string = """
     </Stream>
     
     <Stream src="ProductionBoundary" dst="Boundary_proc_4" name="oil stream 1">
-      <Contains>crude oil</Contains>
+      <Contains>oil</Contains>
     </Stream>
     <Stream src="ProductionBoundary" dst="Boundary_proc_4" name="gas stream 1">
       <Contains>natural gas</Contains>
     </Stream>
     
     <Stream src="Boundary_proc_4" dst="TransportationBoundary" name="oil stream 2">
-      <Contains>crude oil</Contains>
+      <Contains>oil</Contains>
     </Stream>
     <Stream src="Boundary_proc_4" dst="TransportationBoundary" name="gas stream 2">
       <Contains>natural gas</Contains>
@@ -63,10 +63,10 @@ class Boundary_proc_1(Process):
 
 class Boundary_proc_2(Process):
     def run(self, analysis):
-        in_stream = self.find_input_stream("crude oil")
+        in_stream = self.find_input_stream("oil")
         if in_stream.is_uninitialized():
             return
-        out_stream = self.find_output_stream("crude oil")
+        out_stream = self.find_output_stream("oil")
         out_stream.copy_flow_rates_from(in_stream)
 
 
@@ -81,7 +81,7 @@ class Boundary_proc_3(Process):
 
 class Boundary_proc_4(Process):
     def run(self, analysis):
-        for content in ("crude oil", "natural gas"):
+        for content in ("oil", "natural gas"):
             in_stream = self.find_input_stream(content)
             if in_stream.is_uninitialized():
                 return

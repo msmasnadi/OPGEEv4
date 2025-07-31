@@ -65,14 +65,7 @@ travis-reqs $(TRAVIS_REQS): requirements.in
 #
 # Virtual environment / package dependency support
 #
-UNAME=$(strip $(shell uname))
-ifeq ($(UNAME), Darwin)
-	YML_FILE=py3-opgee-macos.yml
-else ifeq ($(UNAME), Linux)
-	YML_FILE=py3-opgee-linux.yml
-else
-	YML_FILE=py3-opgee-win10.yml
-endif
+YML_FILE=py3-opgee.yml
 
 
 #INPUT_YML=py3-opgee-macos.yml
@@ -92,7 +85,12 @@ create-opgee: $(YML_FILE)
 install-opgee:
 	bash -l -c 'conda activate opgee && pip install -e .'
 
-rebuild-opgee: remove-opgee create-opgee install-opgee
+rebuild-opgee: remove-opgee create-opgee travis-reqs install-opgee
+
+# Generate a detailed package list to cache for validation of
+# environment on CI platform (currently github actions)
+env-pkg-list:
+	conda list --export > opgee.pkg_list.txt
 
 NUITKA_EXE    = opgee.exe
 NUITKA_OUTDIR = /tmp/opgee-nuitka

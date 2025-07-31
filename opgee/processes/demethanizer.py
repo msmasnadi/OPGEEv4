@@ -8,7 +8,7 @@
 #
 import pandas as pd
 
-from .. import ureg
+from ..units import ureg
 from ..core import STP, TemperaturePressure
 from ..emissions import EM_FUGITIVES
 from ..energy import EN_ELECTRICITY
@@ -64,6 +64,17 @@ class Demethanizer(Process):
 
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "gas for demethanizer"
+        ]
+
+        self._required_outputs = [
+            "gas for gas partition",
+            "gas for NGL",
+        ]
+
         field = self.field
         self.demethanizer_tbl = field.model.demethanizer
         self.mol_per_scf = field.model.const("mol-per-scf")

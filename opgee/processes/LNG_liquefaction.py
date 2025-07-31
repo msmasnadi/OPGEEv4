@@ -19,6 +19,16 @@ class LNGLiquefaction(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
 
+        self._required_inputs = [
+            "LNG",
+        ]
+
+        self._required_outputs = [
+            "gas",
+            # "gas fugitives"       # TODO: future feature
+        ]
+
+
         self.ancillary_loads = None
         self.compression_refrigeration_load = None
         self.NG_to_liq_rate = None
@@ -41,7 +51,7 @@ class LNGLiquefaction(Process):
         # TODO: delete unused code here and below
         # total_load = (self.compression_refrigeration_load + self.ancillary_loads) * self.NG_to_liq_rate
 
-        gas_to_transport = self.find_output_stream("gas for transport")
+        gas_to_transport = self.find_output_stream("gas")
         gas_to_transport.copy_flow_rates_from(input)
         gas_to_transport.tp.set(T=self.field.LNG_temp)
 

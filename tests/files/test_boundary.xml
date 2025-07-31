@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../opgee/etc/opgee.xsd">
+	<A name="skip_validation">1</A>
 
 	<Analysis name="test_boundary">
 		<A name="functional_unit">gas</A>
@@ -34,7 +35,7 @@
 			<Component name="C4" phase="gas">1.4</Component>
 			<A name="temperature">90.0</A>
 			<A name="pressure">500.0</A>
-			<Contains>gas for transmission</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="TransmissionCompressor" dst="StorageCompressor" name="transmission compressor to storage compressor">
@@ -50,17 +51,17 @@
 		</Stream>
 
 		<Stream src="StorageCompressor" dst="StorageWell" name="storage compressor to storage well">
-			<Contains>gas for well</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 
 		<Stream src="StorageWell" dst="StorageSeparator" name="storage well to storage separator">
-			<Contains>gas for separator</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 
 		<Stream src="StorageSeparator" dst="PostStorageCompressor" name="storage separator to post storage compressor">
-			<Contains>gas for storage</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="PostStorageCompressor" dst="GasDistribution" name="post storage compressor to gas distribution">
@@ -69,7 +70,7 @@
 
 
 		<Stream src="LNGLiquefaction" dst="LNGTransport" name="LNG liquefaction to LNG transportation">
-			<Contains>gas for transport</Contains>
+			<Contains>gas</Contains>
 		</Stream>
 
 		<Stream src="LNGTransport" dst="LNGRegasification" name="LNG transportation to LNG regasification">

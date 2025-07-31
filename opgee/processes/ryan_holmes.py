@@ -6,7 +6,7 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-from .. import ureg
+from ..units import ureg
 from ..emissions import EM_FUGITIVES
 from ..energy import EN_NATURAL_GAS, EN_DIESEL
 from ..log import getLogger
@@ -19,6 +19,17 @@ _logger = getLogger(__name__)
 class RyanHolmes(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "gas for Ryan Holmes",
+        ]
+
+        self._required_outputs = [
+            "gas for gas partition",
+            "gas for NGL",
+            "gas for CO2 compressor",
+        ]
 
         self.RH_process_tbl = self.field.model.ryan_holmes_process_tbl
 

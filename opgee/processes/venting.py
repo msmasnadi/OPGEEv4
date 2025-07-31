@@ -6,7 +6,7 @@
 # Copyright (c) 2021-2022 The Board of Trustees of the Leland Stanford Junior University.
 # See LICENSE.txt for license details.
 #
-from .. import ureg
+from ..units import ureg
 from ..emissions import EM_VENTING, EM_FUGITIVES
 from ..log import getLogger
 from ..process import Process
@@ -19,6 +19,16 @@ class Venting(Process):
     def __init__(self, name, **kwargs):
         super().__init__(name, **kwargs)
         field = self.field
+
+        # TODO: avoid process names in contents.
+        self._required_inputs = [
+            "gas for venting",
+        ]
+
+        self._required_outputs = [
+            "gas",
+        ]
+
         self.imported_fuel_gas_comp = field.imported_gas_comp["Imported Fuel"]
         self.imported_fuel_gas_mass_fracs = field.gas.component_mass_fractions(self.imported_fuel_gas_comp)
 
@@ -85,7 +95,7 @@ class Venting(Process):
 
         gas_fugitives = self.set_gas_fugitives(input, fugitive_frac.to("frac").m)
 
-        gas_to_gathering = self.find_output_stream("gas for gas gathering")
+        gas_to_gathering = self.find_output_stream("gas")
         gas_tp_after_separation = field.get_process_data("gas_tp_after_separation")
         gas_to_gathering.copy_flow_rates_from(input, tp=gas_tp_after_separation)
         gas_to_gathering.subtract_rates_from(gas_to_vent)

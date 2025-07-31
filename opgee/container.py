@@ -7,12 +7,13 @@
 # See LICENSE.txt for license details.
 #
 from .attributes import AttrDefs, AttributeMixin
-from .core import  ureg, XmlInstantiable
+from .core import XmlInstantiable
 from .emissions import Emissions
 from .energy import Energy
 from .error import OpgeeException
 from .import_export import ImportExport
 from .log import getLogger
+from .units import ureg
 
 _logger = getLogger(__name__)
 
@@ -30,6 +31,11 @@ class Container(AttributeMixin, XmlInstantiable):
         self.emissions = Emissions()
         self.energy = Energy()
         self.import_export = ImportExport()
+
+        # N.B. These are the Process and Container instances directly inside
+        # the present Container, not including those held by sub-Containers.
+        self.procs = None
+        self.aggs = None
 
     def add_children(self, aggs=None, procs=None, **kwargs):
         self.aggs  = self.adopt(aggs)

@@ -12,12 +12,12 @@ import pandas as pd
 import numpy as np
 import pint
 from pyXSteam.XSteam import XSteam
-from thermosteam import Chemical, Mixture
+from thermosteam import Chemical, IdealMixture
 
-from . import ureg
+from .units import ureg
 from .core import OpgeeObject, STP, TemperaturePressure
 from .error import ModelValidationError
-from .stream import PHASE_LIQUID, Stream, PHASE_GAS, PHASE_SOLID
+from .stream import PHASE_GAS, PHASE_LIQUID, PHASE_SOLID, Stream
 
 
 class ChemicalInfo(OpgeeObject):
@@ -239,7 +239,7 @@ class Air(OpgeeObject):
         self.field = field
         self.components = [name for name, fraction in self.composition]
         self.mol_fraction = mol_fraction = [fraction for name, fraction in self.composition]
-        self.mixture = mixture = Mixture.from_chemicals(self.components)
+        self.mixture = mixture = IdealMixture.from_chemicals(self.components)
         self.mol_weight = ureg.Quantity(mixture.MW(mol_fraction), "g/mol")
 
     def density(self):
@@ -987,6 +987,7 @@ class Gas(AbstractSubstance):
         return result.to("frac")
 
     @staticmethod
+    @ureg.wraps("frac", ("frac", "frac"))
     def Z_factor(reduced_temperature, reduced_pressure):
         """
         Calculate the compressibility factor (Z) for a given reduced temperature and reduced pressure
@@ -1002,11 +1003,8 @@ class Gas(AbstractSubstance):
             pint.Quantity: Compressibility factor (Z) as a Pint Quantity object (dimensionless fraction) for the given reduced temperature and reduced pressure.
 
         """
-        tr = reduced_temperature.to("frac").m
-        pr = reduced_pressure.to("frac").m
-
-        a = 0.42748 * (pr / tr ** 2.5)
-        b = 0.08664 * (pr / tr)
+        a = 0.42748 * (reduced_pressure / reduced_temperature ** 2.5)
+        b = 0.08664 * (reduced_pressure / reduced_temperature)
 
         alpha = (1 / 3) * (3 * (a - b - b ** 2) - 1)
         beta = (1 / 27) * (-2 + (9 * (a - b - b ** 2)) - (27 * a * b))
