@@ -593,15 +593,20 @@ class Simulation(OpgeeObject):
 
     def set_trial_data(self, analysis, field, trial_num):
         from ..smart_defaults import SmartDefault
+        from ..config import getParamAsBoolean
 
         _logger.debug(f"set_trial_data for field {field.name}, trial {trial_num}")
         data = self.trial_data(field, trial_num)
 
+        overwrite = getParamAsBoolean('OPGEE.OverwriteExplicitValues')
+
         for name, value in data.items():
             attr = self.lookup(name, field)
-            if not attr.explicit:  # don't set values of explicit attributes
+            if overwrite or not attr.explicit:  # don't set values of explicit attributes
                 attr.explicit = True
                 attr.set_value(value)
+            else:
+                _logger.debug(f"ignoring explicit value for {name}")
 
         # TBD: test this
         SmartDefault.apply_defaults(field, analysis=analysis)
