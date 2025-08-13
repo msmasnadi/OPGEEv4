@@ -236,6 +236,10 @@ class Demethanizer(Process):
                             inlet_compressor_energy_consump + outlet_compressor_energy_consump + reboiler_fuel_use)
         energy_use.set_rate(EN_ELECTRICITY, cooler_energy_consumption)
 
+        energy_use.set_process_rate(self.name, energy_carrier,
+                            inlet_compressor_energy_consump + outlet_compressor_energy_consump + reboiler_fuel_use)
+        energy_use.set_process_rate(self.name, EN_ELECTRICITY, cooler_energy_consumption)
+
         # import/export
         self.set_import_from_energy(energy_use)
 

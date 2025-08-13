@@ -216,6 +216,7 @@ class DownholePump(Process):
             energy_consumption_of_stages = get_energy_consumption_stages(self.prime_mover_type, [brake_horse_power])
             energy_consumption_sum = sum(energy_consumption_of_stages) * self.num_prod_wells
             energy_use.set_rate(energy_carrier, energy_consumption_sum)
+            energy_use.set_process_rate(self.name, energy_carrier, energy_consumption_sum)
 
             # import and export
             self.set_import_from_energy(energy_use)

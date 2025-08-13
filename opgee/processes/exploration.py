@@ -125,6 +125,7 @@ class Exploration(Process):
         # energy-use
         energy_use = self.energy
         energy_use.set_rate(EN_DIESEL, diesel_consumption)
+        energy_use.set_process_rate(self.name, EN_DIESEL, diesel_consumption)
 
         # emissions
         self.set_combustion_emissions()

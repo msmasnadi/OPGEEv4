@@ -22,9 +22,9 @@ class SourGasInjection(Process):
             "gas",
         ]
 
-        self._required_outputs = [
-            "gas for gas partition",
-        ]
+        # self._required_outputs = [
+        #     "gas for gas partition",
+        # ]
 
     def run(self, analysis):
         self.print_running_msg()
@@ -38,13 +38,13 @@ class SourGasInjection(Process):
         loss_rate = self.get_compressor_and_well_loss_rate(input)
         gas_fugitives = self.set_gas_fugitives(input, loss_rate)
 
-        gas_to_partition = self.find_output_stream("gas for gas partition")
-        gas_to_partition.copy_flow_rates_from(input)
-        gas_to_partition.subtract_rates_from(gas_fugitives)
-
-        self.set_iteration_value(gas_to_partition.total_flow_rate())
-
-        field.save_process_data(is_input_from_well=True)
+        # gas_to_partition = self.find_output_stream("gas for gas partition")
+        # gas_to_partition.copy_flow_rates_from(input)
+        # gas_to_partition.subtract_rates_from(gas_fugitives)
+        #
+        # self.set_iteration_value(gas_to_partition.total_flow_rate())
+        #
+        # field.save_process_data(is_input_from_well=True)
 
         # emissions
         emissions = self.emissions

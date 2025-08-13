@@ -94,8 +94,6 @@ class GasReinjectionCompressor(Process):
             energy_use.set_rate(EN_ELECTRICITY, energy_consump_air_separation)
 
 
-
-
         # emissions
         self.set_combustion_emissions()
         self.emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)

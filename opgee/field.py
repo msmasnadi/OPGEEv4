@@ -54,6 +54,7 @@ class FieldResult:
             ci_results=None,
             energy_output=None,
             electricity_data = None,
+            energy_process_data = None,
             trial_num=None,
             error=None,
     ):
@@ -67,6 +68,7 @@ class FieldResult:
         self.gases = gas_data
         self.streams = streams_data
         self.electricity = electricity_data
+        self.energy_process_data = energy_process_data
         self.trial_num = trial_num
         self.error = error
 
@@ -673,11 +675,21 @@ class Field(Container):
             # convert to g/MJ, but we don't need units in CSV file
             return ci.to("grams/MJ")
 
+        def partial_ci_kg_per_kg(obj):
+            ghgs = obj.emissions.data.sum(axis="columns")["GHG"]
+            if not isinstance(ghgs, pint.Quantity):
+                ghgs = ureg.Quantity(ghgs, "tonne/day")
+
+            ci = ghgs / energy
+            # convert to g/MJ, but we don't need units in CSV file
+            return ci.to("grams/MJ")
+
         results = [
             (obj.name, partial_ci(obj))
             for obj in nodes
             if not isinstance(obj, Boundary)
         ]
+
         return results
 
     def energy_and_emissions(self, analysis):
@@ -702,6 +714,20 @@ class Field(Container):
         energy_by_proc = {proc.name: proc.energy.rates().sum() for proc in procs}
         energy_data = process_data(energy_by_proc, self.name)
 
+        # Energy use by carrier by process
+        rows = []
+        for proc in procs:
+            # proc.energy.data is a Series: index=carrier, value=rate
+            for carrier, rate in proc.energy.data.items():
+                rows.append({
+                    "process": proc.name,
+                    "energy": carrier,
+                    self.name: rate.magnitude,
+                    "unit": rate.units
+                })
+
+        energy_by_proc_by_carrier = pd.DataFrame(rows)
+
         # GHG data processing
         ghgs_by_proc = {proc.name: total_emissions(proc, gwp) for proc in procs}
         ghg_data = process_data(ghgs_by_proc, self.name)
@@ -722,7 +748,7 @@ class Field(Container):
         gases_by_proc = [gas_df_with_name(proc) for proc in procs]
         gases_data = pd.concat(gases_by_proc)
 
-        return energy_data, ghg_data, gases_data
+        return energy_data, ghg_data, gases_data, energy_by_proc_by_carrier
 
     def get_result(self, analysis, result_type, trial_num=None) -> FieldResult:
         """
@@ -734,15 +760,16 @@ class Field(Container):
         :param trial_num: (int) trial number, if running in MCS mode
         :return: (FieldResult) results
         """
-        energy_data, ghg_data, gas_data = self.energy_and_emissions(analysis) \
-            if result_type == DETAILED_RESULT else (None, None, None)
+        energy_data, ghg_data, gas_data, energy_by_proc_by_carrier = self.energy_and_emissions(analysis) \
+            if result_type == DETAILED_RESULT else (None, None, None, None)
 
         nodes = self.processes() if DETAILED_RESULT else self.children()
         ci_tuples = self.partial_ci_values(analysis, nodes)
 
         ci_results = (
             None if ci_tuples is None
-            else [("TOTAL", self.carbon_intensity)] + ci_tuples
+            # else [("TOTAL", self.carbon_intensity)] + ci_tuples
+            else [('TOTAL', sum(ci_tuple[1] for ci_tuple in ci_tuples))] + ci_tuples
         )
 
         dfs = [s.to_dataframe() for s in self.streams()]
@@ -751,7 +778,12 @@ class Field(Container):
         perc_waste = self.get_process_data("percentage_waste_gas_burned")
         if perc_waste is not None:
             electricity_dict = dict(percentage_waste_gas_burned = [perc_waste],
-                                    percentage_H2_burned = [self.get_process_data("percentage_H2_burned")])
+                                    percentage_H2_burned = [self.get_process_data("percentage_H2_burned")],
+                                    burned_waste_gas_mass_t_d = [self.get_process_data("burned_waste_gas_mass_t_d")],
+                                    burned_waste_gas_energy_mmbtu_d =[self.get_process_data("burned_waste_gas_energy_mmbtu_d")],
+                                    waste_heating_value_mj_kg =[self.get_process_data("waste_heating_value_mj_kg")],
+                                    waste_emission_rate_g_MJ = [self.get_process_data("waste_gas_emission_rate_g_MJ")]
+                                    )
             electricity_data = pd.DataFrame(electricity_dict)
         else:
             electricity_data = None
@@ -767,7 +799,8 @@ class Field(Container):
             ghg_data=ghg_data,  # TBD: superseded by gas_data
             gas_data=gas_data,
             streams_data=streams_data,
-            electricity_data=electricity_data
+            electricity_data=electricity_data,
+            energy_process_data = energy_by_proc_by_carrier
         )
 
         # Run optional post-process plugins
@@ -1334,6 +1367,19 @@ class Field(Container):
         :return: (iterator of `Stream` instances) streams in this `Field`
         """
         return [s for s in self.stream_dict.values() if s.enabled]
+
+    def add_stream(self, stream):
+        """
+        Adds a stream to this `Field`.
+
+        Not normally needed, but used to store intermediate stream
+        information that will be output in the result.
+        """
+        # comment out bcuz iteration
+        # if self.stream_dict.get(stream.name) is not None:
+        #     raise OpgeeException(f"Stream {stream.name} already exists")
+        self.stream_dict[stream.name] = stream
+
 
     def processes(self):
         """

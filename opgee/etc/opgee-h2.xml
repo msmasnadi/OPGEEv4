@@ -47,9 +47,13 @@
         <ProcessChoice name="agr_option">
             <ProcessGroup name="agr_on">
                 <ProcessRef name="AcidGasRemoval"/>
+                <ProcessRef name="SourGasCompressor" />
+                <ProcessRef name="SourGasInjection" />
 
                 <StreamRef name="GasNode => AcidGasRemoval" />
                 <StreamRef name="AcidGasRemoval => PsaPreCompressor" />
+                <StreamRef name="AcidGasRemoval => SourGasCompressor" />
+                <StreamRef name="SourGasCompressor => SourGasInjection" />
             </ProcessGroup>
 
             <ProcessGroup name="agr_off">
@@ -107,6 +111,8 @@
             <Process class="GasDehydration"/>
             <Process class="GasNode"/>
             <Process class="AcidGasRemoval"/>
+            <Process class="SourGasCompressor"/>
+            <Process class="SourGasInjection"/>
             <Process class="PsaPreCompressor" />
             <Process class="PressureSwingAdsorption" />
             <Process class="OnsiteElectricityGeneration" cycle-start="true" />
@@ -165,6 +171,14 @@
 		</Stream>
 
         <Stream src="AcidGasRemoval" dst="PsaPreCompressor">
+			<Contains>gas</Contains>
+		</Stream>
+
+        <Stream src="AcidGasRemoval" dst="SourGasCompressor">
+			<Contains>gas for sour gas compressor</Contains>
+		</Stream>
+
+        <Stream src="SourGasCompressor" dst="SourGasInjection">
 			<Contains>gas</Contains>
 		</Stream>
 

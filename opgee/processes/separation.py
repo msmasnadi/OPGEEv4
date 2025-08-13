@@ -120,6 +120,7 @@ class Separation(Process):
         energy_use = self.energy
         energy_carrier = get_energy_carrier(self.prime_mover_type)
         energy_use.set_rate(energy_carrier, energy_consumption_sum)
+        energy_use.set_process_rate(self.name, energy_carrier, energy_consumption_sum)
 
         # import/export
         self.set_import_from_energy(energy_use)

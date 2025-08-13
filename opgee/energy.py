@@ -52,8 +52,25 @@ class Energy(OpgeeObject):
          """
         return pd.Series(data=0.0, index=cls.carriers, name='energy', dtype=f"pint[{cls._units}]")
 
+    @classmethod
+    def create_energy_process_series(cls):
+        """
+        Create a pandas DataFrame to hold process-level energy consumption.
+
+        :return: (pandas.DataFrame) Zero-filled process-level energy DataFrame
+        """
+        # TODO SZ: check if this is correct with Rich
+        # Create empty DataFrame
+        df = pd.DataFrame(columns=['process', 'energy', 'value', 'unit'])
+
+        # Force dtype for 'value' column
+        df = df.astype({'value': f'pint[{cls._units}]'})
+
+        return df
+
     def __init__(self):
         self.data = self.create_energy_series()
+        self.process_data = self.create_energy_process_series()
 
     @classmethod
     def units(cls):
@@ -106,6 +123,20 @@ class Energy(OpgeeObject):
         for carrier, rate in dictionary.items():
             self.set_rate(carrier, rate)
 
+    def set_process_rate(self, process_name, carrier, rate):
+        if carrier not in self._carrier_set:
+            raise OpgeeException(f"Energy.set_rate: Unrecognized carrier '{carrier}'")
+
+        # Convert to class units before inserting
+        rate = rate.to(self._units)  # ensures consistent unit
+
+        self.process_data.loc[len(self.process_data)] = [
+            process_name,
+            carrier,
+            rate,
+            str(rate.units)  # store unit as string for human readability
+        ]
+
     def add_rate(self, carrier, rate):
         """
         Add to the rate of energy use for a single carrier.
@@ -120,6 +151,31 @@ class Energy(OpgeeObject):
             raise OpgeeException(f"Energy.set_rate: Unrecognized carrier '{carrier}'")
 
         self.data[carrier] += rate
+
+    def add_process_rate(self, process_name, carrier, rate):
+        if carrier not in self._carrier_set:
+            raise OpgeeException(f"Energy.set_rate: Unrecognized carrier '{carrier}'")
+
+        # Convert to consistent units
+        rate = rate.to(self._units)
+
+        # Find matching row(s) in process_data
+        mask = (
+                (self.process_data['process'] == process_name) &
+                (self.process_data['energy'] == carrier)
+        )
+
+        if mask.any():
+            # Increment the rate in place
+            self.process_data.loc[mask, 'value'] += rate
+        else:
+            # If not found, append a new row
+            self.process_data.loc[len(self.process_data)] = [
+                process_name,
+                carrier,
+                rate,
+                str(rate.units)
+            ]
 
     def add_rates(self, dictionary):
         """

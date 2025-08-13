@@ -73,7 +73,8 @@ class AcidGasRemoval(Process):
             # One of these must exist.
             # ("gas for demethanizer",  # TODO: avoid process names in contents
             #  "gas for gas partition") # TODO: avoid process names in contents
-            "gas"
+            "gas",
+            "gas for sour gas compressor"
         ]
 
         # Optional streams include:
@@ -143,7 +144,7 @@ class AcidGasRemoval(Process):
 
         # Calculate mass rate
         gas_input_stream = self.find_input_streams("gas", combine=True)
-        processing_unit_loss_rate_df = field.get_process_data("processing_unit_loss_rate_df")
+        #processing_unit_loss_rate_df = field.get_process_data("processing_unit_loss_rate_df")
         if gas_input_stream.is_uninitialized():
             return
         # if gas_input_stream.is_uninitialized() or processing_unit_loss_rate_df is None:
@@ -165,15 +166,17 @@ class AcidGasRemoval(Process):
         output_gas = self.find_output_stream("gas")
         # output_gas = self.find_output_stream("gas for demethanizer", raiseError=False) or \
         #              self.find_output_stream("gas for gas partition")
-        output_gas.copy_flow_rates_from(gas_input_stream)
+        output_gas.copy_flow_rates_from(gas_input_stream, tp=gas_input_stream.tp)
 
-        acid_stream = Stream("acid", tp = gas_input_stream.tp)
+        acid_stream = self.find_output_stream("gas for sour gas compressor")
         acid_stream.set_flow_rate("CO2", "gas", gas_input_stream.gas_flow_rate("CO2") - gas_fugitives.gas_flow_rate("CO2"))
         acid_stream.set_flow_rate("H2S", "gas", gas_input_stream.gas_flow_rate("H2S") - gas_fugitives.gas_flow_rate("H2S"))
+        acid_stream.set_tp(gas_input_stream.tp)
         output_gas.subtract_rates_from(gas_fugitives)
         output_gas.subtract_rates_from(acid_stream)
 
-        gas_fugitives.add_flow_rates_from(acid_stream)
+        # GH project: assuming we are venting all the removed acid gas
+        #gas_fugitives.add_flow_rates_from(acid_stream)
 
         # #output_gas.set_gas_flow_rate("CO2", CO2_to_demethanizer)
         # if field.gas_path != "CO2-EOR Membrane":
@@ -212,8 +215,14 @@ class AcidGasRemoval(Process):
         energy_use = self.energy
         energy_carrier = get_energy_carrier(self.prime_mover_type)
         energy_use.set_rate(energy_carrier, compressor_energy_consumption + reboiler_fuel_use)
-        energy_use.add_rate(EN_ELECTRICITY, electricity_consump) \
-            if energy_carrier == EN_ELECTRICITY else energy_use.set_rate(EN_ELECTRICITY, electricity_consump)
+        energy_use.set_process_rate(self.name, energy_carrier, compressor_energy_consumption + reboiler_fuel_use)
+
+        if energy_carrier == EN_ELECTRICITY:
+            energy_use.add_rate(EN_ELECTRICITY, electricity_consump)
+            energy_use.add_process_rate(self.name, EN_ELECTRICITY, electricity_consump)
+        else:
+            energy_use.set_rate(EN_ELECTRICITY, electricity_consump)
+            energy_use.set_process_rate(self.name, EN_ELECTRICITY, electricity_consump)
 
         # import and export
         self.set_import_from_energy(energy_use)
@@ -272,7 +281,7 @@ class AcidGasRemoval(Process):
         condenser_thermal_load = ureg.Quantity(max(0.0, corr_result_df["Condenser"] * gas_multiplier), "kW")
         cooler_thermal_load = ureg.Quantity(max(0.0, corr_result_df["Cooler"] * gas_multiplier), "kW")
 
-        reboiler_fuel_use = reboiler_heavy_duty * self.eta_reboiler
+        reboiler_fuel_use = reboiler_heavy_duty * self.eta_reboiler.m
         pump_duty_elec = ureg.Quantity(max(0.0, corr_result_df["Pump"] * gas_multiplier), "kW")
         condenser_elec_consumption = predict_blower_energy_use(self, condenser_thermal_load)
         amine_cooler_elec_consumption = predict_blower_energy_use(self, cooler_thermal_load)

@@ -80,6 +80,11 @@ class OnsiteElectricityGeneration(Process):
         waste_gas_in.copy_gas_rates_from(gas_in, tp = tp) # TODO: the TP of waste stream should change based on the exiting P from PSA
         waste_gas_in.subtract_rates_from(H2_in)
 
+        # save the waste gas composition to stream dict before burning
+        waste_gas_before_burn = Stream("waste_gas_before_burn", tp, src_name = self.name, dst_name = "", parent = self.field)
+        waste_gas_before_burn.copy_flow_rates_from(waste_gas_in)
+        self.field.add_stream(waste_gas_before_burn)
+
         # step 1 calculate how much total electricity we actually need from all processes
         energy_list = [proc.energy.get_rate("Electricity") for proc in self.field.processes() if proc != self]
         required_energy = sum(energy_list)
@@ -87,6 +92,12 @@ class OnsiteElectricityGeneration(Process):
         # step 2 calculate the energy density of the current gas stream
         # step 3 calculate how much electricity can be generated from the current gas stream
         energy_flow_rate_from_waste = self.energy_rates(waste_gas_in)
+        waste_mass_flow_rate = waste_gas_in.total_flow_rate()
+        waste_heating_value = energy_flow_rate_from_waste.to('MJ/d')/waste_mass_flow_rate.to('kg/d')
+        self.field.save_process_data(burned_waste_gas_mass_t_d=waste_mass_flow_rate.magnitude)
+        self.field.save_process_data(burned_waste_gas_energy_mmbtu_d=energy_flow_rate_from_waste.magnitude)
+        self.field.save_process_data(waste_heating_value_mj_kg=waste_heating_value.magnitude)
+
         electricity_rate_from_waste = energy_flow_rate_from_waste * self.efficiency # mmbtu/day
 
         # record emissions
@@ -97,7 +108,9 @@ class OnsiteElectricityGeneration(Process):
         percentage_waste_gas_burned = required_energy/electricity_rate_from_waste
         self.field.save_process_data(percentage_waste_gas_burned=percentage_waste_gas_burned if percentage_waste_gas_burned < 1 else 1)
 
-        emission_stream.add_combustion_CO2_from(waste_gas_in, factor = (percentage_waste_gas_burned if percentage_waste_gas_burned < 1 else 1))
+        waste_gas_emission_flow_rate = emission_stream.add_combustion_CO2_from(waste_gas_in, factor = (percentage_waste_gas_burned if percentage_waste_gas_burned < 1 else 1))
+        waste_gas_emission_rate  = waste_gas_emission_flow_rate.to('g/d').magnitude/energy_flow_rate_from_waste.to('MJ/d').magnitude if energy_flow_rate_from_waste is not None or 0 else 0
+        self.field.save_process_data(waste_gas_emission_rate_g_MJ = waste_gas_emission_rate)
 
         waste_gas_in.multiply_flow_rates(1 - (percentage_waste_gas_burned if percentage_waste_gas_burned < 1 else 1))
 

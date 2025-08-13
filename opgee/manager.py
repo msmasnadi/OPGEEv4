@@ -418,6 +418,7 @@ def save_results(results, output_dir, batch_num=None):
     error_rows = []
     stream_dfs = []
     electricity_dfs = []
+    energy_by_proc_by_carriers_dfs = []
 
     def create_dict(analysis, field, trial,
                     name=None, value=None, unit_col=True):
@@ -455,12 +456,14 @@ def save_results(results, output_dir, batch_num=None):
                 result.emissions['trial'] = trial
                 result.energy['trial'] = trial      # energy consumption
                 result.electricity['trial'] = trial
+                result.energy_process_data['trial'] = trial
 
             energy_cols.append(result.energy)
             emission_cols.append(result.emissions)
             stream_dfs.append(result.streams)
             gas_dfs.append(result.gases)
             electricity_dfs.append(result.electricity)
+            energy_by_proc_by_carriers_dfs.append(result.energy_process_data)
 
             # Add a row for total energy output
             d = create_dict(analysis_name, field_name, trial,
@@ -497,6 +500,9 @@ def save_results(results, output_dir, batch_num=None):
             id_vars = ['process', 'unit']
             if 'trial' in df.columns:
                 id_vars.append('trial')
+            if 'energy' in df.columns:
+                id_vars.append('energy')
+                df.drop("index", axis=1, inplace=True)
 
             df = df.melt(value_name='value', var_name='field', id_vars=id_vars)
             return df
@@ -510,6 +516,9 @@ def save_results(results, output_dir, batch_num=None):
         col_order = ['field', 'process', 'value', 'unit']
         if 'trial' in df.columns:
             col_order.insert(0, 'trial')
+        if 'energy' in df.columns:
+            process_idx = col_order.index('process')  # find 'process'
+            col_order.insert(process_idx + 1, 'energy')  # insert right after
 
         df = df[col_order]
         _to_csv(df, file_prefix)
@@ -536,6 +545,11 @@ def save_results(results, output_dir, batch_num=None):
     if electricity_dfs:
         df = pd.concat(electricity_dfs, axis="rows")
         _to_csv(df, "electricity")
+
+    if energy_by_proc_by_carriers_dfs:
+        _save_dfs(energy_by_proc_by_carriers_dfs, "energy_by_proc_by_carriers")
+
+
 
     # Save any results captured by optional post-processor plugins
     PostProcessor.save_post_processor_results(output_dir)

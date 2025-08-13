@@ -116,6 +116,7 @@ class WaterInjection(Process):
 
         energy_carrier = get_energy_carrier(self.prime_mover_type)
         energy_use.set_rate(energy_carrier, total_water_pump_power)
+        energy_use.set_process_rate(self.name, energy_carrier, total_water_pump_power)
 
         # import and export
         self.set_import_from_energy(energy_use)

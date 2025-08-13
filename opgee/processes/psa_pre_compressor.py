@@ -92,6 +92,7 @@ class PsaPreCompressor(Process):
         energy_use = self.energy
         energy_carrier = get_energy_carrier(self.prime_mover_type)
         energy_use.set_rate(energy_carrier, energy_consumption)
+        energy_use.set_process_rate(self.name, energy_carrier, energy_consumption)
 
         # emissions
         self.set_combustion_emissions()
