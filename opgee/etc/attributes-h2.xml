@@ -77,6 +77,7 @@
       <AttrDef name="PSA_waste_gas_P" unit="psia" type="float">14.7</AttrDef>
       <AttrDef name="PSA_waste_gas_T" unit="degF" type="float">32</AttrDef>
       <AttrDef name="slip_rate" type="float" desc="Slip rate of pure H2 to waste gas">0.10</AttrDef>
+      <AttrDef name = "onsite_generation_waste_gas_reinjection" type = "binary" desc ="1 for reinjection for waste gas after onsite electricity generation; 0 for vent">1</AttrDef>
       <AttrDef name="downhole_pump" type="binary" desc="Downhole pump">1</AttrDef>
       <AttrDef name="water_reinjection" type="binary" desc="Water reinjection">1</AttrDef>
       <AttrDef name="natural_gas_reinjection" type="binary" desc="Natural gas reinjection">1</AttrDef>

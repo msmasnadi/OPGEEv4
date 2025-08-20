@@ -462,6 +462,7 @@ def save_results(results, output_dir, batch_num=None):
             emission_cols.append(result.emissions)
             stream_dfs.append(result.streams)
             gas_dfs.append(result.gases)
+            result.electricity['field'] = field_name
             electricity_dfs.append(result.electricity)
             energy_by_proc_by_carriers_dfs.append(result.energy_process_data)
 
