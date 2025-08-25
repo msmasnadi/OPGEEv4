@@ -1,0 +1,7 @@
+Casing section,Complex_well_lbm_per_ft,Moderate_well_lbm_per_ft,Simple_well_lbm_per_ft,User_defined_well_lbm_per_ft
+Conductor 1,168.1,94.0,48.2,0.0
+Conductor 2,94.0,0.0,0.0,0.0
+Surface casing,60.7,48.2,0.0,0.0
+Intermediate casing,40.2,0.0,0.0,0.0
+Production casing,28.8,27.5,11.3,0.0
+Production tubing,12.6,4.9,4.9,0.0

@@ -69,7 +69,9 @@ class TableManager(OpgeeObject):
         TableDef("productivity-gas", index_col=0),
         TableDef("productivity-oil", index_col=0),
         TableDef("site-fugitive-processing-unit-breakdown", index_col=0, has_units=True),
-        TableDef("well-completion-and-workover-C1-rate", has_units=True)
+        TableDef("well-completion-and-workover-C1-rate", has_units=True),
+        TableDef("casing_designs", index_col=0),
+        TableDef("steel_casing_mass_per_length", index_col=0)
     ]
 
     _table_def_dict = {tbl_def.basename: tbl_def for tbl_def in table_defs}

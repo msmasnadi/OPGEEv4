@@ -1,0 +1,7 @@
+Casing section,Complex_casing_diam_in,Complex_hole_diam_in,Complex_length_ft,Moderate_casing_diam_in,Moderate_hole_diam_in,Moderate_length_ft,Simple_casing_diam_in,Simple_hole_diam_in,Simple_length_ft,User_casing_diam_in,User_hole_diam_in,User_length_ft
+Conductor 1,30.0,36.0,200,20.0,26.0,50.0,11.75,14.75,50.0,,,
+Conductor 2,20.0,26.0,600,,,0.0,,,0.0,,,
+Surface casing,13.375,17.5,4000,11.8,14.75,1000.0,,,,,,
+Intermediate casing,9.625,12.25,13000,,,0.0,,,0.0,,,
+Production casing,7.625,9.5,4000,7.0,8.75,7240.0,4.5,6.125,6068.0,,,
+Production tubing,4.5,6.5,20000,2.4,6.0,7240.0,2.375,6.125,6232.0,,,

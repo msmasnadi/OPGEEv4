@@ -74,6 +74,7 @@
 
     <ClassAttrs name="Field">
       <!-- Production methods -->
+      <AttrDef name = "include_embodied" type = "binary" desc = "whether or not to include embodied emissions">1</AttrDef>
       <AttrDef name="PSA_waste_gas_P" unit="psia" type="float">14.7</AttrDef>
       <AttrDef name="PSA_waste_gas_T" unit="degF" type="float">32</AttrDef>
       <AttrDef name="slip_rate" type="float" desc="Slip rate of pure H2 to waste gas">0.10</AttrDef>
@@ -386,6 +387,10 @@
       <AttrDef name="is_flaring" type="str" desc="Fracturing flowback flared?">No</AttrDef>
       <AttrDef name="is_REC" type="str" desc="Fracturing flowback captured with reduced emissons completions?">Yes</AttrDef>
       <AttrDef name="frac_well_fractured" type="float" unit="frac" desc="Fraction of wells fractured">0.0</AttrDef>
+
+    </ClassAttrs>
+
+    <ClassAttrs name="Embodied">
 
     </ClassAttrs>
 

@@ -98,6 +98,7 @@
 		<Aggregator name="ExplorationAndDrilling">
 			<Process class="Exploration" after="true" />
 			<Process class="Drilling" after="true" />
+            <Process class="EmbodiedEmissions" after = "true"/>
 		</Aggregator>
 
 		<Aggregator name="ProductionExtraction">
@@ -121,6 +122,11 @@
             <Process class="Venting"/>
             <Process class="Flaring"/>
 		</Aggregator>
+
+
+        <Stream src="EmbodiedEmissions" dst="Exploration">
+			<Contains>None</Contains>
+		</Stream>
 
 		<Stream src="Exploration" dst="Drilling">
 			<Contains>None</Contains>
