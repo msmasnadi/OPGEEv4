@@ -7,17 +7,20 @@
 # See LICENSE.txt for license details.
 #
 from ..units import ureg
-from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL, EN_RESID
+from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_DIESEL, EN_RESID, EN_RAW_GAS
 from ..error import OpgeeException
 from ..stream import Stream, PHASE_GAS
 
 _slope = {"NG_engine": -0.6035,
+            "GAS_engine": -0.6035, # assuming raw gas behave the same as NG engine
           "NG_turbine": -0.1279}
 
 _intercept = {"NG_engine": 7922.4,
+            "GAS_engine": 7922.4,
               "NG_turbine": 9219.6}
 
 _maxBHP = {"NG_engine": 2800.0,
+            "GAS_engine": 2800.0,
            "Diesel_engine": 3000.0,
            "NG_turbine": 21000.0,
            "Electric_motor": 1000.0}
@@ -102,6 +105,9 @@ def predict_blower_energy_use(proc, thermal_load, air_cooler_delta_T=None, water
 
 
 def get_energy_carrier(prime_mover_type):
+    if prime_mover_type.startswith("GAS_") or prime_mover_type.lower() == "raw gas":
+        return EN_RAW_GAS
+
     if prime_mover_type.startswith("NG_") or prime_mover_type.lower() == "natural gas":
         return EN_NATURAL_GAS
 

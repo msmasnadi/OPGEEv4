@@ -9,7 +9,8 @@
 from ..stream import Stream
 from ..units import ureg
 from ..emissions import EM_FUGITIVES
-from ..energy import EN_ELECTRICITY
+from ..emissions import EM_COMBUSTION
+from ..energy import EN_ELECTRICITY, EN_RAW_GAS
 from ..log import getLogger
 from ..process import Process, run_corr_eqns
 from .compressor import Compressor
@@ -172,8 +173,7 @@ class AcidGasRemoval(Process):
         acid_stream.set_flow_rate("CO2", "gas", gas_input_stream.gas_flow_rate("CO2") - gas_fugitives.gas_flow_rate("CO2"))
         acid_stream.set_flow_rate("H2S", "gas", gas_input_stream.gas_flow_rate("H2S") - gas_fugitives.gas_flow_rate("H2S"))
         acid_stream.set_tp(gas_input_stream.tp)
-        output_gas.subtract_rates_from(gas_fugitives)
-        output_gas.subtract_rates_from(acid_stream)
+
 
         # GH project: assuming we are venting all the removed acid gas
         #gas_fugitives.add_flow_rates_from(acid_stream)
@@ -214,9 +214,20 @@ class AcidGasRemoval(Process):
         # energy-use
         energy_use = self.energy
         energy_carrier = get_energy_carrier(self.prime_mover_type)
-        energy_use.set_rate(energy_carrier, compressor_energy_consumption + reboiler_fuel_use)
-        energy_use.set_process_rate(self.name, energy_carrier, compressor_energy_consumption + reboiler_fuel_use)
+        if energy_carrier == EN_RAW_GAS:
+            energy_flow_rate_from_raw_gas = self.energy_rates(output_gas) # mmbtu/d
+            frac_burnt = (compressor_energy_consumption + reboiler_fuel_use) / energy_flow_rate_from_raw_gas
+            em = Stream("emission_stream", tp=output_gas.tp)
+            em.add_combustion_CO2_from(output_gas, factor=(frac_burnt if frac_burnt < 1 else 1))
 
+            burnt_raw_gas_mass = output_gas.total_flow_rate() * frac_burnt
+            burnt_raw_gas_energy = self.energy_rates(output_gas) * frac_burnt
+            self.field.save_process_data(frac_raw_gas_frac_for_agr=frac_burnt.to('').magnitude)
+            self.field.save_process_data(agr_raw_gas_mass=burnt_raw_gas_mass.to('t/d').magnitude)
+            self.field.save_process_data(agr_raw_gas_energy=burnt_raw_gas_energy.to('mmbtu/d').magnitude)
+            output_gas.multiply_flow_rates(1-frac_burnt)
+
+        energy_use.set_rate(energy_carrier, compressor_energy_consumption + reboiler_fuel_use)
         if energy_carrier == EN_ELECTRICITY:
             energy_use.add_rate(EN_ELECTRICITY, electricity_consump)
             energy_use.add_process_rate(self.name, EN_ELECTRICITY, electricity_consump)
@@ -224,11 +235,17 @@ class AcidGasRemoval(Process):
             energy_use.set_rate(EN_ELECTRICITY, electricity_consump)
             energy_use.set_process_rate(self.name, EN_ELECTRICITY, electricity_consump)
 
+        output_gas.subtract_rates_from(gas_fugitives)
+        output_gas.subtract_rates_from(acid_stream)
+
         # import and export
         self.set_import_from_energy(energy_use)
 
         # emissions
-        self.set_combustion_emissions()
+        if energy_carrier == EN_RAW_GAS:
+            self.emissions.set_from_stream(EM_COMBUSTION, em)
+        else:
+            self.set_combustion_emissions()
         self.emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
 
 
@@ -340,6 +357,8 @@ class AcidGasRemoval(Process):
 
         return ureg.Quantity(0, "mmbtu/day"), total_reboiler_erergy_consump, total_coolers_energy_consump + total_pump_energy_consump
 
+    def energy_rates(self, input):
+        return self.field.gas.energy_flow_rate(input)
 
 
 

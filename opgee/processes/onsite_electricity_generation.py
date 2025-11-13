@@ -20,7 +20,8 @@ from ..log import getLogger
 from ..process import Process
 from ..stream import Stream
 from ..thermodynamics import Gas
-from ..energy import EN_ELECTRICITY
+from ..energy import EN_ELECTRICITY, EN_NATURAL_GAS
+from .shared import get_energy_carrier
 
 _logger = getLogger(__name__)
 
@@ -73,7 +74,6 @@ class OnsiteElectricityGeneration(Process):
         self.print_running_msg()
 
         gas_in = self.find_input_stream("gas")
-
         H2_in = self.find_output_stream("H2")
         H2_in.set_gas_flow_rate("H2", gas_in.gas_flow_rate("H2") * (1 - self.slip_rate))
         waste_gas_in = self.find_output_stream("gas")
@@ -90,25 +90,23 @@ class OnsiteElectricityGeneration(Process):
         # step 1 calculate how much total electricity we actually need from all processes
         energy_list = [proc.energy.get_rate("Electricity") for proc in self.field.processes() if proc != self]
         required_energy = sum(energy_list)
+        # debug purpose: to check which process is using so much energy:
+        process_energy_dict = {proc.name: proc.energy.get_rate("Electricity") for proc in self.field.processes() if proc != self}
 
         # step 2 calculate the energy density of the current gas stream
         # step 3 calculate how much electricity can be generated from the current gas stream
-        energy_flow_rate_from_waste = self.energy_rates(waste_gas_in)
-        waste_mass_flow_rate = waste_gas_in.total_flow_rate()
-        waste_heating_value = energy_flow_rate_from_waste.to('MJ/d') / waste_mass_flow_rate.to('kg/d')
-        self.field.save_process_data(burned_waste_gas_mass_t_d=waste_mass_flow_rate.magnitude)
-        self.field.save_process_data(burned_waste_gas_energy_mmbtu_d=energy_flow_rate_from_waste.magnitude)
-        self.field.save_process_data(waste_heating_value_mj_kg=waste_heating_value.magnitude)
+        energy_flow_rate_from_waste = self.energy_rates(waste_gas_in) # mmbtu/d
+        waste_mass_flow_rate = waste_gas_in.total_flow_rate() # t/d
+        waste_heating_value = energy_flow_rate_from_waste.to('MJ/d') / waste_mass_flow_rate.to('kg/d') # MJ/kg
+        # self.field.save_process_data(burned_waste_gas_mass_t_d=waste_mass_flow_rate.magnitude)
+        # self.field.save_process_data(burned_waste_gas_energy_mmbtu_d=energy_flow_rate_from_waste.magnitude)
+        self.field.save_process_data(waste_heating_value_mj_kg=waste_heating_value.to('MJ/kg').magnitude)
 
         electricity_rate_from_waste = energy_flow_rate_from_waste * self.efficiency  # mmbtu/day
 
         # record emissions
         emissions = self.emissions
         emission_stream = Stream("emission_stream", tp=waste_gas_in.tp)
-
-
-
-
 
         if self.waste_gas_reinjection_option == 1: # 1 for reinjection
             # burn waste gas first
@@ -125,6 +123,10 @@ class OnsiteElectricityGeneration(Process):
                 'MJ/d').magnitude if energy_flow_rate_from_waste is not None or 0 else 0
             self.field.save_process_data(waste_gas_emission_rate_g_MJ=waste_gas_emission_rate)
 
+        burned_waste_gas_mass_t_d = waste_mass_flow_rate * percentage_waste_gas_burned
+        burned_waste_gas_energy_mmbtu_d = energy_flow_rate_from_waste * percentage_waste_gas_burned
+        self.field.save_process_data(burned_waste_gas_mass_t_d=burned_waste_gas_mass_t_d.to('t/d').magnitude)
+        self.field.save_process_data(burned_waste_gas_energy_mmbtu_d=burned_waste_gas_energy_mmbtu_d.to('mmbtu/d').magnitude)
         self.field.save_process_data(
             percentage_waste_gas_burned=percentage_waste_gas_burned if percentage_waste_gas_burned < 1 else 1)
         waste_gas_in.multiply_flow_rates(1 - (percentage_waste_gas_burned if percentage_waste_gas_burned < 1 else 1))
@@ -138,11 +140,22 @@ class OnsiteElectricityGeneration(Process):
             energy_flow_rate_from_H2 = self.energy_rates(H2_in)
             electricity_rate_from_H2 = energy_flow_rate_from_H2 * self.efficiency  # mmbtu/day
             percentage_H2_burned = remaining_energy_needed / electricity_rate_from_H2
+
+            if percentage_H2_burned > 0.5:
+                energy_use = self.energy
+                energy_carrier = get_energy_carrier(EN_NATURAL_GAS)
+                energy_use.set_rate(energy_carrier, remaining_energy_needed)
+                percentage_H2_burned = 0
+                self.set_combustion_emissions()
+
             em2 = Stream("emission_stream2", tp=H2_in.tp)
             em2.add_combustion_CO2_from(H2_in, factor=(percentage_H2_burned if percentage_H2_burned < 1 else 1))
             emission_stream = combine_streams([emission_stream, em2])
 
         self.field.save_process_data(percentage_H2_burned=percentage_H2_burned)
+        # TODO: output burnt h2 mass as well
+        burned_H2_mass_t_d = H2_in.total_flow_rate() * percentage_H2_burned # t/d
+        self.field.save_process_data(burned_H2_mass_t_d = burned_H2_mass_t_d.to('t/d').magnitude)
         H2_in.multiply_flow_rates(1 - (percentage_H2_burned if percentage_H2_burned < 1 else 1))
 
         emissions.set_from_stream(EM_COMBUSTION, emission_stream)

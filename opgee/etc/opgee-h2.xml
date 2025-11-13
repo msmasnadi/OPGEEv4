@@ -95,6 +95,18 @@
             </ProcessGroup>
         </ProcessChoice>
 
+        <ProcessChoice name="waste_water_option">
+            <ProcessGroup name="surface_discharge">
+                <StreamRef name="WaterTreatment => ProductionBoundary"/>
+            </ProcessGroup>
+
+            <ProcessGroup name="subsurface_discharge">
+                <ProcessRef name = "WaterInjection"/>
+
+                <StreamRef name="WaterTreatment => WaterInjection"/>
+            </ProcessGroup>
+        </ProcessChoice>
+
 		<Aggregator name="ExplorationAndDrilling">
 			<Process class="Exploration" after="true" />
 			<Process class="Drilling" after="true" />
@@ -108,6 +120,7 @@
 
 		<Aggregator name="SurfaceProcessing">
 			<Process class="WaterTreatment" />
+            <Process class="WaterInjection" />
             <Process class="GasDehydration"/>
             <Process class="GasNode"/>
             <Process class="AcidGasRemoval"/>
@@ -149,6 +162,10 @@
         <Stream src="WaterTreatment" dst="ProductionBoundary">
 			<Contains>water</Contains>
 		</Stream>
+
+        <Stream src="WaterTreatment" dst = "WaterInjection">
+            <Contains>water</Contains>
+        </Stream>
 
 <!--		<Stream src="Separation" dst="PsaPreCompressor">-->
 <!--			<Contains>gas</Contains>-->

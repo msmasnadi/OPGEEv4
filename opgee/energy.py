@@ -24,6 +24,7 @@ EN_DIESEL = 'Diesel'
 EN_RESID = 'Residual fuel'
 EN_PETCOKE = 'Pet. coke'
 EN_ELECTRICITY = 'Electricity'
+EN_RAW_GAS = "Raw gas"
 
 
 class Energy(OpgeeObject):
@@ -37,7 +38,7 @@ class Energy(OpgeeObject):
     #: EN_UPG_PROC_GAS, EN_NGL, EN_CRUDE_OIL, EN_DIESEL, EN_RESID, EN_PETCOKE,
     #: EN_ELECTRICITY) should be used to avoid dependencies on the specific strings.
     carriers = [EN_NATURAL_GAS, EN_UPG_PROC_GAS, EN_NGL, EN_CRUDE_OIL,
-                EN_DIESEL, EN_RESID, EN_PETCOKE, EN_ELECTRICITY]
+                EN_DIESEL, EN_RESID, EN_PETCOKE, EN_ELECTRICITY, EN_RAW_GAS]
 
     _carrier_set = set(carriers)
 

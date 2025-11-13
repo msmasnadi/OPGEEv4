@@ -8,15 +8,16 @@
 #
 import numpy as np
 
+from ..stream import Stream
 from ..units import ureg
-from ..emissions import EM_FUGITIVES
-from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY
+from ..emissions import EM_FUGITIVES, EM_COMBUSTION
+from ..energy import EN_NATURAL_GAS, EN_ELECTRICITY, EN_RAW_GAS
 from ..error import OpgeeException
 from ..log import getLogger
 from ..process import Process
 from ..process import run_corr_eqns
 from ..thermodynamics import ChemicalInfo
-from .shared import get_bounded_value, predict_blower_energy_use
+from .shared import get_bounded_value, predict_blower_energy_use, get_energy_carrier
 
 _logger = getLogger(__name__)
 
@@ -99,6 +100,8 @@ class GasDehydration(Process):
     def run(self, analysis):
         self.print_running_msg()
         field = self.field
+        self.prime_mover_type = self.attr("prime_mover_type")
+
 
         # mass rate
         input = self.find_input_stream("gas")
@@ -171,18 +174,35 @@ class GasDehydration(Process):
 
         # energy-use
         energy_use = self.energy
-        energy_use.set_rate(EN_NATURAL_GAS, reboiler_fuel_use)
-        energy_use.set_process_rate(self.name, EN_NATURAL_GAS, reboiler_fuel_use)
+        energy_carrier = get_energy_carrier(self.prime_mover_type)
+        if energy_carrier == EN_RAW_GAS:
+            energy_flow_rate_from_raw_gas = self.energy_rates(output_gas)  # mmbtu/d
+            frac_burnt = reboiler_fuel_use / energy_flow_rate_from_raw_gas
+            em = Stream("emission_stream", tp=output_gas.tp)
+            em.add_combustion_CO2_from(output_gas, factor=(frac_burnt if frac_burnt < 1 else 1))
+            burnt_raw_gas_mass = output_gas.total_flow_rate() * frac_burnt
+            burnt_raw_gas_energy = self.energy_rates(output_gas) * frac_burnt
+
+            self.field.save_process_data(frac_raw_gas_frac_for_dehydrator=frac_burnt.to('').magnitude)
+            self.field.save_process_data(dehydrator_raw_gas_mass=burnt_raw_gas_mass.to('t/d').magnitude)
+            self.field.save_process_data(dehydrator_raw_gas_energy=burnt_raw_gas_energy.to('mmbtu/d').magnitude)
+            output_gas.multiply_flow_rates(1 - frac_burnt)
+            energy_use.set_rate(energy_carrier, reboiler_fuel_use)
+        else:
+            energy_use.set_rate(EN_NATURAL_GAS, reboiler_fuel_use)
+            energy_use.set_process_rate(self.name, EN_NATURAL_GAS, reboiler_fuel_use)
+
         energy_use.set_rate(EN_ELECTRICITY, air_cooler_energy_consumption + pump_duty)
         energy_use.set_process_rate(self.name, EN_ELECTRICITY, air_cooler_energy_consumption + pump_duty)
-
-
 
         # import and export
         self.set_import_from_energy(energy_use)
 
         # emissions
-        self.set_combustion_emissions()
+        if energy_carrier == EN_RAW_GAS:
+            self.emissions.set_from_stream(EM_COMBUSTION, em)
+        else:
+            self.set_combustion_emissions()
         self.emissions.set_from_stream(EM_FUGITIVES, gas_fugitives)
 
     @staticmethod
@@ -214,3 +234,8 @@ class GasDehydration(Process):
                              a6 * tau ** 7.5) * Tc_over_T)
         result = Pv_over_Pc * critical_pressure
         return ureg.Quantity(result, "Pa")
+
+    def energy_rates(self, input):
+        return self.field.gas.energy_flow_rate(input)
+
+

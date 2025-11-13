@@ -83,7 +83,8 @@ class Drilling(Process):
         tot_energy_consumption = fracture_energy_consumption + field.get_process_data("drill_energy_consumption")
         wellhead_LHV_rate = field.get_process_data("wellhead_LHV_rate")
         cumulative_export_LHV = field.get_process_data("cumulative_export_LHV")
-        diesel_consumption = wellhead_LHV_rate / cumulative_export_LHV * tot_energy_consumption
+        # diesel_consumption = wellhead_LHV_rate / cumulative_export_LHV * tot_energy_consumption
+        diesel_consumption = tot_energy_consumption/field.field_production_lifetime.to('day')
 
         # calculate land use emissions
 
@@ -91,7 +92,6 @@ class Drilling(Process):
         land_use_intensity_df = self.land_use_EF.loc[index_name]
         land_use_intensity = land_use_intensity_df.loc[self.field_development_intensity]
         stream = Stream("stream_stp", tp=field.stp)
-
 
         oil_SG = field.oil.oil_specific_gravity
         boundary_API = field.get_process_data("boundary_API")

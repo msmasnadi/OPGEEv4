@@ -24,7 +24,7 @@ from .error import (
     ModelValidationError,
     ZeroEnergyFlowError,
 )
-from .import_export import ImportExport
+from .import_export import ImportExport, RAW_GAS
 from .log import getLogger
 from .post_processor import PostProcessor
 from .process import Process, Aggregator, Reservoir, decache_subclasses
@@ -777,14 +777,45 @@ class Field(Container):
 
         perc_waste = self.get_process_data("percentage_waste_gas_burned")
         if perc_waste is not None:
-            electricity_dict = dict(percentage_waste_gas_burned = [perc_waste],
-                                    percentage_H2_burned = [self.get_process_data("percentage_H2_burned")],
-                                    burned_waste_gas_mass_t_d = [self.get_process_data("burned_waste_gas_mass_t_d")],
-                                    burned_waste_gas_energy_mmbtu_d =[self.get_process_data("burned_waste_gas_energy_mmbtu_d")],
-                                    waste_heating_value_mj_kg =[self.get_process_data("waste_heating_value_mj_kg")],
-                                    waste_emission_rate_g_MJ = [self.get_process_data("waste_gas_emission_rate_g_MJ")]
-                                    )
+            def _safe_get(proc, key, blank=None):
+                """Return process_data value or a blank placeholder if missing/None."""
+                try:
+                    val = proc.get_process_data(key)
+                except Exception:
+                    return blank
+                return val if val is not None else blank
+
+            perc_waste = self.get_process_data("percentage_waste_gas_burned")
+            if perc_waste is not None:
+                electricity_dict = dict(
+                    percentage_waste_gas_burned=[perc_waste],
+                    percentage_H2_burned=[_safe_get(self, "percentage_H2_burned", blank="")],
+                    burned_waste_gas_mass_t_d=[_safe_get(self, "burned_waste_gas_mass_t_d", blank="")],
+                    burned_waste_gas_energy_mmbtu_d=[_safe_get(self, "burned_waste_gas_energy_mmbtu_d", blank="")],
+                    waste_heating_value_mj_kg=[_safe_get(self, "waste_heating_value_mj_kg", blank="")],
+                    waste_emission_rate_g_MJ=[_safe_get(self, "waste_gas_emission_rate_g_MJ", blank="")],
+                    burned_H2_mass_t_d=[_safe_get(self, "burned_H2_mass_t_d", blank="")],
+                    frac_raw_gas_frac_for_agr=[_safe_get(self, "frac_raw_gas_frac_for_agr", blank="")],
+                    agr_raw_gas_mass_t_d=[_safe_get(self, "agr_raw_gas_mass", blank="")],
+                    agr_raw_gas_energy_mmbtu_d=[_safe_get(self, "agr_raw_gas_energy", blank="")],
+                    frac_raw_gas_frac_for_dehydrator = [_safe_get(self, "frac_raw_gas_frac_for_dehydrator", blank="")],
+                    dehydrator_raw_gas_mass_t_d = [_safe_get(self, "dehydrator_raw_gas_mass", blank="")],
+                    dehydrator_raw_gas_energy_mmbtu_d = [_safe_get(self, "dehydrator_raw_gas_energy", blank="")],
+                )
             electricity_data = pd.DataFrame(electricity_dict)
+            # electricity_dict = dict(percentage_waste_gas_burned = [perc_waste],
+            #                         percentage_H2_burned = [self.get_process_data("percentage_H2_burned")],
+            #                         burned_waste_gas_mass_t_d = [self.get_process_data("burned_waste_gas_mass_t_d")],
+            #                         burned_waste_gas_energy_mmbtu_d =[self.get_process_data("burned_waste_gas_energy_mmbtu_d")],
+            #                         waste_heating_value_mj_kg =[self.get_process_data("waste_heating_value_mj_kg")],
+            #                         waste_emission_rate_g_MJ = [self.get_process_data("waste_gas_emission_rate_g_MJ")],
+            #                         burned_H2_mass_t_d = [self.get_process_data("burned_H2_mass_t_d")],
+            #                         frac_raw_gas_frac_for_agr = [self.process_data("frac_raw_gas_frac_for_agr")],
+            #                         agr_raw_gas_mass_t_d = [self.get_process_data("agr_raw_gas_mass")],
+            #                         agr_raw_gas_energy_mmbtu_d = [self.get_process_data("agr_raw_gas_energy")],
+            #
+            #                         )
+            # electricity_data = pd.DataFrame(electricity_dict)
         else:
             electricity_data = None
 
@@ -820,9 +851,10 @@ class Field(Container):
         imported_emissions = ureg.Quantity(0.0, "tonne/day")
 
         for product, energy_rate in net_import.items():
-            # TODO: Water, N2, and CO2 flooding is not in self.upstream_CI and not in upstream-CI.csv,
+            # TODO: Raw gas, Water, N2, and CO2 flooding is not in self.upstream_CI and not in upstream-CI.csv,
+            # Raw gas emissions are directly calculated within the run method using its specific components
             #  which has units of g/mmbtu
-            if product == WATER or product == N2 or product == CO2_Flooding:
+            if product == RAW_GAS or product == WATER or product == N2 or product == CO2_Flooding:
                 continue
 
             energy_rate = (

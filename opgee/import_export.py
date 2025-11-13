@@ -12,7 +12,7 @@ import pint
 from .core import OpgeeObject
 from .error import OpgeeException
 from .energy import (EN_CRUDE_OIL, EN_DIESEL, EN_ELECTRICITY, EN_NATURAL_GAS,
-                     EN_NGL, EN_PETCOKE, EN_RESID, EN_UPG_PROC_GAS)
+                     EN_NGL, EN_PETCOKE, EN_RESID, EN_UPG_PROC_GAS, EN_RAW_GAS)
 from .log import getLogger
 
 _logger = getLogger(__name__)
@@ -25,6 +25,7 @@ DIESEL = EN_DIESEL
 RESID = EN_RESID
 PETCOKE = EN_PETCOKE
 ELECTRICITY = EN_ELECTRICITY
+RAW_GAS = EN_RAW_GAS
 
 DILUENT = "Diluent"
 WATER = "Water"
@@ -47,6 +48,7 @@ class ImportExport(OpgeeObject):
                  RESID: "mmbtu/day",
                  PETCOKE: "mmbtu/day",
                  ELECTRICITY: "kWh/day",
+                 RAW_GAS: "mmbtu/day",
                  WATER: "tonne/day",
                  N2: "tonne/day",
                  H2: "tonne/day",
