@@ -98,6 +98,6 @@ class PressureSwingAdsorption(Process):
         H2_remain = input.gas_flow_rate("H2") - H2_loss
 
         output.copy_flow_rates_from(input)
-        #output.set_gas_flow_rate("H2", H2_remain)
+        # output.set_gas_flow_rate("H2", H2_remain)
 
         #self.emissions.set_rate(EM_VENTING, EM_H2, H2_loss)
