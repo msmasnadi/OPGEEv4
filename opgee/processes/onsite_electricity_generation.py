@@ -75,12 +75,10 @@ class OnsiteElectricityGeneration(Process):
 
         gas_in = self.find_input_stream("gas")
         H2_in = self.find_output_stream("H2")
-        H2_in.set_gas_flow_rate("H2", gas_in.gas_flow_rate("H2") * (1 - self.slip_rate))
         waste_gas_in = self.find_output_stream("gas")
         tp = TemperaturePressure(self.waste_T, self.waste_P)
         waste_gas_in.copy_gas_rates_from(gas_in,
-                                         tp=tp)  # TODO: the TP of waste stream should change based on the exiting P from PSA
-        waste_gas_in.subtract_rates_from(H2_in)
+                                         tp=tp)
 
         # save the waste gas composition to stream dict before burning
         waste_gas_before_burn = Stream("waste_gas_before_burn", tp, src_name=self.name, dst_name="", parent=self.field)
@@ -159,6 +157,11 @@ class OnsiteElectricityGeneration(Process):
         H2_in.multiply_flow_rates(1 - (percentage_H2_burned if percentage_H2_burned < 1 else 1))
 
         emissions.set_from_stream(EM_COMBUSTION, emission_stream)
+
+        H2_in.set_gas_flow_rate("H2", waste_gas_in.gas_flow_rate("H2") * (1 - self.slip_rate))
+        H2_in.set_gas_flow_rate("C1", waste_gas_in.gas_flow_rate("C1"))  # coproduct
+        # TODO: the TP of waste stream should change based on the exiting P from PSA
+        waste_gas_in.subtract_rates_from(H2_in)
 
         # # step 5 record energy used
         # # TODO: this is commented out bcuz we are producing energy

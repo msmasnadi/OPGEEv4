@@ -95,9 +95,9 @@ class PressureSwingAdsorption(Process):
         output = self.find_output_stream("gas")
 
         H2_loss = input.gas_flow_rate("H2")*self.slip_rate
-        H2_remain = input.gas_flow_rate("H2") - H2_loss
+        H2_remain = input.gas_flow_rate("H2") - H2_loss # the slip is not fugitive, it's slipping into waste gas
 
         output.copy_flow_rates_from(input)
-        # output.set_gas_flow_rate("H2", H2_remain)
+        #output.set_gas_flow_rate("H2", H2_remain)
 
         #self.emissions.set_rate(EM_VENTING, EM_H2, H2_loss)
