@@ -130,6 +130,7 @@
       <AttrDef name="gas_comp_C4" unit="mol_pct" type="float">0.71</AttrDef>
       <AttrDef name="gas_comp_H2S" unit="mol_pct" type="float">0.0</AttrDef>
       <AttrDef name="gas_comp_H2" unit="mol_pct" type="float">0.0</AttrDef>
+      <AttrDef name="gas_comp_Helium" unit="mol_pct" type="float">0.0</AttrDef>
 
       <!-- Production practices -->
 

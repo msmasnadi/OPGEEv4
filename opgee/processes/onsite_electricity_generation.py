@@ -74,10 +74,11 @@ class OnsiteElectricityGeneration(Process):
         self.print_running_msg()
 
         gas_in = self.find_input_stream("gas")
-        H2_in = self.find_output_stream("H2")
-        H2_in.set_gas_flow_rate("H2", gas_in.gas_flow_rate("H2") * (1 - self.slip_rate))
         waste_gas_in = self.find_output_stream("gas")
         tp = TemperaturePressure(self.waste_T, self.waste_P)
+        H2_in = self.find_output_stream("H2")
+        H2_in.set_gas_flow_rate("H2", gas_in.gas_flow_rate("H2") * (1 - self.slip_rate))
+
         waste_gas_in.copy_gas_rates_from(gas_in,
                                          tp=tp)  # TODO: the TP of waste stream should change based on the exiting P from PSA
         waste_gas_in.subtract_rates_from(H2_in)
@@ -116,6 +117,7 @@ class OnsiteElectricityGeneration(Process):
             waste_gas_emission_rate = waste_gas_emission_flow_rate.to('g/d').magnitude / energy_flow_rate_from_waste.to(
                 'MJ/d').magnitude if energy_flow_rate_from_waste is not None or 0 else 0
             self.field.save_process_data(waste_gas_emission_rate_g_MJ=waste_gas_emission_rate)
+
         if self.waste_gas_reinjection_option == 0: # 0 for venting
             percentage_waste_gas_burned = 1
             waste_gas_emission_flow_rate = emission_stream.add_combustion_CO2_from(waste_gas_in, factor=percentage_waste_gas_burned)
@@ -152,12 +154,13 @@ class OnsiteElectricityGeneration(Process):
             em2.add_combustion_CO2_from(H2_in, factor=(percentage_H2_burned if percentage_H2_burned < 1 else 1))
             emission_stream = combine_streams([emission_stream, em2])
 
+
         self.field.save_process_data(percentage_H2_burned=percentage_H2_burned)
-        # TODO: output burnt h2 mass as well
+        # output burnt h2 mass as well
         burned_H2_mass_t_d = H2_in.total_flow_rate() * percentage_H2_burned # t/d
         self.field.save_process_data(burned_H2_mass_t_d = burned_H2_mass_t_d.to('t/d').magnitude)
         H2_in.multiply_flow_rates(1 - (percentage_H2_burned if percentage_H2_burned < 1 else 1))
-
+        waste_gas_in.subtract_rates_from(H2_in)
         emissions.set_from_stream(EM_COMBUSTION, emission_stream)
 
         # # step 5 record energy used
