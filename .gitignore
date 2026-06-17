@@ -136,3 +136,7 @@ launch.json
 opgee/.vscode
 DEPRECATED_launch_plugin.py
 DEPRECATED_runsim_plugin.py
+
+# Demo run output (generated locally)
+demo/output/
+demo/output_builtin/
