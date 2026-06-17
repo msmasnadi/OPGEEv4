@@ -40,8 +40,8 @@ setup(
 
     # extras_require=extras_requirements,
 
-    url='https://github.com/rjplevin/opgee',
-    download_url='https://github.com/arbrandt/OPGEEv4.git',
+    url='https://github.com/msmasnadi/OPGEEv4',
+    download_url='https://github.com/msmasnadi/OPGEEv4',
     license='MIT License',
     author='Richard Plevin',
     author_email='rich@plevin.com',
